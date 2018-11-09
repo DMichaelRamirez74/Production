@@ -24,7 +24,7 @@ namespace FingerprintsData
         StaffDetails staff = StaffDetails.GetInstance();
 
 
-        public DataSet getclients()
+        public DataSet getclients(int mode)
         {
             DataSet ds = new DataSet();
             try
@@ -38,6 +38,7 @@ namespace FingerprintsData
                 cmd.Parameters.AddWithValue("@userid", staff.UserId);
                 cmd.Parameters.AddWithValue("@agencyid", staff.AgencyId);
                 cmd.Parameters.AddWithValue("@RoleId", staff.RoleId);
+                cmd.Parameters.AddWithValue("@mode", mode);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 da.Fill(ds);
 
@@ -135,6 +136,8 @@ namespace FingerprintsData
                             addSchedulerRow.EndDate = Convert.ToString(item["EndDate"]);
                             addSchedulerRow.ParentId = Convert.ToString(item["Parentid"]);
                             addSchedulerRow.InstanceId = Convert.ToString(item["InstanceId"]);
+                            //for tcrandFsw appointment
+                            addSchedulerRow.CFullName = Convert.ToString(item["ClientName"]);
 
                             if (item["IsDeletedInstance"] != DBNull.Value)
                             {
@@ -146,6 +149,8 @@ namespace FingerprintsData
                                 addSchedulerRow.IsRecurrence = Convert.ToBoolean(item["IsRecurring"]);
                                 addSchedulerRow.IsParentEvent = true;
                             }
+                     addSchedulerRow.IsChildWithdrawn = item["IsChildWithdrawn"] != DBNull.Value ? Convert.ToInt32(item["IsChildWithdrawn"]) : 0;
+
                             li.Add(addSchedulerRow);
                         }
                     }
@@ -795,6 +800,182 @@ namespace FingerprintsData
             }
             return usersList;
         }
+
+
+        #region TCR&FSW Scheduler
+
+        public AppoinmentClientDetail getVisitingDetailsByclient(string clientid,int yakkr,int mode)
+        {
+
+            var result = new AppoinmentClientDetail();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+               
+                var StfDe = StaffDetails.GetInstance();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_VisitingDetails";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", StfDe.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", StfDe.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", StfDe.UserId));
+                command.Parameters.Add(new SqlParameter("@Yakkr", yakkr));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+                command.Parameters.Add(new SqlParameter("@Mode", mode));
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                Connection.Open();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables.Count > 1)
+                    {
+                        var _tb1 = _dataset.Tables[0].Rows[0];
+                         result = new AppoinmentClientDetail()
+                        {
+                            Name = _tb1["Name"].ToString(),
+                            DateOfFirstService = _tb1["DateOfFirstService"].ToString(),
+                            FromDate = _dataset.Tables[1].Rows[0]["FromDay"].ToString(),
+                            ToDate = _dataset.Tables[1].Rows[0]["ToDay"].ToString(),
+                             DOB=_tb1["DOB"].ToString(),
+                             // Address = _tb1["Street"]
+                              City = _tb1["City"].ToString(),
+                             County = _tb1["County"].ToString(),
+                             State = _tb1["State"].ToString(),
+                             Street = _tb1["Street"].ToString(),
+                             ZipCode = _tb1["ZipCode"].ToString(),
+                             ClientId = Convert.ToInt32( _tb1["ClientId"].ToString())
+                               
+
+                         };
+
+                    }
+                }
+
+                }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                command.Dispose();
+            }
+
+            return result;
+        }
+
+
+        public bool UpdateVisitingDetails(List<VisitDetail> VisitDetails,string agencyid,int VisitorType) {
+            var result = false;
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+
+                var StfDe = StaffDetails.GetInstance();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "[USP_InsertVisitingDetails]";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleId", StfDe.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", StfDe.UserId));
+                command.Parameters.Add(new SqlParameter("@VisitorType", VisitorType));  //1-FSW, 2-TCR
+                DataTable dt3 = new DataTable();
+                dt3.Columns.AddRange(new DataColumn[6] {
+                        new DataColumn("Id",typeof(int)),
+                        new DataColumn("Role",typeof(string)),
+                         new DataColumn("Type",typeof(int)),
+                         new DataColumn("VisitCount",typeof(int)),
+                         new DataColumn("FromDays",typeof(int)),
+                         new DataColumn("ToDays",typeof(int))
+
+                    });
+                if (VisitDetails != null)
+                {
+                    foreach (var item in VisitDetails)
+                    {
+                        if (item.Role != null && item.FromDays != 0 && item.ToDays != 0)
+                        {
+
+                            dt3.Rows.Add(item.Id, item.Role, item.Type, item.VisitCount, item.FromDays, item.ToDays);
+                        }
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@VistDetail", dt3));
+
+                
+                //DataAdapter.Fill(_dataset);
+                //Connection.Close();
+               var _rowAff= command.ExecuteNonQuery();
+
+                if (_rowAff > 0) result = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                command.Dispose();
+            }
+
+            return result;
+        }
+
+
+        public bool ClearYakkr(int yakkrid,long clientid)
+        {
+            var success = false;
+
+            try
+            {
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+
+                var StfDe = StaffDetails.GetInstance();
+                command.Connection = Connection;
+                // command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "update  YakkrRouting set status=0 where yakkrid = " + yakkrid + " and status = 1 and  StaffIDR = '" + StfDe.UserId + "'and ClientId="+clientid+" ;";
+               var result= command.ExecuteNonQuery();
+
+                if (result > 0) success = true;
+
+
+            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                command.Dispose();
+            }
+
+
+
+            return success;
+        }
+
+        #endregion TCR&FSW Scheduler
 
     }
 }

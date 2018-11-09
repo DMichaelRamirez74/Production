@@ -82,7 +82,9 @@ namespace FingerprintsModel
 
         public List<System.Web.Mvc.SelectListItem> MonthsList { get; set; }
 
+        public string CFullName { get; set; }
 
+        public int IsChildWithdrawn { get; set; }
     }
 
     public class ParentDetails
@@ -94,6 +96,24 @@ namespace FingerprintsModel
         public string ProfilePicture { get; set; }
     }
 
+
+    public class AppoinmentClientDetail
+    {
+
+        public string Name { get; set; }
+        public string DateOfFirstService { get; set; }
+        public string FromDate { get; set; } 
+        public string ToDate { get; set; }
+
+        public string DOB { get; set; }
+        public string Street { get; set; }
+        public string City { get; set; }
+        public string ZipCode { get; set; }
+        public string State { get; set; }
+        public string County { get; set; }
+        public int ClientId { get; set; }
+
+    }
 
 
 }

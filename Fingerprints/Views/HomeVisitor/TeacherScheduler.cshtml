@@ -1,0 +1,880 @@
+﻿@{
+    ViewBag.Title = "TeacherScheduler";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Script{
+
+    <style>
+
+        .page-wrapper-change {
+    background-image: url(../../Images/body-bg.jpg);
+    background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+    background-size: cover !important;
+    background-position: 100% 100% !important;
+}
+
+        .glossy-button-button {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    overflow: hidden;
+    min-width: 96px;
+    line-height: 34px !important;
+    padding: 0 24px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px #154c86;
+    background-color: #247edd;
+    background-clip: padding-box;
+    border: 1px solid;
+    border-color: #1c65b2 #18589c #18589c;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+}
+
+        .button-green {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #1ca913;
+    border-color: #147b0e #11640b #11640b;
+}
+
+        .button-red {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #E21;
+    border-color: #E21 #E21 #E21;
+}
+
+
+        #event-create-modal .modal-body {
+    background: #34495e none repeat scroll 0 0;
+    border: 6px solid #ffffff;
+    border-radius: 3px;
+    color: #ffffff;
+    float: left;
+    padding: 15px 3%;
+    position: relative;
+    width: 100%;
+    padding-top: 10px;
+}
+
+  #event-create-modal .form-group-al {
+    background: #f1f5f8 none repeat scroll 0 0;
+    border: 3px solid #ffffff;
+    float: left;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #333;
+    padding-top: 25px;
+}
+    #event-create-modal h2 {
+    margin-top: 10px;
+    float: left;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+    #event-create-modal  .close {
+    opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -15px;
+}
+
+        .popup-label {
+    display: initial;
+    color: #1d5990;
+}
+
+        .fc-time-grid-container {
+         height:auto !important;
+        }
+        .lhs-label {
+         color:#1d5990;
+        }
+    </style>
+
+
+
+    @*<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" type="text/css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>*@
+
+
+    <script type="text/javascript">
+
+        var _ClientDetails = @Html.Raw(Json.Encode(ViewBag.Details));
+        var _YakkrId = @ViewBag.YakkrId;
+        var _YakkrCode = @ViewBag.YakkrCode;
+        //var _clientName =
+        var _ScheduleObj = {
+            // listTime:_ScheduleObj.getListTime(),
+            //  listduration:_ScheduleObj.getDuration(),
+            selectedDate:"",
+            selectedTime:"",
+            savetype:1, //1-save,2-edit
+            editJsonData:{},
+            clientid:_ClientDetails.ClientId,
+            init:function(){
+                var self=this;
+                self.initCalendar();
+                self.initEvents();
+                self.getclients();
+            },
+            initEvents:function()
+            {
+                var self=this;
+
+                $(document).on("change","#clients",function(e){
+                    var _txt = $("#clients option:selected").text();
+                    $("#title").val("Home Visit -"+_txt);
+                });
+
+                $('[name="DateOfAppointment"]').datetimepicker({
+
+                    // maxDate: '+1d',
+                    timepicker: false,
+                    minDate:0,
+                    format: 'm/d/Y',
+                    validateOnBlur: false,
+                    onChangeDateTime:function(dp,$input){
+                        //console.log(dp,$input);
+                        self.selectedDate = $("#DateOfAppointment").val(),
+                        self.editJsonData.MeetingDate=self.selectedDate;
+
+                    },
+                });
+
+
+                $(document).on("click","#delete-event",function(e){
+                    e.preventDefault();
+                    var _td =  self.editJsonData;
+                    console.log(self.editJsonData);
+                    var _data ={}; self.editJsonData;
+                    _data.Mode = 1;
+                    _data.MeetingId = _td.MeetingId;
+                    _data.ClientId =  _td.ClientId;
+                    _data.ClientName= _td.ClientName;
+                    _data.title=      _td.title;
+
+                    $.ajax({
+                        type:"POST",
+                        url:"@Url.Action("Delete", "HomeVisitor")",
+                         data:JSON.stringify(_data),
+                       // data:_data,
+                        beforeSend:function(){
+                            $('#spinner').show();
+                        },
+                        dataType: 'json',
+                        contentType: "application/json;",
+                        success:function(response){
+
+                            if (response == 'error') {
+                                customAlert(response);
+                            }
+                            else {
+                                customAlert('Schedule deleted successfully');
+                            }
+
+                            var mainInstanceList = [];
+                            response.forEach(function(obj){
+                                var _tempObj=obj;
+                                _tempObj.start = $.fullCalendar.moment(_tempObj.start);
+                                _tempObj.end=$.fullCalendar.moment(_tempObj.end);
+
+                                if (_tempObj.IsChildWithdrawn == 1) {
+                                    _tempObj.backgroundColor = "#b50000";
+                                }
+                                mainInstanceList.push(_tempObj);
+
+                            });
+
+                            $('#calendar').fullCalendar('removeEvents');
+                            $('#calendar').fullCalendar('addEventSource', mainInstanceList);
+                            $("#event-create-modal").modal("hide");
+                        },
+                        fail:function(res){
+
+                        },
+                        complete:function(res){
+                            $('#spinner').hide();
+                        }
+                    })
+
+
+                });
+
+
+                $(document).on("click","#submit-event",function(e){
+                    e.preventDefault();
+                    var _isValid= self.validateForm();
+
+                    if(!_isValid) return false;
+
+                    var arr = $('#apptEndTime').val().split(":");
+                    // var startdate = new Date(self.selectedDate + ' ' + $('#apptStartTime').val());
+                    var startdate = new Date(self.selectedDate + ' ' + self.selectedTime);
+                    var dt = new Date(startdate);
+                    var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+                    var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+                    var enddate = new Date(addmin);
+                    var EndTime = moment(enddate).format('hh:mm A');
+
+                    if(self.savetype == 1){
+                        var _jsonData={
+
+                            Mode:self.savetype,  //depend upon select/eventclick (add,edit)
+                            ClientId:self.clientid,//clientid,
+                            title:$('#title').val(),
+                            start:startdate,
+                            end:enddate,
+                            Date: new Date(moment(startdate).format('MM/DD/YYYY')),
+                            EndDate: new Date(moment(startdate).format('MM/DD/YYYY')),
+                            MeetingDate: self.selectedDate,
+                            // MeetingDate:$("#DateOfAppointment").val(),
+                            InstanceId: new Date(enddate).getTime(),
+                            //StartTime: $('#apptStartTime').val(),
+                            StartTime:self.selectedTime,
+                            EndTime:EndTime,
+                            Duration: $('#apptEndTime').val(),
+                            Description: $('textarea#description').val(),
+                            allDay:false,
+                            IsRecurrence:false
+
+                        };
+
+                        self.saveEvent(_jsonData);
+                    }else{
+
+                        self.editJsonData.Duration = $('#apptEndTime').val();
+                        self.editJsonData.Description= $('textarea#description').val(),
+                        self.editJsonData.title=$('#title').val();
+                        self.editJsonData.Mode=2;
+                        self.editJsonData.EndTime=EndTime;
+                        self.editJsonData.Date= new Date(moment(startdate).format('MM/DD/YYYY'));
+                        self.editJsonData.EndDate= new Date(moment(startdate).format('MM/DD/YYYY'));
+
+                        self.saveEvent(self.editJsonData);
+                    }
+
+
+                });
+
+
+
+                $.each(self.getListTime(), function (i, item) {
+                    $('#apptStartTime').append($('<option>', {
+                        value: item,
+                        text: item
+                    }));
+                });
+
+                $.each(self.getDuration(), function (i, item) {
+                    $('#apptEndTime').append($('<option>', {
+                        value: item,
+                        text: item
+                    }));
+                });
+
+
+
+
+            },
+            validateForm:function(){
+                var self=this;
+                _valid=true;
+
+                if ($('#apptEndTime').val()) {
+                    if ($('#apptStartTime').val()) {
+                        var startdate = new Date(self.selectedDate + ' ' + $('#apptStartTime').val());
+                        var arr = $('#apptEndTime').val().split(":");
+                        var dt = new Date(startdate);
+                        var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+                        var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+                        var enddate = new Date(addmin);
+                        var EndTime = moment(enddate).format('hh:mm A');
+                        if (enddate < startdate) {
+                            $('#apptEndTime').val('');
+                            plainValidation('#DdlCateList');
+                            customAlert("Can not select past time.");
+                            // e.preventDefault();
+                            _valid=false;
+                            return;
+                        }
+
+                        if(startdate < new Date()){
+                            customAlert("Can not select past date or time.");
+                            _valid=false;
+                            return;
+                        }
+
+
+                    }
+                }
+                else {
+                    $('#apptEndTime').val('');
+                    plainValidation('#apptEndTime');
+                    customAlert("Please select meeting duration.");
+                    //e.preventDefault();
+                    _valid=false;
+                    return;
+                }
+
+                if(_YakkrCode==0){ //for Scheduler
+                
+                    var _clint = $("#clients").val();
+
+                    if(!_clint){
+                        plainValidation("#clients");
+                        customAlert("Please select client.");
+                        _valid=false;
+                        return;
+                    }
+                    
+                    
+                    if(_clint){
+                        cleanValidation("#clients")
+                    }
+                
+                }
+
+                var _doApp = $("#DateOfAppointment").val();
+                if(!_doApp){
+                    plainValidation("#DateOfAppointment");
+                    customAlert("Please select Appointment Date.");
+                    _valid=false;
+                    return;
+                }else{
+                    cleanValidation("#DateOfAppointment")
+                }
+
+
+                return _valid;
+
+            },
+            EditEvent:function(event)
+            {
+                var self = this;
+
+                event.MeetingDate = event.start.format("MM/DD/YYYY"); //for drag and clcik
+                event.StartTime = event.start.format("hh:mm A"); //for drag and clcik
+                self.editJsonData={};
+                self.editJsonData=event; //clone the event
+
+                self.selectedDate= event.MeetingDate;
+                self.selectedTime = event.StartTime;
+                self.savetype=2;
+
+
+                //$("#date-label").text(self.selectedDate);
+                $("#DateOfAppointment").val(self.selectedDate);
+                $("#time-label").text(self.selectedTime);
+
+                $("#client-label").text(event.CFullName);
+                $("[name='Title']").val(event.MeetingDescription);
+                $("#apptEndTime").val(event.Duration);
+                $("#description").val(event.MeetingNotes);
+
+                $("#event-create-modal").modal("show");
+
+                $("#clients").val(event.ClientName);
+
+
+               
+
+            },
+            saveEvent:function(_data)
+            {
+
+                console.log(_data);
+
+
+
+                $.ajax({
+                    type:'POST',
+                    url:"@Url.Action("SaveTCRHomeVisit","HomeVisitor")?yakkrid=@ViewBag.YakkrId",
+                    data:JSON.stringify(_data),
+                    beforeSend:function(){
+                        $('#spinner').show();
+                    },
+                    dataType: 'json',
+                    contentType: "application/json;",
+                    success:function(data){
+
+                        if(data){
+
+                            $('#spinner').hide();
+                            $("#event-create-modal").modal("hide");
+                            customAlert("Appointment Inserted successfully");
+
+                            if(data.Events.length && !data.YakkrRemoved){
+
+
+                                var mainInstanceList = [];
+                                data.Events.forEach(function(obj){
+                                    var _tempObj=obj;
+                                    _tempObj.start = $.fullCalendar.moment(_tempObj.start);
+                                    _tempObj.end=$.fullCalendar.moment(_tempObj.end);
+
+                                    if (_tempObj.IsChildWithdrawn == 1) {
+                                        _tempObj.backgroundColor = "#b50000";
+                                    }
+                                    mainInstanceList.push(_tempObj);
+
+                                });
+
+                                $(calendar).fullCalendar('removeEvents');
+                                $(calendar).fullCalendar('addEventSource', mainInstanceList);
+
+
+                            }else{
+
+                                setTimeout(function(){
+                                    window.location.href = "@Url.Action("YakkrList", "Yakkr")?YakkrCode=@ViewBag.YakkrCode"
+                                    // window.location.reload();
+                                },1000);
+
+                            }
+
+
+                        }else{
+                            customAlert("Something went wrong, Please try again");
+                        }
+
+                    },
+                    fail:function(res){
+                        customAlert("Something went wrong, Please try again");
+                    },
+                    complete:function(res){
+
+                        $('#spinner').hide();
+                    }
+
+                });
+
+            },
+
+            initCalendar:function()
+            {
+                var self=this;
+
+                $('#calendar').fullCalendar({
+                    //defaultView: 'agendaFourDay',
+                    //visibleRange: {
+                    //    start: moment('2018-05-20'),
+                    //    end: moment('2018-06-5')
+                    //},
+                    // Don't use duration in combination with visibleRange? Appears to override
+                    /*,
+                    duration: {
+                      days: 7
+                    }*/
+                    //views: {
+                    //    agendaFourDay: {
+                    //        type: 'agenda',
+                    //        duration: { days: 4 }
+                    //    }
+                    //},
+                    timeFormat: 'hh:mm A',
+                    minTime: "08:00",
+                    maxTime: "18:00",
+                    // defaultview:'agendaweek',
+                    defaultView: 'agendaWeek',
+                    //defaultView: 'agenda', // the name of a generic view
+                    //duration: { days: 10 },
+                    //views: {
+                    //    agendaFourDay: {
+                    //        type: 'agenda',
+                    //        duration: { days: 4 },
+                    //        buttonText: '4 day'
+                    //    }
+                    //},
+                    allDaySlot: false,
+                    editable: true,
+                    selectable: true,
+                    //validRange: {
+
+                    //    start:'2019-01-05',
+                    //    end:'2019-01-18'
+                    //}
+                    selectAllow: function(info) {
+                        // if (info.start.isBefore(moment()))
+                        if(info.end.isBefore(moment().add(1,'hour').format())){
+                            return false;
+                        }else{
+                            return true;
+                        }
+                    },
+                    select: function (start, end, allDay) {
+                        self.selectedDate = moment(start).format('MM/DD/YYYY');
+                        self.selectedTime =  moment(start).format('hh:mm A');
+                        self.savetype=1;
+                        console.log(start, end, allDay);
+                        $("#delete-event").hide();
+                        $("#submit-event").removeClass("pull-right");
+                        $("#DateOfAppointment").val(self.selectedDate);
+                        if(_YakkrCode > 0){ //for appointment page
+                            $("#title").val(_YakkrCode == 222 ? "Center Visit - "+_ClientDetails.Name+"" : "Home Visit - "+_ClientDetails.Name+"");
+                        }
+                        $("#description").val('');
+
+                        if (new Date(moment(start).format('MM/DD/YYYY hh:mm A')) > new Date(moment().format('MM/DD/YYYY hh:mm A'))) {
+                            $("#date-label").text(self.selectedDate);
+                            $("#time-label").text(self.selectedTime);
+
+                            $("#event-create-modal").modal("show");
+                        }else{
+                            customAlert("Can not select past date or time. ");
+                        }
+                    },
+                    eventClick: function (calEvent, jsEvent, view) {
+                        console.log(calEvent, jsEvent, view);
+
+                        if (new Date(moment(calEvent.start).format('MM/DD/YYYY hh:mm A')) > new Date(moment().format('MM/DD/YYYY hh:mm A'))) {
+
+                            $("#delete-event").show();
+                            $("#submit-event").addClass("pull-right");
+                            if(_YakkrCode > 0){ //for appointment page
+                                $("#title").val(_YakkrCode == 222 ? "Center Visit - "+calEvent.CFullName+"" : "Home Visit - "+calEvent.CFullName+"");
+                            }else{
+                               
+                            }
+                            self.EditEvent(calEvent);
+                        }else{
+                            customAlert("Can not select past date or time. ");
+                        }
+
+                    },
+
+                    events: function (start, end, timezone, callback) {
+                        caallbak = callback;
+                        $.ajax({
+                            //url: HostedDir + "/HomeVisitor/getevents/",
+                            url:"@Url.Action("getevents", "HomeVisitor")",
+                            type: 'Post',
+                            success: function (response) {
+                                if(!response.length) return false;
+
+                                var mainInstanceList = [];
+                                response.forEach(function(obj){
+                                    var _tempObj=obj;
+                                    _tempObj.start = $.fullCalendar.moment(_tempObj.start);
+                                    _tempObj.end=$.fullCalendar.moment(_tempObj.end);
+
+                                    if (_tempObj.IsChildWithdrawn == 1) {
+                                        _tempObj.backgroundColor = "#b50000";
+                                    }
+                                    mainInstanceList.push(_tempObj);
+
+                                });
+
+                                //$.fullCalendar.moment
+
+
+                                $('#calendar').fullCalendar('removeEvents');
+                                callback(mainInstanceList);
+
+                                //  var viwwew = calendar.fullCalendar('getView');
+                                //  creteeventdynamically(start, end, timezone);
+                            }
+
+                        });
+                    }
+                }); //calendar end
+
+
+            },
+            getclients:function() {
+            $.ajax({
+                //url: HostedDir + "/HomeVisitor/getclients",
+            url: HostedDir + "/HomeVisitor/getclients?mode=2",
+            type: "POST",
+        dataType: "json",
+        secureuri: false,
+        async: false,
+        success: function (data) {
+            $.each(data.list, function (i, item) {
+                $('#clients').append($('<option>', {
+                    value: item.clientid,
+                    text: item.clientname
+                }));
+            });
+            $('#clients')[0].selectedIndex = -1;
+
+        }
+               , error: function (response) {
+               }
+        });
+        },
+            getListTime:function()
+            {
+
+                var listTime = [];
+                //  getclients();
+                var m;
+                var min;
+                for (var i = 0; i < 2; i++) {
+                    if (i == 0) {
+                        m = 'AM';
+                    } else {
+                        m = 'PM';
+                    }
+                    for (var j = 1; j < 13; j++) {
+                        if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                            for (var k = 0; k < 2; k++) {
+                                if (k == 0) {
+                                    min = ':00 ';
+                                }
+                                else {
+                                    min = ':30 ';
+                                }
+                                if (min == ':30 ' && j == 6)
+                                { break; }
+                                if (j == 12) {
+                                    m = 'PM';
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    if (j > 9) {
+                                        listTime.push(j + min + m);
+                                    }
+                                    else {
+                                        listTime.push('0' + j + min + m);
+                                    }
+                                }
+                            }
+
+
+                        }
+                    }
+
+                };
+
+                return listTime;
+            },
+            getDuration:function()
+            {
+                var listduration = [];
+
+                var mm = "";
+                var HH = "";
+
+                for (var j = 0; j < 5; j++) {
+                    for (var i = 0; i < 2; i++) {
+                        if (i == 0) {
+                            mm = '00';
+                        }
+                        else {
+                            mm = '30';
+                        }
+                        if (j < 10) {
+                            HH = "0";
+                        }
+                        else {
+                            HH = "";
+                        }
+                        if (j == 0 && mm == '00') {
+
+                        }
+                        else {
+                            if (j == 4 && mm == '30') {
+                            } else {
+                                listduration.push(HH + j.toString() + ":" + mm);
+                            }
+                        }
+                    }
+                }
+
+                return listduration;
+            }
+
+
+
+        };
+
+
+
+
+        $(document).ready(function () {
+            _ScheduleObj.init();
+        });
+
+
+
+    </script>
+}
+
+@section MainContentHolder{
+
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-lg-12">
+            <h2 class="page-header" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                @(ViewBag.IsAllCSH == true ? "Scheduler" : "Appointment")
+            </h2>
+        </div>
+    </div>
+
+
+    @*<div class="row" style="margin-top: 15px;">
+        <div class="col-lg-12">
+        
+        <div class="col-lg-6">
+
+            Client Name:@ViewBag.Details.Name
+        </div>    
+
+        </div></div>*@
+
+
+
+            <div class="row" style="background:#fff;padding:20px;border-radius: 7px;">
+
+                @if (ViewBag.IsAllCSH == false)
+                {
+                <div class="col-lg-12" style="margin-bottom:25px;">
+
+                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                        <label class="popup-label">Client : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">@ViewBag.Details.Name</span>
+                    </div>
+                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                        <label class="popup-label">DOB : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">@ViewBag.Details.DOB</span>
+                    </div>
+
+                </div>
+                <div class="col-lg-12" style="margin-bottom:25px;">
+                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                        <label class="popup-label">Address : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">
+
+                        @ViewBag.Details.Street, @ViewBag.Details.County, @ViewBag.Details.City, @ViewBag.Details.State,  @ViewBag.Details.ZipCode
+                        
+                        </span>
+                    </div>
+
+
+                    </div>
+                }
+
+
+                    <div class="col-lg-12">
+                        <div id="calendar" style="line-height: normal; z-index: 99; position: relative; margin-bottom: 1px;"></div>
+                    </div>
+
+            
+             </div>
+
+
+
+
+<div class="modal fade" id="event-create-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            @*<div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" style="font-weight: 700" id="exampleModalLabel">Schedule Appointment</h4>
+                <h5><span id="meetingdate"></span></h5>
+
+            </div>*@
+            <div class="modal-body">
+
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2>Schedule Appointment</h2>
+                <div class="form-group-al">
+                @*<input type="hidden" class="form-control" name="meetingId" id="_Id">
+                <input type="hidden" class="form-control" name="meetingId" id="meetingId">
+                <input type="hidden" class="form-control" name="meetingId" id="ParentId">
+                <input type="hidden" class="form-control" name="meetingId" id="InstanceId">
+                <input type="hidden" class="form-control" name="meetingId" id="EndDate">*@
+                <div class="form-group col-sm-6" style="margin-bottom:15px !important;padding-left:0px;">
+                    <label class="lhs-label" style="width:50px;">Client:</label>
+                    @*<select type="text" class="form-control" onchange="selectlastname()" tabindex="1" name="Title" id="clients"></select>*@
+@if (ViewBag.IsAllCSH == false)
+{
+                    <label style="width:150px;padding-left:20px;" id="client-label">@ViewBag.Details.Name</label>
+}
+else
+{
+    <select type="text" class="form-control"  tabindex="1" name="Title" id="clients" style="width:250px;display:inline-block;"></select>
+}
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="lhs-label" style="width:50px;">Date:</label>
+                    @*<label style="width:150px;padding-left:20px;" id="date-label"></label>*@
+                    @*<input style="width:150px;display:inline-block;" type="text" id="DateOfAppointment" name="DateOfAppointment" placeholder="MM/DD/YYYY" class="form-control" />*@
+
+                    <div class="input-group" style="display: inline-block;">
+                        <input style="width:150px;display:inline-block;" type="text" id="DateOfAppointment" name="DateOfAppointment" placeholder="MM/DD/YYYY" class="form-control">
+                        <div id="calender_icon" class="fa fa-calendar input-group-addon" style="height: 34px;width:36px;cursor:pointer;"></div>
+
+                    </div>
+
+                </div>
+                <div class="form-group"  style="margin-bottom:15px !important;">
+                    <label class="lhs-label" >Description:</label>
+@if (ViewBag.IsAllCSH == false)
+{
+                    <input type="text" class="form-control" autocomplete="off" name="Title" value="Home Visit - @ViewBag.Details.Name" 
+                           tabindex="2" id="title">
+}
+else
+{
+    <input type="text" class="form-control" autocomplete="off" name="Title" value="" tabindex="2" id="title">
+}
+                </div>
+
+                <div class="form-group" style="margin:10px 0px !important;">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label class="lhs-label" >Start Time:</label>
+                            <label style="width:150px;" id="time-label"></label>
+                            @*<select class="form-control" tabindex="3" id="apptStartTime"></select>*@
+                        </div>
+                        <div class="col-xs-6">
+                            <label class="lhs-label" >Duration(HH:MM):</label>
+                            <select class="form-control" tabindex="4" id="apptEndTime"></select>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label class="lhs-label" >Notes:</label>
+                    <textarea class="form-control" tabindex="6" id="description"></textarea>
+                </div>
+
+
+
+                <div class="col-sm-12 text-center" style="margin-top:15px;padding:0px;">
+
+       
+
+             <button id="submit-event" type="button" class="glossy-button-button button-green pull-right" >Submit</button>
+           
+                    
+                    <button id="delete-event" type="button" class="glossy-button-button button-red pull-left">Delete</button>
+                </div>
+
+                </div>
+
+
+        </div>
+    </div>
+</div>
+   
+    </div>
+
+
+}

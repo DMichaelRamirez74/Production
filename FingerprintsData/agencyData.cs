@@ -305,6 +305,30 @@ namespace FingerprintsData
 
 
                 }
+
+                DataTable dt3 = new DataTable();
+                dt3.Columns.AddRange(new DataColumn[6] {
+                        new DataColumn("Id",typeof(int)),
+                        new DataColumn("Role",typeof(string)),
+                         new DataColumn("Type",typeof(int)),
+                         new DataColumn("VisitCount",typeof(int)),
+                         new DataColumn("FromDays",typeof(int)),
+                         new DataColumn("ToDays",typeof(int))
+
+                    });
+                if (agencyDetails.VisitDetails != null)
+                {
+                    foreach (var item in agencyDetails.VisitDetails)
+                    {
+                        if (item.Role != null && item.FromDays != 0 && item.ToDays != 0)
+                        {
+
+                            dt3.Rows.Add(item.Id, item.Role, item.Type, item.VisitCount, item.FromDays, item.ToDays);
+                        }
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@VistDetail", dt3));
+
                 command.ExecuteNonQuery();
                 tranSaction.Commit();
                 return command.Parameters["@result"].Value.ToString();
@@ -743,6 +767,34 @@ namespace FingerprintsData
                                                 ).ToList();
                     }
 
+                    //For FSW and TCR InHome Vist, Center Parent Visit Detail Mapping
+
+                    if (_dataset.Tables.Count > 6 && _dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                    {
+                        agency.VisitDetails = new List<VisitDetail>();
+
+                        foreach (DataRow dr in _dataset.Tables[6].Rows)
+                        {
+                            agency.VisitDetails.Add(new VisitDetail()
+                            {
+
+                                Id = Convert.ToInt32(dr["Id"].ToString()),
+                                AgencyId = dr["AgencyId"].ToString(),
+                                Role = dr["RoleId"].ToString(),
+                                Type = Convert.ToInt32(dr["Type"].ToString()),
+                                VisitCount = Convert.ToInt32(dr["VisitCount"].ToString()),
+                                FromDays = Convert.ToInt32(dr["FromDay"].ToString()),
+                                ToDays = Convert.ToInt32(dr["ToDay"].ToString()),
+                                Status = Convert.ToBoolean( dr["Status"].ToString())
+
+                            });
+
+                            //Id, AgencyId,RoleId,Type,VisitCount,FromDay,ToDay,Status,CreatedDate,CreatedBy
+
+                        }
+
+
+                    }
                 }
 
                 DataAdapter.Dispose();
@@ -6079,10 +6131,10 @@ namespace FingerprintsData
 
         }
 
-    
-    public Boolean GetSingleAccessStatus(int type) {
 
-        bool _access = false;
+        public Boolean GetSingleAccessStatus(int type)
+        {
+            bool _access = false;
 
         try
         {
@@ -6092,28 +6144,30 @@ namespace FingerprintsData
             if (Connection.State == ConnectionState.Open)
                 Connection.Close();
 
-            command.Parameters.Clear();
-            command.Connection = Connection;
-            command.CommandType = CommandType.Text;
-            command.CommandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
-            Connection.Open();
-            DataAdapter = new SqlDataAdapter(command);
-            _dataset = new DataSet();
-            DataAdapter.Fill(_dataset);
-            Connection.Close();
-            if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0) {
-                _access = true;
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.Text;
+                command.CommandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                {
+                    _access = true;
+                }
+
             }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
 
+            }
+            return _access;
         }
-        catch (Exception ex) {
-            clsError.WriteException(ex);
 
-        }
-        return _access;
-    }
-
-        public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command="",List<string> staffRoles=null,string mRoleId=null,string StaffRoleId=null)
+        public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command = "", List<string> staffRoles = null, string mRoleId = null, string StaffRoleId = null)
         {
             StaffRoleMapping SRMDetails = new StaffRoleMapping();
             SRMDetails.RolesList = new List<StaffRoleMapping.RoleList>();
@@ -6137,8 +6191,10 @@ namespace FingerprintsData
                 StaffRoleIds.Columns.AddRange(new DataColumn[1] {
                      new DataColumn("RoleId", typeof(string))
                 });
-                if (staffRoles != null && staffRoles.Count > 0) {
-                    foreach (var item in staffRoles) {
+                if (staffRoles != null && staffRoles.Count > 0)
+                {
+                    foreach (var item in staffRoles)
+                    {
                         StaffRoleIds.Rows.Add(item);
                     }
                 }
@@ -6223,7 +6279,8 @@ namespace FingerprintsData
                 }
 
 
-                if (_dataset != null && Command == "StaffRoleListBymId" && _dataset.Tables.Count > 0) {
+                if (_dataset != null && Command == "StaffRoleListBymId" && _dataset.Tables.Count > 0)
+                {
 
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                     {
@@ -6261,8 +6318,9 @@ namespace FingerprintsData
 
                         if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
                         {
-                           
-                            for (int i=0; i < SRMDetails.ManagerRoleTableList.Count;i++) {
+
+                            for (int i = 0; i < SRMDetails.ManagerRoleTableList.Count; i++)
+                            {
 
                                 var stafRole = new List<StaffRoleMapping.StaffRole>();
                                 foreach (DataRow dr in _dataset.Tables[2].Rows)

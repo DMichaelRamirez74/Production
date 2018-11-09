@@ -200,7 +200,22 @@ namespace FingerprintsModel
 
         }
 
+        //for fsw,tcr home and center parent visit
+        public List<VisitDetail> VisitDetails { get; set; }
     }
+
+    public class VisitDetail {
+        public int Id { get; set;}
+       public string Role { get; set; }
+       public int Type { get; set; }
+       public int VisitCount { get; set; }
+        public int FromDays { get; set; }
+        public int ToDays { get; set; }
+        public string AgencyId { get; set; }
+        public bool Status { get; set; }
+
+    }
+
     public class Agencystaffreport
     {
         public string Contractor { get; set; }

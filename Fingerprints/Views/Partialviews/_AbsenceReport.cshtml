@@ -81,7 +81,7 @@
 
 
         var dataProvider = [];
-
+        var dataLength = 0;
 
         var chart = AmCharts.makeChart("linechart", {
             "hideCredits": true,
@@ -165,6 +165,20 @@
             }
         });
 
+
+        chart.addListener("rendered", function (zoomChart) {
+
+            console.log(zoomChart);
+            if (chart) {
+                //	chart.zoomchart();
+                // console.log(chart);
+               // setTimeout(function () {
+                    chart.zoomToIndexes(dataLength - 8, dataLength);
+              //  }, 1500);
+
+            }
+
+        });
 
         //chart.addListener("rendered", function (zoomChart) {
 
@@ -304,11 +318,15 @@
                             })
                         });
 
-
+                        dataLength = dp.length;
                         chart.dataProvider = dp;
                         chart.validateData();
                         //control dragger
                         chart.zoomToIndexes(dp.length - 8, dp.length);
+                        //setTimeout(function () {
+                        //    chart.zoomToIndexes(dp.length - 8, dp.length);
+                        //}, 1500)
+                        
                     }
 
                         

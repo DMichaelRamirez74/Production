@@ -29,6 +29,7 @@
 
     <script>
 
+        var _Mode = "@(Session["RoleId"].ToString()== "82b862e6-1a0f-46d2-aad4-34f89f72369a" ? "2" : "1")";
         var selectedDate;
         var calendar;
         var selectedtitle = "";
@@ -299,7 +300,11 @@
                                     ParentEventList.push(response[j]);
                                     response.splice(i, 1);
                                 } else {
-                                    mainInstanceList.push(response[j]);
+
+                                    if (response[j].IsChildWithdrawn == 1) {
+                                        response[j].backgroundColor = "#b50000";
+                                    }
+                                      mainInstanceList.push(response[j]);
                                 }
                             }
                             $('#calendar').fullCalendar('removeEvents');
@@ -754,7 +759,8 @@
         }
         function getclients() {
             $.ajax({
-                url: HostedDir + "/HomeVisitor/getclients",
+                //url: HostedDir + "/HomeVisitor/getclients",
+                url: HostedDir + "/HomeVisitor/getclients?mode="+_Mode,
                 type: "POST",
                 dataType: "json",
                 secureuri: false,

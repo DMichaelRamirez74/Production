@@ -1,0 +1,779 @@
+﻿
+
+<style type="text/css" title="TPVist-Modal">
+    #TPVist-modal .form-group {
+        min-height: 35px;
+    }
+
+    #TPVist-Modal .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        color: #ffffff;
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+        padding-top: 10px;
+    }
+
+    #TPVist-Modal .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
+
+    #TPVist-Modal h2 {
+        margin-top: 10px;
+        float: left;
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    #TPVist-Modal .form-group-al {
+        background: #f1f5f8 none repeat scroll 0 0;
+        border: 3px solid #ffffff;
+        float: left;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        color: #333;
+        padding-top: 25px;
+    }
+
+    #TPVist-Modal .prop-label {
+        color: #1d5990;
+    }
+
+    .radio-div {
+        display: inline-block;
+        padding: 0 20px;
+    }
+
+        .radio-div input {
+            display: none;
+        }
+
+        .radio-div label {
+            position: relative;
+            cursor: pointer;
+        }
+
+            .radio-div label:before {
+                display: inline-block;
+                position: absolute;
+                content: " ";
+                width: 8px;
+                height: 8px;
+                left: 4px;
+                top: 5px;
+                background: transparent;
+                margin-left: -20px;
+                border-radius: 50%;
+                border: 4px solid transparent;
+            }
+
+            .radio-div label:after {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                left: 0;
+                margin-left: -20px;
+                border: 1px solid #163b69;
+                border-radius: 50%;
+                background-color: transparent;
+                top: 1px;
+            }
+
+        .radio-div input:checked ~ label::before {
+            border-color: #34495e;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-red"]::before,
+        .radio-div label[for="agclr-red"]:after,
+        .radio-div label[for="agclr-red"] {
+            border-color: #e81111;
+            color: #e81111;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-yellow"]::before,
+        .radio-div label[for="agclr-yellow"]:after,
+        .radio-div label[for="agclr-yellow"] {
+            border-color: #c3c317;
+            color: #c3c317;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-green"]::before,
+        .radio-div label[for="agclr-green"]:after,
+        .radio-div label[for="agclr-green"] {
+            border-color: #0fd215;
+            color: #0fd215;
+        }
+
+
+    .glossy-button-button {
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        overflow: hidden;
+        min-width: 96px;
+        line-height: 34px !important;
+        padding: 0 24px;
+        font-size: 14px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        text-shadow: 0 1px #154c86;
+        background-color: #247edd;
+        background-clip: padding-box;
+        border: 1px solid;
+        border-color: #1c65b2 #18589c #18589c;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    }
+
+        .glossy-button-button:before {
+            content: '';
+            position: absolute;
+            top: -25%;
+            bottom: -25%;
+            left: -20%;
+            right: -20%;
+            border-radius: 50%;
+            background: transparent;
+            -webkit-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+        }
+
+    .button-green {
+        text-shadow: 0 1px #0d4d09;
+        background-color: #1ca913;
+        border-color: #147b0e #11640b #11640b;
+    }
+</style>
+
+
+
+<style type="text/css">
+    .TVPlabel {
+        padding-left: 0px;
+        line-height: 2 !important;
+    }
+
+    #add-visit, .remove-visit {
+        cursor: pointer;
+    }
+
+    .button-red {
+        text-shadow: 0 1px #0d4d09;
+        background-color: #E21;
+        border-color: #E21 #E21 #E21;
+    }
+
+    a.glossy-button-button.button-red:hover {
+        color: #fff;
+        text-decoration: none;
+    }
+    .visitrow {
+     margin-bottom:15px;
+    }
+    .hw-btn {
+        padding: 5px 20px;
+    background-color: #295b8f;
+    color: #fff;
+    font-size: 14px;
+    border-style: none;
+    
+    }
+</style>
+
+<div class="modal fade" id="TPVist-Modal" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2 id="TPVist-Modal-Title"> </h2>
+
+                <div class="form-group-al">
+                    <div class="row">
+                        <div>
+                           
+                                <div class="modal-body-section">
+
+
+                                </div>
+                           
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Content/underscore-min.js"></script>
+
+
+<script type="text/javascript">
+
+
+    var _HomeVist = {
+
+        int: function () {
+            var self = this;
+            self.intEvents();
+        },
+        intEvents: function () {
+            var self = this;
+            _VistDetails = _VistDetails ? _VistDetails : [];
+            //parse Fsw Visit details
+            var _FSWHVArr = [], _TCRHVArr = [];
+
+            _VistDetails.forEach(function (obj) {
+                //console.log(e.Role)
+                if (obj.Role == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d") {
+                    _FSWHVArr.push(obj);
+                }
+            });
+
+            _VistDetails.forEach(function (obj) {
+                //console.log(e.Role)
+                if (obj.Role == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
+                    _TCRHVArr.push(obj);
+                }
+            });
+
+            if (!_TCRHVArr.length) {
+               // var _defObj = { Type: "1" };
+                _TCRHVArr = [{ Type: "1", VisitCount: 2 }, { Type: "2", VisitCount: 1 }, { Type: "2", VisitCount:2 }];
+            }
+
+            $(document).on("blur", ".dynamic", function (e) {
+                var _val = $(this).val();
+                var _ele = $(this);
+                var _ind = $(this).data("index");
+                var _prop = $(this).data("name");
+                _FSWHVArr[_ind][_prop] = _val;
+
+                console.log(_FSWHVArr);
+
+                if (_prop == 'ToDays') {
+
+                    if (parseInt(_FSWHVArr[_ind]['FromDays']) > parseInt(_val)) {
+                        customAlert("To days not less then From Days");
+                        _ele.css("background", "pink");
+                    }
+                }
+
+            });
+
+          
+            $(document).on("blur", ".tcrdynamic", function (e) {
+                var _val = $(this).val();
+                var _ele = $(this);
+                var _ind = $(this).data("index");
+                var _prop = $(this).data("name");
+                if (!_TCRHVArr[_ind]) {
+                    _TCRHVArr[_ind] = {};
+                }
+                _TCRHVArr[_ind][_prop] = _val;
+                _TCRHVArr[_ind]["Role"] = "82b862e6-1a0f-46d2-aad4-34f89f72369a";
+              //  _TCRHVArr[_ind]["VisitCount"] = 2;
+                console.log(_TCRHVArr);
+
+                if (_prop == 'ToDays') {
+
+                    if (parseInt(_TCRHVArr[_ind]['FromDays']) > parseInt(_val)) {
+                        //customAlert("To days not less then From Days");
+                        customAlert("Days Enrolled To not less then Days Enrolled From");
+                        _ele.css("background", "pink");
+                    }
+                }
+
+            });
+
+            
+
+
+            //remove fsw visit
+            $(document).on("click", ".remove-visit", function (e) {
+                var _indx = $(this).data("index");
+                _FSWHVArr.splice(_indx, 1);
+
+                self.drawModalTemplate('FswVisit-temp', _FSWHVArr);
+            });
+
+            //  var _FSWHVArr = [{ From: 15, To: 35 }];
+            $(document).on("click", "#add-visit", function () {
+                //debugger;
+                var _nxtCount = _FSWHVArr.length+1;
+                _FSWHVArr.push({
+                    Role: '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d',
+                    AgencyId: $("#agencyId").val(),
+                    VisitCount:_nxtCount,
+                    Type:"1"
+
+                });
+                self.drawModalTemplate('FswVisit-temp', _FSWHVArr);
+                //var compiled = _.template($("#FswVisit-temp").html())({ data: _FSWHVArr });
+                //$("#TPVist-Modal .modal-body-section").html(compiled);
+
+            });
+
+            $(document).on("click", ".hw-btn", function (e) {
+
+                var _modalFor = $(this).data("btnfor");
+
+
+                $("#TPVist-Modal .modal-body-section").html('');
+
+                if (_modalFor == "1") { //for fsw
+
+
+
+                    $("#TPVist-Modal-Title").text("FSW Home Visit");
+                    $("#TPVist-Modal-Title").data("ModalFor", 1);
+                    self.drawModalTemplate('FswVisit-temp', _FSWHVArr);
+                    //var compiled = _.template($("#FswVisit-temp").html())({ data: _FSWHVArr });
+                    //$("#TPVist-Modal .modal-body-section").html(compiled);
+
+
+
+
+                } else if (_modalFor == "2") { //for Teacher
+
+                    $("#TPVist-Modal-Title").data("ModalFor", 2);
+                    $("#TPVist-Modal-Title").text("Teacher / Parent Visit");
+                    // self.drawModalTemplate('TCRVisit-temp', [])
+                    self.drawModalTemplate('TCRVisit-temp', _TCRHVArr);
+                }
+
+                $("#TPVist-Modal").modal("show");
+
+
+            });
+
+
+
+            $(document).on("keyup", ".nonly", function (e) {
+                var _val = parseInt($(this).val());
+                var _ele = $(this);
+                _ele.css("background", "#fff");
+                if (!_val) {
+                    $(this).val('');
+                } else {
+
+                    if (String(_val).length > 3) {
+
+                        _val = String(_val).slice(0, 3);
+                    }
+
+                    if (parseInt(_val) > 365) {
+                        customAlert("Days not greater than 365");
+                        _ele.css("background", "pink");
+                    }
+
+                    $(this).val(_val);
+
+                }
+            });
+
+            //$(document).on("blur", ".nonly", function (e) {
+            //    var _val = parseInt($(this).val());
+                
+            //});
+/*
+            $('#TPVist-Modal').on('hidden.bs.modal', function (e) {
+                $(".i-am-new .noty_text").text('');
+                var notifi = $(".i-am-new").detach();
+                $('.error-msg').append(notifi);
+              
+            });
+
+            $('#TPVist-Modal').on('shown.bs.modal', function (e) {
+                $(".i-am-new .noty_text").text('');
+                var notifi = $(".i-am-new").detach();
+                $("#TPVist-Modal").append(notifi);
+            });
+            */
+          
+
+            $(document).on("click","#submit_Qform",function(e){
+                e.preventDefault();
+
+                var _ModalFor = $("#TPVist-Modal-Title").data("ModalFor");
+                var _isValid = true;
+
+                if (_ModalFor == "1") {  //for fsw
+
+
+                    $.each($('.modal-body-section input.dynamic'), function (ind,ele) {
+
+                        if (ele.value) {
+                            $(ele).css("background", "#fff");
+                        }
+                        if (!ele.value) {
+                            console.log($(ele).css({ 'background': 'pink' }));
+                            customAlert("Please enter days");
+                            _isValid = false;
+                            return false;
+                        }
+
+                    });
+
+                    $("#fsw-visit-data").html('');
+
+                    $.each($("#fsw-table input"), function (ind, ele) {
+                        var _val = $(ele).val(), _name = $(ele).prop("name");
+                        $("#fsw-visit-data").append('<input type="hidden" name= "' + _name + '" value="' + _val + '"/>');
+                    });
+
+                } else { //for teacher
+
+                    $.each($(".modal-body-section input.tcrfrom, .modal-body-section input.tcrto"), function (ind, ele) {
+
+
+                        if (ele.value) {
+                            $(ele).css("background", "#fff");
+                        }
+                        if (!ele.value) {
+                            console.log($(ele).css({ 'background': 'pink' }));
+                            customAlert("Please enter days");
+                            _isValid = false;
+                            return false;
+                        }
+
+
+                    });
+
+
+                    $("#tcr-visit-data").html('');
+
+                    // $.each($('.tcrinfield'), function (ind, ele) {
+                    $.each($("#tcr-table1 input, #tcr-table2 input"), function (ind, ele) {
+                        var _val = $(ele).val(), _name = $(ele).prop("name");
+                        $("#tcr-visit-data").append('<input type="hidden" name= "' + _name + '" value="' + _val + '"/>');
+
+                    });
+
+
+                }
+
+                if (_isValid) {
+
+                   
+
+                    if (_ModalFor == "1") {  //for fsw
+
+                        //_fswDateValid = true;
+                    } else {
+
+                        //_tcrDateValid = true;
+                        _TCRHVArr.forEach(function (obj) {
+                            if (parseInt(obj.FromDays) > parseInt(obj.ToDays)) {
+                                //console.log(obj);
+                                customAlert("Days Enrolled To not less then Days Enrolled From");
+                                _isValid = false;
+                            }
+
+                        });
+                    }
+
+                    if (_isValid) {
+                        if (!_isAddAgency) {
+                            //  self.SubmitAjaxForm(_FSWHVArr,_TCRHVArr);
+                            self.SubmitAjaxForm(_ModalFor == "1" ? _FSWHVArr : _TCRHVArr, _ModalFor);
+                        }
+
+                        $("#TPVist-Modal").modal("hide");
+                    }
+
+                }
+
+
+
+            });//submit
+
+
+            //$(document).on('change', '.dayfield', function (e) {
+
+            //    $(this).prop('value', $(this).val());
+            //})
+
+
+        },
+        validateModal:function(){
+        
+
+
+        },
+        drawModalTemplate: function (tempId, dataAr) {
+
+            var compiled = _.template($("#" + tempId).html())({ data: dataAr });
+            $("#TPVist-Modal .modal-body-section").html(compiled);
+
+        },
+        SubmitAjaxForm: function (data,type) { //type==1 => For FSW, type ==2 => For TCR
+
+            console.log(data, type);
+
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("UpdateVisitingDetails","HomeVisitor")?agencyid=" + $("#agencyId").val()+'&type='+type,
+                data: JSON.stringify(data),
+                dataType: "json",
+                contentType: 'application/json',
+                beforeSend: function () { $('#spinner').show() },
+                success:function(data){
+                    console.log(data);
+                    if (data) {
+                        customAlert("Record updated successfully")
+                    }
+                },
+                fail: function (res) {
+
+                },
+                complete: function (res) {
+                    $("#spinner").hide();
+                }
+
+            });
+
+
+        }
+
+
+    };
+
+    function getvalue(data, type, count, prop,role) {
+        console.log(data, type, count, prop, role);
+        var _obj = _.find(data, function (obj) { return obj.Role == role && obj.Type == type && obj.VisitCount == count; })
+
+        if (!_obj) return "";
+       // console.log(data);
+       return _obj[prop];
+    }
+
+
+    $(document).ready(function (e) {
+
+        _HomeVist.int();
+    })
+
+
+</script>
+
+
+
+<script type="text/template" id="TCRVisit-temp">
+
+
+    <div class="col-sm-12">
+
+        <div class="row">
+            <div class="col-md-12"><h4><span style="text-decoration: underline;"> In Home Visit  :</span></h4></div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-area-head table-bordered text-center" id="tcr-table1">
+                    <thead>
+                        <tr>
+                            <th>Visit Period</th>
+                            <th>Days Enrolled From</th>
+                            <th>Days Enrolled To</th>
+
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        <% var _Role = "82b862e6-1a0f-46d2-aad4-34f89f72369a"; %>
+                        <tr>
+                            
+                            <td>2nd Visit
+                    <input type="hidden" data-index="0" data-name="Role" name="VisitDetails[0].Role" value="82b862e6-1a0f-46d2-aad4-34f89f72369a" data-for="Teacher"/>
+                    <input type="hidden" data-index="0" data-name="Type" name="VisitDetails[0].Type" value="1" data-rolefor="Teacher" data-for="In Home Visit" />
+                    <input type="hidden" data-index="0" data-name="VisitCount" name="VisitDetails[0].VisitCount" value="2" data-for="Vist Count" />
+                    <input type="hidden" data-index="0" data-name="Id" value="<%= getvalue(data,1,2,'Id',_Role)%>"  name="VisitDetails[0].Id"  data-for="Vist Count" />
+                    <input type="hidden" data-index="0" data-name="AgencyId" value="<%= getvalue(data,1,2,'AgencyId',_Role)%>" name="VisitDetails[0].AgencyId"  data-for="Vist Count" />
+                                
+                            </td>
+                            <td>
+                                @*<input type="text" data-index="1"  data-name="FromDays" name="VisitDetails[0].FromDays" value="<%= getvalue(data,1,2,'FromDays',_Role)%>" class="form-control nonly tcrfrom tcrdynamic" placeholder="Days in number" />*@
+                                <input type="text" data-index="0" data-name="FromDays" name="VisitDetails[0].FromDays" value="<%=data[0].FromDays %>" class="form-control nonly tcrfrom tcrdynamic" placeholder="Days in number" />
+                            </td>
+                            <td><input type="text" data-index="0" data-name="ToDays" value="<%=data[0].ToDays %>" name="VisitDetails[0].ToDays"  class="form-control nonly tcrto tcrdynamic" placeholder="Days in number" /></td>
+                        </tr>
+                    
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!--Center parent visit-->
+
+        <div class="row" style="margin-top:20px;">
+            <div class="col-md-12"><h4><span style="text-decoration: underline;"> Center Parent Visit  :</span></h4></div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-area-head table-bordered text-center" id="tcr-table2">
+                    <thead>
+                        <tr>
+                            <th>Visit Period</th>
+                            <th>Days Enrolled From</th>
+                            <th>Days Enrolled To</th>
+
+                        </tr>
+
+                    </thead>
+                    <tbody>
+
+
+                        <tr>
+                            <td>
+                                1st Visit
+                                <input type="hidden" data-index="1" data-name="Role" name="VisitDetails[1].Role" value="82b862e6-1a0f-46d2-aad4-34f89f72369a" data-for="Teacher" />
+                                <input type="hidden" data-index="1" data-name="Type" name="VisitDetails[1].Type" value="2" data-rolefor="Teacher" data-for="center Visit" />
+                                <input type="hidden" data-index="1" data-name="VisitCount" name="VisitDetails[1].VisitCount" value="1" data-for="Vist Count" />
+                                <input type="hidden" data-index="1" data-name="Id" name="VisitDetails[1].Id" value="<%= getvalue(data,2,1,'Id',_Role)%>"  data-for="Vist Count" />
+                                <input type="hidden" data-index="1" data-name="AgencyId" name="VisitDetails[1].AgencyId" value="<%= getvalue(data,2,1,'AgencyId',_Role)%>"  data-for="Vist Count" />
+                            </td>
+                            <td><input type="text" data-index="1" data-name="FromDays" name="VisitDetails[1].FromDays" value="<%=data[1].FromDays %>" class="form-control nonly tcrfrom tcrdynamic" placeholder="Days in number" /></td>
+                            <td><input type="text" data-index="1" data-name="ToDays" name="VisitDetails[1].ToDays" value="<%=data[1].ToDays %>" class="form-control nonly tcrto tcrdynamic" placeholder="Days in number" /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                2nd Visit
+                                <input type="hidden" data-index="2" data-name="Role" name="VisitDetails[2].Role" value="82b862e6-1a0f-46d2-aad4-34f89f72369a" data-for="Teacher" />
+                                <input type="hidden" data-index="2" data-name="Type" name="VisitDetails[2].Type" value="2" data-rolefor="Teacher" data-for="center Visit" />
+                                <input type="hidden" data-index="2" data-name="VisitCount" name="VisitDetails[2].VisitCount" value="2" data-for="Vist Count" />
+                                <input type="hidden" data-index="2" data-name="Id" name="VisitDetails[2].Id" value="<%= getvalue(data,2,2,'Id',_Role)%>" data-for="Vist Count" />
+                                <input type="hidden" data-index="2" data-name="AgencyId" name="VisitDetails[2].AgencyId" value="<%= getvalue(data,2,2,'AgencyId',_Role)%>" data-for="Vist Count" />
+                            </td>
+                            <td><input type="text" data-index="2"  data-name="FromDays"  name="VisitDetails[2].FromDays" value="<%=data[2].FromDays %>"   class="form-control tcrfrom nonly tcrdynamic" placeholder="Days in number" /></td>
+                            <td><input type="text" data-index="2"  data-name="ToDays"  name="VisitDetails[2].ToDays" value="<%=data[2].ToDays %>"   class="form-control tcrto nonly tcrdynamic" placeholder="Days in number" /></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+
+
+                <div class="row">
+                    <div class="col-md-12 text-center" style="margin-top:20px;">
+                        <button type="button" class="glossy-button-button button-green" id="submit_Qform">Submit</button>
+
+                        <a type="button" class="glossy-button-button button-red" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+
+
+    </div>
+</script>
+
+<script type="text/template" id="FswVisit-temp">
+
+
+    <div class="col-sm-12">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <button class="glossy-button-button button-green" id="add-visit" style="margin-bottom:5px;padding:0px 10px;">
+                    <i class="fa fa-plus"></i> Add Visit Days
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <table class="table table-area-head table-bordered text-center" id="fsw-table">
+                    <thead>
+                        <tr>
+                            <th>Visit Time</th>
+                            <th>Days Enrolled From</th>
+                            <th>Days Enrolled To</th>
+                            <th>Remove</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+
+                        <% if(data.length == 0){ %>
+                        <tr><td colspan="4" class="text-center">No records found</td></tr>
+                        <%}%>
+
+                        <%
+                        for(var i=0; i < data.length; i++){ %>
+                        <tr>    <% var _Role = "82b862e6-1a0f-46d2-aad4-34f89f72369a"; %>
+                            <td>
+                                <span><%= i+1%></span>
+                         <input type="hidden" name="VisitDetails[<%= i+3%>].Role" value="<%= data[i].Role %>" data-for="FSW" />
+                         <input type="hidden" name="VisitDetails[<%= i+3%>].Type" value="<%= data[i].Type %>" data-rolefor="FSW" data-for="In Home Visit" />
+                         <input type="hidden" name="VisitDetails[<%= i+3%>].VisitCount" value="<%= data[i].VisitCount %>" data-for="Vist Count" />
+                         <input type="hidden" name="VisitDetails[<%= i+3%>].Id"  value="<%= data[i].Id %>" data-for="Vist Count" />
+                         <input type="hidden" name="VisitDetails[<%= i+3%>].AgencyId" value="<%= data[i].AgencyId %>" data-for="Vist Count" />
+                            </td>
+                            <td><input type="text" name="VisitDetails[<%= i+3%>].FromDays" data-index="<%=i%>" data-name="FromDays" class="form-control dynamic nonly" placeholder="Days in number" value="<%= data[i].FromDays%>" /></td>
+                            <td><input type="text" name="VisitDetails[<%= i+3%>].ToDays" data-index="<%=i%>" data-name="ToDays" class="form-control dynamic nonly" placeholder="Days in number" value="<%= data[i].ToDays %>" /></td>
+                            <td>
+                                <% if(i==0){ %>
+                                @*<label id="add-visit" class="TVPlabel"><i class="fa fa-plus-circle"></i> Add More</label>*@
+                                <% }else{ %>
+                                <label class="TVPlabel" data-index="<%=i%>">
+                                <i class="fa fa fa-trash remove-visit"  data-index="<%=i%>" style="font-size:18px;color:red;" title="remove visit"></i></label>
+                                <% } %>
+
+                            </td>
+                        </tr>
+
+                        <%}%>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+        <% if(data.length > 0){ %>
+        <div class="row">
+            <div class="col-md-12 text-center" style="margin-top:20px;">
+                <button type="button"  class="glossy-button-button button-green" id="submit_Qform">Submit</button>
+
+                <button type="button" class="glossy-button-button button-red" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+        <%}%>
+
+    </div>
+
+
+
+</script>

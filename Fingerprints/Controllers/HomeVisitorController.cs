@@ -33,7 +33,7 @@ namespace Fingerprints.Controllers
         agencyData _Data = new agencyData();
         HomevisitorData homeVisitorData = new HomevisitorData();
      
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor )]
         public ActionResult Classrooms()
         {
             try
@@ -48,7 +48,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult HomeBasedSocialization()
         {
             try
@@ -62,14 +62,15 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor)]
         public ActionResult Scheduler()
         {
 
             return View();
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
         public JsonResult getevents()
         {
             try
@@ -88,14 +89,14 @@ namespace Fingerprints.Controllers
             //  return Json(m);
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
-        public JsonResult getclients()
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        public JsonResult getclients(int mode=1)
         {
             List<customclient> list = new List<customclient>();
             try
             {
                 
-                DataSet ds = homeVisitorData.getclients();
+                DataSet ds = homeVisitorData.getclients(mode);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -121,7 +122,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
         public JsonResult saveEvent(Scheduler _event, FormCollection collection, Recurrence recurrence)
         {
             string result = string.Empty;
@@ -147,7 +148,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
         public ActionResult Delete(Scheduler _event)
         {
             string result = string.Empty;
@@ -347,6 +348,99 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
 
         }
+
+        #region TCR&FSW Scheduler
+
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker)]
+        public ActionResult TeacherScheduler(string clientid,int yakkr,int Yakkrid) {
+
+         var result= homeVisitorData.getVisitingDetailsByclient(clientid,yakkr,1);
+            ViewBag.Details = result;
+            ViewBag.YakkrId = Yakkrid;
+            ViewBag.YakkrCode = yakkr;
+            ViewBag.IsAllCSH = false;
+            return View();
+        }
+
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker)]
+        public ActionResult TCRScheduler()
+        {
+            ViewBag.Details = new { };
+            ViewBag.YakkrId = 0;
+            ViewBag.YakkrCode = 0;
+            ViewBag.IsAllCSH = true;
+
+            return View("TeacherScheduler");
+        }
+
+       // [CustAuthFilter(new string[] { Role.teacher, Role.familyServiceWorker })]
+        public JsonResult UpdateVisitingDetails(List<VisitDetail> data, string agencyid,int type)
+        {
+            var result = homeVisitorData.UpdateVisitingDetails(data, agencyid,type);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+        //[CustAuthFilter(new string[] { Role.teacher,Role.familyServiceWorker })]
+        //public JsonResult geteventsForTCR()
+        //{
+        //    try
+        //    {
+        //        List<Scheduler> m = new List<Scheduler>();
+        //        m = homeVisitorData.getUserEvents();
+        //        for (int i = 0; i < m.Count; i++)
+        //        {
+        //            m[i].ClientName = FingerprintsModel.EncryptDecrypt.Decrypt64(m[i].ClientName);
+        //        }
+        //        return Json(m, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //        return null;
+        //    }
+
+        //    //  return Json(m);
+        //}
+
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.FamilyServiceWorker)]
+        public ActionResult SaveTCRHomeVisit(Scheduler _event,int yakkrid=0)
+        {
+            List<Scheduler> m = new List<Scheduler>();
+            bool YakkrRemoved = false;
+            try
+            {
+                var StfInfo = StaffDetails.GetInstance();
+                _event.StaffId = new Guid(Session["UserId"].ToString());
+                _event.AgencyId = new Guid(Session["AgencyID"].ToString());
+                _event.MeetingDescription = _event.title;
+
+                string h = homeVisitorData.saveEvent(_event);
+              
+                m = homeVisitorData.getUserEvents();
+
+                //for (int i = 0; i < m.Count; i++) {
+                //    m[i].ClientName = FingerprintsModel.EncryptDecrypt.Decrypt64(m[i].ClientName);
+                //}
+                if (yakkrid > 0 && _event.ClientId > 0 && _event.MeetingId ==0) { 
+                  YakkrRemoved=  homeVisitorData.ClearYakkr(yakkrid,_event.ClientId);
+                }
+
+                // return Json(m, JsonRequestBehavior.AllowGet);
+                return Json(new { Events = m,YakkrRemoved=YakkrRemoved }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+            return Json(m, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        #endregion TCR&FSW Scheduler
+
 
     }
     public class customclient

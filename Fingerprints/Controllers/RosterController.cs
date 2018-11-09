@@ -63,7 +63,7 @@ namespace Fingerprints.Controllers
 
             ViewBag.IsManager = (Array.IndexOf(managerRoleArray, Session["RoleId"].ToString().ToUpper()) > -1);
 
-            if (Role.healthNurse == Convert.ToString(Session["RoleID"]).ToUpper())
+            if (Role.RolesDictionary[(int)RoleEnum.HealthNurse].ToLowerInvariant() == Convert.ToString(Session["RoleID"]).ToUpper())
             {
                 Session["YakkrCountPending"] = new YakkrData().GetYakkrCountPending();
             }

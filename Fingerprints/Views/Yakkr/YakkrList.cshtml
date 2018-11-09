@@ -715,9 +715,15 @@
 
                             </tbody>
                         }
-                        else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453")
-                        {
+                        @*else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453")*@
+                        else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453"
+                        || ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
 
+                        {
+                            @*
+                              * 221-Parent/Teacher Home Visit-2
+                              * 222-Teacher-Parent Center Visit
+                            *@
 
 
                             <thead style="cursor:pointer;">
@@ -750,18 +756,39 @@
                                                 else if (ViewBag.YakkrCode == "451")
                                                 {  //yakkr 451
 
-                                                    @*<a class="showpopup451" style="cursor:pointer;" onclick="show451Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>*@
+                                                <a class="showpopup451" style="cursor:pointer;"
+                                                   href="@Url.Action("Organizationalissue", "Yakkr")?id=@detail.YakkrID&clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&center=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&household=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&clientname=@detail.ClientName">Select</a>
 
-                                                    <a class="showpopup451" style="cursor:pointer;"
-                                                       href="@Url.Action("Organizationalissue", "Yakkr")?id=@detail.YakkrID&clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&center=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&household=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&clientname=@detail.ClientName">Select</a>
+                                        }
+                                        else if (ViewBag.YakkrCode == "453")
+                                        { //yakkr 453
 
-                                                }
-                                                else
-                                                { //yakkr 453
+                                                <a class="showpopup453" style="cursor:pointer;" onclick="show453Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>
+                                        }
+                                        else if (ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
+                                        {
 
-                                                    <a class="showpopup453" style="cursor:pointer;" onclick="show453Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>
-                                                }
-                                            </td>
+                                             <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=@ViewBag.YakkrCode&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+
+                                        }
+                                        @*
+                                        else if (ViewBag.YakkrCode == "221")
+                                        {
+                                            <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=221&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+                                            }
+                                        else if (ViewBag.YakkrCode == "210")
+                                        {
+                                            <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=210&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+                                        }
+                                        else if (ViewBag.YakkrCode == "222")
+                                        {
+                                            <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=222&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+                                        }
+                                        *@
+                                    </td>
 
 
                                             <td>@detail.ClientName</td>
@@ -2590,7 +2617,7 @@
                                 url: "@Url.Action("ReferralIssueSummary", "Yakkr")?yakkrid=" + yakkrid + '&clientname=' + clientname,
                                 datatype: "json",
                                 success: function (data) {
-                                    console.log(data);
+                                    //console.log(data);
                                     $("#spinner").hide();
                                     $("#yakkr453detail-modal .modal-body-ajax").html('');
                                     $("#yakkr453detail-modal .modal-body-ajax").append(data);

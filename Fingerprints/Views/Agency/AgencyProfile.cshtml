@@ -1298,7 +1298,7 @@
 
 
         function isValidagencyInfo() {
-            debugger;
+          //  debugger;
             var count1 = 0;
             var countgrd1 = 0;
             cleanValidation();
@@ -3599,6 +3599,13 @@
             content: "\f14a";
             font: normal normal normal 14px/1 FontAwesome;
         }
+
+        .hw-btn {
+        border-radius: 0;
+    width: 85px;
+        
+        }
+
     </style>
 
 
@@ -3987,10 +3994,22 @@
 
                         }
 
-                        <div class="col-lg-6 col-md-6 col-sm-12">
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="pwd">FSW Yearly Visit<sup>*</sup></label>
                                 @Html.TextBoxFor(m => m.FSWYearlyVisit, new { @class = "form-control", placeholder = "FSW Yearly Visit", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>*@
+
+                       @* Html and scripts location ==>  Partialviews/_TeacherParentVisitModal*@
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">
+                                Set Home / Center </br>
+                                    Visit Date For</><sup>*</sup></label>
+                           
+                            <button type="button" class="hw-btn" data-btnfor="2">Teacher</button>
+                                <button type="button" class="hw-btn" data-btnfor="1">FSW</button>
                             </div>
                         </div>
 
@@ -4846,7 +4865,59 @@
                     </div>	<!--btnwrp_subcal--->
                 </div>
             </div>
-        </form>
+
+            @{ var _VDIndex = 0;}
+            <div id="tcr-visit-data" style="display:none;">
+@if (Model.VisitDetails != null)
+{
+foreach (var item in Model.VisitDetails)
+{
+
+    if (item.Role == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+    {
+
+        <input type ="hidden" name ="VisitDetails[@_VDIndex].Role" value ="@item.Role" data -for= "Teacher" />
+        <input type="hidden" name="VisitDetails[@_VDIndex].Type" value="@item.Type" data-rolefor="Teacher" data-for="In Home Visit" />
+        <input type="hidden" name="VisitDetails[@_VDIndex].VisitCount" value="@item.VisitCount" data-for="Vist Count" />
+        <input type="text" name="VisitDetails[@_VDIndex].FromDays"  value="@item.FromDays" class="form-control" placeholder="Days in number" />
+        <input type="text" name="VisitDetails[@_VDIndex].ToDays" value="@item.ToDays" class="form-control" placeholder="Days in number" />
+
+        _VDIndex = _VDIndex + 1;
+    }
+}
+}
+            </div>
+
+            <div id="fsw-visit-data" style="display:none;">
+@if (Model.VisitDetails != null)
+{
+foreach (var item in Model.VisitDetails)
+{
+
+    if (item.Role == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")
+    {
+        <input type="hidden" name="VisitDetails[@_VDIndex].Role"value="@item.Role" data-for="FSW" />
+        <input type="hidden" name="VisitDetails[@_VDIndex].Type" value="@item.Type" data-rolefor="FSW" data-for="In Home Visit" />
+        <input type="hidden" name="VisitDetails[@_VDIndex].VisitCount" value="@item.VisitCount" data-for="Vist Count" />
+        <input type="text" name="VisitDetails[@_VDIndex].FromDays" value="@item.FromDays" class="form-control" placeholder="Days in number" />
+        <input type="text" name="VisitDetails[@_VDIndex].ToDays" value="@item.ToDays" class="form-control" placeholder="Days in number" />
+        _VDIndex = _VDIndex + 1;
+    }
+}
+}
+    </div>
+
+            @*<div id="tcr-1stvisit-data" style="display:none;">
+                <input type="hidden" name="VisitDetails[@_VDIndex].Role" value="82b862e6-1a0f-46d2-aad4-34f89f72369a" data -for="Teacher" />
+                <input type="hidden" name="VisitDetails[@_VDIndex].Type" value="1" data-rolefor="Teacher" data-for="In Home Visit" />
+                <input type="hidden" name="VisitDetails[@_VDIndex].VisitCount" value="1" data-for="Vist Count" />
+                <input type="text" name="VisitDetails[@_VDIndex].FromDays" value="1" class="form-control" placeholder="Days in number" />
+                <input type="text" name="VisitDetails[@_VDIndex].ToDays" value="365" class="form-control" placeholder="Days in number" />
+
+            </div>*@
+
+
+</form>
 
 
     </div><!--add-useragform--->
@@ -5091,6 +5162,18 @@
         </div>
 
     </div>
+
+
+
+<script type="text/javascript">
+
+    var _VistDetails = @Html.Raw(Json.Encode(@Model.VisitDetails));
+    var _isAddAgency = @(Model.agencyId == null ? "true" : "false");
+    var _tcrDateValid=false,_fswDateValid=false;
+
+</script>
+
+@Html.Partial("~/Views/Partialviews/_TeacherParentVisitModal.cshtml")
 
 }
 
