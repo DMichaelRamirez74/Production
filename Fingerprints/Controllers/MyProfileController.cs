@@ -140,7 +140,7 @@ namespace Fingerprints.Controllers
                     else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
                         newLocation = "~/Home/Dashboard";
 
-                    else if (Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.Role.centerManager.ToLowerInvariant())
+                    else if (Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.Role.RolesDictionary[(int)RoleEnum.CenterManager].ToLowerInvariant())
                         newLocation = "~/Home/Dashboard";
 
                     //Disabilities Manager Dashboard

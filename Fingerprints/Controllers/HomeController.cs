@@ -63,8 +63,7 @@ namespace Fingerprints.Controllers
         }
         //   [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
 
-        [CustAuthFilter(userTypeArray: new string[] { Role.agencyAdmin, Role.gEarthAdministrator, Role.superAdmin })]
-
+        [CustAuthFilter(RoleEnum.AgencyAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
 
 
         public ActionResult AgencyAdminDashboard(string id = "0")
@@ -1558,15 +1557,15 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            if (Role.disabilitiesManager.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            if (Role.RolesDictionary[(int)RoleEnum.DisabilitiesManager].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
             {
             return RedirectToAction("AgencyDisabilityManagerDashboard");
             }
-            else if (Role.disabilityStaff.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            else if (Role.RolesDictionary[(int)RoleEnum.DisabilityStaff].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
             {
                 return RedirectToAction("DisabilityStaffDashboard");
             }
-            else if (Role.teacher.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant() || Role.teacherAssistant.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            else if (Role.RolesDictionary[(int)RoleEnum.Teacher].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant() || Role.RolesDictionary[(int)RoleEnum.TeacherAssistant].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
             {
                 return RedirectToAction("Roster", "Teacher");
             }

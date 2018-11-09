@@ -72,7 +72,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")
         {
             try
@@ -127,7 +127,7 @@ namespace Fingerprints.Controllers
             }
         }
         //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        [CustAuthFilter(new string[] { Role.teacher})]
+        [CustAuthFilter(RoleEnum.Teacher)]
         public ActionResult GetChildDevelopmentTeamByChildId(string ClientId, string CenterId)
         {
             string JSONString = string.Empty;
@@ -145,7 +145,7 @@ namespace Fingerprints.Controllers
         }
 
         //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        [CustAuthFilter(new string[] { Role.teacher})]
+        [CustAuthFilter(RoleEnum.Teacher)]
         public ActionResult AddChildReferealNotes(List<YakkrRouting> yakkrdetails)
         {
             bool Result = false;

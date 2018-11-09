@@ -44,7 +44,116 @@
         @@media (min-width:320px) and (max-width:991px) {
        .wrp-txt p{text-align:center!important;}
         }  
+        /**responsive section**/
+@@media
+	  only screen 
+    and (max-width: 760px), (min-device-width: 768px) 
+    and (max-device-width: 1200px)  {
+		/* Force table to not be like tables anymore */
+		  #grid_ScreeningStatistics,   #grid_ScreeningStatistics thead,   #grid_ScreeningStatistics tbody,   #grid_ScreeningStatistics th,   #grid_ScreeningStatistics td,   #grid_ScreeningStatistics tr {
+			display: block;
+            border:none;
+		}
+		/* Hide table headers (but not display: none;, for accessibility) */
+		  #grid_ScreeningStatistics thead tr {
+			position: absolute;
+			top: -9999px;
+			left: -9999px;
+		}
+     #grid_ScreeningStatistics tr {
+      margin: 0 7px 2em 0;
+      box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
     }
+    #grid_ScreeningStatistics  tr:nth-child(odd) {
+      background: #ffffff;
+      border:1px solid #ccc;
+          border-radius: 8px;
+    }
+     #grid_ScreeningStatistics  tr:nth-child(even) {
+      background: #f1f5f8;
+      border:1px solid #ccc;
+          border-radius: 8px;
+    }
+		  #grid_ScreeningStatistics td {
+			/* Behave  like a "row" */
+			border: none;
+			border-bottom: 1px solid #eee;
+			position: relative;
+			/*padding-left: 50%;*/
+		}
+	  #grid_ScreeningStatistics	td:before {
+			/* Now like a table header */
+			position: absolute;
+			/* Top/left values mimic padding */
+			top: 0;
+			left: 6px;
+			width: 45%;
+			padding-right: 10px;
+			white-space: nowrap;
+		}
+      .table-div
+      {
+          border:none!important;
+      }
+		/*
+		Label the data
+    You could also use a data-* attribute and content for this. That way "bloats" the HTML, this way means you need to keep HTML and CSS in sync. Lea Verou has a clever way to handle with text-shadow.
+		*/
+		/*td:nth-of-type(1):before { content: "Center Name"; }
+		td:nth-of-type(2):before { content: "% Full"; }
+		td:nth-of-type(3):before { content: "Open Seats"; }
+		td:nth-of-type(4):before { content: "HV's"; }
+		td:nth-of-type(5):before { content: "Wait1"; }
+		td:nth-of-type(6):before { content: "Wait2"; }
+		td:nth-of-type(7):before { content: "Wait3"; }
+		td:nth-of-type(8):before { content: "T-Waiting"; }
+		td:nth-of-type(9):before { content: "F-Waiting"; }
+		td:nth-of-type(10):before { content: "Pending"; }
+        td:nth-of-type(11):before { content: "Accepted"; }
+        td:nth-of-type(12):before { content: "Returned"; }*/
+         #grid_ScreeningStatistics td:before{
+            content: attr(data-title);
+                text-align: left;
+                    padding-top: 0.6em;
+                        margin-left: 1em;
+        }
+            /*td.centered-td {
+            text-align:center;
+            }*/
+          #grid_ScreeningStatistics>  tbody>tr>td{
+               text-align:right!important;
+               margin-right:2em
+            }
+	}
+td.centered-td {
+            text-align:right;
+            }
+    /*Fixed Header and Scroll tbody*/
+    /*.scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }*/
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            /*width: calc( 100% - 17px );*/
+        }
+        .scroll-tbody tr td {
+            word-break: break-word;
+        }
+        .scroll-tbody {
+            display: block;
+            /*height: 250px;*/
+            overflow: auto;
+            max-height:32em;
+            overflow-x: hidden;
+        }
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+/*Fixed Header and Scroll tbody*/
 </style>
 
 }
@@ -63,6 +172,16 @@
             @{
                 TempData["message"] = null;
             }
+            $('.modal').attr({ 'data-backdrop': 'static', 'data-keyboard': false });
+            $(document).ajaxStart(function () {
+                $('#spinner').show();
+            });
+            $(document).ajaxStop(function () {
+                $('#spinner').hide();
+            });
+            $('#Modalclientscreeningmissing').on('hidden.bs.modal', function () {
+                $(this).find('#Classroommatrix').find('option').remove().end();
+            })
         });
 
         function showImage(ele) {
@@ -118,7 +237,7 @@
                 },
                 dataType: "json",
                 secureuri: false,
-                async: false,
+                async: true,
                 success: function (data) {
 
                     $('#Modalclientenrolled').find('input[name=centerIdhide]').val($(Object).attr("accesskey")),
@@ -226,7 +345,7 @@
                     tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
                     // tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
                     tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
-                    tr += '<td height="70" style="width:13%;"></td>';
+                    tr += '<td height="70" style="width:13%;">'+data.list.Rosters[i].Teacher+'</td>';
                     tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].Dayscount + '</td>';//Changes on 30Dec2016
                     tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
                     tr += '<td height="70" style="width:23%;">';
@@ -307,65 +426,46 @@
                         tr += 'Other';
                     }
                     tr += '</td>';
-                    //End
 
-                    //tr += '<td style="text-align:center;width:11%;">';
-                    //if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
-                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_female.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
-                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
-                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male_default.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture != "") {
-                    //    tr += '<img class="roundimage" style="width:59%" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
-                    //}
-                    //else {
-                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/download.jpg" />';
-                    //}
-                    //tr += '</td>';
 
 
                     tr += '<td height="70" style="text-align:center;width:11%;"><a href="javascript:void(0)" onclick="showImage(this);" eclientid='+data.list.Rosters[i].Eclientid+'>View</a></td>';
 
 
                     tr += '<td style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
-                    // tr += '<td style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
+                  
                     tr += '<td style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
-                    tr += '<td style="width:13%;"></td>';
+                    tr += '<td style="width:13%;">'+data.list.Rosters[i].Teacher+'</td>';
                     tr += '<td style="width:13%;">' + data.list.Rosters[i].Dayscount + '</td>';//Changes on 30Dec2016
                     tr += '<td style="width:13%;display:none;" id="divOne" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
                     tr += '<td style="width:23%;">';
 
                     tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes"href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                    //tr += '<a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0' + '&Programid=' + data.list.Rosters[i].ProgramId + '">FPA </a>  &nbsp';
-                    //tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">FSA </a>  &nbsp';
-                    //tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
-                    //Changes on 6jan2017
+            
                     tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">REF </a>  &nbsp';
                     tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
                     tr += '<a title="" style="text-decoration: underline; cursor: pointer;">ED </a> </td></tr>';//Changes on 3jan2016
-                    //tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;">ED </a></td></tr>';
+                  
                     $('#DivclientenrolledList > tbody').append(tr);
                 }
                 $('#centerIdGrid').val(data.list.Rosters[0].CenterId);
-                // $('#Modalclientenrolled').modal('toggle');
+               
             }
 
-            if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
-                var option = "";
-                $('#Classroom').find('option').remove().end();
-                if ($('#Classroom').find('option').length < 1) {
-                    for (var i = 0; i < data.list.ClassroomsNurse.length; i++) {
-                        option = option + '<option value="' + data.list.ClassroomsNurse[i].ClassroomID + '">' + data.list.ClassroomsNurse[i].ClassName + '</option>';
-                    }
-                    $('#Classroom').find('option').remove().end().append(option);
-                    $('#Classroom').val('');
-                }
+            //if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
+            //    var option = "";
+            //    $('#Classroom').find('option').remove().end();
+            //    if ($('#Classroom').find('option').length < 1) {
+            //        for (var i = 0; i < data.list.ClassroomsNurse.length; i++) {
+            //            option = option + '<option value="' + data.list.ClassroomsNurse[i].ClassroomID + '">' + data.list.ClassroomsNurse[i].ClassName + '</option>';
+            //        }
+            //        $('#Classroom').find('option').remove().end().append(option);
+            //        $('#Classroom').val('');
+            //    }
 
-            }
+            //}
+            //if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
+            //}
         }
 
 
@@ -498,7 +598,10 @@
                 if (column != null) {
                     th += "<tr><th>Client</th>";
                     for (var i = 2; i < column.length; i++) {
+                        if (column[i] != 'Center' && column[i] != 'Classroom' && column[i]!='ClientID' &&column[i]!='Client')
+                        {
                         th += "<th>" + column[i] + "</th>";
+                        }
                     }
                     th += "</tr>";
                     $('#DivclientmissingList > thead').append(th);
@@ -510,6 +613,8 @@
                     for (var j = 1; j < rows.length; j++) {
                         if (j == 1)
                             tr += "<td>" + rows[j] + "</td>";
+                        else if(j==2)
+                            tr += "<td>" + rows[j] + "</td>";
                         else if (rows[j] == "M")
                             tr += "<td><span style='color:#295b8f;'>" + rows[j] + " </span></td>";
                         else if (rows[j].indexOf("ExpiredDate") > -1) {
@@ -519,10 +624,10 @@
                             tr += "<td>" + rows[j].replace('ScreeningDate', '') + " </td>";
                         else if (rows[j].indexOf("ExpiringDate") > -1)
                             tr += "<td><span style='color:#FFA500;' >" + rows[j].replace('ExpiringDate', '') + " </span></td>";
-                        else if (rows[j]!="")
-                            tr += "<td><span >" + rows[j] + " </span></td>";
-                        else
+                        else if (rows[j] == "")
                             tr += "<td><span >REFUSED </span></td>";
+                        //else
+                        //    tr += "<td><span >REFUSED </span></td>";
                     }
                     tr += "</tr>";
                     $('#DivclientmissingList > tbody').append(tr);
@@ -854,159 +959,42 @@
 
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
-        @*<div class="col-lg-12">
-            <h2 class="page-header">Application Approval Dashboard</h2>
-        </div>*@
 
 
-    </div>
     
    
-    @*<div class="row">
-        <div class="col-sm-12">
-            <div class="agencybox1">
-                <div class="heading_box1"><h3>Center Statistics</h3></div>
-                <div class="inner-con">
-                    <div class="row">
-                        <div class="wrp-txt">
-                            <div class="col-sm-4" style="font-weight: bold;"><p style="color: #285b8f;">Center Name</p></div>
-                            <div class="col-sm-3"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Pending Records</p> </div>
-                            <div class="col-sm-2"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Accepted to Date</p> </div>
-                            <div class="col-sm-2"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Returned to Date</p> </div>
+            <div class="col-lg-12">
+                <h2 class="page-header">Screening Statistics for Children</h2>
 
-                        </div>
-                        @if (ViewBag.Centerlist != null)
-                        {
-                            try
-                            {
 
-                                int Routecode100 = 0;
-                                int Routecode101 = 0;
-                                int Routecode102 = 0;
-                                foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
-                                {
-                                    <div class="wrp-txt">
 
-                                        @if (!string.IsNullOrEmpty(@center.Routecode100) && @center.Routecode100 != "0")
-                                        {
-                                            <div class="col-sm-4"><p><a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)">@center.Name</a></p></div>
-                                        }
-                                        else
-                                        {
-                                            <div class="col-sm-4"><p><a href="#">@center.Name</a></p></div>
 
-                                        }
 
-                                        <div class="col-sm-3">
-                                            <p style="text-align: right;">
 
-                                                @if (!string.IsNullOrEmpty(@center.Routecode100) && @center.Routecode100 != "0")
-                                                {
-                                                    <a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)"> @center.Routecode100</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="#">0</a>
-                                                }
-                                            </p>
-                                        </div>
-                                        <div class="col-sm-2">
-                                            <p style="text-align: right;">
-                                                @if (!string.IsNullOrEmpty(@center.Routecode101) && @center.Routecode101 != "0")
-                                                {
-                                                    <a href="#"> @center.Routecode101</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="#"> 0</a>
-                                                }
-                                            </p>
-                                        </div>
-                                        <div class="col-sm-2">
-                                            <p style="text-align: right;">
-                                                @if (!string.IsNullOrEmpty(@center.Routecode102) && @center.Routecode102 != "0")
-                                                {
-                                                    <a href="#"> @center.Routecode102</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="#">0</a>
-                                                }
 
-                                            </p>
-                                        </div>
-                                    </div>
-                                    if (!string.IsNullOrEmpty(@center.Routecode100))
-                                    {
-                                        Routecode100 = Routecode100 + Convert.ToInt32(@center.Routecode100);
-                                    }
-                                    if (!string.IsNullOrEmpty(@center.Routecode101))
-                                    {
-                                        Routecode101 = Routecode101 + Convert.ToInt32(@center.Routecode101);
-                                    }
-                                    if (!string.IsNullOrEmpty(@center.Routecode102))
-                                    {
-                                        Routecode102 = Routecode102 + Convert.ToInt32(@center.Routecode102);
-                                    }
-                                }
-                                <div class="wrp-txt">
-                                    <div class="col-sm-4"><p><a href="#">Totals</a></p></div>
-                                    <div class="col-sm-3">
-                                        <p style="text-align: right;">
-                                            <a href="#"> @Routecode100</a>
-                                        </p>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <p style="text-align: right;">
-                                            <a href="#"> @Routecode101</a>
-                                        </p>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <p style="text-align: right;">
-                                            <a href="#"> @Routecode102</a>
-                                        </p>
-                                    </div>
-                                </div>
 
-                            }
-                            catch (Exception Ex)
-                            {
-                                FingerprintsModel.clsError.WriteException(Ex);
 
-                            }
 
-                        }
-                    </div>
-                </div>
             </div>
-            <!---agencybox1-->
         </div>
-    </div>*@
 
 
     <div class="row">
-        <div class="col-lg-12">
-            <h2 class="page-header">Screening Info</h2>
-        </div>
-
-        <div class="col-sm-12">
-            <div class="agencybox1">
-                <div class="heading_box1"><h3>Screening Statistics</h3></div>
-                <div class="inner-con">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="wrp-txt">
-                                <div class="col-sm-2" style="font-weight: bold;"><p style="color: #285b8f; text-align: left;">Center Name</p></div>
-                                <div class="col-sm-1"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Roster Enrollment</p> </div>
-                                <div class="col-sm-4">
-                                    <div class="col-sm-6" style="font-weight: bold;"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Total Possible Screenings</p></div>
-                                    <div class="col-sm-6" style="font-weight: bold;"><p style="text-align: center; color: #285b8f;">Declined Screenings</p></div>
-                                </div>
-                                <div class="col-sm-2"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Screening Matrix</p> </div>
-                                <div class="col-sm-2"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Rescreen Required</p> </div>
-                                <div class="col-sm-1"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Withdrawn</p> </div>
-                            </div>
-                        </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="table-responsive table-div">
+                    <table class="table table_size table-striped" id="grid_ScreeningStatistics" role="table">
+                        <thead  role="rowgroup" class="scroll-thead">
+                            <tr role="row">
+                                <th role="columnheader">Center Name</th>
+                                <th role="columnheader">Roster Enrollment</th>
+                                <th role="columnheader">Total Possible Screenings</th>
+                                <th role="columnheader">Declined Screenings</th>
+                                <th role="columnheader">Screening Matrix</th>
+                                <th role="columnheader">Rescreen Required</th>
+                                <th role="columnheader">Withdrawn</th>
+                            </tr>
+                        </thead>
+                        <tbody role="rowgroup" class="scroll-tbody">
 
                         @if (ViewBag.Screeninglists != null && (DataTable)ViewBag.Screeninglists != null && ((DataTable)ViewBag.Screeninglists).Rows.Count >= 0)
                         {
@@ -1014,47 +1002,41 @@
                             {
                                 foreach (DataRow Row in ((DataTable)ViewBag.Screeninglists).Rows)
                                 {
-                                    <div class="col-sm-12">
-                                        <div class="wrp-txt">
-                                            <div class="col-sm-2">
-                                                <p style="text-align:left">
-                                                    <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0") { <text> onclick="Loadcenterscreening(this);" </text>     }>@Convert.ToString(@Row["CenterName"])</a>
-                                                </p>
-                                            </div>
-                                            <div class="col-sm-1">
-                                                <p style="text-align: center;">
-                                                    <a href="javascript:void(0)" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0") { <text> onclick="Loadallenrolled(this);" </text>   }>@Convert.ToString(@Row["clientenrolled"])</a>
-                                                </p>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="col-lg-6">
-                                                    <p style="text-align: center;">
+                                        <tr role="row">
+                                            <td data-title="Center Name"  role="gridcell">
+                                                <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0")
+                                                { <text> onclick="Loadcenterscreening(this);" </text>         }>@Convert.ToString(@Row["CenterName"])</a>
+                                            </td>
+
+
+                                            <td data-title="Roster Enrollment" class="centered-td" role="gridcell">
+                                                <a href="javascript:void(0)" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0")
+                                                { <text> onclick="Loadallenrolled(this);" </text>      }>@Convert.ToString(@Row["clientenrolled"])</a>
+                                            </td>
+
+                                            <td data-title="Total Possible Screenings" class="centered-td" role="gridcell">
                                                         <span> @Convert.ToString(@Row["Totalscreening"])</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <p style="text-align: center;">
+                                            </td>
+
+                                            <td data-title="Declined Screenings" class="centered-td" role="gridcell">
                                                         <a href="javascript:void(0)" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["DeclinedScreenings"]) != "0") { <text> onclick="Loaddeclinedscreening(this);" </text>    }>@Convert.ToString(@Row["DeclinedScreenings"])</a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <p style="text-align: center;">
+                                            </td>
+
+                                            <td data-title="Screening Matrix" class="centered-td" role="gridcell">
                                                     <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["ScreeningMissing"]) == "0" || @Convert.ToString(@Row["ScreeningMissing"]) != "0") { <text> onclick="Loadchildmissingscreening(this);" </text>     }>@Convert.ToString(@Row["ScreeningMissing"])</a>
-                                                </p>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <p style="text-align: center;">
+
+                                            </td>
+
+                                            <td data-title="Rescreen Required" class="centered-td" role="gridcell">
                                                     <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["RescreenRequired"]) != "0") { <text> onclick="LoadRescreenn(this);" </text>      }>@Convert.ToString(@Row["RescreenRequired"])</a>
-                                                </p>
-                                            </div>
-                                            <div class="col-sm-1">
-                                                <p style="text-align: center;">
+                                            </td>
+
+                                            <td data-title="Withdrawn" class="centered-td" role="gridcell">
                                                     <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["Withdrawn"]) != "0") { <text> onclick="LoadWithdrawn(this);" </text>       }>@Convert.ToString(@Row["Withdrawn"])</a>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                                            </td>
+
+                                        </tr>
                                 }
 
 
@@ -1066,23 +1048,22 @@
                             }
 
                         }
-                    </div>
+                            </tbody>
+                        </table>
                 </div>
-            </div><!---agencybox1-->
         </div>
     </div>
-    @*Pop up total screening*@
-    @*Changes on 29Dec2016*@
+
+
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="Modalclientenrolled" role="dialog">
             <div class="modal-dialog income-popup width-auto">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        @*Changes on 30Dec2016*@
-                        @*<h3 id="CenterName" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>*@
+
                         <h3 id="CenterName" class="text-center">Roster for Client<span class="extra-title muted"></span></h3>
-                        @*End*@
+
 
                         <div class="col-lg-6 pull-left">
                             <label class="col-lg-2" style="">Center :</label>
@@ -1108,7 +1089,7 @@
                                         <div class="col-lg-3">
                                             <div class="form-group">
                                                 <label for="RaceId">Classrooms</label>
-                                                @*@Html.TextBoxFor(m => m.MedicalNote, new { placeholder = "Center", id = "Center", maxlength = "50", @class = "form-control", tabIndex = "4" })*@
+
 
                                                 <select id="Classroom" style="height:38px !important;" class="form-control"></select>
                                             </div>
@@ -1116,7 +1097,7 @@
                                         <div class="col-sm-3" style="padding-top: 2%;">
                                             <button id="btnsearch" class="my-btn" onclick="drawgrid();">Search</button>
                                             <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
-                                            <input type="hidden" id="centerIdGrid" name="centerIdGrid" />@*Added on 30Dec2016*@
+                                                    <input type="hidden" id="centerIdGrid" name="centerIdGrid" />
                                         </div>
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                             <div class="table-responsive">
@@ -1124,9 +1105,9 @@
                                                     <thead style="cursor:pointer;">
                                                         <tr>
                                                             <th style="width: 18%;">Client</th>
-                                                            @*Added on 4Jan2017*@
+
                                                             <th></th>
-                                                            @*End*@
+
                                                             <th>Gender</th>
                                                             <th>Profile Picture</th>
                                                             <th>DOB</th>
@@ -1157,9 +1138,7 @@
 
     @*---End-----*@
 
-    @*Pop up center screening*@
 
-    @*Pop up center screening*@
 
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="Modalcenterscreening" role="dialog">

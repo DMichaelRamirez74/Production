@@ -1191,11 +1191,11 @@ namespace Fingerprints.Controllers
         [JsonMaxLengthAttribute]
         //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
-        public JsonResult Saveclientclassscreening(List<Nurse.clients> ClientScreenings)
+        public JsonResult Saveclientclassscreening(List<Nurse.clients> ClientScreenings, string screeningDateQuestionID)
         {
             try
             {
-                return Json(_nurse.Saveclientclassscreening(ClientScreenings, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.Saveclientclassscreening(ClientScreenings,screeningDateQuestionID, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
             }
             catch (Exception Ex)
             {
@@ -1225,7 +1225,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.GetDeclinedScreeningList(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.GetDeclinedScreeningList(Centerid, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString()));
             }
             catch (Exception Ex)
             {
@@ -1245,7 +1245,7 @@ namespace Fingerprints.Controllers
                 {
                     Centerid = EncryptDecrypt.Decrypt64(Centerid);
                 }
-                var list = _nurse.Getchildscreeningroster(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString());
+                var list = _nurse.Getchildscreeningroster(Centerid, Classroom, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString());
                 return Json(new { list });
             }
             catch (Exception Ex)
@@ -1262,7 +1262,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.LoadGroupCaseNoteClient(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.LoadGroupCaseNoteClient(Centerid, Classroom, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString()));
             }
             catch (Exception Ex)
             {
@@ -1277,7 +1277,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.ViewGroupCaseNoteClient(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.ViewGroupCaseNoteClient(Centerid, Classroom, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString()));
             }
             catch (Exception Ex)
             {
@@ -1292,7 +1292,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.GetReScreeningList(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.GetReScreeningList(Centerid, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString() ,staffDetails.RoleId.ToString()));
             }
             catch (Exception Ex)
             {
@@ -1307,7 +1307,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.GetWithdrawnList(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.GetWithdrawnList(Centerid, staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString()));
             }
             catch (Exception Ex)
             {

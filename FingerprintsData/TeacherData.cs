@@ -209,21 +209,21 @@ namespace FingerprintsData
                         }
                         ScreeningMatrix.Classroom = Classlist;
                     }
-                    if (_dataset.Tables[2].Rows.Count > 0)
-                    {
-                        Roster Roster = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
-                        {
-                            Roster = new Roster();
-                            Roster.Eclientid = dr["clientid"].ToString();
-                            Roster.Name = dr["name"].ToString();
-                            Roster.CenterName = dr["CenterName"].ToString();
-                            Roster.ClassroomName = dr["ClassroomName"].ToString();
-                            Roster.ScreeningName = dr["ScreeningName"].ToString();
-                            Rosterlist.Add(Roster);
-                        }
-                        ScreeningMatrix.ClientsClassroom = Rosterlist;
-                    }
+                    //if (_dataset.Tables[2].Rows.Count > 0)
+                    //{
+                    //    Roster Roster = null;
+                    //    foreach (DataRow dr in _dataset.Tables[2].Rows)
+                    //    {
+                    //        Roster = new Roster();
+                    //        Roster.Eclientid = dr["clientid"].ToString();
+                    //        Roster.Name = dr["name"].ToString();
+                    //        Roster.CenterName = dr["CenterName"].ToString();
+                    //        Roster.ClassroomName = dr["ClassroomName"].ToString();
+                    //        Roster.ScreeningName = dr["ScreeningName"].ToString();
+                    //        Rosterlist.Add(Roster);
+                    //    }
+                    //    ScreeningMatrix.ClientsClassroom = Rosterlist;
+                    //}
                 }
             }
             catch (Exception ex)

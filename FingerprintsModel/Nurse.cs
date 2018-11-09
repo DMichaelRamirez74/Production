@@ -1325,12 +1325,15 @@ namespace FingerprintsModel
                 public string Status { get; set; }
                 public string Notes { get; set; }
                 public string Exception { get; set; }
+            public string DOB { get; set; }
+            public string ScreeningDateQuestionID { get; set; }
                 public List<ScreeningStatus> _ScreeningStatus { get; set; }
             }
             public class ScreeningStatus
             {
                 public string Optionid { get; set; }
                 public string Optionname { get; set; }
+            public string OptionValue { get; set; }
             }
 
 

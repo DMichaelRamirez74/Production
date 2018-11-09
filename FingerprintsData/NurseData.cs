@@ -3316,6 +3316,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Center", centerid));
                 command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getchildscreeningcenter";
@@ -3376,6 +3377,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ClassRoom", DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getchildmissingscreeningcenter";
@@ -3418,21 +3420,21 @@ namespace FingerprintsData
                         }
                         ScreeningMatrix.Classroom = Classlist;
                     }
-                    if (_dataset.Tables[2].Rows.Count > 0)
-                    {
-                        Roster Roster = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
-                        {
-                            Roster = new Roster();
-                            Roster.Eclientid = dr["clientid"].ToString();
-                            Roster.Name = dr["name"].ToString();
-                            Roster.CenterName = dr["centername"].ToString();
-                            Roster.ClassroomName = dr["ClassroomName"].ToString();
-                            Roster.ScreeningName = dr["ScreeningName"].ToString();
-                            Rosterlist.Add(Roster);
-                        }
-                        ScreeningMatrix.ClientsClassroom = Rosterlist;
-                    }
+                    //if (_dataset.Tables[2].Rows.Count > 0)
+                    //{
+                    //    Roster Roster = null;
+                    //    foreach (DataRow dr in _dataset.Tables[2].Rows)
+                    //    {
+                    //        Roster = new Roster();
+                    //        Roster.Eclientid = dr["clientid"].ToString();
+                    //        Roster.Name = dr["name"].ToString();
+                    //        Roster.CenterName = dr["centername"].ToString();
+                    //        Roster.ClassroomName = dr["ClassroomName"].ToString();
+                    //        Roster.ScreeningName = dr["ScreeningName"].ToString();
+                    //        Rosterlist.Add(Roster);
+                    //    }
+                    //    ScreeningMatrix.ClientsClassroom = Rosterlist;
+                    //}
                 }
             }
             catch (Exception ex)
@@ -3519,6 +3521,8 @@ namespace FingerprintsData
                             info.clientid = dr["ClientID"].ToString();
                             info.Screeningid = dr["screeningid"].ToString();
                             info.name = dr["ClientName"].ToString();
+                            info.ScreeningDateQuestionID = dr["ScreeningDateQuestionID"].ToString();
+                            info.DOB = dr["DOB"].ToString();
                             if (_dataset.Tables.Count >1 &&  _dataset.Tables[1] !=null)
                             {
                                 Nurse.ScreeningStatus ScreeningStatus = null;
@@ -3527,6 +3531,7 @@ namespace FingerprintsData
                                     ScreeningStatus = new Nurse.ScreeningStatus();
                                     ScreeningStatus.Optionid = statusrows["optionid"].ToString();
                                     ScreeningStatus.Optionname = statusrows["optionname"].ToString();
+                                    ScreeningStatus.OptionValue = statusrows["OptionValue"].ToString();
                                     ListStatus.Add(ScreeningStatus);
                                 }
                                 info._ScreeningStatus = ListStatus;
@@ -3557,6 +3562,7 @@ namespace FingerprintsData
            
             try
             {
+                string screeningDateQnID = (ClientScreenings.Count > 0) ? ClientScreenings.Select(x => x.ScreeningDateQuestionID).FirstOrDefault():"0";
                 DataTable dt = new DataTable();
                 dt.Columns.AddRange(new DataColumn[8] { 
                     new DataColumn("Screeningid", typeof(int)),
@@ -3578,6 +3584,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@ScreeningDateQuestionID", screeningDateQnID));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -3670,7 +3677,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString());
                             info.Name = dr["ClientName"].ToString();
                             info.ProgramId = dr["ReferenceProg"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                        info.DOB = Convert.ToString(dr["DOB"]);
                             info.Gender = dr["gender"].ToString();
                             info.Screeningid = dr["screeningid"].ToString();
                             RosterList.Add(info);
@@ -3717,7 +3724,7 @@ namespace FingerprintsData
                             info = new Roster();
                             info.Eclientid =dr["ClientID"].ToString();
                             info.Name = dr["ClientName"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["dob"]);
                             info.Gender = dr["gender"].ToString();
                             info.Screeningid = dr["screeningid"].ToString();
                             RosterList.Add(info);
@@ -3737,7 +3744,7 @@ namespace FingerprintsData
             return RosterList;
 
         }
-        public string Saveclientclassscreening(List<Nurse.clients> ClientScreenings, string userid, string agencyid)
+        public string Saveclientclassscreening(List<Nurse.clients> ClientScreenings,string screeningDateQuestionId, string userid, string agencyid)
         {
 
             try
@@ -3762,6 +3769,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@ScreeningDateQuestionID", screeningDateQuestionId));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -3811,10 +3819,10 @@ namespace FingerprintsData
                         info.Eclientid = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString());
                         info.Name = dr["ClientName"].ToString();
                         info.ProgramId = dr["ReferenceProg"].ToString();
-                        info.MissingScreeningdate = Convert.ToDateTime(dr["MissingScreeningdate"]).ToString("MM/dd/yyyy");
+                        info.MissingScreeningdate = Convert.ToString(dr["MissingScreeningdate"]);
                         info.MissingScreeningstatus = dr["MissingStatus"].ToString();
                         info.Screeningid = dr["screeningid"].ToString();
-                        info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                        info.DOB = Convert.ToString(dr["dob"]);
                         RosterList.Add(info);
                     }
 
@@ -3859,7 +3867,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString());
                             info.EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Name = dr["name"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["dob"]);
                             info.Gender = dr["gender"].ToString();
                             info.ScreeningName = dr["screeningname"].ToString();
                             info.CenterName = dr["centername"].ToString();
@@ -4053,7 +4061,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString());
                             info.EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Name = dr["name"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["dob"]);
                             info.Gender = dr["gender"].ToString();
                             info.ScreeningName = dr["screeningname"].ToString();
                             info.CenterName = dr["centername"].ToString();

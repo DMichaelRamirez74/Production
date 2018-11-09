@@ -32,8 +32,8 @@ namespace Fingerprints.Controllers
         */
         agencyData _Data = new agencyData();
         HomevisitorData homeVisitorData = new HomevisitorData();
-     
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult Classrooms()
         {
             try
@@ -48,7 +48,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult HomeBasedSocialization()
         {
             try
@@ -62,14 +62,14 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult Scheduler()
         {
 
             return View();
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor )]
         public JsonResult getevents()
         {
             try
@@ -88,7 +88,7 @@ namespace Fingerprints.Controllers
             //  return Json(m);
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public JsonResult getclients()
         {
             List<customclient> list = new List<customclient>();
@@ -121,7 +121,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public JsonResult saveEvent(Scheduler _event, FormCollection collection, Recurrence recurrence)
         {
             string result = string.Empty;
@@ -147,7 +147,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(new string[] { Role.homeVisitor })]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult Delete(Scheduler _event)
         {
             string result = string.Empty;

@@ -269,15 +269,14 @@
                 var tbody = $('#Gridclient > tbody');
                 for (var i = 0; i < data.list.length; i++) {
                     var tr = "";
-                    tr += "<tr>";  //by atul 27-03-2017
-                    //  tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data.list[i].Eclientid + '&Screeningid=0&name=' + data.list[i].Name + '&Dob=' + data.list[i].DOB + '&Programid=' + data.list[i].ProgramId + '&dashboard=0">' + ((typeof (data.list[i].Name) != 'undefined') && (data.list[i].Name != null) ? data.list[i].Name : '') + '</a></td>';
+                    tr += "<tr role='row'>";  //by atul 27-03-2017
 
-                    tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data.list[i].Eclientid + '&Programid=' + data.list[i].ProgramId + '">' + ((typeof (data.list[i].Name) != 'undefined') && (data.list[i].Name != null) ? data.list[i].Name : '') + '</a></td>';
+                    tr += '<td data-title="Client" role="gridcell"><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data.list[i].Eclientid + '&Programid=' + data.list[i].ProgramId + '">' + ((typeof (data.list[i].Name) != 'undefined') && (data.list[i].Name != null) ? data.list[i].Name : '') + '</a></td>';
 
-                    tr += "<td>" + ((typeof (data.list[i].ProgramType) != 'undefined') && (data.list[i].ProgramType != null) ? data.list[i].ProgramType : '') + " </span></td>";
-                    tr += "<td>" + ((typeof (data.list[i].CenterName) != 'undefined') && (data.list[i].CenterName != null) ? data.list[i].CenterName : '') + " </span></td>";
-                    tr += "<td>" + ((typeof (data.list[i].ClassroomName) != 'undefined') && (data.list[i].ClassroomName != null) ? data.list[i].ClassroomName : '') + " </span></td>";
-                    tr += "<td>" + ((typeof (data.list[i].DOB) != 'undefined') && (data.list[i].DOB != null) ? data.list[i].DOB : '') + " </span></td>";
+                    tr += "<td data-title='Program Type' role='gridcell'>" + ((typeof (data.list[i].ProgramType) != 'undefined') && (data.list[i].ProgramType != null) ? data.list[i].ProgramType : '') + " </span></td>";
+                    tr += "<td data-title='Center' role='gridcell'>" + ((typeof (data.list[i].CenterName) != 'undefined') && (data.list[i].CenterName != null) ? data.list[i].CenterName : '') + " </span></td>";
+                    tr += "<td data-title='Classroom' role='gridcell'>" + ((typeof (data.list[i].ClassroomName) != 'undefined') && (data.list[i].ClassroomName != null) ? data.list[i].ClassroomName : '') + " </span></td>";
+                    tr += "<td data-ttile='DOB' role='gridcell'>" + ((typeof (data.list[i].DOB) != 'undefined') && (data.list[i].DOB != null) ? data.list[i].DOB : '') + " </span></td>";
                     tr += "</tr>";
                     $('#Gridclient > tbody').append(tr);
 
@@ -290,6 +289,82 @@
 </script>
 
 }
+@section Style
+{
+    <style type="text/css">
+                /**responsive section**/
+@@media
+	  only screen 
+    and (max-width: 760px), (min-device-width: 768px) 
+    and (max-device-width: 1200px)  {
+		/* Force table to not be like tables anymore */
+		  #Gridclient,   #Gridclient thead,   #Gridclient tbody,   #Gridclient th,   #Gridclient td,   #Gridclient tr {
+			display: block;
+            border:none;
+		}
+		/* Hide table headers (but not display: none;, for accessibility) */
+		  #Gridclient thead tr {
+			position: absolute;
+			top: -9999px;
+			left: -9999px;
+		}
+     #Gridclient tr {
+      margin: 0 7px 2em 0;
+      box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+    }
+    #Gridclient  tr:nth-child(odd) {
+      background: #ffffff;
+      border:1px solid #ccc;
+          border-radius: 8px;
+    }
+     #Gridclient  tr:nth-child(even) {
+      background: #f1f5f8;
+      border:1px solid #ccc;
+          border-radius: 8px;
+    }
+		  #Gridclient td {
+			/* Behave  like a "row" */
+			border: none;
+			border-bottom: 1px solid #eee;
+			position: relative;
+			/*padding-left: 50%;*/
+		}
+	  #Gridclient	td:before {
+			/* Now like a table header */
+			position: absolute;
+			/* Top/left values mimic padding */
+			top: 0;
+			left: 6px;
+			width: 45%;
+			padding-right: 10px;
+			white-space: nowrap;
+		}
+      .table-div
+      {
+          border:none!important;
+      }
+         #Gridclient td:before{
+            content: attr(data-title);
+                text-align: left;
+                    padding-top: 0.6em;
+                        margin-left: 1em;
+        }
+          #Gridclient>  tbody>tr>td{
+               text-align:right!important;
+               margin-right:2em
+            }
+          .table-responsive
+          {
+              border:unset!important;
+          }
+	}
+    .search-box ul li input[type="text"] {
+    width: 100%;
+    padding: 6px 20px!important;
+    border: 1px solid #D4D2D2;
+}
+    </style>
+    }
 @section MainContentHolder{
     <div class="row">
         <div class="col-lg-12">
@@ -308,17 +383,17 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
             <div class="table-responsive">
-                <table class="table table_size" id="Gridclient">
-                    <thead style="cursor:pointer;">
-                        <tr>
-                            <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-                            <th id="thCust">Program Type<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
-                            <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                            <th id="thAN">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                            <th id="thGN">DOB<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                <table class="table table_size" id="Gridclient" role="table">
+                    <thead style="cursor:pointer;" role="rowgroup">
+                        <tr role="row">
+                            <th id="thIN" role="columnheader">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                            <th id="thCust" role="columnheader">Program Type<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                            <th id="thMN" role="columnheader">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thAN" role="columnheader">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thGN" role="columnheader">DOB<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody role="rowgroup"></tbody>
                 </table>
                 <div id="div1" style="text-align:center;display:none;">
                     <label>No result found.</label>

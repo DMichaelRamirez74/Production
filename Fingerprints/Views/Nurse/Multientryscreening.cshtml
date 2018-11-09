@@ -24,6 +24,16 @@
                 $(this).prev().val("");
         });
         $(".dateplugin").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('.modal').attr({
+            'data-backdrop': 'static',
+            'data-keyboard': false
+        });
+        $(document).ajaxStart(function () {
+            $('#spinner').show();
+        });
+        $(document).ajaxStop(function () {
+            $('#spinner').hide();
+        });
     });
     //function validatedate(inputTextObject) {
     //    if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
@@ -90,45 +100,28 @@
                 tr += "<tr>";
                 tr += '<td><input clientid="' + data[i].clientid + '" accesskey="' + data[i].Screeningid + '" class="minimal" type="checkbox"   style="width:auto;" value="true"></td>';
                 tr += "<td>" + ((typeof (data[i].name) != 'undefined') && (data[i].name != null) ? data[i].name : '') + "</td>";
-                tr += "<td><input type='text' placeholder='MM/DD/YYYY' value='' onblur='validatedate(this);' maxlength='100' class='form-control dateplugin' /></td>";
+                tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + "</td>";
+                tr += "<td><input type='text' placeholder='MM/DD/YYYY' value='' onblur='validatedate(this);' maxlength='100' class='form-control dateplugin' />";
+                tr += '<input type="hidden" class="scrdateqnid" value=' + ((typeof (data[i].ScreeningDateQuestionID) != 'undefined') && (data[i].ScreeningDateQuestionID != null) ? data[i].ScreeningDateQuestionID : '0') + '>'
+                 tr+="</td>";
 
                 tr += "<td><select class='form-control Exemptionstatus'>";
-                if (data[i].Screeningid == 1)
-                {
-                    tr += "<option value='1'>Complete</option><option value='2'>Follow-Up Needed</option>";
 
-                }
-               else if (data[i].Screeningid == 2) {
 
-                   tr += "<option value='1'>Pass</option><option value='2'>Follow-Up</option>";
-                }
-               else if (data[i].Screeningid == 3) {
 
-                   tr += "<option value='1'>Pass</option><option value='2'>Fail</option>  <option value='3'>Follow-Up</option> ";
-                }
-               else if (data[i].Screeningid == 4) {
 
-                   tr += "<option value='1'>Pass</option><option value='2'>Concerns Exists, Follow-Up Required</option>  <option value='3'>N/A</option> ";
-                }
-               else if (data[i].Screeningid == 5) {
-                   tr += "<option value='1'>Complete</option><option value='2'>Treatment Needed</option>";
 
-                }
-               else if (data[i].Screeningid == 6) {
-                   tr += "<option value='1'>Pass</option><option value='2'>Fail</option>";
 
-                }
-               else {
 
                    if(data[i]._ScreeningStatus!=null && data[i]._ScreeningStatus.length >0 )
                    {
                        for (var j = 0; j < data[i]._ScreeningStatus.length; j++) {
 
-                           tr += "<option value='" + data[i]._ScreeningStatus[j].Optionid + "'>" + data[i]._ScreeningStatus[j].Optionname + "</option>";
+                           tr += "<option value='" + data[i]._ScreeningStatus[j].OptionValue + "'>" + data[i]._ScreeningStatus[j].Optionname + "</option>";
 
                        }
                    }
-                }
+              
                 tr +=     "</select></td>";
                 tr += "<td><input type='text' value='' maxlength='200' placeholder='Note' class='form-control' /></td>";
                 tr += "</tr>";
@@ -204,14 +197,14 @@
         $('#DivclientscreeningList > tbody > tr').each(function () {
             if ($(this).find("td:eq(0)").find("input[type='checkbox']").prop("checked")) {
                 clientchecked = 1;
-                if ($(this).find("td:eq(2)").find("input[type='text']").val() == "") {
-                    plainValidation($(this).find("td:eq(2)").find("input[type='text']"));
+                if ($(this).find("td:eq(3)").find("input[type='text']").val() == "") {
+                    plainValidation($(this).find("td:eq(3)").find("input[type='text']"));
                     customAlert("Date is required.");
                     isvalid = false;
                     return false;
                 }
-                if ($(this).find("td:eq(3)").find("select").val() == "" || $(this).find("td:eq(3)").find("select").val() == null) {
-                    plainValidation($(this).find("td:eq(3)").find("select"));
+                if ($(this).find("td:eq(4)").find("select").val() == "" || $(this).find("td:eq(4)").find("select").val() == null) {
+                    plainValidation($(this).find("td:eq(4)").find("select"));
                     customAlert("Status is required.");
                     isvalid = false;
                     return false;
@@ -231,9 +224,10 @@
                         ClientScreening = {
                             Screeningid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("accesskey"),
                             clientid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("clientid"),
-                            ScreeningDate: $(this).find("td:eq(2)").find("input[type='text']").val(),
-                            Status: $(this).find("td:eq(3)").find("select").val(),
-                            Notes: $(this).find("td:eq(4)").find("input[type='text']").val()
+                            ScreeningDate: $(this).find("td:eq(3)").find("input[type='text']").val(),
+                            ScreeningDateQuestionID: $(this).find("td:eq(3)").find(".scrdateqnid").val(),
+                            Status: $(this).find("td:eq(4)").find("select").val(),
+                            Notes: $(this).find("td:eq(5)").find("input[type='text']").val()
                         };
                         ClientScreenings.push(ClientScreening);
                     }
@@ -338,7 +332,7 @@
                         }, 1000);
                     }
                     else {
-                        customAlert("Error Occurred. Please try agaain later.");
+                        customAlert("Error Occurred. Please try again later.");
                     }
                 }
               , error: function (Data) {
@@ -443,7 +437,8 @@
                     url: HostedDir + "/Nurse/Saveclientclassscreening",
                     type: "POST",
                     data: JSON.stringify({
-                        'ClientScreenings': ClientScreenings
+                        'ClientScreenings': ClientScreenings,
+                        'screeningDateQuestionID': $(object).parent('div').siblings('div').find('.hiddenscreeningdateid').val()
                     }),
                     dataType: "json",
                     secureuri: false,
@@ -529,7 +524,7 @@
 <div class="row">
     <div class="col-lg-12">
         <h2 class="page-header">
-            Multi Entry Screening (@ViewBag.centername)
+            Multi-Entry Screening (@ViewBag.centername)
             <span class="view-btn backto_listspan" id="BackToList">
                 <a href="~/Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>
             </span>
@@ -582,51 +577,19 @@
                         <a style="text-decoration:underline;cursor:pointer;" classroom="@item["classroomname"].ToString()" onclick="Loadclients(this)" accesskey="@item["classroomid"].ToString()" screeningid="@Row["screeningid"].ToString()" screeningname="@Row["screeningname"].ToString()" centerid="@item["centerid"].ToString()">@item["ClassroomName"].ToString()</a>
                         <input type="hidden" class="hiddenclassid" value="@item["classroomid"].ToString()" />
                         <input type="hidden" class="hiddencenterid" value="@item["centerid"].ToString()" />
+                        <input type="hidden" class="hiddenscreeningdateid" value="@item["ScreeningDateQuestionID"].ToString()" />
                     </div>
                     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 adddivspace">
-                        <input type="text" placeholder="MM/DD/YYYY" @if (@item["updateallowed"].ToString() == "0"){ <text>disabled="disabled"</text>} onblur="validatedate(this);" maxlength="100" class="form-control dateplugin" />
+                        <input type="text" placeholder="MM/DD/YYYY" @if (!@item["ScreeningAccessType"].ToString().Split(',').Where(x=>Convert.ToInt32(x)==(int)ScreeningAccess.ScreeningAccessEnum.Review).Any())
+                        { <text>disabled="disabled"</text>} onblur="validatedate(this);" maxlength="100" class="form-control dateplugin" />
                     </div>
                     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 adddivspace">
 
-                        <select class="form-control selectstatus" @if (@item["updateallowed"].ToString() == "0") { <text> disabled="disabled" </text> }>
+                        <select class="form-control selectstatus"  @if (!@item["ScreeningAccessType"].ToString().Split(',').Where(x=>Convert.ToInt32(x)==(int)ScreeningAccess.ScreeningAccessEnum.Review).Any()) { <text> disabled="disabled" </text> }>
 
-                            @if (Row["screeningid"].ToString()=="1")
-                            {
-                            <option value="1">Complete</option>
-                            <option value="2">Follow-Up Needed</option>
-                            }
-                            else if (Row["screeningid"].ToString()=="2")
-                            {
-                            <option value="1">Pass</option>
-                            <option value="2">Follow-Up</option>
-                            }
-                            else if (Row["screeningid"].ToString() == "3")
-                            {
-                                <option value="1">Pass</option>
-                                <option value="2">Fail</option>
-                                 <option value="3">Follow-Up</option>
-                            }
-                            else if (Row["screeningid"].ToString() == "4")
-                            {
-                                <option value="1">Pass</option>
-                                <option value="2">Concerns Exists, Follow-Up Required</option>
-                                <option value="3">N/A</option>
-                            }
-                            else if (Row["screeningid"].ToString() == "5")
-                            {
-                                <option value="1">Complete</option>
-                                <option value="2">Treatment Needed</option>
-                            }
-                            else if (Row["screeningid"].ToString() == "6")
-                            {
-                                <option value="1">Pass</option>
-                                <option value="2">Fail</option>
                             
-                            }
-                            else
-                            {
 
-                                if (ViewBag.ScreeningStatus != null && (DataTable)ViewBag.ScreeningStatus != null && ((DataTable)ViewBag.ScreeningStatus).Rows.Count > 0)
+                                @if (ViewBag.ScreeningStatus != null && (DataTable)ViewBag.ScreeningStatus != null && ((DataTable)ViewBag.ScreeningStatus).Rows.Count > 0)
                                 {
                                     DataRow[] statusrows = ((DataTable)ViewBag.ScreeningStatus).Select("ScreeningID=" + Convert.ToString(@Row["screeningid"]));
                                     foreach (DataRow items in statusrows)
@@ -638,7 +601,7 @@
                                 }
                                 
                                 
-                            }
+                           
                         </select>
 
 
@@ -646,7 +609,7 @@
                         <input type="hidden" value="" class="hiddenstatus" />
                     </div>
                     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 adddivspace" style="margin-top:24px;">
-                        @if (@item["updateallowed"].ToString() == "0")
+                        @if (!@item["ScreeningAccessType"].ToString().Split(',').Where(x => Convert.ToInt32(x) == (int)ScreeningAccess.ScreeningAccessEnum.Review).Any())
                         {
                         <a style="text-decoration: underline; cursor: pointer; display: none;" class="asaveclientlist" accesskey="@item["classroomid"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Saveclassmissingclient(this);">Save</a>
                          <a style="text-decoration:underline;cursor:pointer;" class="ashowclientlist" classroom="@item["classroomname"].ToString()" accesskey="@item["classroomid"].ToString()" screeningname="@Row["screeningname"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Showsavedmissingclient(this);">Clients</a>
@@ -706,8 +669,9 @@
                                                     <tr>
                                                         <th style="width: 4%;"></th>
                                                         <th style="width: 24%;">Name</th>
+                                                        <th>DOB</th>
                                                         <th style="width: 15%;">Date</th>
-                                                        <th style="width: 10%;">Status</th>
+                                                        <th style="width: 15%;">Status</th>
                                                         <th>Note</th>
                                                     </tr>
                                                 </thead>

@@ -57,7 +57,7 @@ namespace Fingerprints.Controllers
                     agencyDetail._FundedEnrollment = new Agency.FundedEnrollment();
                     agencyDetail.DivisionsList = new List<SelectListItem>();
                     agencyDetail.DivisionsFullList = new List<Divisions>();
-                    agencyDetail.AreasFullList = new List<Areas>();
+                    agencyDetail.AreasFullList = new List<FingerprintsModel.Areas>();
                     agencyDetail.Areabreakdown = "";
                     agencyDetail.DivisionBreakDown = "";
                     agencyDetail.nationality = _staff.nationList.Where(x => x.Name.Replace(" ", "").ToLower().Trim() == "unitedstates").Select(x => x.NationId).FirstOrDefault();
@@ -1552,11 +1552,11 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult GetAreas(string agencyId)
         {
-            List<Areas> _areabreakDownList = new List<Areas>();
+            List<FingerprintsModel.Areas> _areabreakDownList = new List<FingerprintsModel.Areas>();
 
             if (!string.IsNullOrEmpty(agencyId))
             {
-                _areabreakDownList.Add(new Areas
+                _areabreakDownList.Add(new FingerprintsModel.Areas
                 {
                     AgencyID = new Guid(agencyId)
                 });
@@ -1577,7 +1577,7 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
 
-        public JsonResult AddAreas(List<Areas> areasList)
+        public JsonResult AddAreas(List<FingerprintsModel.Areas> areasList)
         {
             bool isResult = false;
             isResult = new agencyData().AddAreas(areasList);
