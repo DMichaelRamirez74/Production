@@ -731,7 +731,7 @@ namespace FingerprintsData
                                                CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
                                                ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
                                                RosterYakkr = dr["Yakkr"].ToString(),
-                                               Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
+                                               //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
                                                Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
                                                ClassroomName = dr["ClassroomName"].ToString(),
                                                MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
