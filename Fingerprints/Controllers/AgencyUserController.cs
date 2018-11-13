@@ -3189,7 +3189,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                ViewBag.Centerlist = familyData.Getyakkraccepted(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.Centerlist = familyData.Getyakkraccepted(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
                 return View();
             }
             catch (Exception Ex)
@@ -6618,7 +6618,7 @@ namespace Fingerprints.Controllers
             int appointment = 0;
             string PYSDate = "";
             List<HrCenterInfo> hrCenter = new List<HrCenterInfo>();
-            hrCenter = new FamilyData().Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            hrCenter = new FamilyData().Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString());
             Session["Yakkrcount"] = yakkrcount;
             Session["Appointment"] = appointment;
 

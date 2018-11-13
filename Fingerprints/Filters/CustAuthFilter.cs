@@ -14,11 +14,11 @@ namespace Fingerprints.Filters
             Usertype = userType.Split(',');
         }
 
-        public CustAuthFilter(string [] userTypeArray)
-        {
-            Usertype = Array.ConvertAll(userTypeArray,x=>x.ToLowerInvariant());
+        //public CustAuthFilter(string [] userTypeArray)
+        //{
+        //    Usertype = Array.ConvertAll(userTypeArray,x=>x.ToLowerInvariant());
             
-        }
+        //}
 
         public CustAuthFilter(params FingerprintsModel.RoleEnum[] allowedRoles)
         {

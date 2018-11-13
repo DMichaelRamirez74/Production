@@ -113,7 +113,7 @@ namespace Fingerprints.Controllers
                 int yakkrcount = 0;
                 int appointment = 0;
                 string  PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.RoleId), Convert.ToString(staffDetails.UserId));
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 ViewBag.PYStartDate = PYSDate;
@@ -132,7 +132,7 @@ namespace Fingerprints.Controllers
             try
             {
                 int yakkrcount = 0;
-                ViewBag.Centerlist = _family.GetcentersFSW(ref yakkrcount, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
+                ViewBag.Centerlist = _family.GetcentersFSW(ref yakkrcount, Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.RoleId).ToString(), Convert.ToString(staffDetails.UserId));
                 Session["YakkrCountPending"] = yakkrcount;
                 return View();
             }
@@ -187,7 +187,7 @@ namespace Fingerprints.Controllers
             }
         }
         //Changes on 18Jan2017
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(RoleEnum.HomeVisitor)]
         public ActionResult HomeVisitorDashboard()
         {
             try
@@ -195,7 +195,7 @@ namespace Fingerprints.Controllers
                 int yakkrcount = 0;
                 int appointment = 0;
                 string  PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.RoleId), Convert.ToString(staffDetails.UserId));
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();
