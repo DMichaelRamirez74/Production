@@ -208,4 +208,20 @@ namespace FingerprintsModel
 
         public string DateOfTransition { get; set; }
     }
+
+    public class CaseNoteTag
+    {
+        public long TagId { get; set; }
+        public string TagName { get; set; }
+        public long Count { get; set; }
+
+    }
+
+    public class CaseNoteTagReport
+    {
+        public List<CaseNoteTag> TagReport { get; set; }
+        public long TotalRecord { get; set; } 
+
+    }
+
 }

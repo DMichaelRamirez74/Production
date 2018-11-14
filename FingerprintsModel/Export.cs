@@ -1537,6 +1537,53 @@ namespace FingerprintsModel
             return memoryStream;
         }
 
+
+        public MemoryStream ExportCaseNoteByTagId(List<CaseNote> cnlist, long tagid, long total, string tname)
+        {
+
+            MemoryStream memoryStream = new MemoryStream();
+            try
+            {
+               // List<List<string>> screening = ScreeningMatrix.Screenings;
+
+                XLWorkbook wb = new XLWorkbook();
+                var Ws = wb.Worksheets.Add("CaseNote report-"+tname);
+
+               
+
+                //Header
+                Ws.Cell(1,1).Value = "Created By";
+                Ws.Cell(1,2).Value = "Title";
+                Ws.Cell(1,3).Value = "Created Date";
+                Ws.Range("A1:H1").Style.Font.SetBold(true);
+
+               
+
+                int CurrentRow = 2;
+                foreach (var item in cnlist) {
+
+                    Ws.Cell(CurrentRow, 1).Value = item.WrittenBy;
+                    Ws.Cell(CurrentRow, 2).Value = item.Name;
+                    Ws.Cell(CurrentRow, 3).Value = item.Date;
+                    CurrentRow++;
+                }
+
+                Ws.Column(1).AdjustToContents();
+                Ws.Column(2).AdjustToContents();
+                Ws.Column(3).AdjustToContents();
+
+                wb.SaveAs(memoryStream);
+            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+
+            }
+
+
     }
 
     public class TwoColumnHeaderFooter : PdfPageEventHelper

@@ -2767,5 +2767,66 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+
+        #region CaseNote_Tag_Report
+        [CustAuthFilter()]
+        public ActionResult CaseNoteTagReport() {
+
+            if (new agencyData().GetSingleAccessStatus(19))
+            {
+                return View();
+            }
+            else {
+                return new RedirectResult("~/login/Loginagency");
+            }
+        }
+        [CustAuthFilter()]
+        public ActionResult GetCaseNoteTagReport(long pno=1,long psize=10) {
+            if (new agencyData().GetSingleAccessStatus(19))
+            {
+                var result = new RosterData().GetCaseNoteTagReport(pno, psize, 1);
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            else{
+                return new RedirectResult("~/login/Loginagency");
+            }
+        }
+        [CustAuthFilter()]
+        public ActionResult GetCaseNotesByTagId(long tagid) {
+
+            var result = new RosterData().GetCaseNotesByTagId(tagid, 2);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult DownloadCaseNoteByTagId(long tagid, long total, string tname)
+        {
+            try
+            {
+                Export export = new Export();
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=CaseNote Report for "+tname+"-" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                //  MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(staffDetails, Centerid, Classroom));
+                var _cnlist = new RosterData().GetCaseNotesByTagId(tagid, 2);
+                MemoryStream ms = export.ExportCaseNoteByTagId(_cnlist, tagid, total, tname);
+
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+                return View();
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+
+        }
+
+        #endregion CaseNote_Tag_Report
     }
 }

@@ -1,0 +1,524 @@
+﻿@{
+    ViewBag.Title = "CaseNoteTagReport";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+    @if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+
+
+@section MainContentHolder{
+
+    <style type="text/css">
+
+ .page-wrapper-change{
+    background-image: url(../../Images/body-bg.jpg);
+    background-size: cover !important;
+    background-position: 100% 100% !important;
+  }
+    .tagpage-header{
+    border-bottom: 4px solid #f9c751 !important;
+    color: #fff;
+    }
+
+
+
+
+
+        .tag-report-table thead tr,
+      #casedetails-table thead tr{
+   background: #9B58B4!important;
+    color: #fff;
+    text-align: left;
+    }
+        .tag-report-table thead tr th,
+        #casedetails-table  thead tr th {
+            text-align: left !important;
+        }
+    .tag-report-table tbody tr td ,
+    #casedetails-table tbody tr td {
+     border: solid 1px #e7e7e7;
+     
+     }
+    .tag-report-table th,
+    #casedetails-table th {
+    border-bottom: 0!important;
+    text-align: left;
+    text-transform: capitalize;
+    font-weight: normal;
+    line-height: 25px;
+    }
+    .tag-report-table tbody tr,
+     #casedetails-table tbody tr {
+       background-color:#f9f9f9;
+           display: table;
+             width: 100%;
+        table-layout: fixed;
+     }
+     .tag-report-table tbody tr td,
+     #casedetails-table tbody tr td  {
+        color: #333;
+        padding: 15px !important;
+        text-align: left;
+        line-height: 0.9; 
+        }
+ .tag-report-table thead ,
+ #casedetails-table thead {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    width: 100%;
+        }
+        
+  .tag-report-table tbody,
+  #casedetails-table tbody  {
+    display: block;
+    max-height: 450px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+
+
+ #TagDetail_Modal .modal-body {
+    background: #34495e none repeat scroll 0 0;
+    border: 6px solid #ffffff;
+    border-radius: 3px;
+    color: #ffffff;
+    float: left;
+    padding: 15px 3%;
+    position: relative;
+    width: 100%;
+    padding-top: 10px;
+}
+
+  #TagDetail_Modal .form-group-al {
+    background: #f1f5f8 none repeat scroll 0 0;
+    border: 3px solid #ffffff;
+    float: left;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #333;
+    padding-top: 25px;
+}
+    #TagDetail_Modal h2 {
+    margin-top: 10px;
+    float: left;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+    #TagDetail_Modal  .close {
+    opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -15px;
+}
+
+  
+  
+     #TagDetail_Modal .prop-label {
+    color: #1d5990;
+     margin-left:0px;
+}
+            #TagDetail_Modal .control-label {
+            margin-left:0px;
+            }
+        
+        .btn-download {
+                color: #fff;
+        margin-bottom:10px;
+            border-radius: 0px;
+            float:right;
+        }
+
+        .count_link {
+         text-decoration:underline;
+        }
+    </style>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+            <i class="fa fa-bar-chart-o" aria-hidden="true"></i>&nbsp;CaseNote Tag Report
+
+            @*<span class="view-btn backto_listspan">
+
+                    <a href="/EducationManager/EducationManagerDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                </span>*@
+        </h2>
+    </div>
+</div>
+
+
+    <div class="row">
+
+        @*<div class="col-sm-12">
+
+            <button type="button" class="btn btn-success btn-download"> <i class="fa fa-download"></i> Download</button>
+            </div>*@
+
+            <div class="col-sm-12">
+
+                <table class="table table-striped table-responsive text-center tag-report-table" id="tagreport-table">
+                    <thead>
+                        <tr>
+                            @*<th>Tag Id</th>*@
+                        <th>Tag Name</th>
+                        <th style="width:200px;">Count</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+
+            </table>
+
+
+
+        </div>
+        <div class="col-sm-12">
+
+            <div class="col-sm-6" style="color:#fff;">
+                <span>Display</span>
+                <select id="page-length-drop" style="color:#333;">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>Records Per Page</span>
+            </div>
+
+            <div class="col-sm-6" style="color:#333;">
+
+
+                <div id="divPaging" class="pagination_wrp">
+                    <ul id="ulPaging" class="pagination">
+                        <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;"></li>
+                        <li title="Back">
+                            <input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" disabled>
+                        </li>
+                        <li title="Select">
+                            <select class="select_cl" id="ddlpaging"></select>
+                        </li>
+                        <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;"></li>
+                        <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;"></li>
+                    </ul>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="~/Content/underscore-min.js"></script>
+
+    <script type="text/javascript">
+
+
+        var caseNoteTagReport = {
+            init: function () {
+                var self = this;
+                self.initEvents();
+                self.refreshTagReport(1,10);
+
+            },
+            initEvents: function () {
+                var self = this;
+
+
+                $(document).on("click", "#export-btn", function (e) {
+                    e.preventDefault();
+
+                    var _tagName=  $("#tag_name").text();
+                    var _count = $("#tag_count").text();
+                    var _tagId = $("#export-btn").data('id');
+
+
+                    window.location.href = "@Url.Action("DownloadCaseNoteByTagId","Roster")?tagid=".concat(_tagId, "&total=", _count, "&tname=", _tagName);
+
+
+                });
+
+                $(document).on("click", ".count_link", function (e) {
+                    e.preventDefault();
+
+                    var _tagId = $(this).data("id");
+                    var _tagName = $(this).data("tagname");
+                    var _count = $(this).data("count");
+                    
+                    $.ajax({
+                        type: "post",
+                        url: "@Url.Action("GetCaseNotesByTagId", "Roster")?tagid=" + _tagId,
+                        beforeSend: function () { $("#spinner").show(); },
+                        success: function (data) {
+
+
+
+                            var _templ = $("#tagdetail-table-tmpl").html();
+
+                            var compiled = _.template(_templ)({ data: data });
+
+                            $("#casedetails-table tbody").html(compiled);
+
+                            $("#tag_name").text(_tagName);
+                            $("#tag_count").text(_count);
+                            $("#export-btn").data('id', _tagId);
+
+                            $("#TagDetail_Modal").modal("show");
+
+
+                        },
+                        fail: function (res) {
+
+                        },
+                        complete: function (res) {
+                            $("#spinner").hide();
+                        }
+                    });
+
+
+
+                });
+
+                $(document).on("change", "#page-length-drop", function (e) {
+                    e.preventDefault();
+                    var _pgSize = $(this).val();
+
+                    self.refreshTagReport(1, _pgSize);
+
+                })
+
+                $(document).on("change", "#ddlpaging", function (e) {
+                    e.preventDefault();
+                    var _nxtPg = $(this).val();
+
+                    self.refreshTagReport(_nxtPg, $("#page-length-drop").val());
+
+                    
+                })
+
+                $(document).on("click", "#First,#Back,#Next,#Last", function (e) {
+                    e.preventDefault();
+
+                    var _type = $(this).prop('id');
+                    var _curentPg =parseInt($("#ddlpaging").val());
+                    var _lastpg = parseInt($("#ddlpaging option:last").val());
+
+
+
+                    switch(_type){
+                        case "First":
+                            _curentPg=1;
+                            break;
+                        case "Back":
+                            _curentPg--;
+                            break;
+                        case "Next":
+                            _curentPg++;
+                            break;
+                        case "Last":
+                            _curentPg=_lastpg;
+                            break;
+                            
+                    };
+                    $("#ddlpaging").val(_curentPg);
+
+                    self.refreshTagReport(_curentPg, $("#page-length-drop").val());
+
+                    //if (_curentPg == 1 && _type == "Back") {
+                    //    $("#Back").prop("disabled", true);
+                    //};
+
+                    if (_curentPg == 1) {
+                        $("#Back").prop("disabled", true);
+                    } else {
+                        $("#Back").prop("disabled", false);
+                    }
+
+                    if (_lastpg == _curentPg) {
+                        $("#Next").prop("disabled", true);
+                    } else {
+                        $("#Next").prop("disabled", false);
+                    }
+
+
+                });
+
+            },
+            refreshTagReport: function (pagno,pagesize) {
+                var self = this;
+               
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("GetCaseNoteTagReport", "Roster")?pno=" + pagno + "&psize="+pagesize,
+                    beforeSend: function () { $("#spinner").show(); },
+                    dataType: 'json',
+                    contentType: "application/json;",
+                    success: function (data) {
+                        if (data) self.drawTable(data, pagno);
+
+                    }, fail: function (res) {
+
+
+                    },
+                    complete: function (res) {
+
+                        $("#spinner").hide();
+                    }
+                });
+
+                
+            },
+            drawTable: function (data, pagno) {
+
+                var _psize = parseInt($("#page-length-drop").val());
+                var _pcount = Math.ceil(data.TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+
+                var _templ = $("#tagreport-table-tmpl").html();
+
+                var compiled = _.template(_templ)({ data: data.TagReport });
+
+                $("#tagreport-table tbody").html(compiled);
+
+                $("#ddlpaging").html('');
+                for (var i = 1; i <= _pcount; i++) {
+                    
+                    $("#ddlpaging").append('<option value="'+i+'">'+i+'</option>')
+                }
+                $("#ddlpaging").val(pagno);
+
+            }
+
+        };
+
+
+        $(function () {
+            caseNoteTagReport.init();
+        });
+
+
+    </script>
+
+    <script type="text/template" id="tagreport-table-tmpl">
+
+        <% for(var i=0; i < data.length; i++){%>
+        <tr>
+
+            @*<td> <%= data[i].Id %> </td>*@
+            <td> <%= data[i].TagName %> </td>
+            <td style="width:200px;"> <a href="javascript:void(0)"
+            data-id="<%= data[i].TagId %>" data-tagname="<%= data[i].TagName %>" data-count="<%= data[i].Count %>"
+            class="count_link"><%= data[i].Count %></a> </td>
+
+        </tr>
+        <%}%>
+
+        <%if(data.length == 0){%>
+        <tr> <td colspan="3">No Records Found</td> </tr>
+        <%}%>
+
+    </script>
+
+
+<script type="text/template" id="tagdetail-table-tmpl">
+    <% for(var i=0; i < data.length; i++){%>
+    <tr>
+        @*<td class="col-xs-4"> <%= data[i].WrittenBy %> </td>
+        <td class="col-xs-4"> <%= data[i].Name ? data[i].Name : "-" %> </td>
+        <td class="col-xs-4"> <%= data[i].Date ?  data[i].Date : "-"  %> </td>*@
+        <td> <%= data[i].WrittenBy %> </td>
+        <td> <%= data[i].Name ? data[i].Name : "-" %> </td>
+        <td> <%= data[i].Date ?  data[i].Date : "-"  %> </td>
+    </tr>
+    <%}%>
+
+</script>
+
+
+
+    <div class="modal fade" id="TagDetail_Modal" tabindex="-1" role="dialog" aria-labelledby="TagDetail_Modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body">
+
+                    <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                    <h2>Tag Details</h2>
+                    <div class="form-group-al">
+
+                        <div class="col-sm-12">
+
+                            <button type="button" class="btn btn-success btn-addon btn-download" id="export-btn"> <i class="fa fa-file-excel-o"></i> Download</button>
+                        </div>
+
+                            <div class="col-sm-12" style="margin-bottom:10px;">
+                                <div class="col-sm-6">
+                                    <div class="">
+                                        <div class="col-sm-4">
+                                            <label class="control-label prop-label">Tag Name :</label>
+                                        </div>
+                                        <label class="col-sm-8 control-label" id="tag_name" style="font-weight: 100;"></label>
+                                    </div>
+
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="">
+                                        <div class="col-sm-12 col-md-4">
+                                            <label class="control-label prop-label">Count :</label>
+                                        </div>
+                                        <label class="col-sm-12 col-md-8 control-label" id="tag_count" style="font-weight: 100;">VV-Exo</label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <h4 style="text-decoration: underline;">Case Notes :</h4>
+                            <table class="table table-responsive table-striped" id="casedetails-table">
+                                <thead>
+                                    <tr>
+                                        @*<th class="col-xs-4">Created By</th>
+                                        <th class="col-xs-4">Title</th>
+                                        <th class="col-xs-4">Created Date</th>*@
+                                        <th>Created By</th>
+                                        <th>Title</th>
+                                        <th>Created Date</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+          
+                                </tbody>
+
+
+
+                            </table>
+
+
+
+                        </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    }
