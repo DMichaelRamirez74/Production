@@ -407,9 +407,9 @@ namespace Fingerprints.Controllers
         {
             ScreeningAnalysisInfo info = new ScreeningAnalysisInfo();
             ScreeningAnalysisInfoModel model = new ScreeningAnalysisInfoModel();
-            //   try
-            //  {
-            info.CenterId = centerId;
+            try
+            {
+                info.CenterId = centerId;
             info.ClassRoomId = classRoomId;
             info.FilterType = filterType;
             info.AgencyId = new Guid(Session["AgencyId"].ToString());
@@ -418,13 +418,14 @@ namespace Fingerprints.Controllers
             // model = new CenterData().GetParentInfoBySearch(info);
             model = new EducationManagerData().ScreeningInfoDeca(info);
 
-            //  }
-            // catch (Exception ex)
-            //  {
+            }
+            catch (Exception ex)
+            {
 
-            // clsError.WriteException(ex);
-            // }
-            return Json(model);
+                clsError.WriteException(ex);
+            }
+
+            return Json(model,JsonRequestBehavior.AllowGet);
 
         }
     }

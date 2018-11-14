@@ -962,8 +962,8 @@ namespace FingerprintsData
 
             ScreeningAnalysisInfoModel model = new ScreeningAnalysisInfoModel();
             List<ScreeningAnalysisInfo> screeningInfoList = new List<ScreeningAnalysisInfo>();
-            //  try
-            //  {
+              try
+              {
             if (Connection.State == ConnectionState.Open)
                 Connection.Close();
             Connection.Open();
@@ -1027,11 +1027,11 @@ namespace FingerprintsData
 
                 model.ScreeningAnalysisInfoList = screeningInfoList;
             }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //         clsError.WriteException(ex);
-            //     }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return model;
         }
     }
