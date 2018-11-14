@@ -13,44 +13,45 @@
 
 
 <style>
-
     #linechart .amChartsLegend.amcharts-legend-div {
-    background:#333333 !important;
-    
+        background: #333333 !important;
     }
-    #linechart .amcharts-chart-div{
-        background:#333333 !important
+
+    #linechart .amcharts-chart-div {
+        background: #333333 !important;
     }
+
+    .amcharts-main-div text{   /* For IE and Edge label Issue*/
+   
+     line-height:1.4285 !important;
+    }
+
 </style>
 
 <div class="col-xs-12">
     <div class="panel panel-info" style="border-color: #0088cf;border-radius: 0px;border-width: 7px;">
-        @*<div class="panel-heading" style="background:#27ae60;border-color:#27ae60;border-radius: 0px;">
-            <h4 class="panel-title" style="color:#fff;font-size:22px;"> Absence Report</h4>
-        </div>*@
+
         <div class="panel-body">
 
             <div class="row">
                 <div class="col-sm-12 mb20">
                     <div class="col-sm-4">
                         <label>Center</label>
-                        @*<select class="form-group">
-                            <option value="0">-- Select Center --</option>
-                        </select>*@
-                     @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
-                        </div>
+
+                        @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
+                    </div>
 
                     <div class="col-sm-4">
                         <label>Classroom</label>
-                      
+
                         <select id="Classroom" style="" class="form-control"></select>
                     </div>
 
-                
+
 
                     <div class="col-sm-4 " style="">
                         <label>Child</label>
-                        <input width="500px" type="text" id="searchClient" />
+                        <input width="500" type="text" id="searchClient" />
 
                     </div>
 
@@ -61,7 +62,7 @@
 
                     </div>
 
-                    </div>
+                </div>
 
             </div>
 
@@ -89,7 +90,14 @@
             //"theme": "light",
             "theme": "absenceReportTheme", //custom theme written in light.js
             "legend": {
-                "useGraphSettings": true
+                "useGraphSettings": true,
+                // "align":'right'
+                //"equalWidths": true,
+                //"reversedOrder":true
+                "switchable": true, //when click legend graph is hide. default:true
+                //"valueWidth": 10,
+                //"horizontalGap":10
+                "valueAlign": "left", //alignment of value of legend(cannot move to left of label)
             },
             "dataProvider": dataProvider,
             "valueAxes": [
@@ -349,7 +357,7 @@
         function GetClassrooms(Select) {
 
             $.ajax({
-                url: HostedDir + "/Roster/Getclassrooms",
+                url:"@Url.Action("Getclassrooms", "Roster")",
                 type: "POST",
                 data: {
                     Centerid: $(Select).val()
