@@ -6971,7 +6971,7 @@ namespace FingerprintsData
             return "0";
         }
         // public List<HrCenterInfo> Getcenters(ref int yakkrcount, ref int appointment, out string PYSDate, string Agencyid, string userid
-        public List<HrCenterInfo> Getcenters(out string PYSDate, ref int yakkrcount, ref int appointment, string Agencyid,string userid)
+        public List<HrCenterInfo> Getcenters(out string PYSDate, ref int yakkrcount, ref int appointment, string Agencyid,string roleid,string userid)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
@@ -6979,6 +6979,7 @@ namespace FingerprintsData
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -7003,7 +7004,7 @@ namespace FingerprintsData
                             info.Routecode100 = dr["100"].ToString();
                             info.Routecode101 = dr["101"].ToString();
                             info.Routecode102 = dr["102"].ToString();
-                            info.Attendance = dr["Attendance"].ToString();
+                            info.Attendance =Convert.ToDecimal(dr["Attendance"])==Convert.ToInt32(dr["Attendance"])?Convert.ToInt32(dr["Attendance"]).ToString(): dr["Attendance"].ToString();
                             info.TotalWaitingList = dr["TotalWaitinglist"].ToString();
                             yakkrcount = Convert.ToInt32(dr["yakkrcount"]);
                             appointment = Convert.ToInt32(dr["Appointment"]);
@@ -7034,7 +7035,6 @@ namespace FingerprintsData
                         PYSDate = _dataset.Tables[2].Rows[0]["ProgramYearStartDate"].ToString();
                     }
 
-                    centerList.ForEach(x => x.Attendance = Convert.ToDecimal(x.Attendance) >= 100|| Convert.ToDecimal(x.Attendance) == 0 ? Math.Round(Convert.ToDecimal(x.Attendance)).ToString():x.Attendance);
                        
 
                 }
@@ -7098,12 +7098,13 @@ namespace FingerprintsData
             }
             return centerList;
         }
-        public List<HrCenterInfo> GetcentersFSW(ref int yakkrcount, string Agencyid, string userid)
+        public List<HrCenterInfo> GetcentersFSW(ref int yakkrcount, string Agencyid,string roleId, string userid)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleId));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -7459,12 +7460,13 @@ namespace FingerprintsData
             }
             return FswuserapprovalList;
         }
-        public List<HrCenterInfo> Getyakkraccepted(string Agencyid, string userid)
+        public List<HrCenterInfo> Getyakkraccepted(string Agencyid,string roleID, string userid)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleID));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -8279,9 +8281,9 @@ namespace FingerprintsData
                             info.Programid = dr["Programid"].ToString();
                             info.CenterId = dr["centerid"].ToString();
                             info.Name = dr["name"].ToString();
-                            info.DateOnList = (DBNull.Value == dr["dateentered"]) ? "--" : Convert.ToDateTime(dr["dateentered"]).ToString("MM/dd/yyyy");
+                            info.DateOnList = Convert.ToString(dr["dateentered"]);
                             //info.DateOnList = Convert.ToDateTime("04/05/2018").ToString("MM/dd/yyyy");
-                            info.DOB = dr["dob"].ToString() != "" ? Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy") : "";
+                            info.DOB =  Convert.ToString(dr["dob"]).ToString();
                             info.Gender = dr["gender"].ToString();
                             info.ProgramType = dr["programtype"].ToString();
                             info.SelectionPoints = dr["Selectionpoint"].ToString();
@@ -8423,8 +8425,8 @@ namespace FingerprintsData
                             info.ProgramType = dr["programid"].ToString();
                             info.CenterId = CenterId;
                             info.Name = dr["name"].ToString();
-                            info.DateOnList = dr["ModifiedDate"].ToString() != "" ? Convert.ToDateTime(dr["ModifiedDate"]).ToString("MM/dd/yyyy") : "";
-                            info.DOB = dr["dob"].ToString() != "" ? Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy") : "";
+                            info.DateOnList = Convert.ToString(dr["ModifiedDate"]);
+                            info.DOB = Convert.ToString(dr["dob"].ToString());
                             info.Gender = dr["gender"].ToString();
                             if (!DBNull.Value.Equals(dr["ChildTransport"]))
                                 info.CTransport = Convert.ToString(dr["ChildTransport"]);

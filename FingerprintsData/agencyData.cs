@@ -164,7 +164,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@FSWYearlyVisit", agencyDetails.FSWYearlyVisit));
                 command.Parameters.Add(new SqlParameter("@Areabreakdown", agencyDetails.Areabreakdown));
                 command.Parameters.Add(new SqlParameter("@DivisionBreakDown", agencyDetails.DivisionBreakDown));
-                command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
+                //command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
                 command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
                 command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
@@ -567,8 +567,8 @@ namespace FingerprintsData
                         agency.AreaReference = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["AreaReference"]);
                         agency.DivisionReference = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["DivisionReference"]);
 
-                        if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"])))
-                            agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
+                        //if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"])))
+                        //    agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
                         agency.AttendanceIssueStartDay = (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]))) ? Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]) : "";
