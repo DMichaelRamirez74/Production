@@ -398,6 +398,34 @@ namespace Fingerprints.Controllers
             return Json(model);
 
         }
+        public ActionResult DECA()
+        {
 
+            return View();
+        }
+        public JsonResult GetScreeningInfoDeca(long centerId, long classRoomId, long filterType)
+        {
+            ScreeningAnalysisInfo info = new ScreeningAnalysisInfo();
+            ScreeningAnalysisInfoModel model = new ScreeningAnalysisInfoModel();
+            //   try
+            //  {
+            info.CenterId = centerId;
+            info.ClassRoomId = classRoomId;
+            info.FilterType = filterType;
+            info.AgencyId = new Guid(Session["AgencyId"].ToString());
+            info.UserId = new Guid(Session["UserID"].ToString());
+            info.RoleId = new Guid(Session["RoleId"].ToString());
+            // model = new CenterData().GetParentInfoBySearch(info);
+            model = new EducationManagerData().ScreeningInfoDeca(info);
+
+            //  }
+            // catch (Exception ex)
+            //  {
+
+            // clsError.WriteException(ex);
+            // }
+            return Json(model);
+
+        }
     }
 }

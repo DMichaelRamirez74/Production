@@ -31,7 +31,15 @@ namespace FingerprintsModel
         public long CenterId { get; set; }
         public long ClassRoomId { get; set; }
 
-
+        public string InitialParentDecaDate { get; set; }
+        public string FamilyCompleted { get; set; }
+        public string Relationship { get; set; }
+        public string AreaofNeed1 { get; set; }
+        public string AreaofNeed2 { get; set; }
+        public string InitialStaffDecaDate { get; set; }
+        public string StaffCompleted { get; set; }
+        public string MentalHealthDate { get; set; }
+        public string ReferralBasedOn { get; set; }
 
         public string SearchText { get; set; }
 
