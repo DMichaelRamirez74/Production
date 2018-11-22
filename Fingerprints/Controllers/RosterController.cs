@@ -2772,7 +2772,7 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult CaseNoteTagReport() {
 
-            if (new agencyData().GetSingleAccessStatus(19))
+            if (new agencyData().GetSingleAccessStatus(18))
             {
                 return View();
             }
