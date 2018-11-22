@@ -2782,7 +2782,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter()]
         public ActionResult GetCaseNoteTagReport(long pno=1,long psize=10) {
-            if (new agencyData().GetSingleAccessStatus(19))
+            if (new agencyData().GetSingleAccessStatus(18))
             {
                 var result = new RosterData().GetCaseNoteTagReport(pno, psize, 1);
 
