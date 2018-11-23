@@ -1,4 +1,5 @@
-﻿@{
+﻿@using FingerprintsModel;
+@{
     ViewBag.Title = "TeacherScheduler";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
@@ -92,17 +93,33 @@
     top: -15px;
 }
 
-        .popup-label {
-    display: initial;
-    color: #1d5990;
-}
+            .popup-label {
+        display: initial;
+        color: #1d5990;
+    }
 
-        .fc-time-grid-container {
-         height:auto !important;
-        }
-        .lhs-label {
-         color:#1d5990;
-        }
+            .fc-time-grid-container {
+             height:auto !important;
+            }
+            .lhs-label {
+             color:#1d5990;
+            }
+
+
+            @@media screen and (min-width: 768px) and (max-width: 1024px){
+                .client-detail{
+                    margin-bottom:4px;
+                }
+                .client-addr span{
+                    line-height:1.5;
+                }
+               .form-group-al .form-group .client-label1{
+                   width:100px !important;
+                }
+               .form-group-al .form-group .client-label2{
+                   padding-left:0px !important;
+               }
+            }
     </style>
 
 
@@ -111,16 +128,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>*@
 
 
-    <script type="text/javascript">
+    @{
+
+        var CurrentLogin = "Teacher";
+        var _role = Session["RoleId"].ToString();
+
+        if (_role == Role.RolesDictionary[(int)RoleEnum.TeacherAssistant].ToLowerInvariant())
+        {
+
+            CurrentLogin = "TeacherAssistant";
+        } else if (_role == Role.RolesDictionary[(int)RoleEnum.HealthNurse].ToLowerInvariant())
+        {
+            CurrentLogin = "Nurse";
+        } else if (_role == Role.RolesDictionary[(int)RoleEnum.MentalHealthSpecialist].ToLowerInvariant()) {
+            CurrentLogin = "MHS";
+        } 
+
+    }
+
+                <script type="text/javascript">
 
         var _ClientDetails = @Html.Raw(Json.Encode(ViewBag.Details));
-        var _YakkrId = @ViewBag.YakkrId;
-        var _YakkrCode = @ViewBag.YakkrCode;
-        //var _clientName =
-        var _ScheduleObj = {
-            // listTime:_ScheduleObj.getListTime(),
-            //  listduration:_ScheduleObj.getDuration(),
-            selectedDate:"",
+                var _YakkrId = @ViewBag.YakkrId;
+                var _YakkrCode = @ViewBag.YakkrCode;
+                var _currentLogin ="@CurrentLogin"; 
+                //var _clientName =
+                var _ScheduleObj = {
+                    // listTime:_ScheduleObj.getListTime(),
+                    //  listduration:_ScheduleObj.getDuration(),
+                    selectedDate:"",
             selectedTime:"",
             savetype:1, //1-save,2-edit
             editJsonData:{},
@@ -136,9 +172,11 @@
                 var self=this;
 
                 $(document).on("change","#clients",function(e){
-                    var _txt = $("#clients option:selected").text();
-                    $("#title").val("Home Visit -"+_txt);
-                });
+                            var _txt = $("#clients option:selected").text();
+                            $("#title").val("Home Visit -"+_txt);
+
+                            self.clientid = $("#clients option:selected").val();
+                        });
 
                 $('[name="DateOfAppointment"]').datetimepicker({
 
@@ -202,10 +240,10 @@
                             $('#calendar').fullCalendar('removeEvents');
                             $('#calendar').fullCalendar('addEventSource', mainInstanceList);
                             $("#event-create-modal").modal("hide");
-                        },
-                        fail:function(res){
-
-                        },
+                                },
+                        error:function(res){
+                                    customAlert('Something went wrong Please try again');
+                                },
                         complete:function(res){
                             $('#spinner').hide();
                         }
@@ -330,9 +368,10 @@
                     return;
                 }
 
-                if(_YakkrCode==0){ //for Scheduler
-                
-                    var _clint = $("#clients").val();
+                   // if(_YakkrCode==0){ //for Scheduler
+
+                    if(_YakkrCode==0 && self.savetype == 1){ //for Scheduler savetype = 2 (edit)
+                        var _clint = $("#clients").val();
 
                     if(!_clint){
                         plainValidation("#clients");
@@ -381,6 +420,7 @@
                 $("#time-label").text(self.selectedTime);
 
                 $("#client-label").text(event.CFullName);
+                $("#client-label").show();
                 $("[name='Title']").val(event.MeetingDescription);
                 $("#apptEndTime").val(event.Duration);
                 $("#description").val(event.MeetingNotes);
@@ -388,6 +428,7 @@
                 $("#event-create-modal").modal("show");
 
                 $("#clients").val(event.ClientName);
+                $("#clients").hide();
 
 
                
@@ -398,11 +439,16 @@
 
                 console.log(_data);
 
-
+                if(_YakkrCode == 222){ //for center visit
+                    _data.IsCenterVisit = 1;
+                }else{
+                    _data.IsCenterVisit = 0;
+                }
 
                 $.ajax({
                     type:'POST',
-                    url:"@Url.Action("SaveTCRHomeVisit","HomeVisitor")?yakkrid=@ViewBag.YakkrId",
+                    //url:"@Url.Action("SaveTCRHomeVisit","HomeVisitor")?yakkrid=@ViewBag.YakkrId",
+                    url:"@Url.Action("SaveSchedulerEvent", "HomeVisitor")?yakkrid=@ViewBag.YakkrId",
                     data:JSON.stringify(_data),
                     beforeSend:function(){
                         $('#spinner').show();
@@ -437,22 +483,31 @@
                                 $(calendar).fullCalendar('addEventSource', mainInstanceList);
 
 
-                            }else{
+                            }
+                            
+                            @*else{
 
                                 setTimeout(function(){
                                     window.location.href = "@Url.Action("YakkrList", "Yakkr")?YakkrCode=@ViewBag.YakkrCode"
                                     // window.location.reload();
                                 },1000);
 
-                            }
+                            }*@
 
+                    //from yakkr details Page
+                            if(data.YakkrRemoved){
+                            setTimeout(function(){
+                                window.location.href = "@Url.Action("YakkrList", "Yakkr")?YakkrCode=@ViewBag.YakkrCode"
+                                // window.location.reload();
+                            },1000);
+                        }
 
                         }else{
                             customAlert("Something went wrong, Please try again");
                         }
 
                     },
-                    fail:function(res){
+                    error:function(res){
                         customAlert("Something went wrong, Please try again");
                     },
                     complete:function(res){
@@ -521,10 +576,13 @@
                         self.savetype=1;
                         console.log(start, end, allDay);
                         $("#delete-event").hide();
+                        $("#clients").show();
+                        $("#client-label").hide();
                         $("#submit-event").removeClass("pull-right");
                         $("#DateOfAppointment").val(self.selectedDate);
                         if(_YakkrCode > 0){ //for appointment page
                             $("#title").val(_YakkrCode == 222 ? "Center Visit - "+_ClientDetails.Name+"" : "Home Visit - "+_ClientDetails.Name+"");
+                            $("#client-label").show();
                         }
                         $("#description").val('');
 
@@ -595,10 +653,13 @@
 
             },
             getclients:function() {
-            $.ajax({
-                //url: HostedDir + "/HomeVisitor/getclients",
-            url: HostedDir + "/HomeVisitor/getclients?mode=2",
-            type: "POST",
+                var _mode = _currentLogin == "TeacherAssistant" ? 4 : _currentLogin == "Teacher" ? 2 : _currentLogin == "Nurse" ? 3 : 5 ;
+
+                $.ajax({
+                    //url: HostedDir + "/HomeVisitor/getclients",
+                //url: HostedDir + "/HomeVisitor/getclients?mode=2",
+        url:"@Url.Action("getclients", "HomeVisitor")?mode="+_mode,
+        type: "POST",
         dataType: "json",
         secureuri: false,
         async: false,
@@ -609,9 +670,11 @@
                     text: item.clientname
                 }));
             });
-            $('#clients')[0].selectedIndex = -1;
 
-        }
+            if( $('#clients').length){
+                $('#clients')[0].selectedIndex = -1;
+            }
+                    }
                , error: function (response) {
                }
         });
@@ -743,16 +806,16 @@
                 {
                 <div class="col-lg-12" style="margin-bottom:25px;">
 
-                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                    <div style="float:left;" class="col-lg-6 col-xs-12 client-detail">
                         <label class="popup-label">Client : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">@ViewBag.Details.Name</span>
                     </div>
-                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                    <div style="float:left;" class="col-lg-6 col-xs-12 client-detail">
                         <label class="popup-label">DOB : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">@ViewBag.Details.DOB</span>
                     </div>
 
                 </div>
-                <div class="col-lg-12" style="margin-bottom:25px;">
-                    <div style="float:left;" class="col-lg-6 col-xs-12">
+                <div class="col-lg-12" style="margin-bottom:35px;">
+                    <div style="float:left;" class="col-lg-6 col-xs-12 client-addr">
                         <label class="popup-label">Address : </label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">
 
                         @ViewBag.Details.Street, @ViewBag.Details.County, @ViewBag.Details.City, @ViewBag.Details.State,  @ViewBag.Details.ZipCode
@@ -797,15 +860,16 @@
                 <input type="hidden" class="form-control" name="meetingId" id="InstanceId">
                 <input type="hidden" class="form-control" name="meetingId" id="EndDate">*@
                 <div class="form-group col-sm-6" style="margin-bottom:15px !important;padding-left:0px;">
-                    <label class="lhs-label" style="width:50px;">Client:</label>
+                    <label class="lhs-label client-label1" style="width:50px;">Client:</label>
                     @*<select type="text" class="form-control" onchange="selectlastname()" tabindex="1" name="Title" id="clients"></select>*@
-@if (ViewBag.IsAllCSH == false)
-{
-                    <label style="width:150px;padding-left:20px;" id="client-label">@ViewBag.Details.Name</label>
+@if (ViewBag.IsAllCSH == false)  {  @*for appoinment from yakkr*@
+                    <label class="client-label2" style="width:150px;padding-left:20px;" id="client-label">@ViewBag.Details.Name</label>
 }
 else
 {
     <select type="text" class="form-control"  tabindex="1" name="Title" id="clients" style="width:250px;display:inline-block;"></select>
+
+    <label class="client-label2" style="width:150px;padding-left:20px;display:none;" id="client-label"></label>
 }
                 </div>
                 <div class="form-group col-sm-6">

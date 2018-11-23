@@ -79,6 +79,7 @@ namespace FingerprintsData
                 cmd.Parameters.AddWithValue("@EndDate", obj.EndDate);
                 cmd.Parameters.AddWithValue("@Parentid", obj.ParentId);
                 cmd.Parameters.AddWithValue("@InstanceId", obj.InstanceId);
+                cmd.Parameters.AddWithValue("@IsCenterVisit", obj.IsCenterVisit);
                 cmd.Parameters.AddWithValue("@result", string.Empty).Direction = ParameterDirection.Output;
                 cmd.Connection.Open();
                 int i = cmd.ExecuteNonQuery();
@@ -979,4 +980,5 @@ namespace FingerprintsData
         #endregion TCR&FSW Scheduler
 
     }
+
 }

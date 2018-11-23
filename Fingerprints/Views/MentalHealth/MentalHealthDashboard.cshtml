@@ -1,0 +1,483 @@
+﻿@model FingerprintsModel.MentalHealthDashboard
+
+@{
+    ViewBag.Title = "MentalHealthDashboard";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+    
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            healthDashboard.onLoad();           
+        });
+
+
+        var healthDashboard = {
+
+            Cancelform:function()
+            {
+                $('#ModalIndicate').modal('hide');
+            },
+            onLoad:function()
+            {
+                $('#status_CaseNotetags').tagsInput({
+                    width: 'auto',
+                    height: 'auto',
+                    delimiter: [',', ';'],
+                    autocomplete: {
+
+                    },
+                    autocomplete_url: '',
+                });
+                $('#status_CaseNotetags').importTags("nREF,,;");
+
+                CKEDITOR.replace('MHcasenote', {
+                    language: 'en-gb',
+                    uiColor: '#195180',
+                    allowedContent: true,
+                    disableNativeSpellChecker: false
+                });
+
+             
+
+            },
+            addMoreStatusAtt:function(ele)
+            {
+                var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+
+
+
+                var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
+                                                   <div class="col-sm-7 col-lg-8 no-padding">\
+                                                       <input type="file" id="FirstFile" name="Attachments"  class="form-control">\
+                                                   </div>\
+                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
+                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="healthDashboard.removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                                   </div>\
+                                               </div>';
+
+                $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
+            },
+            removeStatusAtt:function(ele)
+            {
+                $(ele).parent('div').parent('div').remove();
+            },
+            ShowMHList: function (arg) {
+                $('#DivForQualified').hide();
+                $('#DivForIndicated').hide();
+                $('#caseNoteStatDiv').hide();
+                $.ajax({
+
+                    url: '/MentalHealth/LoadMentalHealthDashboardList',
+                    type: 'post',
+                    datatype: 'json',
+                    data: {
+                        centerId: $(arg).attr('accesskey'),
+                        mode: $(arg).attr('mode')
+                    },
+                    success: function (data) {
+                        if (data != null) {
+                            $('#PartialIndicated').html("");
+                            $('#PartialIndicated').html(data);                                             
+                            $('#Mode').val($(arg).attr('mode'));
+                            $('.centernameSpan').text($(arg).closest('tr').find('td:first').text());
+                            $('#ModalIndicate').modal('show');
+                            healthDashboard.onLoad();
+                           
+                               
+                            if($(arg).attr('mode')=="Indicated")
+                            {
+                                $('#DivForIndicated').show();
+                                $('#caseNoteStatDiv').show();
+                            }
+                            else if ($(arg).attr('mode') == "Qualified")
+                            {
+                                $('#DivForQualified').show();
+                                $('#caseNoteStatDiv').show();
+                            }
+                            else if ($(arg).attr('mode') == "all") {
+                                $('#CenterName').text(" List of Children with Possible Mental Health Disability")
+                            }
+                        }
+
+                    }
+                });
+              
+            },
+
+            ShowClientDetails:function(arg)
+            {
+                $('#ClientId').val($(arg).attr('Eclientid'));
+                $('#CenterId').val($(arg).attr('centerid'));           
+                $('#YakkrId').val($(arg).attr('YakkrId'));
+                $('#clientName').text($(arg).attr('clientname'));
+                $('#clientDOB').text($(arg).attr('dob'));
+                $('#clientFSW').text($(arg).attr('fsw'));
+                $('#DivClientDetails').show();
+
+                $.ajax({
+                    url: HostedDir + "/MentalHealth/GetMentalHealthDetailsByClientId",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        ClientId: $(arg).attr('Eclientid')
+                    },
+                    secureuri: false,
+                    async: false,
+                    success: function (data) {
+            
+                        if (data != null) {
+                             var clientAppend = '';
+                            if (data.ClientList != null && data.ClientList.length > 0) {
+                                $.each(data.ClientList, function (k, clients) {
+                                    clientAppend += '<div class="col-sm-12 adddivspace">\
+                                                    <input type="checkbox" name="ClientIds" value=' + clients.Id + '>\
+                                                    <span style="color:#295b8f;">' + clients.Name + '</span>\
+                                                </div>';
+                                });
+                            }
+                            $('#statusclientsDiv').html(clientAppend);
+
+                        }
+                    }
+, error: function (data) {
+    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+}
+                });
+            },
+            SaveClientDetails: function ()
+            {
+                //Case Note Section//
+           
+                if ($('#txtNotes').val() == "") {
+                    isValid = false;
+                    plainValidation('#txtNotes');
+                    customAlert('Please enter notes');
+
+                }
+                if ($('#txtStatusCaseNoteDate').val() == '') {
+                    isValid = false;
+                    plainValidation('#txtStatusCaseNoteDate');
+                    customAlert('Please enter Case Note Date');
+
+                }
+
+                if ($('#txtStatusCaseNoteTitle').val() == '') {
+                    isValid = false;
+                    plainValidation('#txtStatusCaseNoteTitle');
+                    customAlert('Please enter Case Note Title');
+
+                }
+                if ($('#DivForIndicated').is(':visible') && $('#MHStatus').val()=="0")
+                {
+                    isValid = false;
+                    plainValidation('#MHStatus');
+                    customAlert('Please select mental health status');
+
+                }
+                if ($('#statusclientsDiv').find('input[type=checkbox]:checked').length === 0) {
+
+                    isValid = false;
+                    customAlert('Please select Clients');
+
+                }
+
+                if ($('#status_CaseNotetags').val().trim() == "") {
+                    isValid = false;
+                    customAlert("Tags are  required.");
+                    plainValidation('#status_CaseNotetags');
+
+                }
+                return isValid;
+                      
+                //$.ajax({
+
+                //    url: '/MentalHealth/SaveMentalHealthClient',
+                //    type: 'post',
+                //    datatype: 'json',
+                //    data: {
+                //        centerId: $('#CenterId').val(),
+                //        clientId: $('#ClientId').val(),
+                //        yakkrId: $('#YakkrId').val(),
+                //        Notes: $('#txtappnotes').val()
+                //    },
+                //    success: function (data) {
+                      
+                //        location.reload();
+                                          
+                //    }
+                //});
+        }
+        }
+
+       
+    </script>
+    }
+@section MainContentHolder
+{
+<style>
+.table-responsive.main-bodysection {border-radius: 7px;}
+    fieldset#fieldsetid {
+    width: 97%;
+    border-radius: 7px;
+}
+    .error-notify{
+        color:red;
+    }
+    .edutitle-heading {
+        width: 100%;
+        float: left;
+    }
+    /*.scroll-modal{
+            max-height: 413px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    }*/
+    .scroll-modal .control-group
+    {
+           max-height: none !important;
+    }
+   
+.section_setoff {
+    width: 100%;
+    float: left;
+    margin: 5px 0;
+    margin-bottom: 16px;
+}
+    select#MHStatus {
+    width:  50%;
+    display:  inline-block;
+}
+
+div#DivForQualified {
+    width:  100%;
+    float:  left;
+    margin-top: 20px !important;
+}
+    .section_setoff > label {
+    width: 44% !important;    margin-right: 10px;
+
+    float: left;
+    padding-right: 18px;
+    padding-left: 0 !important;
+}
+    .section_setoff > label {
+       width: 25%;
+    float: left;
+    padding-left: 15px;
+}
+       .transition-radio-btn .radio.radio-info {
+        float: left;
+        margin-top: 10px;
+        width: auto;
+        margin-right: 30px;
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+
+    .transition-radio-btn .radio input[type="radio"] {
+        opacity: 0;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label {
+        color: #285b90;
+    }
+
+    .transition-radio-btn .radio label {
+        display: inline-block;
+        vertical-align: middle;
+        position: relative;
+        padding-left: 5px;
+        color: #285b90;
+        font-size: 15px;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label::before {
+        border-color: #285b90;
+        color: #285b90;
+    }
+
+
+ 
+    .transition-radio-btn .radio label::before {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 0;
+        margin-left: -20px;
+         border: 1px solid #285b90;
+        border-radius: 50%;
+        background-color: transparent;
+        -webkit-transition: border 0.15s ease-in-out;
+        -o-transition: border 0.15s ease-in-out;
+        transition: border 0.15s ease-in-out;
+        top: 2px;
+    }
+
+    .transition-radio-btn .radio input[type="radio"]:checked + label::after {
+        -webkit-transform: scale(1, 1);
+        -ms-transform: scale(1, 1);
+        -o-transform: scale(1, 1);
+        transform: scale(1, 1);
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label::after {
+        background-color: #285b90;
+        color: #285b90;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"] + label::after {
+        background-color: #285b90;
+        color: #285b90;
+    }
+
+    .transition-radio-btn .radio label::after {
+        display: inline-block;
+        position: absolute;
+        content: " ";
+        width: 8px;
+        height: 8px;
+        left: 4px;
+        top: 6px;
+        margin-left: -20px;
+        border-radius: 50%;
+        background-color: transparent;
+        -webkit-transform: scale(0, 0);
+        -ms-transform: scale(0, 0);
+        -o-transform: scale(0, 0);
+        transform: scale(0, 0);
+        -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    }
+    .table-responsive.main-bodysection {
+    width:  100%;
+    float:  left;
+    padding:  20px;
+    background:  #fff;
+}
+
+.table-responsive.main-bodysection table {
+    margin-bottom: 0;
+}
+    .radio.radio-info.sublab {
+    margin-top: 0 !important;
+}
+    .asset-new-edu_bgm .modal-content {
+    background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+    background-size: cover !important;
+    background-position: 100% 100% !important;
+    color: #fff;
+}
+    fieldset#fieldsetid {
+        padding: 20px;    background: #fff;
+    color: #1b5c96;
+    }
+    .my-btn {
+    background: #db4437 !important;
+}
+
+    .edutitle-heading h2 {
+        border-bottom: 3px solid #f9c751;    margin: 0 0 20px 0;
+    }
+
+    .import_ui_bgm thead tr {
+        background-color: #2d3e50;
+    }
+
+    .import_ui_bgm tbody tr {
+        color: #2d3e50;
+        font-weight: 600;
+    }
+
+        .import_ui_bgm tbody tr td {
+            color: #337ab7 !important;
+            font-weight: 600;
+            text-align: center !important;
+        }
+
+    .import_ui_bgm {
+        background: #fff;
+        padding: 15px;
+        border-radius: 7px;
+    }
+
+        .import_ui_bgm thead tr th {
+            border-right: 1px solid #fff;
+        }
+
+            .import_ui_bgm thead tr th:last-child {
+                border-right: 0;
+            }
+
+    .fb_headscale .page-header {
+        border-bottom: 4px solid #f9c751 !important;
+        color: #fff;
+    }
+
+    .table-responsive .table_size tr td {
+        border: 1px solid #cfcfcf;
+        color: #000;
+    }
+
+    .page-wrapper-change {
+        background-image: url(../../Images/body-bg.jpg);
+        background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+        background-size: cover !important;
+        background-position: 100% 100% !important;
+    }
+</style>
+    <link href="~/Content/CaseNote/css/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
+<script src="~/Content/ckeditor/ckeditor.js"></script>
+<div class="row">
+
+    @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+
+    <div class="col-lg-12 fb_headscale">
+        <h2 class="page-header"><i class="fa fa-university" aria-hidden="true"></i>  Center Overview <i style="font-size:18px;"></i></h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+        <div class="table-responsive import_ui_bgm">
+            <table class="table table_size" id="gridViewAgency">
+                <thead style="cursor: pointer;">
+                    <tr>
+                        <th>Center Name</th>
+                        <th>Indicated</th>                     
+                        <th>Qualified</th>
+                        <th>Released</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Centerlist != null)
+                    {
+                        foreach (FingerprintsModel.MentalHealthDashboard center in ViewBag.Centerlist)
+                        {
+                            <tr>
+                                <td><a style="text-decoration: underline;text-align:right; text-decoration: underline; cursor:pointer" onclick="healthDashboard.ShowMHList(this);" typeofdatacount="Indicated" mode="all" accesskey="@center.CenterId" href="#">@center.Name</a></td>                           
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="healthDashboard.ShowMHList(this);" typeofdatacount="Indicated" mode="Indicated" accesskey="@center.CenterId">@center.Indicated</a></td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="healthDashboard.ShowMHList(this);" typeofdatacount="Qualified" mode="Qualified" accesskey="@center.CenterId">@center.Qualified</a></td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer"onclick="healthDashboard.ShowMHList(this);" typeofdatacount="Released" mode="Released" accesskey="@center.CenterId">@center.Released</a></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("~/Views/Partialviews/MentalHealthClientList.cshtml",Model)
+}
