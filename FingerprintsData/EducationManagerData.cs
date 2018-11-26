@@ -977,10 +977,8 @@ namespace FingerprintsData
             _dataset = new DataSet();
             DataAdapter = new SqlDataAdapter(command);
             DataAdapter.Fill(_dataset);
-            if (_dataset != null)
-            {
-                if (_dataset.Tables[0].Rows.Count > 0)
-                {
+           
+                
                     screeningInfoList = (from DataRow dr in _dataset.Tables[0].Rows
                                          select new ScreeningAnalysisInfo
                                          {
@@ -1004,29 +1002,14 @@ namespace FingerprintsData
                                          }
 
                                     ).ToList();
-                }
-
-                if (_dataset.Tables.Count == 2)
-                {
-
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-                        model.CenterList = (from DataRow dr1 in _dataset.Tables[1].Rows
-                                            select new Center
-                                            {
-                                                CenterId = Convert.ToInt32(dr1["CenterId"]),
-                                                CenterName = dr1["CenterName"].ToString(),
-                                                Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterId"].ToString())
-                                            }
-                                          ).ToList();
-                    }
-                }
+                
+               
 
 
 
 
                 model.ScreeningAnalysisInfoList = screeningInfoList;
-            }
+            
             }
             catch (Exception ex)
             {
