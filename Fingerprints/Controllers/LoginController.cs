@@ -369,7 +369,9 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Teacher/Roster";
                 else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
                     newLocation = "~/Home/Dashboard";
-                      else if (Session["Roleid"].ToString() == "2ADFE9C6-0768-4A35-9088-E0E6EA91F709")
+
+                //else if (Session["Roleid"].ToString() == "2ADFE9C6-0768-4A35-9088-E0E6EA91F709")
+                else if (Session["Roleid"].ToString() == "2adfe9c6-0768-4a35-9088-e0e6ea91f709")
                     newLocation = "~/Teacher/Roster";
                 else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
                     newLocation = "~/Home/HealthManager";

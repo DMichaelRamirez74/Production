@@ -70,7 +70,8 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+           RoleEnum.MentalHealthSpecialist)]
         public JsonResult getevents()
         {
             try
@@ -89,7 +90,8 @@ namespace Fingerprints.Controllers
             //  return Json(m);
         }
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+           RoleEnum.MentalHealthSpecialist)]
         public JsonResult getclients(int mode=1)
         {
             List<customclient> list = new List<customclient>();
@@ -105,7 +107,13 @@ namespace Fingerprints.Controllers
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
                             customclient obj = new customclient();
-                            obj.clientid = FingerprintsModel.EncryptDecrypt.Encrypt64(item["ClientID"].ToString());
+                            if (mode == 1)
+                            {
+                                obj.clientid = FingerprintsModel.EncryptDecrypt.Encrypt64(item["ClientID"].ToString());
+                            }
+                            else {
+                                obj.clientid = item["ClientID"].ToString();
+                            }
                             obj.clientname = item["fullname"].ToString();
                             list.Add(obj);
 
@@ -122,7 +130,8 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+          RoleEnum.MentalHealthSpecialist)]
         public JsonResult saveEvent(Scheduler _event, FormCollection collection, Recurrence recurrence)
         {
             string result = string.Empty;
@@ -148,7 +157,8 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+          RoleEnum.MentalHealthSpecialist)]
         public ActionResult Delete(Scheduler _event)
         {
             string result = string.Empty;
@@ -351,24 +361,26 @@ namespace Fingerprints.Controllers
 
         #region TCR&FSW Scheduler
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+          RoleEnum.MentalHealthSpecialist)]
         public ActionResult TeacherScheduler(string clientid,long yakkr,long Yakkrid) {
 
          var result= homeVisitorData.getVisitingDetailsByclient(clientid,yakkr, Yakkrid, 1);
             ViewBag.Details = result;
             ViewBag.YakkrId = Yakkrid;
             ViewBag.YakkrCode = yakkr;
-            ViewBag.IsAllCSH = false;
+            ViewBag.IsAllCSH = false; //hide client dropdown 
             return View();
         }
 
-        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker)]
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+          RoleEnum.MentalHealthSpecialist)]
         public ActionResult TCRScheduler()
         {
             ViewBag.Details = new { };
             ViewBag.YakkrId = 0;
             ViewBag.YakkrCode = 0;
-            ViewBag.IsAllCSH = true;
+            ViewBag.IsAllCSH = true; //show client dropdown
 
             return View("TeacherScheduler");
         }
@@ -382,30 +394,10 @@ namespace Fingerprints.Controllers
         }
 
 
-        //[CustAuthFilter(new string[] { Role.teacher,Role.familyServiceWorker })]
-        //public JsonResult geteventsForTCR()
-        //{
-        //    try
-        //    {
-        //        List<Scheduler> m = new List<Scheduler>();
-        //        m = homeVisitorData.getUserEvents();
-        //        for (int i = 0; i < m.Count; i++)
-        //        {
-        //            m[i].ClientName = FingerprintsModel.EncryptDecrypt.Decrypt64(m[i].ClientName);
-        //        }
-        //        return Json(m, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        clsError.WriteException(ex);
-        //        return null;
-        //    }
 
-        //    //  return Json(m);
-        //}
-
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.FamilyServiceWorker)]
-        public ActionResult SaveTCRHomeVisit(Scheduler _event,int yakkrid=0)
+        [CustAuthFilter(RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.FamilyServiceWorker, RoleEnum.HealthNurse, RoleEnum.TeacherAssistant,
+           RoleEnum.MentalHealthSpecialist)]
+        public ActionResult SaveSchedulerEvent(Scheduler _event,int yakkrid=0)
         {
             List<Scheduler> m = new List<Scheduler>();
             bool YakkrRemoved = false;
@@ -420,9 +412,7 @@ namespace Fingerprints.Controllers
               
                 m = homeVisitorData.getUserEvents();
 
-                //for (int i = 0; i < m.Count; i++) {
-                //    m[i].ClientName = FingerprintsModel.EncryptDecrypt.Decrypt64(m[i].ClientName);
-                //}
+
                 if (yakkrid > 0 && _event.ClientId > 0 && _event.MeetingId ==0) { 
                   YakkrRemoved=  homeVisitorData.ClearYakkr(yakkrid,_event.ClientId);
                 }
@@ -436,8 +426,6 @@ namespace Fingerprints.Controllers
             }
             return Json(m, JsonRequestBehavior.AllowGet);
         }
-
-
 
         #endregion TCR&FSW Scheduler
 

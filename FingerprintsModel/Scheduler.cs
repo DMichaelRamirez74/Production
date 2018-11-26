@@ -85,6 +85,8 @@ namespace FingerprintsModel
         public string CFullName { get; set; }
 
         public int IsChildWithdrawn { get; set; }
+
+        public int IsCenterVisit { get; set; }
     }
 
     public class ParentDetails
