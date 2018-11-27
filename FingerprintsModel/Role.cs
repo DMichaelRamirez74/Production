@@ -173,6 +173,7 @@ namespace FingerprintsModel
         public bool IsAllow { get; set; }
         public string RoleName { get; set; }
         public string RoleId { get; set; }
+        public int ScreeningID { get; set; }
 
     }
 

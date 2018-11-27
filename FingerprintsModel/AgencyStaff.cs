@@ -288,12 +288,12 @@ namespace FingerprintsModel
 
     }
 
-    public class CaseNote
+    public class CaseNote :RosterNew.CaseNote
     {
         public string Householid { get; set; }
         public string clientid { get; set; }
         public string Staffid { get; set; }
-        public string CaseNoteid { get; set; }
+        //public string CaseNoteid { get; set; }
         public string WrittenBy { get; set; }
         public string Name { get; set; }
         public string BY { get; set; }
@@ -302,13 +302,15 @@ namespace FingerprintsModel
         public string Attachment { get; set; }
         public string References { get; set; }
         public string Programyear { get; set; }
-        public string Note { get; set; }
+        //public string Note { get; set; }
         public string Tagname { get; set; }
         public bool SecurityLevel { get; set; }
         public bool IsAllowSecurityCN { get; set; }
         public string GroupCaseNote  { get; set; }
-        public string SecurityRoles { get; set; }
+        //public string SecurityRoles { get; set; }
         public bool IsEditable { get; set; }
+        public string ProgramID { get; set; }
+        public string ProgramType { get; set; }
     }
 
 
@@ -326,7 +328,7 @@ namespace FingerprintsModel
 
     }
 
-    public class CaseNoteByClientID
+    public class CaseNoteByClientID : IPagination
     {
         public string Role { get; set; }
         public List<CaseNote> CaseNoteList { get; set; }
@@ -335,6 +337,15 @@ namespace FingerprintsModel
         public List<RosterNew.User> UserList { get; set; }
      
     
+        public List<ParentInfo> ParentContactInfoList { get; set; }
+        public int TotalRecord { get; set; }
+        public int RequestedPage { get; set; }
+        public int PageSize { get; set; }
+        public int SkipRows { get; set; }
+        public int GetSkipRows()
+        {
+            return this.PageSize * (RequestedPage - 1);
+        }
     }
 
 
@@ -585,6 +596,14 @@ namespace FingerprintsModel
     }
     
 
+    public interface IPagination
+    {
+        int TotalRecord { get; set; }
+        int PageSize { get; set; }
+        int SkipRows { get; set; }
 
+        int RequestedPage { get; set; }
 
+        int GetSkipRows();
+    }
 }

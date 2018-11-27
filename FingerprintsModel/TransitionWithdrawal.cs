@@ -194,7 +194,8 @@ namespace FingerprintsModel
     public enum Mode
     {
         Withdrawal = 1,
-        Transition = 2
+        Transition = 2,
+        Others=3
     }
 
 

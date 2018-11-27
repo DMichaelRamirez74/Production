@@ -267,7 +267,7 @@
                         beforeSend: function () { $("#spinner").show(); },
                         success: function (data) {
 
-
+                            if (data.length) {
 
                             var _templ = $("#tagdetail-table-tmpl").html();
 
@@ -280,11 +280,15 @@
                             $("#export-btn").data('id', _tagId);
 
                             $("#TagDetail_Modal").modal("show");
+                            } else {
 
+                                customAlert("Something went wrong, please try again");
+                            }
 
                         },
-                        fail: function (res) {
-
+                        error: function (res) {
+                            
+                            customAlert("Something went wrong, please try again");
                         },
                         complete: function (res) {
                             $("#spinner").hide();
@@ -371,10 +375,13 @@
                     dataType: 'json',
                     contentType: "application/json;",
                     success: function (data) {
-                        if (data) self.drawTable(data, pagno);
+                        if (data) { self.drawTable(data, pagno); } else {
 
-                    }, fail: function (res) {
+                            customAlert("Something went wrong, please try again");
+                        }
+                    }, error: function (res) {
 
+                        customAlert("Something went wrong, please try again");
 
                     },
                     complete: function (res) {
