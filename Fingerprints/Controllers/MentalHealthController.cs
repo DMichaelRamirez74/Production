@@ -106,7 +106,7 @@ namespace Fingerprints.Controllers
               //  _caseNote.ProgramId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.CaseProgramId);
                 _caseNote.CaseNoteAttachmentList = Attachments;
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["UserId"].ToString(), 2);
+                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(),Session["RoleID"].ToString(), Session["UserId"].ToString(), 2);
 
 
                  res = mHealth.SaveMentalHealthClient(MentalHealthCaseNote, name);

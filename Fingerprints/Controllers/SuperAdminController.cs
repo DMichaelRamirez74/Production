@@ -1115,7 +1115,7 @@ namespace Fingerprints.Controllers
 
                 id = string.IsNullOrEmpty(id) ? "0" : EncryptDecrypt.Decrypt64(id);
 
-                ViewBag.ScreeningAccessRoles = datalayer.GetScreeningAccessRoles(id);
+              //  ViewBag.ScreeningAccessRoles = datalayer.GetScreeningAccessRoles(id);
 
                 return View();
 
@@ -1128,14 +1128,16 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
-            string Programtype, bool Document, string ScreeningDate, bool Inintake,string expiredPeriod,string expireIn,string screeningsYear,List<ScreeningAccess> screeningAccessList)
+            string Programtype, bool Document, string ScreeningDate, bool Inintake,string expiredPeriod,string expireIn,string screeningsYear
+            )
         {
             try
             {
 
           
 
-                string message = datalayer.AddScreeningquestion(ScreeningId, ScreeningName, Questionlist,AgencyId, Session["UserID"].ToString(),  Programtype, Document, ScreeningDate, Inintake,expiredPeriod,expireIn,screeningsYear,screeningAccessList);
+                string message = datalayer.AddScreeningquestion(ScreeningId, ScreeningName, Questionlist,AgencyId, Session["UserID"].ToString(),  Programtype, Document, ScreeningDate, Inintake,expiredPeriod,expireIn,screeningsYear
+                    );
 
                 
 

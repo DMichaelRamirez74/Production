@@ -550,7 +550,7 @@ namespace Fingerprints.Controllers
                 else
                     ViewBag.Householdid = 0;
 
-                ViewBag.CaseNotelist = RosterData.GetCaseNote(ref Name, ref Userlist, Householdid, centerid, id, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.CaseNotelist = RosterData.GetCaseNote(ref Name, ref Userlist, Householdid, centerid, id, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString());
                 ViewBag.Userlist = Userlist.UserList;
                 ViewBag.Clientlist = Userlist.Clientlist;
            
@@ -1073,7 +1073,7 @@ namespace Fingerprints.Controllers
                     CaseNote.HouseHoldId = EncryptDecrypt.Decrypt64(CaseNote.HouseHoldId);
                 }
                 CaseNote.IsLateArrival = false;
-                string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Mode);
+                string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), Mode);
                 ViewBag.Name = Name;
                 if (string.IsNullOrEmpty(CaseNote.ClientId))
                     ViewBag.Client = "0";
@@ -2282,7 +2282,7 @@ namespace Fingerprints.Controllers
             CaseNote.CaseNoteDate = Convert.ToString(collection.Get("CaseNoteDate"));
             CaseNote.ClientIds = CaseNote.ClientId;
             CaseNote.IsLateArrival = true;
-            string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
 
             return Redirect("~/Roster/Roster");
         }
@@ -2443,6 +2443,7 @@ namespace Fingerprints.Controllers
         {
             string AgencyId = Session["AgencyId"].ToString();
             string UserId = Session["UserID"].ToString();
+            string roleId = Session["RoleID"].ToString();
             int result = 0;
 
             Transition _transition = new Transition();
@@ -2493,7 +2494,7 @@ namespace Fingerprints.Controllers
             if (result==1)
             {
                 string name = "";
-                name = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, attach, AgencyId, UserId, 0);
+                name = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, attach, AgencyId,roleId, UserId, 0);
                 result = 3;
             }
             return Json(result,JsonRequestBehavior.AllowGet);
@@ -2534,7 +2535,7 @@ namespace Fingerprints.Controllers
             CaseNote.HouseHoldId = "0";
             CaseNote.CaseNoteSecurity = true;
             List<RosterNew.Attachment> Attachments = new List<RosterNew.Attachment>();
-            string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
             return Json(result);
         }
 
@@ -2599,7 +2600,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [ValidateInput(false)]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor,RoleEnum.Teacher, RoleEnum.DisabilitiesManager,RoleEnum.SocialServiceManager)]
 
         public ActionResult FamilyHouseless(FamilyHouseless houseless)
         {
@@ -2635,7 +2636,7 @@ namespace Fingerprints.Controllers
                 if (message == "1")
                 {
                     houseless.CaseNoteDetails.CaseNoteid = "0";
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, houseless.CaseNoteDetails, houseless.CaseNoteAttachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
+                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, houseless.CaseNoteDetails, houseless.CaseNoteAttachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
                 }
             }
             catch (Exception ex)
@@ -2661,7 +2662,7 @@ namespace Fingerprints.Controllers
 
 
         [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.DisabilitiesManager,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.HomeVisitor,RoleEnum.FamilyServiceWorker)]
 
         public JsonResult UpdateReturningTransitionClient(int returnValue,string clientId)
         {
@@ -2713,6 +2714,7 @@ namespace Fingerprints.Controllers
 
 
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult SaveFamilyAdvocate(string HouseholdID,string FamilyAdvocate)
         {
 
@@ -2759,7 +2761,7 @@ namespace Fingerprints.Controllers
 
         #endregion ReferalReviewList
 
-
+        [CustAuthFilter()]
         public ActionResult DeleteCaseNote(int casenoteid,int[] appendcid, bool deletemain)
         {
             var result = new RosterData().DeleteCaseNote(casenoteid, appendcid,deletemain,1);
@@ -2770,13 +2772,15 @@ namespace Fingerprints.Controllers
 
         #region CaseNote_Tag_Report
         [CustAuthFilter()]
-        public ActionResult CaseNoteTagReport() {
+        public ActionResult CaseNoteTagReport()
+        {
 
             if (new agencyData().GetSingleAccessStatus(18))
             {
                 return View();
             }
-            else {
+            else
+            {
                 return new RedirectResult("~/login/Loginagency");
             }
         }
@@ -2788,12 +2792,14 @@ namespace Fingerprints.Controllers
 
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
-            else{
+            else
+            {
                 return new RedirectResult("~/login/Loginagency");
             }
         }
         [CustAuthFilter()]
-        public ActionResult GetCaseNotesByTagId(long tagid) {
+        public ActionResult GetCaseNotesByTagId(long tagid)
+        {
 
             var result = new RosterData().GetCaseNotesByTagId(tagid, 2);
             return Json(result, JsonRequestBehavior.AllowGet);
@@ -2809,7 +2815,7 @@ namespace Fingerprints.Controllers
                 Response.Buffer = true;
                 Response.Charset = "";
                 Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                Response.AddHeader("content-disposition", "attachment;filename=CaseNote Report for "+tname+"-" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                Response.AddHeader("content-disposition", "attachment;filename=Case Note Report for " + tname + "-" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
                 //  MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(staffDetails, Centerid, Classroom));
                 var _cnlist = new RosterData().GetCaseNotesByTagId(tagid, 2);
                 MemoryStream ms = export.ExportCaseNoteByTagId(_cnlist, tagid, total, tname);

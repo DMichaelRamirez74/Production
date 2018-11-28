@@ -473,16 +473,23 @@
                             if (data.ScreeningAcceptFileExtension == ".pdf") {
                                 frId = scrID + "_pdfdocument";
                                 src = data.ScreeningAcceptImageUrl + "#zoom=70";
-                                fileDiv.html('<iframe style="width:100%;height:250px;" id=' + frId + ' frameborder="0" scrolling="no" class="embed-responsive img-responsive center-block" src=' + src + '></iframe>');
+                                fileDiv.html('<div id="pdfDocumentDiv" class='+frId+' data-url='+src+' >\
+                                    <embed id=' + frId + '  src="/Scripts/pdf.js/web/viewer.html?file=' + src + '" style="width:100%;height:450px;overflow:auto;" />\
+                                    </div>');
+                              //  fileDiv.html('<iframe style="width:100%;height:250px;" id=' + frId + ' frameborder="0" scrolling="no" class="embed-responsive img-responsive center-block" src=' + src + '></iframe>');
 
-
+                                $('#pdfDocumentDiv').resizable({
+                                    alsoResize: ".file_attach"
+                                });
+                                $('.ui-icon').attr({ 'title': 'Resize document' });
+                                $('.ui-icon').tooltip();
 
                             }
                             else {
                                 frId = scrID + "_imagedocument";
                                 src = data.ScreeningAcceptImageUrl + "#zoom=70";
 
-                                fileDiv.html(' <div class="customscreeningdiv" id=' + frId + ' style="width:297px;"></div>');
+                                fileDiv.html(' <div class="customscreeningdiv" id=' + frId + ' style="width:480px;"></div>');
 
                                 fileDiv.find('#' + frId + '').ZoomCrop(
                                                               {
@@ -540,12 +547,18 @@
               navigator.mediaDevices.getUserMedia);
         }
 
-
+        try
+        {
         if (hasGetUserMedia()) {
             // Good to go!
             console.log('good to go');
         } else {
             //   alert('getUserMedia() is not supported by your browser');
+            }
+        }
+        catch(error)
+        {
+            console.log(error);
         }
 
 
@@ -623,6 +636,7 @@
         }
 
     </script>
+<script src="~/Scripts/pdfobject.js"></script>
 
 }
 

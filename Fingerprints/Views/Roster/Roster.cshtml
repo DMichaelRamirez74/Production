@@ -25,8 +25,7 @@
 
 
 
-        function pregMomTransAlert(ele)
-        {
+        function pregMomTransAlert(ele) {
 
 
             var cName = $(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html();
@@ -34,13 +33,11 @@
                 var programID = $(ele).attr('ProgramId');
                 var yakkr = $(ele).attr('st');
                 var message = '';
-                if($(ele).attr('isr')=='1')
-                {
+            if ($(ele).attr('isr') == '1') {
                     message='<p><strong>' + cName + '</strong> has been transitioned to new program year.</p><p>If you would like to change, Click OK to proceed.</p>';
                 }
 
-                else if ($(ele).attr('isr') == '0')
-                {
+            else if ($(ele).attr('isr') == '0') {
                     message = '<p><strong>' + cName + '</strong> has indicated as not planning on returning to our program.</p><p>If you would like to change, Click OK to proceed.</p>';
 
                 }
@@ -419,7 +416,7 @@
 
         function clearAllGrid() {
             var colspan = $('#GridRoster').find('th').length;
-            var bindRow = '<tr style="width:100%;height:auto;font-weight:bold;">\
+            var bindRow = '<tr style="width:100%;height:auto;font-weight:bold;" role="row">\
                                             <td colspan='+ colspan + ' style="padding: 25px;text-align:center;">Search by Center and Classroom<sup style="color:red;">*</sup></td>\
                                         </tr>';
 
@@ -1964,41 +1961,41 @@
                 for (var i = 0; i < data.list.Rosters.length; i++) {
 
                     var tr = "";
-                    tr += "<tr id=" + i + ">";
+                    tr += "<tr id=" + i + " role='row'>";
 
-                    tr += '<td height="70" class="child_name"><a style="white-space:nowrap;" EHouseholid="' + data.list.Rosters[i].EHouseholid + '" EClientId="' + data.list.Rosters[i].Eclientid + '" onclick="openAgencyUserFamilySummaryById(this);"  href="#">' + data.list.Rosters[i].Name + '</a>';
+                    tr += '<td height="70" class="child_name" data-title="Client" role="gridcell" ><a style="white-space:nowrap;" EHouseholid="' + data.list.Rosters[i].EHouseholid + '" EClientId="' + data.list.Rosters[i].Eclientid + '" onclick="openAgencyUserFamilySummaryById(this);"  href="#">' + data.list.Rosters[i].Name + '</a>';
                     if (data.list.Rosters[i].IsHomeBased === 0) {
                         tr += '<p class="part-img-tbl"><img style="height:20px;width:20px;cursor:pointer;" src="/Images/calendar.png" data-clientId="' + data.list.Rosters[i].Eclientid + '" onclick="GetSelectedDateDetails(this);" /></p>';
                     }
                     tr += '</td>';
 
-                    tr += '<td height="70" style="text-align:center;">';
+                    tr += '<td height="70" style="text-align:center;" data-title="Today Attendance" role="gridcell">';
                     if (data.list.Rosters[i].IsPresent == "1" || data.list.Rosters[i].IsPresent == "11") {
-                        tr += "<i style='color:#3c763d;' title='Present' class='fa fa-check'></i>";
+                        tr += "<i style='color:#3c763d;' title='Present' data-toggle='tooltip' class='fa fa-check'></i>";
                     }
                     else if (data.list.Rosters[i].IsPresent == "2") {
-                        tr += "<i style='color:#9c27b0;' title='Absent Excused' class='fa fa-times'></i>";
+                        tr += "<i style='color:#9c27b0;' title='Absent Excused' data-toggle='tooltip' class='fa fa-times'></i>";
                     }
                     else if (data.list.Rosters[i].IsPresent == "3") {
-                        tr += "<i style='color:#ff5722;' title='Absent No Show' class='fa fa-times'></i>";
+                        tr += "<i style='color:#ff5722;' title='Absent No Show' data-toggle='tooltip' class='fa fa-times'></i>";
                     }
                     else if (data.list.Rosters[i].IsPresent == '4') {
-                        tr += "<i style='color:#ff5722;' title='Present Other' class='fa fa-check'></i>";
+                        tr += "<i style='color:#ff5722;' title='Present Other' data-toggle='tooltip' class='fa fa-check'></i>";
 
                     }
                     else if (data.list.Rosters[i].IsPresent == '0') {
-                        tr += "<i style='color:#ff2222;' title='Not Checked In' class='fa fa-user-times'></i>";//Changes on 3jan2016
+                        tr += "<i style='color:#ff2222;' title='Not Checked In' data-toggle='tooltip' class='fa fa-user-times'></i>";//Changes on 3jan2016
                     }
                     else {
-                        tr += "<i style='color:#ff5722;' title='Absent' class='fa fa-times'></i>";
+                        tr += "<i style='color:#ff5722;' title='Absent' data-toggle='tooltip' class='fa fa-times'></i>";
                     }
                     tr += '</td>';
 
                     //Picture//
 
 
-                    tr += '<td height="70" style="text-align:center;width:11%;">';
-                    tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
+                    tr += '<td height="70" style="text-align:center;" data-title="Profile Picture" role="gridcell">';
+                    tr += '<a href="javascript:void(0)"  data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
                     tr += '</td>';
 
                     //Picture End//
@@ -2010,14 +2007,14 @@
 
 
                         if (data.list.Rosters[i].IsAppointMentYakkr600601 != 0) {
-                            tr += '<td height="70" style="width:13%;"></td>';
+                            tr += '<td height="70"  role="gridcell" data-title="Attendance Issue"></td>';
                         }
                         //else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
                         //    tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
 
                         //}
                         else if (data.list.Rosters[i].Yakkr601 != 0) {
-                            tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">601</td>';
+                            tr += '<td height="70" " role="gridcell"  data-title="Attendance Issue"><a href="javascript:void(0);" data-toggle="tooltip" title="Excessive Absences" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">Excessive Absences</td>';
                         }
                         //else if (data.list.Rosters[i].Yakkr600 != 0) {
                         //    tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="600" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" data- onclick="ShowPopup(this);">600</td>';
@@ -2025,51 +2022,51 @@
                         //}
 
                         else {
-                            tr += '<td height="70" style="width:13%;"><a href="#" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
+                            tr += '<td height="70"  role="gridcell" data-title="Attendance Issue"><a href="javascript:void(0);" data-toggle="tooltip"  data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
                         }
 
                     }
 
                     //For Attendance issue//
 
-                    tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].ClassroomName + '</td>';
+                    tr += '<td height="70" style="text-align:center;" role="gridcell" data-title="Classroom">' + data.list.Rosters[i].ClassroomName + '</td>';
 
 
                     if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
-                        tr += '<td height="70" style="width:26%;">';
-                        tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                        tr += '<a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">FPA </a>  &nbsp';
+                        tr += '<td height="70"  role="gridcell" data-title="Services">';
+                        tr += '<a style="text-decoration:underline;cursor:pointer;" data-toggle="tooltip" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                        tr += '<a title="Click here to open Family Partnership Agreement" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">FPA </a>  &nbsp';
                         if (data.list.Rosters[i].Acronym != "") {
                             if (data.list.Rosters[i].Acronym == "MAT") {
                                 tr += '<a  style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Acronym + ' </a>  &nbsp';
                             }
                             else {
-                                tr += '<a title="Click here to get the Parent Matrix Analysis"  href="' + HostedDir + '/Roster/MatrixAnalysis/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=' + data.list.Rosters[i].EHouseholid + ' &centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '"  style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Acronym + ' </a>  &nbsp';
+                                tr += '<a title="Click here to get the Parent Matrix Analysis"  data-toggle="tooltip"  href="' + HostedDir + '/Roster/MatrixAnalysis/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=' + data.list.Rosters[i].EHouseholid + ' &centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '"  style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Acronym + ' </a>  &nbsp';
 
                             }
                         }
 
                         if (roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
-                            tr += '<a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/AgencyUser/HomeVisitFSWNew/?id=' + data.list.Rosters[i].Eclientid + '&Name=' + data.list.Rosters[i].Name + '&LastName=' + (data.list.Rosters[i].Name).substr((data.list.Rosters[i].Name).indexOf(' ') + 1) + '">HV </a>  &nbsp';
+                            tr += '<a title="Schedule Home Visit" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/AgencyUser/HomeVisitFSWNew/?id=' + data.list.Rosters[i].Eclientid + '&Name=' + data.list.Rosters[i].Name + '&LastName=' + (data.list.Rosters[i].Name).substr((data.list.Rosters[i].Name).indexOf(' ') + 1) + '">HV </a>  &nbsp';
 
                         }
-                        tr += '<a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
-                        tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
+                        tr += '<a title="Click here to open Referals" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
+                        tr += '<a title="Click here to get white paper on education of parents" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
 
 
                         if (data.list.Rosters[i].IsFutureWithdrawal)
-                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;color:orange;"  title="Enrollment Status of Client already updated  for future withdrawal" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '" progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="showWithdrawalStatus(this);" refpr="'+data.list.Rosters[i].ReferenceProg+'"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;color:orange;" data-toggle="tooltip"  title="Enrollment Status of Client already updated  for future withdrawal" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '" progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="showWithdrawalStatus(this);" refpr="' + data.list.Rosters[i].ReferenceProg + '"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
                         else
-                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;"  title="Click to change status" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '"progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="Loadchangestatusmodel(this);" refpr="' + data.list.Rosters[i].ReferenceProg + '"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" data-toggle="tooltip"  title="Click to change status" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '"progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="Loadchangestatusmodel(this);" refpr="' + data.list.Rosters[i].ReferenceProg + '"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
 
                         //ABT
 
 
                         if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0 && data.list.Rosters[i].IsClassStarted === 1) {
-                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="#" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
                             tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
                         }
-                        tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                        tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" data-toggle="tooltip" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
 
                         //else if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason != "")
                         //{
@@ -2093,15 +2090,15 @@
 
 
 
-                            tr += (data.list.Rosters[i].TransitionColor == '1') ? '<a title="Click here for transition of pregnant mom" \
+                            tr += (data.list.Rosters[i].TransitionColor == '1') ? '<a title="Click here for transition of pregnant mom" data-toggle="tooltip" \
                                     style="text-decoration: underline; cursor: pointer;color:red;"\
                                     href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp' :
 
-                                  (data.list.Rosters[i].TransitionColor == '2') ? '<a title="Click here for transition of pregnant mom" \
+                                  (data.list.Rosters[i].TransitionColor == '2') ? '<a title="Click here for transition of pregnant mom"  data-toggle="tooltip" \
                                 style="text-decoration: underline; cursor: pointer;color:orange;"\
                                href="javascript:void(0);"\
                               ecid="' + data.list.Rosters[i].Eclientid + '" programid="' + data.list.Rosters[i].ProgramId + '" isr="'+data.list.Rosters[i].Returning+'"  st="' + data.list.Rosters[i].RosterYakkr + '" onclick="pregMomTransAlert(this);">TRN </a> &nbsp':
-                                 '<a title="Click here for transition of pregnant mom" \
+                                 '<a title="Click here for transition of pregnant mom"  data-toggle="tooltip" \
                                 style="text-decoration: underline; cursor: pointer;color:green;"\
                                 href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
 
@@ -2145,7 +2142,7 @@
                                         break;
                                 }
 
-                                tr += '<a title="' + titleName + '" style="text-decoration: underline; cursor: pointer;color:red;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                tr += '<a title="' + titleName + '" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:red;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
                             }
 
                             else if (data.list.Rosters[i].TransitionColor == '3') {
@@ -2153,16 +2150,16 @@
                                 switch (data.list.Rosters[i].TransitionType) {
                                     case 7:
 
-                                        tr += '<a title="Click here for client transition from EHS to HS or EHS to EHS" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                        tr += '<a title="Click here for client transition from EHS to HS or EHS to EHS"  data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
                                         break;
 
                                     case 8:
-                                        tr += '<a title="Click here for client transition from EHS to HS" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                        tr += '<a title="Click here for client transition from EHS to HS"   data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
                                         break;
                                 }
                             }
                             else {
-                                tr += '<a title="Click here to open Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                tr += '<a title="Click here to open Head Start Process" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
                             }
                         }
 
@@ -2172,11 +2169,11 @@
 
 
                         if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
-                            tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
+                            tr += '<a title="Client here to see the Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
 
                         }
                         else if (data.list.Rosters[i].IsScreeningFollowUpComplete && data.list.Rosters[i].IsShowScreeningFollowUp) {
-                            tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
+                            tr += '<a title="Client here to see the Completed Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
 
                         }
 
@@ -2187,31 +2184,30 @@
 
                     else if ($('#isManager').val() === 'True') {
 
-                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastCaseNoteDate + '</td>';
+                        tr += '<td height="70" style="text-align:center;" role="gridcell"  data-title="Last Case Note Date">' + data.list.Rosters[i].LastCaseNoteDate + '</td>';
 
-                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastFPADate + '</td>';
-                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastReferralDate + '</td>';
+                        tr += '<td height="70" style="text-align:center;" role="gridcell"  data-title="Last FPA Date">' + data.list.Rosters[i].LastFPADate + '</td>';
+                        tr += '<td height="70" style="text-align:center;" role="gridcell"  data-title="Last Referral Date">' + data.list.Rosters[i].LastReferralDate + '</td>';
 
                         if (roleid === 'a31b1716-b042-46b7-acc0-95794e378b26') {
-                            tr += '<td height="70" style="width:26%;">';
-                            tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                            tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>&nbsp;';
-                            tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                            tr += '<td height="70" role="gridcell" data-title="Services">';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;" data-toggle="tooltip"  title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                            tr += '<a title="Click here to get white paper on education of parents" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>&nbsp;';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;"  data-toggle="tooltip"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
                             
                         }
-                        else
-                        {
-                            tr += '<td height="70" style="width:26%;">';
-                            tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
-                            tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                        else {
+                            tr += '<td height="70"  role="gridcell" data-title="Services">';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;" data-toggle="tooltip"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;" data-toggle="tooltip" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
                         }
 
                         if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
-                            tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
+                            tr += '<a title="Client here to see the Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
 
                         }
                         else if (data.list.Rosters[i].IsScreeningFollowUpComplete && data.list.Rosters[i].IsShowScreeningFollowUp) {
-                            tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
+                            tr += '<a title="Client here to see the Completed Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
 
                         }
 
@@ -2223,6 +2219,9 @@
 
 
                     $('#GridRoster > tbody').append(tr);
+                    $('#GridRoster').find('[data-toggle="tooltip"]').map(function () {
+                        $(this).tooltip();
+                    });
 
 
                     //$('#GridRoster > tbody>tr>td:last-child>a').on('click', function () {
@@ -2596,8 +2595,7 @@
             line-height:32px;
         }
 
-        .bootstrap-dialog-title
-        {
+        .bootstrap-dialog-title {
             margin-top:15px;
         }
 
@@ -2990,6 +2988,99 @@
             font-weight: bold;
             color: #295b8f;
         }
+        @@media (min-device-width: 243px) and (max-device-width: 767px) {
+            #filterSelect {
+                margin-top: 0.6em;
+            }
+            .ic-mqr {
+                margin-top: 0.6em;
+                text-align: center;
+            }
+        }
+        @@media only screen and (max-width: 760px), (min-device-width: 761px) and (max-device-width: 1200px) {
+            /* Force table to not be like tables anymore */
+            #GridRoster, #GridRoster thead, #GridRoster tbody, #GridRoster th, #GridRoster td, #GridRoster tr {
+                display: block;
+                border: none;
+            }
+                #GridRoster tbody tr td:first-child a {
+                    width: initial !important;
+                    text-overflow: initial !important;
+                }
+                /* Hide table headers (but not display: none;, for accessibility) */
+                #GridRoster thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+                #GridRoster tr {
+                    margin: 0 7px 2em 0;
+                    box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+                }
+                    #GridRoster tr:nth-child(odd) {
+                        background: #ffffff;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+                    #GridRoster tr:nth-child(even) {
+                        background: #f1f5f8;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+                #GridRoster td {
+                    /* Behave  like a "row" */
+                    border: none;
+                    border-bottom: 1px solid #eee;
+                    position: relative;
+                    /*padding-left: 50%;*/
+                }
+                    #GridRoster td:before {
+                        /* Now like a table header */
+                        position: absolute;
+                        /* Top/left values mimic padding */
+                        top: 0;
+                        left: 6px;
+                        width: 45%;
+                        padding-right: 10px;
+                        white-space: nowrap;
+                    }
+            .table-div {
+                border: none !important;
+            }
+            /*
+                        Label the data
+                    You could also use a data-* attribute and content for this. That way "bloats" the HTML, this way means you need to keep HTML and CSS in sync. Lea Verou has a clever way to handle with text-shadow.
+                        */
+            /*td:nth-of-type(1):before { content: "Center Name"; }
+                        td:nth-of-type(2):before { content: "% Full"; }
+                        td:nth-of-type(3):before { content: "Open Seats"; }
+                        td:nth-of-type(4):before { content: "HV's"; }
+                        td:nth-of-type(5):before { content: "Wait1"; }
+                        td:nth-of-type(6):before { content: "Wait2"; }
+                        td:nth-of-type(7):before { content: "Wait3"; }
+                        td:nth-of-type(8):before { content: "T-Waiting"; }
+                        td:nth-of-type(9):before { content: "F-Waiting"; }
+                        td:nth-of-type(10):before { content: "Pending"; }
+                        td:nth-of-type(11):before { content: "Accepted"; }
+                        td:nth-of-type(12):before { content: "Returned"; }*/
+            #GridRoster td:before {
+                content: attr(data-title);
+                text-align: left;
+                padding-top: 1.6em;
+                margin-left: 1em;
+            }
+            #GridRoster td a, #GridRoster td i {
+                margin-top: 1em;
+            }
+            #GridRoster > tbody > tr > td {
+                text-align: right !important;
+                padding-right: 2em;
+            }
+            .table-responsive {
+                border: none !important;
+            }
+        }
+        /*responsive section*/
     </style>
     <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
     <div class="row">
@@ -3016,41 +3107,42 @@
     <input type="hidden" id="isManager" value="@ViewBag.IsManager.ToString()" />
 
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
-            <div class="col-sm-4 col-md-3 col-lg-3">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform div-roster-option">
+            <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
                 <label style="color:#295b8f;font-weight:bold;">Center</label>
             </div>
-            <div class="col-sm-4 col-md-3 col-lg-3">
+            <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
                 <label style="color:#295b8f;font-weight:bold;">Classroom</label>
             </div>
 
             @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
             {
-                <div class="col-sm-4 col-md-3 col-lg-3">
+                <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
                     <label style="color:#295b8f;font-weight:bold;">Filter By</label>
                 </div>
             }
 
             @if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
             {
-                <div class="col-sm-4 col-md-3 col-lg-3">
+                <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
                     <label style="color:#295b8f;font-weight:bold;">Filter By</label>
                 </div>
             }
 
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
-            <div class="col-sm-4 col-lg-3" style="margin-bottom: 8px;">
+        <div class="roster-dropdown">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace roster-dropdown-inner">
+                <div class="col-sm-412 col-lg-4">
                 @*<select id="Centers" onchange="GetClassrooms(this);" style="height:38px !important;" class="form-control"></select>*@
                 @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel line-hgt" })
             </div>
-            <div class="col-sm-4 col-lg-3">
+                <div class="col-sm-12 col-lg-4">
                 <select id="Classroom" style="height:38px !important;" class="form-control line-hgt"></select>
             </div>
 
             @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
             {
-                <div class="col-sm-4 col-lg-3">
+                    <div class="col-sm-12 col-lg-4">
                     <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
                         <option value="0">--Select--</option>
                         <option value="1">ABT</option>
@@ -3065,7 +3157,7 @@
 
             else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
             {
-                <div class="col-sm-4 col-lg-3">
+                    <div class="col-sm-12 col-lg-4">
                     <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
                         <option value="0">--Select--</option>
                         <option value="4">ALL SFU</option>
@@ -3076,11 +3168,13 @@
             }
 
 
+            </div>
+        </div>
             <div class="col-sm-12 col-lg-3 ic-mqr">
                 <button id="btnsearch" class="my-btn">Search</button>
                 <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
             </div>
-        </div>
+
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
 
             @if (ViewBag.IsManager)
@@ -3108,51 +3202,51 @@
             }
 
             <div class="table-responsive">
-                <table class="table table_size" id="GridRoster">
-                    <thead style="cursor:pointer;">
-                        <tr>
-                            <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                <table class="table table_size table-striped" id="GridRoster" role="table">
+                    <thead style="cursor:pointer;" role="rowgroup">
+                        <tr role="row">
+                            <th id="thIN" role="columnheader">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
 
                             @*<th><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>*@
 
 
-                            <th id="thSN"><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                            <th id="thSN" role="columnheader"><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
 
-                            <th id="thCust">Profile Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                            <th id="thCust" role="columnheader">Profile Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
 
                             @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))))
                             {
                                 // if (roleid == "c352f959-cfd5-4902-a529-71de1f4824cc" || roleid == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
-                                <th id="thRN">Attendance Issue<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
+                                <th id="thRN" role="columnheader">Attendance Issue<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
                             }
                             @*<th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
-                            <th id="thAN">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thAN" role="columnheader">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
 
                             @if (ViewBag.IsManager)
                             {
-                                <th id="thSN" style="width: 10%;">Date of Last Case Note</th>
-                                <th id="thSN" style="width: 10%;">Date of Last FPA</th>
-                                <th id="thSN" style="width: 10%;">Date of Last Referral</th>
+                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last Case Note</th>
+                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last FPA</th>
+                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last Referral</th>
 
                                 if (Session["RoleId"] != null && (Session["RoleId"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26"))
                                 {
-                                    <th id="thSN" style="width: 24%;">Services</th>
+                                    <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
                                 }
                                 else
                                 {
-                                    <th id="thSN" style="width: 24%;">Services</th>
+                                    <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
                                 }
                             }
 
                             @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))
                             {
-                                <th id="thSN" style="width: 24%;">Services</th>
+                                <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
                             }
 
 
                         </tr>
                     </thead>
-                    <tbody id="table_body"></tbody>
+                    <tbody id="table_body" role="rowgroup"></tbody>
                 </table>
                 <div id="div1" style="text-align:center;display:none;">
                     <label>No result found.</label>
@@ -3161,7 +3255,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
             <div class="pages_display">
                 <ul>
                     <li>Display</li>
@@ -3180,7 +3274,7 @@
                 <div class="clear"></div>
             </div>
         </div>
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
             <div id="divPaging" class="pagination_wrp">
                 <ul id="ulPaging" class="pagination">
                     <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>

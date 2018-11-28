@@ -49,7 +49,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                if (Session["RoleID"] != null && Session["RoleID"].ToString().ToUpper().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+                if (Session["RoleID"] != null && Session["RoleID"].ToString().ToUpper()==Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator].ToString().ToUpper())
                     return Redirect("~/login/loginagency");
                 return View();
             }
@@ -198,7 +198,8 @@ namespace Fingerprints.Controllers
             //    return View();
             //}
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.HRManager,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult pendingVerificationuser(string id = "0",string ak="0")
         {
 
@@ -224,7 +225,7 @@ namespace Fingerprints.Controllers
             }
             return View(_staffList);
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+      //  [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [CustAuthFilter()]
         [HttpPost]
         public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages,string endOfYear="")
@@ -4206,7 +4207,7 @@ namespace Fingerprints.Controllers
                 FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;
@@ -4291,7 +4292,7 @@ namespace Fingerprints.Controllers
                 FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;
@@ -6522,7 +6523,7 @@ namespace Fingerprints.Controllers
                     //homeless.CaseNoteDetails.ProgramId = homeless.FamilyHousehold.CProgramType;
                     //homeless.CaseNoteDetails.CenterId = homeless.FamilyHousehold.CenterId.ToString();
                     homeless.CaseNoteDetails.CaseNoteid = "0";
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, homeless.CaseNoteDetails, homeless.CaseNoteAttachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
+                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, homeless.CaseNoteDetails, homeless.CaseNoteAttachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
                 }
 
                 ViewBag.message = "Household summary updated successfully.";

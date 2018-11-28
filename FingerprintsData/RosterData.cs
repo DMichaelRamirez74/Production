@@ -74,7 +74,7 @@ namespace FingerprintsData
             }
             return RosterList;
         }
-        public List<CaseNote> GetCaseNote(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId)
+        public List<CaseNote> GetCaseNote(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string roleID, string UserId)
         {
             List<CaseNote> CaseNoteList = new List<CaseNote>();
 
@@ -86,6 +86,7 @@ namespace FingerprintsData
 
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleID));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
                 command.Parameters.Add(new SqlParameter("@clientid", id));
                 command.Parameters.Add(new SqlParameter("@centerid", centerid));
@@ -243,6 +244,7 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@clientid", id));
                 command.Parameters.Add(new SqlParameter("@centerid", 0));
@@ -588,7 +590,7 @@ namespace FingerprintsData
             return isInserted;
         }
 
-        public string SaveCaseNotes(ref string Name, ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, string Agencyid, string UserID, int mode = 1)
+        public string SaveCaseNotes(ref string Name, ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, string Agencyid,string roleID, string UserID, int mode = 1)
         {
             string result = string.Empty;
 
@@ -613,7 +615,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClientIds", CaseNote.ClientIds));
                 command.Parameters.Add(new SqlParameter("@StaffIds", CaseNote.StaffIds));
                 
-
+                command.Parameters.Add(new SqlParameter("@RoleID", roleID));
                 command.Parameters.Add(new SqlParameter("@userid", UserID));
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
@@ -5776,7 +5778,8 @@ namespace FingerprintsData
                     if (appendcid != null && appendcid.Length > 0)
                     {
 
-                        for (int i = 0; i < appendcid.Length; i++) {
+                        for (int i = 0; i < appendcid.Length; i++)
+                        {
                             T1.Rows.Add(casenoteid, appendcid[i]);
                         }
                     }
@@ -5801,7 +5804,8 @@ namespace FingerprintsData
 
         #region CaseNote_Tag_Report
 
-        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize, int mode=1) {
+        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize, int mode = 1)
+        {
 
             CaseNoteTagReport TagReport = new CaseNoteTagReport();
             TagReport.TagReport = new List<CaseNoteTag>();
@@ -5867,14 +5871,16 @@ namespace FingerprintsData
                                 }
 
                             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 clsError.WriteException(ex);
             }
             return TagReport;
             }
 
-        public List<CaseNote> GetCaseNotesByTagId (long tagid,int mode) {
+        public List<CaseNote> GetCaseNotesByTagId(long tagid, int mode)
+        {
             var NoteList = new List<CaseNote>();
 
             try
@@ -5929,7 +5935,8 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
             return NoteList;
@@ -5938,5 +5945,251 @@ namespace FingerprintsData
 
         #endregion CaseNote_Tag_Report
 
+        #region Case notes for attendance issue
+
+     
+        public CaseNoteByClientID GetDevelopmentalMembersByClientID(string clientId, StaffDetails staffDetails)
+        {
+
+            CaseNoteByClientID clientCaseNote = new CaseNoteByClientID();
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientId));
+                    command.CommandText = "USP_GetDevelopmentalTeam_HouseholdByClient";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Connection = Connection;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        clientCaseNote.CaseNoteList = (from DataRow dr0 in _dataset.Tables[0].Rows
+
+                                                       select new CaseNote
+                                                       {
+                                                           clientid = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClientID"])),
+                                                           Name = Convert.ToString(dr0["ClientName"]),
+                                                           Householid = EncryptDecrypt.Encrypt64( Convert.ToString(dr0["HouseholdID"])),
+                                                           Date = Convert.ToString(dr0["CaseNoteDate"]),
+                                                           ProgramID = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ProgramID"])),
+                                                           ProgramType=Convert.ToString(dr0["ProgramType"]),
+                                                           CenterId= EncryptDecrypt.Encrypt64(Convert.ToString(dr0["CenterID"])),
+                                                           Classroomid= EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClassroomID"]))
+                                                          
+                                                           
+                                                       }
+
+                                         ).ToList();
+                    }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        clientCaseNote.UserList = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                   select new RosterNew.User
+                                                   {
+                                                       Id = Convert.ToString(dr1["UserID"]),
+                                                       Name = String.Concat(Convert.ToString(dr1["StaffName"]), " ", "(", Convert.ToString(dr1["RoleName"]), ")").ToString()
+                                                   }
+
+                                                     ).ToList();
+                    }
+
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        clientCaseNote.Clientlist = (from DataRow dr2 in _dataset.Tables[2].Rows
+                                                     where dr2["ClientID"].ToString() == clientId
+                                                     select new RosterNew.User
+                                                     {
+                                                         Id = Convert.ToString(dr2["clientID"]),
+                                                         Name = Convert.ToString(dr2["Name"])
+                                                     }
+
+                                                     ).ToList();
+                    }
+
+
+                    if (_dataset.Tables.Count > 3 && _dataset.Tables[3].Rows.Count > 0)
+                    {
+
+
+
+
+                        clientCaseNote.ParentContactInfoList = (from DataRow dr3 in _dataset.Tables[3].Rows
+
+                                                                orderby dr3["ParentName"].ToString()
+
+                                                                select new ParentInfo
+                                                                {
+                                                                    ParentName = DBNull.Value == dr3["ParentName"] ? string.Empty : Convert.ToString(dr3["ParentName"]),
+                                                                    PhoneNo = Convert.ToString(dr3["PhoneNumber"]),
+                                                                    EmailId = DBNull.Value == dr3["EmailId"] ? string.Empty : Convert.ToString(dr3["EmailId"])
+
+                                                                }
+
+
+                                                       ).Distinct().ToList();
+
+
+
+
+
+
+                        //clientCaseNote.ParentContactInfoList = (from DataRow dr3 in _dataset.Tables[3].Rows 
+                        //                                        join parent in parentIdList on dr3["ParentID"].ToString() equals parentIdList.ToString()
+                        //                                        select new ParentInfo
+                        //                                        {
+                        //                                            ParentName = DBNull.Value == dr3["ParentName"] ? string.Empty : Convert.ToString(dr3["ParentName"]),
+                        //                                            PhoneNo = string.Join(",",(from DataRow _dr4 in _dataset.Tables[3].Rows
+                        //                                                       where DBNull.Value != _dr4["PhoneNo"] && Convert.ToString(_dr4["PhoneNo"]) != string.Empty
+                        //                                                       && Convert.ToString(_dr4["ParentID"]) ==Convert.ToString(dr3["ParentID"])
+
+                        //                                                       select (Convert.ToString(_dr4["PhoneNo"])
+                        //                                                       ).ToArray())),
+                        //                                            EmailId=DBNull.Value==dr3["EmailId"]?string.Empty :Convert.ToString(dr3["EmailId"])
+
+
+
+
+                        //                                        }
+                        //                                      ).ToList();
+
+
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+
+            return clientCaseNote;
+        }
+
+
+
+        #endregion
+
+
+        #region caseNotes List for Attendance issue
+
+        public void GetAttendanceIssueCaseNoteList(ref CaseNoteByClientID caseNoteByClient, StaffDetails staffDetails, string clientID)
+        {
+
+
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", EncryptDecrypt.Decrypt64(clientID)));
+                    command.Parameters.Add(new SqlParameter("@YakkrCode", 601));
+                    command.Parameters.Add(new SqlParameter("@take", caseNoteByClient.PageSize));
+                    command.Parameters.Add(new SqlParameter("@Skip", caseNoteByClient.SkipRows));
+                    command.Connection = Connection;
+                    command.CommandText = "USP_GetCaseNotesByYakkr";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        caseNoteByClient.CaseNoteList = (from DataRow dr0 in _dataset.Tables[0].Rows
+                                                         select new CaseNote
+                                                         {
+                                                             Householid = Convert.ToString(dr0["HouseholdID"]),
+                                                             CaseNoteid = Convert.ToString(dr0["CaseNoteID"]),
+                                                             Title = Convert.ToString(dr0["Title"]),
+                                                             Date = Convert.ToString(dr0["CaseNoteDate"]),
+                                                             BY = Convert.ToString(dr0["By"]),
+                                                             Attachment = Convert.ToString(dr0["Attachment"]),
+                                                             References = Convert.ToString(dr0["References"]),
+                                                             SecurityLevel = Convert.ToBoolean(dr0["SecurityLevel"]),
+                                                             WrittenBy = Convert.ToString(dr0["WrittenBy"]),
+                                                             IsAllowSecurityCN = Convert.ToBoolean(dr0["IsAllowSecurityCN"]),
+                                                             IsEditable = Convert.ToBoolean(dr0["Editable"])
+                                                         }
+                                                        ).ToList();
+                    }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+
+                        caseNoteByClient.Clientlist = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                       select new RosterNew.User
+                                                       {
+                                                           Id = Convert.ToString(dr1["ClientID"]),
+                                                           Name = Convert.ToString(dr1["Name"])
+                                                       }
+                                                     ).ToList();
+                    }
+
+                    if(_dataset.Tables.Count>2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                    {
+                        caseNoteByClient.UserList = (from DataRow dr2 in _dataset.Tables[2].Rows
+                                                     select new RosterNew.User
+                                                     {
+                                                         Id = Convert.ToString(dr2["UserID"]),
+                                                         Name = String.Concat(dr2["Name"].ToString(), " ", "(", dr2["RoleName"].ToString(), ")")
+                                                     }
+                                                   ).ToList();
+                    }
+                }
+
+
+
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                _dataset.Dispose();
+                DataAdapter.Dispose();
+            }
+
+        }
+
+        #endregion
     }
 }

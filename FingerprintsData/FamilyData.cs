@@ -11226,11 +11226,12 @@ namespace FingerprintsData
             }
             return Info;
         }
-        public DataSet GetCenterCaseNote(string Agencyid, string userid)
+        public DataSet GetCenterCaseNote(string Agencyid,string roleId, string userid)
         {
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleId));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

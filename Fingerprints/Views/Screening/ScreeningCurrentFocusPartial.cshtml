@@ -28,6 +28,25 @@
          width:80%!important;
          }
      }
+                        #pdfDocumentDiv {
+                            width: 100%;
+                            height: 250px;
+                            overflow: auto;
+                            position: relative;
+                        }
+    .pdfobject-container {
+        height: 30rem;
+        border: 1rem solid rgba(0,0,0,.1);
+    }
+    #updateScreeningForm {
+        float: left;
+    }
+    .file_attach {
+        z-index: 1040;
+    }
+    .pdfobject-container {
+        height: 25rem;
+    }
  </style>
 <ul style="max-height:550px;" id="crntUl">
     @if (Model != null && Model.ScreeningPeriodsList != null & Model.ScreeningPeriodsList.Count > 0)
@@ -73,12 +92,29 @@
                 @if (Model.ScreeningList[s].ApprovedFileExtension == ".pdf")
                     {
                         pdfSource = Model.ScreeningList[s].ApprovedImageUrl + "#zoom=70";
-                    <iframe style="width:100%;height:100%; " id="@pdfdocument" frameborder="0" scrolling="no" class="embed-responsive img-responsive center-block" src="@pdfSource"></iframe>
+                    <div id="pdfDocumentDiv" class="@pdfdocument" data-url="@pdfSource">
+                        <embed id="@pdfdocument"  src="@Url.Content("~/Scripts/pdf.js/web/viewer.html?file="+pdfSource)" style="width:100%;height:450px;overflow:auto;" />
+                    </div>
+
+                  
+                    <script type="text/javascript">
+                        $('#pdfDocumentDiv').resizable({
+                            alsoResize: ".file_attach"
+                        });
+                        $('.ui-icon').attr({ 'title': 'Resize document' });
+                        $('.ui-icon').tooltip();
+                    </script>
+
+                   
+
+
+
+                    @*<iframe style="width:100%;height:100%; " id="@pdfdocument" frameborder="0" class="embed-responsive img-responsive center-block" src="@pdfSource"></iframe>*@
 
                 }
                 else
                 {
-                    <div class="customscreeningdiv" id="@imagedocument" style="width:100%;">
+                    <div class="customscreeningdiv" id="@imagedocument" style="width:480px;">
 
                         @if (string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson))
                         {
@@ -404,6 +440,7 @@
 
 </form>
 
+<script src="~/Scripts/pdfobject.js"></script>
 <script type="text/javascript">
     $(function () {
         $('input').keypress(function () {
@@ -412,6 +449,18 @@
                 // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             }
         });
+        var options2 = {
+            pdfOpenParams: {
+                pagemode: "thumbs",
+                navpanes: 1,
+                toolbar: 1,
+                statusbar: 1,
+                view: "FitV"
+            }
+        };
+        $('#pdfDocumentDiv').find('.openFile').hide();
+        //    $('#pdfDocumentDiv').find('#secondaryOpenFile').hide();
+        //  PDFObject.embed($('#pdfDocumentDiv').attr('data-url'), "#pdfDocumentDiv", options2);
     });
     $('input').keypress(function () {
         if ($(this).val() == 'MM/DD/YYYY') {

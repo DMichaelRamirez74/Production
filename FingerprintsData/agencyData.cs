@@ -5324,7 +5324,7 @@ namespace FingerprintsData
             }
             return transWithdrawal;
         }
-        public AccessRoles SP_AccessRole(int type, string Agencyid)
+        public AccessRoles SP_AccessRole(int type, string Agencyid,string screeningID="0")
         {
             AccessRoles AccessRoles = new AccessRoles();
             try
@@ -5335,6 +5335,7 @@ namespace FingerprintsData
                     command.Parameters.Clear();
                     command.Parameters.Add(new SqlParameter("@AgencyID", Agencyid));
                     command.Parameters.Add(new SqlParameter("@type", type));
+                    command.Parameters.Add(new SqlParameter("@ScreeningID", screeningID)).Direction = ParameterDirection.InputOutput;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_GetAllRoles";
                     Connection.Open();
@@ -5342,6 +5343,7 @@ namespace FingerprintsData
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
                     GetAllAccessRoles(AccessRoles, _dataset, type);
+                    AccessRoles.SelectedScreeningID = Convert.ToInt32(command.Parameters["@ScreeningID"].Value.ToString());
                     Connection.Close();
                 }
             }
@@ -5385,9 +5387,10 @@ namespace FingerprintsData
                                              UserId = dr5["UserId"].ToString(),
                                              StaffName = dr5["StaffName"].ToString(),
                                              IsAllow = Convert.ToBoolean(dr5["IsChecked"]),
-                                             ToView = Convert.ToBoolean(dr5["ToView"]),
-                                             ToEnter = Convert.ToBoolean(dr5["ToEnter"]),
-                                             ToFollowUp = Convert.ToBoolean(dr5["ToFollow"])
+                                             ToView = Convert.ToBoolean(dr5["OnlyViewScrening"]),
+                                             ToEnter = Convert.ToBoolean(dr5["EnterScreening"]),
+                                             ToFollowUp = Convert.ToBoolean(dr5["Review_FolloUpScreening"]),
+                                             ScreeningID=Convert.ToInt32(dr5["ScreeningID"])
                                          }).ToList();
                         if (role.UserList.Count > 0)
                         {
@@ -5405,14 +5408,14 @@ namespace FingerprintsData
                             if (type == 6) // for screening
                             {
                                 role.ToView = (from DataRow dr1 in _dataset.Tables[2].Rows
-                                               where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToView"]) == true
+                                               where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["OnlyViewScrening"]) == true
                                                select (true)).Any();
                                 role.ToEnter = (from DataRow dr1 in _dataset.Tables[2].Rows
-                                                where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToEnter"]) == true
+                                                where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["EnterScreening"]) == true
                                                 select (true)).Any();
 
                                 role.ToFollowUp = (from DataRow dr1 in _dataset.Tables[2].Rows
-                                                   where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToFollow"]) == true
+                                                   where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["Review_FolloUpScreening"]) == true
                                                    select (true)).Any();
                             }
                             AccessRoles.RoleList.Add(role);
@@ -5422,10 +5425,21 @@ namespace FingerprintsData
 
                 }
             }
+            if(_dataset.Tables.Count>3 && _dataset.Tables[3]!=null && _dataset.Tables[3].Rows.Count>0)
+            {
+                AccessRoles.ScreeningList = (from DataRow dr3 in _dataset.Tables[3].Rows
+                                             select new ScreeningNew
+                                             {
+                                                 ScreeningID = Convert.ToInt32(dr3["ScreeningID"]),
+                                                 ScreeningName=Convert.ToString(dr3["ScreeningName"])
+                                             }
+                                           ).ToList();
+            }
         }
-        public AccessRoles SaveAccessRoles(List<Role> RoleList, string AgencyId, string UserId, int type)
+        public bool SaveAccessRoles(List<Role> RoleList, string AgencyId, string UserId, int type,string screeningId)
         {
-            AccessRoles AccessRoles = new AccessRoles();
+
+            bool isRowAffected = false;
             try
             {
 
@@ -5436,6 +5450,7 @@ namespace FingerprintsData
                     command.Parameters.AddWithValue("@AgencyId", AgencyId);
                     command.Parameters.AddWithValue("@Userid", UserId);
                     command.Parameters.AddWithValue("@type", type);
+                    command.Parameters.AddWithValue("@ScreeningID", screeningId);
 
                     if (RoleList != null && RoleList.Count > 0)
                     {
@@ -5481,11 +5496,7 @@ namespace FingerprintsData
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_SaveAccessRoles";
                     Connection.Open();
-                    DataAdapter = new SqlDataAdapter(command);
-                    _dataset = new DataSet();
-                    DataAdapter.Fill(_dataset);
-                    GetAllAccessRoles(AccessRoles, _dataset, type);
-
+                    isRowAffected = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
                     Connection.Close();
 
                 }
@@ -5494,9 +5505,10 @@ namespace FingerprintsData
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
+                isRowAffected = false;
             }
 
-            return AccessRoles;
+            return isRowAffected;
 
         }
 

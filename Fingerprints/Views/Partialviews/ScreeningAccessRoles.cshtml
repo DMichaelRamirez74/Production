@@ -6,7 +6,7 @@
 
 @if (Model != null)
 {
-    <div id="partialDiv">
+    <div id="partialDiv" class="col-xs-12">
             <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
                 <div class="ictab_content">
                     <div class="tab-content">
@@ -17,15 +17,29 @@
                                     <button class="btn-submit-edu" onclick="return accessRole.IsValidInputs()" value="Screening" name="Command" type="submit">Submit</button>
                                     <input type="hidden" value="7" id="TitleId" name="TitleId" />
 
+                            </div>
+                            <div class="col-xs-12" style="margin-top:20px;">
+                                <div class="col-xs-3">
+                                    <label>Screening Name</label>
                                 </div>
+                                <div class="col-xs-5">
+                                    <select class="form-control" name="screeningIDSelect" id="selectScreening" onchange="getScreeningRolesByScreening(this);">
+                                        <option value=""></option>
+                                        @foreach (var item in Model.ScreeningList)
+                                        {
+                                            <option value="@item.ScreeningID" @if (Model.SelectedScreeningID == item.ScreeningID) { <text> selected="selected" </text> }>@item.ScreeningName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
                                 <div class="icefu_form">
                                     <table id="settab_edu" class="table table-responsive table-headfix fold-table settab-table-color">
                                         <thead>
                                             <tr>
                                                 <th  style="width:auto;">Role List</th>
                                                 <th style="text-align:center!important;">Enter Screening</th>
-                                                <th>Review/Follow up</th>
-                                                <th>View</th>
+                                            <th>Review/Follow-up Screening</th>
+                                            <th>Only View Screening</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -33,10 +47,13 @@
                                             @if (Model != null && Model.RoleList!=null && Model.RoleList.Count > 0)
                                             {
                                                 for (int i = 0; i < Model.RoleList.Count; i++)
+                                            {
+                                                if (Model.RoleList[i].RoleId.ToLowerInvariant() != "5ac211b2-7d4a-4e54-bd61-5c39d67a1106")
                                                 {
-                                                    <tr class="view" onclick="accessRole.CarouselOpen(this)">
+                                                    <tr class="view" onclick="accessRole.CarouselOpen(this);">
 
-                                                        <td enc-id="rr">@Model.RoleList[i].RoleName
+                                                        <td enc-id="rr">
+                                                            @Model.RoleList[i].RoleName
                                                             <input type="hidden" class="edu_next " name="Role[@i].RoleId" value="@Model.RoleList[i].RoleId" />
                                                         </td>
                                                         <td class="settabl-row1">
@@ -52,10 +69,11 @@
                                                         <td class="deve-td settabl-row3">
                                                             <input type="checkbox" class="edu_next rolecheck@(i)"
                                                                    @if (Model.RoleList[i].ToView) { <text> checked="checked" </text>             }                                                                  
-                                                                    name="Role[@i].ToView" value="true" />                                                        
+                                                               @if (Model.RoleList[i].ToEnter || Model.RoleList[i].ToFollowUp) { <text> disabled="disabled" </text> }
+                                                               name="Role[@i].ToView" value="true" onchange="accessRole.disableEnterFollowup(this,@i);" />
                                                         </td>
                                                     </tr>
-                                                    <tr class="input_smtmarg">
+                                                    <tr class="input_smtmarg open">
                                                         <td colspan="2" style="background-color: #44aedc;">
                                                             <div class="sub_table_icc">
                                                                 <table class="table table-bordered table-responsive">
@@ -83,13 +101,15 @@
                                                                                         <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].UserId" value="@Model.RoleList[i].UserList[j].UserId" />
                                                                                         <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].ColorCode" value="@Model.RoleList[i].UserList[j].ColorCode" />
                                                                                     </td>
-                                                                                    <td><input type="checkbox" onchange="accessRole.SelectToView(this,@i)"  class="edu_next user@(i)"
+                                                                            <td>
+                                                                                <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next user@(i)"
                                                                                                @if (Model.RoleList[i].UserList[j].ToFollowUp) { <text> checked="checked" </text>              }
                                                                                                name="Role[@i].UserList[@j].ToFollowUp" value="true" />
                                                                                     </td>
                                                                                     <td>
                                                                                         <input type="checkbox" class="edu_next user@(i) rolecheck@(i)"
                                                                                                @if (Model.RoleList[i].UserList[j].ToView) { <text> checked="checked" </text>               }
+                                                                                       @if(Model.RoleList[i].UserList[j].ToEnter || Model.RoleList[j].ToFollowUp) { <text> disabled="disabled" </text>   }
                                                                                                name="Role[@i].UserList[@j].ToView" value="true" />
                                                                                     </td>
                                                                                 </tr>
@@ -106,6 +126,7 @@
                                                 }
 
                                             }
+                                        }
                                         </tbody>
                                     </table>
                                 </div>
@@ -118,3 +139,9 @@
             </form>
     </div>
 }
+<script type="text/javascript">
+    function getScreeningRolesByScreening(ele)
+    {
+        $('#settab').find('.active').trigger('click');
+    }
+</script>

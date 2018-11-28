@@ -335,7 +335,7 @@ namespace Fingerprints.Controllers
             RosterNew.Users Userlist = new RosterNew.Users();
             var Rd = new RosterData();
                
-                Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
             ViewBag.Userlist = Userlist.UserList;
 
             }
@@ -403,7 +403,7 @@ namespace Fingerprints.Controllers
             var Rd = new RosterData();
             var stf = StaffDetails.GetInstance();
 
-            Rd.GetCaseNote(ref Name, ref Userlist, HouseHoldId, CenterId, Client.ToString(), stf.AgencyId.ToString(), stf.UserId.ToString());
+            Rd.GetCaseNote(ref Name, ref Userlist, HouseHoldId, CenterId, Client.ToString(), stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString());
             ViewBag.Userlist = Userlist.UserList;
 
             return View(result);

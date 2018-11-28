@@ -2138,6 +2138,8 @@ namespace Fingerprints.Controllers
                 accessRoles = new agencyData().SP_AccessRole(titleID, Session["AgencyID"].ToString());
 
                 ViewBag.Titleid = titleID ==0 ? accessRoles.TitleList[0].TitleId : titleID;
+                accessRoles.TitleId = ViewBag.Titleid;
+                ViewBag.Result = (TempData["Result"] != null) ? Convert.ToInt32(TempData["Result"]) : 0;
             }
             catch (Exception ex)
             {
@@ -2148,22 +2150,27 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         [HttpPost]
-        public ActionResult AccessRoles(List<Role> Role,int TitleId,string Command)
+        public ActionResult AccessRoles(List<Role> Role,int TitleId,string Command,string screeningIDSelect)
         {
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
+            bool isResult = false;
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+                isResult = new agencyData().SaveAccessRoles(Role, staff.AgencyId.ToString(), staff.UserId.ToString(), TitleId,screeningIDSelect);
               
-                    accessRoles = new agencyData().SaveAccessRoles(Role, Session["AgencyID"].ToString(), Session["UserID"].ToString(), TitleId);
+                //    accessRoles = agencyData.SP_AccessRole(TitleId, staff.AgencyId.ToString(), screeningIDSelect);
 
                 
-                accessRoles.TitleId = TitleId;
+                //accessRoles.TitleId = TitleId;
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             ViewBag.Titleid = TitleId;
+           TempData["Result"] = Convert.ToInt32(isResult);
+            TempData["ScreeningID"] = screeningIDSelect;
             //return View(accessRoles);
             return RedirectToAction("AccessRoles", "AgencyAdmin", new { @id = TitleId.ToString() });
            // return RedirectToAction(Request.Url.AbsoluteUri);
@@ -2326,13 +2333,13 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult AccessRoleList(int type)
+        public PartialViewResult AccessRoleList(int type,string screeningID="0")
         {
 
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             try
             {
-               accessRoles = new agencyData().SP_AccessRole(type, Session["AgencyID"].ToString());
+               accessRoles = new agencyData().SP_AccessRole(type, Session["AgencyID"].ToString(), screeningID);
                 accessRoles.TitleId = type;
             }
             catch (Exception ex)

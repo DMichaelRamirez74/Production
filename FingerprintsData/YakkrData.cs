@@ -847,7 +847,7 @@ namespace FingerprintsData
                     List<CaseNote> CaseNoteList = new List<CaseNote>();
                     FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
                     var rd = new RosterData();
-                     message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(), stf.UserId.ToString(), 2);
+                     message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString(), 2);
 
                 }
 
@@ -926,7 +926,7 @@ namespace FingerprintsData
                     List<CaseNote> CaseNoteList = new List<CaseNote>();
                     FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
                     var rd = new RosterData();
-                    message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(), stf.UserId.ToString(), 2);
+                    message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString(), 2);
 
                 }
 

@@ -582,7 +582,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367")]
+        [CustAuthFilter(RoleEnum.Executive)]
         public ActionResult GetSlotsDetailByDate(string Date)
         {
             string JSONString = string.Empty;
@@ -600,7 +600,8 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        //[CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.Executive,RoleEnum.CenterManager,RoleEnum.AreaManager)]
         public ActionResult GetSeatsDetailByDate(string Date)
         {
             string JSONString = string.Empty;
@@ -1546,7 +1547,7 @@ namespace Fingerprints.Controllers
                 _caseNote.ProgramId = EncryptDecrypt.Decrypt64(internRef.CaseProgramId);
                 _caseNote.CaseNoteAttachmentList = Attachments;
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["UserId"].ToString(), 2);
+                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["RoleID"].ToString(), Session["UserId"].ToString(), 2);
                 if (casenoteid == "1")
                 {
                 result = fd.SaveInternalReferral(internRef, name);                       

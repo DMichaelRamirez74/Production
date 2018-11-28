@@ -214,7 +214,7 @@ namespace Fingerprints.Controllers
                 // FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = new FamilyData().GetCenterCaseNote(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                DataSet _dataset = new FamilyData().GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;

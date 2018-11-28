@@ -1360,7 +1360,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult GetScreeningByScreeningPeriod(string screeningID, string eClientID, string refProgId, string periodID,string customScreeningPeriod)
+        public PartialViewResult GetScreeningByScreeningPeriod(string screeningID, string eClientID, string refProgId, string periodID,string customScreeningPeriod,string expirationPeriodType)
         {
             Screening _screening = new Screening();
 
@@ -1374,6 +1374,11 @@ namespace Fingerprints.Controllers
                 _screening.CustomScreeningPeriod = Convert.ToInt32(customScreeningPeriod);
 
                 _screening = new NurseData().GetScreeningByScreeningPeriod(_screening, Server.MapPath("~//TempAttachment//"));
+               if(_screening!=null && _screening.ScreeningPeriodsList!=null && _screening.ScreeningPeriodsList.Count>0)
+                {
+                    int expirePeriodType = 0;
+                    _screening.ScreeningPeriodsList[0].ScreeningExpirationType = int.TryParse(expirationPeriodType, out expirePeriodType) ? expirePeriodType : expirePeriodType;
+                }
             }
             catch (Exception ex)
             {

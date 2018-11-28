@@ -1016,7 +1016,8 @@ namespace FingerprintsData
 
             }
         }
-        public string AddScreeningquestion(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, string ScreeningDate, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear, List<ScreeningAccess> _screeningAccessList)
+        public string AddScreeningquestion(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, string ScreeningDate, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear
+            )
         {
             string result = string.Empty;
             try
@@ -1076,18 +1077,18 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ScreeningsYear", screeningsYear));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
 
-                DataTable dtAccess = new DataTable();
+                //DataTable dtAccess = new DataTable();
 
-                dtAccess.Columns.AddRange(new DataColumn[3]
-                {
-                    new DataColumn("RoleId",typeof(Guid)),
-                    new DataColumn("ScreeningAccessType",typeof(int)),
-                    new DataColumn("Status",typeof(bool))
-                });
+                //dtAccess.Columns.AddRange(new DataColumn[3]
+                //{
+                //    new DataColumn("RoleId",typeof(Guid)),
+                //    new DataColumn("ScreeningAccessType",typeof(int)),
+                //    new DataColumn("Status",typeof(bool))
+                //});
 
 
-                if (_screeningAccessList != null && _screeningAccessList.Count > 0)
-                {
+                //if (_screeningAccessList != null && _screeningAccessList.Count > 0)
+                //{
                     //foreach(var item2 in _screeningAccessList)
                     //{
                     //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.Enter, item2.ScreeningAccessType);
@@ -1095,11 +1096,11 @@ namespace FingerprintsData
                     //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.ViewOnly, item2.ScreeningAccessType);
                     //}
 
-                    foreach (var item2 in _screeningAccessList)
-                    {
-                        dtAccess.Rows.Add(item2.RoleID, item2.ScreeningAccessType, true);
-                    }
-                }
+                //    foreach (var item2 in _screeningAccessList)
+                //    {
+                //        dtAccess.Rows.Add(item2.RoleID, item2.ScreeningAccessType, true);
+                //    }
+                //}
 
 
                 if (Questionlist != null && Questionlist.Count > 0)
@@ -1162,7 +1163,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@tblSscreening", dt));
                 }
 
-                command.Parameters.Add(new SqlParameter("@tblScreeningRoles", dtAccess));
+              //  command.Parameters.Add(new SqlParameter("@tblScreeningRoles", dtAccess));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveScreeningQuestion";
                 Connection.Open();
