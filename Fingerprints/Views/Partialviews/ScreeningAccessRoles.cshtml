@@ -6,16 +6,17 @@
 
 @if (Model != null)
 {
-    <div id="partialDiv" class="col-xs-12">
-            <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
-                <div class="ictab_content">
-                    <div class="tab-content">
-                        <div class="tab-pane showactive fade in active">
-                            <div class="import_frrm">
-                                <div class="ic_forsub">
-                                    <h3 id="title">Screening</h3>
-                                    <button class="btn-submit-edu" onclick="return accessRole.IsValidInputs()" value="Screening" name="Command" type="submit">Submit</button>
-                                    <input type="hidden" value="7" id="TitleId" name="TitleId" />
+    try
+    {
+        <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
+            <div class="ictab_content">
+                <div class="tab-content">
+                    <div class="tab-pane showactive fade in active">
+                        <div class="import_frrm">
+                            <div class="ic_forsub">
+                                <h3 id="title">Screening</h3>
+                                <button class="btn-submit-edu" onclick="return accessRole.IsValidInputs()" value="Screening" name="Command" type="submit">Submit</button>
+                                <input type="hidden" value="7" id="TitleId" name="TitleId" />
 
                             </div>
                             <div class="col-xs-12" style="margin-top:20px;">
@@ -27,26 +28,26 @@
                                         <option value=""></option>
                                         @foreach (var item in Model.ScreeningList)
                                         {
-                                            <option value="@item.ScreeningID" @if (Model.SelectedScreeningID == item.ScreeningID) { <text> selected="selected" </text> }>@item.ScreeningName</option>
+                                            <option value="@item.ScreeningID" @if (Model.SelectedScreeningID == item.ScreeningID) { <text> selected="selected" </text>  }>@item.ScreeningName</option>
                                         }
                                     </select>
                                 </div>
                             </div>
-                                <div class="icefu_form">
-                                    <table id="settab_edu" class="table table-responsive table-headfix fold-table settab-table-color">
-                                        <thead>
-                                            <tr>
-                                                <th  style="width:auto;">Role List</th>
-                                                <th style="text-align:center!important;">Enter Screening</th>
+                            <div class="icefu_form">
+                                <table id="settab_edu" class="table table-responsive table-headfix fold-table settab-table-color">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:auto;">Role List</th>
+                                            <th style="text-align:center!important;">Enter Screening</th>
                                             <th>Review/Follow-up Screening</th>
                                             <th>Only View Screening</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
 
-                                            @if (Model != null && Model.RoleList!=null && Model.RoleList.Count > 0)
-                                            {
-                                                for (int i = 0; i < Model.RoleList.Count; i++)
+                                        @if (Model != null && Model.RoleList != null && Model.RoleList.Count > 0)
+                                        {
+                                            for (int i = 0; i < Model.RoleList.Count; i++)
                                             {
                                                 if (Model.RoleList[i].RoleId.ToLowerInvariant() != "5ac211b2-7d4a-4e54-bd61-5c39d67a1106")
                                                 {
@@ -58,19 +59,19 @@
                                                         </td>
                                                         <td class="settabl-row1">
                                                             <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next role@(i)"
-                                                                   @if (Model.RoleList[i].ToEnter) { <text> checked="checked" </text>            }
-                                                                   name="Role[@i].ToEnter" value="true" />                                                       
+                                                                   @if (Model.RoleList[i].ToEnter) { <text> checked="checked" </text>             }
+                                                                   name="Role[@i].ToEnter" value="true" />
                                                         </td>
                                                         <td class="settabl-row2">
-                                                            <input type="checkbox" onchange="accessRole.SelectToView(this,@i)"  class="edu_next role@(i)"
-                                                                   @if (Model.RoleList[i].ToFollowUp) { <text> checked="checked" </text>             }
-                                                                   name="Role[@i].ToFollowUp" value="true" />                                                         
+                                                            <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next role@(i)"
+                                                                   @if (Model.RoleList[i].ToFollowUp) { <text> checked="checked" </text>              }
+                                                                   name="Role[@i].ToFollowUp" value="true" />
                                                         </td>
                                                         <td class="deve-td settabl-row3">
                                                             <input type="checkbox" class="edu_next rolecheck@(i)"
-                                                                   @if (Model.RoleList[i].ToView) { <text> checked="checked" </text>             }                                                                  
-                                                               @if (Model.RoleList[i].ToEnter || Model.RoleList[i].ToFollowUp) { <text> disabled="disabled" </text> }
-                                                               name="Role[@i].ToView" value="true" onchange="accessRole.disableEnterFollowup(this,@i);" />
+                                                                   @if (Model.RoleList[i].ToView) { <text> checked="checked" </text>              }
+                                                                   @if (Model.RoleList[i].ToEnter || Model.RoleList[i].ToFollowUp) { <text> disabled="disabled" </text>  }
+                                                                   name="Role[@i].ToView" value="true" onchange="accessRole.disableEnterFollowup(this,@i);" />
                                                         </td>
                                                     </tr>
                                                     <tr class="input_smtmarg open">
@@ -84,7 +85,7 @@
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        @if (Model.RoleList[i].UserList!=null && Model.RoleList[i].UserList.Count > 0)
+                                                                        @if (Model.RoleList[i].UserList != null && Model.RoleList[i].UserList.Count > 0)
                                                                         {
                                                                             for (int j = 0; j < Model.RoleList[i].UserList.Count; j++)
                                                                             {
@@ -93,23 +94,23 @@
                                                                                     <td>@Model.RoleList[i].UserList[j].StaffName</td>
                                                                                     <td>
 
-                                                                                        <input type="checkbox" onchange="accessRole.SelectToView(this,@i)"  class="edu_next user@(i)"
-                                                                                               @if (Model.RoleList[i].UserList[j].ToEnter) { <text> checked="checked" </text>              }
+                                                                                        <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next user@(i)"
+                                                                                               @if (Model.RoleList[i].UserList[j].ToEnter) { <text> checked="checked" </text>               }
                                                                                                name="Role[@i].UserList[@j].ToEnter" value="true" />
 
                                                                                         <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].RoleId" value="@Model.RoleList[i].UserList[j].RoleId" />
                                                                                         <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].UserId" value="@Model.RoleList[i].UserList[j].UserId" />
                                                                                         <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].ColorCode" value="@Model.RoleList[i].UserList[j].ColorCode" />
                                                                                     </td>
-                                                                            <td>
-                                                                                <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next user@(i)"
-                                                                                               @if (Model.RoleList[i].UserList[j].ToFollowUp) { <text> checked="checked" </text>              }
+                                                                                    <td>
+                                                                                        <input type="checkbox" onchange="accessRole.SelectToView(this,@i)" class="edu_next user@(i)"
+                                                                                               @if (Model.RoleList[i].UserList[j].ToFollowUp) { <text> checked="checked" </text>               }
                                                                                                name="Role[@i].UserList[@j].ToFollowUp" value="true" />
                                                                                     </td>
                                                                                     <td>
                                                                                         <input type="checkbox" class="edu_next user@(i) rolecheck@(i)"
-                                                                                               @if (Model.RoleList[i].UserList[j].ToView) { <text> checked="checked" </text>               }
-                                                                                       @if(Model.RoleList[i].UserList[j].ToEnter || Model.RoleList[j].ToFollowUp) { <text> disabled="disabled" </text>   }
+                                                                                               @if (Model.RoleList[i].UserList[j].ToView) { <text> checked="checked" </text>                }
+                                                                                               @if (Model.RoleList[i].UserList[j].ToEnter || Model.RoleList[j].ToFollowUp) { <text> disabled="disabled" </text>    }
                                                                                                name="Role[@i].UserList[@j].ToView" value="true" />
                                                                                     </td>
                                                                                 </tr>
@@ -127,17 +128,27 @@
 
                                             }
                                         }
-                                        </tbody>
-                                    </table>
-                                </div>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
-
                     </div>
+
+
                 </div>
-            </form>
-    </div>
+            </div>
+        </form>
+    }
+    catch (Exception ex)
+    {
+        FingerprintsModel.clsError.WriteException(ex);
+    }
+
+}
+
+else
+{
+    <div class="col-xs-12">No Records Found</div>
 }
 <script type="text/javascript">
     function getScreeningRolesByScreening(ele)

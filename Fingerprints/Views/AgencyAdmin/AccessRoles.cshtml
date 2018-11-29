@@ -716,35 +716,38 @@
                 <div class="col-xs-12">
                     <div class="col-xs-12" id="settab">
                         @if (Model != null && Model.TitleList != null && Model.TitleList.Count > 0)
-                                    {
-                                        int i = 0;
-                                        foreach (var item in Model.TitleList)
-                                        {
-                                            if (Model.TitleId == item.TitleId)
-                                            {
+                        {
+                            int i = 0;
+                            foreach (var item in Model.TitleList)
+                            {
+                                if (Model.TitleId == item.TitleId)
+                                {
                                     <div class="item col-xs-2"><span class="active title@(item.TitleId) cls-title" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
-                                            }
-                                            else
-                                            {
+                                }
+                                else
+                                {
                                     <div class="item col-xs-2"><span class="cls-title title@(item.TitleId)" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
-                                            }
-                                            i++;
-                                        }
-                                    }
+                                }
+                                i++;
+                            }
+                        }
                     </div>
                 </div>
 
                 @*<!-- settab pills-->*@
 
-              
-                @if (Model.TitleId == 6)
-                {
-                    @Html.Partial("~/Views/Partialviews/ScreeningAccessRoles.cshtml", Model)
-                }
-                else
-                {
-                    @Html.Partial("~/Views/Partialviews/AccessRolesListPartial.cshtml", Model)
-                }
+                <div id="partialDiv" class="col-xs-12">
+                    @if (Model.TitleId == 6)
+                    {
+                        @Html.Partial("~/Views/Partialviews/GetAccessRoleList.cshtml", Model)
+                    }
+                    else
+                    {
+                        @Html.Partial("~/Views/Partialviews/AccessRolesListPartial.cshtml", Model)
+                    }
+
+                </div>
+
             </div>
 
         </div>
@@ -996,7 +999,7 @@
                 var rowIndex = $(closestTr).index();
 
                 $('input[type=checkbox]:checked').next('input[type=text]').each(function () {
-                
+
                     var checkname = $(this).attr('name');
                     if (currentName != checkname) {
                         var checkcolor = $(this).val();
@@ -1014,7 +1017,7 @@
 
             });
             $('input[type=checkbox]').on('click', function () {
-             
+
                 var a = $(this).val();
                 var currentName = $(this).attr('name');
                 if ($(this).prop('checked') == true) {
@@ -1051,7 +1054,7 @@
 
         var accessRole = {
 
-            GetAccessRoleList: function (accessType,arg) {
+            GetAccessRoleList: function (accessType, arg) {
 
                 $('#settab .active').removeClass('active');
 
@@ -1062,17 +1065,17 @@
                         scrId = $('#selectScreening').val();
                     }
                 }
-               
+
                 $.ajax({
                     url: '/AgencyAdmin/AccessRoleList',
                     data: { type: accessType, screeningID: scrId },
                     type: "POST",
                     success: function (result) {
-                      
+
                         //$("#partialDiv").html("");
                         $("#partialDiv").html(result);
                         var title = $(arg).attr('data-title');
-                       
+
                         $("#partialDiv").find('#title').text(title);
                         $("#partialDiv").find('#TitleId').val(accessType);
                         $('.settab_pills .active').removeClass('active');
@@ -1090,7 +1093,7 @@
             },
             SetTitleActive: function () {
                 if ('@ViewBag.Titleid' != '') {
-                   
+
                     $('#partialDiv').find('.active').removeClass('active');
                     $('#partialDiv').find('.showactive').addClass('active');
                     $('.settab_pills .active').removeClass('active');
@@ -1257,7 +1260,7 @@
                             'background-color': '#ff00003d!important'
                         });
                         customAlert("Kindly select role under user.");
-                        isValid=false;
+                        isValid = false;
                     }
                 }
                 return isValid;
