@@ -10,6 +10,7 @@ using FingerprintsModel;
 using System.Web.Mvc;
 using System.Web;
 using System.IO;
+using System.Globalization;
 
 namespace FingerprintsData
 {
@@ -130,7 +131,9 @@ namespace FingerprintsData
                     {
                         decimal Count = _dataset.Tables[7].Rows.Count;
                         executive.ThermHours = _dataset.Tables[7].Rows[0]["TotalHours"].ToString();
-                        executive.ThermDollars = _dataset.Tables[7].Rows[0]["Dollars"].ToString();
+                        executive.ThermDollars = Convert.ToDouble(_dataset.Tables[7].Rows[0]["Dollars"]).ToString("N", CultureInfo.InvariantCulture);
+
+
                     }
 
                     //CaseNote

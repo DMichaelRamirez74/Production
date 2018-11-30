@@ -349,6 +349,8 @@ $(window).load(function () {
 
     GoogleChart();
     var hours = parseFloat($('#txtThermHours').val()).toFixed(0);
+    var _txtDollars = $('#txtThermDollars').val();
+    _txtDollars = _txtDollars.replace(',', '');
 
     for (var i = 0; i < hours.length; i++) {
         hours = hours.replace(hours.charAt(i), '0');
@@ -362,13 +364,13 @@ $(window).load(function () {
     var oTherm1 = new jlionThermometer(0, totHours, false, false);
     oTherm1.RefreshByID('txtThermHours');
 
-    var Dollars = parseFloat($('#txtThermDollars').val()).toFixed(0);
+    var Dollars = parseFloat(_txtDollars).toFixed(0);
     for (var i = 0; i < Dollars.length; i++) {
         Dollars = Dollars.replace(Dollars.charAt(i), '0');
     }
     var totalDOllers = 0;
     if ($('#txtTotalDollars').val() != "")
-        totalDOllers = parseInt($('#txtTotalDollars').val());
+        totalDOllers = parseInt($('#txtTotalDollars').val().replace(',',''));
     else
         totalDOllers = parseFloat("1" + Dollars);
     var oTherm = new jlionThermometerDollars(0, totalDOllers, false, false);
@@ -382,5 +384,5 @@ $(window).load(function () {
 
 
     $('#thermometer-hours .Title').text('');
-    $('#thermometer-hours .CurrentValue').text("$ " + parseFloat($('#txtThermDollars').val()).toFixed(2));
+    $('#thermometer-hours .CurrentValue').text("$ " + $('#txtThermDollars').val());
 });
