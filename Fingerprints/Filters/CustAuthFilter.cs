@@ -25,9 +25,11 @@ namespace Fingerprints.Filters
 
             // Usertype = allowedRoles.Select(x => FingerprintsModel.Role.RolesDictionary[(int)x].ToLowerInvariant()).ToArray();
 
-            Usertype = allowedRoles.Select(x => FingerprintsModel.EnumHelper.GetDescription(x).ToString().ToLowerInvariant()).ToArray();
+           // Usertype = allowedRoles.Select(x => FingerprintsModel.EnumHelper.GetDescription(x).ToString().ToLowerInvariant()).ToArray();
 
+            Usertype = allowedRoles.Select(x => FingerprintsModel.EnumHelper.GetEnumDescription(x).ToString().ToLowerInvariant()).ToArray();
 
+           
         }
         public CustAuthFilter()
         {
