@@ -93,12 +93,14 @@ $(function () {
             success: function (data) {
                 try {
 
-
+                   
+                 
                     $.each(JSON.parse(data), function (i, val) {
                         $('.sp-slots-count').text(val["SlotCount"]);
                         $('.sp-expiringslots-count').text(val["Expiring"]);
                         $('.sp-emptyslots-count').text(val["EmptySlots"]);
                         $('.sp-slots-per').text(parseFloat(val["SlotsDailyPercentage"]) + ' %');
+                        $('.sp-clientserved-count').text(val["ClientsServed"]);
                     });
 
                     $('#spinner').hide();

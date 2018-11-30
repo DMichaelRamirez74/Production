@@ -3386,9 +3386,11 @@ namespace FingerprintsData
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
                 }
-                if (_dataset.Tables[0] != null)
+
+
+                if (_dataset!=null  && _dataset.Tables.Count>0)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+                    if (_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count > 0)
                     {
                         List<string> column = new List<string>();
                         foreach(DataColumn dc in _dataset.Tables[0].Columns)
@@ -3407,7 +3409,9 @@ namespace FingerprintsData
                         }
                         ScreeningMatrix.Screenings = List;
                     }
-                    if (_dataset.Tables[1].Rows.Count > 0)
+
+
+                    if (_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count > 0)
                     {
                         ClassRoom Class = null;
                         foreach (DataRow dr in _dataset.Tables[1].Rows)

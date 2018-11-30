@@ -44,6 +44,8 @@ window.applicationCache.addEventListener(
     },
     false
 );
+
+
 //window.applicationCache.addEventListener('downloading', function () {
 //    $.blockUI({ message: "<h1>Application is upgrading with latest version Please wait...</h1>" });
 //}, false);

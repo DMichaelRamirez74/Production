@@ -1041,16 +1041,6 @@ namespace Fingerprints.Controllers
                 ViewBag.PageVersion = DateTime.Now.DayOfYear.ToString();
 
                 TeacherModel model = new TeacherModel();
-
-                //model = new TeacherData().GetChildListByUserIdAndAgencyId(Session["UserID"].ToString(), Session["AgencyID"].ToString());
-
-                //var jsonSerialiser = new JavaScriptSerializer();
-                //jsonSerialiser.MaxJsonLength = Int32.MaxValue;
-                //model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
-                //model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
-                //model.CenterString = jsonSerialiser.Serialize(model.CenterList);
-                //model.AbsenceReasonString = jsonSerialiser.Serialize(model.AbsenceReasonList);
-
                 model=new TeacherData().GetCenterBasedCenters(Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["RoleId"].ToString());
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.RoleId = Session["RoleID"].ToString();

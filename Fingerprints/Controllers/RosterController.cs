@@ -43,6 +43,7 @@ namespace Fingerprints.Controllers
           roleid=944d3851-75cc-41e9-b600-3fa904cf951f (Billing Manager)
           roleid=3b49b025-68eb-4059-8931-68a0577e5fa2 (Agency Admin)
           roleid=047c02fe-b8f1-4a9b-b01f-539d6a238d80 (Disabilities Manager)
+          roleid=9c34ec8e-2359-4704-be89-d9f4b7706e82 (Disability Staff)
          */
         RosterData RosterData = new RosterData();
 

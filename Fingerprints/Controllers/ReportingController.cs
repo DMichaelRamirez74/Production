@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using FingerprintsModel;
-using System.Configuration;
-using System.IO;
-using System.Threading;
-using System.Globalization;
 using FingerprintsData;
 
 namespace Fingerprints.Controllers
@@ -15,10 +8,7 @@ namespace Fingerprints.Controllers
     public class ReportingController : Controller
     {
         
-     //   string userid = Session["UserID"].ToString();// "16AEBB86-AA5B-484A-A117-275024D8A172";
-       // string agencyid = "9796A606-A44C-473A-8919-03C7BBFAB630";
-      //  string roleid = "2d9822cd-85a3-4269-9609-9aabb914d725";
-      //  string available = "3";
+   
    
 
         [HttpGet]
@@ -37,15 +27,13 @@ namespace Fingerprints.Controllers
         }
 
         [HttpGet]
-        [Fingerprints.Filters.CustAuthFilter()]
+        [Filters.CustAuthFilter()]
         public ActionResult ReportingStatus(int reporttype)
         {
             try
             {
                 string userid = Session["UserID"].ToString();// "16AEBB86-AA5B-484A-A117-275024D8A172";
-                //string agencyid = "0bcff6e0-e162-4d82-8fe2-a70a2623b4f9";
-                //string roleid = "2d9822cd-85a3-4269-9609-9aabb914d725";
-                //string available = "3";
+              
                 if (reporttype == 1)
                 {
                     return View(new Reporting().ReturnChildStatus(Session["AgencyID"].ToString()));

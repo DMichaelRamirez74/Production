@@ -29,7 +29,7 @@ namespace Fingerprints.Controllers
         agencyData agencyData = new agencyData();
         Center _center = new Center();
         RaceSubcategoryData _raceSubcategoryData = new RaceSubcategoryData();
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult enrollmentcodeGeneration(string ak="0")
         {
             try
@@ -44,7 +44,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult enrollmentcodeGeneration(char activate, string Command, string enrollmentCode, string emailId, string Description)
         {
@@ -80,7 +80,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult pendingApproval()
         {
             try
@@ -94,7 +94,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public JsonResult listpendingApproval(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try
@@ -110,7 +110,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult approverejectRequest(string id, string action, string roleid, string emailid, string name)
         {
             try
@@ -137,7 +137,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult ResendEmailForVerification(string emaild, string name, string id)
         {
             try
@@ -166,7 +166,7 @@ namespace Fingerprints.Controllers
 
             SendMail.Sendverificationemail(email, name, path, template, imagepath);
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         public ActionResult pendingVerification()
         {
             try
@@ -180,7 +180,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         public JsonResult listpendingVerification(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try
@@ -196,7 +196,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         public JsonResult AutoCompleteAgencystaff(string term, string Active = "0")
         {
             try
@@ -210,7 +210,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public JsonResult listEnrolementmentcode(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,string isEndOfYear="0")
         {
             try
@@ -228,7 +228,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult EndSession()
         {
             try
@@ -243,7 +243,7 @@ namespace Fingerprints.Controllers
             }
             return Json("1");
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Resendemail(string emailId, string enrollmentCode)
         {
             try
@@ -274,7 +274,7 @@ namespace Fingerprints.Controllers
         {
             SendMail.Sendenrollmentemail(emailid, agencycode, agencyname, expiryttime, path, link, imagepath);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Adminsetstaffinfo(string id = "0")
         {
             AgencyStaff _staffList = null;
@@ -294,7 +294,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
 
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult Adminsetstaffinfo(AgencyStaff agencystaff, FormCollection collection)
         {
@@ -370,7 +370,7 @@ namespace Fingerprints.Controllers
                 string DdlAgencyList, DdlRoleList, AvatarFile, AvatarHfile, AvatarSfile, AvatarTfile;
                 DdlAgencyList = Session["AgencyID"].ToString();
                 DdlRoleList = collection["DdlRoleList"].ToString();
-                if (DdlRoleList == "3b49b025-68eb-4059-8931-68a0577e5fa2")
+                if (DdlRoleList == Role.RolesDictionary[(int)RoleEnum.AgencyAdmin])
                 {
                     agencystaff.AccessDays = "0";
                 }
@@ -581,7 +581,7 @@ namespace Fingerprints.Controllers
 
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
 
         public ActionResult SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, string isEndOfYear="0")
         {
@@ -590,7 +590,7 @@ namespace Fingerprints.Controllers
             agencyData.SaveAcceptancePrirorityRoles(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Roles, isEndYear);
             return Json("");
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult PendingApprovalRequest(string id = "0")
         {
             AgencyStaff _staffList = null;
@@ -609,7 +609,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult PendingApprovalRequest(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
         {
@@ -652,7 +652,7 @@ namespace Fingerprints.Controllers
                 DdlRoleList = collection["DdlRoleList"] == null ? null : collection["DdlRoleList"].ToString(); ;
                 agencystaff.SelectedAgencyId = Guid.Parse(DdlAgencyList);
                 agencystaff.SelectedRoleId = DdlRoleList;
-                if (DdlRoleList == "a65bb7c2-e320-42a2-aed4-409a321c08a5")
+                if (DdlRoleList ==Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator])
                 {
                     agencystaff.AccessDays = "0";
                 }
@@ -812,13 +812,13 @@ namespace Fingerprints.Controllers
             }
             return View(_staffList);
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult RaceSubcategory()
         {
             RaceSubcategory _race = (new RaceSubcategoryData()).GetData_AllDropdown();
             return View(_race);
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult RaceSubcategory(RaceSubcategory info, FormCollection collection)
         {
@@ -868,7 +868,7 @@ namespace Fingerprints.Controllers
             }
             return View(_race);
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public JsonResult RaceSubcategorydetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -884,7 +884,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Center(string id = "0", string ak = "0")
         {
             try
@@ -916,7 +916,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult Center(string Command, Center info, FormCollection collection, List<FingerprintsModel.Center.ClassRoom> Classroom, string endOfYear="0")
         {
@@ -1041,7 +1041,7 @@ namespace Fingerprints.Controllers
             }
 
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult centerlist(string ak="")
         {
             try
@@ -1056,7 +1056,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public JsonResult listcenter(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,bool isEndOfYear=false)
         {
             try
@@ -1072,7 +1072,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult updatecenter(string id, int mode,bool isEndOfYear=false)
         {
             try
@@ -1084,13 +1084,13 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         //public ActionResult CommunityResource()
         //{
         //    return View();
         //}
         //[HttpPost]
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         //public ActionResult CommunityResource(CommunityResource info, FormCollection collection, string id)
         //{
         //    try
@@ -1134,7 +1134,7 @@ namespace Fingerprints.Controllers
         //    return View(info);
 
         //}
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         //public JsonResult Communitydetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         //{
         //    try
@@ -1152,7 +1152,7 @@ namespace Fingerprints.Controllers
         //    }
         //    // return View();
         //}
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         //public JsonResult Getcommunity(string CommunityID = "0")
         //{
         //    CommunityResourceData obj = new CommunityResourceData();
@@ -1166,7 +1166,7 @@ namespace Fingerprints.Controllers
         //        return Json("Error occured please try again.");
         //    }
         //}
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         //public JsonResult Deletecommunity(string CommunityID = "0")
         //{
         //    CommunityResourceData obj = new CommunityResourceData();
@@ -1180,7 +1180,7 @@ namespace Fingerprints.Controllers
         //        return Json("Error occured please try again.");
         //    }
         //}
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult CommunityResource()
         {
             ViewBag.mode = 0;
@@ -1199,7 +1199,7 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult CommunityResource(CommunityResource info, FormCollection collection, string id, CommunityResource.PostedService PostedPostedService, FamilyHousehold.Center Centers)
         {
             CommunityResourceData obj = new CommunityResourceData();
@@ -1267,7 +1267,7 @@ namespace Fingerprints.Controllers
             TempData.Keep();
             return View(objdata);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Communitydetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -1285,7 +1285,7 @@ namespace Fingerprints.Controllers
             }
             // return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Getcommunity(string CommunityID = "0")
         {
             CommunityResourceData obj = new CommunityResourceData();
@@ -1299,7 +1299,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Deletecommunity(string CommunityID = "0")
         {
             CommunityResourceData obj = new CommunityResourceData();
@@ -1313,7 +1313,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult listClassroomDetails(string CenterId = "0")
         {
@@ -1330,7 +1330,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult DeleteClassroomInfo(string ClassroomID = "0", string CenterId = "0")
         {
             CenterData obj = new CenterData();
@@ -1345,13 +1345,13 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult SchoolDistrict()
         {
             return View();
         }
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult SchoolDistrict(SchoolDistrict info)
         {
             try
@@ -1393,7 +1393,7 @@ namespace Fingerprints.Controllers
             return View(info);
 
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Schooldetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -1411,7 +1411,7 @@ namespace Fingerprints.Controllers
             }
             // return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Getschooldetails(string SchoolDistrictID = "0")
         {
             SchoolDistrictData obj = new SchoolDistrictData();
@@ -1425,7 +1425,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Deleteschool(string SchoolDistrictID = "0")
         {
             SchoolDistrictData obj = new SchoolDistrictData();
@@ -1453,7 +1453,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult ProgramType()
         {
             //ProgramType _prog = (new ProgramTypeData()).GetData_AllDropdown();
@@ -1463,7 +1463,7 @@ namespace Fingerprints.Controllers
             TempData["RefList"] = ViewBag.RefList;
             return View(_prog);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult ProgramType(ProgramType info, FormCollection collection)
         {
@@ -1513,7 +1513,7 @@ namespace Fingerprints.Controllers
             return View(info);
 
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Programdetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -1531,7 +1531,7 @@ namespace Fingerprints.Controllers
             }
             // return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Getprogdetails(string ProgramID = "0")
         {
             ProgramTypeData obj = new ProgramTypeData();
@@ -1545,7 +1545,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult updateprogstatus(string ProgramID, int mode)
         {
             ProgramTypeData obj = new ProgramTypeData();
@@ -1558,7 +1558,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult SelectionPoints()
         {
             SelectPointsData progData = new SelectPointsData();
@@ -1572,7 +1572,7 @@ namespace Fingerprints.Controllers
             //return View();
         }
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult SelectionPoints(SelectPoints info, string Command, FormCollection collection, List<FingerprintsModel.SelectPoints.CustomQuestion> CustomQues)
         {
             try
@@ -1657,7 +1657,7 @@ namespace Fingerprints.Controllers
 
 
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Deletecustomques(string CQID = "0")
         {
             SelectPointsData obj = new SelectPointsData();
@@ -1671,7 +1671,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult GetSelectPointlist(string ProgramId = "0")//string RestrictedId = "0",
         {
             SelectPointsData obj = new SelectPointsData();
@@ -1685,7 +1685,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult listQuesDetails(string ProgramId = "0")//string CQID = "0",
         {
@@ -1702,7 +1702,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult GetRefProglist(string ProgramId = "0")//string RestrictedId = "0",
         {
             SelectPointsData obj = new SelectPointsData();
@@ -1738,8 +1738,14 @@ namespace Fingerprints.Controllers
         }
 
         //Changes on 8Feb2017
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter(RoleEnum.FacilitiesManager, RoleEnum.HealthManager,
+                        RoleEnum.DisabilitiesManager, RoleEnum.BillingManager,
+                        RoleEnum.AreaManager,RoleEnum.HRManager,RoleEnum.FamilyServiceWorker,
+                        RoleEnum.TransportManager, RoleEnum.GenesisEarthAdministrator, RoleEnum.SuperAdmin,
+                        RoleEnum.HealthNurse,RoleEnum.SocialServiceManager,RoleEnum.SocialServiceManager,
+                        RoleEnum.Executive,RoleEnum.ERSEAManager,RoleEnum.EducationManager,
+                        RoleEnum.GenesisEarthAdministrator,RoleEnum.CenterManager,RoleEnum.HealthNurse,
+                        RoleEnum.HomeVisitor)]
 
         [JsonMaxLengthAttribute]
         public JsonResult Checkaddress(int Zipcode, string Address = "", string HouseHoldId = "0")
@@ -1757,7 +1763,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
         public JsonResult Deleteclass(string classId = "0",string isEndOfYear="0")
         {
             CenterData obj = new CenterData();
@@ -1774,7 +1780,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult CoreTeam()
         {
             try
@@ -1789,7 +1795,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult CoreTeam(List<CoreTeam> CoreTeams)
         {
@@ -1814,7 +1820,8 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Demographic()
         {
             try
@@ -1830,7 +1837,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         [HttpGet]
         public ViewResult PIRAccessRoles()
         {
@@ -1867,7 +1874,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         [CustAuthFilter()]
         public ActionResult Demographic(List<Demographic> Demographics)
@@ -1893,7 +1900,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult AcceptanceRole(string ak="0")
         {
 
@@ -1905,7 +1912,7 @@ namespace Fingerprints.Controllers
             AR.RoleList = rd.RoleList();
             return View(AR);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Acceptance()
         {
             try
@@ -1929,7 +1936,7 @@ namespace Fingerprints.Controllers
             return Json(agencyData.GetAcceptanceProcess(Session["AgencyID"].ToString(), isEndYear));
 
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult Acceptance(List<AcceptanceProcess> AcceptanceProcess)
         {
@@ -1954,7 +1961,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult NoOfSeats(string AgencyID, string Classid, string Seats = "0")
         {
             CenterData obj = new CenterData();
@@ -1974,7 +1981,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult GetSlot(string ProgramId = "0")
         {
 
@@ -1990,7 +1997,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Slots(string ak="0")
         {
             AgencySlots agencySlot = new AgencySlots();
@@ -2010,7 +2017,7 @@ namespace Fingerprints.Controllers
                 return View(agencySlot);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult Slots(AgencySlots Slot, List<ClassRoom> ClassSlot,string isEndOfYear="")
         {
@@ -2054,7 +2061,7 @@ namespace Fingerprints.Controllers
                 return View(Slot);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult CheckProgram(string Agencyid)
         {
             try
@@ -2067,7 +2074,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult CheckForcenters(string Agencyid)
         {
             try
@@ -2082,7 +2089,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpGet]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
 
         public ViewResult IncomeReviewRoles()
         {
@@ -2105,7 +2112,7 @@ namespace Fingerprints.Controllers
         /// <param name="IncomeReviewRoles"></param>
         /// <returns>List<IncomeReviewRoles></returns>
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         public ActionResult IncomeReviewRoles(List<IncomeReviewRoles> IncomeReviewRoles)
         {
             List<IncomeReviewRoles> incomeReviewRolesList = new List<IncomeReviewRoles>();
@@ -2125,7 +2132,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
 
        [HttpGet]
         public ActionResult AccessRoles(string id="0")
@@ -2148,7 +2155,7 @@ namespace Fingerprints.Controllers
             return View(accessRoles);
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         [HttpPost]
         public ActionResult AccessRoles(List<Role> Role,int TitleId,string Command,string screeningIDSelect)
         {
@@ -2179,7 +2186,7 @@ namespace Fingerprints.Controllers
 
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         public ActionResult MoveSeats(string ak="")
         {
             ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
@@ -2191,7 +2198,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         public JsonResult GetClassroomsByCenter(string centerId = "0",string isEndOfYear="0")
         {
             try
@@ -2352,7 +2359,7 @@ namespace Fingerprints.Controllers
             return PartialView("~/Views/Partialviews/AccessRolesListPartial.cshtml", accessRoles);
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult EndOfProgramYear()
         {
 
@@ -2364,7 +2371,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpGet]
         public ActionResult EndOfYearProgramTypes()
         {
@@ -2389,7 +2396,7 @@ namespace Fingerprints.Controllers
             return View(agency);
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult EndOfYearProgramTypes(Agency agencyinfo, FormCollection collection)
         {
@@ -2421,7 +2428,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        [CustAuthFilter("65bb7c2-e320-42a2-aed4-409a321c08a5,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult GetCentersBy(string programYear)
         {
 
@@ -2434,7 +2441,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        [CustAuthFilter("65bb7c2-e320-42a2-aed4-409a321c08a5,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
 
         public JsonResult ChangeAgencySlots(string slotNumber,string changeType)
         {
