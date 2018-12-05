@@ -204,9 +204,9 @@ namespace Fingerprints.Controllers
                 else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
-                    newLocation = "~/Home/TeacherDashBoard";
+                    newLocation = "~/Teacher/Roster";
                 else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
-                    newLocation = "~/Home/TeacherDashBoard";
+                    newLocation = "~/Teacher/Roster";
                 else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
                     newLocation = "~/Home/CentralManagerDashboard";
                 else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
@@ -311,6 +311,7 @@ namespace Fingerprints.Controllers
                     Session["IsShowSectionB"] = UserInfo.IsShowSectionB;
                     Session["IsShowScreening"] = UserInfo.IsShowScreening;
                     Session["IsInAcceptanceProcess"] = UserInfo.IsInAcceptanceProcess;
+                    Session["AllowCaseNoteTeacher"] = UserInfo.AllowCaseNoteTeacher;
 
                     if (UserInfo.AgencyId != null)
                     {

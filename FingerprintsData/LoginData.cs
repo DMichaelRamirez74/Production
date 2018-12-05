@@ -55,6 +55,7 @@ namespace FingerprintsData
                         Login.IsShowPIR = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowPIR"]);
                         Login.IsShowSectionB = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowSectionB"]);
                         Login.IsShowScreening = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowScreening"]);
+                        Login.AllowCaseNoteTeacher = Convert.ToString(_Dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
                     }
                     if (_Dataset != null && _Dataset.Tables.Count > 1 && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
                     {

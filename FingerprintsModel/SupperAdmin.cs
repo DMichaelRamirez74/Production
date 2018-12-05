@@ -88,4 +88,15 @@ namespace FingerprintsModel
         Integer=6
 
     }
+
+    /// <summary>
+    /// Enum for Screening status
+    /// </summary>
+    public enum EnumScreeningStatus
+    {
+        InActive=0,
+        Active=1
+    }
+
+
 }

@@ -25,7 +25,15 @@
     $(document).ready(function () {
 
 
-        $('#myModalattendance').on('show.bs.modal', function () {
+
+            $('[data-target="tooltip"]').tooltip();
+
+            $('.open-casenotes').on('click', function () {
+
+                $('#spinner').show();
+            });
+
+            $('#myModalattendance').on('show.bs.modal', function () {
 
                    
 
@@ -202,13 +210,15 @@
         var CID = childnameID.substring(0, n);
         var CN = childnameID.substring(n + 1, l);
 
-        $(".modal-header #childname").val(CN);
-        $(".modal-header #childid").val(CID);
-        $(".modal-header #childlbl").text(CN);
-        // As pointed out in comments,
-        // it is superfluous to have to manually call the modal.
-        // $('#addBookDialog').modal('show');
-    });
+            $(".modal-header #childname").val(CN);
+            $(".modal-header #childid").val(CID);
+            $(".modal-header #childlbl").text(CN);
+            // As pointed out in comments,
+            // it is superfluous to have to manually call the modal.
+            // $('#addBookDialog').modal('show');
+
+            $('#myModalattendance').modal({'backdrop':'static','keyboard':false},'show');
+        });
 
     $(document).on("click", ".open-myModalStudent", function () {
         var childnameID = $(this).data('id');
@@ -232,28 +242,26 @@
 
 
 
-            function isValidInfo() {
-                cleanValidation();
-                isValid = true;
-                if ($("#AbsentType").val() == "") {
-                  //  plainValidation('#AbsentType');
+        function isValidInfo() {
+            cleanValidation();
+            isValid = true;
+            if ($("#AbsentType").val() == "") {
+                //  plainValidation('#AbsentType');
+                isValid = false;
+                customAlert("Please choose an Attendance  Type")
+            }
+            if ($("#AbsentType").val() == 2 || $("#AbsentType").val() == 4) {
+                if ($("#ReasonList").val() == 0 || $("#ReasonList").val() == "") {
+                    // plainValidation('#ReasonList');
                     isValid = false;
-                    customAlert("Please choose an Attendance  Type")
+                    customAlert("Please choose an Absent Reason");
                 }
-                if ($("#AbsentType").val() == 2 || $("#AbsentType").val() == 4)
-                {
-                    if ($("#ReasonList").val() == 0 || $("#ReasonList").val() == "") {
-                       // plainValidation('#ReasonList');
+                if ($("#ReasonList").val() == -1) {
+                    if ($("#txtNewReason").val() == "") {
+                        // plainValidation('#txtNewReason');
                         isValid = false;
-                        customAlert("Please choose an Absent Reason");
+                        customAlert("Please Enter Other Reason");
                     }
-                    if ($("#ReasonList").val() == -1) {
-                        if ($("#txtNewReason").val() == "")
-                        {
-                           // plainValidation('#txtNewReason');
-                            isValid = false;
-                            customAlert("Please Enter Other Reason");
-                        }
 
             }
         }
@@ -699,26 +707,33 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
                             <td style="white-space:nowrap;">
 
 
-                                        @if (Model.ClosedDetails.ClosedToday > 0)
-                                        {
-                                    <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+                                            @if (Model.ClosedDetails.ClosedToday > 0)
+                                            {
+                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
 
-                                        }
-                                        else
-                                        {
-                                    <a href="#myModalattendance" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance"  class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
 
-                                        }
+                                            }
+
+                                            @if (Model.AllowCaseNoteTeacher == "1")
+                                            {
+                                                <a href="@Url.Action("CaseNotesclient","Roster",new {@id=j.Enc_ClientId,@Householdid=j.Enc_HouseholdId,@centerid=j.Enc_CenterId,@Programid=j.Enc_ProgramId })" style="text-decoration:underline;cursor:pointer;" title="Click here for case notes" data-target="tooltip" class="open-casenotes">CN&nbsp;</a>
+
+                                            }
 
 
-                                <a style="text-decoration:underline;cursor:pointer;" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
-                                 <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId"  data-centerid="@j.Enc_CenterId" data-classroomid="@FingerprintsModel.EncryptDecrypt.Decrypt64(j.Enc_ClassRoomId)" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
+                                            <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
 
-                                <a class="referral-icon" style="text-decoration:underline;cursor:pointer;" title="Referrals for Child Developmental Team" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />xREF&nbsp;</a>
-                                    
-                                <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED&nbsp;</a>
-                                       
-                            </td>
+                                            <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId" data-centerid="@j.Enc_CenterId" data-classroomid="@FingerprintsModel.EncryptDecrypt.Decrypt64(j.Enc_ClassRoomId)" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" data-target="tooltip" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
+
+                                            @* <a class="referral-icon" style="text-decoration:underline;cursor:pointer;" title="Referrals for Child Developmental Team" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />xREF&nbsp;</a>*@
+
+                                            <a title="Click here to get white paper on education of parents" data-target="tooltip" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED&nbsp;</a>
+
+                                        </td>
                                     </tr>
 
                                 }

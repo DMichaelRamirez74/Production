@@ -386,8 +386,13 @@ namespace FingerprintsData
                 }
             }
 
-            _TeacherM.Itemlst = chList;
-            _TeacherM.NotCheckedCount = _TeacherM.Itemlst.Count(x => x.NotCheckedCount == 0);
+                if(_dataset.Tables.Count>4 && _dataset.Tables[4]!=null && _dataset.Tables[4].Rows.Count>0)
+                {
+                    _TeacherM.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[4].Rows[0]["AllowCaseNoteTeacher"]);
+                }
+
+                _TeacherM.Itemlst = chList;
+                _TeacherM.NotCheckedCount = _TeacherM.Itemlst.Count(x => x.NotCheckedCount == 0);
 
             _TeacherM.RosterCount = (notChecked) ? (_TeacherM.NotCheckedCount > 0 && _TeacherM.NotCheckedCount < 10) ? "0" + _TeacherM.NotCheckedCount.ToString() : _TeacherM.NotCheckedCount.ToString() : (_TeacherM.Itemlst.Count() > 0 && _TeacherM.Itemlst.Count() < 10) ? "0" + _TeacherM.Itemlst.Count().ToString() : _TeacherM.Itemlst.Count().ToString();
         }

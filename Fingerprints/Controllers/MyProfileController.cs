@@ -126,7 +126,7 @@ namespace Fingerprints.Controllers
 
                     //Teacher Dashboard
                     else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
-                        newLocation = "~/Home/TeacherDashBoard";
+                        newLocation = "~/Teacher/Roster";
 
                     //Social Service Manager Dashboard
                     else if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))

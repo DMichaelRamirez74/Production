@@ -302,7 +302,7 @@ $(function () {
                                 url: "/Teacher/InsertMonitoring",
                                 data: monitorList,
                                 success: function (data) {
-                                    window.location.href = "/Home/TeacherDashBoard";
+                                    window.location.href = "/Teacher/Roster";
                                 },
                                 error: function (data) {
 
@@ -356,7 +356,7 @@ $(function () {
             url: "/Teacher/InsertMonitoring",
             data: MonitorList,
             success: function (data) {
-                window.location.href = "/Home/TeacherDashBoard";
+                window.location.href = "/Teacher/Roster";
             },
             error: function (data) {
             }

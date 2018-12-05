@@ -12,7 +12,8 @@ using System.Web.Script.Serialization;
 
 namespace Fingerprints.Controllers
 {
-   // [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+    // [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+    [CustAuthFilter()]
     public class ERSEAController : Controller
     {
         //
@@ -30,7 +31,7 @@ namespace Fingerprints.Controllers
    roleid=b65759ba-4813-4906-9a69-e180156e42fc (ERSEA Manager)
    */
     
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult ERSEADashboard()
         {
             ERSEADashBoard obj = new ERSEADashBoard();
@@ -132,7 +133,7 @@ namespace Fingerprints.Controllers
         //}
         //GET Selection SelectionCriteriaUpdate Page.
 
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult SelectionCriteriaUpdate()
         {
             SelectPointsData progData = new SelectPointsData();
@@ -144,7 +145,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult SelectionCriteriaUpdate(SelectPoints info, string Command, FormCollection collection, List<FingerprintsModel.SelectPoints.CustomQuestion> CustomQues)
         {
             try
@@ -232,6 +233,7 @@ namespace Fingerprints.Controllers
         //GET  CommunityAssessment page.
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public JsonResult listQuesDetails(string ProgramId = "0")//string CQID = "0",
         {
             try
@@ -247,7 +249,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-
+        [CustAuthFilter()]
         public JsonResult GetSelectPointlist(string ProgramId = "0")//string RestrictedId = "0",
         {
             SelectPointsData obj = new SelectPointsData();
@@ -262,7 +264,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetRefProglist(string ProgramId = "0")//string RestrictedId = "0",
         {
             SelectPointsData obj = new SelectPointsData();
@@ -276,7 +278,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
+        [CustAuthFilter()]
         public JsonResult Deletecustomques(string CQID = "0")
         {
             SelectPointsData obj = new SelectPointsData();
@@ -291,21 +293,21 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult CommunityAssessment()
         {
             return View();
         }
 
         //GET Center Analysis page;
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult CenterAnalysis()
         {
             return View();
         }
 
         //GET Workshop Analysis By Center page.
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
+        [CustAuthFilter(RoleEnum.ERSEAManager,RoleEnum.CenterManager,RoleEnum.EducationManager)]
         public ActionResult WorkshopAnalysis()
         {
             return View();
@@ -332,6 +334,7 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public JsonResult GetWorkShopAnalysis(long centerId)
         {
             List<WorkShopAnalysis> workshopList = new List<WorkShopAnalysis>();
@@ -355,6 +358,7 @@ namespace Fingerprints.Controllers
 
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public JsonResult GetGraduatingChildByProgram(string programTypeID)
         {
             List<SelectListItem> gradChildList = new List<SelectListItem>();
@@ -374,6 +378,7 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public JsonResult GetChartDataByZipCode(string zipcode)
         {
             CommunityAssessment communityassment = new FingerprintsModel.CommunityAssessment();
@@ -389,6 +394,7 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public ActionResult GetZipcodesbystate(string searchText)
         {
 
@@ -406,6 +412,7 @@ namespace Fingerprints.Controllers
             return Json(new { Zipcodestatelist }, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
         public ActionResult GetZipcodesbystateandCity(string searchcity, string searchstate)
         {
 
@@ -424,6 +431,7 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public ActionResult GETChildrenByCenter(string centerId,string classRoomId, string programId,  int reqPage = 0, int pgSize = 0, int skipRow = 0, string searchText = "")
         {
             ChildrenInfoClass childrenInfo = new ChildrenInfoClass();
@@ -454,6 +462,7 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
+        [CustAuthFilter()]
         public ActionResult GetChildrenByClassRoom(string centerId, string classroomId, string programId, int reqPage = 0, int pgSize = 0, int skipRow = 0)
         {
             List<ChildrenInfo> children_List = new List<ChildrenInfo>();

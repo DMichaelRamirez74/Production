@@ -22,6 +22,7 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataTable agencydataTable = null;
         DataSet _dataset = null;
+        DataTable _dataTable = null;
         public string agencycode()
         {
             string agencycode = string.Empty;
@@ -169,7 +170,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
                 command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssueStartDay", agencyDetails.AttendanceIssueStartDay));
-
+                command.Parameters.Add(new SqlParameter("@AllowCaseNoteTeacher", agencyDetails.AllowCaseNoteTeacher));
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
                 string fileextension = null;
@@ -572,6 +573,9 @@ namespace FingerprintsData
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
                         agency.AttendanceIssueStartDay = (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]))) ? Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]) : "";
+
+                        agency.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
+
                         agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
 
                     }
@@ -855,7 +859,7 @@ namespace FingerprintsData
                         addagencyRow.primaryEmail = Convert.ToString(agencydataTable.Rows[i]["primaryEmail"]);
                         addagencyRow.programName = Convert.ToString(agencydataTable.Rows[i]["programName"]);
                         addagencyRow.status = Convert.ToChar(agencydataTable.Rows[i]["status"]);
-                        addagencyRow.createdDate = Convert.ToDateTime(agencydataTable.Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
+                        addagencyRow.createdDate = Convert.ToString(agencydataTable.Rows[i]["DateEntered"]);
                         addagencyRow.LastLogin = agencydataTable.Rows[i]["lastlogin"].ToString();
                         addagencyRow.userName = agencydataTable.Rows[i]["Name"].ToString();
                         _agencylist.Add(addagencyRow);
@@ -6491,6 +6495,172 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
 
+        public List<ScreeningQ> ScreeningList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize,Guid? agencyID)
+        {
+            List<ScreeningQ> _ScreeningQlist = new List<ScreeningQ>();
+            try
+            {
+                totalrecord = string.Empty;
+                string searchcenter = string.Empty;
+                string AgencyId = string.Empty;
+                if (string.IsNullOrEmpty(search.Trim()))
+                    searchcenter = string.Empty;
+                else
+                    searchcenter = search;
+                command.Parameters.Add(new SqlParameter("@Search", searchcenter));
+                command.Parameters.Add(new SqlParameter("@take", pageSize));
+                command.Parameters.Add(new SqlParameter("@skip", skip));
+                command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
+                command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
+                command.Parameters.Add(new SqlParameter("@AgencyID", agencyID));
+                command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "Sp_Sel_getscreeninglist";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataTable = new DataTable();
+                DataAdapter.Fill(_dataTable);
+                if (_dataTable.Rows.Count > 0)
+                {
+                    ScreeningQ addScreeningQ = null;
+                    for (int i = 0; i < _dataTable.Rows.Count; i++)
+                    {
+                        addScreeningQ = new ScreeningQ();
+                        addScreeningQ.ScreeningId = EncryptDecrypt.Encrypt64(_dataTable.Rows[i]["ScreeningID"].ToString());
+                        addScreeningQ.ScreeningName = Convert.ToString(_dataTable.Rows[i]["ScreeningName"]);
+                        //   addScreeningQ.ScreeningFor = _dataTable.Rows[i]["Screeningfor"].ToString();
+                        addScreeningQ.AgencyName = Convert.ToString(_dataTable.Rows[i]["AgencyName"]);
+                        addScreeningQ.CreatedOn = Convert.ToString(_dataTable.Rows[i]["DateEntered"]);
+                        addScreeningQ.ScreeningOrder = Convert.ToString(_dataTable.Rows[i]["ScreeningOrder"]);
+                        addScreeningQ.ProgramTypes = Convert.ToString(_dataTable.Rows[i]["ProgramType"]);
+                        addScreeningQ.status = Convert.ToString(_dataTable.Rows[i]["active"]);
+                        _ScreeningQlist.Add(addScreeningQ);
+                    }
+                    totalrecord = command.Parameters["@totalRecord"].Value.ToString();
+                }
+                return _ScreeningQlist;
+            }
+            catch (Exception ex)
+            {
+                totalrecord = string.Empty;
+                clsError.WriteException(ex);
+                return _ScreeningQlist;
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+        }
+
+
+        public DataSet EditScreening(string ScreeningId,StaffDetails staff)
+        {
+            try
+            {
+                command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetScreeningQuestion";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return _dataset;
 
             }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+
+
+            return _dataset;
+
+        }
+
+
+        
+
+       public string ActiveDeactiveScreening(string id,StaffDetails staff,EnumScreeningStatus screeningStatus)
+        {
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@id", EncryptDecrypt.Decrypt64(id)));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@ScreeningStatus", (int)screeningStatus));
+                command.Parameters["@result"].Direction = ParameterDirection.Output;
+                command.CommandText = "Sp_Deletescreening";
+                command.ExecuteNonQuery();
+                return command.Parameters["@result"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return "0";
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+
+            }
+        }
+
+
+
+        public string UpdateScreening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear)
+        {
+            string result = string.Empty;
+            try
+            {
+
+                command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@UserId", Userid));
+                command.Parameters.Add(new SqlParameter("@agencyid", string.IsNullOrEmpty(AgencyId) ? (Guid?)null : new Guid(AgencyId)));
+                command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
+                command.Parameters.Add(new SqlParameter("@Programtype", Programtype));
+                command.Parameters.Add(new SqlParameter("@Document", Document == true ? 1 : 0));
+                command.Parameters.Add(new SqlParameter("@Inintake", Inintake == true ? 1 : 0));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction=ParameterDirection.Output;
+                command.Parameters.Add(new SqlParameter("@Expiredperiod", expiredPeriod));
+                command.Parameters.Add(new SqlParameter("@ExpireIn", expireIn));
+                command.Parameters.Add(new SqlParameter("@ScreeningsYear", screeningsYear));
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_SaveScreening_Agency";
+                Connection.Open();
+                command.ExecuteNonQuery();
+                result = command.Parameters["@result"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                result = "";
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+
+            }
+            return result;
+
+        }
+
+
+    }
 }

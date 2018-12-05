@@ -133,6 +133,9 @@ namespace FingerprintsModel
 
         public string CenterName { get; set; }
         public string ClassroomName { get; set; }
+
+        public string AllowCaseNoteTeacher { get; set; }
+
     }
 
     public class OfflineAttendance

@@ -346,6 +346,9 @@ namespace FingerprintsModel
         {
             return this.PageSize * (RequestedPage - 1);
         }
+
+
+        public string ReferenceYakkrID { get; set; }
     }
 
 
