@@ -35,6 +35,20 @@ namespace FingerprintsModel
 
             return descriptionAttributes.Length > 0 ? descriptionAttributes[0].Description : enumValue.ToString();
         }
+		
+		
+		
+		
+		/// <summary>
+        /// Extension method to return an enum value of type T for the given string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static T GetEnumByStringValue<T>(this string value)
+        {
+            return (T)Enum.Parse(typeof(T), value, true);
+        }
 
     }
 

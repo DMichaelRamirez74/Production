@@ -8888,44 +8888,47 @@ namespace FingerprintsData
                 }
                 //Gets the FSW for this Family//
                 obj.staffList = new List<AgencyStaff>();
+                obj.FamilyAdovateList = new List<SelectListItem>();
+
+
                 if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
                 {
 
-                    obj.FamilyAdovateList = new List<SelectListItem>();
+                  
                     obj.staffList = new List<AgencyStaff>();
-                    if (_dataset.Tables[11].Columns.Contains("familyadvocate"))
+                    if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
                     {
                         obj.FamilyAdovateList = (from DataRow dr in _dataset.Tables[11].Rows
                                                  select new SelectListItem
                                                  {
                                                      Text = dr["familyadvocate"].ToString(),
                                                      Value = dr["Userid"].ToString()
-
-                                                 }
-                                   ).ToList();
-                    }
-                    else if (_dataset.Tables[11].Columns.Contains("FSWName"))
-                    {
-                        obj.staffList = _dataset.Tables[11].AsEnumerable().Select(x => new AgencyStaff
-                        {
-
-                            Username = x.Field<string>("FSWName"),
-                            CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
-                            AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? x.Field<string>("GenderText").ToLower()=="female"?"~/Images/female-adult.png" :"~/Images/adult-image.png": " / " + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
-                            Gender = x.Field<string>("GenderText"),
-                            ServiceYears = x.Field<int>("ServiceYears").ToString()
-
-
-                        }).ToList();
+                                                 }).ToList();
                     }
 
                 }
 
-                //Gets, whether currently logged in user can review the familyhousehold income//
-
                 if (_dataset.Tables[12] != null && _dataset.Tables[12].Rows.Count > 0)
                 {
-                    obj.IsStaffReviewIncome = Convert.ToBoolean(_dataset.Tables[12].Rows[0]["IsReviewIncome"]);
+                    obj.staffList = _dataset.Tables[12].AsEnumerable().Select(x => new AgencyStaff
+                    {
+
+                        Username = x.Field<string>("FSWName"),
+                        CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
+                        AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? x.Field<string>("GenderText").ToLower() == "female" ? "~/Images/female-adult.png" : "~/Images/adult-image.png" : " / " + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
+                        Gender = x.Field<string>("GenderText"),
+                        ServiceYears = x.Field<int>("ServiceYears").ToString()
+
+
+                    }).ToList();
+                }
+
+
+                //Gets, whether currently logged in user can review the familyhousehold income//
+
+                if (_dataset.Tables[13] != null && _dataset.Tables[13].Rows.Count > 0)
+                {
+                    obj.IsStaffReviewIncome = Convert.ToBoolean(_dataset.Tables[13].Rows[0]["IsReviewIncome"]);
                 }
             }
         }

@@ -670,10 +670,25 @@
             }
         }
 
+
+        function changeFamilyAdvocate(arg) {
+            $('#div_family_advocate_info').slideToggle('slow');
+            $('#div_family_advocate_select').find('#FamilyAdvocateId').val('');
+            $('#div_family_advocate_select').slideToggle('slow');
+        }
+
+        function backToFamilyAdvocate(arg) {
+
+            $('#div_family_advocate_select').find('#FamilyAdvocateId').val('');
+            $('#div_family_advocate_select').slideToggle('slow');
+            $('#div_family_advocate_info').slideToggle('slow');
+        }
+
+
         function SaveFamilyAdvocate(arg) {
 
 
-            var faId = $(arg).parent('#divFamilyAdvSelec').find('#FamilyAdvocateId').val()
+            var faId = $(arg).closest('#divFamilyAdvSelec').find('#FamilyAdvocateId').val()
 
             $('#FamilyAdvocateId').css({ 'background-color': '' });
 
@@ -1352,6 +1367,15 @@
         }
 
         $(document).ready(function () {
+
+
+
+            $('#anchor_back_fa').on('click', backToFamilyAdvocate);
+
+
+
+
+            $('#btn_change_fa').on('click', changeFamilyAdvocate).bind(this);
 
 
             $('.edit-client').on('click', function () {
@@ -5011,7 +5035,7 @@
                                     @if (Model.staffList != null && Model.staffList.Count() > 0)
                                     {
 
-                                        <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12">
+                                        <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12" id="div_family_advocate_info">
                                             <div class="house-hold household-main-ch staff-info-div">
                                                 <div class="hld-img">
                                                     <img height="110" width="108" src="@Url.Content(Model.staffList[0].AvatarUrl)" style="margin-top:2px;" class="zoomify">
@@ -5044,12 +5068,18 @@
                                                 </div>
 
 
+                                                <div class="col-xs-12 home-fft">
+                                                    <button class="btn btn-success" id="btn_change_fa"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
+
+                                                </div>
                                             </div>
                                         </div>
+
                                     }
-                                    else if (Model.FamilyAdovateList != null && Model.FamilyAdovateList.Count>0)
+
+                                    @if (Model.FamilyAdovateList != null && Model.FamilyAdovateList.Count > 0)
                                     {
-                                        <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12">
+                                        <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12" id="div_family_advocate_select" @if (Model.staffList != null && Model.staffList.Count() > 0) { <text> style="display:none;" </text>  }>
                                             <div class="house-hold household-main-ch staff-info-div" style="padding: 15px 10px;margin:0;height:auto;">
 
                                                 <div class="det-cont" style="width:100%;" id="divFamilyAdvSelec">
@@ -5062,9 +5092,31 @@
                                                         @Html.DropDownListFor(m => m.FamilyAdvocateId, Model.FamilyAdovateList, "Select Family Advocate", new { @class = "form-control", @style = "width:100%;" })
                                                     </div>
 
-                                                    @*<button class="" type="button"  onclick = "SaveFamilyAdvocate(this);" > Submit</button>*@
 
-                                                    <a href="javscript:void(0);" onclick="SaveFamilyAdvocate(this);" class="anchor_btn">Submit</a>
+
+
+
+                                                    <div class="col-xs-12 adddivspace" style="margin-top:9%;text-align:center;">
+
+                                                        <button type="button" onclick="SaveFamilyAdvocate(this);" class="btn btn-success"><i class="fa fa-save" aria-hidden="true"></i> Submit</button>
+
+
+                                                        @if (Model.staffList != null && Model.staffList.Count() > 0)
+                                                        {
+                                                            <button type="button" class="btn btn-primary" style="background-color:#9b59b6;border-color: #9048ad;" id="anchor_back_fa"><i class="fa fa-undo" aria-hidden="true"></i> Back</button>
+                                                        }
+
+
+                                                    </div>
+
+
+
+
+
+
+
+
+
 
 
                                                 </div>
