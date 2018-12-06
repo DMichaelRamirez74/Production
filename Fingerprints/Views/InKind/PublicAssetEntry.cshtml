@@ -10,17 +10,22 @@
 
     <script type="text/javascript">
 
-
+        var _maxHrMinEntry = '12:00';
+        var _warningHrsEntry = '08:00';
+        var activityHrs = null;
+        var activityMins = null;
+        var inkindAmount = null;
+        var _allowExceedingWarninghrs = false;
         $(function () {
             var searchBtn = $('#searchByNamebtn');
             var searchText = $('#searchText');
             var activityDate = $('#activity-date');
             var activityType = $('#inkind-type-select');
             var activityDesc = $('#descriptionTextArea');
-            var activityHrs = $('#inkindHoursText');
-            var activityMins = $('#inkindMinutesText');
+                activityHrs = $('#inkindHoursText');
+                activityMins = $('#inkindMinutesText');
             var acitivityMiles = $('#inkindMilesText');
-            var inkindAmount = $('#inkindAmountTxt');
+                inkindAmount = $('#inkindAmountTxt');
             var centerSelect = $('#ddlCenterDetails');
             var classroomSelect = $('#classroomSelect');
             var parentSig = $('#imageSig1');
@@ -28,6 +33,53 @@
 
             $('#sig1').signature({ distance: 50 });
             $('#sig2').signature({ distance: 50 });
+
+
+
+            activityHrs.popover({
+
+                html: true,
+                content: function () {
+                 //  return $($(this).data('target-selector')).html();
+                    return '<p class="text-center">Are you sure want to continue?</p>\
+         <p class="text-center"><button type="button" class="btn btn-success allow-yes">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger allow-no">No</button></p>';
+
+                },
+                title: function () {
+                  //  return $(this).data('title') + '<span class="close">&times;</span';
+                    return $(this).data('title');
+
+                },
+                trigger: 'manual',
+                delay: { "show": 500, "hide": 100 }
+            }).on('shown.bs.popover', function (e) {
+
+                var _popover = $(this);
+                //_popover.parent().find('div.popover .close').on('click', function () {
+
+                //    _popover.popover('hide');
+                //});
+
+                _popover.parent().find('div.popover .allow-yes').on('click', function () {
+                    _allowExceedingWarninghrs = true;
+                    _popover.popover('hide');
+                });
+
+                _popover.parent().find('div.popover .allow-no').on('click', function () {
+                    _allowExceedingWarninghrs = false;
+                    activityHrs.val(0);
+                    activityMins.val(0);
+                    inkindAmount.val(0);
+                    
+                    _popover.popover('hide');
+                });
+
+
+
+
+            });
+
+
 
 
             $("#text-select-phoneNo").mask("(999) 999-9999");
@@ -48,8 +100,7 @@
 
             $('input:checkbox[name=parenttype]').on('click', function () {
 
-                if($(this).is(':checked'))
-                {
+                if ($(this).is(':checked')) {
                     $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
                         .parent('span').parent('div').hide();
 
@@ -343,11 +394,36 @@
 
             $('#inkindAmountTxt').prop('disabled', true);
 
+            //$('#inkindHoursText,#inkindMinutesText').on('input', function () {
+
+            //    if ($(this).attr('id') == 'inkindHoursText' && !validateHoursMinutes(this)) {
+            //        return false;
+            //    }
+
+            //    if ($(this).attr('id') == 'inkindMinutesText' && !validateHoursMinutes(this)) {
+            //        return false;
+            //    }
+
+            //});
+
             //On keypress of Hours, Minutes and Inkind Amount Text, Calculates the amount and displays to Amount Text box//
-            $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('blur', function () {
+          //  $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('blur', function () {
+
+                $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('input', function () {
+
                 var hoursText = ($('#inkindHoursText').val() == null || $('#inkindHoursText').val() == '') ? '0' : $('#inkindHoursText').val();
                 var minsTxt = ($('#inkindMinutesText').val() == null || $('#inkindMinutesText').val() == '') ? '0' : $('#inkindMinutesText').val();
                 var actCode = [];
+
+                if ($(this).attr('id') == 'inkindHoursText' && !validateHoursMinutes(this)) {
+                    return false;
+                }
+
+                if ($(this).attr('id') == 'inkindMinutesText' && !validateHoursMinutes(this)) {
+                    return false;
+                }
+
+                console.log(activityHrs.val());
 
                 if ($('input[name=activityTypeRadio][value=2]').is(':checked')) {
                     if ($('input[name=activityCheck]').length > 0) {
@@ -440,8 +516,7 @@
             //on click of No Email Checkbox in the Contact information//
             $('.sumar_noemail').find('input:checkbox[name=no_email]').on('click', function () {
 
-                if($(this).is(':checked'))
-                {
+                if ($(this).is(':checked')) {
                     $('#text-select-email').val('').prop('disabled', true);
                 }
                 else {
@@ -548,8 +623,7 @@
                     return false;
                 }
 
-                if (activityDate.val() != '' && !validatedates(activityDate))
-                {
+                if (activityDate.val() != '' && !validatedates(activityDate)) {
                     return false;
                 }
 
@@ -595,6 +669,30 @@
                         customAlert('Please Enter Minutes');
                         return false;
                     }
+
+                    if (getTotalhoursMinutes(activityHrs.val(), activityMins.val()) <= 0) {
+
+                        plainValidation('#' + activityHrs.attr('id') + '');
+                        plainValidation('#' + activityMins.attr('id') + '');
+                        customAlert('Please enter valid hours and minutes');
+                        return false;
+                    }
+
+                    if(!validateHoursMinutes(activityHrs) || !validateHoursMinutes(activityMins))
+                    {
+                        return false;
+                    }
+
+                    if(getTotalhoursMinutes(activityHrs.val(),activityMins.val())>parseFloat(_warningHrsEntry.split(':')[0]) && _allowExceedingWarninghrs==false)
+                    {
+                        return false;
+                    }
+                   
+
+                    //if(getTotalhoursMinutes(activityHrs.val(),activityMins.val()) > parseFloat(_warningHrsEntry.split(':')[0]))
+                    //{
+
+                    //}
 
                 }
 
@@ -798,10 +896,9 @@
 
                 var fileData = new FormData();
                 $('#inkind-info-form').find('input:file').each(function (a, b) {
-                    debugger;
+               
                     var fileInput = $(this);
-                    if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '')
-                    {
+                    if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
                         var fileUpload = fileInput.get(0);
                         var files = fileUpload.files;
 
@@ -847,8 +944,7 @@
 
                             if (parentType == true && $('#no-more-tables8').is(':visible') && searchText.val() != '') {
 
-                                if (InKindTransactions.ParentID != null || InKindTransactions.ParentID != '')
-                                {
+                                if (InKindTransactions.ParentID != null || InKindTransactions.ParentID != '') {
                                     $('#no-more-tables8').find('#centerTable').
                                         find('.scroll-tbody').find('tr').
                                         children('td:eq(0)').children('p[accesskey=' + InKindTransactions.ParentID + ']').attr('data-ppp', '1');
@@ -876,6 +972,8 @@
 
                 });
 
+                _allowExceedingWarninghrs = false;
+
             });
 
             //On Click Clear Button, Resets the Inkind Entry Form//
@@ -899,11 +997,78 @@
                 $('#sig2').signature('clear');
                 $('#staff-sig-div').hide();
                 $('.inkind-hours-div,.inkind-miles-div,.amount-div').hide();
+                _allowExceedingWarninghrs = false;
             });
 
         });
 
 
+        function getTotalhoursMinutes(_hrs,_mins)
+        {
+            
+            _hrs = (_hrs != '') ? parseFloat(_hrs) : 0;
+              _mins = (_mins != '') ? parseFloat(_mins) : 0;
+           return  (_hrs + (_mins / 60));
+        }
+
+        // validation check for In-kind hours and minutes, should not greater than 12 hours//
+        function validateHoursMinutes(ele) {
+            
+            //   $(ele).css({ 'background-color': '' });
+
+         //   activityHrs.popover('hide');
+            cleanValidation();
+            var _isValidhours = true;
+            var _isHours = 0;
+
+            if ($(ele)[0].id == activityHrs[0].id)
+            {
+                _isHours = 1;
+            }
+            if ($(ele)[0].id == activityMins[0].id)
+            {
+                _isHours = 0;
+            }
+
+            try {
+                if (activityHrs.val() != '') {
+
+                  
+                    var _activtiyHrsMins = getTotalhoursMinutes(activityHrs.val(), activityMins.val());
+
+                    if (_activtiyHrsMins > parseInt(_maxHrMinEntry.split(':')[0])) {
+                        customAlert('Activity time should not greater than 12 hours');
+                        plainValidation(activityHrs);
+                        inkindAmount.val(0);
+                        if (activityMins.val() != '')
+                        {
+                            plainValidation(activityMins);
+                        }
+                        _isValidhours = false;
+                    }
+
+                    else if (_activtiyHrsMins > parseFloat(_warningHrsEntry.split(':')[0]) && _allowExceedingWarninghrs==false) {
+
+                        activityHrs.popover('show');
+                    }
+                    else {
+                        activityHrs.popover('hide');
+                    }
+                  
+
+
+                }
+
+               
+            }
+            catch (error) {
+                console.log(error);
+                _isValidhours = false;
+            }
+
+            return _isValidhours;
+
+        }
 
         function validatedates(inputTextObject) {
          
@@ -929,8 +1094,7 @@
         }
 
         //function to add more attachments for the in-kind entry//
-        function addMoreInkindAtt(ele)
-        {
+        function addMoreInkindAtt(ele) {
             var divLength = $('#inkind-info-form').find('.attach-div').find('input:file').length;
 
             var appendDiv = '<div class="sum_attachparticic list_panic_info">\
@@ -941,8 +1105,7 @@
 
         }
         //function to remove the attachments for the in-kind entry//
-        function removeInkindAtt(ele)
-        {
+        function removeInkindAtt(ele) {
             $(ele).parent('.sum_attachparticic').remove();
 
             $.each($('#inkind-info-form').find('.attach-div').find('input:file'), function (i, att) {
@@ -968,7 +1131,7 @@
                 datatype: 'json',
                 type: 'post',
                 data: { searchName: $('#searchText').val() },
-                beforeSend:function(){$('#spinner').show()},
+                beforeSend: function () { $('#spinner').show() },
                 success: function (data) {
 
                     $('#spinner').hide();
@@ -1000,9 +1163,8 @@
     <td data-title="Phone No" class="inset-width">' + phoneDiv + '\
     </td>';
 
-                                    if(donors.EmailAddress!='')
-                                    {
-                                        appendDiv+= '<td data-title="Email" class="phn-tabrate">'+ donors.EmailAddress + '\
+                                    if (donors.EmailAddress != '') {
+                                        appendDiv += '<td data-title="Email" class="phn-tabrate">' + donors.EmailAddress + '\
                                           </td>\
                                             </tr>';
                                     }
@@ -1024,9 +1186,8 @@
                                 $('.inkind-entry-div').hide();
 
 
-                                if($('.scroll-tbody').find('tr').length===1)
-                                {
-                                    $('.scroll-tbody').css({'width':'98.5%'});
+                                if ($('.scroll-tbody').find('tr').length === 1) {
+                                    $('.scroll-tbody').css({ 'width': '98.5%' });
                                 }
                                 else if ($('.scroll-tbody').find('tr').length > 0) {
 
@@ -1059,8 +1220,7 @@
                         $('.contact-entry-div').show();
                     }
                 },
-                failure:function(data)
-                {
+                failure: function (data) {
                     $('#spinner').hide();
                 },
                 error: function (data) {
@@ -1214,6 +1374,8 @@
         //function to get the inkind amount type on selecting the inkind activity//
 
         function onActivitySelectChange(ele) {
+            cleanValidation();
+
             var activityValue = $(ele).val();
 
             var arry = [];
@@ -1274,8 +1436,7 @@
                             $('#sig2').signature('clear');
                             $('#parent-sig-div,#staff-sig-div').hide();
                         }
-                        if (data.IsAllowDocumentUpload === 1)
-                        {
+                        if (data.IsAllowDocumentUpload === 1) {
                             $('#inkind-info-form').find('input:file').val('');
                             $('#inkind-info-form').find('.attachparticic_myactive').html('');
                             $('#inkind-info-form').find('.attach-div').show();
@@ -1333,6 +1494,7 @@
             $('#ddlCenterDetails').val(0);
             $('#classroomSelect').find('option').remove();
             $('#descriptionTextArea').val('');
+            _allowExceedingWarninghrs = false;
 
             $('input[name=activityTypeRadio]').prop('checked', false);
 
@@ -1368,8 +1530,7 @@
                     $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
                 }
 
-                if(isShowHome===1)
-                {
+                if (isShowHome === 1) {
                     $homeCheck.prop('checked', false).parent('span').parent('div').show();
                 }
                 else {
@@ -2116,7 +2277,7 @@
                         <div class="form-group row inkind-hours-div" style="display:none;">
                             <label class="col-lg-4 col-form-label lbl-required">Hours : Minutes</label>
                             <div class="col-lg-8">
-                                <input type="text" class="form-control" id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" />
+                                <input type="text" class="form-control" data-toggle="popover" data-targe-selector="#hrs-exceed-content" data-placement="top" data-title="Exceeding 8 hours"  id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" />
                                 <span style="display:initial;">:</span>
                                 <input type="text" class="form-control" id="inkindMinutesText" placeholder="MM" maxlength="2" style="display:initial;width:30%;" />
                             </div>
@@ -2208,6 +2369,14 @@
                 </fieldset>
             </form>
         </div>
+    </div>
+
+
+
+
+    <div id="hrs-exceed-content" class="hidden">
+        <p>Are you sure want to continue?</p>
+        <p><button type="button" class="btn btn-success">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger">No</button></p>
     </div>
 
 }
