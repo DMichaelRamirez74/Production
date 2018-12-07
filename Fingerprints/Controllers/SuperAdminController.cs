@@ -28,6 +28,8 @@ namespace Fingerprints.Controllers
         agencyData agencyData = new agencyData();
         CategoryData categoryData = new CategoryData();
         Center _center = new Center();
+        StaffDetails staff = StaffDetails.GetInstance();
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public ActionResult SuperAdminList(string id = "0")
         {
@@ -1100,7 +1102,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult ScreeningSuperAdmin(string id)
         {
             try
@@ -1109,7 +1111,7 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(id))
                 {   
                     ViewBag.mode = 1;
-                    ViewBag.screening = datalayer.EditScreening(EncryptDecrypt.Decrypt64(id), Session["UserID"].ToString());
+                    ViewBag.screening = datalayer.EditScreening(EncryptDecrypt.Decrypt64(id),staff);
                     
                 }
 

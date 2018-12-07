@@ -25,7 +25,7 @@ namespace Fingerprints.Controllers
          role=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
          */
         agencyData agencyData = new agencyData();
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult viewAgency(string id = "0")
         {
             TempData["status"] = id;
@@ -248,7 +248,11 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+
+
+
+
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult listAgency(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try

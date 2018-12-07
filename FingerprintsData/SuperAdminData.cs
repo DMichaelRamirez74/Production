@@ -1203,6 +1203,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
                 command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
                 command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
+                command.Parameters.Add(new SqlParameter("@AgencyID", (Guid?)null));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "Sp_Sel_getscreeninglist";
@@ -1269,13 +1270,46 @@ namespace FingerprintsData
                 
             }
         }
-        public DataSet EditScreening(string ScreeningId, string Userid)
+
+
+        //public DataTable EditScreening(string ScreeningId, string Userid)
+        //{
+        //    try
+        //    {
+        //        command.Connection = Connection;
+        //        command.Parameters.Add(new SqlParameter("@UserId", Userid));
+        //        command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_GetScreeningQuestion";
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataTable = new DataTable();
+        //        DataAdapter.Fill(_dataTable);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //        return _dataTable;
+
+        //    }
+        //    finally
+        //    {
+        //        if (Connection != null)
+        //            Connection.Close();
+        //    }
+        //    return _dataTable;
+
+        //}
+
+
+
+        public DataSet EditScreening(string ScreeningId, StaffDetails _staff)
         {
             try
             {
                 command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@UserId", Userid));
+                command.Parameters.Add(new SqlParameter("@UserId", _staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", _staff.AgencyId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetScreeningQuestion";
                 DataAdapter = new SqlDataAdapter(command);

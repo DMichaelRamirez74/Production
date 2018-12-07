@@ -2528,6 +2528,97 @@ namespace Fingerprints.Controllers
         }
 
 
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        public ActionResult ScreeningList()
+        {
+
+            return View();
+        }
+
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        public JsonResult listScreening(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
+        {
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+                string totalrecord, agencyId = string.Empty;
+                int skip = pageSize * (requestedPage - 1);
+                var list = agencyData.ScreeningList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, staffDetails.AgencyId);
+                return Json(new { list, totalrecord });
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json(Ex.Message);
+            }
+        }
+
+
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        public ActionResult ScreeningAgencyAdmin(string id="")
+        {
+
+            StaffDetails staffDetails = new StaffDetails();
+            ViewBag.mode = 0;
+            if (!string.IsNullOrEmpty(id))
+            {
+                ViewBag.mode = 1;
+                ViewBag.screening = agencyData.EditScreening(EncryptDecrypt.Decrypt64(id),staffDetails);
+
+            }
+
+            id = string.IsNullOrEmpty(id) ? "0" : EncryptDecrypt.Decrypt64(id);
+
+
+            return View();
+        }
+
+
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        public JsonResult ActiveDeactiveScreening(string id,string mode="")
+        {
+            try
+            {
+
+                EnumScreeningStatus enumStatus = EnumHelper.GetEnumByStringValue<EnumScreeningStatus>(mode);
+
+                return Json(agencyData.ActiveDeactiveScreening(id,StaffDetails.GetInstance(), enumStatus));
+            }
+            catch (Exception Ex)
+            {
+                return Json(Ex.Message);
+            }
+        }
+
+
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
+           string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear
+           //,List<ScreeningAccess> screeningAccessList
+           )
+        {
+            try
+            {
+
+                string message = agencyData.UpdateScreening(ScreeningId, ScreeningName, Questionlist, AgencyId, Session["UserID"].ToString(), Programtype, Document, Inintake, expiredPeriod, expireIn, screeningsYear);
+
+
+
+                if (message == "1")
+                {
+                    TempData["message"] = "Record saved successfully.";
+                }
+                return Json(message);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred. please try again.");
+            }
+        }
+
+
     }
 }
 

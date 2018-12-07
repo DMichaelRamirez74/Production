@@ -2890,7 +2890,7 @@ namespace FingerprintsData
                                                               CustomScreeningPeriod = Convert.ToInt32(dr2["CustomScreeningPeriod"])
                                                           }
 
-                                                      ).OrderByDescending(x => x.ScreeningPeriod).ToList();
+                                                      ).ToList();
 
 
 
@@ -2963,7 +2963,7 @@ namespace FingerprintsData
                         switch (expiredPeriod)
                         {
                             case 1:
-                                expiredPeriodMonths = 2.0;
+                                expiredPeriodMonths = 3.0;
                                 break;
                             case 2:
                                 expiredPeriodMonths = 6.0;
@@ -3610,7 +3610,7 @@ namespace FingerprintsData
            
 
         }
-        public string Savemultiscreening(List<Nurse.clients> multiscreenings, string userid, string agencyid)
+        public string Savemultiscreening(List<Nurse.clients> multiscreenings, string userid,string roleId, string agencyid)
         {
 
             try
@@ -3633,6 +3633,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@MissingScreening", dt));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleID", roleId));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.Connection = Connection;
@@ -3920,7 +3921,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString());
                             info.EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Name = dr["name"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["dob"]);
                             info.Gender = dr["gender"].ToString();
                             RosterList.Add(info);
 

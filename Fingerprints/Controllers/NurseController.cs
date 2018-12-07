@@ -1150,7 +1150,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.Savemultiscreening(multiscreenings, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.Savemultiscreening(multiscreenings, Session["UserID"].ToString(), Session["RoleID"].ToString(), Session["AgencyID"].ToString()));
             }
             catch (Exception Ex)
             {

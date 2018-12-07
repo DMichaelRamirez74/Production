@@ -101,6 +101,7 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
+        [CustAuthFilter()]
         public ActionResult ExportData(string question, string programtype)
         {
             try
