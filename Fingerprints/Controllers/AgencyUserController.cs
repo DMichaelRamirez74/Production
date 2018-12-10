@@ -6486,7 +6486,7 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public ActionResult HouseholdDetails(FamilyHouseless homeless)
+        public ActionResult HouseholdDetails(FamilyHouseless homeless, string clientids="", string staffIds="")
         {
             string message = "";
             List<CaseNote> CaseNoteList = new List<CaseNote>();
@@ -6518,7 +6518,7 @@ namespace Fingerprints.Controllers
                 homeless.FamilyHousehold.HImageByte = homeless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(homeless.FamilyHousehold.HFileInString);
             }
 
-         //   message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
+            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
             if (message == "1")
             {
 
@@ -6526,8 +6526,12 @@ namespace Fingerprints.Controllers
                 {
 
                     homeless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(homeless.CaseNoteDetails.CaseNotetags) ? "" : homeless.CaseNoteDetails.CaseNotetags.Substring(0, homeless.CaseNoteDetails.CaseNotetags.Length - 1);
-                    homeless.CaseNoteDetails.ClientIds = (homeless.UsersList.Clientlist != null && homeless.UsersList.Clientlist.Count > 0) ? string.Join(",", homeless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => EncryptDecrypt.Decrypt64(x.Id)).ToArray()) : "";
-                    homeless.CaseNoteDetails.StaffIds = (homeless.UsersList.UserList != null && homeless.UsersList.UserList.Count > 0) ? string.Join(",", homeless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
+                    /*
+                      homeless.CaseNoteDetails.ClientIds = (homeless.UsersList.Clientlist != null && homeless.UsersList.Clientlist.Count > 0) ? string.Join(",", homeless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => EncryptDecrypt.Decrypt64(x.Id)).ToArray()) : "";
+                     homeless.CaseNoteDetails.StaffIds = (homeless.UsersList.UserList != null && homeless.UsersList.UserList.Count > 0) ? string.Join(",", homeless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
+                     */
+                    homeless.CaseNoteDetails.ClientIds = clientids;
+                    homeless.CaseNoteDetails.StaffIds = staffIds;
                     homeless.CaseNoteDetails.HouseHoldId = homeless.FamilyHousehold.HouseholdId.ToString();
                     homeless.CaseNoteDetails.IsLateArrival = false;
                     //homeless.CaseNoteDetails.ClientId = EncryptDecrypt.Decrypt64(homeless.FamilyHousehold.clientIdnew);

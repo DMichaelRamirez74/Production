@@ -14414,7 +14414,8 @@ namespace FingerprintsData
                     {
                         householdDetails.UsersList.Clientlist = _dataset.Tables[1].AsEnumerable().Select(x => new RosterNew.User
                         {
-                            Id = EncryptDecrypt.Encrypt64(x.Field<long>("ClientId").ToString()),
+                           //  Id = EncryptDecrypt.Encrypt64(x.Field<long>("ClientId").ToString()),
+                            Id = x.Field<long>("ClientId").ToString(), //on 06/dec/18 
                             Name = x.Field<string>("Name")
                         }).ToList();
 

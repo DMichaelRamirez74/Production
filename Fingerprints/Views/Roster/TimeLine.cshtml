@@ -1,0 +1,1309 @@
+﻿@{
+    ViewBag.Title = "TimeLine";
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+
+
+   // Layout = "~/Views/Shared/_EventCheckInLayout.cshtml";
+}
+
+
+
+@section MainContentHolder{
+
+
+
+<link href="~/Content/vertical-timeline/css/reset.css" rel="stylesheet" />
+<link href="~/Content/vertical-timeline/css/style.css" rel="stylesheet" />
+@*<link href="https://codyhouse.co/demo/vertical-timeline/css/style.css" rel="stylesheet" />*@
+<link href="~/Content/vertical-timeline/css/demo.css" rel="stylesheet" />
+
+<style type="text/css">
+    .page-wrapper-change {
+        background-image: url(/Images/body-bg.jpg);
+        background-size: cover !important;
+        background-position: 100% 100% !important;
+    }
+
+    .rect-badge {
+    border-radius: 0px;
+    padding: 0px 5px !important;
+    background: #295b8f;
+    margin-right: 5px !important;
+
+    }
+</style>
+
+
+<style type="text/css" title="Vertical Timeline Custom">
+    #Timeline-Style .cd-timeline__img i {
+        display: block;
+        position: relative;
+        left: 50%;
+        top: 50%;
+        margin-left: -14px;
+        margin-top: -17px;
+        font-size: 36px;
+        color: #fff;
+    }
+
+    #Timeline-Style .cd-timeline__date {
+        color: #fff;
+    }
+
+    .client-span {
+        font-weight: bold !important;
+    }
+
+    .centername-span {
+        font-weight: bold !important;
+    }
+
+    .evecdate-span, .ptype-span {
+        font-weight: bold !important;
+    }
+
+    @@media only screen and (min-width: 1170px) {
+        #Timeline-Style .cd-timeline__img {
+            width: 30px;
+            height: 30px;
+            left: 50.8%;
+        }
+
+        #Timeline-Style .cd-timeline__content {
+            padding: 0px;
+        }
+
+        #Timeline-Style .cd-timeline__content {
+            width: 46%;
+        }
+
+        #Timeline-Style .cd-timeline__container::before {
+            margin-left: -8px;
+        }
+        #Timeline-Style .cd-timeline__date {
+            /*width: 7%;*/
+            width: 10%;
+    font-size: 13px;
+        }
+
+    }
+
+    #Timeline-Style .cd-timeline__img i {
+        left: 23%;
+        top: 20%;
+        font-size: 2rem;
+        margin: 0px;
+    }
+
+    #Timeline-Style .cd-timeline__content::before {
+        /*top: 2px;*/
+    }
+   #Timeline-Style  .cd-timeline-header{
+        position: relative;
+       /* background: #d7e4ed;*/
+        border-radius: 0.25em;
+        padding: 1em;
+        cursor:pointer;
+   }
+    #Timeline-Style .cd-timeline__footer {
+        position: relative;
+        background: #d7e4ed;
+        border-radius: 0.25em;
+        padding: 1em;
+        border-radius: 0px;
+    }
+
+    #Timeline-Style .cd-timeline-body {
+      /*  padding: 1.6em;*/
+      padding:0px 1.6em;
+    }
+
+    .parent-stepcheck {
+      /*  max-height: 60px;*/
+    color: #333;
+    background: #fff;
+    padding: 5px;
+    overflow: auto;
+    margin-top:5px;
+        left: 11%;
+    width: 86%;
+    margin-bottom:50px;
+}
+    
+    .step-checkbox-div {
+        display: inline-block;
+            padding: 3px;
+            width:19%;
+
+                text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-x: hidden;
+    }
+
+        .step-checkbox-div input {
+            display: inline-block;
+            position: relative;
+            outline: none;
+            float: left; 
+            margin-right: 10px;
+        }
+
+            .step-checkbox-div input[type="checkbox"]:before {
+                content: "";
+                position: absolute;
+                width: 15px;
+                height: 15px;
+                background-color: #fff;
+                border: 1px solid #174472;
+                left: 0px;
+            }
+
+            .step-checkbox-div input[type="checkbox"]:checked:after {
+                content: "\2713";
+                position: absolute;
+                color: #174472;
+                font-size: 15px;
+                font-weight: 600;
+                border-color: #174472;
+                top: -3px;
+                left: 1px;
+            }
+
+        .step-checkbox-div label {
+            display: inline;
+        }
+    
+
+    #adv-btn {
+        right: 2%;
+    position: relative;
+    }
+    .expandable-body {
+      display:none;
+    }
+    .timeline-pf-pic {
+    
+        position: absolute;
+    top: -40px;
+    border-radius: 500px;
+    left: 83px;
+    height: 80px;
+    width: 80px;
+    box-shadow: 0 0 0 4px white, inset 0 2px 0 rgba(0, 0, 0, 0.08), 0 3px 0 4px rgba(0, 0, 0, 0.05);
+    z-index: 1;
+    }
+        .timeline-pf-pic img {
+            border-radius: 500px;
+    height: 100%;
+    width: 100%;
+        }
+
+    .content-expa-arow {
+        position: absolute;
+        top: 0px;
+    right: 15px;
+    font-size: 26px;
+        color: #6ba8e4;
+    }
+       /* .content-expa-arow.fa-caret-down {
+                top: -8px;
+        }*/
+</style>
+
+<!--title="single-leaf-layout"-->
+<style type="text/css">
+
+
+    #Timeline-Style.single_leaf_layout .cd-timeline__content
+    {
+    /*background:red;*/
+    float:left !important;
+        width: 94%;
+            left: 9%;
+    }
+    #Timeline-Style.single_leaf_layout .cd-timeline__content::before {
+      /*  border-right-color: #fff;
+        border-left-color: transparent;
+       left: -1.5%;
+    right: 0%;*/
+      display:none;
+    }
+
+        #Timeline-Style.single_leaf_layout .cd-timeline.js-cd-timeline
+    {
+    /*margin-left: -77%;*/
+    }
+    #Timeline-Style.single_leaf_layout .cd-timeline__container::before {
+        left: 6%;
+    }
+    #Timeline-Style.single_leaf_layout .cd-timeline__img {
+        left: 6.8%;
+    }
+    #Timeline-Style.single_leaf_layout .cd-timeline__date {
+           left: -15% !important;
+    right: 0px !important;
+    text-align: left !important;
+    }
+     #Timeline-Style.single_leaf_layout .cd-timeline__year
+    {
+        top: -8px!important;left: -14.5%!important;
+    }
+     .treeview-time .timeline-pf-pic{left:0;right:18px;margin:auto!important;}
+     .treeview-time#Timeline-Style .cd-timeline__year{margin-left: 50px!important;}
+     .treeview-time#Timeline-Style .cd-timeline__block:nth-child(even) .cd-timeline__year{margin-right:50px!important;margin-left:0!important;}
+    @@media (min-width: 992px) and (max-width: 1199px) {
+    #Timeline-Style .cd-timeline {overflow: initial;margin: 2em auto;margin-top: 0;}
+        .timeline-pf-pic{left:30px;float: left;top:0;position:relative;}
+        #Timeline-Style .cd-timeline__container {    width: 90%;
+    max-width: 100%;
+    padding-top: 34px;
+    float: left;
+    margin-left: 50px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__content {float: left !important;width: 92%;left: 0px;padding: 0;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__img {left:0px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__container::before {left: 18px;}
+        #Timeline-Style .cd-timeline__content p{height:auto!important;}
+        #Timeline-Style .cd-timeline__content p span{margin-bottom:5px;}
+        .timeline-pf-pic img {
+    border-radius: 500px;
+    height: 80px;
+    width: 80px;
+}
+        .single_leaf_layout{float:left;width:100%;}
+           #Timeline-Style.single_leaf_layout .cd-timeline__date{position:absolute;left: -20% !important;right: 0px !important;text-align: left !important;top: 20px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__year{top: 0px!important;left: -18.5% !important;}
+        #Timeline-Style .cd-timeline__footer{float:left;width:100%;}
+        #Timeline-Style .cd-timeline-header{position:relative;z-index:9;}
+
+    }
+    @@media (min-width: 768px) and (max-width: 991px) {
+ 
+           #Timeline-Style .cd-timeline {overflow: initial;margin: 2em auto;margin-top: 0;}
+        .timeline-pf-pic{left:30px;float: left;top:0;position:relative;}
+        #Timeline-Style .cd-timeline__container {    width: 90%;
+    max-width: 100%;
+    padding-top: 34px;
+    float: left;
+    margin-left: 50px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__content {float: left !important;width: 84%;left: 0px;padding: 0;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__img {left:0px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__container::before {left: 18px;}
+        #Timeline-Style .cd-timeline__content p{height:auto!important;}
+        #Timeline-Style .cd-timeline__content p span{margin-bottom:5px;}
+        .timeline-pf-pic img {
+    border-radius: 500px;
+    height: 80px;
+    width: 80px;
+}
+        .single_leaf_layout{float:left;width:100%;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__date{position:absolute;left: -34% !important;right: 0px !important;text-align: left !important;top: 20px;}
+        #Timeline-Style.single_leaf_layout .cd-timeline__year{top: 0px!important;left: -32.5% !important;}
+        #Timeline-Style .cd-timeline__footer{float:left;width:100%;}
+        #Timeline-Style .cd-timeline-header{position:relative;z-index:9;}
+    }
+</style>
+
+
+<div class="row">
+
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;text-align:center;">
+            @*Story of <span>Jhon Rogess</span> with <span>Little Tites</span>*@
+            Story of <span> @ViewBag.Client.ChildName</span>
+
+
+
+
+        </h2>
+    </div>
+
+    <!--<div class="col-lg-12" style="color:#fff;">
+        TREE View <input type="checkbox" name="treeview" />
+
+    </div> -->
+
+    <div class="col-sm-12">
+
+        <button type="button" class="btn btn-info pull-right" data-toggle="tooltip" title="expand all" id="expand-btn" style="border-radius:0px; margin-right: 25px;">
+            <i class="fa fa-expand"></i>
+        </button>
+
+        <button type="button" class="btn btn-info pull-right" id="adv-btn" style="border-radius:0px;">
+           <i class="fa fa-filter"></i>  Filter</button>
+       
+    </div>
+
+
+    <div class="col-sm-12 parent-stepcheck"  style="display:none">
+        @*<div class="col-sm-12">
+<h4>Advance Search</h4>
+        </div>*@
+            <div class="col-sm-12" style="padding:15px;">
+
+                @if(ViewBag.ActiveSteps.Count > 0){
+                <div class="step-checkbox-div">
+                    <input type="checkbox" name="selectall-step" value="selectall" checked>
+                    <label style="">Select All</label>
+                </div>
+                }
+                @foreach(var item in ViewBag.ActiveSteps){
+
+                <div class="step-checkbox-div">
+                    <input data-type="step-checkbox"  type="checkbox" name="casenote_@item.StepType" value="@item.StepType"
+                            @(item.StepType==10 ? "" : "checked")>
+                    <label style="" data-toggle="tooltip" title="@item.StepName">@item.StepName</label>
+                </div>
+                
+                }
+
+          
+
+            </div>
+            <div class="col-sm-12 text-center">
+                <button type="button" id="search_by_step_btn" style="border-radius:0px;" class="btn btn-success">Search</button>
+                @*<button type="button" id="clear_filter" style="border-radius:0px;" class="btn btn-danger">clear</button>*@
+            </div>
+
+
+        </div>
+
+
+    <div class="col-lg-12">
+
+        <div id="Timeline-Style" class="single_leaf_layout">
+
+            <section class="cd-timeline js-cd-timeline">
+
+            <span class="timeline-pf-pic">
+                @*<img src="http://flatfull.com/themes/angulr/angular/img/a0.jpg" />*@
+                <img src="@(string.IsNullOrEmpty(ViewBag.Client.Profilepic) ? "/Images/prof-image.png" :  "data:image/jpg;base64,"+ ViewBag.Client.Profilepic)" />
+            </span>
+                <div class="cd-timeline__container">
+
+                    
+
+
+                </div>
+            </section> <!-- cd-timeline -->
+
+
+        </div>
+
+    </div>
+
+
+
+</div>
+
+
+<script src="~/Content/underscore-min.js"></script>
+@*<script src="~/Content/vertical-timeline/js/main.js"></script>*@
+
+
+<script type="text/javascript">
+    
+    var _TimeLineScope = {
+        cons: {
+            clientId: "@ViewBag.ClientId",
+            pageSize: 10,
+            Client:@Html.Raw(Json.Encode(ViewBag.Client)),
+            _TLDateFormat:'MMM DD'
+           // _TLDateFormat:'MM/DD/YYYY'
+
+        },
+        filterIds:"",
+        urls: {
+
+            getTimelines: '@Url.Action("GetTimeLine","Roster")'
+        },
+        init: function () {
+            self = this;
+            self.initEvents();
+            self.getTimelineList(1);
+        },
+        initEvents: function () {
+            self = this;
+            $('[data-toggle="tooltip"]').tooltip({container:'body'});
+
+            $(document).on("click","#expand-btn",function(e){
+                e.preventDefault();
+
+                if($("#expand-btn i").hasClass('fa-expand')) //is expand
+                {                                               
+                    $(".expandable-body").slideDown();
+                    $("#expand-btn i").addClass('fa-compress').removeClass('fa-expand');
+                    $("#expand-btn").attr("title","Collapse all");
+                    $(".content-expa-arow").removeClass('fa-angle-down').addClass('fa-angle-up');
+                }else{
+                    $(".expandable-body").slideUp();
+                    $("#expand-btn i").addClass('fa-expand').removeClass('fa-compress');
+                    $("#expand-btn").attr("title","Expand all");
+                    
+                    $(".content-expa-arow").removeClass('fa-angle-up').addClass('fa-angle-down');
+                }
+
+                $('[data-toggle="tooltip"]').tooltip('destroy');
+                setTimeout(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+                },200);
+
+            });
+
+            $(".expandable-body").slideToggle()
+
+
+            $(document).on("change",'[name="selectall-step"]',function(e){
+                e.preventDefault();
+
+                var _allstepCheckbox = $('.parent-stepcheck input[type="checkbox"][name!="selectall-step"]');
+                if(this.checked){ //if select all
+                    _allstepCheckbox.prop("checked",true);
+                }else{ //unselect all
+                    _allstepCheckbox.prop("checked",false);
+                }
+
+            });
+
+            $(document).on("change", '[data-type="step-checkbox"]',function(e){
+                var _slctall=$('[name="selectall-step"]');
+                if($('[data-type="step-checkbox"]').length == $('[data-type="step-checkbox"]:checked').length){ //if all steps checked
+                    _slctall.prop('checked',true);
+                }else{
+                    _slctall.prop('checked',false);
+                }
+
+            });
+
+
+            $(document).on("click","#search_by_step_btn",function(e){
+                e.preventDefault();
+
+                var _stepIds=[];
+                $.each($(".parent-stepcheck input:checked"),function(i,obj){
+                    obj.value = parseInt(obj.value);
+                    
+                    if(!isNaN(obj.value)){
+                        _stepIds.push(obj.value);
+                    }
+                });
+                
+                if(!_stepIds.length){
+
+                    customAlert("Select anyone step from filter");
+                    return false;
+                }
+                self.filterIds = _stepIds.join(',');
+                self.getTimelineList(1);
+
+            });
+
+            //clear_filter
+
+            $(document).on("click","#clear_filter",function(e){
+                e.preventDefault();
+                $.each($(".parent-stepcheck input:checked"),function(i,obj){ obj.checked=false; });
+                self.filterIds='';
+                self.getTimelineList(1);
+            });
+
+            $(document).on("click",".cd-timeline-header", function(){
+                var _eventId=$(this).parents(".main-block").data('id');
+                var _arrowEle = $(".main-block[data-id='"+_eventId+"'] .content-expa-arow");
+
+                    console.log(_eventId);
+                    $(".expandable-body[data-id='"+_eventId+"']").slideToggle();
+                    if(_arrowEle.hasClass('fa-angle-up')){
+                        _arrowEle.removeClass('fa-angle-up').addClass('fa-angle-down');
+                    }else{
+                        _arrowEle.removeClass('fa-angle-down').addClass('fa-angle-up');
+                    }
+            
+            });
+
+            $(document).on("click","#adv-btn",function(e){
+                $(".parent-stepcheck").slideToggle()
+
+
+            });
+
+            $(document).on("change",'[name="treeview"]',function(e){
+                //var _val = $(this).val();
+                if(!$('[name="treeview"]')[0].checked){
+                    $("#Timeline-Style").addClass('single_leaf_layout');
+                }else{
+                    $("#Timeline-Style").removeClass('single_leaf_layout');
+                }
+               // new VerticalTimeline(document.getElementsByClassName("js-cd-timeline")[0])
+
+            });
+
+
+        },
+        getTimelineList: function (pageNo) {
+            self = this;
+
+            $.ajax({
+
+                type: "POST",
+                url: self.urls.getTimelines.concat('?clientid=',self.cons.clientId,'&pagesize=',self.cons.pageSize,'&pageno=',pageNo,'&stepIds=',self.filterIds),
+                beforeSend: function () { $("#spinner").show(); },
+                dataType: 'json',
+                contentType: "application/json;",
+                success: function (data) {
+                    if (data.length) {
+                        self.drawTimeline(data);
+                    }
+                },
+                error: function () {
+
+                },
+                complete:function(res){
+                    $("#spinner").hide();
+                }
+
+            });
+
+        },
+        drawTimeline: function (data) {
+            console.log(data);
+            $(".cd-timeline__container").html('');
+
+            data.forEach(function (obj) {
+
+
+                if(obj.EventBodyJson ==""){obj.EventBodyJson="{}"; }
+                if(obj.EventBodyJson){
+                    var _tmpStr = $("#timeline-card_" + obj.StepType).html();
+                    var _compiledStr = _.template(_tmpStr)({data:obj});
+                    //console.log( compiled({ data: obj }));
+                    $(".cd-timeline__container").append(_compiledStr);
+                }
+
+            });
+
+            // console.log(VerticalTimeline);
+            //force push animation when ajax load
+            //new VerticalTimeline(document.getElementsByClassName("js-cd-timeline")[0])
+
+        },
+        Utilities: {
+
+            getTimelineDate: function (dateStr) {
+                console.log(dateStr);
+
+                var sm = moment(dateStr).format('MMM DD');
+                console.log(sm);
+                return sm;
+            },
+            renderTimelineDate:function(data,jsn){
+
+                var _tmpstr = $("#timeline-date").html();
+                return _.template(_tmpstr)({data:data,jsn:jsn});
+            },
+            renderHeader:function(data,jsn,isDisability,isMentalHealth){
+                var _tmpstr = $("#timeline-header").html();
+                
+                if(isDisability){
+                    if(jsn.YakkrCode=="304" || jsn.YakkrCode=="300" ){
+                        //   data.StepName="Found Disability after accepting the child to the program";
+                        data.StepName="Possible Disability";
+                    }else if(jsn.YakkrCode=="302"){
+                        data.StepName="Qualifying Disability";
+                    }
+                }
+
+                if(isMentalHealth){
+                    data.StepName="Mental Health";
+                }
+
+                return _.template(_tmpstr)({data:data,jsn:jsn});
+            },
+            renderfooter:function(data,jsn)
+            {
+
+                var _tmpstr = $("#timeline-footer").html();
+                return _.template(_tmpstr)({data:data,jsn:jsn});
+            },
+            renderTags:function(data,jsn){
+            
+                console.log(data,jsn);
+                var tagstr="-";
+                if(jsn.hasOwnProperty('TagList') && jsn.TagList.length){
+                    tagstr="";
+
+                    jsn.TagList.forEach(function(obj){
+                        if(obj.TagName && obj.TagKey){
+                            tagstr+='<span data-tagid="'+obj.TagKey+'" class="badge rect-badge">'+obj.TagName+'</span>';
+                        }
+                    });
+
+                };
+
+                return  tagstr;
+            },
+            
+            getAge:function(birthDate, ageAtDate,type){
+
+                var daysInMonth = 30.436875; // Days in a month on average.
+                var dob = new Date(birthDate);
+                var aad;
+                if (!ageAtDate) aad = new Date();
+                else aad = new Date(ageAtDate);
+                var yearAad = aad.getFullYear();
+                var yearDob = dob.getFullYear();
+                var years = yearAad - yearDob; // Get age in years.
+                dob.setFullYear(yearAad); // Set birthday for this year.
+                var aadMillis = aad.getTime();
+                var dobMillis = dob.getTime();
+                if (aadMillis < dobMillis) {
+                    --years;
+                    dob.setFullYear(yearAad - 1); // Set to previous year's birthday
+                    dobMillis = dob.getTime();
+                }
+                var days = (aadMillis - dobMillis) / 86400000;
+                var monthsDec = days / daysInMonth; // Months with remainder.
+                var months = Math.floor(monthsDec); // Remove fraction from month.
+                days = Math.floor(daysInMonth * (monthsDec - months));
+                // return {years: years, months: months, days: days};
+
+                //return years+' Years '+months+ ' Months '+ days +' Days';
+                if(type==1)
+                {
+                    return years+' Years '+months+ ' Months '+ days +' Days';
+                }else{
+                    return {years: years, months: months, days: days};
+                }
+
+            }
+
+
+        }
+
+
+    };
+
+
+    (function ($, window, undefined) {
+        _TimeLineScope.init();
+
+    })(jQuery, window);
+
+
+
+</script>
+
+
+<script type="text/template" id="timeline-date">
+    
+    <span class="cd-timeline__date cd-timeline__year"><%=moment(data.EventCreatedDate).format("YYYY")%></span>
+    <span class="cd-timeline__date">
+    <%=moment(data.EventCreatedDate).format(_TimeLineScope.cons._TLDateFormat)%>
+    </span>
+
+</script>
+
+<script type="text/template" id="timeline-footer">
+
+    <div class="cd-timeline__footer">
+        <%=_TimeLineScope.Utilities.getAge(_TimeLineScope.cons.Client.DOB, data.EventCreatedDate,1)%>
+    </div>
+</script>
+
+<script type="text/template" id="timeline-header">
+    <h2 style="padding-bottom: 10px;"><%=data.StepName%></h2> 
+    <i class="fa fa-angle-down content-expa-arow"></i>
+ </script>
+
+
+    <!--Intake Template id:1-->
+    <script type="text/template" id="timeline-card_1">
+
+
+        <div class="cd-timeline__block js-cd-block main-block" data-id="<%=data.TimeLineId%>">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-user-plus"></i>
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+                <div class="cd-timeline-header">
+                    @*<h2 style="padding-bottom: 10px;"><%=data.StepName%></h2>*@
+                    <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+                </div>
+                <div class="cd-timeline-body">
+
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <p>
+                            <span class="client-span"><%=_TimeLineScope.cons.Client.ChildName %></span> intake as new student
+
+                            <span class="evecdate-span"><%=moment(data.EventCreatedDate).format('MM/DD/YYYY') %></span>
+                        </p>
+                    </div>
+                </div>
+                @*<span class="cd-timeline__date"><%=moment(data.EventCreatedDate).format(_TimeLineScope.cons._TLDateFormat)%></span>*@
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+    <!--Accepted Template id:2-->
+    <script type="text/template" id="timeline-card_2">
+
+        <div class="cd-timeline__block js-cd-block main-block" data-id="<%=data.TimeLineId%>">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-user"></i>
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+                <div class="cd-timeline-header">
+                    <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+                </div>
+                <div class="cd-timeline-body">
+
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <p>
+                            @*<span class="client-span"><%=_TimeLineScope.cons.Client.ChildName %></span> Accepted  as a new student for  <span class="ptype-span"><%=jsn.ProgramType%></span> in
+                            <span class="centername-span"><%= jsn.Center %></span> on
+                            <span class="evecdate-span"><%=moment(data.EventCreatedDate).format('MM/DD/YYYY') %></span>*@
+
+                            <span class="client-span"><%=_TimeLineScope.cons.Client.ChildName %></span> Accepted  as a new student.
+
+                        </p>
+                        <div style="height:20px;">Program Type: <%=jsn.ProgramType%></div>
+                        <div style="height:20px;">Class Room: <%=jsn.ClassRoom%></div>
+                    </div>
+                    @*<span>Age: <%=  _TimeLineScope.Utilities.getAge(_TimeLineScope.cons.Client.DOB, data.EventCreatedDate,1) %></span>*@
+
+                </div>
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+    <!--FirstDay of Service Template id:3-->
+    <script type="text/template" id="timeline-card_3">
+
+        <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-sign-in"></i>
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+
+                <div class="cd-timeline-header">
+                    <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+                </div>
+                <div class="cd-timeline-body">
+
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <% var jsn=JSON.parse(data.EventBodyJson); %>
+                        <p><%=moment(jsn.DateofFirstService).format('MM/DD/YYYY')%></p>
+                    </div>
+                </div>
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+
+    <!--FirstDay of Absent Template id:4-->
+    <script type="text/template" id="timeline-card_4">
+
+        <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-warning"></i>
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+
+                <div class="cd-timeline-header">
+                    <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+                </div>
+                <div class="cd-timeline-body">
+
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <% var jsn=JSON.parse(data.EventBodyJson); %>
+                        <p>Date of first absence : <%= moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>
+                    </div>
+                </div>
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+
+
+    <!--Referral service Template id:5-->
+<script type="text/template" id="timeline-card_5">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-road"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Service: <%=jsn.Service %></p>
+                    <p>Company Name: <%=jsn.CompanyName %></p>
+                    <p><%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+    <!--FPA Template id:6-->
+<script type="text/template" id="timeline-card_6">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-heart"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Goal: <%=jsn.GoalTopic %></p>
+                    <p>Category: <%=jsn.CategoryName %></p>
+                    <p>Date: <%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+    <!--excessive absent   Template id:7-->
+<script type="text/template" id="timeline-card_7">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-dashboard"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    @*<p>Notes: <%=jsn.Notes %></p>
+                    <p>Teacher: <%=jsn.EventRoleName %></p>
+                    <p>Start Time:  <%=jsn.StartTime %>  End Time: <%=jsn.EndTime %></p>*@
+                    <p>Absence Percenatge: <%=jsn.percentage %></p>
+                    <p>Average Percenatge: <%=jsn.Agencypercentage %></p>
+                    
+                  @*<p><%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+    <!--Home Visit Template id:8-->
+<script type="text/template" id="timeline-card_8">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-home"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Notes: <%=jsn.Notes %></p>
+                    <p>Teacher: <%=jsn.EventRoleName %></p>
+                    <p>Start Time:  <%=jsn.StartTime %>  End Time: <%=jsn.EndTime %></p>
+                    @*<p><%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+    <!--Center Visit Template id:9-->
+<script type="text/template" id="timeline-card_9">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-institution"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Notes: <%=jsn.Notes %></p>
+                    <p>Teacher: <%=jsn.EventRoleName %></p>
+                    <p>Start Time:  <%=jsn.StartTime %>  End Time: <%=jsn.EndTime %></p>
+                    @*<p><%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+    <!--CaseNote Template id:10-->
+    <script type="text/template" id="timeline-card_10">
+        <% var self=_TimeLineScope;%>
+        <div class="cd-timeline__block js-cd-block main-block" data-id="<%=data.TimeLineId%>">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-book"></i>
+                @*<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvMTBzeVg8iZEISUsLgNFVas80K_ki0MxaL5m-dD84xgx8DCflbA" alt="Picture">*@
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+                <div class="cd-timeline-header">
+                    <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+                </div>
+                <div class="cd-timeline-body">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <p style="height:20px;">Case Note Date: <%= moment(jsn.CaseNoteDate).format('MM/DD/YYYY') %></p>
+                        <p style="height:20px;">Title: <%= jsn.Title %> </p>
+                        <p style="height:20px;">Written By: <%= jsn.EventRoleName %></p>
+                        <p style="height:20px;">Tags: <%= _TimeLineScope.Utilities.renderTags(data,jsn) %></p>
+                    </div>
+
+                </div>
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+
+
+<!--Date of withdrawn Template id:11-->
+<script type="text/template" id="timeline-card_11">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-chain-broken"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Date of Withdrawn : <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    <p>Created by: <%=jsn.EventRoleName %></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+<!--Date of Dropped Template id:12-->
+<script type="text/template" id="timeline-card_12">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="card_3" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-user"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Date of Dropped : <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    <p>Created by: <%=jsn.EventRoleName %></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+<!--Date of Re-enrollment Template id:13-->
+<script type="text/template" id="timeline-card_13">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-history"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Date of Re-enrolled : <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    <p>Created by: <%=jsn.EventRoleName %></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+<!--Date of Transistion Template id:14-->
+<script type="text/template" id="timeline-card_14">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-history"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <p>Date of Transition: <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    <p>Created by: <%=jsn.EventRoleName %></p>
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+<!--Disability Template id:15-->
+<script type="text/template" id="timeline-card_15">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-wheelchair"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+            <% var jsn=JSON.parse(data.EventBodyJson); %>
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn,true)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                   
+                     <%if(jsn.YakkrCode=='300'){%>
+                    <p>Child has an indicated disability</p>
+                    <%}%>
+                    
+                     <%if(jsn.YakkrCode=='304'){%>
+                    <p>Found Disability after accepting the child to the program</p>
+                    <%}%>
+
+                    <%if(jsn.YakkrCode=='302'){%>
+                    <p>Child has qualifying disability</p>
+                    <%}%>
+
+                    <p>Date: <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    @*<p>Created by: <%=jsn.EventRoleName %></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+<!--Mental Health Template id:16-->
+<script type="text/template" id="timeline-card_16">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-puzzle-piece"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+            <% var jsn=JSON.parse(data.EventBodyJson); %>
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn,false,true)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <%if(jsn.YakkrCode=='310'){%>
+                    <p>Child has suspected mental health issue</p>
+                    <%}else if(jsn.YakkrCode=='311'){%>
+                    <p>Child has documented mental health issue</p>
+                    <%}else{%>
+                    <p>Child doesn’t have a mental health issue</p>
+                    <%}%>
+
+                    <p>Date: <%= moment(data.EventDate,"MMM DD YYYY").format('MM/DD/YYYY')%></p>
+                    @*<p>Created by: <%=jsn.EventRoleName %></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+<!--Change of Address Template id:17-->
+<script type="text/template" id="timeline-card_17">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-credit-card"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+            <% var jsn=JSON.parse(data.EventBodyJson); %>
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <p> New Address: <%=jsn.NewAddress %></p>
+                    <p> Old Address: <%=jsn.OldAddress %></p>
+                   
+                    @*<p>Created by: <%=jsn.EventRoleName %></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+    <!-- Center/Classroom change Template id:18-->
+<script type="text/template" id="timeline-card_18">
+
+    <div class="cd-timeline__block js-cd-block main-block" id="" data-id="<%=data.TimeLineId%>">
+        <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+            <i class="fa fa-credit-card"></i>
+        </div> <!-- cd-timeline__img -->
+        <div class="cd-timeline__content js-cd-content">
+            <% var jsn=JSON.parse(data.EventBodyJson); %>
+            <div class="cd-timeline-header">
+                <%= _TimeLineScope.Utilities.renderHeader(data,jsn)%>
+            </div>
+            <div class="cd-timeline-body">
+
+                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                    <p> New Center: <%=jsn.NewCenter %></p>
+                    <p> New ClassRoom: <%=jsn.NewClassRoom %></p>
+                    </br>
+                    <p> Old Center: <%=jsn.OldCenter %></p>
+                    <p> Old ClassRoom: <%=jsn.OldClassRoom %></p>
+
+                    @*<p>Created by: <%=jsn.EventRoleName %></p>*@
+                </div>
+            </div>
+            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+        </div> <!-- cd-timeline__content -->
+
+    </div> <!-- cd-timeline__block -->
+
+</script>
+
+
+
+    }

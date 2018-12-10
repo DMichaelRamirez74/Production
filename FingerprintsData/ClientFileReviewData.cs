@@ -498,6 +498,7 @@ namespace FingerprintsData
                     {
                       
                         clientProfile.ChildName = dr["ChildName"].ToString();
+                        clientProfile.ChildId =  EncryptDecrypt.Encrypt64( dr["ClientId"].ToString());
                         clientProfile.ChildAge = "(" + dr["ChildYear"].ToString() + "Y  " + dr["ChildMonth"].ToString() + "M " + dr["ChildDay"].ToString()+"Days )";
 
                         clientProfile.DOB = (!string.IsNullOrEmpty(Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy"))) ? (Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy")) : "";

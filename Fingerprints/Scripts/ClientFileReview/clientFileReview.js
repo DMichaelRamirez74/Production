@@ -893,6 +893,7 @@ $(document).ready(function () {
                     $('.profile-content-desc-pic').children('p').html('Open');
                 }
 
+                $("#goto_timeline").prop("href", window.timelineUrl.concat(data[0].ChildId));
                 if (data[0].IsPregnantMother) {
                     $('.child-div').addClass('hidden');
                     $('.preg-div').removeClass('hidden');

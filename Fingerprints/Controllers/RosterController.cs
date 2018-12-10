@@ -2842,5 +2842,109 @@ namespace Fingerprints.Controllers
         }
 
         #endregion CaseNote_Tag_Report
+
+
+        #region TimeLine
+
+        public ActionResult TimeLine(string clientid = "0", bool dev=false)
+        {
+            if (dev) {
+                clientid = EncryptDecrypt.Encrypt64(clientid);
+            }
+
+            long cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientid));
+
+            ViewBag.ClientId = clientid; //id must encrypted
+            var result = RosterData.GetClientDetails(cid);
+            var ActiveSteps = RosterData.GetClientTimeLine(cid, 2,"");
+            ViewBag.Client = result;
+            ViewBag.ActiveSteps = ActiveSteps;
+            return View();
+        }
+
+
+        public ActionResult GetTimeLine(string clientid,string stepIds)
+        {
+
+            long cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientid));
+
+            var result = RosterData.GetClientTimeLine(cid,1,stepIds);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        #endregion TimeLine
+
+
+
+
+        #region Gets Case Note List of Attendance Issue
+
+        [HttpPost]
+        public ActionResult GetAttendanceIssueCaseNoteList(string clientId,int pageSize,int requestedPage)
+        {
+
+            List<CaseNote> caseNoteList = new List<CaseNote>();
+
+            CaseNoteByClientID caseNoteClientId = new CaseNoteByClientID();
+
+            try
+            {
+                caseNoteClientId.PageSize = pageSize;
+                caseNoteClientId.RequestedPage = requestedPage;
+                caseNoteClientId.SkipRows = caseNoteClientId.GetSkipRows();
+
+                RosterData.GetAttendanceIssueCaseNoteList(ref caseNoteClientId,StaffDetails.GetInstance(),clientId);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return PartialView("~/Views/Partialviews/_CaseNoteListPartial.cshtml", caseNoteClientId);
+
+        }
+
+        #endregion
+
+        [HttpPost]
+        [ValidateInput(false)]
+        [CustAuthFilter()]
+        public ActionResult SaveAttendanceIssueCaseNote(RosterNew.CaseNote caseNote,string[] fileInput)
+        {
+
+
+             var files = Request.Files;
+            var keys = files.AllKeys;
+            caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                RosterNew.Attachment aatt = new RosterNew.Attachment();
+                aatt.file = files[i];
+                caseNote.CaseNoteAttachmentList.Add(aatt);
+            }
+
+            caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? "0" : caseNote.CaseNoteid;
+            caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
+            caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
+            caseNote.CenterId = caseNote.CenterId != null && caseNote.CenterId != "" && caseNote.CenterId != "0" ? EncryptDecrypt.Decrypt64(caseNote.CenterId) : "0";
+            caseNote.Classroomid = caseNote.Classroomid != null && caseNote.Classroomid != "" && caseNote.Classroomid != "0" ? EncryptDecrypt.Decrypt64(caseNote.Classroomid) : "0";
+            caseNote.HouseHoldId = caseNote.HouseHoldId != null && caseNote.HouseHoldId != "" && caseNote.HouseHoldId != "0" ? EncryptDecrypt.Decrypt64(caseNote.HouseHoldId) : "0";
+
+            caseNote.CaseNotetags = caseNote.CaseNotetags.Trim(',');
+        
+            string Name = "";
+            List<CaseNote> CaseNoteList = new List<CaseNote>();
+            RosterNew.Users Userlist = new RosterNew.Users();
+
+           string message= RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(),(int)Mode.Others);
+
+            return Json(message,JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }

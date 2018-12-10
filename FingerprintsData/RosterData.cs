@@ -5945,6 +5945,192 @@ namespace FingerprintsData
 
         #endregion CaseNote_Tag_Report
 
+
+        #region TimeLine
+
+
+        public Clientprofile GetClientDetails(long clientid)
+        {
+            var result = new Clientprofile();
+            try
+            {
+
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.CommandText = "select Name=(Firstname+' '+Lastname),DOB=(convert(varchar(10),DOB,101)),ProfilePic from Client where ClientID =" + clientid + "";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        var dr = _dataset.Tables[0].Rows[0];
+                        result.ChildName = dr["Name"].ToString();
+                        result.DOB = dr["DOB"].ToString();
+                        result.Profilepic = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);  
+
+                    }
+                    }
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+            return result;
+                }
+
+        public List<ClientTimeLineModel> GetClientTimeLine(long clientid,int Mode,string stepIds)
+        {
+
+            var result = new List<ClientTimeLineModel>();
+
+            try
+            {
+
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@Mode", Mode));
+                    command.Parameters.Add(new SqlParameter("@Clientid", clientid));
+                    command.Parameters.Add(new SqlParameter("@StepIds", stepIds)); 
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_TimeLineDetails";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if (_dataset != null && _dataset.Tables.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+
+                            if (Mode == 1)
+                            {
+
+                                var row = new ClientTimeLineModel()
+                                {
+                                    TimeLineId = Convert.ToInt64(dr["Id"].ToString()),
+                                    StepType = Convert.ToInt64(dr["StepType"].ToString()),
+                                    StepName = dr["StepName"].ToString(),
+                                    EventBodyJson = dr["EventBodyJson"].ToString(),
+                                    ActiveProgramYear = dr["ActiveProgramYear"].ToString(),
+                                    ClientId = dr["ClientId"].ToString(),
+                                    CreatedDate = dr["CreatedDate"].ToString(),
+                                    EventCreatedDate = dr["EventCreatedDate"].ToString(),
+                                    EventDate = dr["EventDate"].ToString(),
+                                    EventId = dr["EventId"].ToString(),
+                                    EventRole = dr["EventRole"].ToString(),
+                                    EventTime = dr["EventTime"].ToString(),
+                                    ModifiedDate = dr["ModifiedDate"].ToString(),
+                                    Status = dr["Status"].ToString(),
+
+                                };
+                                result.Add(row);
+                            }
+                            else if (Mode == 2) {
+
+                                var row = new ClientTimeLineModel()
+                                {
+                                    StepType = Convert.ToInt64(dr["StepId"].ToString()),
+                                    StepName = dr["StepName"].ToString(),
+                                    Status = dr["Status"].ToString(),
+
+                                };
+                                result.Add(row);
+                            }
+                           
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+
+
+            return result;
+        }
+
+
+        public string GetChildofTheDay()
+        {
+            string _child = "";
+
+            try
+            {
+
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                   // command.Parameters.Add(new SqlParameter("@Clientid", 1));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Role", staff.RoleId));
+                    //command.Parameters.Add(new SqlParameter("@Mode", 3));
+                   
+                   // command.Parameters.Add(new SqlParameter("@StepIds", ""));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_ChildofTheDayDetails";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if (_dataset != null && _dataset.Tables.Count > 0)
+                    {
+
+                        if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                        {
+                            _child = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[0]["ClientId"].ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+
+                        return _child;
+        }
+        #endregion TimeLine
+
+
         #region Case notes for attendance issue
 
      

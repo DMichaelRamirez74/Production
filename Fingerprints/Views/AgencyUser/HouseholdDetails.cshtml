@@ -73,6 +73,32 @@
         $(document).ready(function () {
 
 
+            $(document).on("change", ".client-check", function (e) {
+
+                var _ids = [];
+
+                $.each($(".client-check:checked"), function (ind, obj) {
+                    //console.log(obj);
+                    _ids.push(obj.value);
+
+                });
+                $("#clientids").val(_ids.join(','));
+            });
+
+            $(document).on("change", ".staff-check", function () {
+                var _ids = [];
+
+                $.each($(".staff-check:checked"), function (ind, obj) {
+                    _ids.push(obj.value);
+
+                });
+                $("#staffIds").val(_ids.join(','));
+
+            });
+            
+
+            
+
             if ('@ViewBag.message' != '')
             {
                 customAlert('@ViewBag.message');
@@ -683,7 +709,7 @@
 
         function bindCaseNoteForAddressChange() {
 
-            debugger;
+           // debugger;
             var old_address = $('#old_address').val().trim();
             var old_apartment = $('#old_apartment').val().trim();
             var old_zipcode = $('#old_zipcode').val().trim();
@@ -1798,12 +1824,13 @@
                                                     <div class="col-sm-12 m-tp mt-bmn">
 
                                                         <input type="checkbox" class="client-check" name="UsersList.clientlist[@i].Id" value="@Model.UsersList.Clientlist[i].Id">
+                                                        @*<input type="checkbox" class="client-check" name="UsersList.Clientlist[]Id" value="@Model.UsersList.Clientlist[i].Id">*@
                                                         <span name="UsersList.clientlist[@i].Name">@Model.UsersList.Clientlist[i].Name</span>
                                                     </div>
                                                 }
 
                                             }
-
+                                            <input type="hidden" id="clientids" name="clientids" />
                                         </div>
                                         <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
                                             <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
@@ -1835,7 +1862,7 @@
                                                         }
 
 
-
+                                                        <input type="hidden" id="staffIds" name="staffIds" />
 
                                                     </div>
                                                 </div>

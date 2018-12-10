@@ -1,4 +1,5 @@
-﻿@model FingerprintsModel.ExecutiveDashBoard
+﻿@using FingerprintsModel
+@model FingerprintsModel.ExecutiveDashBoard
 @{
     @section Title{
         Dashboard
@@ -131,6 +132,23 @@
                                                 <li role="presentation" class=""><a href="#" aria-controls="Demo" role="tab" class="tab-pad">Demographic</a></li>
 
                                             }
+                                           
+                                             @{ 
+                                                var timelineRoles = new string[] {
+                                                   EnumHelper.GetEnumDescription(RoleEnum.Executive).ToLowerInvariant(),
+                                                    EnumHelper.GetEnumDescription(RoleEnum.AreaManager).ToLowerInvariant(),
+                                                    EnumHelper.GetEnumDescription(RoleEnum.CenterManager).ToLowerInvariant()
+                                                };
+                                            }
+@if ( timelineRoles.Contains( Session["RoleId"].ToString()) )
+{
+
+    var RandomChild = new FingerprintsData.RosterData().GetChildofTheDay();
+
+                   <li role="presentation" class=""><a target="_blank" href="@Url.Action("Timeline", "Roster")?clientid=@RandomChild" aria-controls="Demo" role="tab" class="tab-pad">Child of the day</a></li>
+}
+
+
                                         </ul>
                                         <!-- Tab panes -->
                                         <div class="tab-content tb-bd col-xs-12">

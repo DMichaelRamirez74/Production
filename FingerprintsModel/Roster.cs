@@ -224,4 +224,32 @@ namespace FingerprintsModel
 
     }
 
+    public class ClientTimeLineModel
+    {
+
+        public long TimeLineId { get; set; }
+        public long StepType { get; set; }
+        public string StepName { get; set; }
+        public string ClientId { get; set; }
+        public string EventId { get; set; }
+
+        public string EventRole { get; set; }
+        public string EventDate { get; set; }
+        public string EventTime { get; set; }
+        public string EventCreatedDate { get; set; }
+        public string Status { get; set; }
+        public string ActiveProgramYear { get; set; }
+        public string EventBodyJson { get; set; }
+        public string CreatedDate { get; set; }
+        public string ModifiedDate { get; set; }
+
+
+
+
+
+
+
+
+    }
+
 }

@@ -80,6 +80,7 @@ namespace FingerprintsModel
     {
         public string ChildName { get; set; }
 
+        public string ChildId { get;set;} //for encrypted id
         public string ChildAge { get; set; }
         public string DOB { get; set; }
         public string BMI { get; set; }
