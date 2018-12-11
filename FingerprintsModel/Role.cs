@@ -72,7 +72,7 @@ namespace FingerprintsModel
         internal const string disabilitiesManager = "047C02FE-B8F1-4A9B-B01F-539D6A238D80";
         internal const string disabilityStaff = "9C34EC8E-2359-4704-BE89-D9F4B7706E82";
         internal const string educationManager = "4B77AAB6-EED1-4AC3-B498-F3E80CF129C0";
-        internal const string erseaManager = "4B77AAB6-EED1-4AC3-B498-F3E80CF129C0";
+        internal const string erseaManager = "B65759BA-4813-4906-9A69-E180156E42FC";
         internal const string executive = "7C2422BA-7BD4-4278-99AF-B694DCAB7367";
         internal const string facilitiesManager = "825F6940-9973-42D2-B821-5B6C7C937BFE";
         internal const string facilityWorker = "CB540CEA-154C-482E-82A6-C1E0A189F611";
