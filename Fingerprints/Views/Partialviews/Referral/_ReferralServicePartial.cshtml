@@ -1,0 +1,373 @@
+﻿@model FingerprintsModel.ReferralServiceModel
+
+
+
+@*ht-scroll div-scroll*@
+
+<div class="col-xs-12 no-padding">
+    <h2 class="page-header">
+        <i class="fa fa-group"></i>
+        <span>Referral Service</span>
+        <span class="view-btn backto_listspan" id="BackToList">
+
+
+            @if (ViewData["ScreeningReferralYakkr"] != null && ViewData["ScreeningReferralYakkr"].ToString() != "" && FingerprintsModel.EncryptDecrypt.Decrypt64(ViewData["ScreeningReferralYakkr"].ToString()) != "0")
+            {
+                <a href="@Url.Content("~/Yakkr/YakkrList?YakkrCode=455")" class="backto_list" style="text-transform:none;">Back to List</a>
+
+            }
+            else
+            {
+                <a href="@Url.Content("~/Roster/Roster")" class="backto_list" style="text-transform:none;">Back to Roster</a>
+
+            }
+
+            <input type="hidden" id="hidden_ref_YakkrCode" value="0" />
+        </span>
+
+    </h2>
+</div>
+
+
+
+<div class="col-xs-12 no-padding" id="div_ref_service_list">
+
+    
+
+
+    @{ 
+        Html.RenderPartial("~/views/Partialviews/Referral/_ReferralServiceListPartial.cshtml",(Model==null)?new FingerprintsModel.ReferralServiceModel():Model);
+    }
+
+</div>
+
+<div class="col-xs-12" id="div_referral_pagination">
+
+
+    @if(Model!=null && Model.referralserviceList!=null && Model.referralserviceList.Count>0)
+    {
+
+
+    <div class="row adddivspace">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 adddivspace pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgridReferral();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 adddivspace">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePageReferral('First'); return false;"></li>
+                    <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePageReferral('Back'); return false;"></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePageReferral('Next'); return false;"></li>
+                    <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePageReferral('Last'); return false;"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    }
+    <div class="refer_serv_btn col-xs-12 no-padding text-center">
+        <span><input type="button" class="btn btn-primary" id="btnRefFamilyNeeds" value="New Request for Family Needs" onclick="location.href='@Url.Action("ReferralCategory", "Roster",new { id = Model._EncClientId, clientName = Model.ClientName, ScreeningReferralYakkr = ViewData["ScreeningReferralYakkr"] })'" /></span>
+        <span><input type="button" class="btn btn-primary" id="btnRefSpecificAgency" value="New Referral to Specific Agency" onclick="location.href='@Url.Action("ReferralCategorycompany", "Roster",new { id = Model._EncClientId, clientName = Model.ClientName, ScreeningReferralYakkr = ViewData["ScreeningReferralYakkr"] })'" /></span>
+
+
+    </div>
+    <div class="col-xs-12 no-padding" style="margin-bottom:50px;">
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    var referral_RequestedPage = 1;
+    var referral_PageSize = 10;
+    var referral_StartIndex = 0;
+    var referral_LastIndex = 0;
+    var referral_NumOfPages = 0;
+    var referral_totalRecords = 0;
+    var referral_mode = 0;
+    var $masterDiv = null;
+    var $refYakkrCode = null;
+
+    $(function () {
+
+        debugger;
+        $('#divPaging').find('#ddlpaging').change(function () {
+            $('#spinner').show();
+            window.setTimeout(function () { getListafterupdationReferral() }, 10);
+        });
+        debugger;
+
+        $refYakkrCode = $('#hidden_ref_YakkrCode').val();
+
+        getTotalRecordReferral($('.span-referral-count').val());
+    });
+
+    function getListafterupdationReferral() {
+
+        referral_PageSize = $('#div_referral_pagination').find('#divPaging').find('#ddlpagetodisplay').val();
+        referral_RequestedPage = $('#div_referral_pagination').find('#divPaging').find('#ddlpaging').val();
+        referral_StartIndex = (referral_PageSize * (referral_RequestedPage - 1)) + 1;
+        referral_LastIndex = parseInt(referral_PageSize * referral_RequestedPage) - parseInt(referral_PageSize);
+
+        referral_mode = 6;
+        $refYakkrCode = $('#hidden_ref_YakkrCode').val();
+        getListReferral(referral_mode, $refYakkrCode);
+
+       
+    }
+
+
+    function getTotalRecordReferral(data) {
+
+        $masterDiv = $('#div_referral_pagination');
+        $masterDiv.find('#divPaging').find('#First').attr('disabled', false);
+        $masterDiv.find('#divPaging').find('#Back').attr('disabled', false);
+        $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+        $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+        referral_PageSize = $masterDiv.find('#ddlpagetodisplay').val();
+        if (data > 0) {
+            referral_totalRecords = parseInt(data);
+            if (referral_totalRecords <= referral_PageSize) {
+                $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+                $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+                $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+                $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+            }
+            referral_NumOfPages = parseInt(referral_totalRecords / referral_PageSize) + ((referral_totalRecords % referral_PageSize == 0) ? 0 : 1);
+            $masterDiv.find('#divPaging').find("#ddlpaging").empty()
+            for (i = 1; i <= referral_NumOfPages; i++) {
+                var newOption = "<option value='" + i + "'>" + i + "</option>";
+                $masterDiv.find('#divPaging').find("#ddlpaging").append(newOption);
+            }
+            $masterDiv.find('#divPaging').find("#ddlpaging").val(referral_RequestedPage);
+        }
+        else {
+            $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+            $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+            $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+            $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+        }
+    }
+
+
+
+
+
+    function GoToNextPageReferral(referral_RequestedPage, referral_PageSize) {
+        $refYakkrCode = $('#hidden_ref_YakkrCode').val();
+        getListReferral(referral_mode, $refYakkrCode);
+        
+    }
+
+
+    function drawgridReferral() {
+        //  referral_RequestedPage = 1;
+        referral_mode = 0;
+        referral_RequestedPage = referral_RequestedPage;
+        $('#spinner').show();
+        setTimeout(function () {
+            $refYakkrCode = $('#hidden_ref_YakkrCode').val();
+            getListReferral(referral_mode, $refYakkrCode);
+          
+            
+        }, 10);
+    }
+
+    function getListReferral(referral_mode, yakkCode) {
+        $masterDiv = $('#div_referral_pagination');
+        referral_RequestedPage = (referral_RequestedPage === 0) ? 1 : referral_RequestedPage;
+        referral_PageSize=  $masterDiv.find('#ddlpagetodisplay').val();
+
+        $('#div_ref_service_list').load('@Url.Action("GetReferralServiceListPartial", "Roster")', { clientId: '@Model._EncClientId', pageSize: referral_PageSize, requestedPage: referral_RequestedPage,yakkrCode:yakkCode }, function (responseTxt, statusTxt, xhr) {
+
+
+            if (statusTxt == 'success')
+            {
+                $('#div_ref_service_list').html(responseTxt);
+                $('#refservriceAttendanceIssueDiv').show();
+            }
+            else {
+                customAlert('Error occurred. Please try again later.');
+            }
+         
+            console.log(status);
+            console.log(xhr);
+           
+
+            switch(referral_mode)
+            {
+                case 1:  //Records per page change//
+
+                    referral_LastIndex = 0;
+                    $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+                    $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+                    break;
+
+                case 2:  //First Page//
+
+                    $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+                    $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+                    $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+                    $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+                    referral_LastIndex = 0;
+                    break;
+
+                case 3: //Last Page//
+
+                    $masterDiv.find('#divPaging').find('#First').attr('disabled', false);
+                    $masterDiv.find('#divPaging').find('#Back').attr('disabled', false);
+                    $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+                    $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+                    break;
+
+
+                case 4: //Next Page//
+
+                    $masterDiv.find('#divPaging').find('#First').attr('disabled', false);
+                    $masterDiv.find('#divPaging').find('#Back').attr('disabled', false);
+                    if (parseInt(referral_LastIndex) + parseInt(referral_PageSize) >= referral_totalRecords) {
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+                    }
+                    else if (parseInt(referral_LastIndex) - parseInt(referral_PageSize) < referral_totalRecords) {
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+                    }
+                    break;
+
+                case 5: //Back
+
+                    if (parseInt(referral_LastIndex) + parseInt(referral_PageSize) > referral_totalRecords) {
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+                    }
+                    else if (parseInt(referral_LastIndex) - parseInt(referral_PageSize) < referral_totalRecords) {
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+                    }
+                    if (referral_RequestedPage == 1) {
+                        $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+                    }
+                    break;
+
+                case 6: // Page number change//
+
+                    if (referral_RequestedPage == 1) {
+                        $masterDiv.find('#divPaging').find('#First').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Back').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+                    }
+                    else if (referral_RequestedPage == referral_NumOfPages) {$masterDiv
+                        $masterDiv.find('#divPaging').find('#First').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Back').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', true);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', true);
+                    }
+                    else {
+                        $masterDiv.find('#divPaging').find('#First').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Back').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Next').attr('disabled', false);
+                        $masterDiv.find('#divPaging').find('#Last').attr('disabled', false);
+                    }
+
+                    $masterDiv.find('#divPaging').find("#ddlpaging").val(referral_RequestedPage);
+                    break;
+
+                default:
+                    break;
+
+            }
+  
+
+            //$('#spinner').hide();
+            //resetEvents();
+            //$('.span-center-count').text($('#recordhide').val());
+
+            getTotalRecordReferral($('.span-referral-count').val());
+            $('#spinner').hide();
+
+        });
+
+    }
+
+    function fnChangePageReferral(val) {
+
+        $('#spinner').show();
+
+        window.setTimeout(function () {
+
+            pageLoadedFirst = false;
+            referral_PageSize = $('#ddlpagetodisplay').val();
+            if (val == 'First') {
+                referral_StartIndex = 0;
+                referral_LastIndex = parseInt(referral_PageSize) + parseInt(referral_LastIndex * referral_RequestedPage);
+                referral_RequestedPage = ((referral_StartIndex / 10) + 1);
+
+                referral_mode = 2; //First
+
+                GoToNextPageReferral(referral_RequestedPage, referral_PageSize,referral_mode);
+              
+            }
+            else if (val == 'Last') {
+                referral_StartIndex = parseInt((referral_totalRecords - 1) / referral_PageSize) * referral_PageSize;
+                referral_LastIndex = referral_totalRecords;
+                referral_RequestedPage = referral_NumOfPages;
+                referral_mode = 3;  //Last
+
+                GoToNextPageReferral(referral_RequestedPage, referral_PageSize, referral_mode);
+                
+            }
+            else if (val == 'Next') {
+                referral_LastIndex = parseInt(referral_PageSize) + parseInt(referral_LastIndex);
+                referral_RequestedPage = (parseInt(referral_LastIndex / referral_PageSize) + 1);
+                referral_mode = 4; //Next
+
+                GoToNextPageReferral(referral_RequestedPage, referral_PageSize,referral_mode);
+               
+            }
+            else if (val == 'Back') {
+                referral_RequestedPage = referral_RequestedPage - 1;
+                referral_LastIndex = parseInt(referral_LastIndex) - parseInt(referral_PageSize);
+
+                referral_mode = 5; //Back
+
+                GoToNextPageReferral(referral_RequestedPage, referral_PageSize, referral_mode);
+
+                
+            }
+            else {
+            }
+
+        }, 10)
+    }
+
+
+
+
+
+   
+
+</script>

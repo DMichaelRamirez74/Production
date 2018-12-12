@@ -44,12 +44,13 @@ namespace Fingerprints.Controllers
         FamilyData familyData = new FamilyData();
         CommunityResourceData communitydata = new CommunityResourceData();
         List<WellBabyExamModel> wellBabyList = new List<WellBabyExamModel>();
+        StaffDetails staff = StaffDetails.GetInstance();
        // [CustAuthFilter()]
         public ActionResult staffRegistration()
         {
             try
             {
-                if (Session["RoleID"] != null && Session["RoleID"].ToString().ToUpper()==Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator].ToString().ToUpper())
+                if (staff.RoleId != null && staff.RoleId.ToString().ToLowerInvariant()==EnumHelper.GetEnumDescription(RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
                     return Redirect("~/login/loginagency");
                 return View();
             }
@@ -116,7 +117,7 @@ namespace Fingerprints.Controllers
                 if (Request.QueryString["id"] != null)
                 {
                     //agencyData.emailVerification(Request.QueryString["id"].ToString());
-                    _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
+                    _staffList = agencyData.GetData_AllDropdown(staff.AgencyId.ToString());
                     List<string> staffinfo = new List<string>();
                         staffinfo=agencyData.getEmail(Request.QueryString["id"].ToString());
                     if (staffinfo.Count>0 && staffinfo[4].ToString() == "True")
@@ -214,7 +215,7 @@ namespace Fingerprints.Controllers
                 ViewBag.IsEndOfYear= string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
 
 
-                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id),null,isEndYear);
+                _staffList = agencyData.GetData_AllDropdown(staff.AgencyId.ToString(), 1, Guid.Parse(id), null, isEndYear);
 
 
             }
@@ -566,8 +567,8 @@ namespace Fingerprints.Controllers
 
             }
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public ActionResult editStaff(string id = "0", string ak="0")
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+        public ActionResult editStaff(string id = "0", string ak = "0")
         {
             AgencyStaff _staffList = null;
             try
@@ -579,7 +580,7 @@ namespace Fingerprints.Controllers
                 ViewBag.IsEndOfYear = ak;
                 bool endYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
 
-                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id),null, endYear);
+                _staffList = agencyData.GetData_AllDropdown(staff.AgencyId.ToString(), 1, Guid.Parse(id), null, endYear);
                 Session["oldemailid"] = _staffList.EmailAddress;
 
             }
@@ -590,9 +591,9 @@ namespace Fingerprints.Controllers
             return View(_staffList);
 
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         [HttpPost]
-        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages, string endOfYear="0")
+        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages, string endOfYear = "0")
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
@@ -925,7 +926,7 @@ namespace Fingerprints.Controllers
             try
             {
                 Export export = new Export();
-                Agencyreport agencyReport = agencyData.agencystaffreoprt(Session["AgencyID"].ToString());
+                Agencyreport agencyReport = agencyData.agencystaffreoprt(staff.AgencyId.ToString());
 
 
                 if (command.Contains("excel"))
@@ -1004,7 +1005,7 @@ namespace Fingerprints.Controllers
             {
                 string totalrecord;
                 int skip = pageSize * (requestedPage - 1);
-                var list = agencyData.getrejectedList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString()).ToList();
+                var list = agencyData.getrejectedList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, staff.AgencyId.ToString()).ToList();
                 return Json(new { list, totalrecord });
             }
             catch (Exception Ex)
@@ -1257,7 +1258,7 @@ namespace Fingerprints.Controllers
                     {
                         ViewBag.message = "Please try again.";
                     }
-                    _staflist = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
+                    _staflist = agencyData.GetData_AllDropdown(staff.AgencyId.ToString());
                     List<string> staffinfo = new List<string>();
                     staffinfo= agencyData.getEmail(Request.QueryString["id"].ToString());
 
@@ -1313,7 +1314,7 @@ namespace Fingerprints.Controllers
             TempData["HouseId"] = id;
             id = EncryptDecrypt.Decrypt64(id);
 
-            FamilyHousehold _familyinfo = familyData.GetData_AllDropdown(id, 0, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString());
+            FamilyHousehold _familyinfo = familyData.GetData_AllDropdown(id, 0, staff.AgencyId.ToString(),staff.UserId.ToString(),staff.RoleId.ToString());
             //FamilyHousehold _centerinfo = familyData.GetCenterData(Session["AgencyID"].ToString(), id);
             if (!string.IsNullOrEmpty(Request.QueryString["returned"]) || Convert.ToString(Request.QueryString["returned"]) == "1")
                 _familyinfo.Returned = Request.QueryString["returned"].ToString();
@@ -1344,7 +1345,7 @@ namespace Fingerprints.Controllers
                 {
                     ViewBag.mode = 1;
                     FamilyHousehold obj = new FamilyHousehold();
-                    obj = familyData.EditFamilyInfo(id, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
+                    obj = familyData.EditFamilyInfo(id, staff.AgencyId.ToString(),staff.UserId.ToString(),staff.RoleId.ToString());
                     Session["Docsstorage"] = obj.docstorage.ToString();
                     //foreach (var item in obj.QualifierRecords)
                     //{
@@ -1957,11 +1958,11 @@ namespace Fingerprints.Controllers
                     #region SaveFamilyDetails
                     string message = string.Empty;
                     if (info.HouseholdId == 0)
-                        message = familyData.addParentInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files,false);
+                        message = familyData.addParentInfo(ref info, 0, (Guid)staff.UserId, ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, staff.RoleId.ToString(), collection, Request.Files, false);
                     else
                     {
-                        message = familyData.addParentInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files,false);
-                        new TransportationData().InsertTransportationyakkrForEnrolledChild(info.ChildId.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                        message = familyData.addParentInfo(ref info, 1, (Guid)staff.UserId, ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, staff.RoleId.ToString(), collection, Request.Files, false);
+                        new TransportationData().InsertTransportationyakkrForEnrolledChild(info.ChildId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString());
                     }
                     _familyinfo = info;
                     Session["Docsstorage"] = _familyinfo.docstorage.ToString();
@@ -2017,12 +2018,12 @@ namespace Fingerprints.Controllers
 
                     ViewBag.tabpage = info.TabId;
                     string message = string.Empty;
-                    message = familyData.AddOthersSummary(info, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                    message = familyData.AddOthersSummary(info,staff.AgencyId.ToString(),staff.UserId.ToString());
 
                     if (info.OthersId == 0)
-                        message = familyData.addOthersInfo(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString(), Session["Roleid"].ToString());
+                        message = familyData.addOthersInfo(info, 0, (Guid)staff.UserId, staff.AgencyId.ToString(), staff.RoleId.ToString());
                     else
-                        message = familyData.addOthersInfo(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString(), Session["Roleid"].ToString());
+                        message = familyData.addOthersInfo(info, 1, (Guid)staff.UserId, staff.AgencyId.ToString(),staff.RoleId.ToString());
                     _familyinfo = info;
                     if (_familyinfo.Income1 == null)
                         _familyinfo.Income1 = GenerateIncomeList();
@@ -2321,7 +2322,10 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter(RoleEnum.BillingManager,RoleEnum.GenesisEarthAdministrator,RoleEnum.DisabilitiesManager,RoleEnum.HealthManager
+            ,RoleEnum.FacilitiesManager,RoleEnum.CenterManager,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse
+            ,RoleEnum.AreaManager,RoleEnum.HomeVisitor,RoleEnum.HRManager,RoleEnum.TransportManager,RoleEnum.Executive
+            ,RoleEnum.FamilyServiceWorker,RoleEnum.ERSEAManager,RoleEnum.EducationManager)]
 
 
         public JsonResult Getchild(string ChildId = "0", string HouseHoldId = "0")
@@ -4529,7 +4533,7 @@ namespace Fingerprints.Controllers
             return View();
         }
         //Changes on 23Dec2017
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.HomeVisitor)]
         public JsonResult listAppointment(string sortOrder, string sortDirection, string search, int pageSize = 0, int requestedPage = 1)
         {
             try

@@ -1,7 +1,17 @@
-﻿$(document).ready(function () {
-    if ($('#referralClientId').val().trim() != "") {
+﻿var $referralCategoryPartial=null;
+var AgencyValue = null;
 
-        var referralclientId = $('#referralClientId').val();
+var result = "";
+var ParentName = "";
+
+$(document).ready(function () {
+
+
+    $referralCategoryPartial = $('#div_referral_category_partial');
+
+    if ($('#referralClientId').val().trim() != "" && $('#referralClientId').val() != '0') {
+
+        var referralclientId =  $referralCategoryPartial.find('#referralClientId').val();
         $.ajax({
 
             url: HostedDir+"/Roster/HouseHoldReferrals",
@@ -11,40 +21,42 @@
                 if (data.length > 0) {
                     for (var i = 0; i < data.length; i++) {
                         var parentId = data[i].Value;
-                        $('input[type=checkbox][value=' + parentId + ']').prop('checked', true)
 
+                            $referralCategoryPartial.find('input[type=checkbox][value=' + parentId + ']').prop('checked', true)
                     }
                 }
             }
         });
     }
+
+
+
+
+$referralCategoryPartial.find('.check').on('click', function (e) {
+
+    $referralCategoryPartial.find('.chk_all').prop('checked', true)
+});
+
+
+$referralCategoryPartial.find('.uncheck').on('click', function (e) {
+
+    $referralCategoryPartial.find('.chk_all').prop('checked', false)
 });
 
 
 
-$('.check').on('click', function (e) {
+$referralCategoryPartial.find('#Save').click(function (e) {
 
-    $('.chk_all').prop('checked', true)
-});
-$('.uncheck').on('click', function (e) {
-
-    $('.chk_all').prop('checked', false)
-});
-
-
-
-$('#Save').click(function (e) {
-
-    var AgencyValue = $('#AgencyId_').val();
+     AgencyValue = $('#AgencyId_').val();
     var ServiceId = "";
-    $(".chk_all").map(function () {
+    $referralCategoryPartial.find(".chk_all").map(function () {
         if ($(this).is(':checked'))
             ServiceId += this.value + ",";
     });
     ServiceId = ServiceId.slice(0, -1);
 
     var ClientId = "";
-    $(".CheckClient").map(function () {
+    $referralCategoryPartial.find(".CheckClient").map(function () {
         if ($(this).is(':checked'))
             ClientId += this.value + ",";
     });
@@ -54,60 +66,63 @@ $('#Save').click(function (e) {
 
     var UniqueClientId = $('#UniqueClientId').val();
 
-    if ($('#ClientID:checked').val() == undefined && ($('.chk_all:checked').val() == undefined)) {
-        $('.validation1').css("display", "inline-block");
-        $('.validation1').text("Select Family Members");
-        $('.validation2').css("display", "inline-block");
-        $('.validation2').text(" Select Referral Members");
-        $('.setfamily').addClass('setcolor');
-        $('.setreferral').addClass('setcolor');
+    if ($referralCategoryPartial.find('.CheckClient:checked').val() == undefined && ($('.chk_all:checked').val() == undefined)) {
+        $referralCategoryPartial.find('.validation1').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation1').text("Select Family Members");
+        $referralCategoryPartial.find('.validation2').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation2').text(" Select Referral Members");
+        $referralCategoryPartial.find('.setfamily').addClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').addClass('setcolor');
 
         $('html,body').animate({
-            scrollTop: $('.setfamily').offset().top
+            scrollTop: $referralCategoryPartial.find('.setfamily').offset().top
         },
       'slow');
 
+        customAlert('Select family member(s)');
+
     }
-    else if ($('#ClientID:checked').val() == undefined) {
-        $('.validation1').css("display", "inline-block");
-        $('.validation1').text("Select Family Members");
-        $('.validation2').hide();
-        $('.setfamily').addClass('setcolor');
-        $('.setreferral').removeClass('setcolor');
+    else if ($referralCategoryPartial.find('.CheckClient:checked').val() == undefined) {
+        $referralCategoryPartial.find('.validation1').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation1').text("Select Family Members");
+        $referralCategoryPartial.find('.validation2').hide();
+        $referralCategoryPartial.find('.setfamily').addClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').removeClass('setcolor');
         $('html,body').animate({
-            scrollTop: $('.setfamily').offset().top
+            scrollTop: $referralCategoryPartial.find('.setfamily').offset().top
         },
   'slow');
 
+        customAlert('Select family member(s)');
     }
-    else if ($('.chk_all:checked').val() == undefined) {
-        $('.validation2').css("display", "inline-block");
-        $('.validation2').text(" Select Referral Members");
-        $('.validation1').hide();
-        $('.setfamily').removeClass('setcolor');
-        $('.setreferral').addClass('setcolor');
+    else if ($referralCategoryPartial.find('.chk_all:checked').val() == undefined) {
+        $referralCategoryPartial.find('.validation2').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation2').text(" Select Referral Members");
+        $referralCategoryPartial.find('.validation1').hide();
+        $referralCategoryPartial.find('.setfamily').removeClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').addClass('setcolor');
 
         $('html,body').animate({
-            scrollTop: $('.setreferral').offset().top
+            scrollTop: $referralCategoryPartial.find('.setreferral').offset().top
         },
   'slow');
-
+        customAlert('Select referral member(s)');
 
     }
 
     else {
-        $('.validation1').hide();
-        $('.validation2').hide();
-        $('.setfamily').removeClass('setcolor');
-        $('.setreferral').removeClass('setcolor');
+        $referralCategoryPartial.find('.validation1').hide();
+        $referralCategoryPartial.find('.validation2').hide();
+        $referralCategoryPartial.find('.setfamily').removeClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').removeClass('setcolor');
         var SaveReferral = {};
         SaveReferral.ServiceId = ServiceId;
         SaveReferral.AgencyId = AgencyValue;
         SaveReferral.CommonClientId = UniqueClientId;
         SaveReferral.HouseHoldId = parseInt(HouseHoldId);
         SaveReferral.ClientId = ClientId;
-        SaveReferral.referralClientId = parseInt($('#referralClientId').val());
-        SaveReferral.ScreeningReferralYakkr = $('#screeningReferralYakkr').val();
+        SaveReferral.referralClientId = parseInt($referralCategoryPartial.find('#referralClientId').val());
+        SaveReferral.ScreeningReferralYakkr = $referralCategoryPartial.find('#referenceYakkrId').val();
   
         $.ajax({
             url: HostedDir+"/Roster/SaveReferralClient",
@@ -116,12 +131,38 @@ $('#Save').click(function (e) {
             beforeSend: function () { $('#spinner').show() },
             success: function (data) {
 
-                $('#spinner').hide();
-                $('#myModal').modal('show');
+               
+
+                if (data)
+                {
+                    customAlert('Record saved successfully');
+
+                    window.setTimeout(function () {
+                        $referralCategoryPartial.find('#Cancel').trigger('click');
+                    }, 1000);
+
+
+
+                }
+
+                else {
+
+                    $('#spinner').hide();
+                    customAlert('Error occurred. Please, try again later');
+                }
+                //$('#myModal').modal('show');
+              
+
+                //window.setTimeout(function () {
+
+
+                //});
+
+               
 
             },
             error: function (data) {
-
+                $('#spinner').hide();
             },
             complete: function (data) {
                 $('#spinner').hide();
@@ -134,52 +175,112 @@ $('#Save').click(function (e) {
 });
 
 
-$("#Matchprovider").click(function (e) {
+$referralCategoryPartial.find("#Matchprovider").click(function (e) {
 
-    var AgencyValue = $('#AgencyId_').val();
-
-    var result = "";
-    $(".chk_all").map(function () {
+     AgencyValue = $referralCategoryPartial.find('#AgencyId_').val();
+     result = "";
+    $referralCategoryPartial.find(".chk_all").map(function () {
         if ($(this).is(':checked'))
             result += this.value + ",";
     });
     result = result.slice(0, -1);
 
 
-    var CommunityId = $('.chk_all:checked').val();
-    $('.parentName').val();
-    var ParentName = $('.CheckClient').attr('parentname');
-    var householdId = $('#HouseHoldId').val();
+    var CommunityId = $referralCategoryPartial.find('.chk_all:checked').val();
+    $referralCategoryPartial.find('.parentName').val();
+     ParentName = $referralCategoryPartial.find('.CheckClient').attr('parentname');
+    var householdId = $referralCategoryPartial.find('#HouseHoldId').val();
 
-    if ($('#ClientID:checked').val() == undefined && ($('.chk_all:checked').val() == undefined)) {
-        $('.validation1').css("display", "inline-block");
-        $('.validation1').text("Select Family Members");
-        $('.validation2').css("display", "inline-block");
-        $('.validation2').text(" Select Referral Members");
-        $('.setfamily').addClass('setcolor');
-        $('.setreferral').addClass('setcolor');
+    if ($referralCategoryPartial.find('.CheckClient:checked').val() == undefined && ($referralCategoryPartial.find('.chk_all:checked').val() == undefined)) {
+        $referralCategoryPartial.find('.validation1').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation1').text("Select Family Members");
+        $referralCategoryPartial.find('.validation2').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation2').text(" Select Referral Members");
+        $referralCategoryPartial.find('.setfamily').addClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').addClass('setcolor');
     }
-    else if ($('#ClientID:checked').val() == undefined) {
-        $('.validation1').css("display", "inline-block");
-        $('.validation1').text("Select Family Members");
-        $('.validation2').hide();
-        $('.setfamily').addClass('setcolor');
-        $('.setreferral').removeClass('setcolor');
+    else if ($referralCategoryPartial.find('.CheckClient:checked').val() == undefined) {
+        $referralCategoryPartial.find('.validation1').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation1').text("Select Family Members");
+        $referralCategoryPartial.find('.validation2').hide();
+        $referralCategoryPartial.find('.setfamily').addClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').removeClass('setcolor');
 
     }
-    else if ($('.chk_all:checked').val() == undefined) {
-        $('.validation2').css("display", "inline-block");
-        $('.validation2').text(" Select Referral Members");
-        $('.validation1').hide();
-        $('.setfamily').removeClass('setcolor');
-        $('.setreferral').addClass('setcolor');
+    else if ($referralCategoryPartial.find('.chk_all:checked').val() == undefined) {
+        $referralCategoryPartial.find('.validation2').css("display", "inline-block");
+        $referralCategoryPartial.find('.validation2').text(" Select Referral Members");
+        $referralCategoryPartial.find('.validation1').hide();
+        $referralCategoryPartial.find('.setfamily').removeClass('setcolor');
+        $referralCategoryPartial.find('.setreferral').addClass('setcolor');
 
     }
     else {
 
-        window.location.href = HostedDir+ "/Roster/MatchProviders?AgencyId=" + AgencyValue + "&CommunityIds=" + result + "&parentName=" + ParentName + "&referralClientId=" + $('#referralClientId').val() + "&clientName=" + $('#clientName').val() + "&id=" + $('#id').val() + "&ScreeningReferralYakkr=" + $('#screeningReferralYakkr').val();
+        if (!isReferralPopup())
+        {
+            window.location.href = HostedDir + "/Roster/MatchProviders?AgencyId=" + AgencyValue + "&CommunityIds=" + result + "&parentName=" + ParentName + "&referralClientId=" + $referralCategoryPartial.find('#referralClientId').val() + "&clientName=" + $referralCategoryPartial.find('#clientName').val() + "&id=" + $referralCategoryPartial.find('#id').val() + "&ScreeningReferralYakkr=" + $referralCategoryPartial.find('#referenceYakkrId').val();
+
+        }
+        else {
+            getMatchProviders(this);
+        }
+
 
 
     }
 
 });
+
+});
+
+
+function isReferralPopup()
+{
+
+    if($('#att-issue-modal').length>0 && $('#att-issue-modal').is(':visible') && $('#refcatagoryattenissuediv').length>0 && $('#refcatagoryattenissuediv').is(':visible'))
+    {
+        
+        return true;
+    }
+    else 
+    {
+        return false;
+    }
+
+}
+
+
+function getMatchProviders(ele) {
+
+    var AgencyValue = $('#AgencyId_').val();
+    $('#refAttendanceIssueDiv').find('#refmathcprovidersattenissuediv').load(HostedDir+"/Roster/GetMatchProvidersPartial", {
+        AgencyId: AgencyValue
+      , CommunityIds: result
+      , parentName: ParentName
+      , referralClientId: $referralCategoryPartial.find('#referralClientId').val()
+      , clientName: $referralCategoryPartial.find('#clientName').val()
+      , id: $referralCategoryPartial.find('#id').val()
+      , ScreeningReferralYakkr: $referralCategoryPartial.find('#referenceYakkrId').val()
+    }, function (responseTxt, statusTxt, xhr) {
+        console.log(responseTxt);
+
+        if (statusTxt == 'success') {
+            $('#refmathcprovidersattenissuediv').html(responseTxt);
+
+            $('#referralserviceSectionDiv').hide();
+            $('#refcatagoryattenissuediv').hide();
+            $('#refmathcprovidersattenissuediv').show();
+            $('#refmathcprovidersattenissuediv').find('#Cancel').attr({ 'onclick': 'getReferralService(this)' });
+
+        }
+        else {
+            customAlert('Error occurred. Please try again later.');
+        }
+
+
+        $('#spinner').hide();
+
+
+    });
+}

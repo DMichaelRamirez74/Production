@@ -1,12 +1,17 @@
-﻿$(document).ready(function () {
+﻿
+var $referralCategoryCompanyPartial = null;
+var _UserAgencyId = null;
 
+$(document).ready(function () {
 
+    $referralCategoryCompanyPartial = $('#div_referral_categorycompany_partial');
+    _UserAgencyId = $referralCategoryCompanyPartial.find('#_userAgencyId').val();
 
     getOrganization();
 
     function getOrganization() {
 
-        var serviceId = 
+        var serviceId =
 
         $("#Org-row").slideDown();
 
@@ -30,7 +35,7 @@
 
     function drawOrganization(data) {
 
-        $("#organization-list").html('');
+        $referralCategoryCompanyPartial.find("#organization-list").html('');
 
         if (data.length == 0) return false;
 
@@ -41,7 +46,7 @@
 
             var _clrCode = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
             var _coutClr = item.CRColorCode == 1 ? '#ffffff' : item.CRColorCode == 2 ? '#333333' : '#ffffff';
-            var _radioStr = '<div class="col-md-6 col-sm-12 col-xs-12" style="padding-left:0px;">'
+            var _radioStr = '<div class="col-md-12 col-sm-12 col-xs-12" style="padding-left:0px;">'
           // var _radioStr = '<div class="" style="padding-bottom:10px;">'
            + '<label title="' + item.CompanyName + '" class="container-radio col-sm-11" style="display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto;max-width:91.6%;">'
            + '' + item.CompanyName + ''
@@ -53,19 +58,22 @@
           + '<span data-index="' + item.CommunityResourceID + '" class="badge show-reviewmodal col-sm-1" style="width:auto;background:' + _clrCode + ';color:' + _coutClr + ';display:' + _badgeDis + ';cursor:pointer;" data-toggle="tooltip" data-placement="right" title="' + item.ReviewCount + ' reviews">' + item.ReviewCount + '</span>'
            + '</div>';
 
-            $("#organization-list").append(_radioStr);
+            $referralCategoryCompanyPartial.find("#organization-list").append(_radioStr);
 
         });
 
 
-        $('[data-toggle="tooltip"]').tooltip();
+        $referralCategoryCompanyPartial.find('[data-toggle="tooltip"]').tooltip();
 
 
     };
 
 
 
-    $(document).on("click", ".show-reviewmodal", function (e) {
+    //$(document).on("click", ".show-reviewmodal", function (e) {
+
+    $referralCategoryCompanyPartial.find('.show-reviewmodal').on('click', function (e) {
+
         var _id = $(this).data('index');
         $('#spinner').show();
         $.ajax({
@@ -93,7 +101,7 @@
 
     function renderReviewList(data) {
 
-        $("#reviewlist-modal .modal-body").html('');
+        $referralCategoryCompanyPartial.find("#reviewlist-modal .modal-body").html('');
 
         if (data.length == 0) return false;
 
@@ -107,8 +115,8 @@
 
         _tblStr += '<tbody></table>';
 
-        $("#reviewlist-modal .modal-body").append(_tblStr);
-        $("#reviewlist-modal").modal("show");
+        $referralCategoryCompanyPartial.find("#reviewlist-modal .modal-body").append(_tblStr);
+        $referralCategoryCompanyPartial.find("#reviewlist-modal").modal("show");
 
     };
 
@@ -126,20 +134,20 @@
 
                 if (data) {
 
-                    $('#spnOrganizationName').html(data.OrganizationName);
-                    $('#SpnCommunityAddress').html(data.Address + ',' + data.City + ', ' + data.State + ',' + data.ZipCode);
-                    $('#SpnCommunityPhone').html(data.Phone);
-                    $('#SpnCommunityEmail').html(data.Email);
+                    $referralCategoryCompanyPartial.find('#spnOrganizationName').html(data.OrganizationName);
+                    $referralCategoryCompanyPartial.find('#SpnCommunityAddress').html(data.Address + ',' + data.City + ', ' + data.State + ',' + data.ZipCode);
+                    $referralCategoryCompanyPartial.find('#SpnCommunityPhone').html(data.Phone);
+                    $referralCategoryCompanyPartial.find('#SpnCommunityEmail').html(data.Email);
                 }
 
                 // var sid = ui.item.id;
                 var sid = _cID;
-                $('#communityId').val(sid);
-                var sidi = $('#communityId').val(sid);
+                $referralCategoryCompanyPartial.find('#communityId').val(sid);
+                var sidi = $referralCategoryCompanyPartial.find('#communityId').val(sid);
                 //store in session
                 //document.valueSelectedForAutocomplete = value
 
-                var AgencyVal = $('#AgencyId_').val();
+                var AgencyVal = $referralCategoryCompanyPartial.find('#AgencyId_').val();
                 var AgencyId = AgencyVal;
 
                 $.ajax({
@@ -151,21 +159,21 @@
                         if (data.length > 0) {
                             if (data.length > 1) {
                                 console.log(data);
-                                $('#FFReferral').addClass('hidden');
-                                $("#FFReferralSelect").html('');
-                                $("#FFReferralSelect").append('<option value=' + 0 + '>' + "Select Referral Type" + '</option>');
+                                $referralCategoryCompanyPartial.find('#FFReferral').addClass('hidden');
+                                $referralCategoryCompanyPartial.find("#FFReferralSelect").html('');
+                                $referralCategoryCompanyPartial.find("#FFReferralSelect").append('<option value=' + 0 + '>' + "Select Referral Type" + '</option>');
                                 for (var i = 0; i < data.length; i++) {
-                                    $("#FFReferralSelect").append('<option value=' + data[i].Value + '>' + data[i].Text + '</option>');
+                                    $referralCategoryCompanyPartial.find("#FFReferralSelect").append('<option value=' + data[i].Value + '>' + data[i].Text + '</option>');
                                 }
-                                $("#FFReferralSelect").removeClass('hidden');
+                                $referralCategoryCompanyPartial.find("#FFReferralSelect").removeClass('hidden');
                             }
                             else {
-                                $("#FFReferralSelect").addClass('hidden');
-                                $('#FFReferral').html('');
-                                $('#FFReferral').html(data[0].Text);
-                                $('#FFReferral').attr('referralId', data[0].Value);
-                                $('#FFReferral').removeClass('hidden');
-                                $('#errnewspan').css('display', 'none');
+                                $referralCategoryCompanyPartial.find("#FFReferralSelect").addClass('hidden');
+                                $referralCategoryCompanyPartial.find('#FFReferral').html('');
+                                $referralCategoryCompanyPartial.find('#FFReferral').html(data[0].Text);
+                                $referralCategoryCompanyPartial.find('#FFReferral').attr('referralId', data[0].Value);
+                                $referralCategoryCompanyPartial.find('#FFReferral').removeClass('hidden');
+                                $referralCategoryCompanyPartial.find('#errnewspan').css('display', 'none');
                             }
                         }
 
@@ -180,7 +188,7 @@
     });
 
 
-    var clientId = $('#clientId_').val();
+    var clientId = $referralCategoryCompanyPartial.find('#clientId_').val();
     var arry = null;
     var flags = 0;
 
@@ -272,57 +280,59 @@
 
     */
 
-    $('#referralServiceSaveMethod').click(function () {
+    $referralCategoryCompanyPartial.find('#referralServiceSaveMethod').click(function () {
 
         var ServiceId = "";
-        $(".chk_all").map(function () {
+        $referralCategoryCompanyPartial.find(".chk_all").map(function () {
             if ($(this).is(':checked'))
                 ServiceId += this.value + ",";
         });
         ServiceId = ServiceId.slice(0, -1);
 
         var ClientId = "";
-        $(".CheckClient").map(function () {
+        $referralCategoryCompanyPartial.find(".CheckClient").map(function () {
             if ($(this).is(':checked'))
                 ClientId += this.value + ",";
         });
 
         ClientId = ClientId.slice(0, -1);
-        var HouseHoldId = $('#HouseHoldId').val();
+        var HouseHoldId = $referralCategoryCompanyPartial.find('#HouseHoldId').val();
 
 
         //  if ($('#ClientID:checked').val() == undefined && ($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
-        if ($('#ClientID:checked').val() == undefined && (!$('[name="Organization"]:checked').val()) && ($('#FFReferralSelect').val() == 0)) {
-           
+        if ($referralCategoryCompanyPartial.find('.CheckClient:checked').val() == undefined && (!$referralCategoryCompanyPartial.find('[name="Organization"]:checked').val()) && ($referralCategoryCompanyPartial.find('#FFReferralSelect').val() == 0)) {
 
-            $('#errshow').css("display", "inline-block");
-            $('#errshow').text("Select Family Members");
-            $('#errspan').css("display", "inline-block");
-            $('#errspan').text("Enter Organization Name");
-            $('#errnewspan').css("display", "inline-block");
-            $('#errnewspan').text("Select Referral Type");
+
+            $referralCategoryCompanyPartial.find('#errshow').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errshow').text("Select Family Members");
+            $referralCategoryCompanyPartial.find('#errspan').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errspan').text("Enter Organization Name");
+            $referralCategoryCompanyPartial.find('#errnewspan').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errnewspan').text("Select Referral Type");
+            customAlert('Mandatory fields are required');
 
             $('html,body').animate({
-                scrollTop: $('#familymembersSpan').offset().top
+                scrollTop: $referralCategoryCompanyPartial.find('#familymembersSpan').offset().top
             },
     'slow');
 
             return false;
         }
 
-        else if ($('#ClientID:checked').val() == undefined) {
-            $('#errshow').css("display", "inline-block");
-            $('#errshow').text("Select Family Members");
+        else if ($referralCategoryCompanyPartial.find('.CheckClient:checked').val() == undefined) {
+            $referralCategoryCompanyPartial.find('#errshow').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errshow').text("Select Family Members");
+            customAlert('Select family members');
 
             $('html,body').animate({
-                scrollTop: $('#familymembersSpan').offset().top
+                scrollTop: $referralCategoryCompanyPartial.find('#familymembersSpan').offset().top
             },
   'slow');
 
             return false;
         }
             // else if ($('#txtSearch').val() == "") {
-        else if(!$('[name="Organization"]:checked').val()){
+        else if (!$referralCategoryCompanyPartial.find('[name="Organization"]:checked').val()) {
             //           $('#errshow').hide();
             //           $('#errspan').css("display", "inline-block");
             //           $('#errspan').text("Enter Organization Name");
@@ -332,67 +342,68 @@
             //           },
             //'slow');
 
-            customAlert("Please Choose Organization");
+            customAlert("Please choose organization");
 
             return false;
         }
-        else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
-            $('#errspan').hide();
-            $('#errnewspan').css("display", "inline-block");
-            $('#errnewspan').text("Select Referral Type");
-
+        else if ($referralCategoryCompanyPartial.find('#FFReferralSelect').is(':visible') && $referralCategoryCompanyPartial.find('#FFReferralSelect').val() == 0) {
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errnewspan').text("Select Referral Type");
+            customAlert('Please select referral type');
             $('html,body').animate({
-                scrollTop: $('#FFReferralSelect').offset().top
+                scrollTop: $referralCategoryCompanyPartial.find('#FFReferralSelect').offset().top
             },
  'slow');
             return false;
         }
-        else if ($('#datepicker').val() == "") {
-            $('#errshow').hide();
-            $('#errspan').hide();
-            $('#errnewspan').hide();
-            $('#errdate').css("display", "inline-block");
-            $('#errdate').text("Please Enter referral date");
-
+        else if ($referralCategoryCompanyPartial.find('#datepicker').val() == "") {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').hide();
+            $referralCategoryCompanyPartial.find('#errdate').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errdate').text("Please Enter referral date");
+            customAlert('Please enter referral date');
 
             $('html,body').animate({
-                scrollTop: $('#datepicker').offset().top
+                scrollTop: $referralCategoryCompanyPartial.find('#datepicker').offset().top
             },
  'slow');
             return false;
         }
-        else if (!isDate($('#datepicker').val().trim())) {
-            $('#errshow').hide();
-            $('#errspan').hide();
-            $('#errnewspan').hide();
-            $('#errdate').css("display", "inline-block");
-            $('#errdate').text("Please Enter Valid date");
+        else if (!isDate($referralCategoryCompanyPartial.find('#datepicker').val().trim())) {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').hide();
+            $referralCategoryCompanyPartial.find('#errdate').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errdate').text("Please Enter Valid date");
+            customAlert('Please enter valid date');
 
             $('html,body').animate({
-                scrollTop: $('#datepicker').offset().top
+                scrollTop: $referralCategoryCompanyPartial.find('#datepicker').offset().top
             },
 'slow');
             return false;
 
         }
 
-        var ReferralDate = $('#datepicker').val().trim();
-        var Description = $('#Description').val().trim();
+        var ReferralDate = $referralCategoryCompanyPartial.find('#datepicker').val().trim();
+        var Description = $referralCategoryCompanyPartial.find('#Description').val().trim();
         var ref = null;
-        var commId = $('#communityId').val();
-        var AgencyId = $('#AgencyId_').val();
+        var commId = $referralCategoryCompanyPartial.find('#communityId').val();
+        var AgencyId = $referralCategoryCompanyPartial.find('#AgencyId_').val();
 
-        if ($('#FFReferralSelect').hasClass('hidden') || !$('#FFReferralSelect').is(':visible')) {
+        if ($referralCategoryCompanyPartial.find('#FFReferralSelect').hasClass('hidden') || !$referralCategoryCompanyPartial.find('#FFReferralSelect').is(':visible')) {
 
-            ServiceResourceId = $('#FFReferral').attr('referralId');
+            ServiceResourceId = $referralCategoryCompanyPartial.find('#FFReferral').attr('referralId');
         }
         else {
-            ServiceResourceId = $('#FFReferralSelect').val();
+            ServiceResourceId = $referralCategoryCompanyPartial.find('#FFReferralSelect').val();
         }
 
         var ReferralClientServiceId = 0;
 
-        var path = $('#MyURL').val();
+        var path = $referralCategoryCompanyPartial.find('#MyURL').val();
 
         var AddReferral = {};
         AddReferral.ReferralDate = ReferralDate;
@@ -403,82 +414,113 @@
         AddReferral.ReferralClientServiceId = parseInt(ReferralClientServiceId);
         AddReferral.ClientId = ClientId;
         AddReferral.HouseHoldId = parseInt(HouseHoldId);
-        AddReferral.ScreeningReferralYakkr = $('#ScreeningReferralYakkr').val();
-
+        AddReferral.ScreeningReferralYakkr = $referralCategoryCompanyPartial.find('#referralYakkrId').val();
+        AddReferral.CommonClientId = $referralCategoryCompanyPartial.find('#_encClientId').val();
         $.ajax({
-            url: HostedDir+"/Roster/SaveReferral",
+            url: HostedDir + "/Roster/SaveReferral",
             type: "POST",
             data: AddReferral,
             success: function (data) {
                 if (data = true) {
-                    //  window.location.href = "@Url.Action("ReferralService", "Roster", new { id = ViewBag.Id, clientName = ViewBag.ClientName })";
-                    window.location.href = path;
+
+                    customAlert('Record saved successfully');
+
+                    if (isReferralCateogryCompanyPopup())
+                    {
+                        window.setTimeout(function () {
+                            $referralCategoryCompanyPartial.find('#Cancel').trigger('click');
+
+                        }, 1000);
+                    }
+                    else
+                    {
+
+                        //  window.location.href = "@Url.Action("ReferralService", "Roster", new { id = ViewBag.Id, clientName = ViewBag.ClientName })";
+                        window.location.href = path;
+
+                    }
+
                 }
+
+                else {
+
+                    customAlert('Error occurred. Please, try again later.');
+                }
+
+            },
+            error:function(data)
+            {
+                
             }
+
+
+
+
+            
         });
 
     })
 
 
-    $('#btnpdf').on('click', function () {
+    $referralCategoryCompanyPartial.find('#btnpdf').on('click', function () {
 
-
-        if ($('.CheckClient:checked').length === 0) {
-            $('#errshow').css("display", "inline-block");
-            $('#errshow').text("Select Family Members");
+        debugger;
+        if ($referralCategoryCompanyPartial.find('.CheckClient:checked').length === 0) {
+            $referralCategoryCompanyPartial.find('#errshow').css("display", "inline-block");
+            $referralCategoryCompanyPartial.find('#errshow').text("Select Family Members");
             return false;
         }
 
 
-        // else if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
-        else if (!$('[name="Organization"]:checked').val() && ($('#FFReferralSelect').val() == 0)) {
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errspan').css("display", "inline");
-            $('#errspan').text("Enter Organization Name");
-            $('#errnewspan').css("display", "inline");
-            $('#errnewspan').text("Select Referral Type");
+            // else if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+        else if (!$referralCategoryCompanyPartial.find('[name="Organization"]:checked').val() && ($referralCategoryCompanyPartial.find('#FFReferralSelect').val() == 0)) {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errspan').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errspan').text("Enter Organization Name");
+            $referralCategoryCompanyPartial.find('#errnewspan').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errnewspan').text("Select Referral Type");
             return false;
         }
-        //else if ($('#txtSearch').val() == "") {
-        else if (!$('[name="Organization"]:checked').val()) {
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errspan').css("display", "inline");
-            $('#errspan').text("Enter Organization Name");
+            //else if ($('#txtSearch').val() == "") {
+        else if (!$referralCategoryCompanyPartial.find('[name="Organization"]:checked').val()) {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errspan').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errspan').text("Enter Organization Name");
             //$('#referralError').html('Please select organization name');
             //$('#referralCompanyModal').modal('show');
             return false;
         }
             //else if ($('#FFReferral').hasClass('hidden')) {
-        else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errspan').hide();
-            $('#errnewspan').css("display", "inline");
-            $('#errnewspan').text("Select Referral Type");
+        else if ($referralCategoryCompanyPartial.find('#FFReferralSelect').is(':visible') && $referralCategoryCompanyPartial.find('#FFReferralSelect').val() == 0) {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errnewspan').text("Select Referral Type");
             //$('#referralCompanyModal').modal('show');
             return false;
         }
             //    }
-        else if ($('#datepicker').val() == "") {
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errspan').hide();
-            $('#errnewspan').hide();
-            $('#errdate').css("display", "inline");
-            $('#errdate').text("Please Enter referral date");
+        else if ($referralCategoryCompanyPartial.find('#datepicker').val() == "") {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').hide();
+            $referralCategoryCompanyPartial.find('#errdate').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errdate').text("Please Enter referral date");
             // $('#referralCompanyModal').modal('show');
             return false;
         }
 
-        else if (!isDate($('#datepicker').val())) {
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errspan').hide();
-            $('#errnewspan').hide();
-            $('#errdate').css("display", "inline");
-            $('#errdate').text("Please Enter Valid date");
+        else if (!isDate($referralCategoryCompanyPartial.find('#datepicker').val())) {
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').hide();
+            $referralCategoryCompanyPartial.find('#errdate').css("display", "inline");
+            $referralCategoryCompanyPartial.find('#errdate').text("Please Enter Valid date");
             return false;
         }
 
@@ -487,29 +529,29 @@
 
 
 
-            $('#errshow').hide();
-            $('#errshow').text("");
-            $('#errnewspan').hide();
-            $('#errnewspan').text("");
-            $('#errdate').hide();
-            $('#errdate').text("");
-            $('#errspan').hide();
-            $('#errspan').text("");
-            var CommunityId = $('#communityId').val();
+            $referralCategoryCompanyPartial.find('#errshow').hide();
+            $referralCategoryCompanyPartial.find('#errshow').text("");
+            $referralCategoryCompanyPartial.find('#errnewspan').hide();
+            $referralCategoryCompanyPartial.find('#errnewspan').text("");
+            $referralCategoryCompanyPartial.find('#errdate').hide();
+            $referralCategoryCompanyPartial.find('#errdate').text("");
+            $referralCategoryCompanyPartial.find('#errspan').hide();
+            $referralCategoryCompanyPartial.find('#errspan').text("");
+            var CommunityId = $referralCategoryCompanyPartial.find('#communityId').val();
             var referrlId = null;
-            if ($('#FFReferralSelect').hasClass('hidden') || !$('#FFReferralSelect').is(':visible')) {
-                referrlId = $('#FFReferral').attr('referralId');
+            if ($referralCategoryCompanyPartial.find('#FFReferralSelect').hasClass('hidden') || !$referralCategoryCompanyPartial.find('#FFReferralSelect').is(':visible')) {
+                referrlId = $referralCategoryCompanyPartial.find('#FFReferral').attr('referralId');
             }
             else {
-                referrlId = $('#FFReferralSelect').val();
+                referrlId = $referralCategoryCompanyPartial.find('#FFReferralSelect').val();
             }
 
-        var ServiceIdPDF = $('#ReferralId').val();
-        var AgencyId = $('#AgencyId_').val();
-        var clientId = $('#encryptId').val();
-        var notes = $('#Description').val().trim();
-        var referraldate = $('#datepicker').val();
-        window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + referrlId + "&AgencyID=" + AgencyId + "&ClientID=" + clientId + "&CommunityID=" + CommunityId + "&Notes=" + notes + "&referralDate=" + referraldate;
+            var ServiceIdPDF = $referralCategoryCompanyPartial.find('#ReferralId').val();
+            var AgencyId = $referralCategoryCompanyPartial.find('#AgencyId_').val();
+            var clientId = $referralCategoryCompanyPartial.find('#encryptId').val();
+            var notes = $referralCategoryCompanyPartial.find('#Description').val().trim();
+            var referraldate = $referralCategoryCompanyPartial.find('#datepicker').val();
+            window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + referrlId + "&AgencyID=" + AgencyId + "&ClientID=" + clientId + "&CommunityID=" + CommunityId + "&Notes=" + notes + "&referralDate=" + referraldate;
         }
 
 
@@ -518,55 +560,57 @@
 
 
 
-    $('#btnpdf').on('click', function () {
+    //$referralCategoryCompanyPartial.find('#btnpdf').on('click', function () {
 
-        //if ($('#ClientID:checked').val() == undefined) {
-        //    $('#referralError').html('Please select family memeber');
-        //    $('#referralCompanyModal').modal('show');
-        //    return false;
-        //}
+    //    //if ($('#ClientID:checked').val() == undefined) {
+    //    //    $('#referralError').html('Please select family memeber');
+    //    //    $('#referralCompanyModal').modal('show');
+    //    //    return false;
+    //    //}
 
-        // if ($('#txtSearch').val() == "") {
-        if (!$('[name="Organization"]:checked').val()) {
-            $('#referralError').html('Please select organization name');
-            // $('#referralCompanyModal').modal('show');
-            return false;
-        }
+    //    // if ($('#txtSearch').val() == "") {
+    //    if (!$referralCategoryCompanyPartial.find('[name="Organization"]:checked').val()) {
+    //        $referralCategoryCompanyPartial.find('#referralError').html('Please select organization name');
+    //        // $('#referralCompanyModal').modal('show');
+    //        return false;
+    //    }
 
-        if ($('#FFReferral').hasClass('hidden')) {
-            if ($('#FFReferralSelect').val() == 0) {
-                $('#referralError').html('Please select referral type');
-                //  $('#referralCompanyModal').modal('show');
-                return false;
-            }
-        }
-        if ($('#datepicker').val() == "") {
-            $('#referralError').html('Please select referral date');
-            // $('#referralCompanyModal').modal('show');
-            return false;
-        }
-        else if (!isDate($('#datepicker').val())) {
-            $('#errdate').css("display", "inline");
-            $('#errdate').text("Please Enter Valid date");
-            return false;
-        }
+    //    if ($referralCategoryCompanyPartial.find('#FFReferral').hasClass('hidden')) {
+    //        if ($referralCategoryCompanyPartial.find('#FFReferralSelect').val() == 0) {
+    //            $referralCategoryCompanyPartial.find('#referralError').html('Please select referral type');
+    //            //  $('#referralCompanyModal').modal('show');
+    //            return false;
+    //        }
+    //    }
+    //    if ($referralCategoryCompanyPartial.find('#datepicker').val() == "") {
+    //        $referralCategoryCompanyPartial.find('#referralError').html('Please select referral date');
+    //        // $('#referralCompanyModal').modal('show');
+    //        return false;
+    //    }
+    //    else if (!isDate($referralCategoryCompanyPartial.find('#datepicker').val())) {
+    //        $referralCategoryCompanyPartial.find('#errdate').css("display", "inline");
+    //        $referralCategoryCompanyPartial.find('#errdate').text("Please Enter Valid date");
+    //        return false;
+    //    }
 
-        var CommunityId = $('#communityId').val();
-        var referrlId = null;
-        if ($('#FFReferralSelect').hasClass('hidden')) {
-            referrlId = $('#FFReferral').attr('referralId');
-        }
-        else {
-            referrlId = $('#FFReferralSelect').val();
-        }
+    //    var CommunityId = $referralCategoryCompanyPartial.find('#communityId').val();
+    //    var referrlId = null;
+    //    if ($referralCategoryCompanyPartial.find('#FFReferralSelect').hasClass('hidden')) {
+    //        referrlId = $referralCategoryCompanyPartial.find('#FFReferral').attr('referralId');
+    //    }
+    //    else {
+    //        referrlId = $referralCategoryCompanyPartial.find('#FFReferralSelect').val();
+    //    }
 
-        var ServiceIdPDF = $('#ReferralId').val();
-        var AgencyId = $('#AgencyId_').val();
-        var clientId = $('#encryptId').val();
-        var notes = $('#Description').val().trim();
-        var referraldate = $('#datepicker').val();
-        window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + referrlId + "&AgencyID=" + AgencyId + "&ClientID=" + clientId + "&CommunityID=" + CommunityId + "&Notes=" + notes + "&referralDate=" + referraldate;
-    });
+    //    var ServiceIdPDF = $referralCategoryCompanyPartial.find('#ReferralId').val();
+    //    var AgencyId = $referralCategoryCompanyPartial.find('#AgencyId_').val();
+    //    var clientId = $referralCategoryCompanyPartial.find('#encryptId').val();
+    //    var notes = $referralCategoryCompanyPartial.find('#Description').val().trim();
+    //    var referraldate = $referralCategoryCompanyPartial.find('#datepicker').val();
+    //    window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + referrlId + "&AgencyID=" + AgencyId + "&ClientID=" + clientId + "&CommunityID=" + CommunityId + "&Notes=" + notes + "&referralDate=" + referraldate;
+    //});
+
+
 
     var Convdate1 = new Date();
     var convmonth1 = Convdate1.getMonth() + 1;
@@ -680,4 +724,48 @@
     }
 
 
-})
+    function isReferralCateogryCompanyPopup() {
+
+        if ($('#att-issue-modal').length > 0 && $('#att-issue-modal').is(':visible') && $('#refcatagorycompanyattenissuediv').length > 0 && $('#refcatagorycompanyattenissuediv').is(':visible')) {
+
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+
+    //review list modal
+    $(document).on("click", ".show-reviewmodal", function (e) {
+        var _id = $(this).data('index');
+        $('#spinner').show();
+        $.ajax({
+            url: "/Roster/GetReviewList?id=" + _id,
+            type: "GET",
+            //type: "POST",
+            //data: { id: _id},
+            success: function (data) {
+                // drawOrganization(data);
+                $('#spinner').hide();
+                renderReviewList(data);
+
+            }, fail: function (res) {
+
+            },
+            complete: function (res) {
+                $('#spinner').hide();
+            }
+        });
+
+
+
+
+    });
+
+
+
+
+
+});

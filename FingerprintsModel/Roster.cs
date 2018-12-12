@@ -88,7 +88,7 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
 
     }
-    public class REF
+    public class REF :ReferralList
     {
         public int? ServiceID { get; set; }
         public long? ClientID { get; set; }
@@ -115,13 +115,15 @@ namespace FingerprintsModel
         public List<REF> refListData { get; set; }
 
         public long? ReferralClientServiceId { get; set; }
-        public int? Step { get; set; }
+        //public int? Step { get; set; }
         public long? CommunityId { get; set; }
         public string OrganizationName { get; set; }
         public List<MatchProviderModel> MPMList { get; set; }
         public List<SelectListItem> OrganizationList { get; set; }
 
         public List<ServiceReferences> ServiceRefernceList { get; set; }
+
+      
     }
 
     public class REF_ParentList
@@ -138,7 +140,7 @@ namespace FingerprintsModel
 
         public int  ServiceId { get; set; }
     }
- public class ListRoster
+ public class ListRoster 
     {
         public string id { get; set; }
         public string ServiceId { get; set; }
@@ -147,17 +149,17 @@ namespace FingerprintsModel
         public string HouseHoldId { get; set; }
         public string ClientId { get; set; }
         public long referralClientId { get; set; }
-      //  public long? ReferralClientId { get; set; }
-      //  public int? Step { get; set; }
-        public string clientName { get; set; }
-        public string parentName { get; set; }
+        // public long? ReferralClientId { get; set; }
+         public int? Step { get; set; }
+       public string clientName { get; set; }
+       public string parentName { get; set; }
         public string ReferralDate { get; set; }
         public string Description { get; set; }
         public int ServiceResourceId { get; set; }
         public long CommunityId { get; set; }
-        public string CommunityIds { get; set; }
+       // public string CommunityIds { get; set; }
         public long ReferralClientServiceId { get; set; }
-        public string ScreeningReferralYakkr { get; set; }
+       public string ScreeningReferralYakkr { get; set; }
     }
     public class ReferralList
     {
