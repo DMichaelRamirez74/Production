@@ -1,329 +1,33 @@
 ﻿@model FingerprintsModel.REF
 
 @{
-    ViewBag.Title = "ReferralCategory";
+    ViewBag.Title = "Referral Category";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    int count = 1;
-    int HouseHoldflag = 0;
-    int Des_Count = 1;
+   
 
 }
 
+@section Title
+{
+    Referral Category
+    }
+
 
 @section MainContentHolder{
-    <style>
-        .servies_lst h2 {
-            padding: 10px 0;
-            color: #295b8f;
-            font-size: 30px !important;
-            text-transform: capitalize !important;
-            margin-top: 33px;
-            font-weight: normal;
-            border-bottom: 1px solid #295b8f;
-            font-family: arial,sans-serif !important;
-        }
-
-        .check_btn {
-            width: 100%;
-            float: left;
-            margin-bottom: 10px;
-        }
-
-        a:hover {
-            text-decoration: none !important;
-        }
-
-        input:focus {
-            outline: none !important;
-        }
-
-        .check_btn a {
-            background: #295b8f;
-            padding: 6px;
-            margin: 5px;
-            color: #fff;
-            border-radius: 0;
-            float: left;
-            padding: 15px 12px;
-            text-align: center;
-            font-family: arial,sans-serif;
-        }
-
-        .servies_lst ul {
-            list-style-type: none;
-            padding-left: 0px;
-        }
-
-        .servies_lst h3 {
-            margin: 10px 2px;
-            text-align: left;
-            font-size: 15px;
-            float: left;
-            color: #295b8f;
-            width: 100%;
-            font-weight: bold;
-            font-family: arial,sans-serif;
-        }
-
-        .servies_lst ul li {
-            padding-bottom: 10px;
-            color: #000;
-            padding-left: 20px;
-            font-family: arial,sans-serif;
-        }
-
-            .servies_lst ul li input[type="checkbox"] {
-                padding: 12px;
-                position: relative;
-                right: 5px;
-                top: 2px;
-            }
-
-        .check_btn input[type="button"] {
-            background: #295b8f;
-            padding: 6px;
-            margin: 5px 5px 60px 0px;
-            color: #fff;
-            border-radius: 0;
-            padding: 17px 13px;
-            /* width: 120px; */
-            float: inherit;
-            /* height: 35px; */
-            text-align: center;
-            /* line-height: 23px; */
-            cursor: pointer;
-            border: 0px;
-        }
-
-        body .footer-one {
-            position: fixed !important;
-        }
-
-        .name_lst {
-            width: 100%;
-            margin: auto;
-        }
-
-            .name_lst span {
-                float: left;
-                width: 100%;
-                line-height: 26px;
-            }
-
-            .name_lst input[type="checkbox"] {
-                margin: 0 8px;
-            }
-
-        .text-heading {
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: #295b8f;
-            font-weight: bold;
-            font-family: arial,sans-serif;
-        }
-
-        .margin-lft {
-            margin-left: 20px;
-        }
-
-        .no-padding {
-            padding: 0;
-        }
-
-        .bdr-btm {
-            padding-bottom: 15px;
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            background: #fff;
-            border-radius: 5px;
-            padding: 15px;
-        }
-
-        .text-heading-change {
-            display: block;
-            width: 100%;
-            margin-top: 14px;
-            margin-bottom: 18px;
-            font-family: arial,sans-serif;
-        }
-
-        .error {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            color: #a94442;
-            background-color: #f2dede;
-            border-color: transparent;
-            width: 219px;
-            padding: 0px;
-            position: relative;
-        }
-
-            .error:before {
-                position: absolute;
-                width: 0;
-                height: 0;
-                border-color: transparent;
-                border-style: solid;
-                top: 50%;
-                left: -7px;
-                margin-top: -6px;
-                content: "";
-                border-width: 6px 6px 6px 0;
-                border-right-color: #f2dede;
-            }
-
-        .setcolor {
-            border-color: red;
-        }
-    </style>
+    
 
 
     <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 servies_lst">
-        <h2>family members and Referral Type</h2>
-        <div class="col-xs-12 no-padding bdr-btm setfamily">
-            <div class="name_lst">
-
-
-                <input type="hidden" value="@ViewBag.UniqueClientId" id="UniqueClientId" />
-                <input type="hidden" value="@ViewBag.ReferalClientId" id="referralClientId" />
-                <input type="hidden" value="@ViewBag.ClientName" id="clientName" />
-                <input type="hidden" value="@ViewBag.Id" id="id" />
-                <input type="hidden" value="@ViewBag.ParentName" id="parentName" />
-                <input type="hidden" value="@ViewBag.ScreeningReferralYakkr" id="screeningReferralYakkr" />
-
-                @{ int i = 0;}
-                @if (Model.refListData != null && Model.refListData.Count > 0)
-                {
-                    <span class="text-heading" style="display:inline-block;width:auto;float:left;">
-                        Family Members
-                    </span>
-                    <span class="validation1 error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
-                    </span>
-
-                    <div class="col-xs-12 no-padding well" style="padding:10px;margin-bottom:10px;">
-                        <label class="col-lg-2 no-padding" style="color:#295b8f">Parent/Guardian:</label>
-                        <span class="col-lg-11 no-padding" style="width:auto;">
-                            @foreach (var item in Model.refListData)
-                            {
-                                if (i == 0)
-                                {
-                                    <input type="hidden" id="AgencyId_" value="@item.AgencyID" name="" />
-                                    <input type="hidden" id="HouseHoldId" value="@item.HouseHoldId" name="" />
-                                    i++;
-                                }
-                                if (item.IsFamilyCheckStatus == true)
-                                {
-                                    if (item.IsFamily == true)
-                                    {
-                                        if (item.Step == 2)
-                                        {
-                            {
-                                <span><input type="checkbox" parentname="@item.ParentName" class="CheckClient" value="@item.ClientID" id="ClientID" style="margin-left:0;" />@item.ParentName</span>
-                                }
-
-                            }
-                            else
-                            {
-                                <span><input type="checkbox" parentname="@item.ParentName" class="CheckClient" value="@item.ClientID" id="ClientID" style="margin-left:0;" />@item.ParentName</span>
-                                        }
-
-
-                                    }
-                                }
-
-                            }
-                        </span>
-                    </div>
-                    <div class="col-xs-12 well no-padding well"  style="margin-bottom:10px;padding:10px;">
-                        <label class="col-lg-2 no-padding" style="color:#295b8f">Client:</label>
-                        <span class="col-lg-11 no-padding" style="width:auto;">
-                            @foreach (var Item in Model.refListData)
-                            {
-                                if (Item.IsFamilyCheckStatus == true)
-                                {
-                                    if (Item.IsFamily == false && Item.IsClient==true)
-                                    {
-                                        <span><input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName</span>
-                                    }
-                                }
-                            }
-                        </span>
-                    </div>
-
-                    <div class="col-xs-12 no-padding well"  style="margin-bottom:10px;padding:10px;">
-                        <label class="col-lg-2 no-padding" style="color:#295b8f">Others in Household:</label>
-                        <span class="col-lg-11 no-padding" style="width:auto;">
-                            @foreach (var Item in Model.refListData)
-                            {
-                                if (Item.IsFamilyCheckStatus == true)
-                                {
-                                    if (Item.IsFamily == false && Item.IsClient == false)
-                                    {
-                                        <span><input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName</span>
-                                    }
-                                }
-                            }
-                        </span>
-                    </div>
-                }
-
-            </div>
-        </div>
-
-
-        <div class="col-xs-12 no-padding bdr-btm setreferral">
-            <span class="text-heading" style="display:inline-block;width:auto;float:left;line-height:26px;">
-                Referral Type
-            </span>
-            <span class="validation2 error" style="width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;display:none;">
-
-            </span>
-            <div class="check_btn col-xs-12 no-padding">
-                <a href="#" class="check">Check All</a>
-                <a href="#" class="uncheck">UnCheck</a>
-            </div>
-            <div class="col-xs-12 no-padding">
-                @if (Model.refListData != null && Model.refListData.Count > 0)
-                {
-                    <ul>
-                        @{ var val = string.Empty; var val1 = string.Empty;}
-                        @foreach (var item in Model.refListData)
-                        {
-                            if (item.IsFamilyCheckStatus == false)
-                            {
-                                val = item.Description;
-                                if (val != val1)
-                                {
-                                    <h3>@item.Description <input type="hidden" value="@item.CategoryID" id="Des_Id" name="" /></h3>
-                                    val1 = item.Description;
-                                }
-                                <li>
-                                    @if (item.Status == true)
-                                    {
-                                        <input type="checkbox" class="chk_all" id="chkBox_@item.ServiceID" value="@item.ServiceID" checked>@item.Services
-                                    }
-                                    else
-                                    {
-                                        <input type="checkbox" class="chk_all" id="chkBox_@item.ServiceID" value="@item.ServiceID">@item.Services
-                                    }
-
-                                </li>
-                                count++;
-                            }
-                        }
-                    </ul>
-                            }
-            </div>
+        @*<h2>family members and Referral Type</h2>*@
+      
+        <div class="col-xs-12" id="div-referralCategoryPartial">
+            @{ 
+                Html.RenderPartial("~/views/Partialviews/Referral/_ReferralCategoryPartial.cshtml", Model);
+            }
 
         </div>
-        <div class="check_btn col-xs-12 no-padding text-center">
 
-            <input type="button" id="Save" value="Save" style="float:none;">
-            <input type="button" id="Cancel" value="Cancel" style="float:none;" onclick="location.href='@Url.Action("ReferralService", "Roster",new { id = ViewBag.Id, ClientName = ViewBag.ClientName,scrYakkr=ViewBag.ScreeningReferralYakkr })'">
-            <input type="button" id="Matchprovider" value="Match Providers" style="float:none;">
-        </div>
+
     </div>
 
     <!---------------------------------------------------------------------------------->
@@ -392,7 +96,7 @@
         </div>
     </div>
 
-    <script src="~/Scripts/Referral/ReferralCategory.js"></script>
+
     <!---------------------------------------------------------------------------------->
   
 

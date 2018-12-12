@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
-    public class MatchProviderModel
+    public class MatchProviderModel:ReferralList
     {
         public int? Id { get; set; }
         public string OrganizationName { get; set; }

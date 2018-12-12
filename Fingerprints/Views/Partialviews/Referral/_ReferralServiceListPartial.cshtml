@@ -1,0 +1,34 @@
+﻿@model FingerprintsModel.ReferralServiceModel
+@{
+    int Icount = 1;
+    int totalRecord = (Model != null) ? Model.TotalRecords : 0;
+}
+
+<input type="hidden" class="span-referral-count" value="@totalRecord" />
+
+@if (Model!=null && Model.referralserviceList != null && Model.referralserviceList.Count > 0)
+            {
+
+                foreach (var Item in Model.referralserviceList)
+                {
+        <div class="col-xs-12" style="padding:0;position:relative;border-bottom:1px solid #ddd;margin-bottom:7px;">
+            <span class="col-xs-12" style="line-height:32px;padding:0;" id="@Item.ReferralClientServiceId">
+                <span>  Referral #@(Icount++) @(Item.ConvReferralDate)</span>
+                <a href="#" @if (Item.ConvReferralDate == "") { <text> style="margin-left:105px;" </text>  } else { <text> style="margin-left:30px;" </text>  } class="ReferralServiceName" data-stepId="@Item.Step" ReferralClientId="@Item.ReferralClientServiceId" parentName="@Item.ParentName">@Item.ServiceName</a>
+            </span>
+            <input type="hidden" id="ClientId" value="@Item.ClientId" class="" />
+            <input type="hidden" id="ServiceId" value="@Item.ServiceId" class="" />
+            <input type="hidden" id="stepId" value="@Item.Step" class="" />
+            <input type="hidden" id="ReferralClientId" value="@Item.ReferralClientServiceId" class="" />
+            <input type="hidden" id="screeningReferralYakkr" value="@Item.ScreeningReferralYakkr" />
+            @if (Item.Step != 3)
+            {
+                <span style="position:absolute;right:0;top:7px;cursor:pointer;">
+                    <input type="hidden" value="@Item.ReferralClientServiceId" id="DeleteClientService" />
+                    <img src="~/Content/img/cancel.png" data-toggle="modal" data-target="#myModal" style="max-width:50%;position:relative;right:-15px;" />
+                </span>
+            }
+        </div>
+
+    }
+}

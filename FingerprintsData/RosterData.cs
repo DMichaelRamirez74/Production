@@ -407,7 +407,10 @@ namespace FingerprintsData
             }
             return subCNList;
         }
-        public string SaveSubNotes(string CaseNoteId, string CaseNoteDate, int Householdid, int centerid, string ClassRoomId, string AgencyId, string UserId, string Notes, string RoleId, string Tags)
+        //public string SaveSubNotes(string CaseNoteId, string CaseNoteDate, int Householdid, int centerid, string ClassRoomId, string AgencyId, string UserId, string Notes, string RoleId, string Tags)
+       public string SaveSubNotes(StaffDetails staff,RosterNew.CaseNote _caseNote)
+       
+        
         {
             string Subcasenoteid = "";
             try
@@ -417,15 +420,16 @@ namespace FingerprintsData
                 Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@CaseNoteID", CaseNoteId));
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@Householdid", Householdid));
-                command.Parameters.Add(new SqlParameter("@CaseNotetags", Tags));
-                command.Parameters.Add(new SqlParameter("@SubCaseNoteDate", CaseNoteDate));
-                command.Parameters.Add(new SqlParameter("@WrittenBy", UserId));
-                command.Parameters.Add(new SqlParameter("@RoleOfOwner", RoleId));
-                command.Parameters.Add(new SqlParameter("@Note", Notes));
-                command.Parameters.Add(new SqlParameter("@CenterId", ClassRoomId));
+                command.Parameters.Add(new SqlParameter("@CaseNoteID", _caseNote.CaseNoteid));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@Householdid", _caseNote.HouseHoldId));
+                command.Parameters.Add(new SqlParameter("@CaseNotetags", _caseNote.CaseNotetags.Trim(',').TrimEnd(',')));
+                command.Parameters.Add(new SqlParameter("@SubCaseNoteDate", _caseNote.CaseNoteDate));
+                command.Parameters.Add(new SqlParameter("@WrittenBy", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleOfOwner", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@Note", _caseNote.Note));
+                command.Parameters.Add(new SqlParameter("@CenterId", _caseNote.CenterId));
+                command.Parameters.Add(new SqlParameter("@ClassroomId", _caseNote.Classroomid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_AddSubNotes";
@@ -747,7 +751,7 @@ namespace FingerprintsData
                                                IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
                                                IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
                                                IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
-                                               IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
+                                              // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
                                                Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
                                                IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
                                                IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
@@ -762,7 +766,9 @@ namespace FingerprintsData
                                                TransitionColor = Convert.ToString(dr["TransitionColor"]),
                                                TransitionType = Convert.ToInt32(dr["TransitionType"]),
                                                Returning = Convert.ToString(dr["Returning"]),
-                                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"])
+                                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
+                                               FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
+                                               IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
 
                                            }
 
@@ -1440,23 +1446,26 @@ namespace FingerprintsData
                 return false;
             }
         }
-        public List<ReferralServiceModel> ReferralService(long ClientId)
+        public List<ReferralServiceModel> ReferralService(ref int totalRecords, long ClientId, int takeRows, int skipRows, int yakkrCode)
         {
             List<ReferralServiceModel> referralServiceModelList = new List<ReferralServiceModel>();
 
-            DataSet ds = null;
-            ds = new DataSet();
+
+            _dataset = new DataSet();
             command.Connection = Connection;
             command.CommandText = "sp_ReferralServiceOperations";
-            command.Parameters.AddWithValue("@ClientId", ClientId);
+            command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+            command.Parameters.Add(new SqlParameter("@Take", takeRows));
+            command.Parameters.Add(new SqlParameter("@Skip", skipRows));
+            command.Parameters.Add(new SqlParameter("@YakkrCode", yakkrCode));
             command.Parameters.AddWithValue("@Command", "SELECT");
             command.CommandType = CommandType.StoredProcedure;
             SqlDataAdapter da = new SqlDataAdapter(command);
-            da.Fill(ds);
+            da.Fill(_dataset);
 
-            if (ds.Tables[0].Rows.Count > 0)
+            if (_dataset.Tables[0].Rows.Count > 0)
             {
-                foreach (DataRow dr in ds.Tables[0].Rows)
+                foreach (DataRow dr in _dataset.Tables[0].Rows)
                 {
                     ReferralServiceModel referralService = new ReferralServiceModel();
                     referralService.ServiceId = Convert.ToInt32(dr["ServiceID"]);
@@ -1476,6 +1485,9 @@ namespace FingerprintsData
                     referralService.ScreeningReferralYakkr = dr["ScreeningReferralYakkr"] != DBNull.Value ? EncryptDecrypt.Encrypt64(dr["ScreeningReferralYakkr"].ToString()) : EncryptDecrypt.Encrypt64("0");
                     referralServiceModelList.Add(referralService);
                 }
+
+                totalRecords = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
             }
 
             return referralServiceModelList;
@@ -6134,7 +6146,7 @@ namespace FingerprintsData
         #region Case notes for attendance issue
 
      
-        public CaseNoteByClientID GetDevelopmentalMembersByClientID(string clientId, StaffDetails staffDetails)
+        public CaseNoteByClientID GetDevelopmentalMembersByClientID(string clientId, StaffDetails staffDetails,int yakkrcode=0)
         {
 
             CaseNoteByClientID clientCaseNote = new CaseNoteByClientID();
@@ -6148,6 +6160,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@RoleID", staffDetails.RoleId));
                     command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
                     command.Parameters.Add(new SqlParameter("@ClientID", clientId));
+                    command.Parameters.Add(new SqlParameter("@YakkrCode", yakkrcode));
                     command.CommandText = "USP_GetDevelopmentalTeam_HouseholdByClient";
                     command.CommandType = CommandType.StoredProcedure;
                     command.Connection = Connection;
@@ -6254,6 +6267,15 @@ namespace FingerprintsData
 
 
                     }
+
+
+                    //Reference YAkkr Code//
+                    if(yakkrcode>0 && _dataset.Tables.Count>4 && _dataset.Tables[4]!=null && _dataset.Tables[4].Rows.Count>0)
+                    {
+                        clientCaseNote.ReferenceYakkrID = EncryptDecrypt.Encrypt64(_dataset.Tables[4].Rows[0]["YakkrID"].ToString());
+                    }
+
+
                 }
 
 
@@ -6312,6 +6334,10 @@ namespace FingerprintsData
 
                     if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                     {
+
+
+                        caseNoteByClient.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
                         caseNoteByClient.CaseNoteList = (from DataRow dr0 in _dataset.Tables[0].Rows
                                                          select new CaseNote
                                                          {
@@ -6325,7 +6351,8 @@ namespace FingerprintsData
                                                              SecurityLevel = Convert.ToBoolean(dr0["SecurityLevel"]),
                                                              WrittenBy = Convert.ToString(dr0["WrittenBy"]),
                                                              IsAllowSecurityCN = Convert.ToBoolean(dr0["IsAllowSecurityCN"]),
-                                                             IsEditable = Convert.ToBoolean(dr0["Editable"])
+                                                             IsEditable = Convert.ToBoolean(dr0["Editable"]),
+                                                             clientid= clientID
                                                          }
                                                         ).ToList();
                     }
@@ -6377,5 +6404,41 @@ namespace FingerprintsData
         }
 
         #endregion
+
+
+        #region Reset Attendance issues
+
+
+        public bool ResetExcessiveAbsence(StaffDetails staff,int clientId, int yakkrId)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientId));
+                    command.Parameters.Add(new SqlParameter("@YakkrID", yakkrId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_ResetAttendanceIssues";
+                    Connection.Open();
+                    isRowsAffected= Convert.ToBoolean(command.ExecuteNonQuery());
+                }
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+                isRowsAffected = false;
+            }
+            return isRowsAffected;
+        }
+
+        #endregion
+
     }
 }
