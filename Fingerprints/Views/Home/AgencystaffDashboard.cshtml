@@ -2937,28 +2937,29 @@
                 display: inline-block;
             }
 
-        .amcharts-chart-div {
-         margin-left:50px;
-        
-        }
-        .nav-tabs-ch > li > a{color:#547ca5!important;}
-        /*.nav-tabs-ch > li:nth-child(2){position: relative;z-index: 2;left: -5px;}
-        .nav-tabs-ch > li:nth-child(2) a{border: 1px solid #f9c751!important;
-    background-color: #f9c751 !important;
-    color: #000 !important;}
-        .nav-tabs-ch > li.active{
-    position: relative;
-    z-index: 8;
-    transform: scale(1.09);
-    top: -2px;   
-}
-           
-        .nav-tabs-ch > li.active > a {
-    border-bottom-color: #fff !important;
-    background-color: #285b8f !important;
-    color: #ffffff !important;
-}*/
+                .amcharts-chart-div {
+                    margin-left: 50px;
+                }
 
+                .nav-tabs-ch > li > a {
+                    color: #547ca5 !important;
+                }
+                /*.nav-tabs-ch > li:nth-child(2){position: relative;z-index: 2;left: -5px;}
+                .nav-tabs-ch > li:nth-child(2) a{border: 1px solid #f9c751!important;
+            background-color: #f9c751 !important;
+            color: #000 !important;}
+                .nav-tabs-ch > li.active{
+            position: relative;
+            z-index: 8;
+            transform: scale(1.09);
+            top: -2px;
+        }
+
+                .nav-tabs-ch > li.active > a {
+            border-bottom-color: #fff !important;
+            background-color: #285b8f !important;
+            color: #ffffff !important;
+        }*/
     </style>
 
     <div class="row">
@@ -3023,10 +3024,25 @@
                             foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
                             {
                                 <tr role="row">
-                            <td data-title="Center Name" role="gridcell"><a style="text-decoration: underline;" onclick="Showaddchart(this);" data-toggle="tooltip" data-displacement="top"  title="@center.Name" accesskey="@center.CenterId" href="#">@center.Name</a></td>
+                                    <td data-title="Center Name" role="gridcell"><a style="text-decoration: underline;" onclick="Showaddchart(this);" data-toggle="tooltip" data-displacement="top" title="@center.Name" accesskey="@center.CenterId" href="#">@center.Name</a></td>
                                     <td role="gridcell" data-title="%Full" style="text-align: right;">@Convert.ToDecimal(center.Attendance)</td>
                                     <td role="gridcell" data-title="Open Seats" style="text-align: right;">@center.SeatsAvailable</td>
-                                    <td role="gridcell" data-title="HV's" style="text-align: right;"><a href="~/AgencyUser/FSWAppointment">@Session["Appointment"]</a></td>
+
+                                    <td role="gridcell" data-title="HV's" style="text-align: right;">
+
+                                        @if (center.HomeVisitAppointment > 0)
+                                        {
+                                            <a href="~/AgencyUser/FSWAppointment">@center.HomeVisitAppointment </a>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="javascrip:void(0)" style="cursor:unset;text-decoration:none;">@center.HomeVisitAppointment </a>
+
+                                        }
+                                    </td>
+
+
                                     @if (center.option1 != "0")
                                     {
                                         <td role="gridcell" data-title="Wait1" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',1);" href="#">@center.option1</a></td>

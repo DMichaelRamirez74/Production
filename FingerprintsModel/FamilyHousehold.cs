@@ -659,6 +659,9 @@ namespace FingerprintsModel
             public string Name { get; set; }
             public bool IsSelected { get; set; }
             public string ReferenceId { get; set; }
+
+            public bool IsShow { get; set; }
+
         }
         public class PostedProgram
         {

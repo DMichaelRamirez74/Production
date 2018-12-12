@@ -3574,12 +3574,17 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[2].Rows)
                         {
                             obj1 = new FamilyHousehold.Programdetail();
-                            obj1.Id = Convert.ToInt32(dr["programid"]);
+                            obj1.Id = Convert.ToInt32(dr["ProgramTypeId"]);
                             obj1.ReferenceId = dr["ReferenceId"].ToString();
+                            obj1.IsShow = Convert.ToBoolean(dr["IsShowProgramType"]);
+                            obj1.IsSelected = Convert.ToBoolean(dr["IsSelected"]);
                             ProgramdetailRecords.Add(obj1);
                         }
                         obj.AvailableProgram = ProgramdetailRecords;
                     }
+
+
+                    #region old code
 
                     //if (_dataset.Tables[3].Rows.Count > 0)
                     //{
@@ -3765,6 +3770,8 @@ namespace FingerprintsData
                     //    }
                     //    obj._Screening = _Screening;
                     //}
+
+                    #endregion
                 }
 
                 if (_dataset.Tables[3].Rows.Count > 0)
@@ -3843,6 +3850,8 @@ namespace FingerprintsData
                 //    }
                 //    obj.WellBabyExamModelList = _WellBabyExamModel;
                 //}
+
+              
 
 
                 return obj;
@@ -7004,12 +7013,17 @@ namespace FingerprintsData
                             info.Routecode100 = dr["100"].ToString();
                             info.Routecode101 = dr["101"].ToString();
                             info.Routecode102 = dr["102"].ToString();
-                            info.Attendance =Convert.ToDecimal(dr["Attendance"])==Convert.ToInt32(dr["Attendance"])?Convert.ToInt32(dr["Attendance"]).ToString(): dr["Attendance"].ToString();
+                            info.Attendance = Convert.ToDecimal(dr["Attendance"]) == Convert.ToInt32(dr["Attendance"]) ? Convert.ToInt32(dr["Attendance"]).ToString() : dr["Attendance"].ToString();
                             info.TotalWaitingList = dr["TotalWaitinglist"].ToString();
+                            info.HomeVisitAppointment= Convert.ToInt32(dr["appointment"]);
                             yakkrcount = Convert.ToInt32(dr["yakkrcount"]);
-                            appointment = Convert.ToInt32(dr["Appointment"]);
+                         
                             centerList.Add(info);
                         }
+
+                        appointment = centerList.Sum(x => x.HomeVisitAppointment);
+
+
                     }
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {

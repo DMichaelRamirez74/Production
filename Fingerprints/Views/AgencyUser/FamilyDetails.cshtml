@@ -4407,6 +4407,7 @@
             $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
             $('#customChecklist input[type=checkbox]').each(function () {
                 $(this).prop("checked", false);
+                $(this).parent('div').hide();
                 $('#Screening1').hide();
             });
 
@@ -4428,8 +4429,15 @@
                         isEHsScreening = false;
                     }
                     $('#customChecklist input[type=checkbox]').each(function () {
-                        if ($(this).val() == data.AvailableProgram[i].Id)
+                        if ($(this).val() == data.AvailableProgram[i].Id && data.AvailableProgram[i].IsSelected==true)
+                        {
                             $(this).prop("checked", true);
+                            $(this).parent('div').show();
+                        }
+                        else if( $(this).val() == data.AvailableProgram[i].Id  && data.AvailableProgram[i].IsShow)
+                        {
+                            $(this).parent('div').show();
+                        }
                     });
                 }
 

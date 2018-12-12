@@ -163,6 +163,8 @@ namespace FingerprintsModel
         public string Attendance { get; set; }
         public bool Homebased { get; set; }
         public List<HrCenterInfo> AllCentersList { get; set; }
+
+        public int HomeVisitAppointment { get; set; }
     }
 
     public class Roster

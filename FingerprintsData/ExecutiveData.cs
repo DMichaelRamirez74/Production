@@ -420,7 +420,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_AbsenceReport";
-                command.CommandTimeout = 120;
+                //command.CommandTimeout = 120;
                 Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
