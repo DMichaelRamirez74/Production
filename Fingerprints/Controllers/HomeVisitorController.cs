@@ -270,14 +270,14 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter()]
         public ActionResult HomeVisitsHistorical()
         {
             return View();
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+       [CustAuthFilter()]
         public JsonResult GetFamiliesUnderUser(string userId, string roleId)
         {
             List<SelectListItem> familyList = new List<SelectListItem>();
@@ -316,7 +316,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter()]
         public JsonResult GetHomeVisitAttendanceByFromDate(string meetingStartdate, string meetingEndDate, string clientId)
         {
             List<Scheduler> schedularList = new List<FingerprintsModel.Scheduler>();
@@ -339,7 +339,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter()]
         public JsonResult InsertHistoricalHomeVisit(string scheuleString, string homeVisitorId)
         {
             List<Scheduler> schedulerList = new List<FingerprintsModel.Scheduler>();
