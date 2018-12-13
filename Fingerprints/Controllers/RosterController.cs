@@ -3035,6 +3035,7 @@ namespace Fingerprints.Controllers
 
         #region TimeLine
 
+        [CustAuthFilter()]
         public ActionResult TimeLine(string clientid = "0", bool dev=false)
         {
             if (dev) {
@@ -3051,7 +3052,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-
+        [CustAuthFilter()]
         public ActionResult GetTimeLine(string clientid,string stepIds)
         {
 

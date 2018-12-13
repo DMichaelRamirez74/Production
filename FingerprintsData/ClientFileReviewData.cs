@@ -545,7 +545,8 @@ namespace FingerprintsData
                         }
                         clientProfile.Employed = dr["Employed"].ToString();
                         clientProfile.BehaviorPlan = dr["BehaviorPlan"].ToString();
-                        clientProfile.StartDate= Convert.ToDateTime(dr["StartDate"]).ToString("MM/dd/yyyy");
+                        //clientProfile.StartDate= Convert.ToDateTime(dr["StartDate"]).ToString("MM/dd/yyyy");
+                        clientProfile.StartDate = dr["StartDate"].ToString();
                         clientProfile.TotalEnrolled = string.IsNullOrEmpty(dr["TotalEnrollment"].ToString())?0:Convert.ToInt32(dr["TotalEnrollment"]);
                         clientProfile.Profilepic = dr["ProfilePicture"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePicture"]);
                         clientProfile.IsPregnantMother = string.IsNullOrEmpty(dr["PregnantMother"].ToString()) ? false : (Convert.ToInt32(dr["PregnantMother"]) == 1) ? true : false;
