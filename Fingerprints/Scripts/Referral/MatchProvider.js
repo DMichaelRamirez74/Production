@@ -1,9 +1,17 @@
-﻿
+﻿var $divmatchProviderPartial = null;
+var count = 0;
+
+var serviceId = null;
+var AgencyId = null;
+var mpmlistcount = null;
+var orgListCoun = null;
 $(document).ready(function () {
 
-
+    $divmatchProviderPartial = $('#div_matchproviders_partial');
 
     //Agency Review PopUp
+
+    $divmatchProviderPartial.find("#Org-row").slideUp();
 
     $(document).on("click", ".agency-review", function (e) {
         var _id = $(this).data("index");
@@ -30,13 +38,13 @@ $(document).ready(function () {
 
 
 
-    var serviceId = $('#FSResources').val();
-    var AgencyId = $('#AgencyId').val();
-    var mpmlistcount = $('#mpmlistCount').val();
-    var orgListCount = $('#organizationListCount').val();
+     serviceId = $divmatchProviderPartial.find('#FSResources').val();
+     AgencyId = $divmatchProviderPartial.find('#AgencyId').val();
+     mpmlistcount = $divmatchProviderPartial.find('#mpmlistCount').val();
+     orgListCount = $divmatchProviderPartial.find('#organizationListCount').val();
 
     if (parseInt(mpmlistcount) > 1) {
-        $('#ddFsOrganization').prop('disabled', true);
+        $divmatchProviderPartial.find('#ddFsOrganization').prop('disabled', true);
     }
 
     if (parseInt(mpmlistcount) === 1 && parseInt(orgListCount) === 1) {
@@ -47,18 +55,18 @@ $(document).ready(function () {
             async: false,
             data: { ServiceId: serviceId, AgencyId: AgencyId },
             success: function (data) {
-                $("#ddFsOrganization").html('');
-                $('#OrganizationId').val('');
+                $divmatchProviderPartial.find("#ddFsOrganization").html('');
+                $divmatchProviderPartial.find('#OrganizationId').val('');
                 for (var i = 0; i < data.listOrganization.length; i++) {
-                    $('#OrganizationId').val(data.listOrganization[i].Value);
-                    $("#ddFsOrganization").html(data.listOrganization[i].Text);
+                    $divmatchProviderPartial.find('#OrganizationId').val(data.listOrganization[i].Value);
+                    $divmatchProviderPartial.find("#ddFsOrganization").html(data.listOrganization[i].Text);
                 }
             }
         });
 
-        var communId = $('#OrganizationId').val();
+        var communId =$divmatchProviderPartial.find('#OrganizationId').val();
 
-        if (!$('#OrganizationId').val()) return false;
+        if (!$divmatchProviderPartial.find('#OrganizationId').val()) return false;
 
         $.ajax({
             url: "/Roster/GetOrganization",
@@ -68,52 +76,52 @@ $(document).ready(function () {
 
 
 
-                $('#CommunityId').val(data.CommunityId);
+                $divmatchProviderPartial.find('#CommunityId').val(data.CommunityId);
                 if (data.Address == null) {
-                    $('#SpnCommunityAddress').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityAddress').text("");
                 } else {
-                    $('#SpnCommunityAddress').text(data.Address);
+                    $divmatchProviderPartial.find('#SpnCommunityAddress').text(data.Address);
                 }
                 if (data.City == null) {
-                    $('#SpnCommunityCity').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityCity').text("");
                 }
                 else {
-                    $('#SpnCommunityCity').text(data.City);
+                    $divmatchProviderPartial.find('#SpnCommunityCity').text(data.City);
                 }
 
                 if (data.State == null) {
-                    $('#SpnCommunityState').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityState').text("");
                 }
                 else {
-                    $('#SpnCommunityState').text(data.State + ",");
+                    $divmatchProviderPartial.find('#SpnCommunityState').text(data.State + ",");
                 }
 
                 if (data.ZipCode == null) {
-                    $('#SpnCommunityZipCode').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityZipCode').text("");
                 }
                 else {
-                    $('#SpnCommunityZipCode').text(data.ZipCode);
+                    $divmatchProviderPartial.find('#SpnCommunityZipCode').text(data.ZipCode);
                 }
 
                 if (data.OrganizationName == null) {
-                    $('#spnOrganizationName').text("");
+                    $divmatchProviderPartial.find('#spnOrganizationName').text("");
                 }
                 else {
-                    $('#spnOrganizationName').text(data.OrganizationName);
+                    $divmatchProviderPartial.find('#spnOrganizationName').text(data.OrganizationName);
                 }
 
                 if (data.Phone == null) {
-                    $('#SpnCommunityPhone').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityPhone').text("");
                 }
                 else {
-                    $('#SpnCommunityPhone').text(data.Phone);
+                    $divmatchProviderPartial.find('#SpnCommunityPhone').text(data.Phone);
                 }
 
                 if (data.Email == null) {
-                    $('#SpnCommunityEmail').text("");
+                    $divmatchProviderPartial.find('#SpnCommunityEmail').text("");
                 }
                 else {
-                    $('#SpnCommunityEmail').text(data.Email);
+                    $divmatchProviderPartial.find('#SpnCommunityEmail').text(data.Email);
                 }
 
             }
@@ -122,17 +130,17 @@ $(document).ready(function () {
     }
 
 
-    if (parseInt($('#stepId').val()) == 3) {
-        $('#datepicker').prop('disabled', true)
-        $('#referralServiceSaveMethod').addClass('hidden');
-        $('#Description').prop('disabled', true)
+    if (parseInt($divmatchProviderPartial.find('#stepId').val()) == 3) {
+        $divmatchProviderPartial.find('#datepicker').prop('disabled', true)
+        $divmatchProviderPartial.find('#referralServiceSaveMethod').addClass('hidden');
+        $divmatchProviderPartial.find('#Description').prop('disabled', true)
     }
 
     //if (new Date(new Date().toDateString()) > new Date(new Date($('#datepicker').val()).toDateString())) {
     //    $('#surveryRef').removeClass('hidden');
     //}
 
-});
+
 
 
 
@@ -141,7 +149,7 @@ $('#myModal5').on('hidden.bs.modal', function () {
 
 })
 
-var count = 0;
+
 $('#updatealertCancel').click(function () {
 
     if ($("input[name=answerradio1][value='No']").prop('checked')) {
@@ -194,40 +202,7 @@ $('#updatealertConfirm').click(function () {
 
 });
 
-function PrintModal() {
-    $('.modal-dialog').removeClass('modal-width-change');
-    $('.modal-body').removeClass('modal-height-change');
 
-    var contents = $(".modal-body").html();
-    var frame1 = $('<iframe />');
-    frame1[0].name = "frame1";
-    frame1.css({ "position": "absolute", "top": "-1000000px", "height": "100%" });
-    $("body").append(frame1);
-    var frameDoc = frame1[0].contentWindow ? frame1[0].contentWindow : frame1[0].contentDocument.document ? frame1[0].contentDocument.document : frame1[0].contentDocument;
-    frameDoc.document.open();
-    //Create a new HTML document.
-    frameDoc.document.write('<html><head><title>Referral Survey</title>');
-    frameDoc.document.write('</head><body>');
-    //Append the external CSS file.
-    frameDoc.document.write('<link href="/Content/print.css" rel="stylesheet" type="text/css" />');
-    //Append the DIV contents.
-    frameDoc.document.write(contents);
-    frameDoc.document.write('</body></html>');
-    frameDoc.document.close();
-    setTimeout(function () {
-        window.frames["frame1"].focus();
-        window.frames["frame1"].print();
-        frame1.remove();
-    }, 500);
-    $('.modal-dialog').addClass('modal-width-change');
-    $('.modal-body').addClass('modal-height-change');
-    $('.check_btn').removeClass('hidden');
-    $('#datecompleted').removeClass('hidden');
-    $('#datecompletespan').addClass('hidden');
-    $('.radio-inline,.no-print').removeClass('hidden');
-    $('.print-answer').addClass('hidden');
-
-};
 
 
 $('#Matchprovider').click(function () {
@@ -666,31 +641,33 @@ $('#SaveSurvey').click(function () {
 //});
 
 
-$('.check').on('click', function (e) {
-    $('.chk_all').prop('checked', true)
-});
-$('.uncheck').on('click', function (e) {
-    $('.chk_all').prop('checked', false)
-});
+//$('.check').on('click', function (e) {
+//    $('.chk_all').prop('checked', true)
+//});
+//$('.uncheck').on('click', function (e) {
+//    $('.chk_all').prop('checked', false)
+//});
 
 $('#datepicker').on('click', function (e) {
 
 });
 //----------------------------------------------------------------------------------//
-$('#spnOrganizationName').click(function () {
+$divmatchProviderPartial.find('#spnOrganizationName').click(function () {
     var commId = null;
-    if ($('#_CommunityId').val() == "0" || $('#_CommunityId').val() == "") {
-        commId = $('#CommunityId').val();
+    var $organizationModal = $($(this).data('target'));
+
+    if ($divmatchProviderPartial.find('#_CommunityId').val() == "0" || $divmatchProviderPartial.find('#_CommunityId').val() == "") {
+        commId = $divmatchProviderPartial.find('#CommunityId').val();
     }
     else {
-        commId = $('#_CommunityId').val();
+        commId = $divmatchProviderPartial.find('#_CommunityId').val();
     }
     $.ajax({
         url: "/Roster/GetBusinessHours",
         datatype: "application/json",
         async: false,
         data: {
-            ServiceId: $('#_ServiceId').val(), AgencyID: $('#AgencyId').val(), CommunityID: commId
+            ServiceId: $divmatchProviderPartial.find('#_ServiceId').val(), AgencyID: $divmatchProviderPartial.find('#AgencyId').val(), CommunityID: commId
         },
         success: function (data) {
             if (data.length == 1) {
@@ -725,38 +702,40 @@ $('#spnOrganizationName').click(function () {
                 var sunFrom = "N/A";
                 var sunTo = "N/A";
             }
-            $('#refferedtomodal').html($('#spnOrganizationName').text());
-            $('#streetModal').html($('#SpnCommunityAddress').text().split(',')[0] + ',');
-            $('#cityModal').html($('#SpnCommunityCity').text().split(',')[0]);
-            $('#stateModal').html($('#SpnCommunityState').text().split(',')[0] + ", " + $('#SpnCommunityZipCode').text().split(',')[0]);
-            $('#emailModal').html($('#SpnCommunityEmail').text().split(',')[0]);
-            $('#phonenoModal').html($('#SpnCommunityPhone').text().split(',')[0]);
-            $('#resourceNamemodal').html($('#clientName').val());
-            if (parseInt($('#mpmlistCount').val()) === 1) {
-                $('#serviceModal').html($('#servicesName').html());
+            $organizationModal.find('#refferedtomodal').html($divmatchProviderPartial.find('#spnOrganizationName').text());
+            $organizationModal.find('#streetModal').html($divmatchProviderPartial.find('#SpnCommunityAddress').text().split(',')[0] + ',');
+            $organizationModal.find('#cityModal').html($divmatchProviderPartial.find('#SpnCommunityCity').text().split(',')[0]);
+            $organizationModal.find('#stateModal').html($divmatchProviderPartial.find('#SpnCommunityState').text().split(',')[0] + ", " + $('#SpnCommunityZipCode').text().split(',')[0]);
+            $organizationModal.find('#emailModal').html($divmatchProviderPartial.find('#SpnCommunityEmail').text().split(',')[0]);
+            $organizationModal.find('#phonenoModal').html($divmatchProviderPartial.find('#SpnCommunityPhone').text().split(',')[0]);
+            $organizationModal.find('#resourceNamemodal').html($divmatchProviderPartial.find('#clientName').val());
+            if (parseInt($divmatchProviderPartial.find('#mpmlistCount').val()) === 1) {
+                $organizationModal.find('#serviceModal').html($divmatchProviderPartial.find('#servicesName').html());
 
             }
             else {
-                $('#serviceModal').html($('#FSResources option:selected').text());
+                $organizationModal.find('#serviceModal').html($divmatchProviderPartial.find('#FSResources option:selected').text());
 
             }
-            $('#monFrmHours').html(monFrom);
-            $('#monToHours').html(monTo);
-            $('#tueFrmHours').html(tueFrom);
-            $('#tueToHours').html(tueTo);
-            $('#wedFrmHours').html(wedFrom);
+            $organizationModal.find('#monFrmHours').html(monFrom);
+            $organizationModal.find('#monToHours').html(monTo);
+            $organizationModal.find('#tueFrmHours').html(tueFrom);
+            $organizationModal.find('#tueToHours').html(tueTo);
+            $organizationModal.find('#wedFrmHours').html(wedFrom);
 
-            $('#wedToHours').html(wedTo);
-            $('#thuFrmHours').html(thuFrom);
-            $('#thuToHours').html(thuTo);
-            $('#friFrmHours').html(friFrom);
-            $('#friToHours').html(friTo);
-            $('#satFrmHours').html(satFrom);
-            $('#satToHours').html(satTo);
-            $('#sunFrmHours').html(sunFrom);
-            $('#sunToHours').html(sunTo);
+            $organizationModal.find('#wedToHours').html(wedTo);
+            $organizationModal.find('#thuFrmHours').html(thuFrom);
+            $organizationModal.find('#thuToHours').html(thuTo);
+            $organizationModal.find('#friFrmHours').html(friFrom);
+            $organizationModal.find('#friToHours').html(friTo);
+            $organizationModal.find('#satFrmHours').html(satFrom);
+            $organizationModal.find('#satToHours').html(satTo);
+            $organizationModal.find('#sunFrmHours').html(sunFrom);
+            $organizationModal.find('#sunToHours').html(sunTo);
 
-            $('#myModal').show();
+            //$divmatchProviderPartial.find('#myModalOrganization').show();
+            //  $organizationModal.modal('show');
+            //$organizationModal.show();
         }
 
     });
@@ -766,14 +745,14 @@ $('#spnOrganizationName').click(function () {
 
 });
 
-$('#referralServiceSaveMethod').click(function () {
+$divmatchProviderPartial.find('#referralServiceSaveMethod').click(function () {
 
-    if (parseInt($('#servicescount').val()) > 1) {
-        if (parseInt($('#FSResources').val()) == 0) {
-            $('#answererror').html('Please select service resources');
-            $('#FSResources').focus();
-            $('#err_resource').css("display", "inline-block");
-            $('#err_resource').text("Please Select Resource");
+    if (parseInt($divmatchProviderPartial.find('#servicescount').val()) > 1) {
+        if (parseInt($divmatchProviderPartial.find('#FSResources').val()) == 0) {
+            $divmatchProviderPartial.find('#answererror').html('Please select service resources');
+            $divmatchProviderPartial.find('#FSResources').focus();
+            $divmatchProviderPartial.find('#err_resource').css("display", "inline-block");
+            $divmatchProviderPartial.find('#err_resource').text("Please Select Resource");
 
             //   $('#surveyAnswerError').modal('show');
 
@@ -793,7 +772,7 @@ $('#referralServiceSaveMethod').click(function () {
         */
     }
 
-    if (parseInt($('#organizationListCount').val()) > 1) {
+    if (parseInt($divmatchProviderPartial.find('#organizationListCount').val()) > 1) {
 
      /*   if (parseInt($('#ddFsOrganization').val()) == 0) {
             $('#err_resource').hide();
@@ -808,52 +787,52 @@ $('#referralServiceSaveMethod').click(function () {
         */
     }
 
-    if (!$('[name="company"]:checked').val()) {
+    if (!$divmatchProviderPartial.find('[name="company"]:checked').val()) {
         customAlert("Please Select Organization Name");
         return false;
     }
 
-    if ($('#datepicker').val() == "") {
-        $('#err_resource').hide();
-        $('#err_resource').text("");
-        $('#err_organization').hide();
-        $('#err_organization').text("");
-        $('#answererror').html('Please enter referral date.');
-        $('#datepicker').focus();
-        $('#err_date').css('display', 'inline-block');
-        $('#err_date').text('Please Enter Referral Date');
+    if ($divmatchProviderPartial.find('#datepicker').val() == "") {
+        $divmatchProviderPartial.find('#err_resource').hide();
+        $divmatchProviderPartial.find('#err_resource').text("");
+        $divmatchProviderPartial.find('#err_organization').hide();
+        $divmatchProviderPartial.find('#err_organization').text("");
+        $divmatchProviderPartial.find('#answererror').html('Please enter referral date.');
+        $divmatchProviderPartial.find('#datepicker').focus();
+        $divmatchProviderPartial.find('#err_date').css('display', 'inline-block');
+        $divmatchProviderPartial.find('#err_date').text('Please Enter Referral Date');
         //  $('#surveyAnswerError').modal('show');
         return false;
     }
-    else if (!isDate($('#datepicker').val().trim())) {
-        $('#err_resource').hide();
-        $('#err_resource').text("");
-        $('#err_organization').hide();
-        $('#err_organization').text("");
-        $('#err_date').css('display', 'inline-block');
-        $('#err_date').text('Please Enter Valid Date');
+    else if (!isDate($divmatchProviderPartial.find('#datepicker').val().trim())) {
+        $divmatchProviderPartial.find('#err_resource').hide();
+        $divmatchProviderPartial.find('#err_resource').text("");
+        $divmatchProviderPartial.find('#err_organization').hide();
+        $divmatchProviderPartial.find('#err_organization').text("");
+        $divmatchProviderPartial.find('#err_date').css('display', 'inline-block');
+        $divmatchProviderPartial.find('#err_date').text('Please Enter Valid Date');
         return false;
     }
 
-    $('#err_date').hide();
-    $('#err_date').text('');
+    $divmatchProviderPartial.find('#err_date').hide();
+    $divmatchProviderPartial.find('#err_date').text('');
 
-    var ReferralDate = $('#datepicker').val().trim();
-    var Description = $('#Description').val().trim();
-    var ServiceResourceId = $('#FSResources').val();
+    var ReferralDate = $divmatchProviderPartial.find('#datepicker').val().trim();
+    var Description = $divmatchProviderPartial.find('#Description').val().trim();
+    var ServiceResourceId = $divmatchProviderPartial.find('#FSResources').val();
 
 
-    if ($('#CommunityId').val() == undefined) {
+    if ($divmatchProviderPartial.find('#CommunityId').val() == undefined) {
         var CommunityId = 0;
-        if ($('#_CommunityId').val() != "" && $('#_CommunityId').val() != null) {
-            CommunityId = $('#_CommunityId').val();
+        if ($divmatchProviderPartial.find('#_CommunityId').val() != "" && $divmatchProviderPartial.find('#_CommunityId').val() != null) {
+            CommunityId = $divmatchProviderPartial.find('#_CommunityId').val();
         } else {
             CommunityId = 0;
         }
     } else {
         var CommunityId = 0;
-        if ($('#CommunityId').val() != "" && $('#CommunityId').val() != null) {
-            CommunityId = $('#CommunityId').val();
+        if ($divmatchProviderPartial.find('#CommunityId').val() != "" && $divmatchProviderPartial.find('#CommunityId').val() != null) {
+            CommunityId = $divmatchProviderPartial.find('#CommunityId').val();
         } else {
             CommunityId = 0;
         }
@@ -862,20 +841,20 @@ $('#referralServiceSaveMethod').click(function () {
 
 
 
-    if ($('#ReferralClientServiceId').val() == "") {
-        $('#ReferralClientServiceId').val(0);
+    if ($divmatchProviderPartial.find('#ReferralClientServiceId').val() == "") {
+        $divmatchProviderPartial.find('#ReferralClientServiceId').val(0);
 
     } else {
 
         AgencyId = 0;
-        CommunityId = $('#_CommunityId').val();
+        CommunityId = $divmatchProviderPartial.find('#_CommunityId').val();
 
     }
 
-    var AgencyId = $('#AgencyId').val();
+    var AgencyId = $divmatchProviderPartial.find('#AgencyId').val();
     var referralclientid = 0;
-    if ($('#referralClientId').val() != "" || $('#referralClientId').val() != 0) {
-        referralclientid = $('#referralClientId').val().trim();
+    if ($divmatchProviderPartial.find('#referralClientId').val() != "" || $divmatchProviderPartial.find('#referralClientId').val() != 0) {
+        referralclientid = $divmatchProviderPartial.find('#referralClientId').val().trim();
     }
     var SaveMatchProviders = {};
     SaveMatchProviders.ReferralDate = ReferralDate;
@@ -884,8 +863,8 @@ $('#referralServiceSaveMethod').click(function () {
     SaveMatchProviders.AgencyId = AgencyId;
     SaveMatchProviders.CommunityId = CommunityId;
     SaveMatchProviders.ReferralClientServiceId = parseInt(referralclientid);
-    SaveMatchProviders.ScreeningReferralYakkr = $('#screeningReferralYakkr').val();
-
+    SaveMatchProviders.ScreeningReferralYakkr = $divmatchProviderPartial.find('#screeningReferralYakkr').val();
+    SaveMatchProviders.ClientId = isMatchProvidersReferralPopup() ? $('#att-issue-modal').find('#hiddenatt-issue-clientid').val() : $divmatchProviderPartial.find('#_ClientId').val();
 
     $.ajax({
         url: "/Roster/SaveMatchProviders",
@@ -893,7 +872,23 @@ $('#referralServiceSaveMethod').click(function () {
         data: SaveMatchProviders,
         success: function (data) {
             if (data = true) {
-                $('#SuccessMatchProviders').modal('show');
+
+                var $isPopup = isMatchProvidersReferralPopup();
+
+                if ($isPopup)
+                {
+                    customAlert('Record saved successfully');
+                    window.setTimeout(function () {
+
+                        $divmatchProviderPartial.find('#Cancel').trigger('click');
+
+                    }, 1000);
+                }
+                else {
+
+                    $('#SuccessMatchProviders').modal('show');
+                }
+                
             }
         }
 
@@ -904,82 +899,31 @@ $('#referralServiceSaveMethod').click(function () {
 
 
 $('#succesMatchClose').click(function () {
-    location.href = "/Roster/ReferralService?id=" + $('#encryptId').val() + "&clientName=" + $('#clientName').val() + "&scrYakkr=" + $('#screeningReferralYakkr').val();
+    location.href = "/Roster/ReferralService?id=" + $divmatchProviderPartial.find('#encryptId').val() + "&clientName=" + $divmatchProviderPartial.find('#clientName').val() + "&scrYakkr=" + $divmatchProviderPartial.find('#screeningReferralYakkr').val();
 });
 
 
-//intial load when single service selected
-if (parseInt($("#FSResources").val()) > 0 && $('#AgencyId').val()) {
-    var serviceId = $('#FSResources').val();
-    var AgencyId = $('#AgencyId').val();
+    //intial load when single service selected
+    //_CommunityId
+    //if (parseInt($divmatchProviderPartial.find("#FSResources").val()) > 0 && $divmatchProviderPartial.find('#AgencyId').val()) {
+
+if (parseInt($divmatchProviderPartial.find("#FSResources").val()) > 0 && ($divmatchProviderPartial.find('#_CommunityId').val()==null ||$divmatchProviderPartial.find('#_CommunityId').val()=='0') ) {
+    var serviceId = $divmatchProviderPartial.find('#FSResources').val();
+    var AgencyId = $divmatchProviderPartial.find('#AgencyId').val();
     getOrganization(serviceId, AgencyId);
 }
 
 
-$('#FSResources').on('change', function () {
+$divmatchProviderPartial.find('#FSResources').on('change', function () {
 
     var serviceId = (this.value);
-    var AgencyId = $('#AgencyId').val();
+    var AgencyId = $divmatchProviderPartial.find('#AgencyId').val();
     getOrganization(serviceId, AgencyId);
 
 });
 
 
-function getOrganization(serviceId, AgencyId) {
 
-    $("#Org-row").slideDown();
-
-    $.ajax({
-        url: "/Roster/GetOrganizationList",
-        type: "POST",
-        data: { ServiceId: serviceId, AgencyId: AgencyId },
-        success: function (data) {
-            drawOrganization(data);
-        }, fail: function (res) {
-
-        },
-        complete: function (res) {
-
-        }
-    });
-
-}
-
-
-
-function drawOrganization(data) {
-
-    $("#organization-list").html('');
-
-    if (data.length == 0) return false;
-
-    
-    data.forEach(function (item) {
-
-        var _badgeDis = item.ReviewCount ? 'inline' : 'none';
-    
-        var _clrCode = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
-        var _coutClr = item.CRColorCode == 1 ? '#ffffff' : item.CRColorCode == 2 ? '#333333' : '#ffffff';
-         var _radioStr =    '<div class="col-md-6 col-sm-12 col-xs-12" style="padding-left:0px;">'
-       // var _radioStr = '<div class="" style="padding-bottom:10px;">'
-        + '<label title="' + item.CompanyName + '" class="container-radio col-sm-11" style="display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto;max-width:91.6%;">'
-        + '' + item.CompanyName + ''
-        + '<input type="radio" name="company" value="' + item.CommunityResourceID + '">'
-        + '<span class="checkmark"></span>'
-        + '</label>'
-       // + '<i class="fa fa-external-link agency-review" data-index="' + item.CommunityResourceID + '"></i>'
-       + '<span data-index="' + item.CommunityResourceID + '" class="badge show-reviewmodal col-sm-1" style="width:auto;background:' + _clrCode + ';color:' + _coutClr + ';display:' + _badgeDis + ';cursor:pointer;" data-toggle="tooltip" data-placement="right" title="' + item.ReviewCount + ' reviews">' + item.ReviewCount + '</span>'
-        + '</div>';
-
-      $("#organization-list").append(_radioStr);
-
-    });
-
-
-    $('[data-toggle="tooltip"]').tooltip();
-
-
-};
 
 $(document).on("click", ".show-reviewmodal", function (e) {
     var _id = $(this).data('index');
@@ -1007,26 +951,7 @@ $(document).on("click", ".show-reviewmodal", function (e) {
 
 });
 
-function renderReviewList(data) {
 
-    $("#reviewlist-modal .modal-body").html('');
-
-    if (data.length == 0) return false;
-
-    var _tblStr = '<table class="table table-bordered" id="review-modal-table"><thead><tr><th>Review Color</th><th>Notes</th><th>Entered By</th><th>Entered Date</th><tr></thead><tbody>';
-  
-    data.forEach(function (item) {
-        var _clr = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
-
-        _tblStr += '<tr><td><div class="rlclrdiv" style="background:' + _clr + ';"></div></td><td>' + item.MgNotes + '</td><td>' + item.ModifiedBy + '</td><td>' + item.ModifiedDate + '</td> </tr>'
-    });
-
-    _tblStr+='<tbody></table>';
-
-    $("#reviewlist-modal .modal-body").append(_tblStr);
-    $("#reviewlist-modal").modal("show");
-
-};
 
 
 //Old Method
@@ -1232,7 +1157,7 @@ $('#referralLetterPdf').on('click', function () {
 
      }
 
-     if (!$('[name="company"]:checked').val()) {
+     if ( $('[name="company"]').length>0  && !$('[name="company"]:checked').val() ) {
 
          customAlert("Please Choose Service Organization");
 
@@ -1289,6 +1214,8 @@ $('#referralLetterPdf').on('click', function () {
 });
 
 
+});
+
 function isDate(txtDate) {
     var currVal = txtDate;
     if (currVal == '')
@@ -1320,10 +1247,133 @@ function isDate(txtDate) {
 }
 
 
+function PrintModal() {
+    $('.modal-dialog').removeClass('modal-width-change');
+    $('.modal-body').removeClass('modal-height-change');
+
+    var contents = $(".modal-body").html();
+    var frame1 = $('<iframe />');
+    frame1[0].name = "frame1";
+    frame1.css({ "position": "absolute", "top": "-1000000px", "height": "100%" });
+    $("body").append(frame1);
+    var frameDoc = frame1[0].contentWindow ? frame1[0].contentWindow : frame1[0].contentDocument.document ? frame1[0].contentDocument.document : frame1[0].contentDocument;
+    frameDoc.document.open();
+    //Create a new HTML document.
+    frameDoc.document.write('<html><head><title>Referral Survey</title>');
+    frameDoc.document.write('</head><body>');
+    //Append the external CSS file.
+    frameDoc.document.write('<link href="/Content/print.css" rel="stylesheet" type="text/css" />');
+    //Append the DIV contents.
+    frameDoc.document.write(contents);
+    frameDoc.document.write('</body></html>');
+    frameDoc.document.close();
+    setTimeout(function () {
+        window.frames["frame1"].focus();
+        window.frames["frame1"].print();
+        frame1.remove();
+    }, 500);
+    $('.modal-dialog').addClass('modal-width-change');
+    $('.modal-body').addClass('modal-height-change');
+    $('.check_btn').removeClass('hidden');
+    $('#datecompleted').removeClass('hidden');
+    $('#datecompletespan').addClass('hidden');
+    $('.radio-inline,.no-print').removeClass('hidden');
+    $('.print-answer').addClass('hidden');
+
+};
 
 
 
 
 
 
+function renderReviewList(data) {
 
+    $("#reviewlist-modal .modal-body").html('');
+
+    if (data.length == 0) return false;
+
+    var _tblStr = '<table class="table table-bordered" id="review-modal-table"><thead><tr><th>Review Color</th><th>Notes</th><th>Entered By</th><th>Entered Date</th><tr></thead><tbody>';
+
+    data.forEach(function (item) {
+        var _clr = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+
+        _tblStr += '<tr><td><div class="rlclrdiv" style="background:' + _clr + ';"></div></td><td>' + item.MgNotes + '</td><td>' + item.ModifiedBy + '</td><td>' + item.ModifiedDate + '</td> </tr>'
+    });
+
+    _tblStr += '<tbody></table>';
+
+    $("#reviewlist-modal .modal-body").append(_tblStr);
+  //  $('#att-issue-modal').modal('hide');
+    $("#reviewlist-modal").modal("show");
+
+};
+
+function getOrganization(serviceId, AgencyId) {
+
+    $divmatchProviderPartial.find("#Org-row").slideDown();
+
+    $.ajax({
+        url: "/Roster/GetOrganizationList",
+        type: "POST",
+        data: { ServiceId: serviceId, AgencyId: AgencyId },
+        success: function (data) {
+            drawOrganization(data);
+        }, fail: function (res) {
+
+        },
+        complete: function (res) {
+
+        }
+    });
+
+}
+
+
+
+function drawOrganization(data) {
+
+    $divmatchProviderPartial.find("#organization-list").html('');
+
+    if (data.length == 0) return false;
+
+
+    data.forEach(function (item) {
+
+        var _badgeDis = item.ReviewCount ? 'inline' : 'none';
+
+        var _clrCode = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+        var _coutClr = item.CRColorCode == 1 ? '#ffffff' : item.CRColorCode == 2 ? '#333333' : '#ffffff';
+        var _radioStr = '<div class="col-lg-12 col-sm-12 col-xs-12" style="padding-left:0px;">'
+      // var _radioStr = '<div class="" style="padding-bottom:10px;">'
+       + '<label title="' + item.CompanyName + '" class="container-radio col-sm-11" style="display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto;max-width:91.6%;">'
+       + '' + item.CompanyName + ''
+       + '<input type="radio" name="company" value="' + item.CommunityResourceID + '">'
+       + '<span class="checkmark"></span>'
+       + '</label>'
+      // + '<i class="fa fa-external-link agency-review" data-index="' + item.CommunityResourceID + '"></i>'
+      + '<span data-index="' + item.CommunityResourceID + '" class="badge show-reviewmodal col-sm-1" style="width:auto;background:' + _clrCode + ';color:' + _coutClr + ';display:' + _badgeDis + ';cursor:pointer;" data-toggle="tooltip" data-placement="right" title="' + item.ReviewCount + ' reviews">' + item.ReviewCount + '</span>'
+       + '</div>';
+
+        $divmatchProviderPartial.find("#organization-list").append(_radioStr);
+
+    });
+
+
+    $divmatchProviderPartial.find('[data-toggle="tooltip"]').tooltip();
+
+
+};
+
+
+function isMatchProvidersReferralPopup() {
+
+    if ($('#att-issue-modal').length > 0 && $('#att-issue-modal').is(':visible') && $('#refmathcprovidersattenissuediv').length > 0 && $('#refmathcprovidersattenissuediv').is(':visible')) {
+
+        return true;
+    }
+    else {
+        return false;
+    }
+
+}

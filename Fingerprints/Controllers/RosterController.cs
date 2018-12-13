@@ -47,6 +47,7 @@ namespace Fingerprints.Controllers
          */
         RosterData RosterData = new RosterData();
 
+        StaffDetails staff = StaffDetails.GetInstance();
 
         string[] managerRoleArray = { "A65BB7C2-E320-42A2-AED4-409A321C08A5","3B49B025-68EB-4059-8931-68A0577E5FA2",
                 "944D3851-75CC-41E9-B600-3FA904CF951F", "047C02FE-B8F1-4A9B-B01F-539D6A238D80",
@@ -503,10 +504,19 @@ namespace Fingerprints.Controllers
                 TempData["CaseNoteid"] = CaseNote.CaseNoteid;
 
                 int _householdID = 0;
+                int _centerid = 0;
+                int _classroomid = 0;
 
                 CaseNote.HouseHoldId = int.TryParse(CaseNote.HouseHoldId, out _householdID) ? CaseNote.HouseHoldId : EncryptDecrypt.Decrypt64(CaseNote.HouseHoldId);
+                CaseNote.CenterId = int.TryParse(CaseNote.CenterId, out _centerid) ? _centerid.ToString() : EncryptDecrypt.Decrypt64(CaseNote.CenterId);
+                CaseNote.Classroomid = int.TryParse(CaseNote.Classroomid, out _classroomid) ? _classroomid.ToString() : EncryptDecrypt.Decrypt64(CaseNote.Classroomid);
 
-                Subcasenoteid = new RosterData().SaveSubNotes(CaseNote.CaseNoteid, CaseNote.CaseNoteDate, Convert.ToInt32(CaseNote.HouseHoldId), Convert.ToInt32(CaseNote.CenterId), CaseNote.Classroomid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString(),CaseNote.CaseNotetags);
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                //  Subcasenoteid = new RosterData().SaveSubNotes(CaseNote.CaseNoteid, CaseNote.CaseNoteDate, Convert.ToInt32(CaseNote.HouseHoldId), Convert.ToInt32(CaseNote.CenterId), CaseNote.Classroomid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString(), CaseNote.CaseNotetags);
+
+                Subcasenoteid = new RosterData().SaveSubNotes(staffDetails, CaseNote);
+
+
                 TempData["Subcasenoteid"] = Subcasenoteid;
                 TempData.Keep();
             }
@@ -585,17 +595,18 @@ namespace Fingerprints.Controllers
             try
             {
 
-            ViewBag.Id = id;
-            ViewBag.clientName = clientName;
-            ViewBag.ScreeningReferralYakkr = String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? EncryptDecrypt.Encrypt64("0") : Request.QueryString["ScreeningReferralYakkr"].ToString();
-            int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
-            REF obj_REF = new REF();
-            var refList = new List<REF>();
-            refList = RosterData.ReferralCategoryCompany(ClientId);
-            obj_REF.refListData = refList;
-            return View(obj_REF);
+                //ViewBag.Id = id;
+                //ViewBag.clientName = clientName;
+                //ViewBag.ScreeningReferralYakkr = String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? EncryptDecrypt.Encrypt64("0") : Request.QueryString["ScreeningReferralYakkr"].ToString();
+
+                REF obj_REF = new REF();
+
+
+                this.GetReferralCategoryCompanyList(ref obj_REF,id,clientName);
+
+                return View(obj_REF);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
                 return View(new REF());
@@ -605,14 +616,43 @@ namespace Fingerprints.Controllers
         public ActionResult ReferralCategorycompanyPopUp(string id, string clientName = "")
         {
 
-            int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
+            //int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
             REF obj_REF = new REF();
-            var refList = new List<REF>();
-            refList = RosterData.ReferralCategoryCompany(ClientId);
-            obj_REF.refListData = refList;
-            return Json(refList, JsonRequestBehavior.AllowGet);
+            //var refList = new List<REF>();
+            //refList = RosterData.ReferralCategoryCompany(ClientId);
+            //obj_REF.refListData = refList;
+            this.GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
+
+           return Json(obj_REF.refListData, JsonRequestBehavior.AllowGet);
         }
 
+
+        public PartialViewResult GetReferralCategoryCompanyPartial(string id, string clientName="")
+        {
+            REF obj_REF = new REF();
+            this.GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
+            return PartialView("~/Views/Partialviews/Referral/_ReferralCategoryCompanyPartial.cshtml", obj_REF);
+        }
+
+
+        public void GetReferralCategoryCompanyList(ref REF _objRef,string _id,string _clientName)
+        {
+            try
+            {
+                int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(_id));
+
+                _objRef.id = _id;
+                _objRef.clientName = _clientName;
+                _objRef.ScreeningReferralYakkr = Request.QueryString["ScreeningReferralYakkr"]!=null && !String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? Request.QueryString["ScreeningReferralYakkr"].ToString(): EncryptDecrypt.Encrypt64("0") ;
+                //var refList = new List<REF>();
+                _objRef.refListData = RosterData.ReferralCategoryCompany(ClientId);
+               // _objRef.refListData = refList;
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+        }
 
         public ActionResult GetReferralServices()
         {
@@ -628,26 +668,10 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult ReferralCategory(ReferralList ReferralCategory)
         {
-            ViewBag.ClientName = ReferralCategory.clientName;
-            ViewBag.Id = ReferralCategory.id;
-            ViewBag.ReferalClientId = ReferralCategory.ReferralClientId;
-            ViewBag.parentName = ReferralCategory.parentName;
-            ViewBag.ScreeningReferralYakkr = ReferralCategory.ScreeningReferralYakkr;
-            int ClientId = 0;
-            if (ReferralCategory.ReferralClientId == null)
-            {
-                ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(ReferralCategory.id));
-            }
-            else
-            {
-                ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(ReferralCategory.id));
-            }
-            ViewBag.UniqueClientId = ReferralCategory.id;
-
             REF obj_REF = new REF();
-            var refList = new List<REF>();
-            refList = RosterData.ReferralCategory(ClientId, ReferralCategory.ReferralClientId, Convert.ToInt32(ReferralCategory.Step));
-            obj_REF.refListData = refList;
+
+            this.GetReferralCategoryList(ref obj_REF, ReferralCategory);
+
             TempData["tempClientId"] = ReferralCategory.id;
             TempData.Keep("tempClientId");
             return View(obj_REF);
@@ -673,6 +697,52 @@ namespace Fingerprints.Controllers
             long refferralClientId = (string.IsNullOrEmpty(ReferralCategory.ReferralClientId.ToString())) ? 0 : (long)ReferralCategory.ReferralClientId;
             return Json(new { refList, refferralClientId }, JsonRequestBehavior.AllowGet);
         }
+
+
+        public PartialViewResult ReferralCategoryPartial(ReferralList ReferralCategory)
+        {
+            REF referral = new REF();
+
+            this.GetReferralCategoryList(ref referral, ReferralCategory);
+
+            return PartialView("~/Views/Partialviews/Referral/_ReferralCategoryPartial.cshtml", referral);
+        }
+
+
+        public void GetReferralCategoryList(ref REF referral, ReferralList referralList)
+        {
+
+
+            try
+            {
+                referral.ParentName = referralList.parentName;
+                referral.ReferralClientId = referralList.ReferralClientId;
+                referral.id = referralList.id;
+                referral.clientName = referralList.clientName;
+                referral.ScreeningReferralYakkr = referralList.ScreeningReferralYakkr;
+
+                int ClientId = 0;
+
+                if (referralList.ReferralClientId == null)
+                {
+                    ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(referralList.id));
+                }
+                else
+                {
+                    ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(referralList.id));
+                }
+
+
+                referral.refListData = RosterData.ReferralCategory(ClientId, referralList.ReferralClientId, Convert.ToInt32(referralList.Step));
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+        }
+
+
         public ActionResult HouseHoldReferrals(long referralClientId)
         {
             List<SelectListItem> referrals = new List<SelectListItem>();
@@ -748,7 +818,9 @@ namespace Fingerprints.Controllers
                 TempData.Keep("tempClientId");
                 string cId = (string.IsNullOrEmpty(SaveProvider.ClientId)) ? TempData["tempClientId"].ToString() : SaveProvider.ClientId;
                 SaveProvider.Description = (SaveProvider.Description == null) ? SaveProvider.Description = "" : SaveProvider.Description;
-                SaveProvider.ClientId = EncryptDecrypt.Decrypt64(cId);
+
+                int _decClientId = 0;
+                SaveProvider.ClientId = int.TryParse(cId,out _decClientId)?_decClientId.ToString(): EncryptDecrypt.Decrypt64(cId);
 
                 //  Success = RosterData.SaveMatchProviders(SaveProvider.ReferralDate, SaveProvider.Description, SaveProvider.ServiceResourceId, SaveProvider.AgencyId, UserId, ClientId, SaveProvider.CommunityId, SaveProvider.ReferralClientServiceId);
 
@@ -793,11 +865,20 @@ namespace Fingerprints.Controllers
 
                 string[] ClientId_Array = Savereferral.ClientId.Split(',');
                 int count = 0;
-                foreach (var item in ClientId_Array)
+
+                if(referenceID>0)
                 {
-                    Success = RosterData.SaveHouseHold(Convert.ToInt32(item), commanclient, Step, Status, Convert.ToInt32(Savereferral.HouseHoldId), referenceID, "INSERT");
-                    count++;
+                    foreach (var item in ClientId_Array)
+                    {
+                        Success = RosterData.SaveHouseHold(Convert.ToInt32(item), commanclient, Step, Status, Convert.ToInt32(Savereferral.HouseHoldId), referenceID, "INSERT");
+                        count++;
+                    }
                 }
+                else
+                {
+                    Success = false;
+                }
+               
 
                 //yakkr450 insert moved to sp_ReferalOperations SP
                 //  RosterData.YakkarInsert(Savereferral.AgencyId, UserId, commanclient);
@@ -851,36 +932,16 @@ namespace Fingerprints.Controllers
             MatchProviderModel obj_MPM = new MatchProviderModel();
             try
             {
-            ViewBag.ReferralClientId = 0;
-            if (MatchProvider.AgencyId != "" || MatchProvider.AgencyId != null)
-            {
-                ViewBag.ReferralClientId = MatchProvider.referralClientId;
-                // MatchProvider.referralClientId = 0;
-            }
-            ViewBag.ClientName = MatchProvider.clientName;
-            MatchProvider.AgencyId = Session["AgencyId"].ToString();
-            ViewBag.Id = MatchProvider.id;
-            ViewBag.ParentName = MatchProvider.parentName;
-            ViewBag.StepId = stepId;
-            ViewBag.ScreeningReferralYakkr = MatchProvider.ScreeningReferralYakkr;
-
-            TempData.Keep("tempClientId");
-
-            var matchProvidersList = new List<MatchProviderModel>();
-            List<SelectListItem> OrganizationList = new List<SelectListItem>();
-            matchProvidersList = RosterData.MatchProviders(MatchProvider.AgencyId, CommunityIds, MatchProvider.referralClientId);
-            obj_MPM.ParentName = MatchProvider.parentName;
-            obj_MPM.AgencyId = MatchProvider.AgencyId;
-            obj_MPM.MPMList = matchProvidersList;
-            if (matchProvidersList != null && matchProvidersList.Count() > 0)
-            {
-                //OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), matchProvidersList.FirstOrDefault().AgencyId);
-                OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), MatchProvider.AgencyId);
-
-            }
 
 
-            obj_MPM.OrganizationList = OrganizationList;
+
+
+                this.GetMatchProvidersList(ref obj_MPM, MatchProvider, CommunityIds);
+
+                int _step = 0;
+                int.TryParse(stepId, out _step);
+
+                obj_MPM.Step = _step;
             }
             catch (Exception ex)
             {
@@ -926,18 +987,79 @@ namespace Fingerprints.Controllers
             return Json(obj_MPM, JsonRequestBehavior.AllowGet);
         }
 
+
+        public PartialViewResult GetMatchProvidersPartial(ListRoster MatchProvider, string CommunityIds, string stepId = "")
+        {
+            MatchProviderModel objModel = new MatchProviderModel();
+
+            this.GetMatchProvidersList(ref objModel, MatchProvider, CommunityIds);
+            int stepid = 0;
+            objModel.Step = int.TryParse(stepId, out stepid) ? stepid : stepid;
+
+            return PartialView("~/Views/Partialviews/Referral/_MatchProvidersPartial.cshtml", objModel);
+        }
+
+
+        public void GetMatchProvidersList(ref MatchProviderModel matchProvidersModel, ListRoster matchProvider, string communityIds)
+        {
+            try
+            {
+                //    ViewBag.ReferralClientId = 0;
+                if (matchProvider.AgencyId != "" || matchProvider.AgencyId != null)
+                {
+                    //  ViewBag.ReferralClientId = MatchProvider.referralClientId;
+                    matchProvidersModel.ReferralClientId = matchProvider.referralClientId;
+                }
+                //    ViewBag.ClientName = MatchProvider.clientName;
+
+                matchProvider.AgencyId = Session["AgencyId"].ToString();
+                //  ViewBag.Id = MatchProvider.id;
+
+                //   ViewBag.StepId = stepId;
+
+                //   ViewBag.ScreeningReferralYakkr = MatchProvider.ScreeningReferralYakkr;
+
+
+                matchProvidersModel.clientName = matchProvider.clientName;
+                matchProvidersModel.id = matchProvider.id;
+                matchProvidersModel.ScreeningReferralYakkr = matchProvider.ScreeningReferralYakkr;
+
+
+
+                TempData.Keep("tempClientId");
+
+                var matchProvidersList = new List<MatchProviderModel>();
+                List<SelectListItem> OrganizationList = new List<SelectListItem>();
+                matchProvidersList = RosterData.MatchProviders(matchProvider.AgencyId, communityIds, matchProvider.referralClientId);
+                matchProvidersModel.ParentName = matchProvider.parentName;
+                matchProvidersModel.AgencyId = matchProvider.AgencyId;
+                matchProvidersModel.MPMList = matchProvidersList;
+                matchProvidersModel.ScreeningReferralYakkr = matchProvider.ScreeningReferralYakkr;
+                if (matchProvidersList != null && matchProvidersList.Count() > 0)
+                {
+                    OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), matchProvider.AgencyId);
+
+                }
+
+                matchProvidersModel.OrganizationList = OrganizationList;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+        }
+
         [CustAuthFilter()]
         public ActionResult ReferralService(string id, string ClientName = "")
         {
-            ViewBag.ClientName = ClientName;
-            ViewBag.ClientID = id;
-            ViewBag.ScreeningReferralYakkr = Request.QueryString["scrYakkr"] != null && !string.IsNullOrEmpty(Request.QueryString["scrYakkr"].ToString())  ?  Request.QueryString["scrYakkr"].ToString() : EncryptDecrypt.Encrypt64("0");
 
-            long ID = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
-            ReferralServiceModel referralService = new ReferralServiceModel();
-            var ReferralList = new List<ReferralServiceModel>();
-            ReferralList = RosterData.ReferralService(ID);
-            referralService.referralserviceList = ReferralList;
+
+            ViewBag.ScreeningReferralYakkr = Request.QueryString["scrYakkr"] != null && !string.IsNullOrEmpty(Request.QueryString["scrYakkr"].ToString()) ? Request.QueryString["scrYakkr"].ToString() : EncryptDecrypt.Encrypt64("0");
+            int takeRecords = 10;
+            int skipRecords = 0;
+            ReferralServiceModel referralService = this.GetReferralServiceList(id, takeRecords, skipRecords,_yakkrCode:0);
+            referralService.ClientName = ClientName;
+            referralService._EncClientId = id;
             TempData["tempClientId"] = id;
             TempData.Keep("tempClientId");
             return View(referralService);
@@ -952,13 +1074,80 @@ namespace Fingerprints.Controllers
         /// 
         public JsonResult ReferralServicePopUp(string ClientId, string ClientName = "")
         {
-            ReferralServiceModel referralService = new ReferralServiceModel();
+
             var ReferralList = new List<ReferralServiceModel>();
             long clientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(ClientId));
-            ReferralList = RosterData.ReferralService(clientId);
-            // referralService.referralserviceList = ReferralList;
+            ReferralServiceModel referralService = this.GetReferralServiceList(ClientId, _takeRecords: 1000, _skipRecords: 0,_yakkrCode:0);
+            ReferralList = referralService.referralserviceList;
             return Json(ReferralList, JsonRequestBehavior.AllowGet);
         }
+
+
+        /// <summary>
+        /// Referral Service for Matrix Recommendations-Popup
+        /// </summary>
+        /// <param name="ServiceId"></param>
+        /// <param name="AgencyId"></param>
+        /// <returns></returns>
+        /// 
+        public PartialViewResult GetReferralServiceListPartial(string clientId, int pageSize, int requestedPage,int yakkrCode=0)
+        {
+
+            var ReferralList = new List<ReferralServiceModel>();
+            long _clientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientId));
+            int skip = pageSize * (requestedPage - 1);
+            skip = (skip < 0) ? 0 : skip;
+
+            ReferralServiceModel referralService = this.GetReferralServiceList(clientId, pageSize, skip,_yakkrCode: yakkrCode);
+            return PartialView("~/Views/Partialviews/Referral/_ReferralServiceListPartial.cshtml", referralService);
+        }
+
+        /// <summary>
+        /// Gets Referral Service Partial View Page
+        /// </summary>
+        /// <param name="_clientId"></param>
+        /// <param name="_takeRecords"></param>
+        /// <param name="_skipRecords"></param>
+        /// <returns></returns>
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public PartialViewResult GetReferralServicePartial(string clientId, int pageSize, int requestedPage)
+        {
+
+            var ReferralList = new List<ReferralServiceModel>();
+
+            int skip = pageSize * (requestedPage - 1);
+            skip = (skip < 0) ? 0 : skip;
+
+            ReferralServiceModel referralService = this.GetReferralServiceList(clientId, pageSize, skip,_yakkrCode:601);
+            return PartialView("~/Views/Partialviews/Referral/_ReferralServicePartial.cshtml", referralService);
+        }
+
+
+        public ReferralServiceModel GetReferralServiceList(string _encClientId, int _takeRecords, int _skipRecords, int _yakkrCode)
+        {
+
+            int _totalRecords = 0;
+            ReferralServiceModel referralServiceModel = new ReferralServiceModel();
+            long _clientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(_encClientId));
+            referralServiceModel.referralserviceList = RosterData.ReferralService(ref _totalRecords, _clientId, _takeRecords, _skipRecords, _yakkrCode);
+            referralServiceModel.TotalRecords = _takeRecords;
+            referralServiceModel._EncClientId = _encClientId;
+            referralServiceModel.ClientId = _clientId;
+            return referralServiceModel;
+        }
+
+
+
+
+
+        /// <summary>
+        /// Gets the 
+        /// </summary>
+        /// <param name="ServiceId"></param>
+        /// <param name="AgencyId"></param>
+        /// <returns></returns>
         public ActionResult FamilyResourcesList(Int32 ServiceId, string AgencyId)
         {
             try
@@ -2878,7 +3067,29 @@ namespace Fingerprints.Controllers
 
         #endregion TimeLine
 
+        /// <summary>
+        /// Gets the Developmental Team, Household members and default case notes for Attendance issue popup
+        /// </summary>
 
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult GetDevelopmentalTeamByClient(string clientID)
+        {
+
+            CaseNoteByClientID caseNoteClient = new CaseNoteByClientID();
+            try
+            {
+                clientID = EncryptDecrypt.Decrypt64(clientID);
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(clientID, staff,601);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(caseNoteClient, JsonRequestBehavior.AllowGet);
+        }
 
 
         #region Gets Case Note List of Attendance Issue
@@ -2944,6 +3155,28 @@ namespace Fingerprints.Controllers
            string message= RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(),(int)Mode.Others);
 
             return Json(message,JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult ResetExcessiveAbsence(string _encClientId, string _encYakkrId)
+        {
+           
+            try
+            {
+                int _clientID = int.TryParse(_encClientId, out _clientID) ? _clientID : Convert.ToInt32(EncryptDecrypt.Decrypt64(_encClientId));
+                int _yakkrId = int.TryParse(_encYakkrId, out _yakkrId) ? _yakkrId : Convert.ToInt32(EncryptDecrypt.Decrypt64(_encYakkrId));
+
+
+                return Json(RosterData.ResetExcessiveAbsence(staff, _clientID, _yakkrId), JsonRequestBehavior.AllowGet);
+
+            }
+            catch(Exception ex)
+            {
+
+                clsError.WriteException(ex);
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
         }
 
 

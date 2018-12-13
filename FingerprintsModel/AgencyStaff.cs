@@ -258,6 +258,9 @@ namespace FingerprintsModel
 
         public bool IsShowScreeningFollowUp { get; set; }
 
+        public string FamilyAdvocate { get; set; }
+        public bool IsAllowAttendanceIssueReview { get; set; }
+
     }
   public class CenterAndClassRoom
     {

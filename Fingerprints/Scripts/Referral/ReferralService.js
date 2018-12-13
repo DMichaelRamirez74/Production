@@ -11,6 +11,8 @@
            
 }
 
+var $referralServicePartial = $('#div_ref_service_list');
+
 $(document).ready(function ()
 {
     if (parseInt($('#refernceCount').val()) > 8) {
@@ -22,7 +24,7 @@ $(document).ready(function ()
 
 });
 
-$('.ReferralServiceName').click(function () {
+$referralServicePartial.find('.ReferralServiceName').click(function () {
     var ReferralClientId = $(this).attr('ReferralClientId');
     var AgencyValue = "";
     var result = "0";
@@ -50,7 +52,7 @@ $('.ReferralServiceName').click(function () {
 });
 
 
-$(".DeleteService").click(function () {
+$referralServicePartial.find(".DeleteService").click(function () {
     var ReferralClientServiceId = $('#DeleteClientService').val();
     $.ajax({
         url: "/Roster/DeleteReferralService",

@@ -23,6 +23,34 @@
 
     <script type="text/javascript">
 
+        var totalRecords_caseNote = 0;
+        var pageSize_caseNote = 0;
+        var numOfPages_caseNote = 0;
+        var requestedPage_caseNote = 0;
+
+        var CaseNoteHeading = {
+            'AddCaseNote': 'Add New Case Note',
+            'EditCaseNote': 'Edit Case Note',
+            'AppendCaseNote':'Append Case Note'
+        }
+
+
+        function clearHVSchedule(ele)
+        {
+
+            cleanValidation();
+            var $clearHV = $(ele);
+
+            var $hvSection = $clearHV.closest('#homeVisitDivAttenissue');
+
+            $hvSection.find('input:text').val('');
+
+            $hvSection.find('textarea').val('');
+
+            $hvSection.find('select').val('');
+
+        }
+
 
 
         function pregMomTransAlert(ele) {
@@ -233,6 +261,75 @@
             return isValid;
 
         }
+
+
+        function ValidateAttendanceIssuecasenote() {
+            isValid = true;
+
+
+            cleanValidation();
+            var Clientcount = 0;
+            var Tags = '';
+            $('#casenotetags_attissue_tagsinput .tag span').each(function () {
+                Tags = Tags + $(this).text().trim() + ',';
+            });
+
+            $("#casenotetags_attissue").val(Tags);
+
+            Tags = '';
+            $('#txtcasenote_attissue').val(CKEDITOR.instances['txtcasenote_attissue'].getData());
+
+
+            if ($('#txtcasenotedate_attissue').val().trim() == "") {
+                isValid = false;
+                customAlert("Case note date is required. ");
+                plainValidation('#txtcasenotedate_attissue');
+                return isValid;
+            }
+            else if ($('#txtcasenotetitle_attissue').val().trim() == "") {
+                isValid = false;
+                customAlert("Title is required.");
+                plainValidation('#txtcasenotetitle_attissue');
+                return isValid;
+            }
+            else if (CKEDITOR.instances['txtcasenote_attissue'].getData() == "") {
+                isValid = false;
+                customAlert("Note is required.");
+                return isValid;
+            }
+
+
+            else if ($('#casenoteClientsdiv_attissue input:checked').length == 0) {
+
+                isValid = false;
+                customAlert("Clients name is required.");
+                $('#ClientDiv').focus();
+                return isValid;
+
+            }
+
+            else if ($('#staffdiv_attissue input:checked').length == 0) {
+
+                isValid = false;
+                customAlert("Developmental staff is required.");
+                $('#ClientDiv').focus();
+                return isValid;
+
+            }
+
+            else if ($('#casenotetags_attissue').val().trim() == "") {
+                isValid = false;
+                customAlert("Tags are  required.");
+                plainValidation('#CaseNotetags');
+                return isValid;
+            }
+
+            return isValid;
+
+        }
+
+
+
         function isValidInfo() {
             cleanValidation();
             isValid = true;
@@ -258,16 +355,15 @@
             return isValid;
         }
 
-        function CheckdateForAppointment(date) {
+        function CheckdateForAppointment($modal,date) {
             var isAllow = false;
             var now = new Date();
             var selectedDate = new Date(date);
 
 
-            if (selectedDate > now || selectedDate.toDateString()== now.toDateString()) {
+            if (selectedDate > now || selectedDate.toDateString() == now.toDateString()) {
                 isAllow = true;
-
-                $('#Days').val(selectedDate.getDay());
+                $modal.find('#Days').val(selectedDate.getDay());
             } else {
                 isAllow = false;
             }
@@ -412,6 +508,35 @@
         $(window).load(function () {
             console.log(HostedDir);
         });
+
+
+
+        function ReadMoreLessContent(minimized_elements) {
+            // var minimized_elements = $('p.text-viewer');
+
+            minimized_elements.each(function () {
+                var t = $(this).html();
+                if (t.length < 100) return;
+
+                $(this).html(
+                    t.slice(0, 100) + '<span>... </span><a href="javascript:void(0);" class="readmore"> Read More>> </a>' +
+                    '<span style="display:none;">' + t.slice(100, t.length) + ' <a href="javascript:void(0);" class="readless"> << Less </a></span>'
+                );
+            });
+
+            $('a.readmore', minimized_elements).click(function (event) {
+                event.preventDefault();
+                $(this).hide().prev().hide();
+                $(this).next().show('slow');
+            });
+
+            $('a.readless', minimized_elements).click(function (event) {
+                event.preventDefault();
+                $(this).parent().hide().prev().show().prev().show();
+            });
+
+        }
+
 
 
         function clearAllGrid() {
@@ -757,6 +882,310 @@
 
         }
 
+
+        function Getcasenote($modal, Casenoteid, clientId, ele) {
+
+            var isEditable = $(ele).data("editable");
+            $modal.find('#hid-case-note-id').val(Casenoteid);
+            $.ajax({
+                url: HostedDir + "/Roster/Getcasenotedetails",
+                type: "POST",
+                data: {
+                    Casenoteid: Casenoteid,
+                    ClientId: clientId
+                },
+                dataType: "json",
+                success: function (Data) {
+
+
+
+                    BindCaseNotelist($modal, Data, isEditable);
+                    GetSubNotesByCaseNote($modal, Casenoteid);
+
+                }
+            , error: function (Data) {
+                $('#spinner').hide();
+                customAlert("Error occurred.Please, try again later.");
+            }
+            });
+        }
+
+
+        function BindCaseNotelist($modal, Data, iseditable) {
+
+            console.log('1');
+            console.log(Data);
+            console.log(iseditable);
+
+
+            $modal.find('#txtcasenotedate_attissue').val('');
+            $modal.find('#txtcasenotetitle_attissue').val('');
+            $modal.find('#txtcasenote_attissue').val('');
+
+           // CKEDITOR.instances["txtcasenote_attissue"].setData('');
+
+            $modal.find('#casenoteClientsdiv_attissue').find('input:checkbox').prop('checked', false);
+            $modal.find('#staffdiv_attissue').find('input:checkbox').prop('checked', false);
+
+            $modal.find('#casenotetags_attissue_tagsinput').find('.tag').remove();
+            $modal.find('#att_issueattachmentsDiv').find('input:file').val('');
+            $modal.find('#addAttachmentDiv_attissue').html('');
+            $modal.find('#casenotesecurity_attissue').prop('checked', false);
+            $modal.find('#div_attach_download_bind_section').html('');
+            cleanValidation();
+
+            console.log(Data);
+
+            var outputArray = [];
+            var Attachments = [];
+            if (Data != null && Data.length > 0) {
+
+                if (Data[0].GroupCaseNote == 0) {
+                    debugger;
+                    //    $('#CaseNoteHeading').text('Edit Case Note');
+
+                    $('#Attachmectstag').removeAttr("onclick");
+                    $('#Attachmectstag').attr("onclick", "AddMore();");
+                    $('#FirstFile').removeAttr("disabled");
+                    $('#SaveNoteSubmit').show();
+                    $('#CaseNoteDate').val('');
+                    $('#CaseNotetitle').val('');
+                    $('#CaseNotesNote').val('');
+                    $('#ClientName').val('');
+                    $('#ClientNameModel').val('');
+                    $('#CaseNoteSecurity').prop("checked", false);
+                    $('#CaseNoteSecurity').removeAttr("disabled");
+
+                    $('#ClientDiv input[type=checkbox]').each(function () {
+                        $(this).prop("checked", false);
+                        $(this).removeAttr("disabled");
+                    });
+                    $('#StaffDiv input[type=checkbox]').each(function () {
+                        $(this).prop("checked", false);
+                        $(this).removeAttr("disabled");
+                    });
+
+                    $modal.find('#txtcasenotedate_attissue').attr("Readonly", true).val(Data[0].Date);
+
+                    $modal.find('#txtcasenotetitle_attissue').attr("Readonly", true).val(Data[0].Title);
+                    CKEDITOR.instances["txtcasenote_attissue"].setData(Data[0].Note);
+                    CKEDITOR.instances["txtcasenote_attissue"].setReadOnly(true);
+
+
+
+                    //$('.main-date').text(getFormattedDate(Data[0].Date));
+                    //$('.main-note').empty();
+                    //$('.main-note').append(Data[0].Note);
+
+                    //$('#ClientName').text(Data[0].Name);
+                    //$('#ClientNameModel').text(Data[0].Name);
+
+                    if (Data[0].SecurityLevel) {
+                        $modal.find('#casenotesecurity_attissue').prop("checked", true);
+
+                    }
+
+                    for (var i = 0; i < Data.length; i++) {
+                        $modal.find('#casenoteClientsdiv_attissue').find('input:checkbox').each(function () {
+                            if ($(this).val() == Data[i].clientid)
+                                $(this).prop("checked", true);
+                        });
+                    }
+
+
+
+                    for (var i = 0; i < Data.length; i++) {
+                        if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1) {
+                            outputArray.push(Data[i].Tagname);
+                        }
+                    }
+                    for (var i = 0; i < Data.length; i++) {
+                        if ((jQuery.inArray(Data[i].Attachment, Attachments)) == -1) {
+                            Attachments.push(Data[i].Attachment);
+                        }
+                    }
+
+
+                    for (var i = 0; i < Attachments.length; i++) {
+                        if (Attachments[i] != "0" && Attachments[i] != "")
+                            $modal.find('#div_attach_download_bind_section').append("<div class='download-attachment col-xs-1'>\
+                                                                                                                    <a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'>\
+                                                                                                                    <i class='fa fa-download'></i></a>\
+                                                                                                            &nbsp;&nbsp;&nbsp;&nbsp;</div>");
+
+                    }
+                    //if ($('#Attach').children().length < 1) {
+                    //    $('#Attach').append("<span>No file available</span>");
+                    //}
+                    if ($modal.find('#div_attach_download_bind_section').children().length < 1) {
+                        $modal.find('#div_attach_download_bind_section').append("<span>No file available</span>");
+                    }
+                    $modal.find('#div_download_attach').show();
+
+                    for (var i = 0; i < outputArray.length; i++) {
+                        $('#casenotetags_attissue_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag1(this);" title="Removing tag">x</a></span>');
+                    }
+                    for (var i = 0; i < Data.length; i++) {
+                        $modal.find('#staffdiv_attissue').find('input:checkbox').each(function () {
+                            if ($(this).val() == Data[i].Staffid)
+                                $(this).prop("checked", true);
+                        });
+                    }
+                  //  $('#StaffName').text(Data[0].BY);
+                  //  $('#CaseNoteDate').attr("Readonly", true);
+                   // $('#CaseNotetitle').attr("Readonly", true);
+                    //$('#CaseNoteSecurity').attr("disabled",true);
+                    //CKEDITOR.instances['Note'].setReadOnly(true);
+                    //$('#ClientDiv input[type=checkbox]').each(function () {
+                    //    $(this).attr("disabled",true);
+                    //});
+                    //$('#StaffDiv input[type=checkbox]').each(function () {
+                    //    $(this).attr("disabled",true);
+                    //});
+                   // $('#CaseNotetags_tag').removeAttr("disabled");
+                }
+                else if (Data[0].GroupCaseNote == 1) {
+                    $('#CaseNoteHeading').text('Group Case Note');
+                    $('#Attachmectstag').removeAttr("onclick");
+                    $('#Attachmectstag').attr("onclick", "return false;");
+                    $('#SaveNoteSubmit').hide();
+                    $('#CaseNoteDate').val('');
+                    $('#CaseNotetitle').val('');
+                    $('#CaseNotesNote').val('');
+                    $('#ClientName').val('');
+                    $('#ClientNameModel').val('');
+                    $('#CaseNoteSecurity').prop("checked", false);
+                    $('#CaseNoteSecurity').attr("disabled", "disabled");
+                    $('#CaseNotetags_tag').attr("disabled", "disabled");
+                    $('#FirstFile').attr("disabled", "disabled");
+
+                    $('#ClientDiv input[type=checkbox]').each(function () {
+                        $(this).prop("checked", false);
+                        $(this).attr("disabled", "disabled");
+                    });
+                    $('#StaffDiv input[type=checkbox]').each(function () {
+                        $(this).prop("checked", false);
+                        $(this).attr("disabled", "disabled");
+                    });
+                    $('.main-date').text(getFormattedDate(Data[0].Date));
+                    $('.main-note').empty();
+                    $('.main-note').append(Data[0].Note);
+                    $('#CaseNoteDate').val(Data[0].Date);
+                    $('#CaseNotetitle').val(Data[0].Title);
+                    CKEDITOR.instances['Note'].setData(Data[0].Note);
+                    $('#ClientName').text(Data[0].Name);
+                    $('#ClientNameModel').text(Data[0].Name);
+                    if (Data[0].SecurityLevel)
+                        $('#CaseNoteSecurity').prop("checked", true);
+                    for (var i = 0; i < Data.length; i++) {
+                        $('#ClientDiv input[type=checkbox]').each(function () {
+                            if ($(this).val() == Data[i].clientid) {
+                                $(this).prop("checked", true);
+                            }
+                        });
+                    }
+                    for (var i = 0; i < Data.length; i++) {
+                        if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1) {
+                            outputArray.push(Data[i].Tagname);
+                        }
+                    }
+                    for (var i = 0; i < Data.length; i++) {
+                        if ((jQuery.inArray(Data[i].Attachment, Attachments)) == -1) {
+                            Attachments.push(Data[i].Attachment);
+                        }
+                    }
+                    for (var i = 0; i < Attachments.length; i++) {
+                        if (Attachments[i] != "0" && Attachments[i] != "")
+                            $('#Attach').add('.download-attachment').append("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                    }
+                    if ($('#Attach').children().length < 1) {
+                        $('#Attach').append("<span>No file available</span>");
+                    }
+                    if ($('.download-attachment').children().length < 1) {
+                        $('.download-attachment').append("<span>No file available</span>");
+                    }
+                    for (var i = 0; i < outputArray.length; i++) {
+                        $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#"  title="Removing tag">x</a></span>');
+                    }
+                    for (var i = 0; i < Data.length; i++) {
+                        $('#StaffDiv input[type=checkbox]').each(function () {
+                            if ($(this).val() == Data[i].Staffid)
+                                $(this).prop("checked", true);
+                        });
+                    }
+                    $('#StaffName').text(Data[0].BY);
+                    $('#CaseNoteDate').attr("Readonly", true);
+                    $('#CaseNotetitle').attr("Readonly", true);
+                    //$('#CaseNoteSecurity').attr("disabled",true);
+                    CKEDITOR.instances['Note'].setReadOnly(true);
+                    //$('#ClientDiv input[type=checkbox]').each(function () {
+                    //    $(this).attr("disabled",true);
+                    //});
+                    //$('#StaffDiv input[type=checkbox]').each(function () {
+                    //    $(this).attr("disabled",true);
+                    //});
+
+
+
+
+
+                }
+
+
+
+                //if (!$('#ModalAddCasenote').hasClass('in'))
+                //    $('#ModalAddCasenote').modal('toggle');
+                //$('#ModalAddCasenote').modal({
+                //    backdrop: 'static',
+                //    keyboard: false,
+                //    show: true,
+
+                //});
+
+                if (!iseditable) {
+
+
+                    $modal.find('#casenoteClientsdiv_attissue').find('input:checkbox').prop('disabled', true);
+                    $modal.find('#staffdiv_attissue').find('input:checkbox').prop('disabled', true);
+
+                    $modal.find('#casenotesecurity_attissue').find('input:checkbox').prop('disabled', true);
+
+
+                    $modal.find('#att_issueattachmentsDiv').find('#att_issue_firstfile').prop('disabled', true);
+
+                    $modal.find('#Attachmectstag_attissue, #btn_att_issue_casenote_save').hide();
+
+                    $modal.find('#casenotetags_attissue_tagsinput').prop('disabled', true);
+
+                    //$('[name="ClientIds.IDS"][type="checkbox"]').prop('disabled', true);
+                    //$('[name="TeamIds.IDS"][type="checkbox"]').prop('disabled', true);
+
+                    // $(".addn-poup-div1").find('[type="checkbox"]').prop('disabled', true);
+                //    $('#FirstFile[type="file"]').prop("disabled", true);
+                   // $(".add-attach-btn, #SaveNoteSubmit").css("display", "none");
+                   // $("#CaseNotetags_tag").prop("disabled", true);
+
+                } else {
+                    //$('#FirstFile[type="file"]').prop("disabled", false);
+                    //$(".add-attach-btn, #SaveNoteSubmit").css("display", "inline-block");
+
+
+                    $modal.find('#att_issueattachmentsDiv').find('#att_issue_firstfile').prop('disabled', false);
+
+                    $modal.find('#Attachmectstag_attissue, #btn_att_issue_casenote_save').show();
+                }
+
+
+                $modal.find('#heading_case_note').html(CaseNoteHeading.EditCaseNote);
+                $modal.show();
+                $('#divAppendCaseNoteSection').hide();
+
+            }
+        }
+
+
+
         function addMore(ele) {
             var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
 
@@ -778,15 +1207,792 @@
         }
 
 
+        function getReferralService(ele) {
+            $("#caseNoteDivAttIssue").hide();
+            $('#homeVisitDivAttenissue').hide();
+            $('#refmathcprovidersattenissuediv').hide();
+
+            var _pageSize = 10;
+            var _reqPage = 1;
+            var _ref_EncClientId = $('#att-issue-modal').find('#hiddenatt-issue-clientid').val();
+
+            $('#spinner').show();
+
+            $('#refAttendanceIssueDiv').find('#referralserviceSectionDiv').load('@Url.Action("GetReferralServicePartial", "Roster")', { clientId: _ref_EncClientId, pageSize: _pageSize, requestedPage: _reqPage }, function (responseTxt, statusTxt, xhr) {
+
+
+                if (statusTxt == 'success') {
+                    $('#referralserviceSectionDiv').html(responseTxt);
+
+                    $('#referralserviceSectionDiv').find('#btnRefFamilyNeeds').attr({ 'onclick': 'getReferralCategory(this,0)' });
+                    $('#referralserviceSectionDiv').find('#btnRefSpecificAgency').attr({ 'onclick': 'getReferralCategoryCompany(this)' });
+
+                    $('#referralserviceSectionDiv').find('#div_ref_service_list').find('.ReferralServiceName').each(function () {
+
+                        if ($(this).attr('data-stepid') == '2')
+                        {
+                            $(this).attr('onclick', 'getReferralCategory(this,1);');
+                        }
+                        else if($(this).attr('data-stepid')=='3')
+                        {
+                            $(this).attr('onclick', 'getMatchProvidersFromService(this);')
+                        }
+
+                    });
+
+                    $('#referralserviceSectionDiv').find('#hidden_ref_YakkrCode').val('601');
+
+                    $('#referralserviceSectionDiv').find('#BackToList').hide();
+                    $('#refcatagoryattenissuediv').hide();
+                    $('#div_referral_categorycompany_partial').hide();
+                    $('#refservriceAttendanceIssueDiv').show();
+                    $('#referralserviceSectionDiv').show();
+                }
+                else {
+                    customAlert('Error occurred. Please try again later.');
+                }
+
+                getTotalRecordReferral($('#att-issue-modal').find('.span-referral-count').val());
+                $('#spinner').hide();
+
+                $('#refAttendanceIssueDiv').show();
+            });
+
+
+        }
+
+        function getReferralCategory(ele,mode) {
+
+
+            var _reqPage = 1;
+            var _ref_EncClientId = $('#att-issue-modal').find('#hiddenatt-issue-clientid').val();
+            var _ref_clientName = $('#att-issue-modal').find('#lblatt-issue-client').html();
+            var _ref_Yakkrid = $('#att-issue-modal').find('#hiddenatt-issue-yakkrid').val();
+            var _referral_ClientId=0;
+            $('#spinner').show();
+            var ReferralCategory = {};
+
+            if (mode == 0)
+            {
+                 ReferralCategory = {
+                    'id': _ref_EncClientId,
+                    'clientName': '',
+                    'ScreeningReferralYakkr': _ref_Yakkrid,
+                    'ReferralClientId': 0,
+                    'parentName': ''
+                }
+            }
+            else {
+                ReferralCategory = {
+                    'id': _ref_EncClientId,
+                    'clientName': '',
+                    'ScreeningReferralYakkr': _ref_Yakkrid,
+                    'ReferralClientId': parseInt($(ele).attr('referralclientid')),
+                    'parentName': ''
+                }
+
+                _referral_ClientId=parseInt($(ele).attr('referralclientid'));
+            }
+
+            $('#refAttendanceIssueDiv').find('#refcatagoryattenissuediv').load('@Url.Action("ReferralCategoryPartial", "Roster")', { id: _ref_EncClientId, clientName: _ref_clientName, ScreeningReferralYakkr: _ref_Yakkrid, ReferralClientId: _referral_ClientId }, function (responseTxt, statusTxt, xhr) {
+                console.log(responseTxt);
+
+                if (statusTxt == 'success') {
+                    $('#refcatagoryattenissuediv').html(responseTxt);
+
+                    //$('#referralserviceSectionDiv').find('#btnRefFamilyNeeds').attr({ 'onclick': 'getReferralCategory(this)' });
+                    //$('#referralserviceSectionDiv').find('#btnRefSpecificAgency').attr({ 'onclick': 'getReferralCategoryCompany(this)' });
+
+                    $('#refcatagoryattenissuediv').find('#Cancel').attr({ 'onclick': 'getReferralService(this)' });
+
+
+                    $('#caseNoteDivAttIssue,#homeVisitDivAttenissue,#refservriceAttendanceIssueDiv,#refcatagorycompanyattenissuediv,#refmathcprovidersattenissuediv').hide();
+
+
+
+                    $('#refcatagoryattenissuediv').show();
+                }
+                else {
+                    customAlert('Error occurred. Please try again later.');
+                }
+
+
+                $('#spinner').hide();
+
+
+            });
+        }
+
+        function getMatchProvidersFromService(ele) {
+
+
+
+            var ReferralClientId = $(ele).attr('ReferralClientId');
+            var AgencyValue = '@Session["AgencyID"].ToString()';
+            var result = "0";
+            var ParentName = $(ele).attr('parentName');
+            var ClientName = $('#lblatt-issue-client').html();
+            var ID = $('#hiddenatt-issue-clientid').val();
+
+            var Step = $(ele).attr('data-stepid');
+
+
+           // var ClientId = $('#ClientId').val();
+
+            var referanceYakkrid = $('#hiddenatt-issue-yakkrid').val().trim();
+
+
+            var AgencyValue = $('#AgencyId_').val();
+            $('#refAttendanceIssueDiv').find('#refmathcprovidersattenissuediv').load(HostedDir + "/Roster/GetMatchProvidersPartial", {
+                AgencyId: AgencyValue
+              , CommunityIds: result
+              , parentName: ParentName
+              , referralClientId: ReferralClientId
+              , clientName: ClientName
+              , id: ID
+              , ScreeningReferralYakkr: referanceYakkrid
+              , stepId:Step
+            }, function (responseTxt, statusTxt, xhr) {
+                console.log(responseTxt);
+
+                if (statusTxt == 'success') {
+                    $('#refmathcprovidersattenissuediv').html(responseTxt);
+
+                    $('#referralserviceSectionDiv').hide();
+                    $('#refcatagoryattenissuediv').hide();
+                    $('#refmathcprovidersattenissuediv').show();
+                    $('#refmathcprovidersattenissuediv').find('#Cancel').attr({ 'onclick': 'getReferralService(this)' });
+
+                }
+                else {
+                    customAlert('Error occurred. Please try again later.');
+                }
+
+
+                $('#spinner').hide();
+
+
+            });
+        }
+
+
+
+
+
+        function getReferralCategoryCompany(ele) {
+
+            var _ref_EncClientId = $('#att-issue-modal').find('#hiddenatt-issue-clientid').val();
+            var _ref_clientName = $('#att-issue-modal').find('#lblatt-issue-client').html();
+            var _ref_YakkrId = $('#att-issue-modal').find('#hiddenatt-issue-yakkrid').val();
+
+            $('#refcatagorycompanyattenissuediv').load('@Url.Action("GetReferralCategoryCompanyPartial","Roster")', { id: _ref_EncClientId, clientName: _ref_clientName }, function (responseTxt, statusTxt, xhr) {
+
+                if (statusTxt == 'success') {
+                    $('#caseNoteDivAttIssue,#homeVisitDivAttenissue,#refservriceAttendanceIssueDiv,#refcatagoryattenissuediv,#refmathcprovidersattenissuediv').hide();
+
+                    $('#refcatagorycompanyattenissuediv').html(responseTxt);
+                    $('#refcatagorycompanyattenissuediv').show();
+
+                    $('#refcatagorycompanyattenissuediv').find('#Cancel').attr({ 'onclick': 'getReferralService(this);' })
+
+                    $('#refcatagorycompanyattenissuediv').find('#referralYakkrId').val(_ref_YakkrId);
+
+                }
+                else {
+                    customAlert('Error occurred. Please, try again later.');
+                }
+
+
+            });
+        }
+
+        function addMoreAttachment(ele) {
+
+
+            //            var index = $('#att_issueattachmentsDiv').find('input:file').length;
+
+            var appendDiv = '<div class="col-xs-12 no-padding"> <div class="col-sm-9 col-lg-9 col-xs-7 no-padding" style="margin-top:10px;">\
+                                                       <input type="file"  onchange="ValidateSingleInputpdf2(this)" class="form-control">\
+                                                  </div>\
+                                                  <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:4%;">\
+                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeAttendanceIssueAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                                   </div>\
+                                                        </div>';
+
+
+            var $attDiv = '#addAttachmentDiv_attissue';
+            if ($(ele).attr('id') == 'Attachmectstag_appendNote') {
+
+                $attDiv = '#addAttachmentDiv_AppendNote'
+            }
+
+            $(ele).parent('div').parent('div').siblings($attDiv).append(appendDiv);
+
+
+        }
+
+        function removeAttendanceIssueAtt(ele) {
+            $(ele).parent('div').parent('div').remove();
+        }
+
+
+
+
+
+
+        function getAttendanceIssueCaseNote(ele) {
+
+
+            //requestedPage_caseNote = 1;
+            //pageSize_caseNote = 5;
+
+
+            $('#tbl_attendanceissue_casenotes').find('#table_body').load(HostedDir + '/Roster/GetAttendanceIssueCaseNoteList', {
+                clientId: $('#hiddenatt-issue-clientid').val(),
+                pageSize: pageSize_caseNote,
+                requestedPage: requestedPage_caseNote
+            }, function (responseTxt, statusTxt, xhr) {
+
+                if (statusTxt == "success") {
+                    $('#tbl_attendanceissue_casenotes').find('#table_body').html(responseTxt);
+
+
+                    if (ele != null) {
+                        $(ele).hide();
+                        $('#btnHideAttendanceIssueCaseNote').toggle();
+                    }
+
+
+                    $('#att-issue-modal').find('#caseNoteDivAttIssue').find('#div_attendance_issue_cn').show();
+
+
+                    $('#att-issue-modal').find('#caseNoteDivAttIssue').find('#div_attendance_issue_cn').find('#table_body>tr').find('td:eq(5)').find('.add-new').on('click', function () {
+
+                        getCaseNotesByNote(this);
+
+                    });
+
+                    var $modalCn = $('#div_attendance_issue_cn');
+
+                    getTotalRecord_CaseNote($modalCn.find('#spnTotalRecord').html(), $modalCn);
+
+
+
+
+                }
+                else {
+                    customAlert('Error occurred. Please, try again later.');
+                }
+            });
+
+
+        }
+
+
+        function getCaseNotesByNote(ele) {
+            var $modalAppendcn = $('#att-issue-modal').find('#divAppendCaseNoteSection');
+            var $caseNoteID = $(ele).closest('tr').attr('casenoteid');
+            $modalAppendcn.find('.hdn-casenoteid').val($(ele).closest('tr').attr('casenoteid'));
+            $.ajax({
+                type: "POST",
+                url: HostedDir + "/Roster/GetCaseNoteByNoteId",
+                data: { 'NoteId': $caseNoteID },
+                success: function (data) {
+                    $modalAppendcn.find('.txt-main-note').empty();
+                    var table = JSON.parse(data);
+                    //$modalAppendcn.find('')
+
+                    if (table != null && table.length > 0) {
+
+                        $modalAppendcn.find('#hdn-casenoteid').val($caseNoteID);
+                        $modalAppendcn.find('#txtAppendCaseNoteDate').val(table[0].CurrentDate);
+                        $modalAppendcn.find('#lblCaseNoteTitle').html(table[0].Title);
+                        $modalAppendcn.find('.txt-main-note').html(table[0].NoteField);
+                        $modalAppendcn.find('#lblCaseNotetDate').html(table[0].CaseNoteDate);
+                        $modalAppendcn.find('#lblWrittenBy').html(table[0].StaffName);
+                        $modalAppendcn.find('#lblWrittenByRole').html(table[0].RoleName);
+                        $('#att-issue-modal').find('#divCaseNoteSection').hide();
+
+                        resetAppendCaseNote(ele);
+
+                        // ReadMoreLessContent($modalAppendcn.find('.txt-main-note'));
+
+                        $modalAppendcn.show();
+                        GetSubNotesByCaseNote($modalAppendcn, $modalAppendcn.find('#hdn-casenoteid').val());
+
+                        $('#att-issue-modal').animate({
+                            scrollTop: $("#divAppendCaseNoteSection").offset().top
+                        }, 1000)
+                    }
+
+
+
+
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+
+            });
+
+
+
+        }
+
+
+
+        function resetAppendCaseNote(ele) {
+
+            $('#txtAppendCaseNoteDate').val(getFormattedDate(new Date()));
+            CKEDITOR.instances['subnotes_caseNote'].setData("");
+            $('#AppendCaseNotetags_tagsinput .tag ').each(function () {
+                $(this).remove();
+            });
+
+            $('#addAttachmentDiv_AppendNote').html('');
+            $('#divAppendCaseNoteSection').find('#att_issueattachmentsDiv').find('input:file').val('');
+
+        }
+
+
+
+        function GetSubNotesByCaseNote($modal, id) {
+
+            $.ajax({
+                type: "POST",
+                url: HostedDir + "/Roster/GetSubNotes",
+                async: false,
+                data: { 'CaseNoteId': id },
+
+                success: function (data) {
+                    //alert(data);
+                    $modal.find('.divAppendedNotes').show();
+                    $modal.find('.sub-notes-details').empty();
+                    console.clear();
+                    console.log(data);
+                    debugger;
+                    if (data != null && data.length > 0) {
+                        $(data).each(function (i, val) {
+                            debugger
+                            var attachments = '';
+                            var tagsName = '';
+                            for (var i = 0; i < val.Attachment.length; i++) {
+                                if (val.Attachment[i] != "0" && val.Attachment[i] != "")
+                                    attachments += ("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + val.Attachment[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                            }
+                            for (var i = 0; i < val.Tags.length; i++) {
+                                if (val.Tags[i] != "0" && val.Tags[i] != "")
+                                    tagsName += ('<span id="subTags" class="tag-text">' + val.Tags[i] + '</span>');
+
+                            }
+                            if (tagsName == "") {
+                                tagsName = "<span>No tags available</span>";
+                            }
+
+
+
+                            var template = '<div class="addn-poup-div sub-text-block"> \
+                          <table class="table">\
+                         <caption style="margin-bottom: 10px;">Posted on <span>{date},</span> by <span>{name}</caption>\
+                                <tbody>\
+                                <tr>\
+                                <td>\
+                                <strong>Tags</strong></td>\
+                                <td>\{SubTags} </td>\
+                                </tr>\
+                                <tr> \
+                                <td><strong>Note</strong></td>\
+                                <td> {notes}</td>\
+                                </tr>\
+                                <tr>\
+                                <td><strong>Attachments</strong></td>\
+                                <td>{SubAttach}</td>\
+                                </tr>\
+                            </tbody>\
+                            </table>\
+                            </div>'
+
+
+
+                            template = template.replace('{date}', val.WrittenDate);
+                            template = template.replace('{name}', val.Name);
+                            template = template.replace('{notes}', val.Notes);
+                            template = template.replace('{SubAttach}', attachments);
+                            template = template.replace('{SubTags}', tagsName);
+                            $modal.find('.sub-notes-details').append(template);
+                        });
+                    }
+                    else {
+                        var template = '<div class="addn-poup-div">\
+                                             <h4>\
+                                                 No record found\
+                                             </h4>\
+                                             \
+                                         </div>';
+                        $modal.find('.sub-notes-details').append(template);
+                    }
+
+
+
+
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function resetExcessiveAbsences($modal,ele)
+        {
+          
+
+            var _clientId = $modal.find('#hiddenatt-issue-clientid').val();
+            var _yakkrId = $modal.find('#hiddenatt-issue-yakkrid').val();
+
+            $.ajax({
+
+                url: HostedDir + '/Roster/ResetExcessiveAbsence',
+                type: 'post',
+                datatype: 'json',
+                data: { _encClientId: _clientId, _encYakkrId: _yakkrId },
+                success: function (data) {
+
+                    
+                    if(data==true)
+                    {
+                        customAlert('Record saved successfully');
+
+                        window.setTimeout(function () {
+
+                            window.location.reload(true);
+
+                        },1000);
+                    }
+                    
+                    else if(data==false)
+                    {
+                        customAlert('Error occurred. Please, try again later.');
+                    }
+                    else if(data.Data!='undefined' && data.Data=='Login')
+                    {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    
+
+                },
+                error:function(data)
+                {
+
+                },
+                complete:function(data)
+                {
+
+                }
+
+                
+
+            });
+
+        }
+
+
+
+
+
+
+
         $(document).ready(function () {
 
+
+            $('.modal').on("hidden.bs.modal", function (e) { //fire on closing modal box
+                if ($('.modal:visible').length) { // check whether parent modal is opend after child modal close
+                    $('body').addClass('modal-open'); // if open mean length is 1 then add a bootstrap css class to body of the page
+                }
+            });
+
+            $('#att-issue-modal').find('#AppendCaseNotetags').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInputAll('#AppendCaseNotetags'),
+                    'appendTo': "#att-issue-modal"
+                },
+                autocomplete_url: '',
+                autocomplete_url: '',
+            });
+
+
+            $('#btn_append_casenote_clear').on('click', function () {
+
+                resetAppendCaseNote();
+
+            });
+
+            $('#att-issue-modal').find('#btn_append_casenote_back').on('click', function () {
+
+
+                $('#att-issue-modal').find('#divAppendCaseNoteSection').hide();
+                $('#att-issue-modal').find('#divCaseNoteSection').show();
+
+            });
+
+
+
+            $('#att-issue-modal').on('hidden.bs.modal', function () {
+
+                $('#homeVisitDivAttenissue').hide();
+                $("#caseNoteDivAttIssue").hide();
+                $('.ride_deta').find('li').removeClass('active');
+            });
+
+
+            $('#modalAppendCaseNote').on('hidden.bs.modal', function () {
+
+                $('#att-issue-modal').modal('show');
+            });
+
+
+            $('#att-caseNoteli').on('click', function () {
+
+                $('#homeVisitDivAttenissue').hide();
+                $('#refAttendanceIssueDiv').hide();
+                $("#caseNoteDivAttIssue").show();
+
+
+                var $att_issue_modal = $('#att-issue-modal');
+
+                if ($att_issue_modal.find('#btnHideAttendanceIssueCaseNote').is(':visible')) {
+                    $att_issue_modal.find('#btnHideAttendanceIssueCaseNote').trigger('click');
+
+                }
+
+                bindAttendanceIssueCaseNote($att_issue_modal);
+            });
+
+            $('#att-homeVisitli').on('click', function () {
+
+                $("#caseNoteDivAttIssue").hide();
+                $('#refAttendanceIssueDiv').hide();
+
+                clearcontrols($('#homeVisitDivAttenissue'));
+                $('#homeVisitDivAttenissue').show();
+
+            });
+
+            $('#att-refli').on('click', function () {
+
+                getReferralService(this);
+            });
+
+
+
+
+
+
+            $('#att-issue-modal').find('#btn-new-req-family-attissue').on('click', function () {
+
+
+                $('#att-issue-modal').find('#refservriceAttendanceIssueDiv').hide();
+                $('#att-issue-modal').find('#refcatagoryattenissuediv').show();
+            });
+
+            $('#bn_att_issue_casenote_clear').on('click', function () {
+
+                bindAttendanceIssueCaseNote($('#att-issue-modal'));
+            });
+
+
+            $('#btnShowAttendanceIssueCaseNote').on('click', function () {
+
+
+
+                //$.ajax({
+                pageSize_caseNote = 5;
+                requestedPage_caseNote = 1;
+                getAttendanceIssueCaseNote(this);
+
+                //});
+
+            });
+
+            $('#btnHideAttendanceIssueCaseNote').on('click', function () {
+
+                $('#div_attendance_issue_cn').hide();
+                $('#div_attendance_issue_cn').find('#table_body').html('');
+                $('#btnHideAttendanceIssueCaseNote').toggle();
+
+                $('#btnShowAttendanceIssueCaseNote').toggle();
+            });
+
+
+            $('#btn_att_issue_casenote_save').on('click', function () {
+                debugger;
+
+                var $caseNoteSection = $('#divCaseNoteSection');
+
+                if (ValidateAttendanceIssuecasenote()) {
+
+                    var fd = new FormData();
+
+                    var staffIDs = new Array();
+
+                    $('#staffdiv_attissue').find('input:checkbox:checked').map(function () {
+
+                        staffIDs.push($(this).val());
+                    });
+
+                    var clientIDs = new Array();
+
+                    $('#casenoteClientsdiv_attissue').find('input:checkbox:checked').map(function () {
+                        clientIDs.push($(this).val());
+
+                    });
+
+
+                    var fileInput = null;
+
+
+
+                    fd.append('CaseNoteid', $caseNoteSection.find('#hid-case-note-id').val());
+
+                    fd.append('ClientId', $('#hiddenatt-issue-clientid').val());
+                    fd.append('ProgramId', $('#hiddenatt-issue-programid').val());
+
+
+                    fd.append('HouseHoldId', $('#hiddenatt-issue-householdid').val());
+                    fd.append('CenterId', $('#hiddenatt-issue-centerid').val());
+                    fd.append('Classroomid', $('#hiddenatt-issue-classroomid').val());
+
+                    fd.append('CaseNoteDate', $('#txtcasenotedate_attissue').val());
+                    fd.append('CaseNotetitle', $('#txtcasenotetitle_attissue').val());
+                    fd.append('Note', $('#txtcasenote_attissue').val());
+                    fd.append('CaseNotetags', $('#casenotetags_attissue').val().trim(','));
+                    fd.append('ClientIds', clientIDs.join(","));
+                    fd.append('StaffIds', staffIDs.join(","));
+                    fd.append('CaseNoteSecurity', $('#casenotesecurity_attissue').is(':checked'));
+
+                    $('#att-issue-modal').find('input:file').each(function () {
+
+                        fd.append('fileInput', $(this)[0].files[0]);
+
+                    });
+
+
+                    $.ajax({
+                        url: HostedDir + "/Roster/SaveAttendanceIssueCaseNote",
+                        type: 'POST',
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        data: fd,
+                        success: function (response) {
+
+                            if (response == '1') {
+                                customAlert('Record saved successfully');
+
+                                $caseNoteSection.find('#bn_att_issue_casenote_clear').trigger('click');
+
+                                if ($('#div_attendance_issue_cn').is(':visible')) {
+                                    getAttendanceIssueCaseNote(null);
+                                }
+
+                            }
+                            else {
+                                customAlert('Error occurred. Please, try again later.');
+                            }
+                        }
+                    });
+                }
+
+            });
+
+
+            $('#btnResetabsence').on('click', function () {
+
+
+               
+                BootstrapDialog.show({
+                    title: 'Confirmation',
+                    message: '<p>You are about to reset the Excessive Absences calculation of <strong>'+$('#lblatt-issue-client').html()+'</strong></p><p>Click <strong>OK</strong> to proceed.' ,
+                    buttons: [{
+                        label: 'Cancel',
+                        cssClass: 'btn-primary',
+                        action: function (dialogItself) {
+                            dialogItself.close();
+                           
+                            window.setTimeout(function () {
+                                if ($('.modal:visible').length) { // check whether parent modal is opend after child modal close
+                                    $('body').addClass('modal-open'); // if open mean length is 1 then add a bootstrap css class to body of the page
+                                }
+
+                            }, 500)
+                           
+                        }
+                    }, {
+                        label: 'OK',
+                        cssClass: 'btn-primary',
+                        action: function (dialogItself) {
+                         
+                            resetExcessiveAbsences($('#att-issue-modal'), $('#btnResetabsence'));
+                        }
+                    }]
+                });
+
+
+               
+
+            });
+
+
+            $(document).ajaxStart(function () {
+                $('#spinner').show();
+            });
+
+            $(document).ajaxStop(function () {
+                $('#spinner').hide();
+            });
+
+
             // tooltip for attendance issue//
-                $('[data-toggle="tooltip"]').tooltip();
+
+            $('[data-toggle="tooltip"]').tooltip({
+
+                trigger: 'hover'
+
+            });
+
+
+
             CKEDITOR.replace('Note', {
                 language: 'en-gb',
                 uiColor: '#295b8f',
                 disableNativeSpellChecker: false
             });
+
+
+            CKEDITOR.replace('subnotes_caseNote', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+
+
+            var $attendanceIssueModal = $('#att-issue-modal');
+
+
+            $attendanceIssueModal.find('#btnLoadCaseNote').on('click', function () {
+
+                if (!$attendanceIssueModal.find('#caseNoteDivAttIssue').is(':visible')) {
+                    $attendanceIssueModal.find('#caseNoteDivAttIssue').show('slow');
+                }
+
+            });
+
+
+
 
             $('#nREF_status_CaseNotetags').tagsInput({
                 width: 'auto',
@@ -816,6 +2022,12 @@
 
 
             $('#caseNoteDetails_CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#txtcasenotedate_attissue,#txtAppendCaseNoteDate').mask("99/99/9999", { placholder: 'MM/DD/YYYY' });
+
+      
+
+
 
             $('#Houselessmodal').find('#btnSubmitHouseless').on('click', function () {
 
@@ -1111,10 +2323,16 @@
                 format: 'm/d/Y',
                 validateOnBlur: false
             });
+
+
             $('#seatsDatetimePicker2').datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
-                validateOnBlur: false
+                validateOnBlur: false,
+                minDate: new Date(),
+                mask: true,
+                validateOnBlur:true
+
             });
 
             $('input').keypress(function () {
@@ -1174,21 +2392,85 @@
                 window.setTimeout(function () { getListafterupdation() }, 10);
             });
 
-            $('#seatsDatetimePicker2').change(function () {
+
+            $('#casenoteddlpaging').on('change', function () {
+
+                window.setTimeout(function () { getListafterupdationCaseNote() }, 10);
+
+
+            });
+
+
+
+            $('#btn_append_casenote_save').click(function () {
+
+
+                var $appendCaseNoteSection = $('#divAppendCaseNoteSection');
+
+                if (CKEDITOR.instances['subnotes_caseNote'].getData() == "") {
+                    customAlert("Sub Note is required.");
+                }
+                else {
+                    var CaseNote = {};
+                    var Tags = '';
+                    $appendCaseNoteSection.find('#AppendCaseNotetags_tagsinput .tag span').each(function () {
+                        Tags = Tags + $(this).text().trim() + ',';
+                    });
+
+                    CaseNote.Note = CKEDITOR.instances['subnotes_caseNote'].getData().toString().trim();
+                    CaseNote.CaseNoteid = $appendCaseNoteSection.find('#hdn-casenoteid').val();
+                    CaseNote.CaseNoteDate = $appendCaseNoteSection.find('.txt-date').val();
+                    CaseNote.HouseHoldId = $('#hiddenatt-issue-householdid').val();
+                    CaseNote.CenterId = $('#hiddenatt-issue-centerid').val();
+                    CaseNote.Classroomid = $('#hiddenatt-issue-classroomid').val();
+                    CaseNote.CaseNotetags = Tags;
+                    CaseNote = JSON.stringify({ 'CaseNote': CaseNote });
+                    $.ajax({
+                        type: "POST",
+                        url: "/Roster/SaveSubNotes",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        async: false,
+                        data: CaseNote,
+                        success: function (data) {
+
+
+                            if (data != '') {
+                                customAlert('Record saved successfully');
+                                SaveSubCaseNoteFile();
+                                resetAppendCaseNote();
+                                $('#divAppendCaseNoteSection').hide();
+                                bindAttendanceIssueCaseNote($('#att-issue-modal'));
+                            }
+
+
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        }
+                    });
+                }
+
+
+
+            });
+
+
+            $('#homeVisitDivAttenissue').find('#seatsDatetimePicker2').change(function () {
                 if ($(this).val() != "") {
                     cleanValidation();
-                    var isValid = CheckdateForAppointment($(this).val());
+                    var isValid = CheckdateForAppointment($('#homeVisitDivAttenissue'), $(this).val());
                     if (!validDate($(this).val())) {
 
                         customAlert("Please enter valid date.");
-                        plainValidation('#seatsDatetimePicker2');
+                        plainValidation(this);
                         return false;
 
                     }
                     else if (!isValid) {
 
                         customAlert("Please enter future date.");
-                        plainValidation('#seatsDatetimePicker2');
+                        plainValidation(this);
                         return false;
 
                     }
@@ -1361,7 +2643,7 @@
             //changes on dec-18-17
 
 
-            $('#TestEndTime').mask("99:99", { placeholder: 'HH:MM' });
+            $('#homeVisitDivAttenissue').find('input[name=hvHoursTxt]').mask("99:99", { placeholder: 'HH:MM' });
 
             var currentdate = new Date();
             var listTime = [];
@@ -1457,59 +2739,59 @@
 
 
         });
-        function checkInfo() {
+        function checkInfo($hvSection) {
             var isValid = true;
             cleanValidation();
-            if ($('#Description')[0].value.trim() == "") {
+            if ($hvSection.find('#Description')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter Description.");
-                plainValidation('#Description');
+                plainValidation($hvSection.find('#Description'));
                 return isValid;
             }
-            if ($('#seatsDatetimePicker2')[0].value.trim() == "") {
+            if ($hvSection.find('#seatsDatetimePicker2')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please select Date.");
-                plainValidation('#seatsDatetimePicker2');
+                plainValidation($hvSection.find('#seatsDatetimePicker2'));
                 return isValid;
             }
-            else if ($('#seatsDatetimePicker2')[0].value.trim() != "") {
+            else if ($hvSection.find('#seatsDatetimePicker2')[0].value.trim() != "") {
                 //cleanValidation();
-                var dte = $('#seatsDatetimePicker2')[0].value.trim();
-                var isValid = CheckdateForAppointment(dte);
+                var dte = $hvSection.find('#seatsDatetimePicker2')[0].value.trim();
+                var isValid = CheckdateForAppointment($hvSection,dte);
                 if (!validDate(dte)) {
 
                     customAlert("Please enter valid date.");
-                    plainValidation('#seatsDatetimePicker2');
+                    plainValidation($hvSection.find('#seatsDatetimePicker2'));
                     return isValid;
 
                 }
                 else if (!isValid) {
 
                     customAlert("Please enter future date.");
-                    plainValidation('#seatsDatetimePicker2');
+                    plainValidation($hvSection.find('#seatsDatetimePicker2'));
                     return isValid;
 
                 }
 
             }
 
-            if ($('#StartTime')[0].value.trim() == "") {
+            if ($hvSection.find('#StartTime')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter From Time.");
-                plainValidation('#StartTime');
+                plainValidation($hvSection.find('#StartTime'));
                 return isValid;
             }
 
-            if ($('#TestEndTime')[0].value.trim() == "") {
+            if ($hvSection.find('input:text[name=hvHoursTxt]')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter Duration");
-                plainValidation('#TestEndTime');
+                plainValidation($hvSection.find('input:text[name=hvHoursTxt]'));
                 return isValid;
             }
-            if ($('#Notes')[0].value.trim() == "") {
+            if ($hvSection.find('#Notes')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter Notes");
-                plainValidation('#Notes');
+                plainValidation($hvSection.find('#Notes'));
                 return isValid;
             }
                 //else if ($('#StartDate')[0].val() == "") {
@@ -1518,10 +2800,10 @@
                 //    plainValidation('#StartDate');
                 //    return isValid;
                 //}
-            else if ($('#StartTime')[0].value.trim() == "") {
+            else if ($hvSection.find('#StartTime')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter Start Time.");
-                plainValidation('#StartTime');
+                plainValidation($hvSection.find('#StartTime'));
                 return isValid;
             }
 
@@ -1543,11 +2825,11 @@
 
             return totalMins;
         }
-        function getTime() {
-
-            var dateselect = $('#seatsDatetimePicker2').val();
-            var time1 = $('#StartTime').val();
-            var time2 = $('#TestEndTime').val();
+        function getTime($modal) {
+       
+            var dateselect = $modal.find('#seatsDatetimePicker2').val();
+            var time1 = $modal.find('#StartTime').val();
+            var time2 = $modal.find('input:text[name="hvHoursTxt"]').val();
             var am_pm = "AM";
             var Starttimehours = time1.substring(0, 1);
             // var totalstarttime = starttime.substring(0, 5);
@@ -1563,26 +2845,44 @@
                 am_pm = "PM";
                 hours = "0" + (hours - 12);
             }
-            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
+            $modal.find('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
         }
         function AddSchedulerDetails(arg) {
-            var clientid = $(arg).attr('data-clientid');
+
+            var $attModel = $('#att-issue-modal');
+            var $hvSection = $attModel.find('#homeVisitDivAttenissue');
+          
+
+
+
             var row = $(arg).attr('data-row');
 
-            if (checkInfo()) {
-                getTime();
+            if (checkInfo($hvSection)) {
+                getTime($hvSection);
+
+
+                var _hvClientid = $attModel.find('#hiddenatt-issue-clientid').val();
+
+
+                var _hvDescription = $hvSection.find('#Description').val();
+                var _hvDate = $hvSection.find('#seatsDatetimePicker2').val();
+                var _hvStartTime = $hvSection.find('#StartTime').val();
+                var _hvDuration = $hvSection.find('input:text[name=hvHoursTxt]').val();
+                var _hvEndTime = $hvSection.find('#EndTimeDuration').val();
+                var _hvNotes = $hvSection.find('#Notes').val();
+
                 $.ajax({
                     url: HostedDir + "/AgencyUser/AddSchedulerInfo",
                     type: "POST",
                     data: {
-                        Description: $('#Description').val(),
-                        Date: $('#seatsDatetimePicker2').val(), //Changes on 28Dec2016
-                        StartTime: $('#StartTime').val(),
-                        Duration: $('#TestEndTime').val(),
-                        EndTime: $('#EndTimeDuration').val(),
+                        Description: _hvDescription,
+                        Date: _hvDate, //Changes on 28Dec2016
+                        StartTime: _hvStartTime,
+                        Duration: _hvDuration,
+                        EndTime: _hvEndTime,
                         Day: $('#Days').val(),
-                        ClientId: clientid,
-                        Notes: $('#Notes').val(),
+                        ClientId: _hvClientid,
+                        Notes: _hvNotes,
                         MeetingId: $('#MeetingId').val(),
                         IsYakkr600601: true
                     },
@@ -1593,22 +2893,25 @@
 
                             if (response.result == "1") {
 
-                                $('#schedule_popup').modal('hide');
-                                $("#" + row).find('td').eq(3).text("");
-                                var sessionCount = parseInt($('#hmAptct').text().substr(1).slice(0, -1)) + 1;
+                              //  $('#schedule_popup').modal('hide');
+                              //  $("#" + row).find('td').eq(3).text("");
+                              //  var sessionCount = parseInt($('#hmAptct').text().substr(1).slice(0, -1)) + 1;
 
-                                $('#hmAptct').text("(" + sessionCount + ")")
+                                //  $('#hmAptct').text("(" + sessionCount + ")")
+
                                 customAlert("Record added successfully.");
+                                clearcontrols($hvSection);
                             }
 
                             else if (response.result == "2") {
 
-                                $('#schedule_popup').modal('hide');
-                                clearcontrols();
+                               // $('#schedule_popup').modal('hide');
+                                   
+                              //  clearHVSchedule($hvSection.find('#Clear)
 
                                 customAlert("Record updated successfully");
 
-
+                                clearcontrols($hvSection);
 
                             }
                             else if (response.result == "3") {
@@ -1624,19 +2927,49 @@
         }
 
 
-        function clearcontrols() {
-            $('#Description')[0].value = "";
+        function clearcontrols($modal) {
+            $modal.find('#Description')[0].value = "";
             // $('#StartDate')[0].value = "";
-            $('#StartTime')[0].value = "";
+            $modal.find('#StartTime')[0].value = "";
             //   $('#EndTime')[0].value = "";
-            $('#TestEndTime')[0].value = "";
-            $('#Notes')[0].value = "";
-            $('#MeetingId').val(0);
-            $('#seatsDatetimePicker2').val("");
+            $modal.find('input:text[name=hvHoursTxt]')[0].value = "";
+            $modal.find('#Notes')[0].value = "";
+            $modal.find('#MeetingId').val(0);
+            $modal.find('#seatsDatetimePicker2').val("");
         }
 
 
 
+
+
+        function SaveSubCaseNoteFile() {
+            var data = new FormData();
+            $('#divAppendCaseNoteSection').find('#att_issueattachmentsDiv').find('input:file').each(function (i, vak) {
+                var files = $(this).get(0).files;
+                console.log(files);
+                console.log($(this).val());
+                if (files.length > 0) {
+                    data.append("MyImages" + i + "", files[0]);
+                }
+            });
+
+            $.ajax({
+                url: "/Roster/UploadFiles",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                asyn: false,
+                data: data,
+                success: function (data) {
+
+
+                },
+                error: function (er) {
+                    alert(er);
+                }
+            });
+
+        }
 
 
         function getListafterupdation() {
@@ -1677,6 +3010,54 @@
             bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
             $("#ddlpaging").val(requestedPage);
         }
+
+
+        function getListafterupdationCaseNote() {
+
+
+
+            var $modalcaseNote = $('#div_attendance_issue_cn');
+
+            pageSize_caseNote = $modalcaseNote.find('#casenoteddlpagetodisplay').val();
+            requestedPage_caseNote = $('#casenoteddlpaging').val();
+            StartIndex = (pageSize_caseNote * (requestedPage_caseNote - 1)) + 1;
+            LastIndex = parseInt(pageSize_caseNote * requestedPage_caseNote) - parseInt(pageSize_caseNote);
+            //$('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
+            //if (imgID != '' && imgID != 'undefined' && imgID != null) {
+            //    direction = $("#" + imgID).siblings('input').val();
+            //}
+            //if (direction == "Asc") {
+            //    sortDirection = $("#" + imgID).siblings('input').val();
+            //} else if (direction == "Desc") {
+            //    sortDirection = $("#" + imgID).siblings('input').val();
+            //}
+            //getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage_caseNote == 1) {
+                $modalcaseNote.find('#First_CaseNote').attr('disabled', true);
+                $modalcaseNote.find('#Back_CaseNote').attr('disabled', true);
+                $modalcaseNote.find('#Next_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Last_CaseNote').attr('disabled', false);
+            }
+            else if (requestedPage_caseNote == numOfPages_caseNote) {
+                $modalcaseNote.find('#First_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Back_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Next_CaseNote').attr('disabled', true);
+                $modalcaseNote.find('#Last_CaseNote').attr('disabled', true);
+            }
+            else {
+                $modalcaseNote.find('#First_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Back_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Next_CaseNote').attr('disabled', false);
+                $modalcaseNote.find('#Last_CaseNote').attr('disabled', false);
+            }
+            //bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage_caseNote);
+
+            getAttendanceIssueCaseNote(null);
+        }
+
+
         function getList() {
 
             requestedPage = (requestedPage === 0) ? 1 : requestedPage;
@@ -1755,6 +3136,31 @@
             getList();
             bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
         }
+
+
+
+
+        function GoToNextPage_CaseNote(requestedPage, pageSize) {
+            //$('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
+            //if (imgID != '' && imgID != 'undefined' && imgID != null) {
+            //    direction = $("#" + imgID).siblings('input').val();
+            //}
+            //if (direction == "Asc") {
+            //    sortDirection = $("#" + imgID).siblings('input').val();
+
+            //} else if (direction == "Desc") {
+            //    sortDirection = $("#" + imgID).siblings('input').val();
+            //}
+
+
+            getAttendanceIssueCaseNote(null);
+
+
+            //getList();
+            //bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+        }
+
+
         function getlistafterstatuschanged() {
             getList();
             bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
@@ -1772,6 +3178,17 @@
                 $('#Back').attr('disabled', true);
             }, 10);
         }
+
+
+        function drawgrid_CaseNote() {
+            $('#div_attendance_issue_cn').find('#First_CaseNote').attr('disabled', true);
+            $('#div_attendance_issue_cn').find('#Back_CaseNote').attr('disabled', true);
+
+            pageSize_caseNote = $('#div_attendance_issue_cn').find('#casenoteddlpagetodisplay').val();
+
+            getAttendanceIssueCaseNote(null);
+        }
+
         function cleargrid() {
 
             sortOrder = '';
@@ -1887,6 +3304,92 @@
 
             }, 10)
         }
+
+
+        //var StartIndexCaseNote = 0;
+
+
+        function fnChangePage_CaseNote(val, $modal) {
+            var rowLength = $modal.find('#table_body').find('tr').length;
+            if (rowLength === 0) {
+
+                return false;
+            }
+
+
+
+            $('#spinner').show();
+
+            window.setTimeout(function () {
+
+                pageLoadedFirst = false;
+                pageSize_caseNote = $modal.find('#casenoteddlpagetodisplay').val();
+                if (val == 'First') {
+                    StartIndex = 0;
+                    LastIndex = parseInt(pageSize_caseNote) + parseInt(LastIndex * requestedPage_caseNote);
+                    requestedPage_caseNote = ((StartIndex / 10) + 1);
+
+                    $modal.find('#First_CaseNote').attr('disabled', true);
+                    $modal.find('#Back_CaseNote').attr('disabled', true);
+                    $modal.find('#Next_CaseNote').attr('disabled', false);
+                    $modal.find('#Last_CaseNote').attr('disabled', false);
+                    LastIndex = 0;
+                }
+                else if (val == 'Last') {
+                    StartIndex = parseInt((totalRecords_caseNote - 1) / pageSize_caseNote) * pageSize_caseNote;
+                    LastIndex = totalRecords_caseNote;
+                    requestedPage = numOfPages_caseNote;
+                    // GoToNextPage(requestedPage, pageSize_caseNote)
+                    $modal.find('#First_CaseNote').attr('disabled', false);
+                    $modal.find('#Back_CaseNote').attr('disabled', false);
+                    $modal.find('#Next_CaseNote').attr('disabled', true);
+                    $modal.find('#Last_CaseNote').attr('disabled', true);
+                }
+                else if (val == 'Next') {
+                    LastIndex = parseInt(pageSize_caseNote) + parseInt(LastIndex);
+                    requestedPage_caseNote = (parseInt(LastIndex / pageSize_caseNote) + 1);
+                    //   GoToNextPage(requestedPage_caseNote, pageSize_caseNote);
+
+                    $modal.find('#First_CaseNote').attr('disabled', false);
+                    $modal.find('#Back_CaseNote').attr('disabled', false);
+                    if (parseInt(LastIndex) + parseInt(pageSize_caseNote) >= totalRecords_caseNote) {
+                        $modal.find('#Next_CaseNote').attr('disabled', true);
+                        $modal.find('#Last_CaseNote').attr('disabled', true);
+                    }
+                    else if (parseInt(LastIndex) - parseInt(pageSize_caseNote) < totalRecords_caseNote) {
+                        $modal.find('#Next_CaseNote').attr('disabled', false);
+                        $modal.find('#Next_CaseNote').attr('disabled', false);
+                    }
+                }
+                else if (val == 'Back') {
+                    requestedPage_caseNote = requestedPage_caseNote - 1;
+                    LastIndex = parseInt(LastIndex) - parseInt(pageSize_caseNote);
+                    // GoToNextPage(requestedPage_caseNote, pageSize_caseNote)
+                    if (parseInt(LastIndex) + parseInt(pageSize_caseNote) > totalRecords_caseNote) {
+                        $modal.find('#Next_CaseNote').attr('disabled', true);
+                        $modal.find('#Next_CaseNote').attr('disabled', true);
+                    }
+                    else if (parseInt(LastIndex) - parseInt(pageSize_caseNote) < totalRecords_caseNote) {
+                        $modal.find('#Next_CaseNote').attr('disabled', false);
+                        $modal.find('#Next_CaseNote').attr('disabled', false);
+                    }
+                    if (requestedPage_caseNote == 1) {
+                        $modal.find('#First_CaseNote').attr('disabled', true);
+                        $modal.find('#Back_CaseNote').attr('disabled', true);
+                    }
+                }
+                else {
+                }
+
+                GoToNextPage_CaseNote(requestedPage_caseNote, pageSize_caseNote);
+
+            }, 10)
+        }
+
+
+
+
+
         function getTotalRecord(data) {
             $('#First').attr('disabled', false);
             $('#Back').attr('disabled', false);
@@ -1916,6 +3419,41 @@
                 $('#Last').attr('disabled', true);
             }
         }
+
+
+
+
+        function getTotalRecord_CaseNote(data, $modal) {
+            $modal.find('#First_CaseNote').attr('disabled', false);
+            $modal.find('#Back_CaseNote').attr('disabled', false);
+            $modal.find('#Next_CaseNote').attr('disabled', false);
+            $modal.find('#Last_CaseNote').attr('disabled', false);
+            pageSize_caseNote = $modal.find('#casenoteddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords_caseNote = parseInt(data);
+                if (totalRecords_caseNote <= pageSize_caseNote) {
+
+                    $modal.find('#First_CaseNote').attr('disabled', true);
+                    $modal.find('#Back_CaseNote').attr('disabled', true);
+                    $modal.find('#Next_CaseNote').attr('disabled', true);
+                    $modal.find('#Last_CaseNote').attr('disabled', true);
+                }
+                numOfPages_caseNote = parseInt(totalRecords_caseNote / pageSize_caseNote) + ((totalRecords_caseNote % pageSize_caseNote == 0) ? 0 : 1);
+                $modal.find("#casenoteddlpaging").empty()
+                for (i = 1; i <= numOfPages_caseNote; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $modal.find("#casenoteddlpaging").append(newOption);
+                }
+                $modal.find("#casenoteddlpaging").val(requestedPage_caseNote);
+            }
+            else {
+                $modal.find('#First').attr('disabled', true);
+                $modal.find('#Back').attr('disabled', true);
+                $modal.find('#Next').attr('disabled', true);
+                $modal.find('#Last').attr('disabled', true);
+            }
+        }
+
         function GetSelectedDateDetails(value) {
 
             var EClientId = $(value).attr("data-clientId");
@@ -2006,15 +3544,27 @@
                     if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'a65bb7c2-e320-42a2-aed4-409a321c08a5') {
 
 
-                        if (data.list.Rosters[i].IsAppointMentYakkr600601 != 0) {
-                            tr += '<td height="70"  role="gridcell" data-title="Attendance Issue"></td>';
-                        }
-                        //else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
-                        //    tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
-
+                        //if (data.list.Rosters[i].IsAppointMentYakkr600601 != 0) {
+                        //    tr += '<td height="70"  role="gridcell" data-title="Attendance Issue"></td>';
                         //}
-                        else if (data.list.Rosters[i].Yakkr601 != 0) {
-                            tr += '<td height="70" " role="gridcell"  data-title="Attendance Issue"><a href="javascript:void(0);" data-toggle="tooltip" title="Excessive Absences" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">Excessive Absences</td>';
+                            //else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
+                            //    tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
+
+                            //}
+                        if (data.list.Rosters[i].Yakkr601 != 0) {
+
+                            if (data.list.Rosters[i].IsAllowAttendanceIssueReview)
+                            {
+                                tr += '<td height="70" " role="gridcell"  data-title="Attendance Issue"><a href="javascript:void(0);" data-toggle="tooltip" title="Excessive Absences" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">Excessive Absences</td>';
+
+                            }
+                            else
+                            {
+                                tr += '<td height="70" " role="gridcell"  data-title="Attendance Issue"><a href="javascript:void(0);" style="text-decoration:none;cursor:unset;"  title="Excessive Absences" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" >Excessive Absences</td>';
+
+                            }
+
+
                         }
                         //else if (data.list.Rosters[i].Yakkr600 != 0) {
                         //    tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="600" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" data- onclick="ShowPopup(this);">600</td>';
@@ -2320,39 +3870,189 @@
 
 
         }
-        function ShowPopup(arg) {
-            clearcontrols();
-            $('#EndTime').val("-1");
-            var clientid = $(arg).attr("data-clientid");
-            var parent = $(arg).attr("data-parent");
-            var yakkr = $(arg).attr("data-yakkr");
-            var row = $(arg).attr("data-row")
-            $('.addSchedular').attr("data-clientId", clientid);
-            $('.addSchedular').attr("data-row", row);
-            $('#Resourece1')[0].innerText = "Add Appointment";
-            if (yakkr == "600")
-                $("textarea#Notes").val("Consective absent for three days");
-            else if (yakkr == "601")
-                $("textarea#Notes").val("Attendance is less than 15%");
-            else if (yakkr == "600601")
-                $("textarea#Notes").val("Consecutive absent for three days and Attendance is less than 15%");
-            var selectedtitle = "Home Visit  -  " + parent +"  Family";
-            $('#Description').val(selectedtitle);
-            if (!$('#schedule_popup').hasClass('in'))
-                $('#schedule_popup').modal('show');
+
+
+        var caseNoteData = null;
+
+        function attendanceIssueCaseNoteData(_data) {
+            caseNoteData = _data;
+        }
+
+        function bindAttendanceIssueCaseNote($modal) {
+            var appendClientDiv = '';
+            var appendStaffDiv = '';
+            var appendParent = '';
+
+
+            $('#txtcasenote_attissue').val('Excessive Absences');
+
+            if (CKEDITOR.instances['txtcasenote_attissue']) {
+                CKEDITOR.instances['txtcasenote_attissue'].destroy(true);
+
+            }
+
+            CKEDITOR.replace('txtcasenote_attissue', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+
+          //  CKEDITOR.instances['txtcasenote_attissue'].
+
+        
+
+            $('#casenotetags_attissue').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInputAll('#casenotetags_attissue'),
+                    'appendTo': "#att-issue-modal"
+                },
+                autocomplete_url: '',
+                autocomplete_url: '',
+            });
+
+            $('#casenotetags_attissue').importTags("Excessive Absences,,;");
+            $modal.find('#att_issue_firstfile').val('');
+            $modal.find('#addAttachmentDiv_attissue').html('');
+
+            if (caseNoteData != null && caseNoteData.Clientlist != null) {
+
+                //append client list//
+                if (caseNoteData.Clientlist != null && caseNoteData.Clientlist.length > 0) {
+                    $.each(caseNoteData.Clientlist, function (i, client) {
+                        appendClientDiv += '<div class="col-sm-12 adddivspace"><input type="checkbox" checked="checked" value="' + client.Id + '"><span>&nbsp;' + client.Name + '</span></div>';
+                    });
+                }
+
+                //append developmental team list//
+                if (caseNoteData.UserList != null && caseNoteData.UserList.length > 0) {
+                    $.each(caseNoteData.UserList, function (j, user) {
+                        appendStaffDiv += '<div class="col-sm-12 col-lg-12 m-tp"><input type="checkbox"  value="' + user.Id + '"><span>&nbsp;' + user.Name + '</span></div>';
+                    });
+                }
+
+                $modal.find('#casenoteClientsdiv_attissue').html(appendClientDiv);
+                $modal.find('#staffdiv_attissue').html(appendStaffDiv);
+
+
+
+
+                if (caseNoteData.CaseNoteList != null && caseNoteData.CaseNoteList.length > 0) {
+
+
+                    $modal.find('#txtcasenotedate_attissue').val(caseNoteData.CaseNoteList[0].Date).attr('Readonly',false);
+                    $modal.find('#txtcasenotetitle_attissue').val('Excessive Absences').attr('Readonly', false);
+                    $modal.find('#lblatt-issue-client').html(caseNoteData.CaseNoteList[0].Name);
+                    $modal.find('#hiddenatt-issue-clientid').val(caseNoteData.CaseNoteList[0].clientid);
+                    $modal.find('#hiddenatt-issue-programid').val(caseNoteData.CaseNoteList[0].ProgramID);
+                    $modal.find('#hiddenatt-issue-householdid').val(caseNoteData.CaseNoteList[0].Householid);
+                    $modal.find('#hiddenatt-issue-centerid').val(caseNoteData.CaseNoteList[0].CenterId);
+                    $modal.find('#hiddenatt-issue-classroomid').val(caseNoteData.CaseNoteList[0].Classroomid);
+                    $modal.find('#div_download_attach').hide();
+                    $modal.find('#div_download_attach').find('#div_attach_download_bind_section').html('');
+                }
+
+                if (caseNoteData.ParentContactInfoList != null && caseNoteData.ParentContactInfoList.length > 0) {
+
+                    $.each(caseNoteData.ParentContactInfoList, function (p, parent) {
+
+
+                        appendParent += '<tr>';
+                        appendParent += '<td data-title="Name">' + parent.ParentName + '</td>';
+
+
+                        if (parent.PhoneNo != null && parent.PhoneNo != "") {
+                            appendParent += '<td data-title="Name">' + parent.PhoneNo.replace(',', '<br>') + '</td>';
+                        }
+                        appendParent += '</tr>';
+                    });
+
+                    $modal.find('#div-atten-issue-parent').find('#parent_table_body').html(appendParent);
+                }
+
+
+
+                $modal.find('#hiddenatt-issue-yakkrid').val(caseNoteData.ReferenceYakkrID);
+            }
+
+
+            $modal.find('#heading_case_note').html(CaseNoteHeading.AddCaseNote);
+            $modal.find('#divCaseNoteSection').show();
         }
 
 
+        function ShowPopup(arg) {
+
+            var $attissuemodal = $('#att-issue-modal');
+            $attissuemodal.find('#hiddenatt-issue-clientid').val('');
+            $attissuemodal.find('#hiddenatt-issue-programid').val('');
+            $attissuemodal.find('#hiddenatt-issue-householdid').val('');
+
+            $attissuemodal.find('#hiddenatt-issue-centerid').val('');
+            $attissuemodal.find('#hiddenatt-issue-classroomid').val('');
+            $attissuemodal.find('#hiddenatt-issue-yakkrid').val('');
+          
+     
+            $.ajax({
+
+                url: HostedDir + '/Roster/GetDevelopmentalTeamByClient',
+                datatype: 'application/json',
+                type: 'post',
+                data: { clientId: $(arg).attr('data-clientid') },
+                success: function (data) {
+                    console.log(data);
+                   
+
+
+                    try {
+
+
+                        $attissuemodal.find('.ride_deta').find('li').removeClass('active');
+
+                        $attissuemodal.find('#caseNoteDivAttIssue,#homeVisitDivAttenissue,#refAttendanceIssueDiv').hide();
+
+                        attendanceIssueCaseNoteData(data);
+
+
+                        if (data != null && data.Clientlist != null) {
+
+
+                            bindAttendanceIssueCaseNote($attissuemodal);
+
+                            $attissuemodal.modal({
+                                'backdrop': 'static',
+                                'keyboard': false
+
+                            }, 'show');
+                        }
+                        else {
+                            customAlert('Error occurred. Please, try again later');
+                        }
+                    }
+                    catch (error) {
+                        customAlert('Error occurred. Please, try again later');
+                        console.log(error);
+                        $('#spinner').hide();
+                    }
+
+                },
+                error: function (data) {
+
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
 
 
 
 
+            });
 
 
-
-
-
-
+        }
 
 
         function GetClassrooms(Select, isTrigger) {
@@ -2555,6 +4255,34 @@
             return tagsArr;
         }
 
+        function getTagsOnInputAll(ele) {
+            // var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: $(ele).val() },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
+
         function getTagsOnInputnREF() {
             var tagInp = $('#nREF_status_CaseNotetags').val();
             var tagsArr = [];
@@ -2586,6 +4314,561 @@
     *@
     <link href="~/Content/css/Transition.css" rel="stylesheet" />
     <style>
+        /*style for Append Case Note Popup*/
+
+
+
+        .select-editable {
+            position: relative;
+            background-color: white;
+            
+            width: 120px;
+            height: 18px;
+        }
+
+            .select-editable select {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                width: 120px;
+                margin: 0;
+                line-height:33px;
+                padding:6px 5px;
+            }
+
+            .select-editable input {
+                position: absolute;
+                top: 1px;
+                left: 9px;
+                width: 90px;
+                padding: 1px;
+                font-size: 14px;
+                border: none;
+                height:30px;
+            }
+
+                .select-editable select:focus, .select-editable input:focus {
+                    outline: none;
+                }
+
+                #homeVisitDivAttenissue #StartTime
+                {
+                    position:absolute;
+                }
+
+
+        #att-issue-modal .addn-content-desc {
+            padding-right: 10px;
+        }
+
+        #att-issue-modal .modal-dialog-ch {
+            width: 70%;
+        }
+
+        #att-issue-modal .sub-notes-details {
+            padding-left: 0;
+        }
+
+
+        /*Read more read less*/
+        .readmore, .readless {
+            font-weight: 600;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .title-div-casenote {
+            background: none;
+            border: none;
+            font-weight: 600;
+        }
+
+        #divAppendCaseNoteSection .enroll-sec p {
+            border: none !important;
+            background: none !important;
+        }
+
+        #divAppendCaseNoteSection .div-sec-right p {
+            color: #555 !important;
+            padding-left: 0;
+        }
+
+        #divAppendCaseNoteSection {
+            display: none;
+        }
+
+        #att-issue-modal .sub-text-block {
+            margin: 15px 0px 0px 0px;
+            padding: 5px 5px 5px 5px;
+            /*background: #f1e5e5;*/
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12) !important;
+            background-color: #fff;
+        }
+
+        #att-issue-modal .addn-poup-div.sub-text-block table > tbody > tr > td:nth-child(1) {
+            width: 10%;
+        }
+
+        #att-issue-modal .sub-text-block caption {
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            background: #295b8f;
+            color: #fff;
+            line-height: 15px;
+            text-align: center;
+        }
+
+            #att-issue-modal .sub-text-block caption span {
+                font-weight: bold;
+            }
+
+        #att-issue-modal .sub-text-block table tr td p {
+            font-size: 14px;
+        }
+
+        #att-issue-modal .sub-notes-details {
+            padding: 0px 0px 60px 0px;
+        }
+
+        #att-issue-modal .tag-text {
+            border: 1px solid #fff;
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+            display: block;
+            float: left;
+            padding: 10px;
+            text-decoration: none;
+            background: #295b8f;
+            color: #fff;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-family: helvetica;
+            font-size: 13px;
+            line-height: 0;
+        }
+
+        /*#divAppendCaseNoteSection .tag-text-block
+        {
+            line-height:30px;
+        }*/
+
+        #divAppendCaseNoteSection .tag-text-block label {
+            width: auto;
+            display: inline-block;
+            float: left;
+            font-size: 16px;
+            font-weight: normal;
+        }
+
+
+        #divAppendCaseNoteSection .addn-poup-div1 label {
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        /*Style end for Append Case Note Popup*/
+
+
+
+        /*styles for Attendance issue popup*/
+
+
+        #att-issue-modal .ride_deta li a {
+            cursor: pointer;
+        }
+
+        #caseNoteDivAttIssue .btn-show-cnotes {
+            float: right;
+            margin: 18px 18px 5px;
+        }
+
+        /*#refmathcprovidersattenissuediv  #referralServiceSaveMethod,#refmathcprovidersattenissuediv  #Cancel
+        {
+            float:centre!important;
+        }*/
+
+        #refmathcprovidersattenissuediv #referralLetterPdf {
+            float: none !important;
+            padding: 9px 12px !important;
+        }
+
+
+
+        /*pop-up window for attendance issue*/
+
+        #refcatagoryattenissuediv {
+            display: none;
+        }
+
+
+        .app_ada_main .nav-tabs li a, .app_ada_main .nav-tabs li a:hover, .app_ada_main .nav-tabs li a:focus {
+            border-image: none;
+            border: 3px solid #ffffff;
+            border-radius: 3px;
+            color: #ffffff;
+            font-size: 14px;
+            text-align: center;
+            background: transparent;
+        }
+
+        .app_ada_main .nav-tabs li.app_drag a, .app_ada_main .nav-tabs li.app_drag:hover a, .app_ada_main .nav-tabs li.app_drag:focus a {
+            background: #2ecc71 none repeat scroll 0 0 !important;
+            color: #fff !important;
+        }
+
+        .app_ada_main .nav-tabs li.ada a, .app_ada_main .nav-tabs li.ada:hover a, .app_ada_main .nav-tabs li.ada:focus a {
+            background: #9b59b6 !important;
+            color: #fff !important;
+        }
+
+
+        .app_ada_main .nav-tabs li.adaref a {
+            background: #0c84de !important;
+            color: #fff !important;
+        }
+
+
+        .app_ada_main .nav-tabs li {
+            /*width:49%;*/
+            float: left;
+            margin-right: 1%;
+            color: #fff;
+        }
+
+        .app_ada_main .nav-tabs {
+            border-bottom: 0px !important;
+        }
+
+        /*.app_ada_main {
+            margin-top: 30px;
+        }*/
+
+        /*.app_ada_main{
+            text-align:center;
+        }*/
+
+        /*.app_ada_main h3:nth-child(1){
+            color:#285b90;
+            text-align:center;
+        }*/
+        .app_ada_main .ride_deta {
+            /*margin-left: 38%;
+            text-align: center;*/
+            margin-left: 0;
+    text-align: center;
+    float: none;
+    display: flex;
+    justify-content: center;
+        }
+
+
+        .tab_tlt {
+            background: #34495e none repeat scroll 0 0;
+            color: #ffffff;
+            float: left;
+            font-size: 16px;
+            margin-bottom: 8px;
+            padding: 10px 0;
+            text-align: center;
+            line-height: 25px;
+            width: 100%;
+        }
+
+            .tab_tlt span {
+                font-weight: 700;
+                padding-left: 12px;
+            }
+
+
+
+        .app_ada_main .nav-tabs.ride_deta .active {
+            border-bottom: 1px solid #f9c751;
+            padding-bottom: 10px;
+        }
+
+        .app_ada_main .nav-tabs.ride_deta > li.active > a::after {
+            border-left: 8px solid rgba(0, 0, 0, 0);
+            border-right: 8px solid rgba(0, 0, 0, 0);
+            border-top: 8px solid #f9c751;
+            bottom: -13px;
+            content: "";
+            height: 0;
+            left: 0;
+            margin: auto;
+            position: absolute;
+            right: 0;
+            width: 0;
+            transform: rotate(179deg);
+            -webkit-transform: rotate(179deg);
+        }
+
+        .app_ada_main .nav-tabs.ride_deta li {
+            position: relative;
+        }
+
+
+        .ht-scroll {
+            height: 330px;
+            overflow: auto;
+        }
+
+
+        /*pop-up window for attendance issue*/
+
+
+
+        #caseNoteDivAttIssue {
+            display: none;
+            border: 3px solid #f9c751;
+        }
+
+        #homeVisitDivAttenissue {
+            display: none;
+            border: 3px solid #f9c751;
+        }
+
+        #refAttendanceIssueDiv {
+            display: none;
+            border: 3px solid #f9c751;
+        }
+
+
+        #att-issue-modal #tbl_attendanceissue_parent thead tr, #att-issue-modal #tbl_attendanceissue_casenotes thead tr {
+            background: #9B58B4 !important;
+            color: #fff;
+        }
+
+        #att-issue-modal div#referralserviceSectionDiv:nth-child(1) h2 {
+            font-size: 20px;
+        }
+
+        #att-issue-modal #div_referral_category_partial h2.addapplicant {
+            font-size: 20px !important;
+        }
+
+        #refAttendanceIssueDiv {
+            padding: 0;
+        }
+
+        #att-issue-modal .bdr-btm {
+            padding-bottom: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        #att-issue-modal .text-heading {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #295b8f;
+            font-weight: bold;
+            font-family: arial,sans-serif;
+        }
+
+        #att-issue-modal .servies_lst ul {
+            list-style-type: none;
+            padding-left: 0px;
+        }
+
+        #att-issue-modal .servies_lst h3 {
+            margin: 20px 2px;
+            text-align: left;
+            font-size: 15px;
+            float: left;
+            color: #295b8f;
+            width: 100%;
+            font-weight: bold;
+            font-family: arial,sans-serif;
+        }
+
+        #att-issue-modal .name_lst span {
+            float: left;
+            width: 100%;
+            line-height: 26px;
+        }
+
+        #att-issue-modal .name_lst input[type="checkbox"] {
+            margin: 0 8px;
+        }
+
+        #att-issue-modal .servies_lst ul li {
+            padding-bottom: 10px;
+            color: #000;
+            padding-left: 20px;
+            font-family: arial,sans-serif;
+        }
+
+        #att-issue-modal .check_btn a {
+            background: #295b8f;
+            padding: 6px;
+            margin: 5px;
+            color: #fff;
+            border-radius: 0;
+            float: left;
+            padding: 15px 12px;
+            text-align: center;
+            font-family: arial,sans-serif;
+        }
+
+        #att-issue-modal .modal-body {
+            background: #34495e none repeat scroll 0 0;
+            border: 6px solid #ffffff;
+            border-radius: 3px;
+            /* color: #ffffff; */
+            float: left;
+            padding: 15px 3%;
+            position: relative;
+            width: 100%;
+        }
+
+            #att-issue-modal .modal-body > h2 {
+                margin-top: 10px;
+                float: left;
+                font-size: 24px;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 20px;
+                color: #fff;
+            }
+
+        .att-case-note-div, .att-hv-div, .att-ref-div {
+            width: 100%;
+            float: left;
+        }
+
+
+        #att-issue-modal .close {
+            opacity: 1;
+            position: absolute;
+            right: -14px;
+            top: -15px;
+        }
+
+        #tbl_attendanceissue_casenotes tbody#table_body td p {
+            background: none;
+            border: none;
+        }
+
+        .glossy-button-button {
+            display: inline-block;
+            vertical-align: top;
+            position: relative;
+            overflow: hidden;
+            min-width: 96px;
+            line-height: 38px !important;
+            padding: 0 24px;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            /*text-shadow: 0 1px #154c86;
+                       background-color: #247edd;*/
+            background-clip: padding-box;
+            border: 1px solid;
+            /*border-color: #1c65b2 #18589c #18589c;*/
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        }
+
+        .glossy-button-after {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.4);
+            -webkit-transition: none;
+            -moz-transition: none;
+            -ms-transition: none;
+            -o-transition: none;
+            transition: none;
+        }
+
+
+        .glossy-button-before {
+            position: absolute;
+            top: -25%;
+            bottom: -25%;
+            left: -20%;
+            right: -20%;
+            border-radius: 50%;
+            background: transparent;
+            -webkit-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+            -moz-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+            -ms-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+            -o-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+        }
+
+        .glossy-button-button:hover:after {
+            width: 120%;
+            background-color: rgba(255,255,255,0);
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        .button-green {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #1ca913;
+            border-color: #147b0e #11640b #11640b;
+        }
+
+        .button-pink {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #9b59b6;
+            border-color: #9b59b6 #9b59b6 #9b59b6;
+        }
+
+        .button-violet {
+            text-shadow: 0 1px #7e50b7;
+            background-color: #5f477d;
+            border-color: #7e50b7 #684494 #5d3e84;
+        }
+
+        .button-blue {
+            text-shadow: 0 1px #0c84de;
+            background-color: #19F;
+            border-color: #1588de #2485ce #15598c;
+        }
+
+
+
+        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+            width: 120%;
+            background-color: rgba(255,255,255,0);
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        #att-issue-modal .btn-primary {
+            color: #fff;
+            background-color: #295b8f;
+            border-color: #295b8f;
+            border-radius: 0;
+        }
+
+
+
+        /*Styles for Attendance issue popup*/
+
+
         /*#page-wrapper {
             padding-left: 0;
             padding-right: 0;
@@ -2836,6 +5119,11 @@
             padding-left: 0;
         }
 
+        #att-issue-modal transition-content-desc p
+        {
+            padding-left:0;
+        }
+
         .form-group.eduicc-trans.radio.radio-info {
             width: 100%;
             float: left;
@@ -3026,6 +5314,13 @@
             font-weight: bold;
             color: #295b8f;
         }
+
+
+
+
+        /*responsive Section*/
+
+
         @@media (min-device-width: 243px) and (max-device-width: 767px) {
             #filterSelect {
                 margin-top: 0.6em;
@@ -3037,42 +5332,65 @@
         }
         @@media only screen and (max-width: 760px), (min-device-width: 761px) and (max-device-width: 1200px) {
             /* Force table to not be like tables anymore */
-            #GridRoster, #GridRoster thead, #GridRoster tbody, #GridRoster th, #GridRoster td, #GridRoster tr {
+            #GridRoster, #GridRoster thead, #GridRoster tbody, #GridRoster th, #GridRoster td, #GridRoster tr,   
+             #tbl_attendanceissue_casenotes, #tbl_attendanceissue_casenotes thead, #tbl_attendanceissue_casenotes tbody,
+             #tbl_attendanceissue_casenotes th, #tbl_attendanceissue_casenotes td, #tbl_attendanceissue_casenotes tr {
                 display: block;
                 border: none;
             }
-                #GridRoster tbody tr td:first-child a {
+
+                #GridRoster tbody tr td:first-child a,
+                    #tbl_attendanceissue_casenotes tbody tr td:first-child a
+                 {
                     width: initial !important;
                     text-overflow: initial !important;
                 }
                 /* Hide table headers (but not display: none;, for accessibility) */
-                #GridRoster thead tr {
+
+                #GridRoster thead tr,
+                
+                 #tbl_attendanceissue_casenotes thead tr
+                 {
                     position: absolute;
                     top: -9999px;
                     left: -9999px;
                 }
-                #GridRoster tr {
+
+                #GridRoster tr ,
+                 #tbl_attendanceissue_casenotes tr 
+                {
                     margin: 0 7px 2em 0;
                     box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
                 }
-                    #GridRoster tr:nth-child(odd) {
+
+                    #GridRoster tr:nth-child(odd),
+                    
+                       #tbl_attendanceissue_casenotes tr:nth-child(odd)
+                     {
                         background: #ffffff;
                         border: 1px solid #ccc;
                         border-radius: 8px;
                     }
-                    #GridRoster tr:nth-child(even) {
+
+
+                    #GridRoster tr:nth-child(even),
+                    
+                      #tbl_attendanceissue_casenotes tr:nth-child(even)
+                     {
                         background: #f1f5f8;
                         border: 1px solid #ccc;
                         border-radius: 8px;
                     }
-                #GridRoster td {
+
+                #GridRoster td,  #tbl_attendanceissue_casenotes td {
                     /* Behave  like a "row" */
                     border: none;
                     border-bottom: 1px solid #eee;
                     position: relative;
                     /*padding-left: 50%;*/
                 }
-                    #GridRoster td:before {
+
+                    #GridRoster td:before, #tbl_attendanceissue_casenotes td:before {
                         /* Now like a table header */
                         position: absolute;
                         /* Top/left values mimic padding */
@@ -3101,23 +5419,58 @@
                         td:nth-of-type(10):before { content: "Pending"; }
                         td:nth-of-type(11):before { content: "Accepted"; }
                         td:nth-of-type(12):before { content: "Returned"; }*/
-            #GridRoster td:before {
+
+            #GridRoster td:before,  #tbl_attendanceissue_casenotes td:before {
                 content: attr(data-title);
                 text-align: left;
                 padding-top: 1.6em;
                 margin-left: 1em;
             }
-            #GridRoster td a, #GridRoster td i {
+
+            #GridRoster td a, #GridRoster td i,#tbl_attendanceissue_casenotes td a, #tbl_attendanceissue_casenotes td i {
                 margin-top: 1em;
             }
-            #GridRoster > tbody > tr > td {
+
+
+
+            #GridRoster > tbody > tr > td,   #tbl_attendanceissue_casenotes > tbody > tr > td, #tbl_attendanceissue_casenotes > tbody > tr > td>p {
                 text-align: right !important;
                 padding-right: 2em;
             }
+
             .table-responsive {
                 border: none !important;
             }
         }
+         #organization-list .container-radio{    max-width: 194px!important;
+    width: 194px!important;}
+        
+        #org-list{padding-left:31px;}
+    .org-list-left-width{width:40%;display:inline-block;vertical-align:top;}
+      .org-list-right-width{width:58%;display:inline-block;vertical-align:top;}
+      #organization-list{margin-top:10px;max-height: 100%!important;}
+
+
+        @@media (min-width: 992px) and (max-width: 1199px) {
+           #att-issue-modal .modal-dialog-ch {width: 95%;}
+           #tbl_attendanceissue_casenotes tbody#table_body td p{text-align:right;}
+           .transition-content-desc p{padding:10px 0;}
+           .duration-margin{margin-top:20px!important;}
+           .duration-padding{padding:0!important;}
+           .select-editable input,.select-editable{width:100%!important;}
+          
+        }
+        @@media (min-width: 768px) and (max-width: 991px) {
+            #att-issue-modal .modal-dialog-ch {width: 95%;}
+             #tbl_attendanceissue_casenotes tbody#table_body td p{text-align:right;}
+             .transition-content-desc p{padding:10px 0;}
+                        .duration-margin{margin-top:20px!important;}
+                         .duration-padding{padding:0!important;}
+           .select-editable input,.select-editable{width:99%!important;}
+                .org-list-left-width{width:43%;display:inline-block;vertical-align:top;}
+      .org-list-right-width{width:55%;display:inline-block;vertical-align:top;}
+        }
+
         /*responsive section*/
     </style>
     <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
@@ -3464,7 +5817,7 @@
     @*Modal Popup*@
 
 
-    <div class="modal fade" id="schedule_popup" role="dialog">
+    @*<div class="modal fade" id="schedule_popup" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -3557,7 +5910,800 @@
                 </div>
             </div>
         </div>
+    </div>*@
+
+
+
+    @* Attendance Issue Popup *@
+
+
+
+
+    <div class="modal fade scroll-modal" id="att-issue-modal" role="dialog">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="~/Content/CaseNote/images/close.png" /></button>
+                    <h2 id="CaseNoteHeading" class="extra-title muted">Excessive Absences</h2>
+
+
+                    <form id="formAttendanceIssue" enctype="multipart/form-data">
+
+                        <div class="max_items_addn popup-addn-scroll">
+
+                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                <div class="col-lg-2 col-xs-5" style="padding-left: 0;">
+                                    <div class="enroll-sec" style="padding-left: 0;">
+                                        <div class="transition-content-desc" style="position: relative;">
+                                            <p style="background: none;border: none;font-weight:bold;">Client</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-7 col-sm-7">
+
+
+                                    <div class="enroll-sec" style="padding-left: 0;">
+                                        <div class="transition-content-desc" style="position: relative;">
+                                            <p style="background: none;border: none;" id="lblatt-issue-client"></p>
+                                            <input type="hidden" id="hiddenatt-issue-clientid" />
+                                            <input type="hidden" id="hiddenatt-issue-programid" />
+                                            <input type="hidden" id="hiddenatt-issue-householdid" />
+                                            <input type="hidden" id="hiddenatt-issue-centerid" />
+                                            <input type="hidden" id="hiddenatt-issue-classroomid" />
+                                            <input type="hidden" id="hiddenatt-issue-yakkrid" />
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                <div class="col-lg-2 col-xs-5" style="padding-left: 0;">
+                                    <div class="enroll-sec" style="padding-left: 0;">
+                                        <div class="transition-content-desc" style="position: relative;">
+                                            <p style="background: none;border: none;font-weight:bold;">Parent(s)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-sm-7">
+
+
+                                    <div class="enroll-sec" style="padding-left: 0;">
+                                        <div class="transition-content-desc table-responsive" style="position: relative;" id="div-atten-issue-parent">
+                                            <table class="table table_size table-striped" id="tbl_attendanceissue_parent" role="table">
+                                                <thead style="cursor:pointer;" role="rowgroup">
+                                                    <tr role="row">
+                                                        <th id="thIN" role="columnheader">Name<img id="imgthIN" style="visibility:hidden"> <input type="hidden" id="directionNA" value="Desc"></th>
+                                                        <th id="thCust" role="columnheader">Phone<img id="imgthCust" style="visibility:hidden"> <input type="hidden" id="directionUN" value="Desc"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="parent_table_body" role="rowgroup"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-xs-12 col-lg-2 text-right">
+                                    <button type="button" class="btn btn-danger" id="btnResetabsence">Reset Excessive Absences</button>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="col-md-12 app_ada_main">
+                                <h3 style="text-decoration:underline;text-align:center;">Services</h3>
+
+
+                                <ul class="nav nav-tabs ride_deta">
+                                    <li class="app_drag" id="att-caseNoteli" title="Add Case Note" data-toggle="tooltip"><a data-toggle="tab" href="#caseNoteDivAttIssue">CN</a></li>
+                                    <li class="ada" id="att-homeVisitli" title="Schedule Home Visit" data-toggle="tooltip"><a data-toggle="tab" href="#ada" id="adaAnchor">HV</a></li>
+                                    <li class="adaref" id="att-refli" title="Create Referral" data-toggle="tooltip"><a data-toggle="tab" href="#ada" id="adaAnchor">REF</a></li>
+                                </ul>
+
+
+                                <div class="tab-content">
+
+                                    <div class="col-xs-12 col-lg-12 no-padding att-case-note-div" id="caseNoteDivAttIssue">
+
+                                        <div class="col-xs-12 row">
+                                            <button type="button" class="btn btn-primary text-right btn-show-cnotes" title="Click to view the existing case notes of excessive absences" data-toggle="tooltip" id="btnShowAttendanceIssueCaseNote">Show Case Notes</button>
+
+                                            <button type="button" class="btn btn-primary text-right btn-show-cnotes" title="Click to view the existing case notes of excessive absences" data-toggle="tooltip" id="btnHideAttendanceIssueCaseNote" style="display:none;">Hide Case Notes</button>
+
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" id="div_attendance_issue_cn" style="display:none;">
+                                                <div class="col-xs-12 pull-right" style="float: right;text-align: right;">
+
+                                                    <label class="col-xs-4 pull-right">Total Record:&nbsp;<span id="spnTotalRecord" class="col-xs-3" style="float:right;color:#295b8f;">0</span> </label>
+
+
+                                                </div>
+
+
+
+
+                                                <div class="table-responsive col-xs-12 no-padding">
+                                                    <table class="table table_size table-striped" id="tbl_attendanceissue_casenotes" role="table">
+                                                        <thead style="cursor:pointer;" role="rowgroup">
+                                                            <tr role="row">
+                                                                <th id="thIN" role="columnheader">Date<img id="imgthIN" style="visibility:hidden"> <input type="hidden" id="directionNA" value="Desc"></th>
+                                                                <th id="thCust" role="columnheader">Title<img id="imgthCust" style="visibility:hidden"> <input type="hidden" id="directionUN" value="Desc"></th>
+                                                                <th id="thRN" role="columnheader">By<img id="imgthRN" style="visibility:hidden"> <input type="hidden" id="directionRN"></th>
+                                                                <th id="thAN" role="columnheader">Attachments<img id="imgthCN" style="visibility:hidden"><input type="hidden" id="directionCN" value="Desc"></th>
+                                                                <th id="thSN" role="columnheader">References</th>
+                                                                <th id="thSN" role="columnheader">
+                                                                    Action
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="table_body" role="rowgroup"></tbody>
+                                                    </table>
+
+                                                    <div id="div1" style="text-align:center;display:none;">
+                                                        <label>No result found.</label>
+                                                    </div>
+                                                </div>
+
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
+                                                        <div class="pages_display" style="display:none;">
+                                                            <ul>
+                                                                <li>Display</li>
+                                                                <li>
+                                                                    <select id="casenoteddlpagetodisplay" onchange="drawgrid_CaseNote();">
+                                                                        @*<option value="10">10</option>
+                                                                            <option value="20" selected="selected">20</option>
+                                                                            <option value="30">30</option>
+
+                                                                            <option value="50">50</option>
+                                                                            <option value="100">100</option>*@
+
+                                                                        <option value="5">5</option>
+                                                                    </select>
+                                                                </li>
+                                                                <li>Records Per Page</li>
+                                                            </ul>
+                                                            <div class="clear"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                                        <div id="casenotedivPaging" class="pagination_wrp">
+                                                            <ul id="casenoteulPaging" class="pagination">
+                                                                <li><input id='First_CaseNote' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage_CaseNote('First',$('#div_attendance_issue_cn')); return false;" /></li>
+                                                                <li title="Back"><input id='Back_CaseNote' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage_CaseNote('Back',$('#div_attendance_issue_cn')); return false;" /></li>
+                                                                <li title="Select">
+                                                                    <select class="select_cl" id="casenoteddlpaging"></select>
+                                                                </li>
+                                                                <li title="Next"><input id='Next_CaseNote' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage_CaseNote('Next',$('#div_attendance_issue_cn')); return false;" /></li>
+                                                                <li title="Last"><input id='Last_CaseNote' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage_CaseNote('Last',$('#div_attendance_issue_cn')); return false;" /></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
+                                        </div>
+
+
+
+
+
+                                        <div class="col-xs-12 col-lg-12" id="divCaseNoteSection">
+                                            <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i><span><span id="heading_case_note">Add New Case Note</span></span></h3>
+                                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                                <div class="col-lg-3 col-xs-5">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;font-weight:600;">Date<span class="error-notify">*</span></p>
+                                                            <input type="hidden" id="hid-case-note-id" value="0" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12 col-xs-12">
+                                                    <input type="text" class="form-control" id="txtcasenotedate_attissue" onblur="checkStatusChangeDate(this);" placeholder="MM/DD/YYYY">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                                <div class="col-lg-3 col-xs-5">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;font-weight:600;">Title<span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12">
+                                                    <input type="text" class="form-control" id="txtcasenotetitle_attissue" placeholder="Case Note Title">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                                <div class="col-lg-3 col-xs-5">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12">
+                                                    <textarea id="txtcasenote_attissue" name="Note" style="visibility: hidden; display: none;"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Client(s)<span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12 no-padding" id="casenoteClientsdiv_attissue">
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-12 adddivspace">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Tags<span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-lg-9 col-sm-12">
+                                                    <input type="text" id="casenotetags_attissue" class="form-control ui-autocomplete-input">
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-12 adddivspace" style="margin-bottom:10px;">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Developmental Team<span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12 no-padding" id="staffdiv_attissue">
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-12  adddivspace" style="margin-top:-12px;">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Secure Note Level?</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12" style="margin-top:10px;">
+                                                    <div class="addn-poup-div1">
+                                                        <input type="checkbox" id="casenotesecurity_attissue" value="true">
+                                                        <span>Yes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-xs-12 col-sm-12  adddivspace" id="att_issueattachmentsDiv">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Attachment</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12">
+                                                    <div class="col-sm-9 col-lg-9 col-xs-7 no-padding">
+                                                        <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this)" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:2%;">
+
+                                                        <a href="javascript:void(0)" id="Attachmectstag_attissue" data-toggle="tooltip" title="Add Attachment" onclick="addMoreAttachment(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12 col-xs-12" id="addAttachmentDiv_attissue"></div>
+
+                                            </div>
+
+
+
+                                            <div class="col-xs-12 col-sm-12  adddivspace" id="div_download_attach" style="display:none;">
+                                                <div class="col-lg-3 col-xs-12">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                            <p style="background: none;border: none;">Download Attachment(s)</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-7 adddivspace" id="div_attach_download_bind_section">
+
+                                                </div>
+
+
+
+                                            </div>
+
+
+
+
+
+                                            <div style="margin-bottom: 20px;margin-top:20px;" class="text-center col-xs-12">
+
+                                                <button type="button" class="my-btn1" id="btn_att_issue_casenote_save" title="Click to save the case note" data-toggle="tooltip">Save</button>
+                                                <button type="button" class="my-btn1" id="bn_att_issue_casenote_clear" title="Click to reset the form with default settings" data-toggle="tooltip">Clear</button>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div id="divAppendCaseNoteSection" class="col-xs-12 col-lg-12  no-padding">
+                                            <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>&nbsp;Append Case Note</h3>
+
+
+
+
+
+
+                                            <div class="col-xs-12 col-lg-12 col-sm-12">
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace">
+                                                    <div class="col-lg-3 col-xs-5">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Date</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-sm-9 adddivspace">
+                                                        <p style="background: none;border: none;" id="lblCaseNotetDate"></p>
+                                                        <input type="hidden" id="hdn-casenoteid" />
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace">
+                                                    <div class="col-lg-3 col-xs-5">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Title</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-sm-9 adddivspace">
+                                                        <div class="enroll-sec div-sec-right">
+                                                            <div class="transition-content-des" style="position: relative;">
+                                                                <p style="background: none;border: none;" id="lblCaseNoteTitle"></p>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12">
+                                                    <div class="col-lg-3 col-xs-5">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Name of the staff</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-sm-9">
+
+                                                        <div class="enroll-sec div-sec-right">
+                                                            <div class="transition-content-desc" style="position: relative;">
+                                                                <p style="background: none;border: none;" id="lblWrittenBy"></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xs-12 col-sm-12">
+                                                    <div class="col-lg-3 col-xs-5">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Role</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-sm-9">
+
+                                                        <div class="enroll-sec div-sec-right">
+                                                            <div class="transition-content-desc" style="position: relative;">
+                                                                <p id="lblWrittenByRole"></p>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Original Note</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+                                                        <div class="enroll-sec div-sec-right">
+                                                            <div class="transition-content-desc" style="position: relative;">
+                                                                <div id="mainnotes" class="txt-main-note"></div>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    </div>
+                                                </div>
+
+
+
+
+
+                                                <div class="col-xs-12 col-sm-12 divAppendedNotes">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Appended Notes</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+
+                                                        <div class="enroll-sec div-sec-right">
+                                                            <div class="transition-content-desc" style="position: relative;">
+                                                                <div class="col-sm-12 col-xs-12 col-lg-12 sub-notes-details">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Appended Date</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+                                                        <input class="form-control ui-autocomplete-input append-casenote-date" type="text" id="txtAppendCaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" value="">
+
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Append Note <span class="error-notify">*</span></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+                                                        <textarea id="subnotes_caseNote" class="form-control ui-autocomplete-input txt-note"></textarea>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Append Tags</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+                                                        <input type="text" id="AppendCaseNotetags" class="form-control ui-autocomplete-input" />
+                                                    </div>
+                                                </div>
+
+
+
+
+
+
+                                                <div class="col-xs-12 col-sm-12 adddivspace" id="att_issueattachmentsDiv">
+                                                    <div class="col-lg-3 col-xs-12">
+                                                        <div class="enroll-sec">
+                                                            <div class="transition-content-desc title-div-casenote" style="position: relative;">
+                                                                <p style="background: none;border: none;">Attachment</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-xs-12">
+                                                        <div class="col-sm-9 col-lg-9 no-padding">
+                                                            <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this)" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3 col-lg-3 adddivspace response-addicspace" style="margin-top:2%;">
+
+                                                            <a href="javascript:void(0)" id="Attachmectstag_appendNote" title="Add Attachment" onclick="addMoreAttachment(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-9 col-sm-12" id="addAttachmentDiv_AppendNote"></div>
+
+                                                </div>
+
+
+
+                                            </div>
+
+                                            <div style="margin-bottom: 20px;margin-top:20px;" class="text-center col-xs-12">
+
+                                                <button type="button" class="my-btn1" id="btn_append_casenote_save" data-toggle="tooltip" title="Click to save appended case note">Save</button>
+                                                <button type="button" class="my-btn1" id="btn_append_casenote_clear" data-toggle="tooltip" title="Click to reset the form with default settings">Clear</button>
+
+                                                <button type="button" class="my-btn1" id="btn_append_casenote_back" data-toggle="tooltip" title="Click to return case note section">Back</button>
+
+                                            </div>
+
+
+
+
+
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="col-xs-12 col-lg-12 no-padding att-hv-div" id="homeVisitDivAttenissue">
+                                        <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>&nbsp;Add Appointment</h3>
+
+                                        <div class="col-xs-12 adddivspace" style="margin-top:15px;">
+
+
+
+                                            <div class="col-xs-12">
+                                                <label for="RaceId">Description <sup style="color: red">*</sup></label>
+
+                                                <input type="text" name="Description" class="form-control txt-clear" id="Description" placeholder="Description" maxlength="50">
+                                            </div>
+
+
+
+
+
+
+
+                                            <div class="form-group col-xs-12 col-md-4 col-lg-3 adddivspace" style="margin-top:15px;">
+                                                <label for="exampleInputEmail1">Select Date <sup style="color: red">*</sup></label>
+                                                <div class='input-group date'>
+                                                    <input type='text' class="form-control txtseatdate txt-date txt-mandatory txt-clear" maxlength="12" placeholder="MM/DD/YYYY" id='seatsDatetimePicker2' />
+                                                    <span class="input-group-addon datepicker-icon seats-icon" id="2" style="cursor:pointer;">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                                <input type="hidden" id="Days" />
+                                            </div>
+
+
+                                            <div class="col-xs-12 col-md-4 col-lg-3 form-group adddivspace" style="margin-top:15px;">
+
+                                                <label for="exampleInputEmail1">From <sup style="color: red">*</sup></label><br />
+
+                                                <div class="input-group col-xs-12">
+                                                    <select name="StartTime" id="StartTime" class="txt-clear form-control" placeholder="From" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0;' onblur="this.size=0;"></select>
+                                                </div>
+                                            </div>
+
+                                            @*<div class="col-xs-6 col-md-4 wrapper adddivspace" style="z-index: 9999;">
+                                                    <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
+                                                    <select class="editableBox txt-clear form-control" id="EndTime" style="position:absolute;z-index:999;width:110px;" size="1" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0; this.nextElementSibling.value=this.value' onblur="this.size=0;">
+                                                        <option value="-1"></option>
+
+                                                        <option value="00:30">00:30</option>
+
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="01:30">01:30</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="02:30">02:30</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="03:30">03:30</option>
+                                                        <option value="04:00">04:00</option>
+
+                                                    </select>
+                                                    <input class="timeTextBox txt-clear" placeholder="HH:MM" id="TestEndTime" style="position:absolute;width:110px;" name="timebox" maxlength="5" onblur="testTime(this);" />
+                                                </div>*@
+
+                                            <div class="col-xs-12 col-md-4 col-lg-6 wrapper adddivspace" style="margin-top:15px;">
+                                                <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
+                                                <div class="select-editable select-editable-ch col-xs-3">
+
+                                                    <input type="hidden" id="EndTimeDuration"/>
+
+                                                    <select onmousedown="if (this.options.length > 5) { this.size = 5; this.style.zIndex = 1;}" onchange='this.size = 0; this.style.zIndex = 0; this.nextElementSibling.value=this.value' onblur="this.size=0;" size="1">
+                                                        <option value="-1"></option>
+
+                                                        <option value="00:30">00:30</option>
+
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="01:30">01:30</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="02:30">02:30</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="03:30">03:30</option>
+                                                        <option value="04:00">04:00</option>
+                                                    </select>
+                                                    <input type="text" name="hvHoursTxt" class="timeTextBox" placeholder="HH:MM" value="" maxlength="5" onblur="testTime(this);" />
+                                               
+                                                
+                                                 </div>
+
+                                                <div class="col-lg-7 col-xs-12 duration-padding"><label class="duration-margin" style="color:#295b8f;margin:7px 0px;"><i class="fa fa-info-circle" aria-hidden="true"></i> Duration is editable</label></div>
+                                            </div>
+
+                                            <div class="col-xs-12 adddivspace" style="margin-top:15px;">
+                                                <label for="RaceId">Notes</label>
+
+                                                <textarea name="Description" style="vertical-align: top" class="form-control txt-clear" id="Notes" placeholder="Notes"></textarea>
+                                            </div>
+
+
+
+
+
+
+
+                                            <div class="clearfix"></div>
+                                            <div class="text-center" style="margin-bottom: 20px; margin-top: 20px;">
+
+                                                <button type="button" class="my-btn1 addSchedular" title="click to add appointment" data-toggle="tooltip"  onclick="AddSchedulerDetails(this);">Save</button>
+                                                <button type="button" class="my-btn1" title="Click to reset the appointment form" data-toggle="tooltip" onclick="clearHVSchedule(this);">Clear</button>
+                                            </div>
+
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    </div>
+
+
+                                    <div class="col-xs-12 col-lg-12 att-ref-div" id="refAttendanceIssueDiv">
+
+                                        <div class="col-xs-12" id="refservriceAttendanceIssueDiv">
+
+
+
+                                            <div class="col-xs-12 adddivspace" id="referralserviceSectionDiv">
+
+
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-xs-12 servies_lst" id="refcatagoryattenissuediv">
+
+
+
+
+
+                                        </div>
+
+
+                                        <div class="col-xs-12 " id="refmathcprovidersattenissuediv">
+
+
+                                        </div>
+
+
+                                        <div class="col-xs-12" id="refcatagorycompanyattenissuediv">
+
+
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+
+
+
+                            <div class="col-xs-12 bdr-popup"></div>
+                            <div class="col-xs-12" style="margin-top:10px;margin-bottom:15px;">
+                                <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                    <button type="button" class="my-btn pull-right" data-dismiss="modal" style="background:#db4437;">Exit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
+
+
+
+
+    @* Attendance Issue Popup *@
 
 
 
@@ -4145,6 +7291,217 @@
     </div>
 @Html.Partial("~/Views/Partialviews/InternalReferral.cshtml")
     <!-- Modal popup -->
+
+
+
+ <!-----Reviews Modal-->
+<div class="modal fade" id="reviewlist-modal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="">Review List</h4>
+            </div>
+
+            <div class="modal-body">
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+
+    <!-----Modal start-->
+<div id="myModalOrganization" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-width">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header modal-bdr">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><strong>Referral Information</strong></h4>
+            </div>
+            <div class="modal-body col-xs-12">
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Organization Name:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="refferedtomodal" class="refer-modal" style="font-weight:bold"></div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Resource Name:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="resourceNamemodal" class="refer-modal"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Address:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="streetModal" class="refer-modal" style="display: inline-block;"></div><div id="cityModal" class="refer-modal" style="display: inline-block;padding:0 5px;"></div><div id="stateModal" class="refer-modal" style="display: inline-block;"></div>
+                    </div>
+                    <div class="col-xs-5"></div>
+                    <div class="col-xs-7">
+
+                    </div>
+                    <div class="col-xs-5"></div>
+                    <div class="col-xs-7">
+
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12" style="padding-top:20px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Phone Number:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="phonenoModal" class="refer-modal"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding-top:7px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Email:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="emailModal" class="refer-modal"></div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5" style="padding-top:0px;"><div class="h5"><strong>Service Resources:</strong></div></div>
+                    <div class="col-xs-7" style="padding-top:0px;">
+                        <div id="serviceModal" class="refer-modal"></div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12" style="padding-top:20px;">
+                    <div class="col-xs-5" style="padding-top: 7px;">
+                        <strong>Business Hours:</strong>
+                    </div>
+                    <div class="col-xs-7">
+
+                        <div class="center-block">
+                            <table style="margin:0;width:100%;">
+                                <tr>
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>HOURS</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>MON</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>TUE</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>WED</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>THU</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>FRI</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>SAT</td>
+
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>SUN</td>
+
+                                </tr>
+                                <tr>
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>FROM</td>
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="monFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="tueFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="wedFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="thuFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="friFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="satFrmHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="sunFrmHours"></td>
+                                </tr>
+                                <tr>
+                                    <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>TO</td>
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="monToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="tueToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="wedToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="thuToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="friToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="satToHours"></td>
+
+                                    <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="sunToHours"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Gender Served:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="genderservedModal" class="refer-modal"></div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Ages Served:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="ageservedModal" class="refer-modal"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Fees:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="feesModal" class="refer-modal"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Payment Options:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="paymentsModal" class="refer-modal"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding-top:10px;">
+                    <div class="col-xs-5"><div class="h5"><strong>Do you need an appointment?:</strong></div></div>
+                    <div class="col-xs-7">
+                        <div id="appointmentModal" class="refer-modal"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-top: 15px;">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!---Modal end-->
+
+<div class="modal fade" id="updateChangeModalAlert" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="updatealert"></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="updatealertConfirm">Confirm</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="updatealertCancel">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 }
 
