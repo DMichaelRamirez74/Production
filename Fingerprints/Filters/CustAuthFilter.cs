@@ -52,8 +52,20 @@ namespace Fingerprints.Filters
                     {
                         if(!Usertype.Contains(filterContext.HttpContext.Session["Roleid"].ToString()))
                         {
-                            filterContext.Result = new RedirectResult("~/login/Loginagency");
-                            return;
+
+                            if(filterContext.HttpContext.Request.IsAjaxRequest())
+                            {
+                                filterContext.HttpContext.Response.StatusCode = 401;
+                                filterContext.Result =new JsonResult{Data= "Login",JsonRequestBehavior=  JsonRequestBehavior.AllowGet };
+                                return;
+                            }
+                            else
+                            {
+                                filterContext.Result = new RedirectResult("~/login/Loginagency");
+                                return;
+                            }
+
+                           
                         }
 
                     }
