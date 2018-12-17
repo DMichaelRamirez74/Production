@@ -1547,9 +1547,17 @@ namespace FingerprintsModel
                // List<List<string>> screening = ScreeningMatrix.Screenings;
 
                 XLWorkbook wb = new XLWorkbook();
-                var Ws = wb.Worksheets.Add("CaseNote report-"+tname);
 
-               
+                if (!string.IsNullOrEmpty(tname) && tname.Length > 23) {
+
+                    tname = tname.Substring(0, 20);
+                    tname = tname + "...";
+
+                }
+                //var Ws = wb.Worksheets.Add("Case Note report-"+tname+""+total+")");
+                var Ws = wb.Worksheets.Add(tname+"("+total+")");
+
+
 
                 //Header
                 Ws.Cell(1,1).Value = "Created By";
