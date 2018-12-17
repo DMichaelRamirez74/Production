@@ -2982,10 +2982,11 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter()]
-        public ActionResult GetCaseNoteTagReport(long pno=1,long psize=10) {
+        public ActionResult GetCaseNoteTagReport(long pno =1,long psize=10, string searchtxt="",string sortclmn="",string sortdir="")
+        {
             if (new agencyData().GetSingleAccessStatus(18))
             {
-                var result = new RosterData().GetCaseNoteTagReport(pno, psize, 1);
+                var result = new RosterData().GetCaseNoteTagReport(pno, psize,searchtxt, sortclmn, sortdir,1);
 
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
@@ -3029,6 +3030,16 @@ namespace Fingerprints.Controllers
             }
 
         }
+
+        [CustAuthFilter()]
+        public ActionResult EditCaseNote(long tagid, string tagname,int mode=1,long ExistsTagId=0)
+        {
+            long availableTag = 0;
+            var Result = RosterData.EditDeleteCNTag(tagid, tagname,mode, ExistsTagId,ref availableTag);
+            
+            return Json(new { Success=Result,AvailableTagId= availableTag }, JsonRequestBehavior.AllowGet);
+        }
+
 
         #endregion CaseNote_Tag_Report
 

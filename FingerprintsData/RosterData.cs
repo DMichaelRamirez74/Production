@@ -5816,7 +5816,7 @@ namespace FingerprintsData
 
         #region CaseNote_Tag_Report
 
-        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize, int mode = 1)
+        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize,string search, string sortclmn, string sortdir, int mode = 1)
         {
 
             CaseNoteTagReport TagReport = new CaseNoteTagReport();
@@ -5841,6 +5841,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Mode", mode));
                     command.Parameters.Add(new SqlParameter("@PageSize", psize));
                     command.Parameters.Add(new SqlParameter("@PageNo", pno));
+                    command.Parameters.Add(new SqlParameter("@Search", search));
+                    command.Parameters.Add(new SqlParameter("@Sortclmn", sortclmn));
+                    command.Parameters.Add(new SqlParameter("@Sortdir", sortdir));
 
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_CNTagReportDetails";
@@ -5915,6 +5918,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Mode", mode)); //2
                     command.Parameters.Add(new SqlParameter("@PageSize", 1));
                     command.Parameters.Add(new SqlParameter("@PageNo", 1));
+                    command.Parameters.Add(new SqlParameter("@Search", ""));
+                    command.Parameters.Add(new SqlParameter("@Sortclmn", ""));
+                    command.Parameters.Add(new SqlParameter("@Sortdir", ""));
 
 
                     command.CommandType = CommandType.StoredProcedure;
@@ -5953,7 +5959,61 @@ namespace FingerprintsData
             }
             return NoteList;
 
-                            }
+        }
+
+
+        public bool EditDeleteCNTag(long tagid, string tagname, int mode,long ExistsTagId, ref long availableTag)
+        {
+            var success = false;
+
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@TagId", tagid));
+                    command.Parameters.Add(new SqlParameter("@Mode", mode));
+                    command.Parameters.Add(new SqlParameter("@TagName", tagname));
+                    command.Parameters.Add(new SqlParameter("@ExistsTagId", ExistsTagId)); 
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_ModifyCNTag";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        success = Convert.ToBoolean( _dataset.Tables[0].Rows[0]["Result"].ToString());
+                    }
+
+                    if (!success && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0) { //if tagname available
+
+                        availableTag = Convert.ToInt64(_dataset.Tables[1].Rows[0]["TagKey"].ToString());
+                    }
+                    
+
+                }
+
+                }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+            return success;
+
+        }
+
 
         #endregion CaseNote_Tag_Report
 
