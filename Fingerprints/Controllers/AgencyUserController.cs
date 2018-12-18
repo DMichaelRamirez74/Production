@@ -6073,7 +6073,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public JsonResult GetClientProfile(long ClientId, string dateReview)
+        // public JsonResult GetClientProfile(long ClientId, string dateReview)
+        public ActionResult GetClientProfile(long ClientId, string dateReview)
         {
 
             List<Clientprofile> clientProfile = new List<Clientprofile>();
@@ -6087,7 +6088,22 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            return Json(clientProfile, JsonRequestBehavior.AllowGet);
+            // return Json(clientProfile, JsonRequestBehavior.AllowGet);
+            //var sm = Int32.MaxValue;
+            //return new JsonResult()
+            //{
+            //    Data = clientProfile,
+            //    MaxJsonLength = Int32,  JsonRequestBehavior=0
+
+
+            //};
+
+            //var objJSS = new JavaScriptSerializer() { MaxJsonLength = Int32.MaxValue };
+            //return objJSS.Serialize(clientProfile);
+            var jsonResult = Json(clientProfile, JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+
         }
         [CustAuthFilter()]
         public ActionResult CFRReport()
