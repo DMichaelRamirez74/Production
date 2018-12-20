@@ -14,6 +14,29 @@ $(document).ready(function () {
     var currentMemberColor = '';
 
 
+    $(document).ajaxStart(function () {
+
+        $('#spinner').show();
+
+    });
+
+    $(document).ajaxStop(function () {
+
+        $('#spinner').hide();
+
+    });
+
+
+    $(document).on("click", "#goto_timeline", function (e) {
+
+        var _cid = $(this).data("clientid");
+        if (_cid) {
+            $('#spinner').show();
+            window.location.href = window.timelineUrl.concat(_cid);
+        }
+    });
+
+
     $(window).bind("load resize", function () {
 
         topOffset = 50;
@@ -213,7 +236,7 @@ $(document).ready(function () {
     $('.content-inside').on('click', '.Status-title', function () {
 
         var item = $('.members-block');
-        $('.client-profile').removeClass('hidden');
+
         var statusMonth = parseInt($(this).children('p').attr('month'));
         var currentMonth1 = parseInt(new Date().getMonth()) + 1;
        
@@ -893,7 +916,8 @@ $(document).ready(function () {
                     $('.profile-content-desc-pic').children('p').html('Open');
                 }
 
-                $("#goto_timeline").prop("href", window.timelineUrl.concat(data[0].ChildId));
+                // $("#goto_timeline").prop("href", window.timelineUrl.concat(data[0].ChildId));
+                $("#goto_timeline").data("clientid", data[0].ChildId);
                 if (data[0].IsPregnantMother) {
                     $('.child-div').addClass('hidden');
                     $('.preg-div').removeClass('hidden');

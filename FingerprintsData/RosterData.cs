@@ -12,6 +12,8 @@ using System.IO;
 using System.Web;
 using System.Collections;
 using System.Globalization;
+using System.Xml;
+using Newtonsoft.Json;
 
 namespace FingerprintsData
 {
@@ -6120,6 +6122,15 @@ namespace FingerprintsData
                                     Status = dr["Status"].ToString(),
 
                                 };
+
+                               // var devId = new long[] {2,5,6,8,9 };
+                                //if (devId.Contains(row.StepType)) {
+                                    XmlDocument doc = new XmlDocument();
+                                    doc.LoadXml(row.EventBodyJson);
+
+                                    row.EventBodyJson =  JsonConvert.SerializeXmlNode(doc);
+                               // }
+
                                 result.Add(row);
                             }
                             else if (Mode == 2) {

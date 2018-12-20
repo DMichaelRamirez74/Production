@@ -254,4 +254,11 @@ namespace FingerprintsModel
 
     }
 
+    public class ExtendSelectList
+    {
+        public string id { get; set; }
+        public string value { get; set;}
+        public string label { get; set; }
+    }
+
 }

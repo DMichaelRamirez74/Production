@@ -3058,6 +3058,9 @@ namespace Fingerprints.Controllers
             ViewBag.ClientId = clientid; //id must encrypted
             var result = RosterData.GetClientDetails(cid);
             var ActiveSteps = RosterData.GetClientTimeLine(cid, 2,"");
+            // ViewBag.Client = result;
+            ViewBag.ProfilePic = result.Profilepic;
+            result.Profilepic = string.Empty;
             ViewBag.Client = result;
             ViewBag.ActiveSteps = ActiveSteps;
             return View();
