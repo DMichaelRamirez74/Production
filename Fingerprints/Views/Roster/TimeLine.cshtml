@@ -842,9 +842,9 @@
                 dataType: 'json',
                 contentType: "application/json;",
                 success: function (data) {
-                                        if (data.length) {
+                                       // if (data.length) {
                                             self.drawTimeline(data);
-                                        }
+                                      //  }
                                     },
                 error: function () {
 
@@ -860,6 +860,12 @@
                                 console.log(data);
             $(".cd-timeline__container").html('');
 
+            if(!data || data.length==0){
+                var _tmpStr = $("#timeline-card_nodata").html();
+                var _compiledStr = _.template(_tmpStr)();
+                $(".cd-timeline__container").append(_compiledStr);
+                return false;
+            }
                                 data.forEach(function (obj) {
 
 
@@ -1013,8 +1019,34 @@
 </script>
 
 
-<!--Intake Template id:1-->
-<script type="text/template" id="timeline-card_1">
+
+    <script type="text/ng-template" id="timeline-card_nodata">
+
+        <div class="cd-timeline__block js-cd-block main-block" data-id="0">
+            <div class="cd-timeline__img cd-timeline__img--picture js-cd-img">
+
+                <i class="fa fa-exclamation-circle"></i>
+            </div> <!-- cd-timeline__img -->
+            <div class="cd-timeline__content js-cd-content">
+                <div class="cd-timeline-header">
+
+                   No Records Found
+                </div>
+                <div class="cd-timeline-body">
+
+                    
+                </div>
+
+                
+               
+            </div> <!-- cd-timeline__content -->
+
+        </div> <!-- cd-timeline__block -->
+
+    </script>
+
+    <!--Intake Template id:1-->
+    <script type="text/template" id="timeline-card_1">
 
 
     <div class="cd-timeline__block js-cd-block main-block" data-id="<%=data.TimeLineId%>">
@@ -1029,19 +1061,35 @@
             </div>
             <div class="cd-timeline-body">
 
-                <% var jsn=JSON.parse(data.EventBodyJson); %>
-                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
-                    <p>
-                        <span class="client-span"><%=_TimeLineScope.cons.Client.ChildName %></span> intake as new student
+                    <% var jsn=JSON.parse(data.EventBodyJson); %>
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <p>
+                            <span class="client-span"><%=_TimeLineScope.cons.Client.ChildName %></span> intake as new student on 
 
-                        <span class="evecdate-span"><%=moment(data.EventCreatedDate).format('MM/DD/YYYY') %></span>
-                    </p>
+                            <span class="evecdate-span"><%=moment(data.EventCreatedDate).format('MM/DD/YYYY') %></span>
+
+                        </p>
+                        <div>
+                            <p style="margin:5px 0px;font-weight:bold;"><i title="family type" class="fa fa-users" style="color:#536dca;"></i> 
+                            <%= jsn.FamilyType == 1 ? 'Single Parent Family'  : jsn.FamilyType == 2 ? 'Two parent Family' : '-' %></p>
+
+                            @*<p style="margin:5px 0px;font-weight:bold;">
+                                <i title="home type" class="fa fa-home" style="color:#536dca;"></i>
+                                <%= jsn.FamilyHomeless == 1 ? 'Family is Homeless'  : jsn.FamilyHomeless == 2 ? 'Family has Home ' : '-' %>
+                            </p>*@
+                            <%if( jsn.FamilyHomeless == 1){ %>
+                            <p style="margin:5px 0px;margin-left: 20px;font-weight:bold;"> Family is Homeless</p>
+                            
+                            <%}%>
+
+                        </div>
+
+                    </div>
                 </div>
-            </div>
-            @*<span class="cd-timeline__date"><%=moment(data.EventCreatedDate).format(_TimeLineScope.cons._TLDateFormat)%></span>*@
-            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
-            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
-        </div> <!-- cd-timeline__content -->
+                @*<span class="cd-timeline__date"><%=moment(data.EventCreatedDate).format(_TimeLineScope.cons._TLDateFormat)%></span>*@
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
 
     </div> <!-- cd-timeline__block -->
 
@@ -1098,14 +1146,14 @@
             </div>
             <div class="cd-timeline-body">
 
-                <div class="expandable-body" data-id="<%=data.TimeLineId%>">
-                    <% var jsn=JSON.parse(data.EventBodyJson); %>
-                    <p><%=moment(jsn.DateofFirstService).format('MM/DD/YYYY')%></p>
+                    <div class="expandable-body" data-id="<%=data.TimeLineId%>">
+                        <% var jsn=JSON.parse(data.EventBodyJson); %>
+                        <p><%=moment(data.EventCreatedDate).format('MM/DD/YYYY')%></p>
+                    </div>
                 </div>
-            </div>
-            <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
-            <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
-        </div> <!-- cd-timeline__content -->
+                <%= _TimeLineScope.Utilities.renderTimelineDate(data,jsn)%>
+                <%= _TimeLineScope.Utilities.renderfooter(data,jsn)%>
+            </div> <!-- cd-timeline__content -->
 
     </div> <!-- cd-timeline__block -->
 
