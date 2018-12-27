@@ -2144,6 +2144,10 @@ namespace Fingerprints.Controllers
                 titleID = int.TryParse(id, out titleID) == true ? titleID : 0;
                 accessRoles = new agencyData().SP_AccessRole(titleID, Session["AgencyID"].ToString());
 
+                if(accessRoles!=null && accessRoles.RoleList!=null && accessRoles.RoleList.Count>0)
+                {
+                    accessRoles.RoleList.Remove(accessRoles.RoleList.Where(x => x.RoleId.ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.Parent).ToString().ToLowerInvariant()).First());
+                }
                 ViewBag.Titleid = titleID ==0 ? accessRoles.TitleList[0].TitleId : titleID;
                 accessRoles.TitleId = ViewBag.Titleid;
                 ViewBag.Result = (TempData["Result"] != null) ? Convert.ToInt32(TempData["Result"]) : 0;

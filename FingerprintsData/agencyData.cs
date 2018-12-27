@@ -5446,7 +5446,7 @@ namespace FingerprintsData
             bool isRowAffected = false;
             try
             {
-
+                DataTable dt = new DataTable();
                 using (Connection = connection.returnConnection())
                 {
                     command.Connection = Connection;
@@ -5459,7 +5459,7 @@ namespace FingerprintsData
                     if (RoleList != null && RoleList.Count > 0)
                     {
 
-                        DataTable dt = new DataTable();
+                     
                         dt.Columns.AddRange(new DataColumn[7]
                         {
                             new DataColumn("RoleId",typeof(string)),
@@ -5495,8 +5495,9 @@ namespace FingerprintsData
                             }
 
                         }
-                        command.Parameters.AddWithValue("@AccessRoles", dt);
+                       
                     }
+                    command.Parameters.AddWithValue("@AccessRoles", dt);
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_SaveAccessRoles";
                     Connection.Open();
@@ -5504,6 +5505,8 @@ namespace FingerprintsData
                     Connection.Close();
 
                 }
+             
+
             }
 
             catch (Exception ex)
