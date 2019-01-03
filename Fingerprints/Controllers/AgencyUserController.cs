@@ -2334,25 +2334,19 @@ namespace Fingerprints.Controllers
             try
             {
 
-                 family = familyData.Getchild(ChildId, HouseHoldId, Session["AgencyID"].ToString(), Server.MapPath("~//TempAttachment//"), Session["Roleid"].ToString());
-
-                //    wellBabyList = family.WellBabyExamModelList;
-                // if(wellBabyList.)
-                //  family.PhysicalExamDates = new List<WellBabyExamModel>();
-                // family.PhysicalExamDates = PhysicalExamDatesInScreening(family.CDOB,family.DateOfEnrollment);
+                family = familyData.Getchild(ChildId, HouseHoldId, staff.AgencyId.ToString(), Server.MapPath("~//TempAttachment//"), Session["Roleid"].ToString());
 
                 return Json(family);
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                //  return Json("Error occured please try again.");
-                //return Json(Ex);
+            
                 return Json(family);
             }
         }
 
-        private List<WellBabyExamModel> PhysicalExamDatesInScreening( string DOB,string DOE)
+        private List<WellBabyExamModel> PhysicalExamDatesInScreening(string DOB, string DOE)
         {
             List<WellBabyExamModel> listOfDates = new List<WellBabyExamModel>();
             DateTime dob1 = DateTime.Parse(DOB);
@@ -2370,8 +2364,8 @@ namespace Fingerprints.Controllers
             listOfDates.Add(EachDate(dob1, DOE1, 15, true));
             listOfDates.Add(EachDate(dob1, DOE1, 18, true));
             listOfDates.Add(EachDate(dob1, DOE1, 24, true));
-            listOfDates.Add(EachDate(dob1, DOE1 ,30, true));
-            listOfDates.Add(EachDate(dob1, DOE1,36, true));
+            listOfDates.Add(EachDate(dob1, DOE1, 30, true));
+            listOfDates.Add(EachDate(dob1, DOE1, 36, true));
 
             return listOfDates;
         }
@@ -2415,20 +2409,20 @@ namespace Fingerprints.Controllers
             return data;
         }
 
-        [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult Getchild1(string ChildId = "0", string HouseHoldId = "0")
-        {
-            try
-            {
-                return Json(familyData.Getchild1(ChildId, HouseHoldId, Session["AgencyID"].ToString(), Server.MapPath("~//TempAttachment//"), Session["Roleid"].ToString()));
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Json("Error occurred please try again.");
-            }
-        }
+        //[JsonMaxLengthAttribute]
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        //public JsonResult Getchild1(string ChildId = "0", string HouseHoldId = "0")
+        //{
+        //    try
+        //    {
+        //        return Json(familyData.Getchild1(ChildId, HouseHoldId, Session["AgencyID"].ToString(), Server.MapPath("~//TempAttachment//"), Session["Roleid"].ToString()));
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        clsError.WriteException(Ex);
+        //        return Json("Error occurred please try again.");
+        //    }
+        //}
 
 
 
