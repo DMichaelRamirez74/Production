@@ -48,6 +48,86 @@
                     // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
                 }
             });
+
+            //autocomplete
+            $("body").on('keyup', '.txt-search', function () {
+                var value = $(this).val();
+                // var role = $(this).attr('rolename');
+                //    $(this).closest('div').find('.hidden-id').val("");
+
+                //if ($('.txt-search').val().trim() != $('.hdn-family-id').attr('familyname')) {
+                //    $('.hdn-family-id').attr('familyname', '');
+                //    $('.hdn-family-id').val("");
+                //    $('.hdn-child-id').val("");
+                //    if ($('.ddlChildName').is(':visible'))
+                //        $('.ddlChildName').val("0");
+                //    else
+                //        $(".txtChildName").val("");
+                //}
+                $(this).autocomplete({
+                    source: function (request, response) {
+                        var param = { 'SearchText': value };
+                        $.ajax({
+                            url: "/SuperAdmin/GetCategoryBySearchText",
+                            type: "POST",
+                            dataType: "json",
+                            data: param,
+                            success: function (data) {
+                                arry = data;
+                                response($.map(data, function (item) {
+                                    return { label: item.Text, value: item.Text, id: item.Value };
+                                }))
+                            }
+                        });
+                    },
+                    messages: {
+                        //noResults: "",
+                        //results: function (count) {
+                        //    return count + (count > 1 ? ' results' : ' result ') + ' found';
+                        //}
+                    },
+                    select: function (e, ui) {
+                        var label = ui.item.label;
+                        var value = ui.item.value;
+                        var id = ui.item.id;
+                        ID = id;
+                        //$('.hdn-family-id').attr('familyname', ui.item.label);
+                       // $('.hdn-family-id').val(ID);
+                        //var param1 = { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val(), 'FamilyId': ID };
+                        //$.ajax({
+                        //    url: "/Billing/GetChildByFamilyId",
+                        //    type: "POST",
+                        //    dataType: "json",
+                        //    data: param1,
+                        //    success: function (data) {
+                        //        if (data.length > 1) {
+                        //            $('.ddlChildName').show();
+                        //            $('.txtChildName').hide();
+                        //            $('.ddlChildName').empty();
+                        //            $('.ddlChildName').append("<option value='0'>Choose</option>");
+                        //            $('.hdn-child-id').val("");
+                        //            for (var i = 0; i < data.length; i++) {
+                        //                var template = "<option value='" + data[i].Value + "'>" + data[i].Text + "</option>";
+                        //                $('.ddlChildName').append(template);
+                        //            }
+                        //        }
+                        //        else {
+                        //            $('.ddlChildName').hide();
+                        //            $('.txtChildName').show();
+                        //            $('.txtChildName').val(data[0].Text);
+                        //            $('.hdn-child-id').val(data[0].Value);
+                        //        }
+                        //    },
+                        //    error: function () {
+
+                        //    }
+                        //});
+                        
+                    }
+                });
+            });
+
+
             drawgrid();
           
            
@@ -319,6 +399,7 @@
                     tr += "<td><a href='#' onclick='GetWorkshop(this);' accesskey=" + data.list[i].WorkshopID + ">" + ((typeof (data.list[i].WorkshopName) != 'undefined') && (data.list[i].WorkshopName != null) ? data.list[i].WorkshopName : '') + "</td>";
                  
                     tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].Category) != 'undefined') && (data.list[i].Category != null) ? data.list[i].Category : '') + " </span></td>";
                   //  tr += "<td>" + ((typeof (data.list[i].TransitionDate) != 'undefined') && (data.list[i].TransitionDate != null) ? data.list[i].TransitionDate : '') + " </span></td>";
                 
                     tr += "<td>" + ((typeof (data.list[i].CreatedDate) != 'undefined') && (data.list[i].CreatedDate != null) ? data.list[i].CreatedDate : '') + "</td>";
@@ -356,7 +437,7 @@
        
             $('#WorkshopName').val(data.WorkshopName);
             $('#txtDescription').val(data.Description);
-       
+            $('#txtCategory').val(data.Category);
            // $('#txtTransitionDate').val(data.TransitionDate);
           //  if (data.FormalAgreement == true)
              //   $('#txtFormalAgreement').prop("checked", true);
@@ -416,6 +497,7 @@
             $('#WorkshopName')[0].value = "";
            
             $('#txtDescription')[0].value = "";
+            $('#txtCategory')[0].value = "";
         //    $('#FormalAgreement')[0].value = "";
          //   $('#txtFormalAgreement').prop('checked', false);
             $('#hdnWorkshopID')[0].value = "";
@@ -477,7 +559,14 @@
 
                             </div>
                         </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceId">Category</label>
+                                @Html.TextBoxFor(m => m.Category, new { placeholder = "Category", id = "txtCategory", maxlength = "50", @class = "form-control txt-search", tabIndex = "2" })
 
+
+                            </div>
+                        </div>
                         @*<div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="RaceSubCatDesc">Transition Date<sup>*</sup></label>
@@ -531,6 +620,7 @@
                          
                             <th id="THIN">Workshop Name<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
                             <th id="THCUST">Description<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="THCUST">Category<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
                             @*<th id="thRN">Transition Date<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>*@
                             <th id="THCN">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
                             <th id="thAN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>

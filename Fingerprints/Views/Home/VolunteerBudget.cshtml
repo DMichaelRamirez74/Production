@@ -14,14 +14,16 @@
     <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/csschild/styleBM.css" rel="stylesheet" />
     <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+
     <style>
+
+
         #page-wrapper {
             padding-left: 0;
             padding-right: 0;
         }
 
-        #ddlProgramYear option {
+        #inkindPeriodSelect option {
             background: #1f4f7d;
         }
 
@@ -122,6 +124,33 @@
             font-size: 11px;
             color: #f2b54b;
         }
+
+        .inkind-start-date, .inkind-end-date {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-top-left-radius: 8px !important;
+            border-bottom-left-radius: 8px !important;
+        }
+
+        /*#txtHours {
+            border-radius: 8px !important;
+        }*/
+
+        #txtDollars,#txtHours
+        {
+            border-top-right-radius:8px!important;
+            border-bottom-right-radius:8px!important;
+        }
+
+        .datepicker-icon {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .billing-select1
+        {
+            border-radius:8px!important;
+        }
     </style>
     <div class="container-fluid">
         <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;background-size:cover;">
@@ -132,43 +161,103 @@
             <div class="col-xs-12">
                 <div class="billing-form">
                     <div class="col-lg-6">
+                        @*<div class="col-xs-12 billing-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                    <div class="billing-inner-label">
+                                        <label class="lbl-required">Program Year</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="billing-inner">
+
+                                        @Html.DropDownList("ddlProgramYear", Fingerprints.Utilities.Helper.GetActiveAndFutureYears(Session["AgencyID"].ToString()), new { @class = "billing-select1 ddlProgramYear" })
+                                        <input type="hidden" class="inkind-id" />
+                                    </div>
+                                </div>
+                            </div>*@
+
+                        <input type="hidden" class="inkind-id" />
+
+
+                        <div class="col-xs-12 billing-form-div no-padding">
+            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                <div class="billing-inner-label">
+                    <label class="lbl-required">In-Kind Entry Period</label>
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                <div class="billing-inner">
+
+
+
+                  @*  @Html.DropDownList("ddlProgramYear", ), new { @class = "billing-select1 ddlProgramYear" })*@
+
+                    <select class="billing-select1 inkindPeriodSelect" id="inkindPeriodSelect">
+
+                        <option value="0">--Select--</option>
+
+                        @foreach (var item in (List<FingerprintsModel.InkindPeriods>)ViewBag.InkindPeriodList)
+                        {
+                            <option value="@item.InkindPeriodID">@string.Concat(item.StartDate," - ",item.EndDate)</option>
+                        }
+
+                    </select>
+
+                    <input type="hidden" class="inkind-id" />
+                </div>
+            </div>
+        </div>
+
+
+
+
+
                         <div class="col-xs-12 billing-form-div no-padding">
                             <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
                                 <div class="billing-inner-label">
-                                    <label class="lbl-required">Program Year</label>
+                                    <label class="lbl-required">Hours</label>
+
                                 </div>
                             </div>
+                          
+
+
+
                             <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
                                 <div class="billing-inner">
+                                    <div class="input-group">
+                                        <span class="input-group-addon" id="basic-addon1">
+                                            <span class="glyphicon glyphicon-time">
 
-                                    @Html.DropDownList("ddlProgramYear", Fingerprints.Utilities.Helper.GetActiveAndFutureYears(Session["AgencyID"].ToString()), new { @class = "billing-select1 ddlProgramYear" })
-                                    <input type="hidden" class="inkind-id" />
+                                            </span>
+                                        </span>
+                                        <input type="text" id="txtHours" class="form-control txt-empty decimal txt-date" value="">
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xs-12 billing-form-div no-padding">
                             <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
                                 <div class="billing-inner-label">
-                                    <label>Hours</label>
+                                    <label class="lbl-required">Dollars</label>
 
                                 </div>
                             </div>
-                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
-                                <div class="billing-inner">
-                                    <input type="text" id="txtHours" class="form-control txt-empty decimal txt-date" value="">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 billing-form-div no-padding">
-                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
-                                <div class="billing-inner-label">
-                                    <label>Dollars</label>
 
-                                </div>
-                            </div>
+                            
+
+
                             <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
                                 <div class="billing-inner">
-                                    <input type="text" id="txtDollars" class="form-control txt-empty decimal txt-date" value="">
+                                    <div class="input-group">
+                                        <span class="input-group-addon" id="basic-addon1">
+                                            <span class="glyphicon glyphicon-usd">
+
+                                            </span>
+                                        </span>
+                                        <input type="text" id="txtDollars" class="form-control txt-empty decimal txt-date" value="">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -192,17 +281,15 @@
                     <table class="col-md-12 table-striped table-condensed cf table-change bill-table">
                         <thead class="table-hd">
                             <tr>
-                                <th>Program Year</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
                                 <th>Hours</th>
                                 <th>Dollars</th>
                                 <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
-                        <tbody class="bill-table-head">
-                            
-
-                        </tbody>
+                        <tbody class="bill-table-head"></tbody>
                     </table>
                 </div>
                 <div style="margin-bottom: 50px;height: 2px;"></div>
@@ -213,47 +300,157 @@
 
 
 
-    <script src="~/Content/scriptchild/jquery.js"></script>
-    <script src="~/Content/scriptchild/bootstrap.js"></script>
-    <script src="~/Content/scriptchild/script.js"></script>
+
     <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
     <script>
+
+
+        var inkindperiodJson=@Html.Raw(Json.Encode(ViewBag.InkindPeriodList));
+        console.log(inkindperiodJson);
         $(function () {
-            GetInkindBudget();
+
+
+
+            //$('#InkindPeriodList_0_StartDate').datetimepicker({
+            //    mask: true,
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+
+            //});
+
+            //$('#InkindPeriodList_0_EndDate').datetimepicker({
+            //    mask: true,
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+
+            //});
+
+
+            //$('.dates-icon').on('click', function () {
+
+            //    $(this).siblings('input:text').datetimepicker('show');
+
+
+            //});
+
+
+            $('#inkindPeriodSelect').on('change',function(){
+
+
+                if($(this).val()=='0')
+                {
+
+                    $('#txtHours,#txtDollars').val('');
+
+                    return false;
+                }
+                GetInkindBudget(parseInt($(this).val()),bindInkindOptions);
+
+            });
+
+
+            $('#txtHours').on('input', function (e) {
+
+
+                if (parseFloat($(this).val()).toString() == 'NaN') {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            //var regExp = /[a-z]/i;
+         
+
+            //$('#txtDollars').on('keydown keyup',function(e){
+
+              
+
+
+           
+            //    var regex='[a-zA-Z]';
+            //    // No letters
+            //    if (regex.test(String.fromCharCode(e.which))) {
+            //        e.preventDefault();
+            //        return false;
+            //    }
+
+            //    FormatCurrency(this);
+                
+              
+
+            //});
+
+
+            
+            $.fn.noMask = function(regex) { 
+                this.on("keypress paste keyup blur", function(e) {
+
+                
+                    if (regex.test(String.fromCharCode(e.which))) {
+                        return false;
+                    }
+                   
+                }).on('input',function(){
+                    FormatCurrency(this);
+                });
+            }
+
+           
+            $("#txtDollars").noMask ( /[^0-9]/g );
+
+            $('#txtHours').noMask( /[^0-9]/g );
+
+            GetInkindBudget(0,bindInkindBudget);
+
+
             $('.btn-submit').click(function () {
                 //  if (ValidateAddressChange()) {
                 var allow = true;
                 cleanValidation();
                 debugger;
-                if ($('#ddlProgramYear').val() == "0") {
-                    plainValidation('#ddlProgramYear');
-                    customAlert("Program Year is mandatory");
+                //if ($('#ddlProgramYear').val() == "0") {
+                //    plainValidation('#ddlProgramYear');
+                //    customAlert("Program Year is mandatory");
+                //    allow = false;
+                //    return false;
+                //}
+
+    
+                var $inkindPeriod=$('#inkindPeriodSelect')
+
+                var $hours = $('#txtHours');
+                var $dollars = $('#txtDollars');
+
+                
+                if($inkindPeriod.val()==null || $inkindPeriod.val()=='' || $inkindPeriod.val()=='0')
+                {
+                    plainValidation($inkindPeriod);
+                    customAlert("In-Kind entry period is mandatory");
                     allow = false;
                     return false;
                 }
 
-                 if ($('#txtHours').val() == "") {
-                    plainValidation('#txtHours');
+                else if ($hours.val() == "") {
+                    plainValidation($hours);
                     customAlert("Hours is mandatory");
                     allow = false;
                     return false;
                 }
 
-                 if(parseFloat($('#txtHours').val()).toString()=="NaN")
-                {
-                    plainValidation('#txtHours');
+                if (parseFloat($hours.val()).toString() == "NaN") {
+                    plainValidation($hours);
                     customAlert("Please enter valid hours");
                     allow = false;
                     return false;
                 }
-                 if ($('#txtDollars').val() == "") {
-                    plainValidation('#txtDollars');
+                if ($dollars.val() == "") {
+                    plainValidation($dollars);
                     customAlert("Dollars is mandatory");
                     allow = false;
                     return false;
                 }
-                if (parseFloat($('#txtDollars').val()).toString() == "NaN") {
-                    plainValidation('#txtHours');
+                if (parseFloat($dollars.val()).toString() == "NaN") {
+                    plainValidation($dollars);
                     customAlert("Please enter valid dollars");
                     allow = false;
                     return false;
@@ -262,11 +459,13 @@
 
                 if (allow) {
                     var Inkind = {};
+
                     if ($('.inkind-id').val().trim() != "")
                         Inkind.Id = $('.inkind-id').val().trim();
-                    Inkind.ProgramYear = $('#ddlProgramYear').val();
-                    Inkind.Hours = $('#txtHours').val() == undefined || $('#txtHours').val() == "" ? "0" : $('#txtHours').val();
-                    Inkind.Dollers = $('#txtDollars').val() == undefined || $('#txtDollars').val() == "" ? "0" : $('#txtDollars').val();
+                    Inkind.InkindPeriodID = $('#inkindPeriodSelect').val();
+                    Inkind.Hours = $('#txtHours').val() == undefined || $('#txtHours').val() == "" ? "0" : $('#txtHours').val().replace(',','').trim();
+                    Inkind.Dollers = $('#txtDollars').val() == undefined || $('#txtDollars').val() == "" ? "0" : $('#txtDollars').val().replace(',','').trim();
+                 
                     Inkind = JSON.stringify({ 'inkind': Inkind });
 
                     $.ajax({
@@ -279,7 +478,7 @@
                         success: function (data) {
                             customAlertSuccess("Record Saved Successfully");
                             Clear();
-                            GetInkindBudget();
+                            GetInkindBudget(0,bindInkindBudget);
                         },
                         error: function (data) {
                             console.log('Error');
@@ -293,14 +492,17 @@
 
             $('body').on('click', '.Edit', function () {
                 var currentrow = $(this).closest('tr');
-                $('.ddlProgramYear').val(currentrow.find('td').eq(0).text().replace('$', '').trim());
-                $('#txtHours').val(currentrow.find('td').eq(1).text().replace('$', '').trim());
-                $('#txtDollars').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
+              
+                $('#txtHours').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
+                $('#txtDollars').val(currentrow.find('td').eq(3).text().replace('$', '').trim());
 
                 $('.inkind-id').val(currentrow.attr('inkindid'));
-                $('.ddlProgramYear').attr('disabled', true);
+
+                $('.inkindPeriodSelect').val(currentrow.data('inkind-period'));
+                $('.inkindPeriodSelect').attr('disabled', true);
 
             });
+
             $('body').on('click', '.dropdown', function () {
                 setTimeout(function ()
                 { $('.dropdown').addClass('open'); }, 100);
@@ -326,7 +528,7 @@
                         if (data) {
                             customAlertSuccess("Record Deleted Successfully");
                             Clear();
-                            GetInkindBudget();
+                            GetInkindBudget(0,bindInkindBudget);
                         }
 
                     },
@@ -336,21 +538,38 @@
                 });
             }
             function Clear() {
-                $('.ddlProgramYear').val("0");
+                $('#inkindPeriodSelect').val('0');
                 $('#txtHours,.inkind-id,#txtDollars').val("");
-                $('.ddlProgramYear').attr('disabled', false);
+                $('.inkindPeriodSelect').attr('disabled', false);
             }
-            function GetInkindBudget() {
+            function GetInkindBudget($inkindPeriodId,callback) {
                 $.ajax({
                     type: "POST",
                     url: "/Home/GetInkindByUserId",
+                    data:{inkindPeriodId:$inkindPeriodId},
                     success: function (data) {
-                        $('.bill-table-head').empty();
+                    
+                        callback(data);
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
 
-                        var Template = '<tr inkindid="##ID##">\
-                                 <td data-title="ProgramYear">\
+            function bindInkindBudget(data)
+            {
+                $('.bill-table-head').empty();
+
+                var Template = '<tr inkindid="##ID##" data-inkind-period="##PERIOD##">\
+                                 <td data-title="Start Date">\
                                      <div class="">\
-                                         <p class="Program-Type">##ProgramYear##</p>\
+                                         <p class="Program-Type">##StartDate##</p>\
+                                     </div>\
+                                 </td>\
+                                <td data-title="End Date">\
+                                     <div class="">\
+                                         <p class="Program-Type">##EndDate##</p>\
                                      </div>\
                                  </td>\
                                  <td class="td-decimal" data-title="Hours">\
@@ -360,7 +579,7 @@
                                  </td>\
                                  <td class="td-decimal" data-title="Dollers">\
                                      <div class="">\
-                                         <p style="text-align: right;">$##Dollers##</p>\
+                                         <p style="text-align: right;">##Dollers##</p>\
                                      </div>\
                                  </td>\
                                  <td data-title="Edit">\
@@ -375,38 +594,104 @@
                                  </td>\
                              </tr>';
 
-                        var JsonData = JSON.parse(data);
-                        console.log(JsonData);
-                        if (JSON.parse(data).length > 0)
-                        {
-                            if (JSON.parse(data).length > 1) {
-                                $.each(JSON.parse(data), function (i, val) {
-                                    var input = Template;
-                                    input = input.replace("##ID##", val["Id"]);
-                                    input = input.replace("##ProgramYear##", val["ProgramYear"]);
-                                    input = input.replace("##Hours##", val["Hours"]);
-                                    input = input.replace("##Dollers##", parseFloat(val["Budget"]).toFixed(2));
+                var JsonData = JSON.parse(data);
+                console.log(JsonData);
+                if (JSON.parse(data).length > 0) {
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+                            var input = Template;
+                            input = input.replace("##ID##", val["id"]);
+                            input=input.replace("##PERIOD##",val["InkindPeriodID"])
+                            input = input.replace("##StartDate##", val["StartDate"]);
+                            input = input.replace("##EndDate##", val["EndDate"]);
+                            input = input.replace("##Hours##", val["Hours"].split('.')[0]);
+                            input = input.replace("##Dollers##", val["Budget"].split('.')[0]);
 
-                                    $('.bill-table-head').append(input);
-                                });
+                            $('.bill-table-head').append(input);
+
+                            if(val["Closed"]==true)
+                            {
+                                $('.bill-table-head').find('tr:eq('+i+')').find('.Edit').hide();
+                                $('.bill-table-head').find('tr:eq('+i+')').find('.Edit').hide();
                             }
-                            else {
-                                var input = Template;
-                                input = input.replace("##ID##", JsonData[0].Id);
-                                input = input.replace("##ProgramYear##", JsonData[0].ProgramYear);
-                                input = input.replace("##Hours##", JsonData[0].Hours);
-                                input = input.replace("##Dollers##", parseFloat(JsonData[0].Budget).toFixed(2));
-
-                                $('.bill-table-head').append(input);
-                            }
-                        }
-
-                    },
-                    error: function (data) {
-                        console.log('Error');
+                          
+                        });
                     }
-                });
+                    else {
+                        var input = Template;
+                        input = input.replace("##ID##", JsonData[0].id);
+                        input=input.replace("##PERIOD##",JsonData[0].InkindPeriodID);
+                        input = input.replace("##StartDate##", JsonData[0].StartDate);
+                        input = input.replace("##EndDate##", JsonData[0].EndDate);
+                        input = input.replace("##Hours##", JsonData[0].Hours.split('.')[0]);
+                        input = input.replace("##Dollers##", JsonData[0].Budget.split('.')[0]);
+
+                        $('.bill-table-head').append(input);
+                    }
+                }
             }
+
+            function bindInkindOptions(data)
+            {
+                console.log(data);
+                data=JSON.parse(data);
+                debugger;
+                if(data!=null && data.length>0)
+                {
+                    $('#txtHours').val(data[0].Hours.split('.')[0]);
+                    $('#txtDollars').val(data[0].Budget.split('.')[0].replace('$',''));
+                    $('.inkind-id').val(data[0].id);
+                    $('.inkindPeriodSelect').val(data[0].InkindPeriodID);
+                  
+                }
+               
+            }
+
+            function FormatCurrency(ctrl) {
+                //Check if arrow keys are pressed - we want to allow navigation around textbox using arrow keys
+                if (event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40) {
+                    return;
+                }
+
+                var val = ctrl.value;
+
+                val = val.replace(/,/g, "")
+                ctrl.value = "";
+                val += '';
+                x = val.split('.');
+                x1 = x[0];
+                x2 = x.length > 1 ? '.' + x[1] : '';
+
+                var rgx = /(\d+)(\d{3})/;
+
+                while (rgx.test(x1)) {
+                    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                    console.log(x1);
+                }
+
+                ctrl.value = x1 + x2;
+            }
+
+            function CheckNumeric() {
+                return event.keyCode >= 48 && event.keyCode <= 57 || event.keyCode == 46;
+            }
+
+            function addCommas(nStr) {
+
+                nStr=nStr.replace('$','');
+                nStr=nStr.replace(',','');
+                nStr += '';
+                var x = nStr.split('.');
+                var x1 = x[0];
+                var x2 = x.length > 1 ? '.' + x[1] : '';
+                var rgx = /(\d+)(\d{3})/;
+                while (rgx.test(x1)) {
+                    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                }
+                return x1 + x2;
+            }
+
+          
         });
 
     </script>

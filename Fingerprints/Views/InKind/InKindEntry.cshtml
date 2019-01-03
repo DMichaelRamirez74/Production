@@ -1,10 +1,15 @@
 ﻿@model FingerprintsModel.Inkind
 
 @{
-    ViewBag.Title = "PublicAssetEntry";
+    ViewBag.Title = "In-Kind Entry";
     Layout = (Session["RoleID"].ToString() == "a65bb7c2-e320-42a2-aed4-409a321c08a5" || Session["RoleID"].ToString() == "3b49b025-68eb-4059-8931-68a0577e5fa2") ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
 
+
+@section Title{
+    In-kind Entry
+
+}
 
 @section Script{
 
@@ -16,6 +21,10 @@
         var activityMins = null;
         var inkindAmount = null;
         var _allowExceedingWarninghrs = false;
+        var _inkindBudgetPeriods = @Html.Raw(Json.Encode(Model.InkindPeriodsList));
+        var _sessionUserid='@(FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()+"_"+FingerprintsModel.StaffDetails.GetInstance().UserId.ToString())';
+        var $cookieName='InkinEntry'+_sessionUserid;
+
         $(function () {
             var searchBtn = $('#searchByNamebtn');
             var searchText = $('#searchText');
@@ -80,6 +89,54 @@
             });
 
 
+            if(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length>0)
+            {
+
+
+                $('#imageinfoInkindDates').popover({
+                    html:true,
+                    content:function(){
+                        var $appendtext='';
+                        if(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length>0)
+                        {
+                            $.each(_inkindBudgetPeriods,function(i,period){
+                                $appendtext+='<p>Dates allowed from '+period.StartDate+' '+'to '+period.EndDate+'</p>';
+                            });
+
+                            return $appendtext;
+                        }
+                    },
+                    container:'body',
+                    //title: function () {
+                    //    //  return $(this).data('title') + '<span class="close">&times;</span';
+                    //    return 'In-Kind Entry Dates'
+
+                    //},
+                    title:'In-Kind Entry Dates'+ '<a class="close" href="javascript:void(0);">&times;</a>',
+                    delay: { "show": 500, "hide": 100 }
+                }).on('shown.bs.popover', function(e) {
+                    //console.log('shown triggered');
+                    // 'aria-describedby' is the id of the current popover
+                    var current_popover = '#' + $(e.target).attr('aria-describedby');
+                    var $cur_pop = $(current_popover);
+          
+                    $cur_pop.find('.close').click(function(){
+                        //console.log('close triggered');
+                        $('#imageinfoInkindDates').popover('hide');
+                    });
+          
+                });
+
+            }
+
+            //$('#imageinfoInkindDates').on('click',function(){
+
+            //    $('#imageinfoInkindDates').popover('show');
+
+
+            //});
+
+
 
 
             $("#text-select-phoneNo").mask("(999) 999-9999");
@@ -138,14 +195,249 @@
             });
 
             //Initialize datetimepicker//
+
+            var $minDate=null;
+            if(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length>0)
+            {
+                $minDate=new Date( _inkindBudgetPeriods[0].StartDate).setHours(0,0,0,0);
+            }
+
+
             $('#activity-date').datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
                 validateOnBlur: false,
                 value: getFormattedDate(new Date()),
                 autoClose: true,
-                maxDate: new Date()
+                minDate:$minDate,
+                maxDate: new Date(),
+                onSelectDate:function(e, ele){
+
+
+                    $('#activity-date').css('background-color','');
+                    if(!isValidAllowedDates(e)){
+
+                        customAlert('Entered date is not allowed');
+                        plainValidation('#activity-date');
+                        return false;
+                    }
+                    else if(getDifferenceDays(e, new Date())>30){
+
+                        $('#datetimepicker1').parent('div').popover('destroy');
+                        
+                        if(!checkCookie($cookieName))
+                        {
+                            
+                            $('#datetimepicker1').parent('div').popover({
+
+                                html: true,
+                                content: function () {
+                                    //  return $($(this).data('target-selector')).html();
+                                    return '<p>Entered date is greater than 30 days before from today.</p>\
+                                        <input type="checkbox" name="checkboxNoShow"/>&nbsp;<span>Don\'t show this message again</span>';
+                                    
+
+                                },
+                                title: function () {
+                                    //  return $(this).data('title') + '<span class="close">&times;</span';
+                                    return 'Information <a href="javascript:void(0);" class="close">&times;</a>';
+
+                                },
+                                trigger: 'manual',
+                                delay: { "show": 500, "hide": 100 }
+                            }).on('shown.bs.popover', function (e) {
+
+                                //console.log('shown triggered');
+                                // 'aria-describedby' is the id of the current popover
+                                var current_popover = '#' + $(e.target).attr('aria-describedby');
+                                var $cur_pop = $(current_popover);
+          
+                                $cur_pop.find('.close').click(function(){
+                                    //console.log('close triggered');
+                                    $('#datetimepicker1').parent('div').popover('hide');
+
+                                });
+
+                                $cur_pop.find('input:checkbox[name="checkboxNoShow"]').on('click',function(){
+
+                                    if($(this).is(':checked'))
+                                    {
+                                        setCookie($cookieName,'1',1);
+                                    }
+                                    else{
+                                        deleteCookie($cookieName);
+                                    }
+
+
+                                });
+                            });
+
+                        
+                            $('#datetimepicker1').parent('div').popover('show');
+                        }
+
+                    }
+                    else
+                    {
+                        $('#datetimepicker1').parent('div').popover('destroy');
+                    }
+
+                },
+                onChangeDateTime:function(e, ele){
+                    debugger;
+
+                    $('#activity-date').css('background-color','');
+               
+                        
+                        
+                        if(!isValidAllowedDates( e))
+                        {
+                            plainValidation('#activity-date');
+
+                  
+
+
+                            //$('#datetimepicker1').parent('div').popover('destroy');
+
+                            //$('#datetimepicker1').parent('div').popover({
+
+                            //    html: true,
+                            //    content: function () {
+                            //        //  return $($(this).data('target-selector')).html();
+                            //        return '<p>Kindly, check the <i class="fa fa-fa-info-o"></i> to know more about In-Kind entry dates</p>';
+
+                            //    },
+                            //    title: function () {
+                            //        //  return $(this).data('title') + '<span class="close">&times;</span';
+                            //        return "<p><strong class='text-center'>Invalid Date</strong></p>";
+
+                            //    },
+                            //    trigger: 'manual',
+                            //    delay: { "show": 500, "hide": 100 }
+                            //}).on('shown.bs.popover', function (e) {
+
+
+
+
+
+                            //});
+
+                            //$('#datetimepicker1').parent('div').popover('show');
+
+                            customAlert('Entered date is not allowed');
+                            return false;
+                        }
+                        
+                 
+
+                    //else if(getDifferenceDays(e, new Date())>30){
+
+                    //    $('#datetimepicker1').popover('destroy');
+                    //    $('#datetimepicker1').popover({
+
+                    //        html: true,
+                    //        content: function () {
+                    //            //  return $($(this).data('target-selector')).html();
+                    //            return '<p>Entered date is greater than 30 days before from today.</p>\
+                    //                    <input type="checkbox" name="checkboxNoShow"/>&nbsp;<span>Don\'t show this message again</span>\
+                    //                    <div><button type="button" class="btn btn-primary">Close</button></div>';
+
+                    //        },
+                    //        title: function () {
+                    //            //  return $(this).data('title') + '<span class="close">&times;</span';
+                    //            return 'Information <a href="javascript:void(0);" class="close">&times;</a>';
+
+                    //        },
+                    //        trigger: 'manual',
+                    //        delay: { "show": 500, "hide": 100 }
+                    //    }).on('shown.bs.popover', function (e) {
+
+                    //        //console.log('shown triggered');
+                    //        // 'aria-describedby' is the id of the current popover
+                    //        var current_popover = '#' + $(e.target).attr('aria-describedby');
+                    //        var $cur_pop = $(current_popover);
+          
+                    //        $cur_pop.find('.close').click(function(){
+                    //            //console.log('close triggered');
+                    //            $('#datetimepicker1').popover('hide');
+
+                    //        });
+
+
+                    //    });
+
+                        
+                    //    $('#datetimepicker1').popover('show');
+                    //}
+                },
             });
+
+
+            $('#activity-date').on('blur', function () {
+
+                $('#activity-date').css('background-color','');
+                if ($(this).val() != null && $(this).val() != '') {
+
+
+
+                    
+                    if(!isValidAllowedDates( $(this).val()))
+                    {
+                       // plainValidation('#activity-date');
+
+                  
+
+
+                        $('#datetimepicker1').parent('div').popover('destroy');
+
+                        $('#datetimepicker1').parent('div').popover({
+
+                            html: true,
+                            content: function () {
+                                //  return $($(this).data('target-selector')).html();
+                                return '<p>Kindly, check the <i class="fa fa-info-circle" style="color:#25b7d3;font-size:17px;font-weight:bold;"></i> to know more about In-Kind entry dates</p>';
+
+                            },
+                            title: function () {
+                                //  return $(this).data('title') + '<span class="close">&times;</span';
+                                return "<p><strong class='text-center'>Invalid Date</strong></p>";
+
+                            },
+                            trigger: 'manual',
+                            delay: { "show": 500, "hide": 100 }
+                        }).on('shown.bs.popover', function (e) {
+
+
+
+
+
+                        });
+
+                        $('#datetimepicker1').parent('div').popover('show');
+
+                        customAlert('Entered date is not allowed');
+                        return false;
+                    }
+
+                    $('#datetimepicker1').parent('div').popover('destroy');
+                    //if (!isValidAllowedDates($(this).val())) {
+                    //    plainValidation($(this));
+                    //    $(this).val('');
+                    //    customAlert('Please enter valid date');
+                    //    return false;
+                    //}
+
+                    if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                        plainValidation($(this));
+                        $(this).val('');
+                        customAlert('Future dates are not allowed');
+                        return false;
+                    }
+                }
+
+            });
+
+
 
             //show Datetimepicker on click of date group icon//
             $('#datetimepicker1').on('click', function () {
@@ -256,6 +548,16 @@
 
             //On clikc of Add Contact Button loads the contact form//
             $('#addContactBtn').on('click', function () {
+
+                if(_inkindBudgetPeriods==null ||(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length==0))
+                {
+
+           
+                    showNoActiveInkinds();
+               
+                    return false;
+                }
+
                 $('#searchText').val('');
                 $('#no-more-tables8').find('#totalCountSpan').text(0);
                 $('#no-more-tables8').find('.scroll-tbody').html('');
@@ -528,7 +830,7 @@
 
             //On click of Inkind Entry Form Submit, Validates the form and Saves the Record to Database//
             $('#inKindEntrySubmit').on('click', function () {
-
+           
                 cleanValidation();
                 var filter2 = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
 
@@ -626,6 +928,46 @@
                 if (activityDate.val() != '' && !validatedates(activityDate)) {
                     return false;
                 }
+
+                if(!isValidAllowedDates(activityDate.val()))
+                {
+                  //  plainValidation(activityDate);
+
+                  
+
+
+                    $('#datetimepicker1').parent('div').popover('destroy');
+
+                    $('#datetimepicker1').parent('div').popover({
+
+                        html: true,
+                        content: function () {
+                            //  return $($(this).data('target-selector')).html();
+                            return '<p>Kindly,check the <i class="fa fa-info-circle" style="color:#25b7d3;font-size:17px;font-weight:bold;"></i> to know more about In-Kind entry dates</p>';
+
+                        },
+                        title: function () {
+                            //  return $(this).data('title') + '<span class="close">&times;</span';
+                            return "<p><strong class='text-center'>Invalid Date</strong></p>";
+
+                        },
+                        trigger: 'manual',
+                        delay: { "show": 500, "hide": 100 }
+                    }).on('shown.bs.popover', function (e) {
+
+
+
+
+
+                    });
+
+                    $('#datetimepicker1').parent('div').popover('show');
+
+                    customAlert('Entered date was not allowed');
+                    return false;
+                }
+
+
 
 
                 if ($('input[name=activityTypeRadio]:checked').length <= 0) {
@@ -834,13 +1176,16 @@
                         InKindTransactions.Hours = hrs;
                         InKindTransactions.Minutes = minutes;
                         InKindTransactions.CenterID = parseInt(centerSelect.val());
+                        InKindTransactions.Enc_CenterID = "";
                         InKindTransactions.ClassroomID = parseInt(classroomSelect.val());
+                        InKindTransactions.Enc_ClassroomID = "";
                         InKindTransactions.FromNo = 0;
                         InKindTransactions.ActivityDate = activityDate.val();
                         InKindTransactions.ClientID = "0";
                         InKindTransactions.ParentID = $('#inkindPersonName').attr('cl_id');
                         InKindTransactions.MilesDriven = miles;
                         InKindTransactions.ParentType = parentType;
+                        InKindTransactions.InkindTransactionID = 0;
                         InKindTransactionsList.push(InKindTransactions);
                     });
                 }
@@ -1003,6 +1348,17 @@
         });
 
 
+
+        function getDifferenceDays(startDate,endDate)
+        {
+            startDate = new Date(startDate);
+            endDate   = new Date(endDate);
+            var diff  = new Date(endDate - startDate);
+            var days  = diff/1000/60/60/24;
+            return days;
+        }
+
+
         function getTotalhoursMinutes(_hrs,_mins)
         {
             
@@ -1092,6 +1448,53 @@
             }
 
         }
+
+
+        // validation for in-kind dates to check, whether entered date is allowed//
+        function  isValidAllowedDates(enteredDate)
+        {
+            debugger;
+
+
+            var $inkindPeriods= _inkindBudgetPeriods;
+            var $isAllowed=false;
+            if($inkindPeriods!=null && $inkindPeriods.length>0)
+            {
+
+
+                var $periodSearch=$.grep($inkindPeriods,function(period,index){
+
+                    return   new Date(enteredDate).setHours(0,0,0,0) >= new Date(period.StartDate).setHours(0,0,0,0)
+                        && new Date(enteredDate).setHours(0,0,0,0)<=new Date(period.EndDate).setHours(0,0,0,0)
+                });
+                //$.each($inkindPeriods,function(){
+
+                //    if( new Date(enteredDate).setHours(0,0,0,0) >= new Date($(this).StartDate).setHours(0,0,0,0)
+                //        && new Date(enteredDate).setHours(0,0,0,0)<=new Date($(this).EndDate).setHours(0,0,0,0)){
+                //        $isAllowed=true;
+                //        return $isAllowed;
+                //    }
+                //});
+
+                if($periodSearch!=null && $periodSearch.length>0)
+                {
+                    $isAllowed=true;
+                }
+
+                return $isAllowed;
+
+            }
+            else
+            {
+                $isAllowed=false;
+                return $isAllowed;
+            }
+
+
+
+
+        }
+
 
         //function to add more attachments for the in-kind entry//
         function addMoreInkindAtt(ele) {
@@ -1460,10 +1863,28 @@
 
         }
 
+
+        function showNoActiveInkinds()
+        {
+            BootstrapDialog.alert('In-Kind periods was not set-up yet or closed !');
+        }
+
         //Resets the inkind entry form after click of name on the loaded available list.
         function showParentInfo(ele) {
 
             cleanValidation();
+
+
+            if(_inkindBudgetPeriods==null ||(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length==0))
+            {
+
+           
+                showNoActiveInkinds();
+               
+                return false;
+            }
+
+
             //$('.contact-entry-div').find('input[name=radiocompany][value=1]').trigger('click');
             $('.contact-entry-div').hide();
             $('.inkind-entry-div').show();
@@ -1920,8 +2341,17 @@
 {
 
     <style>
+
+        #searchText{
+            height:30px!important;
+        }
+
         body {
             font-family: arial,sans-serif !important;
+        }
+
+        #imageinfoInkindDates {
+            cursor: pointer;
         }
 
         .contact-entry-div {
@@ -1972,14 +2402,37 @@
     </style>
     <link href="~/Content/css/Inkindprocessing.css" rel="stylesheet" />
     <link href="~/Content/css/parentcontact.css" rel="stylesheet" />
-    <div class="row">
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
 
-        <div class="col-lg-12">
-            <h2 class="page-header page-header-change">Public Asset Entry <i class="inkind-i">(In-kind)</i></h2>
-        </div>
-        <div class="col-xs-12 text-right">
-            <button class="btn btn-secondary" style="background-color:#f9c751;" id="addContactBtn">Add Contact</button>
-        </div>
+
+                        <div class="right-side-container-ch col-xs-12">
+
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;In-Kind Entry
+
+                                        <span class="view-btn backto_listspan">
+
+
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 text-right glossy_btn">
+                                <button class="glossy-button-button button-green glossy-button-hover" id="addContactBtn">
+                                    Add Contact
+
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+
+                                </button>
+                            </div>
 
         <div class="col-lg-12 col-xs-12">
 
@@ -1988,16 +2441,37 @@
                     <div class="col-lg-4 impart-rght">
                         <label class="" style="color:#fff;margin-top:8px;">Search By Name</label>
 
-                    </div>
-                    <div class="col-lg-4 impart-inpart">
-                        <input type="text" class="form-control" id="searchText" name="SearchByName" placeholder="Search Name...">
-                    </div>
-                    <div class="col-lg-2">
-                        <button class="btn btn-success" type="button" id="searchByNamebtn">Search</button>
+                                        </div>
+                                        <div class="col-lg-4 impart-inpart">
+                                            <input type="text" class="form-control" id="searchText" name="SearchByName" placeholder="Search Name...">
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <button class="glossy-button-button button-green glossy-button-hover"  type="button" id="searchByNamebtn">Search
+                                            
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                            </button>
 
-                    </div>
-                </div>
-            </div>
+                                        </div>
+
+                                        @* Search Section *@
+
+
+                                        @*<div class="col-xs-12 search-block-main">
+                                            <div class="search-block">
+                                                <input type="text" placeholder="Search..." id="searchText" name="SearchByName" class="form-control">
+                                                <div class="ersa-search-btn">
+                                                    <button id="searchByNamebtn" data-search-item="">Search</button>
+                                                </div>
+                                            </div>
+
+
+                                        </div>*@
+
+
+
+                                    </div>
+                                </div>
 
             <div class="row text-center not-exists-div">
                 <small style="color: #f9c751;">Name does not exists in the system. Kindly, add the contact information.</small>
@@ -2238,19 +2712,28 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                                            <div class="form-group row">
 
-                            <label class="col-lg-4 col-form-label lbl-required">Date</label>
-                            <div class='input-group date col-lg-8' id='datetimepicker1' style="padding-left:15px;padding-right:15px;">
-                                <input type="text" class="form-control" id="activity-date" placeholder="MM/DD/YYYY" maxlength="10" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-group row" id="activitytype-div">
-                            <label class="col-lg-4 col-form-label lbl-required">Activity Type</label>
-                            <div class="col-lg-8" id="activitytyperadiodiv">
+                                                <label class="col-lg-4 col-form-label lbl-required">Date</label>
+                                                <div class="col-lg-6" data-placement="top">
+                                                    <div class="input-group date col-lg-12"  data-placement="top" id='datetimepicker1' style="padding-left:0;padding-right:0;">
+                                                        <input type="text" class="form-control" data-placement="top" id="activity-date" placeholder="MM/DD/YYYY" maxlength="10" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-2" style="margin-top: 8px;font-weight: bold;">
+                                                    <img src="/Images/info.png" id="imageinfoInkindDates" data-placement="top" data-toggle="popover" style="height: 20px;width :20px;padding: 0;">
+                                                </div>
+
+
+
+                                            </div>
+                                            <div class="form-group row" id="activitytype-div">
+                                                <label class="col-lg-4 col-form-label lbl-required">Activity Type</label>
+                                                <div class="col-lg-8" id="activitytyperadiodiv">
 
                                 <div class="col-sm-6 col-xs-12" style="padding: 0;width:auto;display:inline-block;margin-right:20px;">
                                     <span class="check-space"> <input type="radio" name="activityTypeRadio" value="1"></span>
@@ -2266,22 +2749,22 @@
                             <label class="col-lg-4 col-form-label lbl-required">Activity</label>
                             <div class="col-lg-8" id="activity-des-listdiv">
 
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-lg-4 col-form-label lbl-required">Description of Activity</label>
-                            <div class="col-lg-8">
-                                <textarea class="form-control" rows="5" style="margin-bottom:10px;" id="descriptionTextArea"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group row inkind-hours-div" style="display:none;">
-                            <label class="col-lg-4 col-form-label lbl-required">Hours : Minutes</label>
-                            <div class="col-lg-8">
-                                <input type="text" class="form-control" data-toggle="popover" data-targe-selector="#hrs-exceed-content" data-placement="top" data-title="Exceeding 8 hours"  id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" />
-                                <span style="display:initial;">:</span>
-                                <input type="text" class="form-control" id="inkindMinutesText" placeholder="MM" maxlength="2" style="display:initial;width:30%;" />
-                            </div>
-                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-lg-4 col-form-label lbl-required">Description of Activity</label>
+                                                <div class="col-lg-8">
+                                                    <textarea class="form-control" rows="5" style="margin-bottom:10px;" id="descriptionTextArea"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row inkind-hours-div" style="display:none;">
+                                                <label class="col-lg-4 col-form-label lbl-required">Hours : Minutes</label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" class="form-control" data-toggle="popover" data-target-selector="#hrs-exceed-content" data-placement="top" data-title="Exceeding 8 hours" id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" />
+                                                    <span style="display:initial;">:</span>
+                                                    <input type="text" class="form-control" id="inkindMinutesText" placeholder="MM" maxlength="2" style="display:initial;width:30%;" />
+                                                </div>
+                                            </div>
 
                         <div class="form-group row inkind-miles-div" style="display:none;">
                             <label class="col-lg-4 col-form-label lbl-required">Miles</label>
@@ -2352,25 +2835,36 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-6 text-right" id="staff-sig-div" style="display:none;">
-                            <label for="sig2" style="margin-left:0;" class="pad-left-signature">Signature of Staff</label>
-                            <div id="sig2" class="form-control" style="margin-left:0;"></div>
-                            <input type="hidden" id="imageSig2" />
-                            <div class="add-useragform student-scroll full-border full-border-margin impo-censect">
-                                <button class="btnPassword" type="button" id="clear2" onclick="return ClearSignature(2);" style="border-radius:50px;">Clear</button>
-                                <button class="btnPassword" type="button" id="accept2" onclick="return SaveSignatureStaff();" style="border-radius:50px;">Accept Signature</button>
+                                            <div class="col-lg-6 text-right" id="staff-sig-div" style="display:none;">
+                                                <label for="sig2" style="margin-left:0;" class="pad-left-signature">Signature of Staff</label>
+                                                <div id="sig2" class="form-control" style="margin-left:0;"></div>
+                                                <input type="hidden" id="imageSig2" />
+                                                <div class="add-useragform student-scroll full-border full-border-margin impo-censect">
+                                                    <button class="btnPassword" type="button" id="clear2" onclick="return ClearSignature(2);" style="border-radius:50px;">Clear</button>
+                                                    <button class="btnPassword" type="button" id="accept2" onclick="return SaveSignatureStaff();" style="border-radius:50px;">Accept Signature</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group final-btn glossy_btn">
+                                            <button class="glossy-button-button button-green glossy-button-hover"  type="button" id="inKindEntrySubmit">
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+                                            Submit</button>
+                                            <button class="glossy-button-button button-red glossy-button-hover" type="button" id="inKindEntryExit">
+                                                <span class="glossy-button-before"></span>
+                                                <span class="glossy-button-after"></span>
+                                            Cancel</button>
+                                        </div>
+                                    </fieldset>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group final-btn">
-                        <button class="btn btn-success" type="button" id="inKindEntrySubmit">Submit</button>
-                        <button class="btn btn-danger" type="button" id="inKindEntryExit">Cancel</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-    </div>
 
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
 
 
 

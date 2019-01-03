@@ -12,6 +12,8 @@
     ViewBag.ClosedToday = (Model != null) ? Model.ClosedDetails.ClosedToday : 0;
     Session["NotCheckedCount"] = Model.NotCheckedCount;
 
+
+    bool _isAccessLW = new FingerprintsData.agencyData().GetSingleAccessStatus(20);
 }
 
 
@@ -22,7 +24,18 @@
 @section Script{
 <script>
 
-    $(document).ready(function () {
+
+        var $closedDetails=@Html.Raw(Json.Encode(Model.ClosedDetails));
+        var _sessionUserid='@(FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()+"_"+FingerprintsModel.StaffDetails.GetInstance().UserId.ToString())';
+        var $cookieName='TeacherATN_'+_sessionUserid;
+
+        var $closedObject={
+            'Agency':1,
+            'Center':2,
+            'Classroom':3
+        }
+
+        $(document).ready(function () {
 
 
 
@@ -204,20 +217,31 @@
 
         // $('.clear-popup').val(0);
 
-        var childnameID = $(this).data('id');
-        var l = childnameID.length;
-        var n = childnameID.indexOf("-");
-        var CID = childnameID.substring(0, n);
-        var CN = childnameID.substring(n + 1, l);
+            if($closedDetails!=null && $closedDetails.ClosedToday>0)
+            {
 
-            $(".modal-header #childname").val(CN);
-            $(".modal-header #childid").val(CID);
-            $(".modal-header #childlbl").text(CN);
-            // As pointed out in comments,
-            // it is superfluous to have to manually call the modal.
-            // $('#addBookDialog').modal('show');
+                switch($closedDetails.ClosedToday)
+                {
+                    case $closedObject.Agency:
+                        showClosedAlert(this,$closedDetails.ClosedToday,$closedDetails.AgencyName);
+                        break;
+                    case $closedObject.Center:
+                        showClosedAlert(this,$closedDetails.ClosedToday,$closedDetails.CenterName);
+                        break;
+                    case $closedObject.Classroom:
+                        showClosedAlert(this,$closedDetails.ClosedToday,$closedDetails.ClassRoomName);
+                        break;
+                    default:
+                        showAttendancePopup(this);
+                        break;
+                }
 
-            $('#myModalattendance').modal({'backdrop':'static','keyboard':false},'show');
+            }
+            else{
+                showAttendancePopup(this);
+            }
+
+
         });
 
     $(document).on("click", ".open-myModalStudent", function () {
@@ -241,6 +265,77 @@
     });
 
 
+
+
+        function showAttendancePopup(ele)
+        {
+            var childnameID = $(ele).data('id');
+            var l = childnameID.length;
+            var n = childnameID.indexOf("-");
+            var CID = childnameID.substring(0, n);
+            var CN = childnameID.substring(n + 1, l);
+
+            $(".modal-header #childname").val(CN);
+            $(".modal-header #childid").val(CID);
+            $(".modal-header #childlbl").text(CN);
+            // As pointed out in comments,
+            // it is superfluous to have to manually call the modal.
+            // $('#addBookDialog').modal('show');
+
+            $('#myModalattendance').modal({'backdrop':'static','keyboard':false},'show');
+        }
+
+        function showClosedAlert(ele,closedMode,closedtext)
+        {
+
+
+            if(!checkCookie($cookieName))
+            {
+                BootstrapDialog.show({
+                    title: 'Confirmation',
+                    message: '<p><strong>'+closedtext+'</strong> has been closed today. Click <strong>OK</strong> to Proceed.</p>\
+                            <p><input type="checkbox" name="checkboxnoShow" id="checkboxnoShow">&nbsp;<span for="checkboxnoShow">Don\'t show this message again</span></p>',
+                    closable: true,
+                    closeByBackdrop: false,
+                    closeByKeyboard: false,
+                    buttons: [{
+                        label: 'Cancel',
+                        cssClass: 'btn-danger',
+                        action: function(dialogRef){
+                            //   dialogRef.close();
+
+                            dialogRef.close();
+
+                        }
+                    },
+
+                    {
+                        label: 'OK',
+                        cssClass: 'btn-primary',
+                        action: function(dialogRef){
+
+                            var $isNoshowChecked= $('input:checkbox[name="checkboxnoShow"]').is(":checked");
+
+                            if($isNoshowChecked)
+                            {
+                                setCookie($cookieName,'1',1);
+                            }
+
+                            showAttendancePopup(ele);
+                            dialogRef.close();
+                        }
+                    }
+                    ]
+                });
+            }
+            else
+            {
+                showAttendancePopup(ele);
+            }
+
+
+
+        }
 
         function isValidInfo() {
             cleanValidation();
@@ -584,9 +679,11 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
                 <div class="edu_clrm_head">
 
 
-                    <h3>
-                        Classroom Roster <small><i>for</i></small> <span class="attend-date"><font size="3"></font></span>  @Model.Tdate
-                <span><font size="3"><i>@(Convert.ToBoolean(ViewBag.NotChecked) ? "(Not-Checked In)" : "")</i></font></span>
+                        <h3>
+                            Classroom @if (Model.Itemlst != null && Model.Itemlst.Count > 0)
+                            {<text><small>(@Model.Itemlst[0].ClassroomName)</small> </text>}
+                            Roster <small><i>for</i></small> <span class="attend-date"><font size="3"></font></span>  @Model.Tdate
+                            <span><font size="3"><i>@(Convert.ToBoolean(ViewBag.NotChecked) ? "(Not-Checked In)" : "")</i></font></span>
 
                     </h3>
 
@@ -714,9 +811,11 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
                                             }
                                             else
                                             {
-                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance"  class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
 
                                             }
+
+                                           @* <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>*@
 
                                             @if (Model.AllowCaseNoteTeacher == "1")
                                             {

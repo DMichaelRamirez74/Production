@@ -371,10 +371,10 @@ namespace FingerprintsData
             return isRowAffected;
         }
 
-        public List<Tuple<string, string>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
+        public List<Tuple<string, string, int>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
         {
-           
-            List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+
+            List<Tuple<string, string, int>> AccessList = new List<Tuple<string, string, int>>();
             try
             {
                 if (Connection.State == ConnectionState.Open)
@@ -400,13 +400,10 @@ namespace FingerprintsData
                     if(_Dataset.Tables.Count > 0 && _Dataset.Tables[0].Rows.Count > 0)
                     {
 
-                   
-
-                    foreach (DataRow dr in _Dataset.Tables[0].Rows)
-                    {
-
-                        AccessList.Add(new Tuple<string, string>(dr["LayoutName"].ToString(), dr["URL"].ToString()));
-                    }
+                        foreach (DataRow dr in _Dataset.Tables[0].Rows)
+                        {
+                            AccessList.Add(new Tuple<string, string, int>(dr["LayoutName"].ToString(), dr["URL"].ToString(), Convert.ToInt32(dr["MasterId"])));
+                        }
                     }
 
                     if(_Dataset.Tables.Count>1 && _Dataset.Tables[1].Rows.Count>0)

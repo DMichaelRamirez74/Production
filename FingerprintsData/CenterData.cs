@@ -118,6 +118,10 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@tblphone", dt));
 
                 }
+
+                //info.AreaID = (info.AreaID == 0) ? 1 : info.AreaID;
+                //info.DivisionID = (info.DivisionID == 0) ? 1 : info.DivisionID;
+
                 command.Parameters.AddWithValue("@AreaID", info.AreaID);
                 command.Parameters.AddWithValue("@DivisionID", info.DivisionID);
                 command.Parameters.AddWithValue("@mode", info.mode);
@@ -958,7 +962,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false, bool allCenters = false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false,bool allCenters=false)
         {
             dtCenters = new DataTable();
             try

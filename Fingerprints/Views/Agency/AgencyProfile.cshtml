@@ -41,6 +41,76 @@
 
         $(document).ready(function () {
 
+
+
+            $(document).on('click', '.remove-inkind-date',function(){
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+                var $rowindex=$(this).closest('tr').index();
+                var $startDate=$(this).closest('tr').find('td:eq(0)').find('input:text[name="InkindPeriodList['+$rowindex+'].StartDate"]').val();
+                var $endDate=$(this).closest('tr').find('td:eq(1)').find('input:text[name="InkindPeriodList['+$rowindex+'].EndDate"]').val();
+                var $inkindPeriodId=parseInt($(this).closest('tr').data('period-id'))
+                var $icon=$(this);
+
+
+                if($inkindPeriodId>0 && ($startDate!=null && $startDate!="" && $endDate!=null && $endDate!=""))
+                {
+
+                    $.post( HostedDir+"/InKind/CheckInKindRecordExistsByDate", {startDate:$startDate, EndDate: $endDate,targetAgencyId:$('#agencyId').val(),inkindPeriodID:$inkindPeriodId })
+                    .done(function( data ) {
+                        if(data)
+                        {
+                            customAlert('Unable to remove,these dates are already referred to In-Kind Budgets');
+                        }
+                        else
+                        {
+                            $icon.closest('tr').remove();
+
+                        }
+                    });
+
+                }
+                else
+                {
+                    $(this).closest('tr').remove();
+
+
+                    $inkindModalTbody.find('tr').each(function(i,rows){
+                        debugger;
+
+                        $(rows).find('td:eq(0)').find('.inkind-start-date').attr({'name':"InkindPeriodList["+i+"].StartDate" ,'id':"InkindPeriodList_"+i+"_StartDate"});
+
+                        $(rows).find('td:eq(1)').find('.inkind-end-date').attr({'name':"InkindPeriodList["+i+"].EndDate",'id':"InkindPeriodList_"+i+"_EndDate"});
+                    });
+                }
+
+
+
+
+            });
+
+
+            $(document).on('click','.close-inkind-date',function(){
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+                var $rowindex=$(this).closest('tr').index();
+                var $startDateElement = $(this).closest('tr').find('td:eq(0)').find('input:text[name="InkindPeriodList['+$rowindex+'].StartDate"]');
+                var $endDateElement = $(this).closest('tr').find('td:eq(1)').find('input:text[name="InkindPeriodList['+$rowindex+'].EndDate"]');
+
+                var $inkindPeriodId=parseInt($(this).closest('tr').data('period-id'));
+                var $icon=$(this);
+
+                $startDateElement.prop('disabled',true);
+                $endDateElement.prop('disabled',true);
+                $(this).hide();
+
+               
+
+            });
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -70,7 +140,9 @@
                     format: 'm/d/Y',
                     changeMonth: true,
                     changeYear: true,
-                    minDate: dateToday
+                    minDate: dateToday,
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
@@ -79,40 +151,50 @@
             $("#txtProgStartDate").each(function () {
                 $(this).datetimepicker({
                     timepicker: false,
-                    format: 'm/d/Y'
+                    format: 'm/d/Y',
                     // minDate: new Date($('#AccessStartDate').val()),
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
             $("#txtProgEndDate").each(function () {
                 $(this).datetimepicker({
                     timepicker: false,
-                    format: 'm/d/Y'
+                    format: 'm/d/Y',
                     //  minDate: new Date($('#AccessStartDate').val()),
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
             $("#txtLastCurrentDate").each(function () {
                 $(this).datetimepicker({
                     timepicker: false,
-                    format: 'm/d/Y'
+                    format: 'm/d/Y',
                     //  minDate: new Date($('#AccessStartDate').val()),
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
             $("#txtFutureAppDate").each(function () {
                 $(this).datetimepicker({
                     timepicker: false,
-                    format: 'm/d/Y'
+                    format: 'm/d/Y',
                     //  minDate: new Date($('#AccessStartDate').val()),
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
             $("#txtTransitionDate").each(function () {
                 $(this).datetimepicker({
                     timepicker: false,
-                    format: 'm/d/Y'
+                    format: 'm/d/Y',
                     //  minDate: new Date($('#AccessStartDate').val()),
+                    scrollMonth : false,
+                    scrollInput : false
                 });
             });
 
@@ -198,6 +280,488 @@
 
             $("input[id^='Date']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
+            //$("input[id='InkindPeriods_StopDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            //$("input[id='InkindPeriods_StartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+            $('#btn_add_inkind_dates').on('click',function(){
+
+
+                $.ajax({
+
+                    url:HostedDir+'/InKind/GetInkindPeriods',
+                    type:'post',
+                    datatype:'json',
+                    beforeSend:function(){$('#spinner').show()},
+                    data:{targetAgencyId:$('#agencyId').val()},
+                    success:function(data){
+
+                        var $inkindModal=$('#modal-inkind-dates');
+                        var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+
+                        $inkindModalTbody.find("tr:gt(0)").remove();
+
+                        if(data!=null && data.length>0)
+                        {
+
+                            var $appendRow=null;
+                            $.each(data,function(i,dates){
+
+
+                                if(dates.IsClosed)
+
+                                {
+                                    $appendRow+='<tr data-period-id='+dates.InkindPeriodID+'>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12" disabled  id="InkindPeriodList_'+i+'_StartDate" value='+dates.StartDate+' placeholder="MM/DD/YYYY"  name="InkindPeriodList['+i+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="pointer-events:none;" diasabled >\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12" disabled  id="InkindPeriodList_'+i+'_EndDate" value='+dates.EndDate+' placeholder="MM/DD/YYYY" name="InkindPeriodList['+i+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="pointer-events:none;" disabled >\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        </td>';
+                                                        
+                                }
+                                else
+                                {
+                                    $appendRow+='<tr data-period-id='+dates.InkindPeriodID+'>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12"  id="InkindPeriodList_'+i+'_StartDate" value='+dates.StartDate+' placeholder="MM/DD/YYYY"  name="InkindPeriodList['+i+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12"  id="InkindPeriodList_'+i+'_EndDate" value='+dates.EndDate+' placeholder="MM/DD/YYYY" name="InkindPeriodList['+i+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        </td>';                                                       
+
+                                }
+
+            
+
+                                //$appendRow+=(i>0)? '<label class="inkindLabel">\
+                                //                          <i class="fa fa fa-trash remove-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Remove Date Pair"></i>\
+                                //                          </label>':'';
+
+                                //$appendRow+='</td>';
+
+                                //$appendRow+='<td>';
+
+                                //$appendRow+=(dates.IsClosed)?'': '<label class="inkindLabel">\
+                                //                          <i class="fa fa fa-times close-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Close Date Pair"></i>\
+                                //                          </label>';
+                                                          
+                                //             $appendRow+='</td>';
+                                    
+                                    
+                                    
+                                    
+                                 $appendRow+='</tr>';
+
+                            });
+
+                            $inkindModalTbody.html($appendRow);
+
+                            
+
+                        }
+
+                        $inkindModalTbody.find('tr').each(function(j,row){
+
+                            $(row).find('input[name="InkindPeriodList['+j+'].StartDate"]').datetimepicker({
+                                timepicker: false,
+                                format: 'm/d/Y',
+                                scrollMonth : false,
+                                scrollInput : false,
+                                mask:true
+                            });
+
+                            $(row).find('input[name="InkindPeriodList['+j+'].EndDate"]').datetimepicker({
+                                timepicker: false,
+                                format: 'm/d/Y',
+                                scrollMonth : false,
+                                scrollInput : false,
+                                mask:true
+                            });
+
+                            $(row).find('td:eq(0)').find('.datepicker-icon').on('click',function(){
+
+                                $(row).find('input[name="InkindPeriodList['+j+'].StartDate"]').datetimepicker('show');
+                            });
+
+
+                            $(row).find('td:eq(1)').find('.datepicker-icon').on('click',function(){
+
+                                $(row).find('input[name="InkindPeriodList['+j+'].EndDate"]').datetimepicker('show');
+                            });
+
+
+
+
+
+
+                            //            $inkindModalTbody.find('tr').each(function(i,row){
+                            //                debugger;
+
+
+                            //                $(row).find('.remove-inkind-date').on('click',function(){
+
+
+
+                            //                    var $startDate=$(this).closest('tr').find('td:eq(0)').find('input:text[name="InkindPeriodList['+i+'].StartDate"]').val();
+                            //                    var $endDate=$(this).closest('tr').find('td:eq(1)').find('input:text[name="InkindPeriodList['+i+'].EndDate"]').val();
+                            //                    var $inkindPeriodId=parseInt($(this).closest('tr').data('period-id'))
+
+
+
+                            //                    if($inkindPeriodId>0 && ($startDate!=null && $startDate!="" && $endDate!=null && $endDate!=""))
+                            //                    {
+
+
+                            //                        $.ajax({
+                            //                            url: HostedDir+"/InKind/CheckInKindRecordExistsByDate",
+                            //                            type:'post',
+                            //                            datatype:'json',
+                            //                            data:{startDate:$startDate, EndDate: $endDate,targetAgencyId:$('#agencyId').val(),inkindPeriodID:$inkindPeriodId },
+                            //                            success:function(data)
+                            //                            {
+                            //                                alert(data);
+                            //                            }
+
+                            //                        });
+
+                            ////                        $.post( HostedDir+"/InKind/CheckInKindRecordExistsByDate", {startDate:$startDate, EndDate: $endDate,targetAgencyId:$('#agencyId').val(),inkindPeriodID:$inkindPeriodId })
+                            ////.done(function( data ) {
+                            ////    alert( "Data Loaded: " + data );
+                            ////    $(this).closest('tr').remove();
+                            ////});
+
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        $(this).closest('tr').remove();
+
+
+                            //                        $inkindModalTbody.find('tr').each(function(i,rows){
+                            //                            debugger;
+
+                            //                            $(rows).find('td:eq(0)').find('.inkind-start-date').attr({'name':"InkindPeriodList["+i+"].StartDate" ,'id':"InkindPeriodList_"+i+"_StartDate"});
+
+                            //                            $(rows).find('td:eq(1)').find('.inkind-end-date').attr({'name':"InkindPeriodList["+i+"].EndDate",'id':"InkindPeriodList_"+i+"_EndDate"});
+                            //                        });
+                            //                    }
+
+
+
+
+                            //                });
+
+
+                            //            });
+
+
+
+
+                        });
+
+                        $inkindModal.modal('show');
+
+
+
+
+                    },
+                    error:function(data)
+                    {
+                        $('#spinner').hide();
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+
+
+                });
+
+
+
+            });
+
+            // Modal In-Kind Dates //
+
+            $('#modal-inkind-dates').find('#add-dates-inkind').on('click',function(){
+
+                debugger;
+                var $inkindModalTbody=$('#modal-inkind-dates').find('#inkind-dates-table').find('tbody');
+
+                var $indexrow=$inkindModalTbody.find('tr').length;
+
+                var $appendRow='<tr  data-period-id="0">\
+                                <td>\
+                               <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12" placeholder="MM/DD/YYYY" id="InkindPeriodList_'+$indexrow+'_StartDate" name="InkindPeriodList['+$indexrow+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                </td>\
+                                                        <td>\
+                                                        <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12" placeholder="MM/DD/YYYY" id="InkindPeriodList_'+$indexrow+'_EndDate" name="InkindPeriodList['+$indexrow+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                            </td>\
+                                                        <td><label class="inkindLabel">\
+                                                          <i class="fa fa fa-trash remove-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Remove Date Pair"></i>\
+                                                          </label></td>\
+                                                         <td></td>\
+                                                    </tr>';
+
+                $inkindModalTbody.append($appendRow);
+
+                $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].StartDate"]').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                    scrollMonth : false,
+                    scrollInput : false,
+                    mask:true
+                });
+
+                $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].EndDate"]').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                    scrollMonth : false,
+                    scrollInput : false,
+                    mask:true
+                });
+
+                $inkindModalTbody.find('tr:eq('+$indexrow+')').find('td:eq(0)').find('.dates-icon').on('click',function(){
+
+
+                    $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].StartDate"]').datetimepicker('show');
+                });
+
+                $inkindModalTbody.find('tr:eq('+$indexrow+')').find('td:eq(1)').find('.dates-icon').on('click',function(){
+
+
+                    $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].EndDate"]').datetimepicker('show');
+                });
+
+                //$inkindModalTbody.find('tr:eq('+$indexrow+')').find('.remove-inkind-date').on('click',function(){
+
+                //    debugger;
+
+                //        $(this).closest('tr').remove();
+
+
+                //        $inkindModalTbody.find('tr').each(function(i,row){
+                //            debugger;
+
+                //            $(row).find('td:eq(0)').find('.inkind-start-date').attr({'name':"InkindPeriodList["+i+"].StartDate" ,'id':"InkindPeriodList_"+i+"_StartDate"});
+
+                //            $(row).find('td:eq(1)').find('.inkind-end-date').attr({'name':"InkindPeriodList["+i+"].EndDate",'id':"InkindPeriodList_"+i+"_EndDate"});
+                //        });
+
+                //});
+
+            });
+
+
+            $('#modal-inkind-dates').find('#submit_inkind_dates').on('click',function(){
+
+                debugger;
+                var $isValid=true;
+
+                cleanValidation();
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+
+                var $dateArray=[];
+
+                $inkindModalTbody.find('tr').each(function(k,row){
+
+                    var $startDate=$(this).find('td:eq(0)').find('input:text[name="InkindPeriodList['+k+'].StartDate"]');
+                    var $endDate=$(this).find('td:eq(1)').find('input:text[name="InkindPeriodList['+k+'].EndDate"]');
+                    var $isDisabled=$(this).find('td:eq(0)').find('input:text[name="InkindPeriodList['+k+'].StartDate"]').prop('disabled');
+                    var $isClosed=!$(this).find('td:eq(3)').find('.close-inkind-date').is(':visible');
+                    var $indexId=$(this).data('period-id');
+
+
+                    var $startDateValid=($startDate.val()!=null && $startDate.val()!='' && $startDate.val()!='__/__/____' );
+
+                    var $endDateValid=($endDate.val()!=null && $endDate.val()!=''  && $endDate.val()!='__/__/____');
+
+                    if($startDateValid ^ $endDateValid)
+                    {
+                        $isValid=false;
+                        if($startDateValid==false)
+                        {
+
+                            plainValidation($startDate);
+                        }
+                        else{
+                            plainValidation($endDate);
+                        }
+                    }
+                    else if($startDateValid && $endDateValid)
+                    {
+                        $isClosed=($isClosed==true && $isDisabled==true);
+
+                        $dateArray.push({'InkindPeriodID':$indexId, 'StartDate':$startDate.val(),'EndDate':$endDate.val(),'IsClosed':$isClosed,'IsStatus':true});
+                    }
+
+
+
+                });
+
+                if(!$isValid)
+                {
+                    customAlert('Mandatory fields are required');
+                    return false;
+                }
+                else if($dateArray!=null && $dateArray.length>0) {
+
+                    var j=0;
+                    $.each($dateArray,function(){
+
+                        var $startDate=new Date($(this)[0].StartDate).setHours(0,0,0,0);
+                        var $endDate=new Date($(this)[0].EndDate).setHours(0,0,0,0);
+
+                        if($endDate < $startDate)
+                        {
+                            customAlert('End Date should be greater than or equal to Start Date');
+
+                            plainValidation("#InkindPeriodList_"+j+"_EndDate");
+                            $isValid=false;
+                        }
+
+                        else if(j > 0)
+                        {
+                            var $prevEndDate=new Date($dateArray[j-1].EndDate).setHours(0,0,0,0);
+
+                            if($startDate <= $prevEndDate)
+                            {
+                                customAlert('Start and End Date pairs should not overlap');
+                                plainValidation("#InkindPeriodList_"+j+"_StartDate");
+                                plainValidation("#InkindPeriodList_"+(j-1)+"_EndDate");
+                                $isValid=false;
+                            }
+
+                        }
+
+                        if(!$isValid)
+                        {
+                            return false;
+                        }
+
+                        j++;
+
+                    });
+
+
+                    if($isValid)
+                    {
+                        var inkindPeriodList=[];
+
+                        //$.each($inkindModalTbody.find('tr'),function(m,row){
+
+                        //    var $inkindPeriodId=$(row).data('period-id');
+                        //    var $startDate=$(row).find('td:eq(0)').find('input:text[name="InkindPeriodList['+m+'].StartDate"]').val();
+                        //    var $endDate=$(row).find('td:eq(1)').find('input:text[name="InkindPeriodList['+m+'].EndDate"]').val()   ;
+
+
+                        //    if($startDate!='__/__/____' && $startDate!='__/__/____')
+                        //    inkindPeriodList.push({'InkindPeriodID':$inkindPeriodId,
+                        //        'StartDate':$startDate,
+                        //        'EndDate':$endDate});
+                        //});
+
+                        inkindPeriodList=$dateArray;
+
+                        //  inkindPeriodList=JSON.stringify(inkindPeriodList);
+                        console.log(inkindPeriodList);
+                        var $data={
+                            'inkindPeriodList':inkindPeriodList,
+                            'targetAgencyId':$('#agencyId').val()
+                        }
+
+
+
+
+                        $.ajax({
+                            contentType: 'application/json; charset=utf-8',
+                            url:HostedDir+'/InKind/ModifyInkindEntryPeriods',
+                            type:'post',
+                            datatype:'json',
+                            async:true,
+                            beforeSend:function(){$('#spinner').show()},
+                            data:JSON.stringify($data),
+                            success:function(data)
+                            {
+
+                                if(data)
+                                {
+                                    customAlert('Record saved successfully.');
+
+                                    $inkindModal.modal('hide');
+                                }
+                                else
+                                {
+                                    customAlert('Error occurred. Please, try again later');
+                                }
+                            },
+                            error:function(data)
+                            {
+                                $('#spinner').hide();
+                            },
+                            complete:function(data)
+                            {
+                                $('#spinner').hide();
+                            }
+
+                        });
+
+                    }
+                    else{
+                        return false;
+                    }
+
+
+
+
+                }
+               
+
+                else{
+                    customAlert('Please enter Start Date and End Date');
+                    return false;
+                }
+               
+
+            });
+
+
+
+            // Modal In-Kind Dates //
+
 
             if ('@ViewBag.mode' == 0) {
                 //$('#ReferenceProg').val('');
@@ -214,24 +778,49 @@
                 timepicker: false,
                 format: 'm/d/Y',
                 minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
             });
 
             $("#programendDate").datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
                 minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
             });
 
             $("#AccessStartDate").datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
                 minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
+            });
+
+
+            $("#InkindPeriods_StartDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                // minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
+            });
+
+            $("#InkindPeriods_StopDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                // minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
             });
 
             $("#Date").datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
                 minDate: dateToday,
+                scrollMonth : false,
+                scrollInput : false
             });
 
             $("#programstartDate").on("keypress paste", function (event) {
@@ -1313,91 +1902,119 @@
             try
             {
 
-           
-            if ($('#agencyName')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Agency name is required.");
-                plainValidation('#agencyName');
-                return isValid;
-            }
-             if ($('#primaryEmail')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Email is required.");
-                plainValidation('#primaryEmail');
-                return isValid;
-            }
-             if ($('#primaryEmail')[0].value.trim() != "" && !validateEmail($('#primaryEmail')[0].value.trim())) {
-                isValid = false;
-                customAlert("Please enter valid email id.");
-                plainValidation('#primaryEmail');
-                return isValid;
-            }
-             if ($('#firstName')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("First name is required.");
-                plainValidation('#firstName');
-                return isValid;
-            }
-             if ($('#LastName')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Last name is required.");
-                plainValidation('#LastName');
-                return isValid;
-            }
-             if ($('#zipCode')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Zip code is required.");
-                plainValidation('#zipCode');
-                return isValid;
-            }
-             if ($('#address1')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Address is required.");
-                plainValidation('#address1');
-                return isValid;
-            }
-             if ($('#phone1')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Phone1 is required.");
-                plainValidation('#phone1');
-                return isValid;
-            }    
-	             if ($('#nationality')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Country is required.");
-                plainValidation('#nationality');
-                return isValid;
-            }
-             if ($('#TimeZoneID')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Please select timezone from list.");
-                plainValidation('#TimeZoneID');
-                return isValid;
-            }
-             if ($('#AccessStartDate')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Access start date is required.");
-                plainValidation('#AccessStartDate');
-                return isValid;
-            }
-             if ($('#AccessStart')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Please select access start time.");
-                plainValidation('#AccessStart');
-                return isValid;
-            }
-             if ($('#AccessStop')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Please select access stop time.");
-                plainValidation('#AccessStop');
-                return isValid;
-            }
-             if ($('#ActiveProgYear')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Active program year is required.");
-                plainValidation('#ActiveProgYear');
-                return isValid;
-            }
+
+                if ($('#agencyName')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Agency name is required.");
+                    plainValidation('#agencyName');
+                    return isValid;
+                }
+                if ($('#primaryEmail')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Email is required.");
+                    plainValidation('#primaryEmail');
+                    return isValid;
+                }
+                if ($('#primaryEmail')[0].value.trim() != "" && !validateEmail($('#primaryEmail')[0].value.trim())) {
+                    isValid = false;
+                    customAlert("Please enter valid email id.");
+                    plainValidation('#primaryEmail');
+                    return isValid;
+                }
+                if ($('#firstName')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("First name is required.");
+                    plainValidation('#firstName');
+                    return isValid;
+                }
+                if ($('#LastName')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Last name is required.");
+                    plainValidation('#LastName');
+                    return isValid;
+                }
+                if ($('#zipCode')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Zip code is required.");
+                    plainValidation('#zipCode');
+                    return isValid;
+                }
+                if ($('#address1')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Address is required.");
+                    plainValidation('#address1');
+                    return isValid;
+                }
+                if ($('#phone1')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Phone1 is required.");
+                    plainValidation('#phone1');
+                    return isValid;
+                }
+                if ($('#nationality')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Country is required.");
+                    plainValidation('#nationality');
+                    return isValid;
+                }
+                if ($('#TimeZoneID')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please select timezone from list.");
+                    plainValidation('#TimeZoneID');
+                    return isValid;
+                }
+                if ($('#AccessStartDate')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Access start date is required.");
+                    plainValidation('#AccessStartDate');
+                    return isValid;
+                }
+                if ($('#AccessStart')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please select access start time.");
+                    plainValidation('#AccessStart');
+                    return isValid;
+                }
+                if ($('#AccessStop')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please select access stop time.");
+                    plainValidation('#AccessStop');
+                    return isValid;
+                }
+
+                if ($('#InkindPeriods_StartDate')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please select In-Kind entry start date.");
+                    plainValidation('#InkindPeriods_StartDate');
+                    return isValid;
+                }
+
+
+                if ($('#InkindPeriods_StopDate')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please enter In-Kind entry end date.");
+                    plainValidation('#InkindPeriods_StopDate');
+                    return isValid;
+                }
+
+                if($('#InkindPeriods_StartDate')[0].value.trim()!="" && $('#InkindPeriods_StopDate')[0].value.trim()!="")
+                {
+                    if(new Date($('#InkindPeriods_StartDate')[0].value.trim()).setHours(0,0,0,0) > new Date($('#InkindPeriods_StopDate')[0].value.trim()).setHours(0,0,0,0))
+                    {
+                        isValid = false;
+                        customAlert("In-Kind entry stop date should be greater than or equal to start date.");
+                        plainValidation('#InkindPeriods_StopDate');
+                        return isValid;
+                    }
+                }
+
+
+                if ($('#ActiveProgYear')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Active program year is required.");
+                    plainValidation('#ActiveProgYear');
+                    return isValid;
+                }
 
              if ($('#DdlAccessType')[0].value.trim() == "") {
                 isValid = false;
@@ -3366,12 +3983,7 @@
     </script>
 
 
-    <script type="text/javascript">
-
-
-
-
-    </script>
+   
 
 }
 @section MainContentHolder{
@@ -3479,6 +4091,18 @@
         .table-area-head th, .table-div-head th {
             color: #fff;
             background-color: #295b8f;
+        }
+
+
+
+
+
+        .btn-add-inkind-dates {
+            padding: 5px 20px;
+            background-color: #295b8f;
+            color: #fff;
+            font-size: 14px;
+            border-style: none;
         }
 
         #myModelAreaBreakdown .modal-content, #myModelDivisionBreakdown .modal-content, #myModalagency .modal-content, #myModelFund .modal-content {
@@ -3888,6 +4512,22 @@
                                 @Html.TextBoxFor(m => m.AccessStop, new { @class = "time form-control", id = "AccessStop", Name = "AccessStop", placeholder = "Access Stop Time", tabIndex = "17" })
                             </div>
                         </div>
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group DivHide" id="DivLoginTime">
+                                <label for="pwd">In-Kind Entry Dates <sup>*</sup></label>
+                                <button type="button" class="btn-add-inkind-dates" id="btn_add_inkind_dates" style="width: 155px;">Add/Update Dates</button>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group DivHide">
+                                    <label for="pwd">In-Kind Entry Stop Date <sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.InkindPeriods.EndDate, new { @class = "time form-control", id = "InkindPeriods_StopDate", placeholder = "MM/DD/YYYY", tabIndex = "17" })
+                                </div>
+                            </div>*@
+
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="pwd">Active Program Year<sup>*</sup></label>
@@ -4018,17 +4658,18 @@
                             </div>
                         </div>*@
 
-                       @* Html and scripts location ==>  Partialviews/_TeacherParentVisitModal*@
-                        <div class="col-lg-6 col-md-6 col-sm-12">
-                            <div class="form-group">
-                                <label for="pwd">
-                                Set Home / Center </br>
-                                    Visit Date For</><sup>*</sup></label>
-                           
-                            <button type="button" class="hw-btn" data-btnfor="2">Teacher</button>
-                                <button type="button" class="hw-btn" data-btnfor="1">FSW</button>
-                            </div>
-                        </div>
+                                    @* Html and scripts location ==>  Partialviews/_TeacherParentVisitModal*@
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">
+                                                Set Home / Center </br>
+                                                Visit Date For</><sup>*</sup>
+                                            </label>
+
+                                            <button type="button" class="hw-btn" data-btnfor="2">Teacher</button>
+                                            <button type="button" class="hw-btn" data-btnfor="1">FSW</button>
+                                        </div>
+                                    </div>
 
 
                         <div class="col-lg-6 col-md-6 col-sm-12">
@@ -4776,7 +5417,6 @@
 
                                     <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>5.</strong> Home-based option of children </label></div><div class="col-lg-3 col-md-3 col-sm-3">
 
-                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ9" value="@Model._FundedEnrollment.FundQ9" class="form-control" maxlength="10" style="width:100%;" placeholder="Home Based Option" type="text">*@
 
                                         @Html.TextBoxFor(m => m._FundedEnrollment.FundQ9, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Home Based Option" })
 
@@ -4786,10 +5426,9 @@
                                 <div class="col-lg-12">
                                     <div class="col-lg-6 col-md-6 col-sm-6">
 
-                                        <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label>
-                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                        @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ10" value="@Model._FundedEnrollment.FundQ10" style="width:100%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
-                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ10, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
+                                                    <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label>
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ10, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
 
 
 
@@ -4801,8 +5440,7 @@
                                     <div class="col-lg-6 col-md-6 col-sm-6">
                                         <label class="lablewidth" for="email"><strong>7.</strong> Family child care option of children </label>
 
-                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                        @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ11" name="FundSourcedata[@i].FundQ11" class="form-control" style="width:100%;" maxlength="10" placeholder="Child Care Option" type="text">*@
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3">
 
                                         @Html.TextBoxFor(m => m._FundedEnrollment.FundQ11, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Child Care Option" })
 
@@ -4816,8 +5454,7 @@
                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                     <label class="lablewidth fund-label" for="email"><strong>7.a</strong> Number available as full-working-day enrollment of children  </label>
 
-                                </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                    @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ12" name="FundSourcedata[@i].FundQ12" style="width:104%;" class="form-control" maxlength="10" placeholder="Full Working Day Enrollment" type="text">*@
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3">
 
                                     @Html.TextBoxFor(m => m._FundedEnrollment.FundQ12, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Working Day Enrollment" })
 
@@ -4828,9 +5465,8 @@
                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                     <label class="lablewidth fund-label1" for="email"><strong>7.a.1</strong> Number available for the full-calendar-year of children </label>
 
-                                </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                    @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ13" value="@Model._FundedEnrollment.FundQ13" style="width:104%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
-                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ13, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full-day Enrollment" })
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                                @Html.TextBoxFor(m => m._FundedEnrollment.FundQ13, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full-day Enrollment" })
 
 
 
@@ -4841,10 +5477,9 @@
                                     <div class="col-lg-6 col-md-6 col-sm-6">
                                         <label class="lablewidth" for="email"><strong>8.</strong> Locally designed option of children </label>
 
-                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ14" value="@Model._FundedEnrollment.FundQ14" style="width:100%;" class="form-control" maxlength="10" placeholder="Locally Designed option" type="text">*@
-                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ14, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Locally Designed Option" })
-                                    </div>
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ14, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Locally Designed Option" })
+                                                </div>
 
                                 </div>
                             </div><div class="row">
@@ -4852,8 +5487,7 @@
                                     <div class="col-lg-6 col-md-6 col-sm-6">
                                         <label class="lablewidth" for="email"><strong>9.</strong> Funded enrollment at child care partners in the center-based program option of children </label>
 
-                                    </div> <div class="col-lg-3 col-md-3 col-sm-3">
-                                        @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ15" value="@Model._FundedEnrollment.FundQ15" style="width:100%;" class="form-control" maxlength="10" placeholder="Center Based Program Option" type="text">*@
+                                                </div> <div class="col-lg-3 col-md-3 col-sm-3">
 
                                         @Html.TextBoxFor(m => m._FundedEnrollment.FundQ15, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Center Based Program Option" })
                                     </div>
@@ -4869,11 +5503,10 @@
 
                                         @Html.TextBoxFor(m => m._FundedEnrollment.FundQ16, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Funded Enrollment of Pregnant Women" })
 
-                                        @*  <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ16" value="@Model._FundedEnrollment.FundQ16" style="width:100%;" class="form-control" maxlength="10" placeholder="Funded Enrollment Of Pregnant Women" type="text">*@
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
 
 
                                                         }
@@ -4942,34 +5575,26 @@ foreach (var item in Model.VisitDetails)
 }
     </div>
 
-            @*<div id="tcr-1stvisit-data" style="display:none;">
-                <input type="hidden" name="VisitDetails[@_VDIndex].Role" value="82b862e6-1a0f-46d2-aad4-34f89f72369a" data -for="Teacher" />
-                <input type="hidden" name="VisitDetails[@_VDIndex].Type" value="1" data-rolefor="Teacher" data-for="In Home Visit" />
-                <input type="hidden" name="VisitDetails[@_VDIndex].VisitCount" value="1" data-for="Vist Count" />
-                <input type="text" name="VisitDetails[@_VDIndex].FromDays" value="1" class="form-control" placeholder="Days in number" />
-                <input type="text" name="VisitDetails[@_VDIndex].ToDays" value="365" class="form-control" placeholder="Days in number" />
-
-            </div>*@
 
 
-</form>
+
+                    </form>
 
 
-    </div><!--add-useragform--->
-    @*</div>*@
+                </div>
 
     <div class="col-xs-12">
 
-        <!-- Modal -->
-        <div class="modal fade" id="myModalagency" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        @* <button type="button" class="close" data-dismiss="modal">&times;</button>*@
-                        <h4 class="modal-title">Program Date(s)</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="col-xs-12" style="padding:0;margin-bottom:10px;">
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModalagency" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+
+                                    <h4 class="modal-title">Program Date(s)</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="col-xs-12" style="padding:0;margin-bottom:10px;">
 
                             <i>(<text style="color:red;">*</text>)&nbsp; All fields are required</i>
 
@@ -5074,30 +5699,22 @@ foreach (var item in Model.VisitDetails)
                     </div>
                     <div class="modal-body">
 
-                        @*<div class="form-group">
-                                <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Areas to Break</label>
-                                <div class="col-sm-2 col-lg-2">
-                                    <input type="text" class="form-control count-text" id="areabreaktxt" maxlength="2" style="height:38px;">
-                                </div>
-                                <div class="col-sm-4 col-lg-4">
-                                    <button class="my-btn" id="btnLoadArea">Load</button>
-                                </div>
-                            </div>*@
-                        <div class="form-group">
-                            <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Areas to Break</label>
-                            <div class="col-sm-3 col-lg-3">
-                                <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
-                                    @*  <i class="fa fa-minus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
-                                </span>
-                                <input type="text" class="form-control count-text" id="areabreaktxt" maxlength="2" style="height:38px;width: 44px;display: inline-block;float:  left;margin: 0 10px;">
-                                <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
-                                    @* <i class="fa fa-plus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
-                                </span>
-                            </div>
-                            <div class="col-sm-4 col-lg-5" style="float: right;text-align: right;padding: 0;">
-                                <button class="my-btn" id="btnLoadArea">Load</button>
-                            </div>
-                        </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Areas to Break</label>
+                                        <div class="col-sm-3 col-lg-3">
+                                            <span class="plus-ic" style="display:inline-block;width:auto;float: left;padding-top: 10px;">
+
+                                            </span>
+                                            <input type="text" class="form-control count-text" id="areabreaktxt" maxlength="2" style="height:38px;width: 44px;display: inline-block;float:  left;margin: 0 10px;">
+                                            <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
+
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-4 col-lg-5" style="float: right;text-align: right;padding: 0;">
+                                            <button class="my-btn" id="btnLoadArea">Load</button>
+                                        </div>
+                                    </div>
 
                         <div class="form-group">
                             <table class="table table-bordered">
@@ -5140,30 +5757,21 @@ foreach (var item in Model.VisitDetails)
                     </div>
                     <div class="modal-body">
 
-                        @*<div class="form-group">
-                                <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Divisions to Break</label>
-                                <div class="col-sm-2 col-lg-2">
-                                    <input type="text" class="form-control count-text" id="divisionbreaktxt" maxlength="2" style="height:38px;">
-                                </div>
-                                <div class="col-sm-4 col-lg-4">
-                                    <button class="my-btn" id="btnLoadDivison">Load</button>
-                                </div>
-                            </div>*@
-                        <div class="form-group">
-                            <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Areas to Break</label>
-                            <div class="col-sm-3 col-lg-3">
-                                <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
-                                    @*  <i class="fa fa-minus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
-                                </span>
-                                <input type="text" class="form-control count-text" id="divisionbreaktxt" maxlength="2" style="height:38px;width: 44px;display: inline-block;float:  left;margin: 0 10px;">
-                                <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
-                                    @*<i class="fa fa-plus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
-                                </span>
-                            </div>
-                            <div class="col-sm-4 col-lg-5" style="float: right;text-align: right;padding: 0;">
-                                <button class="my-btn" id="btnLoadDivison">Load</button>
-                            </div>
-                        </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 col-form-label lbl-required" style="padding:0;margin-top:10px;">Number of Areas to Break</label>
+                                        <div class="col-sm-3 col-lg-3">
+                                            <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
+                                                @*  <i class="fa fa-minus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
+                                            </span>
+                                            <input type="text" class="form-control count-text" id="divisionbreaktxt" maxlength="2" style="height:38px;width: 44px;display: inline-block;float:  left;margin: 0 10px;">
+                                            <span class="plus-ic" style="display: inline-block;width: auto;float: left;padding-top: 10px;">
+                                                @*<i class="fa fa-plus-circle" style="font-size: 15px;color: #295b8f;"></i>*@
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-4 col-lg-5" style="float: right;text-align: right;padding: 0;">
+                                            <button class="my-btn" id="btnLoadDivison">Load</button>
+                                        </div>
+                                    </div>
 
                         <div class="form-group">
                             <table class="table table-bordered">
@@ -5209,6 +5817,18 @@ foreach (var item in Model.VisitDetails)
 </script>
 
 @Html.Partial("~/Views/Partialviews/_TeacherParentVisitModal.cshtml")
+
+
+                @{
+
+                    Html.RenderPartial("~/Views/Partialviews/_InkindPeriodsPartial.cshtml");
+
+                }
+
+
+
+
+
 
 }
 

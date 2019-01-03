@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace FingerprintsModel
 {
-    public class Role
+    public  class Role
     {
 
         public Role()
@@ -60,6 +60,8 @@ namespace FingerprintsModel
             { (int)RoleEnum.TransportManager,transportManager}
 
          };
+
+       
 
         #region  Roles  (Private fields)
         internal  const string agencyAdmin = "3B49B025-68EB-4059-8931-68A0577E5FA2";
@@ -245,6 +247,9 @@ namespace FingerprintsModel
     }
 
 
+
+
+   
     
 }
 

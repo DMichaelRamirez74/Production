@@ -18,6 +18,8 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Web.Script.Serialization;
 using System.Globalization;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace Fingerprints.Controllers
 {
@@ -2756,19 +2758,45 @@ namespace Fingerprints.Controllers
         /// <param name="searchText"></param>
         /// <returns></returns>
         [CustAuthFilter()]
-        public JsonResult GetCaseNoteTagonInput(string searchText)
+        public JsonResult GetCaseNoteTagonInput(string searchText, string term="")
         {
             List<SelectListItem> tagsList = new List<SelectListItem>();
             try
             {
+                
                 tagsList = new RosterData().GetCaseNoteTagsonInput(searchText);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
+
             return Json(tagsList, JsonRequestBehavior.AllowGet);
         }
+
+        [CustAuthFilter()]
+        public JsonResult GetCaseNoteTag(string term = "")
+        {
+            List<SelectListItem> tagsList = new List<SelectListItem>();
+            try
+            {
+                
+                tagsList = new RosterData().GetCaseNoteTagsonInput(term);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            var  list =new List<ExtendSelectList>();
+            foreach (var item in tagsList)
+            {
+                
+                list.Add(new ExtendSelectList() { id = item.Value, label = item.Text, value = item.Text });
+            }
+                return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
 
         [CustAuthFilter()]
         public JsonResult ClearRosterSession(int requestedPage,int pageSize,string centerId,string classroomId,string filter,string searchText,string sortOrder,string sortDirection)

@@ -18,6 +18,7 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
     </noscript>
     <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/glossy-theme.css" rel="stylesheet" />
     <link id="Link1" rel="shortcut icon" href="~/Content/img/faviicon-new.png" type="image/x-icon" />
     <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-select.min.css" rel="stylesheet" />
@@ -99,7 +100,12 @@
             *border-bottom-width: 2px;
             z-index: 99999;
         }
-        .sidebar ul li{float:left;width:100%;}
+
+        .sidebar ul li {
+            float: left;
+            width: 100%;
+        }
+
         .ui-menu-item > a.ui-corner-all {
             display: block;
             padding: 3px 15px;
@@ -173,14 +179,19 @@
             border: 1px solid #295b8f;
         }
         /*.nav_hght {
-        
+
         max-height:491px !important;
         }*/
 
-       @@media only screen and (min-width:320px) and (max-width:767px)
-        {
-        #page-wrapper h2{line-height:32px; font-size:20px;}
-        .ersa-select{margin-bottom:15px;}
+        @@media only screen and (min-width:320px) and (max-width:767px) {
+            #page-wrapper h2 {
+                line-height: 32px;
+                font-size: 20px;
+            }
+
+            .ersa-select {
+                margin-bottom: 15px;
+            }
         }
 
         @@media only screen and (min-width:320px) and (max-width:640px) {
@@ -193,7 +204,11 @@
                 margin-top: 10px;
             }
         }
-        .navbar-brand{float:left;width:100%;}
+
+        .navbar-brand {
+            float: left;
+            width: 100%;
+        }
     </style>
     <script type="text/javascript">
         @*if (' @Session["Roleid"].ToString()' == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
@@ -274,7 +289,7 @@
                         messages: {
                             noResults: "", results: ""
                         }
-                    })
+                    });
                 }
                 catch (err) {
                 }
@@ -320,7 +335,10 @@
                             return false;
                         },
                         messages: {
-                            noResults: "", results: ""
+                            noResults: 'No results found.',
+                            results: function (count) {
+                                return count + (count > 1 ? ' results' : ' result ') + ' found';
+                            }
                         }
                     })
                 }
@@ -359,7 +377,10 @@
                             return false;
                         },
                         messages: {
-                            noResults: "", results: ""
+                            noResults: 'No results found.',
+                            results: function (count) {
+                                return count + (count > 1 ? ' results' : ' result ') + ' found';
+                            }
                         }
 
                     })
@@ -458,8 +479,8 @@
 
         function CenterBasedHistorical() {
             $('#spinner').show();
-          var url = HostedDir + '/Teacher/WeeklyAttendance?v=' + new Date().getUTCMilliseconds() + '';
-          //  var url = HostedDir + '/Teacher/WeeklyAttendance?v=' + new Date().getUTCDay() + '';
+            var url = HostedDir + '/Teacher/WeeklyAttendance?v=' + new Date().getUTCMilliseconds() + '';
+            //  var url = HostedDir + '/Teacher/WeeklyAttendance?v=' + new Date().getUTCDay() + '';
             window.location.href = url;
         }
 
@@ -549,14 +570,68 @@
 
             timedCount();
         }
+
+
+
+
+        //Cookies section Start//
+
+        function setCookie(cname, cvalue, exdays) {
+
+
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        function deleteCookie(cname) {
+            var d = new Date(); //Create an date object
+            d.setTime(d.getTime() - (1000 * 60 * 60 * 24)); //Set the time to the past. 1000 milliseonds = 1 second
+            var expires = "expires=" + d.toGMTString(); //Compose the expirartion date
+            window.document.cookie = cname + "=" + "; " + expires;//Set the cookie with name and the expiration date
+
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function checkCookie(cookieName) {
+            var user = getCookie(cookieName);
+            if (user != "") {
+                return true;
+            } else {
+                //user = prompt("Please enter your name:", "");
+                //if (user != "" && user != null) {
+                //    setCookie(cookieName, user, 365);
+                //}
+                return false;
+            }
+        }
+
+
+        //Cookies Section End//
+
     </script>
 
-    @RenderSection(name: "Script", required: false)
+
 </head>
 <body>
     @{
-        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
-        AccessList=(List<Tuple<string, string>>)Session["AccessList"];
+        List<Tuple<string, string, int>> AccessList = new List<Tuple<string, string, int>>();
+        AccessList = (List<Tuple<string, string, int>>)Session["AccessList"];
     }
 
 
@@ -814,7 +889,7 @@
                                 </li>
                             }
 
-                            </ul>
+                        </ul>
                     </div>
                 </div>
 
@@ -829,17 +904,17 @@
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
                             @*<li> <a id="li1" href="~/EducationManager/StaffEventCreation"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Staff</a> </li>*@
 
-                             
+
                             <li><a id="Rosterli" href="~/Roster/Roster"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
                             }
 
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
@@ -855,7 +930,7 @@
                                     </div>
                                 </a>
                             </li>
-                         
+
                             @*<li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Event Creation</a> </li>*@
                             @*<li> <a id="li1" href="~/ERSEA/SelectionCriteriaUpdate"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Selection Criteria Update</a> </li>
                                 <li> <a id="lireport" href="~/ERSEA/CommunityAssessment"><i class="fa fa-bar-chart-o fa-fw"></i>&nbsp;Community Assessment</a> </li>
@@ -880,7 +955,7 @@
                                                         <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
                                                         <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
                                                         <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
-                                                        
+
 
 
                                                     </ul>
@@ -910,7 +985,7 @@
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
 
@@ -922,14 +997,14 @@
                             }
 
 
-                            @if (Session["AllowCaseNoteTeacher"] != null && Convert.ToString(Session["AllowCaseNoteTeacher"])=="1")
+                            @if (Session["AllowCaseNoteTeacher"] != null && Convert.ToString(Session["AllowCaseNoteTeacher"]) == "1")
                             {
                                 <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
 
                             }
 
 
-                           
+
 
                             <li> <a id="li1" href="~/Teacher/Roster?id=0"><i class="fa fa-table fa-fw"></i>Roster</a> </li>
                             <li> <a id="Schedulesli" href="~/HomeVisitor/TCRScheduler"><i class="fa fa-dashboard fa-fw"></i>Schedules</a> </li>
@@ -942,7 +1017,7 @@
                             <li> <a id="li1" href="~/Teacher/Meals"><i class="fa fa-dashboard fa-fw"></i>Meals</a> </li>
                             @if (ViewBag.ClosedToday > 0)
                             {
-                                <li><a href="#"><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>
+                                <li><a href="javascript:void(0);" onclick="showClosedParentCheckIn(this);" ><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>
 
                             }
                             else
@@ -1028,7 +1103,7 @@
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
 
@@ -1036,14 +1111,14 @@
                             <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
                             <li> <a id="litask" href="~/Home/DailySafetyCheckCenterSelection"><i class="fa fa-dashboard fa-fw"></i>Daily Safety Check</a> </li>
                             <li> <a id="lireport" href="~/Home/CenterClosure"><i class="fa fa-dashboard fa-fw"></i>Center Closure</a> </li>
-                           
+
 
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
                             }
 
 
@@ -1125,7 +1200,7 @@
                                     </ul>
                                 </li>
                             }
-                         </ul>
+                        </ul>
                     </div>
                 </div>
             }
@@ -1140,7 +1215,7 @@
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
@@ -1149,7 +1224,7 @@
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
                             }
 
 
@@ -1223,9 +1298,9 @@
                             <li><a id="viewfamily" href="~/AgencyUser/viewfamilydetails"><i class="fa fa-table fa-fw"></i> Family Intake </a></li>
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt" aria-hidden="true"></i> Parent Contact Information</a> </li>
-                            
+
                             <li> <a id="Schedulesli" href="~/HomeVisitor/Scheduler"><i class="fa fa-dashboard fa-fw"></i>Schedules</a> </li>
-                            
+
                             <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i> Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
                             <li id="li8">
                                 <a href="#"><i class="fa fa-cogs"></i> Utilities <span class="fa arrow"></span></a>
@@ -1237,7 +1312,7 @@
                             <li><a id="Socializationli" href="~/HomeVisitor/HomeBasedSocialization"><i class="fa fa-android fa-fw"></i> Socialization and Field Trip</a></li>
 
 
-                    
+
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
@@ -1305,19 +1380,19 @@
                             @*<li> <a id="li1" onclick="GotoHomeApplicationApprovalDashboard();" href="#"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>*@
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
                             <li> <a id="li2" href="~/Home/AgencyHealthNurse"><i class="fa fa-dashboard fa-fw"></i> Center Overview (@Session["YakkrCountPending"])</a> </li>
-                           
-                            
-                            
+
+
+
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
                                 <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
                             }
 
-                            
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li><a href="~/HomeVisitor/TCRScheduler"> <i class="fa fa-dashboard fa-fw"></i> Schedules</a></li>
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
@@ -1455,16 +1530,16 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/Home/AgencyFacilitiesManagerDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-                           
+
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
-                            
-                            
-                             @if (AccessList != null && AccessList.Count > 0)
+
+
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
                                     <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
@@ -1515,14 +1590,14 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/Home/FacilityWorkerDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-                            
+
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
-                            
+
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
@@ -1882,14 +1957,14 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            
+
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
-                            
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
 
@@ -1935,7 +2010,7 @@
                                     </ul>
                                 </li>
                             }
-                          </ul>
+                        </ul>
                     </div>
                 </div>
             }
@@ -1947,14 +2022,14 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/ERSEA/ERSEADashboard"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Dashboard</a> </li>
-                            
+
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
-                            
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
                             <li> <a id="li1" href="~/ERSEA/SelectionCriteriaUpdate"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Selection Criteria Update</a> </li>
@@ -1964,18 +2039,19 @@
                             <li id="li8">
                                 <a href="#"><i class="fa fa-cogs"></i> Utilities <span class="fa arrow"></span></a>
                                 <ul id="ul2" class="nav nav-second-level collapse">
-                                   
+                                    @if (Session["HasHomeBased"] != null && Convert.ToBoolean(Session["HasHomeBased"]))
+                                    {
                                         <li><a id="li4" onclick="homeVisitHistorical();" href="#">Home Visit(s) Historical</a></li>
-                                   
+                                    }
                                     <li><a id="li8" onclick="CenterBasedHistorical();" href="#">Center Based Historical</a></li>
                                 </ul>
                             </li>
 
                             <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>
-                           
+
                             @* <li> <a id="lireport" href="~/Inkind/PublicAssetEntry"><i class="fa fa-dashboard fa-fw"></i>Public Asset Entry</a> </li>*@
-                           
-                             @if (AccessList != null && AccessList.Count > 0)
+
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
                                     <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
@@ -2031,7 +2107,7 @@
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
-                            
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li> <a id="li1" href="~/Transportation/CreateRoute"><i class="fa fa-road fa-fw"></i> Create Route</a> </li>
                             <li> <a id="li1" href="~/Transportation/AssignRoute"><i class="fa fa fa-map fa-fw"></i> Assign Route</a> </li>
@@ -2309,6 +2385,61 @@
                 </div>
             </div>
         </div>
+
+
+
+
+        <div class="modal fade" id="myModalClosedAlert" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                       
+                        <div class="bootstrap-dialog-header">
+                        <div class="bootstrap-dialog-close-button" style="display: block;">
+                            <button class="close">×</button>
+                            </div>
+                        <div class="bootstrap-dialog-title">Information</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-body">
+                       
+
+
+
+                        <div class="bootstrap-dialog-body">
+                        <div class="bootstrap-dialog-message">
+                            <label class="alert-dismissible" for="current_password">
+
+                                @if (ViewBag.ClosedToday == 1)
+                                {
+                                    <text>Agency has been closed today</text>
+                                }
+                                else if (ViewBag.ClosedToday == 2)
+                                {
+                                    <text>Center has been closed today</text>
+                                }
+                                else if (ViewBag.ClosedToday == 3)
+                                {
+                                    <text>Classroom has been closed today</text>
+                                }
+                            </label>
+                            </div>
+                        </div>
+
+                       
+                    </div>
+                    <div class="modal-footer">
+                        <div class="bootstrap-dialog-footer">
+                        <div class="bootstrap-dialog-footer-buttons">
+                            <button class="btn btn-default" >Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
     <script src="~/Scripts/metisMenu.min.js"></script>
     <script src="~/Scripts/startmin.js"></script>
@@ -2323,7 +2454,7 @@
                 datatype: "json",
                 type: 'post',
                 success: function (data) {
-                    $('.yakkr-span').html('('+data+')');
+                    $('.yakkr-span').html('(' + data + ')');
                 },
                 error: function (data) {
 
@@ -2336,8 +2467,54 @@
 
         }
 
+
+        function showClosedParentCheckIn(ele)
+        {
+
+            var $message = null;
+
+
+            debugger;
+            switch('@ViewBag.ClosedToday')
+            {
+                case  '1':
+                    $message='Agency has been closed today';
+                    break;
+                case '2':
+                    $message='Center has been closed today';
+                    break;
+                case '3':
+                    $message='Classroom has been closed today';
+                    break;
+                default:
+                    $message='';
+                    break;
+
+            }
+
+
+          
+
+            BootstrapDialog.show({
+                title: 'Information',
+                message: $message,
+                closable: true,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                buttons: [{
+                    label: 'Close',
+                    cssClass:'btn-primary',
+                    action: function (dialogRef) {
+                        dialogRef.close();
+                    }
+                }]
+            });
+
+        }
+
+
         $(function () {
-           
+
             $('#ul4').removeClass('in');
             // $('.arrow').css({ '-webkit-transform': 'rotate(180deg)', 'transform': 'rotate(180deg)' });
 
@@ -2384,5 +2561,9 @@
 
         });
     </script>
+
+    @RenderSection(name: "Script", required: false)
+
+
 </body>
 </html>

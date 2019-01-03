@@ -320,9 +320,10 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Id", inkind.Id));
                 command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
                 command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                command.Parameters.Add(new SqlParameter("@ProgramYear", inkind.ProgramYear)); ;
+                //command.Parameters.Add(new SqlParameter("@ProgramYear", inkind.ProgramYear)); ;
                 command.Parameters.Add(new SqlParameter("@Hours", inkind.Hours));
                 command.Parameters.Add(new SqlParameter("@Budget", inkind.Dollers));
+                command.Parameters.Add(new SqlParameter("@InkindPeriodID", inkind.InkindPeriodID));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_AddInkindBudget";
@@ -371,7 +372,7 @@ namespace FingerprintsData
             return isInserted;
         }
 
-        public void GetInkindDetailsByUserId(ref DataTable dtInkind, string UserId, string AgencyId)
+        public void GetInkindDetailsByUserId(ref DataTable dtInkind, string UserId, string AgencyId,int inkindPeriodId=0)
         {
             dtInkind = new DataTable();
             try
@@ -382,6 +383,7 @@ namespace FingerprintsData
                 command.CommandText = "USP_GetInkindBudget";
                 command.Parameters.AddWithValue("@UserId", UserId);
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@InkindPeriodID", inkindPeriodId);
                 DataAdapter = new SqlDataAdapter(command);
                 DataAdapter.Fill(dtInkind);
             }

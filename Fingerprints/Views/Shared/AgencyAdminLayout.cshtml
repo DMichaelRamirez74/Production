@@ -45,6 +45,8 @@
     <link id="Link1" rel="shortcut icon" href="~/Content/img/faviicon-new.png" type="image/x-icon" />
     <script src="~/Scripts/USmobilevalidation.js"></script>
     <link href="~/Content/style_latest.css" rel="stylesheet" />
+    <link href="~/Content/glossy-theme.css" rel="stylesheet" />
+
 
     <script src="~/Scripts/jquery.signature.js"></script>
     <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
@@ -276,6 +278,60 @@
             });
 
         }
+
+
+
+        //Cookies section Start//
+
+        function setCookie(cname, cvalue, exdays) {
+
+
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function deleteCookie(cname) {
+            var d = new Date(); //Create an date object
+            d.setTime(d.getTime() - (1000 * 60 * 60 * 24)); //Set the time to the past. 1000 milliseonds = 1 second
+            var expires = "expires=" + d.toGMTString(); //Compose the expirartion date
+            window.document.cookie = cname + "=" + "; " + expires;//Set the cookie with name and the expiration date
+
+        }
+
+        function checkCookie(cookieName) {
+            var user = getCookie(cookieName);
+            if (user != "") {
+                return true;
+            } else {
+                //user = prompt("Please enter your name:", "");
+                //if (user != "" && user != null) {
+                //    setCookie(cookieName, user, 365);
+                //}
+                return false;
+            }
+        }
+
+
+        //Cookies Section End//
+
 
     </script>
     @RenderSection(name: "Style", required: false)
@@ -703,8 +759,8 @@
 </head>
 <body>
     @{
-        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
-        AccessList = (List<Tuple<string, string>>)Session["AccessList"];
+        List<Tuple<string, string,int>> AccessList = new List<Tuple<string, string,int>>();
+        AccessList = (List<Tuple<string, string,int>>)Session["AccessList"];
     }
     <div class="header-top">
         <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
@@ -1003,6 +1059,11 @@
                             </li>
 
                         }
+
+
+                       
+
+
                         <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span"> (@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString())) </span></a> </li>
                         @if (AccessList != null && AccessList.Count > 0)
                         {

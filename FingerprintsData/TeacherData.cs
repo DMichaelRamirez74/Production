@@ -691,6 +691,24 @@ namespace FingerprintsData
                         }
                     }
 
+
+
+                    if(_dataset.Tables.Count>5 && _dataset.Tables[5]!=null && _dataset.Tables[5].Rows.Count>0)
+                    {
+                        _TeacherM.InkindPeriodList = (from DataRow dr5 in _dataset.Tables[5].Rows
+
+                                                      select new InkindPeriods
+                                                      {
+                                                          StartDate = Convert.ToString(dr5["StartDate"]),
+                                                          EndDate = Convert.ToString(dr5["EndDate"]),
+                                                          InkindPeriodID = Convert.ToInt64(dr5["InkindPeriodID"])
+                                                      }
+
+                                                    ).ToList();
+                    }
+                  
+
+
                 }
 
                 _TeacherM.Activitylst = new List<InkindActivity>();

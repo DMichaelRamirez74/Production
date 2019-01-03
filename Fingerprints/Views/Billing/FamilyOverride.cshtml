@@ -1,0 +1,964 @@
+﻿@{
+    @section Title{
+        Family Override
+    }
+    ViewBag.Title = "BillingManagerDashboard";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+
+}
+
+@section maincontentholder
+        {
+
+    <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/csschild/styleBM.css" rel="stylesheet" />
+    <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        select option {
+            background: #1f4f7d;
+        }
+
+        .form-control[readonly] {
+            background-color: transparent !important;
+        }
+
+        .td-decimal {
+            text-align: right;
+        }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;background-size:cover;">
+            <div class="col-xs-12 bill-detl-title">
+                <h2>Family Override</h2>
+                <div class="family_ovr"><img src="~/Content/imagechild/text-bdr.png"></div>
+            </div>
+            <div class="col-xs-12">
+                <div class="billing-form">
+                    <div class="col-lg-6">
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Program Type</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    @Html.DropDownList("ddlProgramType", Fingerprints.Utilities.Helper.GetProgramTypeDetails(Session["AgencyID"].ToString()), new { @class = "billing-select1" })
+                                    <input type="hidden" class="family-id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Centers</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    @Html.DropDownList("ddlCenterdetails", Fingerprints.Utilities.Helper.GetCenterDetails(Session["AgencyID"].ToString()), new { @class = "billing-select1" })
+                                    <input type="hidden" class="family-id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Family Name</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <select name="" id="ddlFamily" class="billing-select1" style="display:none;"></select>
+                                    <input class="form-control ui-autocomplete-input validtest txt-search txtFamilyName" rolename="family" id="txtSearch" maxlength="30" name="Organization" placeholder="Search Family Name" value="" autocomplete="off" type="text">
+                                    <input type="hidden" class="hdn-family-id hidden-id" />
+                                    @*@Html.DropDownList("ddlFamily", Fingerprints.Utilities.Helper.GetChildDetails(Session["AgencyID"].ToString()), new { @class = "billing-select1" })*@
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Child Name</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <select name="" id="ddlChild" class="billing-select1" style="display:none;">
+                                        <option value="0"></option>
+                                    </select>
+                                    <input class="form-control validtest txtChildName" id="txtSearch" rolename="child" maxlength="30" name="Organization" placeholder="" value="" autocomplete="off" type="text" readonly="readonly">
+                                    <select class="form-control billing-select1 ddlChildName" style="display:none;"></select>
+                                    @*@Html.DropDownList("ddlChild", Fingerprints.Utilities.Helper.GetChildDetails(Session["AgencyID"].ToString()), new { @class = "billing-select1" })*@
+                                    <input type="hidden" class="hdn-child-id hidden-id" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Fixed Amount</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtFixedAmount" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Never Less Than</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtNeverLessThan" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Never More Than</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtNeverMoreThan" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Override Early Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtEarlyRate" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Override Normal Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtOverrideNormalRate" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Override Late Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtLateRate" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Email</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <div class="bill-radio">
+                                        <input id="rdEmailYes" name="Email" class="rd-email" value="1" type="radio">
+                                        <label for="rdEmailYes" class="radio-label">Yes</label>
+                                    </div>
+
+                                    <div class="bill-radio">
+                                        <input id="rdEmailNo" name="Email" value="0" class="rd-email" type="radio">
+                                        <label for="rdEmailNo" class="radio-label">No</label>
+                                    </div>
+                                    @*<div class="checkbox-bill">
+                                            <input class="client-id" id="test_14793" type="checkbox" value="14791">
+                                            <label for="test_14793"></label>
+                                        </div>*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Print</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    @*<div class="checkbox-bill">
+                                            <input class="client-id" id="test_14791" type="checkbox" value="14791">
+                                            <label for="test_14791"></label>
+                                        </div>*@
+                                    <div class="bill-radio">
+                                        <input id="rdPrintYes" name="Print" class="rd-print" value="1" type="radio">
+                                        <label for="rdPrintYes" class="radio-label">Yes</label>
+                                    </div>
+
+                                    <div class="bill-radio">
+                                        <input id="rdPrintNo" name="Print" class="rd-print" value="0" type="radio">
+                                        <label for="rdPrintNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding" style="display:none;">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Bill Direct To Family</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+
+                                    <div class="bill-radio">
+                                        <input id="rdBillYes" name="Bill" class="rd-bill" value="1" type="radio">
+                                        <label for="rdBillYes" class="radio-label">Yes</label>
+                                    </div>
+
+                                    <div class="bill-radio">
+                                        <input id="rdBillNo" name="Bill" class="rd-bill" value="0" type="radio">
+                                        <label for="rdBillNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="billing-sub-btn">
+
+                            <a href="javascript:void(0);" class="btn-submit">SUBMIT</a>
+                            <a href="javascript:void(0);" class="btn-Clear">CLEAR</a>
+                            @*<input type="button" value="Submit" class="btn btn-primary btn-submit" /><input type="button" value="Clear" class="btn btn-primary btn-Clear" />*@
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-xs-12 text-center serch-billing-block">
+                <label class="billing-label">Filter By</label>
+                @*<select name="" class="billing-select">
+                        <option value="0">Program Type</option>
+                    </select>*@
+                @Html.DropDownList("ddlProgramTypeFilter", Fingerprints.Utilities.Helper.GetProgramTypeDetails(Session["AgencyID"].ToString()), new { @class = "billing-select" })
+                @*<select name="" class="billing-select">
+                        <option value="0">Center Name</option>
+                    </select>*@
+                @Html.DropDownList("ddlCenter", Fingerprints.Utilities.Helper.GetCenterDetails(Session["AgencyID"].ToString()), new { @class = "billing-select" })
+                @*<select name="" class="billing-select">
+                        <option value="0">Classroom Name</option>
+                    </select>*@
+                @*@Html.DropDownList("ddlClassRoom", Fingerprints.Utilities.Helper.GetClassroomDetails(Session["AgencyID"].ToString()), new { @class = "billing-select" })*@
+                <div class="billing-search-btn">
+                    <a href="javascript:void(0);">Search</a>
+                </div>
+            </div>
+
+
+
+            <div class="col-xs-12 billing-dt-section">
+                <div class="col-xs-12 billing-dt">
+                    <table class="col-md-12 table-striped table-condensed cf table-change bill-table">
+                        <thead class="table-hd">
+                            <tr>
+                                <th>Family Name<br>(Child Name)</th>
+                                <th>Fixed <br>Amount</th>
+                                <th>Never less <br>than</th>
+                                <th>Never more <br>than</th>
+                                <th>Override <br> Early Rate</th>
+                                <th>Override <br> Normal Rate</th>
+                                <th>Override <br> Late Rate</th>
+                                <th>Email</th>
+                                <th>Print</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bill-table-head"></tbody>
+                    </table>
+                </div>
+                <div style="margin-bottom: 50px;height: 2px;"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/Content/scriptchild/jquery.js"></script>
+    <script src="~/Content/scriptchild/bootstrap.js"></script>
+    <script src="~/Content/scriptchild/script.js"></script>
+    <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+
+            });
+            GetFamilyOverride();
+
+            $('#ddlProgramType').change(function () {
+                // $('#txtEarlyRate,#txtLateRate').val("100");
+                // $('#txtOverrideNormalRate').val("70");
+                //  LoadFamily();
+                $('.txtFamilyName,.hdn-family-id').val("");
+                $('.ddlChildName').val("0");
+                $('.hdn-child-id,.txtChildName').val("");
+                $('.hdn-family-id').attr('familyname','');
+                $.ajax({
+                    type: "POST",
+                    url: "/Billing/GetRatesByProgramId",
+                    data: { 'ProgramId': $('#ddlProgramType').val() },
+                    success: function (data) {
+                        $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                        var JsonData = JSON.parse(data);
+                        if (JSON.parse(data).length > 1) {
+                            $.each(JSON.parse(data), function (i, val) {
+                                $('#txtFixedAmount').val(val["FixedAmount"]);
+                                $('#txtEarlyRate').val(val["EarlyRate"]);
+                                $('#txtOverrideNormalRate').val(val["NormalRate"]);
+                                $('#txtLateRate').val(val["LateRate"]);
+                            });
+                        }
+                        else {
+
+                            if (JsonData[0] != undefined) {
+                                $('#txtFixedAmount').val(JsonData[0].FixedAmount);
+                                $('#txtEarlyRate').val(JsonData[0].EarlyRate);
+                                $('#txtOverrideNormalRate').val(JsonData[0].NormalRate);
+                                $('#txtLateRate').val(JsonData[0].LateRate);
+                                console.log(JsonData[0].AllowOverrideRate);
+                                if (JsonData[0].AllowOverrideRate)
+                                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                                else {
+                                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', true);
+                                }
+                            }
+                            else {
+                                $('#txtFixedAmount,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').val('0');
+                            }
+
+
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            });
+
+            $('#ddlFamily').change(function () {
+                if ($('#ddlFamily').val() == "0") {
+                    $('#ddlChild').empty();
+                }
+                else {
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Billing/GetChildByFamilyId",
+                        data: { 'ClientId': $('#ddlFamily').val() },
+                        success: function (data) {
+                            $('#ddlChild').empty();
+                            var input = "";
+                            var JsonData = JSON.parse(data);
+                            console.log(JsonData);
+                            if (JSON.parse(data).length > 1) {
+                                $('#ddlChild').append("<option value='0'>Choose</option>");
+                                $.each(JSON.parse(data), function (i, val) {
+
+                                    var option = "<option value='" + val["ClientID"] + "'>" + val["Name"] + "</option>";
+
+                                    $('#ddlChild').append(option);
+                                });
+                            }
+                            else {
+                                $('#ddlChild').append("<option value='0'>Choose</option>");
+                                var option = "<option value='" + JsonData[0].ClientID + "'>" + JsonData[0].Name + "</option>";
+
+                                $('#ddlChild').append(option);
+
+                            }
+
+
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+            });
+            $('.btn-Clear').click(function () {
+
+                Clear();
+
+            });
+            $('.billing-search-btn').click(function () {
+                var programid = $('#ddlProgramTypeFilter').val();
+                var centerid = $('#ddlCenter').val();
+                //  var classroomid = $('#ddlClassRoom').val();
+                if (programid == "0" || centerid == "0") {
+                    $('.bill-table-head tr').show();
+                }
+                else {
+                    $('.bill-table-head tr').each(function (i, val) {
+                        if ($(this).attr('programtypeid') == programid && $(this).attr('centerid') == centerid) {
+                            $(this).show();
+                        }
+                        else {
+                            $(this).hide();
+                        }
+                    });
+                }
+
+            });
+            $('.btn-submit').click(function () {
+                //  if (ValidateAddressChange()) {
+                var allow = true;
+                if ($('#ddlProgramType').val() == "0") {
+                    customAlert("Program Type is mandatory");
+                    allow = false;
+                }
+                else if ($('#ddlCenterdetails').val() == "") {
+                    customAlert("Center is mandatory");
+                    allow = false;
+                }
+
+                else if ($('.hdn-family-id').val() == "" || $('.txtFamilyName').val() == "") {
+                    customAlert("Family Name is mandatory");
+                    allow = false;
+                }
+                else if ($('.hdn-child-id').val() == "") {
+                    customAlert("Child Name is mandatory");
+                    allow = false;
+                }
+
+                else if ($('input[name="Email"]:checked').length == 0) {
+                    customAlert("Email is mandatory");
+                    allow = false;
+                }
+                else if ($('input[name="Email"]:checked').length == 0) {
+                    customAlert("Email is mandatory");
+                    allow = false;
+                }
+                else if ($('input[name="Print"]:checked').length == 0) {
+                    customAlert("Print is mandatory");
+                    allow = false;
+                }
+                else if (($('#txtEarlyRate').val() == "" || parseFloat($('#txtEarlyRate').val()) == 0) && ($('#txtOverrideNormalRate').val() == "" || parseFloat($('#txtOverrideNormalRate').val()) == 0) && ($('#txtLateRate').val() == "" || parseFloat($('#txtLateRate').val()) == 0)) {
+                    if ($('#txtFixedAmount').val() == "" || $('#txtFixedAmount').val() == "0") {
+                        customAlert("Enter Fixed Amount or Override Rate");
+                        allow = false;
+                    }
+
+                }
+                else if (($('#txtFixedAmount').val() == "" || parseFloat($('#txtFixedAmount').val()) == 0)) {
+                    if (($('#txtEarlyRate').val() == "" || parseFloat($('#txtEarlyRate').val()) == 0) && ($('#txtOverrideNormalRate').val() == "" || parseFloat($('#txtOverrideNormalRate').val()) == 0) && ($('#txtLateRate').val() == "" || parseFloat($('#txtLateRate').val()) == 0)) {
+                        customAlert("Override Rate is mandatory");
+                        allow = false;
+                    }
+                }
+                if (allow) {
+                    $('.bill-table-head tr').each(function (i, val) {
+                        var childid = $(this).attr('childid');
+                        var programtypeid = $(this).attr('programtypeid');
+                        if ($('#ddlProgramType').val() == programtypeid && $('.hdn-child-id').val().trim() == childid && $('.family-id').val().trim() == "") {
+                            customAlert("Child already exists.");
+                            allow = false;
+                        }
+                    });
+                }
+                if (allow) {
+                    var FamilyOverride = {};
+                    if ($('.family-id').val().trim() != "")
+                        FamilyOverride.Id = $('.family-id').val().trim();
+                    FamilyOverride.FamilyId = $('.hdn-family-id').val();
+                    FamilyOverride.ChildId = $('.hdn-child-id').val();
+                    FamilyOverride.ProgramTypeId = $('#ddlProgramType').val();
+                    FamilyOverride.FixedAmount = $('#txtFixedAmount').val() == undefined || $('#txtFixedAmount').val() == "" ? "0" : $('#txtFixedAmount').val();
+                    FamilyOverride.NeverLessThan = $('#txtNeverLessThan').val() == undefined || $('#txtNeverLessThan').val() == "" ? "0" : $('#txtNeverLessThan').val();
+                    FamilyOverride.NeverMoreThan = $('#txtNeverMoreThan').val() == undefined || $('#txtNeverMoreThan').val() == "" ? "0" : $('#txtNeverMoreThan').val();
+                    FamilyOverride.OverrideEarlyRate = $('#txtEarlyRate').val() == undefined || $('#txtEarlyRate').val() == "" ? "0" : $('#txtEarlyRate').val();
+                    FamilyOverride.OverrideNormalRate = $('#txtOverrideNormalRate').val() == undefined || $('#txtOverrideNormalRate').val() == "" ? "0" : $('#txtOverrideNormalRate').val();
+                    FamilyOverride.OverrideLateRate = $('#txtLateRate').val() == undefined || $('#txtLateRate').val() == "" ? "0" : $('#txtLateRate').val();
+                    FamilyOverride.Email = $('input[name=Email]:checked').val() == "1" ? true : false;
+                    FamilyOverride.Print = $('input[name=Print]:checked').val() == "1" ? true : false;
+                    FamilyOverride.BillDirectToFamily = $('input[name=Bill]:checked').val() == "1" ? "1" : "0";
+                    //FamilyOverride.BillDirectToFamily = $('input[name=Bill]:checked').val() == "1" ? true : false;
+                    FamilyOverride = JSON.stringify({ 'Family': FamilyOverride });
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: "POST",
+                        async: false,
+                        url: "/Billing/SaveFamilyOverride",
+                        data: FamilyOverride,
+                        success: function (data) {
+                            customAlertSuccess("Record Saved Successfully");
+                            Clear();
+                            GetFamilyOverride();
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+
+                //  }
+            });
+
+            $('#txtFixedAmount').focusout(function () {
+                if (parseFloat($('#txtFixedAmount').val()) != 0 && $('#txtFixedAmount').val() != "") {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', true);
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').val("0");
+                }
+                else {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                }
+            });
+            $('body').on('click', '.Delete', function () {
+                var id = $(this).closest('tr').attr('familyid');
+                BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                    if (result) {
+
+                        Delete(id);
+                    }
+                });
+
+            });
+
+            $('body').on('click', '.Edit', function () {
+                var currentrow = $(this).closest('tr');
+                $('#ddlProgramType').val(currentrow.attr('programtypeid'));
+                $('#ddlCenterdetails').val(currentrow.attr('centerid'));
+                var arr = currentrow.find('td').eq(0).text().trim().split('(');
+                console.log(arr);
+                var firstname = arr[0];
+                var lstname = arr[1].replace(')', '');
+                $('.txtFamilyName').val(firstname);
+                $('.hdn-family-id').val(currentrow.attr('parentid'));
+                $('.txtChildName').val(lstname.trim());
+                $('.hdn-child-id').val(currentrow.attr('childid'));
+                // $('#ddlFamily').val(currentrow.attr('parentid'));
+                // $('#ddlFamily').change();
+
+                $('#txtFixedAmount').val(currentrow.find('td').eq(1).text().replace('$', '').trim());
+                $('#txtNeverLessThan').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
+                $('#txtNeverMoreThan').val(currentrow.find('td').eq(3).text().replace('$', '').trim());
+                $('#txtEarlyRate').val(currentrow.find('td').eq(4).text().replace('$', '').trim());
+                $('#txtOverrideNormalRate').val(currentrow.find('td').eq(5).text().replace('$', '').trim());
+                $('#txtLateRate').val(currentrow.find('td').eq(6).text().replace('$', '').trim());
+                if (currentrow.find('td').eq(7).text().trim() == "Yes")
+                    $('#rdEmailYes').prop('checked', true);
+                else
+                    $('#rdEmailNo').prop('checked', true);
+                if (currentrow.find('td').eq(8).text().trim() == "Yes")
+                    $('#rdPrintYes').prop('checked', true);
+                else
+                    $('#rdPrintNo').prop('checked', true);
+                if (currentrow.find('td').eq(9).text().trim() == "Yes")
+                    $('#rdBillYes').prop('checked', true);
+                else
+                    $('#rdBillNo').prop('checked', true);
+                // setTimeout(function () { $('#ddlChild').val(currentrow.attr('childid')); }, 100);
+                $('.family-id').val(currentrow.attr('familyid'));
+                if (parseFloat($('#txtFixedAmount').val()) > 0)
+                {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', 'readonly');
+                }
+                else
+                {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                }
+
+            });
+            $('.ddlChildName').change(function () {
+                if ($('.ddlChildName').val() != "") {
+                    $('.hdn-child-id').val($('.ddlChildName').val());
+                }
+                else {
+                    $('.hdn-child-id').val("");
+                }
+            });
+            var ID = 0;
+            $("body").on('keyup', '.txt-search', function () {
+                var value = $(this).val();
+                // var role = $(this).attr('rolename');
+                //    $(this).closest('div').find('.hidden-id').val("");
+               
+                if ($('.txt-search').val().trim() != $('.hdn-family-id').attr('familyname')) {
+                    $('.hdn-family-id').attr('familyname', '');
+                    $('.hdn-family-id').val("");
+                    $('.hdn-child-id').val("");
+                    if($('.ddlChildName').is(':visible'))
+                        $('.ddlChildName').val("0");
+                    else
+                        $(".txtChildName").val("");
+                }
+                $(this).autocomplete({
+                    source: function (request, response) {
+                        var param = { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val(), 'SearchText': value };
+                        $.ajax({
+                            url: "/Billing/GetParentByProgramId",
+                            type: "POST",
+                            dataType: "json",
+                            data: param,
+                            success: function (data) {
+                                arry = data;
+                                response($.map(data, function (item) {
+                                    return { label: item.Text, value: item.Text, id: item.Value };
+                                }))
+                            }
+                        });
+                    },
+                    messages: {
+                        noResults: "",
+                        results: function (count) {
+                            return count + (count > 1 ? ' results' : ' result ') + ' found';
+                        }
+                    },
+                    select: function (e, ui) {
+                        var label = ui.item.label;
+                        var value = ui.item.value;
+                        var id = ui.item.id;
+                        ID = id;
+                        $('.hdn-family-id').attr('familyname', ui.item.label);
+                        $('.hdn-family-id').val(ID);
+                        var param1 = { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val(), 'FamilyId': ID };
+                        $.ajax({
+                            url: "/Billing/GetChildByFamilyId",
+                            type: "POST",
+                            dataType: "json",
+                            data: param1,
+                            success: function (data) {
+                                if (data.length > 1) {
+                                    $('.ddlChildName').show();
+                                    $('.txtChildName').hide();
+                                    $('.ddlChildName').empty();
+                                    $('.ddlChildName').append("<option value='0'>Choose</option>");
+                                    $('.hdn-child-id').val("");
+                                    for (var i = 0; i < data.length; i++) {
+                                        var template = "<option value='" + data[i].Value + "'>" + data[i].Text + "</option>";
+                                        $('.ddlChildName').append(template);
+                                    }
+                                }
+                                else {
+                                    $('.ddlChildName').hide();
+                                    $('.txtChildName').show();
+                                    $('.txtChildName').val(data[0].Text);
+                                    $('.hdn-child-id').val(data[0].Value);
+                                }
+                            },
+                            error: function () {
+
+                            }
+                        });
+                      //  setTimeout(function () {
+                            // if (role == "family")
+                            //      $('.hdn-family-id').val(ID);
+                            // else
+                           // $('.hdn-child-id').val(ID);
+                    //    }, 100);
+                    }
+                });
+            });
+
+            //Restrict Deciaml
+            $('body').on('keypress', '.decimal', function (event) {
+                var $this = $(this);
+                if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+                   ((event.which < 48 || event.which > 57) &&
+                   (event.which != 0 && event.which != 8))) {
+                    event.preventDefault();
+                }
+
+                var text = $(this).val();
+                if ((event.which == 46) && (text.indexOf('.') == -1)) {
+                    setTimeout(function () {
+                        if ($this.val().substring($this.val().indexOf('.')).length > 3) {
+                            $this.val($this.val().substring(0, $this.val().indexOf('.') + 3));
+                        }
+                    }, 1);
+                }
+
+                if ((text.indexOf('.') != -1) &&
+                    (text.substring(text.indexOf('.')).length > 2) &&
+                    (event.which != 0 && event.which != 8) &&
+                    ($(this)[0].selectionStart >= text.length - 2)) {
+                    event.preventDefault();
+                }
+            });
+
+            $('body').on('paste', '.decimal', function (e) {
+                var text = e.originalEvent.clipboardData.getData('Text');
+                if ($.isNumeric(text)) {
+                    if ((text.substring(text.indexOf('.')).length > 3) && (text.indexOf('.') > -1)) {
+                        e.preventDefault();
+                        $(this).val(text.substring(0, text.indexOf('.') + 3));
+                    }
+                }
+                else {
+                    e.preventDefault();
+                }
+            });
+        });
+        function LoadFamily() {
+            if ($('#ddlProgramType').val() == "0" || $('#ddlCenterdetails').val() == "0") {
+                $('#ddlFamily,#ddlChild').empty();
+            }
+            else {
+                $('#txtEarlyRate,#txtLateRate').val("100");
+                $('#txtOverrideNormalRate').val("70");
+                $.ajax({
+                    type: "POST",
+                    url: "/Billing/GetParentByProgramId",
+                    data: { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val() },
+                    success: function (data) {
+                        $('#ddlFamily,#ddlChild').empty();
+                        var input = "";
+                        var JsonData = JSON.parse(data);
+                        console.log(JsonData);
+                        if (JSON.parse(data).length > 1) {
+                            $('#ddlFamily').append("<option value='0'>Choose</option>");
+                            $.each(JSON.parse(data), function (i, val) {
+
+                                var option = "<option value='" + val["ClientID"] + "'>" + val["Name"] + "</option>";
+
+                                $('#ddlFamily').append(option);
+                            });
+                        }
+                        else {
+                            $('#ddlFamily').append("<option value='0'>Choose</option>");
+                            var option = "<option value='" + JsonData[0].ClientID + "'>" + JsonData[0].Name + "</option>";
+
+                            $('#ddlFamily').append(option);
+
+                        }
+
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+        }
+
+        function Clear() {
+            $('#ddlProgramType,#ddlCenterdetails').val("0");
+            $('.txtFamilyName,.hdn-family-id,.txtChildName,.hdn-child-id').val("");
+            $('#ddlChild').empty();
+            $('.txt-empty').val("");
+            $('.ddlChildName').hide();
+            $('.txtChildName').show();
+            $('.txtChildName').show("");
+            $('.hdn-child-id,.hdn-family-id').val("");
+            $('input[name=Bill]:checked').prop('checked', false);
+            $('input[name=Email]:checked').prop('checked', false);
+            $('input[name=Print]:checked').prop('checked', false);
+            $('.family-id').val("");
+            $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+        }
+        function GetFamilyOverride() {
+            $.ajax({
+                type: "POST",
+                url: "/Billing/GetFamilyOverrideByUserId",
+                success: function (data) {
+                    $('.bill-table-head').empty();
+
+                    var Template = '<tr familyid="##ID##" programtypeid="##PROGRAMID##" centerid="##CENTERID##" classroomid="##CLASSROOMID##" parentid="##PARENTID##" childid="##CHILDID##">\
+                                 <td data-title="Family Name">\
+                                     <div class="">\
+                                         <p>##FamilyName##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Fixed Amount">\
+                                     <div class="">\
+                                         <p>$##FixedAmount##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Never less than">\
+                                     <div class="">\
+                                         <p>$##NeverLessThan##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Never more than">\
+                                     <div class="">\
+                                         <p>$##NeverMoreThan##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Override Early Rate">\
+                                     <div class="">\
+                                         <p>$##OverrideEarlyRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Override Normal Rate">\
+                                     <div class="">\
+                                         <p>$##OverrideNormalRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Override Late Rate ">\
+                                     <div class="">\
+                                         <p>$##OverrideLateRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Email">\
+                                     <div class="">\
+                                         <p>##Email##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Print">\
+                                     <div class="">\
+                                         <p>##Print##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Edit">\
+                                     <div class="">\
+                                         <div class="Edit"><a href="javascript:void(0);"><img src="/Content/imagechild/edit_icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Delete">\
+                                     <div class="">\
+                                         <div class="Delete"><a href="javascript:void(0);"><img src="/Content/imagechild/delete-icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                             </tr>';
+
+                    var JsonData = JSON.parse(data);
+                    console.log(JsonData);
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+                            console.log(parseFloat(val["FixedAmount"]).toFixed());
+                            var input = Template;
+                            input = input.replace("##FamilyName##", val["FamilyName"]);
+                            input = input.replace("##FixedAmount##", parseFloat(val["FixedAmount"]).toFixed(2));
+                            input = input.replace("##NeverLessThan##", parseFloat(val["NeverLessThan"]).toFixed(2));
+                            input = input.replace("##NeverMoreThan##", parseFloat(val["NeverMoreThan"]).toFixed(2));
+                            input = input.replace("##OverrideEarlyRate##", parseFloat(val["OverrideEarlyRate"]).toFixed(2));
+                            input = input.replace("##OverrideNormalRate##", parseFloat(val["OverrideNormalRate"]).toFixed(2));
+                            input = input.replace("##OverrideLateRate##", parseFloat(val["OverrideLateRate"]).toFixed(2));
+                            input = input.replace("##Email##", val["Email"]);
+                            input = input.replace("##Print##", val["Print"]);
+                            input = input.replace("##BillDirectToFamily##", val["BillDirectToFamily"]);
+                            input = input.replace("##ID##", val["Id"]);
+                            input = input.replace("##PROGRAMID##", val["ProgramTypeID"]);
+                            input = input.replace("##CENTERID##", val["CenterID"]);
+                            input = input.replace("##CLASSROOMID##", val["ClassroomID"]);
+                            input = input.replace("##PARENTID##", val["ParentId"]);
+                            input = input.replace("##CHILDID##", val["ChildId"]);
+                            $('.bill-table-head').append(input);
+                        });
+                    }
+                    else {
+                        var input = Template;
+                        input = input.replace("##FamilyName##", JsonData[0].FamilyName);
+                        input = input.replace("##FixedAmount##", parseFloat(JsonData[0].FixedAmount).toFixed(2));
+                        input = input.replace("##NeverLessThan##", parseFloat(JsonData[0].NeverLessThan).toFixed(2));
+                        input = input.replace("##NeverMoreThan##", parseFloat(JsonData[0].NeverMoreThan).toFixed(2));
+                        input = input.replace("##OverrideEarlyRate##", parseFloat(JsonData[0].OverrideEarlyRate).toFixed(2));
+                        input = input.replace("##OverrideNormalRate##", parseFloat(JsonData[0].OverrideNormalRate).toFixed(2));
+                        input = input.replace("##OverrideLateRate##", parseFloat(JsonData[0].OverrideLateRate).toFixed(2));
+                        input = input.replace("##Email##", JsonData[0].Email);
+                        input = input.replace("##Print##", JsonData[0].Print);
+                        input = input.replace("##BillDirectToFamily##", JsonData[0].BillDirectToFamily);
+                        input = input.replace("##ID##", JsonData[0].Id);
+                        input = input.replace("##PROGRAMID##", JsonData[0].ProgramTypeID);
+                        input = input.replace("##CENTERID##", JsonData[0].CenterID);
+                        input = input.replace("##CLASSROOMID##", JsonData[0].ClassroomID);
+                        input = input.replace("##PARENTID##", JsonData[0].ParentId);
+                        input = input.replace("##CHILDID##", JsonData[0].ChildId);
+                        $('.bill-table-head').append(input);
+                    }
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+
+        function Delete(Id) {
+            $.ajax({
+                type: "POST",
+                url: "/Billing/DeleteFamilyOverride",
+                data: { 'Id': Id },
+                success: function (data) {
+                    if (data) {
+                        customAlertSuccess("Record Deleted Successfully");
+                        Clear();
+                        GetFamilyOverride();
+                    }
+
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        function toggleIcon(e) {
+            $(e.target)
+                    .prev('.panel-heading')
+                    .find(".more-less")
+                    .find(".more-less1")
+                    .toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+        $('.panel-group').on('shown.bs.collapse', toggleIcon);
+    </script>
+}

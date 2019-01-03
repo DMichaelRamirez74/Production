@@ -37,6 +37,465 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+            
+            // Modal In-Kind Dates //
+
+
+            $(document).on('click', '.remove-inkind-date',function(){
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+                var $rowindex=$(this).closest('tr').index();
+                var $startDate=$(this).closest('tr').find('td:eq(0)').find('input:text[name="InkindPeriodList['+$rowindex+'].StartDate"]').val();
+                var $endDate=$(this).closest('tr').find('td:eq(1)').find('input:text[name="InkindPeriodList['+$rowindex+'].EndDate"]').val();
+                var $inkindPeriodId=parseInt($(this).closest('tr').data('period-id'))
+                var $icon=$(this);
+
+
+                if($inkindPeriodId>0 && ($startDate!=null && $startDate!="" && $endDate!=null && $endDate!=""))
+                {
+
+                    $.post( HostedDir+"/InKind/CheckInKindRecordExistsByDate", {startDate:$startDate, EndDate: $endDate,targetAgencyId:$('#agencyId').val(),inkindPeriodID:$inkindPeriodId })
+                    .done(function( data ) {
+                        if(data)
+                        {
+                            customAlert('Unable to remove,these dates are already referred to In-Kind Budgets');
+                        }
+                        else
+                        {
+                            $icon.closest('tr').remove();
+
+                        }
+                    });
+
+                }
+                else
+                {
+                    $(this).closest('tr').remove();
+
+
+                    $inkindModalTbody.find('tr').each(function(i,rows){
+                        debugger;
+
+                        $(rows).find('td:eq(0)').find('.inkind-start-date').attr({'name':"InkindPeriodList["+i+"].StartDate" ,'id':"InkindPeriodList_"+i+"_StartDate"});
+
+                        $(rows).find('td:eq(1)').find('.inkind-end-date').attr({'name':"InkindPeriodList["+i+"].EndDate",'id':"InkindPeriodList_"+i+"_EndDate"});
+                    });
+                }
+
+
+
+
+            });
+
+
+       
+            $(document).on('click','.close-inkind-date',function(){
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+                var $rowindex=$(this).closest('tr').index();
+                var $startDateElement = $(this).closest('tr').find('td:eq(0)').find('input:text[name="InkindPeriodList['+$rowindex+'].StartDate"]');
+                var $endDateElement = $(this).closest('tr').find('td:eq(1)').find('input:text[name="InkindPeriodList['+$rowindex+'].EndDate"]');
+
+                var $inkindPeriodId=parseInt($(this).closest('tr').data('period-id'));
+                var $icon=$(this);
+
+                $startDateElement.prop('disabled',true);
+                $endDateElement.prop('disabled',true);
+                $(this).hide();
+
+               
+
+            });
+
+
+       
+
+            $('#btn_add_inkind_dates').on('click',function(){
+
+
+                $.ajax({
+
+                    url:HostedDir+'/InKind/GetInkindPeriods',
+                    type:'post',
+                    datatype:'json',
+                    beforeSend:function(){$('#spinner').show()},
+                    data:{targetAgencyId:$('#agencyId').val()},
+                    success:function(data){
+
+                        var $inkindModal=$('#modal-inkind-dates');
+                        var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+
+                        $inkindModalTbody.find("tr:gt(0)").remove();
+
+                        if(data!=null && data.length>0)
+                        {
+
+                            var $appendRow=null;
+                            $.each(data,function(i,dates){
+
+
+                                if(dates.IsClosed)
+
+                                {
+                                    $appendRow+='<tr data-period-id='+dates.InkindPeriodID+'>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12" disabled  id="InkindPeriodList_'+i+'_StartDate" value='+dates.StartDate+' placeholder="MM/DD/YYYY"  name="InkindPeriodList['+i+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12" disabled  id="InkindPeriodList_'+i+'_EndDate" value='+dates.EndDate+' placeholder="MM/DD/YYYY" name="InkindPeriodList['+i+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        </td>';
+                                                    
+                                }
+                                else
+                                {
+                                    $appendRow+='<tr data-period-id='+dates.InkindPeriodID+'>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12"  id="InkindPeriodList_'+i+'_StartDate" value='+dates.StartDate+' placeholder="MM/DD/YYYY"  name="InkindPeriodList['+i+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        <td>\
+                                                          <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12"  id="InkindPeriodList_'+i+'_EndDate" value='+dates.EndDate+' placeholder="MM/DD/YYYY" name="InkindPeriodList['+i+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                        </td>';
+                                                  
+                                }
+
+            
+
+                                //$appendRow+=(i>0)? '<label class="inkindLabel">\
+                                //                          <i class="fa fa fa-trash remove-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Remove Date Pair"></i>\
+                                //                          </label>':'';
+
+                                //$appendRow+='</td>';
+
+                                //$appendRow+='<td>';
+
+                                //$appendRow+=(dates.IsClosed)?'': '<label class="inkindLabel">\
+                                //                          <i class="fa fa fa-times close-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Close Date Pair"></i>\
+                                //                          </label>';
+                                                          
+                                //$appendRow+='</td>';
+                                    
+                                    
+                                    
+                                    
+                                $appendRow+='</tr>';
+
+                            });
+
+                            $inkindModalTbody.html($appendRow);
+
+                            
+
+                        }
+                        $inkindModalTbody.find('tr').each(function(j,row){
+
+                            $(row).find('input[name="InkindPeriodList['+j+'].StartDate"]').datetimepicker({
+                                timepicker: false,
+                                format: 'm/d/Y',
+                                scrollMonth : false,
+                                scrollInput : false,
+                                mask:true
+                            });
+
+                            $(row).find('input[name="InkindPeriodList['+j+'].EndDate"]').datetimepicker({
+                                timepicker: false,
+                                format: 'm/d/Y',
+                                scrollMonth : false,
+                                scrollInput : false,
+                                mask:true
+                            });
+
+                            $(row).find('td:eq(0)').find('.datepicker-icon').on('click',function(){
+
+                                $(row).find('input[name="InkindPeriodList['+j+'].StartDate"]').datetimepicker('show');
+                            });
+
+
+                            $(row).find('td:eq(1)').find('.datepicker-icon').on('click',function(){
+
+                                $(row).find('input[name="InkindPeriodList['+j+'].EndDate"]').datetimepicker('show');
+                            });
+
+
+                        });
+
+                        $inkindModal.modal('show');
+
+
+
+
+                    },
+                    error:function(data)
+                    {
+                        $('#spinner').hide();
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+
+
+                });
+
+
+
+            });
+
+          
+
+            $('#modal-inkind-dates').find('#add-dates-inkind').on('click',function(){
+
+                debugger;
+                var $inkindModalTbody=$('#modal-inkind-dates').find('#inkind-dates-table').find('tbody');
+
+                var $indexrow=$inkindModalTbody.find('tr').length;
+
+                var $appendRow='<tr  data-period-id="0">\
+                                <td>\
+                               <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-start-date" maxlength="12" placeholder="MM/DD/YYYY" id="InkindPeriodList_'+$indexrow+'_StartDate" name="InkindPeriodList['+$indexrow+'].StartDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                </td>\
+                                                        <td>\
+                                                        <div class="input-group date">\
+                                                                <input type="text" class="form-control inkind-end-date" maxlength="12" placeholder="MM/DD/YYYY" id="InkindPeriodList_'+$indexrow+'_EndDate" name="InkindPeriodList['+$indexrow+'].EndDate">\
+                                                                <span class="input-group-addon datepicker-icon dates-icon" style="cursor:pointer;">\
+                                                                    <span class="glyphicon glyphicon-calendar"></span>\
+                                                                </span>\
+                                                            </div>\
+                                                            </td>\
+                                                        <td><label class="inkindLabel">\
+                                                          <i class="fa fa fa-trash remove-inkind-date"  style="font-size:18px;color:red;cursor:pointer;" title="Remove Date Pair"></i>\
+                                                          </label></td>\
+                                                         <td></td>\
+                                                    </tr>';
+
+                $inkindModalTbody.append($appendRow);
+
+                $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].StartDate"]').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                    scrollMonth : false,
+                    scrollInput : false,
+                    mask:true
+                });
+
+                $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].EndDate"]').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                    scrollMonth : false,
+                    scrollInput : false,
+                    mask:true
+                });
+
+                $inkindModalTbody.find('tr:eq('+$indexrow+')').find('td:eq(0)').find('.dates-icon').on('click',function(){
+
+
+                    $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].StartDate"]').datetimepicker('show');
+                });
+
+                $inkindModalTbody.find('tr:eq('+$indexrow+')').find('td:eq(1)').find('.dates-icon').on('click',function(){
+
+
+                    $inkindModalTbody.find('input[name="InkindPeriodList['+$indexrow+'].EndDate"]').datetimepicker('show');
+                });
+
+               
+
+            });
+
+
+            $('#modal-inkind-dates').find('#submit_inkind_dates').on('click',function(){
+
+                debugger;
+                var $isValid=true;
+
+                cleanValidation();
+
+                var $inkindModal=$('#modal-inkind-dates');
+                var $inkindModalTbody=$inkindModal.find('#inkind-dates-table').find('tbody');
+
+                var $dateArray=[];
+
+                $inkindModalTbody.find('tr').each(function(k,row){
+
+                    var $startDate=$(this).find('td:eq(0)').find('input:text[name="InkindPeriodList['+k+'].StartDate"]');
+                    var $endDate=$(this).find('td:eq(1)').find('input:text[name="InkindPeriodList['+k+'].EndDate"]');
+                    var $isDisabled=$(this).find('td:eq(0)').find('input:text[name="InkindPeriodList['+k+'].StartDate"]').prop('disabled');
+                    var $isClosed=!$(this).find('td:eq(3)').find('.close-inkind-date').is(':visible');
+                    var $indexId=$(this).data('period-id');
+
+                    var $startDateValid=($startDate.val()!=null && $startDate.val()!='' && $startDate.val()!='__/__/____' );
+
+                    var $endDateValid=($endDate.val()!=null && $endDate.val()!=''  && $endDate.val()!='__/__/____');
+
+                    if($startDateValid ^ $endDateValid)
+                    {
+                        $isValid=false;
+                        if($startDateValid==false)
+                        {
+
+                            plainValidation($startDate);
+                        }
+                        else{
+                            plainValidation($endDate);
+                        }
+                    }
+                    else if($startDateValid && $endDateValid)
+                    {
+                        $isClosed=($isClosed==true && $isDisabled==true);
+
+                        $dateArray.push({'InkindPeriodID':$indexId, 'StartDate':$startDate.val(),'EndDate':$endDate.val(),'IsClosed':$isClosed,'IsStatus':true});
+                    }
+
+
+
+                });
+
+                if(!$isValid)
+                {
+                    customAlert('Mandatory fields are required');
+                    return false;
+                }
+                else if($dateArray!=null && $dateArray.length>0) {
+
+                    var j=0;
+                    $.each($dateArray,function(){
+
+                        var $startDate=new Date($(this)[0].StartDate).setHours(0,0,0,0);
+                        var $endDate=new Date($(this)[0].EndDate).setHours(0,0,0,0);
+
+                        if($endDate < $startDate)
+                        {
+                            customAlert('End Date should be greater than or equal to Start Date');
+
+                            plainValidation("#InkindPeriodList_"+j+"_EndDate");
+                            $isValid=false;
+                        }
+
+                        else if(j > 0)
+                        {
+                            var $prevEndDate=new Date($dateArray[j-1].EndDate).setHours(0,0,0,0);
+
+                            if($startDate <= $prevEndDate)
+                            {
+                                customAlert('Start and End Date pairs should not overlap');
+                                plainValidation("#InkindPeriodList_"+j+"_StartDate");
+                                plainValidation("#InkindPeriodList_"+(j-1)+"_EndDate");
+                                $isValid=false;
+                            }
+
+                        }
+
+                        if(!$isValid)
+                        {
+                            return false;
+                        }
+
+                        j++;
+
+                    });
+
+
+                    if($isValid)
+                    {
+                        var inkindPeriodList=[];
+
+                        
+
+                        inkindPeriodList=$dateArray;
+
+                       
+                        console.log(inkindPeriodList);
+                        var $data={
+                            'inkindPeriodList':inkindPeriodList,
+                            'targetAgencyId':$('#agencyId').val()
+                        }
+
+
+
+
+                        $.ajax({
+                            contentType: 'application/json; charset=utf-8',
+                            url:HostedDir+'/InKind/ModifyInkindEntryPeriods',
+                            type:'post',
+                            datatype:'json',
+                            async:true,
+                            beforeSend:function(){$('#spinner').show()},
+                            data:JSON.stringify($data),
+                            success:function(data)
+                            {
+
+                                if(data)
+                                {
+                                    customAlert('Record saved successfully.');
+
+                                    $inkindModal.modal('hide');
+                                }
+                                else
+                                {
+                                    customAlert('Error occurred. Please, try again later');
+                                }
+                            },
+                            error:function(data)
+                            {
+                                $('#spinner').hide();
+                            },
+                            complete:function(data)
+                            {
+                                $('#spinner').hide();
+                            }
+
+                        });
+
+                    }
+                    else{
+                        return false;
+                    }
+
+
+
+
+                }
+                else{
+                    customAlert('Please enter Start Date and End Date');
+                    return false;
+                }
+
+            });
+
+
+
+         
+
+            // Modal In-Kind Dates //
+
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -1282,6 +1741,35 @@
                 plainValidation('#AccessStop');
                 return isValid;
             }
+
+
+            else if ($('#InkindPeriods_StartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select In-Kind entry start date.");
+                plainValidation('#InkindPeriods_StartDate');
+                return isValid;
+            }
+
+
+            else if ($('#InkindPeriods_StopDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter In-Kind entry end date.");
+                plainValidation('#InkindPeriods_StopDate');
+                return isValid;
+            }
+
+            else if($('#InkindPeriods_StartDate')[0].value.trim()!="" && $('#InkindPeriods_StopDate')[0].value.trim()!="")
+            {
+                if(new Date($('#InkindPeriods_StartDate')[0].value.trim()).setHours(0,0,0,0) > new Date($('#InkindPeriods_StopDate')[0].value.trim()).setHours(0,0,0,0))
+                {
+                    isValid = false;
+                    customAlert("In-Kind entry stop date should be greater than or equal to start date.");
+                    plainValidation('#InkindPeriods_StopDate');
+                    return isValid;
+                }
+            }
+
+
             else if ($('#ActiveProgYear')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Active program year is required.");
@@ -3450,6 +3938,15 @@
             content: "\f14a";
             font: normal normal normal 14px/1 FontAwesome;
         }
+        
+        .btn-add-inkind-dates {
+            padding: 5px 20px;
+            background-color: #295b8f;
+            color: #fff;
+            font-size: 14px;
+            border-style: none;
+        }
+
     </style>
 
 
@@ -3657,6 +4154,21 @@
                                 @Html.TextBoxFor(m => m.AccessStop, new { @class = "time form-control", id = "AccessStop", Name = "AccessStop", placeholder = "Access Stop Time", tabIndex = "17" })
                             </div>
                         </div>
+
+                        @if (ViewBag.mode == 1)
+                        { 
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group DivHide" id="DivLoginTime">
+                                <label for="pwd">In-Kind Entry Dates <sup>*</sup></label>
+                                <button type="button" class="btn-add-inkind-dates" id="btn_add_inkind_dates" style="width: 155px;">Add/Update Dates</button>
+                            </div>
+                        </div>
+
+                        }
+
+                       
+
+
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="pwd">Active Program Year<sup>*</sup></label>
@@ -5199,9 +5711,15 @@
 
 @Html.Partial("~/Views/Partialviews/_TeacherParentVisitModal.cshtml")
 
+
+@{
+
+    Html.RenderPartial("~/Views/Partialviews/_InkindPeriodsPartial.cshtml");
+
 }
 
 
+}
 
 
 

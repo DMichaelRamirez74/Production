@@ -1,0 +1,1084 @@
+﻿@{
+    @section Title{
+        Billing Rates
+    }
+    ViewBag.Title = "BillingRates";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+
+}
+
+@section maincontentholder
+        {
+
+    <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/csschild/styleBM.css" rel="stylesheet" />
+    <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        #ddlProgramType option {
+            background: #1f4f7d;
+        }
+
+        .form-control[readonly] {
+            background-color: transparent !important;
+        }
+
+        .td-decimal {
+            text-align: right;
+        }
+
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .bill-table thead tr th {
+            text-transform: none !important;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;background-size:cover;">
+            <div class="col-xs-12 bill-detl-title">
+                <h2>Billing Rates</h2>
+                <div class="family_ovr"><img src="~/Content/imagechild/text-bdr.png"></div>
+            </div>
+            <div class="col-xs-12">
+                <div class="billing-form">
+                    <div class="col-lg-6">
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Program Type</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    @Html.DropDownList("ddlProgramType", Fingerprints.Utilities.Helper.GetProgramTypeDetails(Session["AgencyID"].ToString()), new { @class = "billing-select1" })
+                                    <input type="hidden" class="billing-id" />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Fixed Amount</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtFixedAmount" class="form-control decimal txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Early Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtEarlyRate" class="form-control txt-empty decimal txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Normal Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtOverrideNormalRate" class="form-control txt-empty decimal txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Late Rate</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtLateRate" class="form-control txt-empty decimal txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Early or Late Times</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtEarlyLateTimes" class="form-control txt-empty txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Bill Family/Organization</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <div class="bill-radio">
+                                        <input id="rdFamily" name="familyorganization" class="rd-bill" value="0" type="radio">
+                                        <label for="rdFamily" class="radio-label">Family</label>
+                                    </div>
+
+                                    <div class="bill-radio">
+                                        <input id="rdOrganization" name="familyorganization" value="1" class="rd-bill" type="radio">
+                                        <label for="rdOrganization" class="radio-label">Organization</label>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Allow Override Rate</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <div class="bill-radio">
+                                        <input id="rdAllowOverrideYes" name="overriderate" class="rd-overriderate" value="1" type="radio">
+                                        <label for="rdAllowOverrideYes" class="radio-label">Yes</label>
+                                    </div>
+
+                                    <div class="bill-radio">
+                                        <input id="rdAllowOverrideNo" name="overriderate" value="0" class="rd-overriderate" type="radio">
+                                        <label for="rdAllowOverrideNo" class="radio-label">No</label>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="col-xs-12" style="margin-bottom:20px;">
+                        <div class="billing-sub-btn">
+
+                            <a href="javascript:void(0);" class="btn-submit">SUBMIT</a>
+                            <a href="javascript:void(0);" class="btn-Clear">CLEAR</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-xs-12 billing-dt-section">
+                <div class="col-xs-12 billing-dt">
+                    <table class="col-md-12 table-striped table-condensed cf table-change bill-table">
+                        <thead class="table-hd">
+                            <tr>
+                                <th>Program Type</th>
+                                <th>Early Rate</th>
+                                <th>Normal Rate</th>
+                                <th>Late Rate</th>
+                                <th>Fixed <br>Amount</th>
+                                <th>Early or Late Times</th>
+                                <th>Bill Family/Organization</th>
+                                <th>Allow Override Rate</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bill-table-head"></tbody>
+                    </table>
+                </div>
+                <div style="margin-bottom: 50px;height: 2px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalOrganization" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Organization Detail</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">Name</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtOrganizationName" type="text" maxlength="50" value="">
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtOrganizationid" type="hidden" maxlength="50" value="">
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtprogramtypeid" type="hidden" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">Address Line1</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtAddressLine1" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">Address Line2</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtAddressLine2" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">Zip</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtZip" onblur="checkZipCode(this);" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">City</label>
+
+                        <select class="ddlCity form-control" style="width:50%"></select>
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">State</label>
+
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtState" type="text" maxlength="50" value="" readonly="readonly">
+                        <input type="hidden" class="hdn-state" />
+                    </div>
+
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">Contact Name</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtContactname" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">Account No</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtAccountNumber" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">Reference No</label>
+                        <input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:50%" id="txtReferenceNumber" type="text" maxlength="50" value="">
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label lbl-required" for="current_password">Contact No</label>
+                        <input name="CNotes" class="form-control txt-mandatory txtPhoneNumber txt-org-input" maxlength="14" style="width:38%;margin-right:10px;display:inline-block;" id="txtContactNumber" type="text" maxlength="50" value=""><input name="CNotes" class="form-control txt-mandatory txt-org-input" style="width:10%;display:inline-block;" id="txtExtension" type="text" placeholder="Ext" maxlength="50" value="">
+                    </div>
+                </div>
+                <div class="modal-footer" style="text-align:center;">
+                    <button class="btn-save-organization btn-primary btn">Save</button>
+                    <button class="btn-primary btn" data-dismiss="modal">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/Content/scriptchild/jquery.js"></script>
+    <script src="~/Content/scriptchild/bootstrap.js"></script>
+    <script src="~/Content/scriptchild/script.js"></script>
+    <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    @*<script language="javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>*@
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC__7TD1vl1PZY00SDMC0VbzJFxKee7_d8"
+            type="text/javascript"></script>
+    @*<script src="http://code.jquery.com/jquery-1.9.1.js"></script>*@
+    @*<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GetBilling();
+            $('body').on('click', '.edit-organization', function () {
+                var ProgramTypeId = $(this).closest('tr').attr('programtypeid');
+                GetOrganizationDetails(ProgramTypeId);
+                $('#txtprogramtypeid').val(ProgramTypeId);
+                $('#myModalOrganization').modal('show');
+            });
+
+
+            $('#txtFixedAmount').focusout(function () {
+                if ($('#txtFixedAmount').val() != "0" && $('#txtFixedAmount').val() != "") {
+                    $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', true);
+                    $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').val("0");
+                }
+                else {
+                    $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                }
+            });
+            $(".txtPhoneNumber").keyup(function (e) {
+                flag = 0;
+                if (e.which != 8) {
+                    var val_old = $(this).val();
+                    var val = val_old.replace(/\D/g, '');
+                    var len = val.length;
+                    if (len >= 1)
+                        val = '(' + val.substring(0);
+                    if (len >= 3)
+                        val = val.substring(0, 4) + ') ' + val.substring(4);
+                    if (len >= 6)
+                        val = val.substring(0, 9) + '-' + val.substring(9);
+                    if (val != val_old)
+                        $(this).focus().val('').val(val);
+                }
+            });
+            $('#ddlFamily').change(function () {
+                if ($('#ddlFamily').val() == "0") {
+                    $('#ddlChild').empty();
+                }
+                else {
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Billing/GetChildByFamilyId",
+                        data: { 'ClientId': $('#ddlFamily').val() },
+                        success: function (data) {
+                            $('#ddlChild').empty();
+                            var input = "";
+                            var JsonData = JSON.parse(data);
+                            console.log(JsonData);
+                            if (JSON.parse(data).length > 1) {
+                                $('#ddlChild').append("<option value='0'>Choose</option>");
+                                $.each(JSON.parse(data), function (i, val) {
+
+                                    var option = "<option value='" + val["ClientID"] + "'>" + val["Name"] + "</option>";
+
+                                    $('#ddlChild').append(option);
+                                });
+                            }
+                            else {
+                                $('#ddlChild').append("<option value='0'>Choose</option>");
+                                var option = "<option value='" + JsonData[0].ClientID + "'>" + JsonData[0].Name + "</option>";
+
+                                $('#ddlChild').append(option);
+
+                            }
+
+
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+            });
+            $('.btn-Clear').click(function () {
+
+                Clear();
+
+            });
+            $('.billing-search-btn').click(function () {
+                var programid = $('#ddlProgramTypeFilter').val();
+                var centerid = $('#ddlCenter').val();
+                //  var classroomid = $('#ddlClassRoom').val();
+                if (programid == "0" || centerid == "0") {
+                    $('.bill-table-head tr').show();
+                }
+                else {
+                    $('.bill-table-head tr').each(function (i, val) {
+                        if ($(this).attr('programtypeid') == programid && $(this).attr('centerid') == centerid) {
+                            $(this).show();
+                        }
+                        else {
+                            $(this).hide();
+                        }
+                    });
+                }
+
+            });
+            var state = "";
+            $('input[name=familyorganization]').change(function () {
+                if ($('input[name=familyorganization]:checked').val() == "1") {
+                    $('#txtprogramtypeid').val("");
+                    GetOrganizationDetails($('#ddlProgramType').val());
+                    $('#myModalOrganization').modal('show');
+                }
+                else
+                    $('#myModalOrganization').modal('hide');
+            });
+
+            $('.btn-submit').click(function () {
+                //  if (ValidateAddressChange()) {
+                var allow = true;
+                if ($('#ddlProgramType').val() == "0") {
+                    customAlert("ProgramType is mandatory");
+                    allow = false;
+                }
+                else if ($('input[name="familyorganization"]:checked').length == 0) {
+                    customAlert("Bill Family/Organization is mandatory");
+                    allow = false;
+                }
+                else if ($('input[name="overriderate"]:checked').length == 0) {
+                    customAlert("Allow Override Rate is mandatory");
+                    allow = false;
+                }
+                else if (($('#txtEarlyRate').val() == "" || parseFloat($('#txtEarlyRate').val()) == 0) && ($('#txtOverrideNormalRate').val() == "" || parseFloat($('#txtOverrideNormalRate').val()) == 0) && ($('#txtLateRate').val() == "" || parseFloat($('#txtLateRate').val()) == 0)) {
+                    if ($('#txtFixedAmount').val() == "" || $('#txtFixedAmount').val() == "0") {
+                        customAlert("Enter Fixed Amount or Rate");
+                        allow = false;
+                    }
+
+                }
+                else if (($('#txtFixedAmount').val() == "" || parseFloat($('#txtFixedAmount').val()) == 0)) {
+                    if (($('#txtEarlyRate').val() == "" || parseFloat($('#txtEarlyRate').val()) == 0) && ($('#txtOverrideNormalRate').val() == "" || parseFloat($('#txtOverrideNormalRate').val()) == 0) && ($('#txtLateRate').val() == "" || parseFloat($('#txtLateRate').val()) == 0)) {
+                        customAlert("Rate is mandatory");
+                        allow = false;
+                    }
+                }
+                if (allow) {
+                    $('.bill-table-head tr').each(function (i, val) {
+                        var programid = $(this).attr('programtypeid');
+                        if ($('#ddlProgramType').val() == programid && $('.billing-id').val().trim() == "") {
+                            customAlert("Program Type already exists.");
+                            allow = false;
+                        }
+                    });
+                }
+                if (allow) {
+                    var BillingRates = {};
+                    if ($('.billing-id').val().trim() != "")
+                        BillingRates.Id = $('.billing-id').val().trim();
+                    BillingRates.ProgramTypeId = $('#ddlProgramType').val();
+                    BillingRates.FixedAmount = $('#txtFixedAmount').val() == undefined || $('#txtFixedAmount').val() == "" ? "0" : $('#txtFixedAmount').val();
+                    BillingRates.EarlyRate = $('#txtEarlyRate').val() == undefined || $('#txtEarlyRate').val() == "" ? "0" : $('#txtEarlyRate').val();
+                    BillingRates.NormalRate = $('#txtOverrideNormalRate').val() == undefined || $('#txtOverrideNormalRate').val() == "" ? "0" : $('#txtOverrideNormalRate').val();
+                    BillingRates.LateRate = $('#txtLateRate').val() == undefined || $('#txtLateRate').val() == "" ? "0" : $('#txtLateRate').val();
+                    BillingRates.BillDirectToFamily = $('input[name=familyorganization]:checked').val() == "1" ? "1" : "0";
+                    BillingRates.AllowOverrideRate = $('input[name=overriderate]:checked').val() == "1" ? true : false;
+                    BillingRates.FixedAmount = $('#txtFixedAmount').val();
+                    BillingRates.EarlyorLateTimes = $('#txtEarlyLateTimes').val();
+                    BillingRates = JSON.stringify({ 'Biling': BillingRates });
+
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: "POST",
+                        async: false,
+                        url: "/Billing/SaveBillingRates",
+                        data: BillingRates,
+                        success: function (data) {
+                            customAlertSuccess("Record Saved Successfully");
+                            Clear();
+                            GetBilling();
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+
+
+                //  }
+            });
+
+            $('.btn-save-organization').click(function () {
+                //  if (ValidateAddressChange()) {
+                var allow = true;
+                if ($('#txtOrganizationName').val() == "") {
+                    customAlert("Name is mandatory");
+                    allow = false;
+                }
+                else if ($('#txtAddressLine1').val() == "") {
+                    customAlert("Address Line1 is mandatory");
+                    allow = false;
+                }
+                else if ($('#txtZip').val() == "") {
+                    customAlert("Zip is mandatory");
+                    allow = false;
+                }
+                else if ($('.ddlCity').val() == "0") {
+                    customAlert("City is mandatory");
+                    allow = false;
+                }
+                else if ($('#txtAccountNumber').val() == "") {
+                    customAlert("Account Number is mandatory");
+                    allow = false;
+                }
+                else if ($('.txtPhoneNumber').val() == "") {
+                    customAlert("Phone Number is mandatory");
+                    allow = false;
+                }
+                if (allow) {
+                    var OrganizatonDetail = {};
+                    if ($('#txtOrganizationid').val().trim() != "")
+                        OrganizatonDetail.Id = $('#txtOrganizationid').val().trim();
+                    if ($('#ddlProgramType').val() != "0")
+                        OrganizatonDetail.ProgramTypeId = $('#ddlProgramType').val();
+                    else
+                        OrganizatonDetail.ProgramTypeId = $('#txtprogramtypeid').val();
+                    OrganizatonDetail.OrganizationName = $('#txtOrganizationName').val().trim();
+                    OrganizatonDetail.AddressLine1 = $('#txtAddressLine1').val().trim();
+                    OrganizatonDetail.AddressLine2 = $('#txtAddressLine2').val().trim();
+                    OrganizatonDetail.City = $('.ddlCity').val();
+                    OrganizatonDetail.State = $('#txtState').val().trim();
+                    OrganizatonDetail.Zip = $('#txtZip').val().trim();
+                    OrganizatonDetail.ContactName = $('#txtContactname').val().trim();
+                    OrganizatonDetail.AccountNumber = $('#txtAccountNumber').val().trim();
+                    OrganizatonDetail.ReferenceNumber = $('#txtReferenceNumber').val().trim();
+                    OrganizatonDetail.ContactNumber = $('#txtContactNumber').val().trim();
+                    OrganizatonDetail.Extension = $('#txtExtension').val().trim();
+
+                    OrganizatonDetail = JSON.stringify({ 'organization': OrganizatonDetail });
+
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: "POST",
+                        async: false,
+                        url: "/Billing/SaveOrganization",
+                        data: OrganizatonDetail,
+                        success: function (data) {
+                            $('#myModalOrganization').modal('hide');
+                            //  customAlertSuccess("Record Saved Successfully");
+                            //   Clear();
+                            //   GetBilling();
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+
+                //  }
+            });
+
+            $('#txtFixedAmount').focusout(function () {
+                if ($('#txtFixedAmount').val() != "0" && $('#txtFixedAmount').val() != "") {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', true);
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').val("0");
+                }
+                else {
+                    $('#txtNeverLessThan,#txtNeverMoreThan,#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+                }
+            });
+            $('body').on('click', '.Delete', function () {
+                var id = $(this).closest('tr').attr('billingid');
+                BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                    if (result) {
+                        Delete(id);
+                    }
+                });
+            });
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+            });
+            $('body').on('click', '.Edit', function () {
+                var currentrow = $(this).closest('tr');
+                $('#ddlProgramType').val(currentrow.attr('programtypeid'));
+                $('#txtEarlyRate').val(currentrow.find('td').eq(1).text().replace('$', '').trim());
+                $('#txtOverrideNormalRate').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
+                $('#txtLateRate').val(currentrow.find('td').eq(3).text().replace('$', '').trim());
+                $('#txtFixedAmount').val(currentrow.find('td').eq(4).text().replace('$', '').trim());
+                $('#txtEarlyLateTimes').val(currentrow.find('td').eq(5).text().replace('$', '').trim());
+
+                if (currentrow.find('td').eq(6).text().trim() == "Family")
+                    $('#rdFamily').prop('checked', true);
+                else
+                    $('#rdOrganization').prop('checked', true);
+                if (currentrow.find('td').eq(7).text().trim() == "Yes")
+                    $('#rdAllowOverrideYes').prop('checked', true);
+                else
+                    $('#rdAllowOverrideNo').prop('checked', true);
+                // setTimeout(function () { $('#ddlChild').val(currentrow.attr('childid')); }, 100);
+                $('.billing-id').val(currentrow.attr('billingid'));
+                $('#ddlProgramType').attr('disabled', true);
+                if(parseFloat($('#txtFixedAmount').val()) > 0)
+                    $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', 'readonly');
+                else
+                    $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').attr('readonly', 'false');
+            });
+            $("body").on('keyup', '.txt-search', function () {
+                var value = $(this).val();
+                $(this).closest('div').find('.hidden-id').val("");
+                $(this).autocomplete({
+                    source: function (request, response) {
+
+                        var param = { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val(), 'SearchText': value };
+                        if ($('.hdn-family-id').val() != "" && $('.txtFamilyName').val().trim() != "") {
+                            param = { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val(), 'SearchText': value, 'FamilyId': $('.hdn-family-id').val() };
+                        }
+                        else {
+                            $('.txtChildName').val("");
+                            $('.hdn-child-id').val("");
+                        }
+
+                        $.ajax({
+                            url: "/Billing/GetParentByProgramId",
+                            type: "POST",
+                            dataType: "json",
+                            // data: { Services: sertext },
+                            data: param,
+                            success: function (data) {
+                                console.log(data);
+                                arry = data;
+                                response($.map(data, function (item) {
+                                    //$('#ServiceID').val('');
+                                    return { label: item.Text, value: item.Text, id: item.Value };
+                                }))
+                            }
+                        })
+                    },
+                    messages: {
+                        noResults: "",
+                        results: function (count) {
+                            return count + (count > 1 ? ' results' : ' result ') + ' found';
+                        }
+                    },
+                    select: function (e, ui) {
+                        var label = ui.item.label;
+                        var value = ui.item.value;
+                        var id = ui.item.id;
+                        $(this).closest('div').find('.hidden-id').val(id);
+                    }
+                });
+            });
+
+            //Restrict Deciaml
+            $('.decimal').keypress(function (event) {
+                var $this = $(this);
+                if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+                   ((event.which < 48 || event.which > 57) &&
+                   (event.which != 0 && event.which != 8))) {
+                    event.preventDefault();
+                }
+
+                var text = $(this).val();
+                if ((event.which == 46) && (text.indexOf('.') == -1)) {
+                    setTimeout(function () {
+                        if ($this.val().substring($this.val().indexOf('.')).length > 3) {
+                            $this.val($this.val().substring(0, $this.val().indexOf('.') + 3));
+                        }
+                    }, 1);
+                }
+
+                if ((text.indexOf('.') != -1) &&
+                    (text.substring(text.indexOf('.')).length > 2) &&
+                    (event.which != 0 && event.which != 8) &&
+                    ($(this)[0].selectionStart >= text.length - 2)) {
+                    event.preventDefault();
+                }
+            });
+
+            $('.decimal').bind("paste", function (e) {
+                var text = e.originalEvent.clipboardData.getData('Text');
+                if ($.isNumeric(text)) {
+                    if ((text.substring(text.indexOf('.')).length > 3) && (text.indexOf('.') > -1)) {
+                        e.preventDefault();
+                        $(this).val(text.substring(0, text.indexOf('.') + 3));
+                    }
+                }
+                else {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        function checkZipCode(inputTextObject) {
+
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();s
+                var len = Zipcode.length;
+
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1);
+                return ret;
+            }
+            else {
+                $('#City').find('option').remove();
+                $('#State').val('');
+                $('#County').val('');
+
+
+            }
+        }
+        function CheckAddress(value) {
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#txtZip').val();
+            if ($('#txtZip').val().trim() != "" || value.trim() != "") {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Billing/Checkaddress",
+                    data: { 'Zipcode': Zipcode },
+                    async: false,
+                    success: function (response) {
+
+                        if (response != null && response.length > 0) {
+                            var option = "<option value='0'>Choose</option>";
+                            for (var i = 0; i < response.length; i++) {
+                                option = option + '<option value="' + response[i].City + '">' + response[i].City + '</option>';
+                            }
+                            $('.ddlCity').find('option').remove().end().append(option);
+                            $('.ddlCity').val('');
+                            $('#txtState,.hdn-state').val(response[0].State);
+                        }
+                        else {
+                            $('.ddlCity').find('option').remove().end();
+                            $('.ddlCity').val('');
+                            $('#txtState,.hdn-state').val('');
+                            customAlert("Could not find zipcode details.");
+                        }
+
+
+                    }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                });
+            }
+
+
+            //}
+
+
+        }
+        function getLocation() {
+            getAddressInfoByZip($('#txtZip').val().trim());
+        }
+        function response(obj) {
+            console.log(obj);
+            if (!obj.success) {
+                $('#txtCity').val("");
+                $('#ddlState').val("0");
+            }
+            else {
+                if (obj.country != undefined) {
+                    if (obj.country == "United States") {
+                        $('#txtCity').val(obj.city);
+                        $('#ddlState').val(obj.state);
+                    }
+                    else {
+                        $('#txtCity').val("");
+                        $('#ddlState').val("0");
+                    }
+                }
+                else {
+                    $('#txtCity').val("");
+                    $('#ddlState').val("0");
+                }
+
+            }
+        }
+        function getAddressInfoByZip(zip) {
+
+            if (zip.length >= 5 && typeof google != 'undefined') {
+                var addr = {};
+                addr.cities = [];
+                var geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ 'address': zip }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (results.length >= 1) {
+                            for (var ii = 0; ii < results[0].address_components.length; ii++) {
+                                var street_number = route = street = city = state = zipcode = country = formatted_address = '';
+                                var types = results[0].address_components[ii].types.join(",");
+                                if (types == "street_number") {
+                                    addr.street_number = results[0].address_components[ii].long_name;
+                                }
+                                if (types == "route" || types == "point_of_interest,establishment") {
+                                    addr.route = results[0].address_components[ii].long_name;
+                                }
+                                if (types == "sublocality,political" || types == "locality,political" || types == "neighborhood,political" || types == "administrative_area_level_3,political") {
+                                    addr.city = (city == '' || types == "locality,political") ? results[0].address_components[ii].long_name : city;
+                                }
+                                if (types == "administrative_area_level_1,political") {
+                                    addr.state = results[0].address_components[ii].short_name;
+                                    console.log('State:' + addr.state);
+                                }
+                                if (types == "postal_code" || types == "postal_code_prefix,postal_code") {
+                                    addr.zipcode = results[0].address_components[ii].long_name;
+                                }
+                                if (types == "country,political") {
+                                    addr.country = results[0].address_components[ii].long_name;
+                                }
+                            }
+                            addr.success = true;
+                            for (var ii = 0; ii < results[0].postcode_localities.length; ii++) {
+                                addr.cities.push(results[0].postcode_localities[ii]);
+                            }
+                            response(addr);
+                        } else {
+                            response({ success: false });
+                        }
+                    } else {
+                        response({ success: false });
+                    }
+                });
+            } else {
+                response({ success: false });
+            }
+        }
+        function GetOrganizationDetails(ProgramId) {
+            $.ajax({
+                type: "POST",
+                url: "/Billing/GetOrganizationByProgramId",
+                data: { 'ProgramId': ProgramId },
+                async: false,
+                success: function (data) {
+                    var JsonData = JSON.parse(data);
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+
+                            $('#txtZip').val(val["Zip"]);
+                            CheckAddress(1);
+                            // checkZipCode(val["Zip"]);
+                            $('#txtOrganizationid').val(val["ID"]);
+                            $('#txtOrganizationName').val(val["OrganizationName"]);
+                            $('#txtAddressLine1').val(val["AddressLine1"]);
+                            $('#txtAddressLine2').val(val["AddressLine2"]);
+                            // $('#txtState').val(val["State"]);
+                            $('#txtContactname').val(val["ContactName"]);
+                            $('#txtAccountNumber').val(val["AccountNumber"]);
+                            $('#txtReferenceNumber').val(val["ReferenceNumber"]);
+                            $('#txtContactNumber').val(val["ContactNumber"]);
+                            $('#txtExtension').val(val["Extension"]);
+                            $('.ddlCity').val(val["City"]);
+                        });
+                    }
+                    else {
+                        if (JsonData[0] != undefined) {
+
+                            $('#txtZip').val(JsonData[0].Zip);
+                            CheckAddress(1);
+                            //state = JsonData[0].State.toString();
+                            $('#txtOrganizationid').val(JsonData[0].ID);
+                            $('#txtOrganizationName').val(JsonData[0].OrganizationName);
+                            $('#txtAddressLine1').val(JsonData[0].AddressLine1);
+                            $('#txtAddressLine2').val(JsonData[0].AddressLine2);
+                            // $("#txtState").val(state);
+                            $('#txtZip').val(JsonData[0].Zip);
+                            $('#txtContactname').val(JsonData[0].ContactName);
+                            $('#txtAccountNumber').val(JsonData[0].AccountNumber);
+                            $('#txtReferenceNumber').val(JsonData[0].ReferenceNumber);
+                            $('#txtContactNumber').val(JsonData[0].ContactNumber);
+                            $('#txtExtension').val(JsonData[0].Extension);
+                            $('.ddlCity').val(JsonData[0].City);
+                        }
+                        else {
+                            $('.txt-org-input').val('');
+                            $('.ddl-org-input').val('0');
+                        }
+                    }
+                },
+                error: function () {
+
+                }
+            });
+        }
+        function LoadFamily() {
+            if ($('#ddlProgramType').val() == "0" || $('#ddlCenterdetails').val() == "0") {
+                $('#ddlFamily,#ddlChild').empty();
+            }
+            else {
+                $('#txtEarlyRate,#txtLateRate').val("100");
+                $('#txtOverrideNormalRate').val("70");
+                $.ajax({
+                    type: "POST",
+                    url: "/Billing/GetParentByProgramId",
+                    data: { 'ProgramId': $('#ddlProgramType').val(), 'CenterId': $('#ddlCenterdetails').val() },
+                    success: function (data) {
+                        $('#ddlFamily,#ddlChild').empty();
+                        var input = "";
+                        var JsonData = JSON.parse(data);
+                        console.log(JsonData);
+                        if (JSON.parse(data).length > 1) {
+                            $('#ddlFamily').append("<option value='0'>Choose</option>");
+                            $.each(JSON.parse(data), function (i, val) {
+
+                                var option = "<option value='" + val["ClientID"] + "'>" + val["Name"] + "</option>";
+
+                                $('#ddlFamily').append(option);
+                            });
+                        }
+                        else {
+                            $('#ddlFamily').append("<option value='0'>Choose</option>");
+                            var option = "<option value='" + JsonData[0].ClientID + "'>" + JsonData[0].Name + "</option>";
+
+                            $('#ddlFamily').append(option);
+
+                        }
+
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+        }
+        function Clear() {
+            $('#ddlProgramType').val("0");
+            $('.txtFamilyName,.hdn-family-id,.txtChildName,.hdn-child-id').val("");
+            //  $('#ddlChild').empty();
+            $('.txt-empty').val("");
+            $('input[name=familyorganization]:checked').prop('checked', false);
+            $('input[name=overriderate]:checked').prop('checked', false);
+            $('.billing-id').val("");
+            $('#txtEarlyRate,#txtOverrideNormalRate,#txtLateRate').removeAttr('readonly');
+            $('#ddlProgramType').attr('disabled', false);
+        }
+        function GetBilling() {
+            $.ajax({
+                type: "POST",
+                url: "/Billing/GetBillingRatesByUserId",
+                success: function (data) {
+                    $('.bill-table-head').empty();
+
+                    var Template = '<tr billingid="##ID##" programtypeid="##PROGRAMID##">\
+                                 <td data-title="ProgramType">\
+                                     <div class="">\
+                                         <p class="Program-Type">##ProgramType##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="EarlyRate">\
+                                     <div class="">\
+                                         <p style="text-align: right;">$##EarlyRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="NormalRate">\
+                                     <div class="">\
+                                         <p style="text-align: right;">$##NormalRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="LateRate">\
+                                     <div class="">\
+                                         <p style="text-align: right;">$##LateRate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="FixedAmount">\
+                                     <div class="">\
+                                         <p style="text-align: right;">$##FixedAmount##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="EarlyorLateTimes">\
+                                     <div class="">\
+                                         <p>##EarlyorLateTimes##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="BillFamilyorOrganization">\
+                                     <div class="">\
+                                         <p>##BillFamilyorOrganization##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="AllowOverriderate">\
+                                     <div class="">\
+                                         <p>##AllowOverriderate##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Edit">\
+                                     <div class="">\
+                                         <div class="Edit"><a href="javascript:void(0);"><img src="/Content/imagechild/edit_icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Delete">\
+                                     <div class="">\
+                                         <div class="Delete"><a href="javascript:void(0);"><img src="/Content/imagechild/delete-icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                             </tr>';
+
+                    var JsonData = JSON.parse(data);
+                    console.log(JsonData);
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+                            var input = Template;
+                            input = input.replace("##ID##", val["Id"]);
+                            input = input.replace("##PROGRAMID##", val["ProgramTypeId"]);
+                            input = input.replace("##ProgramType##", val["ProgramType"]);
+                            input = input.replace("##EarlyRate##", parseFloat(val["EarlyRate"]).toFixed(2));
+                            input = input.replace("##NormalRate##", parseFloat(val["NormalRate"]).toFixed(2));
+                            input = input.replace("##LateRate##", parseFloat(val["LateRate"]).toFixed(2));
+                            input = input.replace("##FixedAmount##", parseFloat(val["FixedAmount"]).toFixed(2));
+                            input = input.replace("##EarlyorLateTimes##", val["EarlyorLateTimes"]);
+                            // input = input.replace("##BillFamilyorOrganization##", val["BillFamilyAgency"]);
+                            if (val["BillFamilyAgency"] == "Organization")
+                                input = input.replace("##BillFamilyorOrganization##", "<a href='javascript:void(0);' class='edit-organization' style='text-decoration: underline!important;'>" + val["BillFamilyAgency"] + "</a>");
+                            else
+                                input = input.replace("##BillFamilyorOrganization##", val["BillFamilyAgency"]);
+                            input = input.replace("##AllowOverriderate##", val["AllowOverrideRate"]);
+                            $('.bill-table-head').append(input);
+                        });
+                    }
+                    else {
+                        var input = Template;
+                        input = input.replace("##ID##", JsonData[0].Id);
+                        input = input.replace("##PROGRAMID##", JsonData[0].ProgramTypeId);
+                        input = input.replace("##ProgramType##", JsonData[0].ProgramType);
+                        input = input.replace("##EarlyRate##", parseFloat(JsonData[0].EarlyRate).toFixed(2));
+                        input = input.replace("##NormalRate##", parseFloat(JsonData[0].NormalRate).toFixed(2));
+                        input = input.replace("##LateRate##", parseFloat(JsonData[0].LateRate).toFixed(2));
+                        input = input.replace("##FixedAmount##", parseFloat(JsonData[0].FixedAmount).toFixed(2));
+                        input = input.replace("##EarlyorLateTimes##", JsonData[0].EarlyorLateTimes);
+                        if (JsonData[0].BillFamilyAgency == "Organization")
+                            input = input.replace("##BillFamilyorOrganization##", "<a href='javascript:void(0);' class='edit-organization' style='text-decoration: underline!important;'>" + JsonData[0].BillFamilyAgency + "</a>");
+                        else
+                            input = input.replace("##BillFamilyorOrganization##", JsonData[0].BillFamilyAgency);
+                        input = input.replace("##AllowOverriderate##", JsonData[0].AllowOverrideRate);
+                        $('.bill-table-head').append(input);
+                    }
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+
+        function Delete(Id) {
+            $.ajax({
+                type: "POST",
+                url: "/Billing/DeleteBillingRates",
+                data: { 'Id': Id },
+                success: function (data) {
+                    if (data) {
+                        customAlertSuccess("Record Deleted Successfully");
+                        Clear();
+                        GetBilling();
+                    }
+
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+    </script>
+    @*<script type="text/javascript">
+            function toggleIcon(e) {
+                $(e.target)
+                        .prev('.panel-heading')
+                        .find(".more-less")
+                        .find(".more-less1")
+                        .toggleClass('glyphicon-plus glyphicon-minus');
+            }
+            $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+            $('.panel-group').on('shown.bs.collapse', toggleIcon);
+        </script>*@
+}

@@ -203,6 +203,10 @@ namespace FingerprintsModel
 
         //for fsw,tcr home and center parent visit
         public List<VisitDetail> VisitDetails { get; set; }
+
+
+        public InkindPeriods InkindPeriods { get; set; }
+        
     }
 
     public class VisitDetail {

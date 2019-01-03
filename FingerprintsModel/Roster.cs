@@ -246,12 +246,6 @@ namespace FingerprintsModel
         public string ModifiedDate { get; set; }
 
 
-
-
-
-
-
-
     }
 
     public class ExtendSelectList

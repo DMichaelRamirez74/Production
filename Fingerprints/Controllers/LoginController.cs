@@ -205,7 +205,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
                     newLocation = "~/Teacher/Roster";
-                else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+                //else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+                else if (Session["Roleid"].ToString() == "2adfe9c6-0768-4a35-9088-e0e6ea91f709")
                     newLocation = "~/Teacher/Roster";
                 else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
                     newLocation = "~/Home/CentralManagerDashboard";
@@ -317,9 +318,7 @@ namespace Fingerprints.Controllers
                     {
                        Session["AgencyID"] = UserInfo.AgencyId;
                         isCoreTeam = new LoginData().IsDevelopmentTeam(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                       // isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                       // isAcceptance = new LoginData().IsAcceptance(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+                        List<Tuple<string, string,int>> AccessList = new List<Tuple<string, string,int>>();
                         bool isAcceptanceProcess = false;
                         AccessList = new LoginData().GetAccessPageByUserId(ref isAcceptanceProcess,UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
 
@@ -331,14 +330,7 @@ namespace Fingerprints.Controllers
                         {
                             Session["IsCoreTeam"] = true;
                         }
-                        //if (isDemographic)
-                        //{
-                        //    Session["IsDemographic"] = true;
-                        //}
-                        //if (isAcceptance)
-                        //{
-                        //    Session["isAcceptance"] = true;
-                        //}
+                      
                         if (RoleList != null)
                         {
                             Session["RoleList"] = RoleList;

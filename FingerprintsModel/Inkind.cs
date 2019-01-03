@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -27,6 +28,14 @@ namespace FingerprintsModel
 
 
         public int HomeActivityCount { get; set; }
+
+      
+
+        public long InkindPeriodID { get; set; }
+
+       public List<InkindPeriods> InkindPeriodsList { get; set; }
+
+        
     }
     public class InkindDonors
     {
@@ -104,7 +113,7 @@ namespace FingerprintsModel
     }
 
 
-    public class InKindTransactions
+    public class InKindTransactions:InkindPeriods
     {
         public string ClientID { get; set; }
         public string ParentID { get; set; }
@@ -124,8 +133,12 @@ namespace FingerprintsModel
         public decimal InKindAmount { get; set; }
         public decimal MilesDriven { get; set; }
 
-        public bool ParentType { get; set; }
+        public bool ParentType{get;set;}
+        public int InkindTransactionID { get; set; }
+        public string Name { get; set; }
+        public string Enc_CenterID { get; set; }
 
+        public string Enc_ClassroomID { get; set; }
         public List<InkindAttachments> InkindAttachmentsList { get; set; }
     }
 
@@ -184,4 +197,108 @@ namespace FingerprintsModel
         public long InkindTransactionID { get; set; }
         public bool InkindAttachmentStatus { get; set; }
     }
+
+    public class InkindReportModel:Pagination,IInkindPeriod
+    {
+
+        public List<InkindReport> InkindReportList { get; set; }
+
+        public InkindReportFilterEnum FilterTypeEnum { get; set; }
+        public string SubFilterOption { get; set; }
+
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+
+        public string DateEntered { get; set; }
+
+        public string SortOrder { get; set; }
+        public string SortColumn { get; set; }
+
+        public string TotalHours { get; set; }
+        public string TotalMiles{get;set;}
+        public string TotalAmount { get; set; }
+        public string SearchTerm { get; set; }
+
+        public string SearchTermType { get; set; }
+
+
+        public List<InkindPeriods> InkindPeriodList { get; set; }
+    }
+
+    public class InkindReport : InKindTransactions
+    {
+       public string CenterName { get; set; }
+        public string ActivityDescription { get; set; }
+
+        public string ActivityType { get; set; }
+
+        public string StaffEntered { get; set; }
+
+      
+
+    }
+
+    public class InkindPeriods
+    {
+        public long InkindPeriodID { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
+        public string ActiveProgramYear { get; set; }
+        public bool IsClosed { get; set; }
+        public bool IsStatus { get; set; }
+
+      
+    }
+
+
+    public interface IInkind
+    {
+        InkindActivity InkindActivity { get; set; }
+        InKindTransactions InkindTransactions { get; set; }
+
+    }
+
+    public interface IInkindPeriod
+    {
+         List<InkindPeriods> InkindPeriodList { get; set; }
+    }
+
+   
+
+    public enum InkindReportFilterEnum
+    {
+       
+
+        [Description("Center")]
+        Center = 1,
+
+        [Description("Contributer")]
+        Contributor = 2,
+
+        [Description("Contribution Activity")]
+        ContributionActivity =3,
+
+        [Description("Date Entered")]
+        DateEntered = 4
+
+
+    }
+
+    public enum InkindAmountTypeEnum
+    {
+        Miles=1,
+        Hours=2,
+        Fixed=3
+    }
+
+    public enum InkindActivityTypeEnum
+    {
+        [Description("Center")]
+        Center=1,
+
+        [Description("Home Based")]
+        HomeBased =2
+    }
+
+
 }

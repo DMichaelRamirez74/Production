@@ -1538,6 +1538,165 @@ namespace FingerprintsModel
         }
 
 
+        public MemoryStream ExportInkindReport(InkindReportModel inkindReportModel)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            try
+            {
+
+                XLWorkbook wb = new XLWorkbook();
+                IXLWorksheet workSheet = null;
+             
+
+                workSheet = wb.Worksheets.Add("In-Kind Report");
+                workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+                if(inkindReportModel.FilterTypeEnum!=InkindReportFilterEnum.DateEntered)
+                {
+                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
+
+                }
+                else
+                {
+                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
+
+                }
+                workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                workSheet.Range("B1:H1").Style.Font.SetBold(true);
+
+
+
+
+
+                //In-Kind Report Total Count Legends//
+
+
+              
+
+                workSheet.Cell(3, 6).Value = "Total Hours";
+                workSheet.Cell(3, 6).Style.Font.SetBold(true);
+                workSheet.Cell(3, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(3, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+             
+
+                workSheet.Cell(3, 7).Value = inkindReportModel.TotalHours;
+                workSheet.Cell(3, 7).Style.Font.SetBold(true);
+                workSheet.Cell(3, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(3, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+
+                workSheet.Cell(4, 6).Value = "Total Miles Driven";
+                workSheet.Cell(4, 6).Style.Font.SetBold(true);
+                workSheet.Cell(4, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(4, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+                workSheet.Cell(4, 7).Value = inkindReportModel.TotalMiles;
+                workSheet.Cell(4, 7).Style.Font.SetBold(true);
+                workSheet.Cell(4, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(4, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+
+                workSheet.Cell(5, 6).Value = "Total In-Kind Amount";
+                workSheet.Cell(5, 6).Style.Font.SetBold(true);
+                workSheet.Cell(5, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(5, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+                               
+                workSheet.Cell(5, 7).Value = inkindReportModel.TotalAmount;
+                workSheet.Cell(5, 7).Style.Font.SetBold(true);
+                workSheet.Cell(5, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(5, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+
+                workSheet.Cell(6, 6).Value = "Total Record(s)";
+                workSheet.Cell(6, 6).Style.Font.SetBold(true);
+                workSheet.Cell(6, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(6, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+                               
+                workSheet.Cell(6, 7).Value = inkindReportModel.TotalRecord;
+                workSheet.Cell(6, 7).Style.Font.SetBold(true);
+                workSheet.Cell(6, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
+                workSheet.Cell(6, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+                int ReportRow = 8;
+
+                //In-Kind Report Total Count Legends//
+
+                workSheet.Cell(ReportRow, 1).Value = "Contributor";
+                workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 1).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 1).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                workSheet.Cell(ReportRow, 2).Value = "Center";
+                workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                workSheet.Cell(ReportRow, 2).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 2).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                workSheet.Cell(ReportRow, 3).Value = "Contributor Activity";
+                workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 3).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 3).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                workSheet.Cell(ReportRow, 4).Value = "Activity Date";
+                workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 4).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 4).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+                workSheet.Cell(ReportRow, 5).Value = "Time Spent";
+                workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 5).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 5).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                workSheet.Cell(ReportRow, 6).Value = "Miles Driven";
+                workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+                workSheet.Cell(ReportRow, 7).Value = "In-Kind Amount";
+                workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+                workSheet.Cell(ReportRow, 8).Value = "Entered By";
+                workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                workSheet.Cell(ReportRow, 8).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
+                workSheet.Cell(ReportRow, 8).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+
+                ReportRow = ReportRow + 1;
+
+                foreach (var item in inkindReportModel.InkindReportList)
+                {
+                    workSheet.Cell(ReportRow, 1).Value = item.Name;
+                    workSheet.Cell(ReportRow, 2).Value = item.CenterName;
+                    workSheet.Cell(ReportRow, 3).Value = item.ActivityDescription;
+                    workSheet.Cell(ReportRow, 4).Value = item.ActivityDate;
+                    workSheet.Cell(ReportRow, 5).Value = string.Concat(item.Hours, " ", "Hours", " ", item.Minutes, " ", "Minutes");
+                    workSheet.Cell(ReportRow, 6).Value = item.MilesDriven;
+                    workSheet.Cell(ReportRow, 7).Value = string.Concat("$"," ", item.InKindAmount);
+                    workSheet.Cell(ReportRow, 8).Value = item.StaffEntered;
+                    ReportRow++;
+                }
+
+                wb.SaveAs(memoryStream);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return memoryStream;
+        }
+
         public MemoryStream ExportCaseNoteByTagId(List<CaseNote> cnlist, long tagid, long total, string tname)
         {
 
@@ -1548,7 +1707,8 @@ namespace FingerprintsModel
 
                 XLWorkbook wb = new XLWorkbook();
 
-                if (!string.IsNullOrEmpty(tname) && tname.Length > 23) {
+                if (!string.IsNullOrEmpty(tname) && tname.Length > 23)
+                {
 
                     tname = tname.Substring(0, 20);
                     tname = tname + "...";
@@ -1568,7 +1728,8 @@ namespace FingerprintsModel
                
 
                 int CurrentRow = 2;
-                foreach (var item in cnlist) {
+                foreach (var item in cnlist)
+                {
 
                     Ws.Cell(CurrentRow, 1).Value = item.WrittenBy;
                     Ws.Cell(CurrentRow, 2).Value = item.Name;
@@ -1582,7 +1743,8 @@ namespace FingerprintsModel
 
                 wb.SaveAs(memoryStream);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 clsError.WriteException(ex);
             }

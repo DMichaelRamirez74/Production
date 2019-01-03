@@ -27,6 +27,8 @@ namespace FingerprintsModel
         public string Status { get; set; }
 
         public string ActiveProgramYear { get; set; }
+
+        //public string DOB { get; set; }
     }
 
     public class ClientReviewStatus

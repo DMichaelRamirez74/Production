@@ -22,6 +22,7 @@
                             {
 
                                 <li id="Screeningallowed"><a href="#AllowScreening" data-toggle="tab">Parent Approval</a></li>
+                                <li style="display:none;" id="wellBabyExam"><a href="#addWellBabyExam" data-toggle="tab">Well Baby Exam</a></li>
                                 <li style="display:none;" id="Physical" class="active"><a href="#addPhysical" data-toggle="tab">30 Day Physical</a></li>
                                 <li style="display:none;" id="Vision"><a href="#addVision" data-toggle="tab">45 Day Vision</a></li>
                                 <li style="display:none;" id="Hearing"><a href="#addHearing" data-toggle="tab">45 Day Hearing</a></li>
@@ -43,6 +44,7 @@
                             else
                             {
                                 <li id="Screeningallowed" class="active"><a href="#AllowScreening" data-toggle="tab">Parent Approval</a></li>
+                                        <li style="display:none;" id="wellBabyExam"><a href="#addWellBabyExam" data-toggle="tab">Well Baby Exam</a></li>
                                         <li style="display:none;" id="Physical"><a href="#addPhysical" data-toggle="tab">30 Day Physical</a></li>
                                         <li style="display:none;" id="Vision"><a href="#addVision" data-toggle="tab">45 Day Vision</a></li>
                                         <li style="display:none;" id="Hearing"><a href="#addHearing" data-toggle="tab">45 Day Hearing</a></li>
@@ -103,6 +105,40 @@
                                         @Html.TextBoxFor(m => m.Parentname, new { id = "Parentscreening", maxlength = "50", @class = "form-control", tabIndex = "2" })
                                     </div>
                                 </div>
+
+
+
+                                <div class="col-lg-6" id="wellBabyScreening" style="display:none;">
+                                    <div class="form-group">
+                                        <label>Allow Well Baby Exam?<sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.WellBabyExam, 1, new { @id = "AddWellBabyExam", onchange = "showWellBabyExam();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.WellBabyExam, 2, new { @id = "AddWellBabyExam1", onchange = "hideWellBabyExam();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+
+                                            @*<div class="col-sm-4 wellborn-browse">
+                                                @Html.TextBoxFor(m => m.WellBabyExam, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:161% !important;" })
+
+                                            </div>
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                @if (@Model.PhysicalFileName != "")
+                                                {
+                                                    <a target="_blank" id="Allow30DayPhysical" title="Click here to download" href="~/Agencyuser/getpdfimage/1,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                                }
+                                            </div>*@
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+
+
                                 <div class="col-lg-6" id="PhysicalScreen">
                                     <div class="form-group">
                                         <label>Allow 30 Day Physical Screening? <sup>*</sup></label>
@@ -175,7 +211,8 @@
                                         </div>
                                     </div>
                                 </div>
-                          
+                                @if (Session["Roleid"].ToString() != "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" && Session["Roleid"].ToString() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                                {
                                     <div class="col-lg-6" id="DevelopScreen">
                                         <div class="form-group">
                                             <label>Allow 45 Day Developmental Screening? <sup>*</sup></label>
@@ -199,7 +236,7 @@
                                             </div>
                                         </div>
                                     </div>
-                             
+                                }
                                 <div class="col-lg-6" id="DentalScreen">
                                     <div class="form-group">
                                         <label>Allow 90 Day Dental Screening? <sup>*</sup></label>
@@ -475,7 +512,7 @@
                                                         <div class="import-filetpr">
                                                             <input type="file" id="WellBabyDoc" name="WellBabyDoc" class="form-control" style="width:161% !important;display: none;" multiple="">
                                                             <label for="WellBabyDoc" class="my-btn" style="color: #fff;cursor:pointer;">Browse</label>
-                                                            <span id="filename">No file choose</span>
+                                                            <span id="filename">No file choosen</span>
                                                         </div>
                                                     </div>
 
@@ -930,8 +967,8 @@
                                             <select name="d052evResults" class="form-control" id="d052evResults">
                                                 @*<option value="" @if (@Model.d052evResults == "") { <text> selected="selected" </text>   }></option>*@
                                                 <option value="1" @if (@Model.d052evResults == "1") { <text> selected="selected" </text>               }>Pass</option>
-                                                <option value="2" @if (@Model.d052evResults == "2") { <text> selected="selected" </text>               }>Re-screen</option>
-                                                <option value="3" @if (@Model.d052evResults == "3") { <text> selected="selected" </text>               }>N/A IEP/IFSP</option>
+                                                <option value="2" @if (@Model.d052evResults == "2") { <text> selected="selected" </text>               }>Concerns Exists, Follow-Up Required</option>
+                                                <option value="3" @if (@Model.d052evResults == "3") { <text> selected="selected" </text>               }>N/A</option>
 
                                             </select>
                                         </div>
@@ -959,22 +996,22 @@
                                     </div>
                                     <div class="col-lg-12 col-md-12 col-sm-12">
                                         <div class="form-group">
-                                            <label>Developmental Re-screen Results <sup>*</sup></label>
+                                            <label>Developmental Rescreen Results <sup>*</sup></label>
                                             <select name="d055evResults2" class="form-control" id="d055evResults2">
                                                 @*<option value="" @if (@Model.d055evResults2 == "") { <text> selected="selected" </text>   }></option>*@
-                                                <option value="1" @if (@Model.d055evResults2 == "1") { <text> selected="selected" </text>               }>Pass</option>
-                                                <option value="2" @if (@Model.d055evResults2 == "2") { <text> selected="selected" </text>               }>Referred</option>
-                                               @* <option value="3" @if (@Model.d055evResults2 == "3") { <text> selected="selected" </text>               }>Questionable</option>
+                                                <option value="1" @if (@Model.d055evResults2 == "1") { <text> selected="selected" </text>               }>Normal</option>
+                                                <option value="2" @if (@Model.d055evResults2 == "2") { <text> selected="selected" </text>               }>Abnormal</option>
+                                                <option value="3" @if (@Model.d055evResults2 == "3") { <text> selected="selected" </text>               }>Questionable</option>
                                                 <option value="4" @if (@Model.d055evResults2 == "4") { <text> selected="selected" </text>               }>Un-Testable</option>
-                                                <option value="5" @if (@Model.d055evResults2 == "5") { <text> selected="selected" </text>               }>N/A</option>*@
-            </select>
-        </div>
-    </div>
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <div class="form-group">
-            <label>Was a Developmental Referral Made?<sup>*</sup></label>
-            <select name="d056evReferral" class="form-control" id="d056evReferral">
-                @*<option value="" @if (@Model.d056evReferral == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="5" @if (@Model.d055evResults2 == "5") { <text> selected="selected" </text>               }>N/A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Was a Developmental Referral Made?<sup>*</sup></label>
+                                            <select name="d056evReferral" class="form-control" id="d056evReferral">
+                                                @*<option value="" @if (@Model.d056evReferral == "") { <text> selected="selected" </text>   }></option>*@
                                                 <option value="1" @if (@Model.d056evReferral == "1") { <text> selected="selected" </text>               }>Yes</option>
                                                 <option value="2" @if (@Model.d056evReferral == "2") { <text> selected="selected" </text>               }>No</option>
                                             </select>
@@ -1843,6 +1880,16 @@
         //$('#addDental').show();
         //$('#addSpeech').show();
     }
+
+    function showWellBabyExam()
+    {
+        $('#wellBabyExam').show();
+    }
+
+    function hideWellBabyExam() {
+        $('#wellBabyExam').hide();
+    }
+
     function ShowPhysical()
     {
         $('#Physical').show();

@@ -94,7 +94,7 @@ namespace Fingerprints.Controllers
                 {
                     Session["Roleid"] = id;
 
-                   List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+                   List<Tuple<string, string, int>> AccessList = new List<Tuple<string, string, int>>();
                     bool isAcceptanceProcess = false;
 
                         AccessList = new LoginData().GetAccessPageByUserId(ref isAcceptanceProcess, new Guid(Session["UserId"].ToString()), new Guid(Session["AgencyID"].ToString()), new Guid(Session["RoleId"].ToString()));

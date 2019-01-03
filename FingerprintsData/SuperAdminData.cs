@@ -1610,6 +1610,7 @@ namespace FingerprintsData
                 {
                     command.Parameters.AddWithValue("@agencyId", agencyId);
                 }
+                command.Parameters.AddWithValue("@Category", info.Category);
                 command.Parameters.AddWithValue("@CreatedBy", userId);
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
@@ -1662,7 +1663,7 @@ namespace FingerprintsData
                         addFPARow.WorkshopName = Convert.ToString(agencydataTable.Rows[i]["WorkshopName"]);
                         addFPARow.Description = Convert.ToString(agencydataTable.Rows[i]["Description"]);
                         addFPARow.CreatedDate = Convert.ToDateTime(agencydataTable.Rows[i]["CreatedDate"]).ToString("MM/dd/yyyy");
-
+                        addFPARow.Category = Convert.ToString(agencydataTable.Rows[i]["Category"]);
                         _Workshoplist.Add(addFPARow);
                     }
                     totalrecord = command.Parameters["@totalRecord"].Value.ToString();
@@ -1738,6 +1739,7 @@ namespace FingerprintsData
                 {
                     obj.WorkshopID = Convert.ToInt32(agencydataTable.Rows[0]["ID"]);
                     obj.WorkshopName = agencydataTable.Rows[0]["WorkshopName"].ToString();
+                    obj.Category = agencydataTable.Rows[0]["Category"].ToString();
                     //   obj.TransitionDate = agencydataTable.Rows[0]["TransitionDate"].ToString();
                     obj.Description = agencydataTable.Rows[0]["Description"].ToString();
                     obj.CreatedDate = Convert.ToDateTime(agencydataTable.Rows[0]["CreatedDate"]).ToString("MM/dd/yyyy");

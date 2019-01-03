@@ -271,5 +271,4 @@ namespace FingerprintsModel
     //        _fileContents = new MemoryStream(fileContents);
     //    }
     //}
-
 }

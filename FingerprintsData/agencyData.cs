@@ -171,6 +171,11 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssueStartDay", agencyDetails.AttendanceIssueStartDay));
                 command.Parameters.Add(new SqlParameter("@AllowCaseNoteTeacher", agencyDetails.AllowCaseNoteTeacher));
+
+
+                command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", agencyDetails.InkindPeriods.StartDate));
+                command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", agencyDetails.InkindPeriods.EndDate));
+
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
                 string fileextension = null;
@@ -465,6 +470,7 @@ namespace FingerprintsData
             agency.ProgramTypeList = new List<Agency.ProgramType>();
             agency.DivisionsList = new List<SelectListItem>();
             agency.ProgramYearList = new List<SelectListItem>();
+            agency.InkindPeriods = new InkindPeriods();
             try
             {
                 command.Parameters.Add(new SqlParameter("@id", id));
@@ -572,100 +578,18 @@ namespace FingerprintsData
                         //    agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
+
+
                         agency.AttendanceIssueStartDay = (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]))) ? Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]) : "";
 
                         agency.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
 
                         agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
 
-                    }
+                        agency.InkindPeriods.StartDate = Convert.ToString(_dataset.Tables[0].Rows[0]["InKindStartDate"]);
+                        agency.InkindPeriods.EndDate = Convert.ToString(_dataset.Tables[0].Rows[0]["InKindEndDate"]);
 
-                    //if (_dataset.Tables[1].Rows.Count > 0)
-                    //{
-                    //    List<FingerprintsModel.Agency.FundSource> listprog = new List<FingerprintsModel.Agency.FundSource>();
-                    //  DataTable dv = _dataset.Tables[1].DefaultView.ToTable(true, "FundID");
-                    //    FingerprintsModel.Agency.FundSource obj = null;
-                    //    List<FingerprintsModel.Agency.ProgramType> listfundprog = null;
-                    //    for (int i = 0; i < dv.Rows.Count; i++)
-                    //    {
-                    //        DataRow[] drs = _dataset.Tables[1].Select("FundID=" + dv.Rows[i]["FundID"].ToString());
-                    //        obj = new FingerprintsModel.Agency.FundSource();
-                    //        obj.FundID = Convert.ToInt32(drs[0]["FundID"].ToString());
-                    //        obj.OldFund = "O";
-                    //        obj.Acronym = drs[0]["Acronym"].ToString();
-                    //        obj.Amount = Convert.ToInt32(drs[0]["Amount"].ToString());
-                    //        DateTime dt = new DateTime();
-                    //        DateTime.TryParse(drs[0]["Date"].ToString(), out dt);
-                    //        obj.Date = dt.ToString("MM/dd/yyyy");
-                    //        obj.Duration = drs[0]["Duration"].ToString();
-                    //        obj.fundingtype = drs[0]["FundingType"].ToString();
-                    //        obj.grantNo = drs[0]["GranteeNo"].ToString();
-                    //        obj.nameGranteeDelegate = drs[0]["Grantee"].ToString();
-                    //        obj.ProgramYear = drs[0]["ProgramYear"].ToString();
-                    //        obj.ServiceQty = drs[0]["ServiceQty"].ToString();
-                    //        obj.Description = drs[0]["FundDescription"].ToString();
-                    //        obj.FundStatus = Convert.ToInt32(drs[0]["FundStatus"].ToString());
-                    //        //Add fund Question
-                    //        obj.FundQ1 = drs[0]["FundQ1"].ToString();
-                    //        obj.FundQ2 = drs[0]["FundQ2"].ToString();
-                    //        obj.FundQ3 = drs[0]["FundQ3"].ToString();
-                    //        obj.FundQ4 = drs[0]["FundQ4"].ToString();
-                    //        obj.FundQ5 = drs[0]["FundQ5"].ToString();
-                    //        obj.FundQ6 = drs[0]["FundQ6"].ToString();
-                    //        obj.FundQ7 = drs[0]["FundQ7"].ToString();
-                    //        obj.FundQ8 = drs[0]["FundQ8"].ToString();
-                    //        obj.FundQ9 = drs[0]["FundQ9"].ToString();
-                    //        obj.FundQ10 = drs[0]["FundQ10"].ToString();
-                    //        obj.FundQ11 = drs[0]["FundQ11"].ToString();
-                    //        obj.FundQ12 = drs[0]["FundQ12"].ToString();
-                    //        obj.FundQ13 = drs[0]["FundQ13"].ToString();
-                    //        obj.FundQ14 = drs[0]["FundQ14"].ToString();
-                    //        obj.FundQ15 = drs[0]["FundQ15"].ToString();
-                    //        obj.FundQ16 = drs[0]["FundQ16"].ToString();
-                    //        ///
-                    //        listfundprog = new List<FingerprintsModel.Agency.ProgramType>();
-                    //        FingerprintsModel.Agency.ProgramType objprog;
-                    //        foreach (DataRow dr in drs)
-                    //        {
-                    //            objprog = new FingerprintsModel.Agency.ProgramType();
-                    //            objprog.ProgramID = Convert.ToInt32(dr["ProgramTypeID"].ToString());
-                    //            objprog.FundID = Convert.ToInt32(dr["FundID"].ToString());
-                    //            objprog.ProgramTypes = dr["ProgramType"].ToString();
-                    //            objprog.Description = dr["ProgDesc"].ToString();
-                    //            if (!DBNull.Value.Equals((dr["PIRReport"]))) //Changes
-                    //            {
-                    //                objprog.PIRReport = Convert.ToBoolean(dr["PIRReport"].ToString());
-                    //            }
-                    //            else
-                    //            {
-                    //                objprog.PIRReport = false;// Convert.ToInt32(string.Empty);
-                    //            }
-                    //            objprog.Slots = dr["Slots"].ToString();
-                    //            objprog.ReferenceProg = dr["ReferenceProg"].ToString();
-                    //            objprog.Area = dr["AreaID"].ToString();
-                    //            objprog.MinAge = Convert.ToInt32(dr["MinAge"].ToString());
-                    //            objprog.MaxAge = Convert.ToInt32(dr["MaxAge"].ToString());
-                    //            objprog.HealthReview = Convert.ToBoolean(dr["HealthReview"].ToString());
-                    //            if (!DBNull.Value.Equals((dr["ProgStatus"]))) //Changes
-                    //            {
-                    //                objprog.ProgStatus = Convert.ToInt32(dr["ProgStatus"].ToString());
-                    //            }
-                    //            else
-                    //            {
-                    //                objprog.ProgStatus = 1;// Convert.ToInt32(string.Empty);
-                    //            }
-                    //            DateTime dt1 = new DateTime();
-                    //            DateTime.TryParse(dr["programstartDate"].ToString(), out dt1);
-                    //            objprog.programstartDate = dt1.ToString("MM/dd/yyyy");
-                    //            DateTime dt2 = new DateTime();
-                    //            DateTime.TryParse(dr["programendDate"].ToString(), out dt2);
-                    //            objprog.programendDate = dt2.ToString("MM/dd/yyyy");
-                    //            listfundprog.Add(objprog);
-                    //        }
-                    //        obj.progtypelist = listfundprog;
-                    //        agency.FundSourcedata.Add(obj);
-                    //    }
-                    //}
+                    }
 
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
@@ -683,10 +607,7 @@ namespace FingerprintsData
                             Duration = x.Field<int>("Duration").ToString(),
                             ServiceQty = x.Field<int>("ServiceQty").ToString(),
                             fundingtype = x.Field<int>("FundingType").ToString(),
-                            // ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear").Substring(0, 2) + "-" + x.Field<string>("ProgramYear").Substring(2, 2),
-
                             ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear"),
-
                             nameGranteeDelegate = x.Field<string>("Grantee"),
                             grantNo = x.Field<string>("GranteeNo"),
                             IsReferredByProgram = Convert.ToBoolean(x.Field<int>("IsReferredByProgram"))

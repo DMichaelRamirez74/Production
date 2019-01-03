@@ -12,7 +12,7 @@
         Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     }
 
-
+    bool _isAccessLW = new FingerprintsData.agencyData().GetSingleAccessStatus(20);
 
     
 
@@ -27,6 +27,9 @@
         var pageSize_caseNote = 0;
         var numOfPages_caseNote = 0;
         var requestedPage_caseNote = 0;
+        var _sessionUserid='@(FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()+"_"+FingerprintsModel.StaffDetails.GetInstance().UserId.ToString())';
+        var $cookieName='RosterABT_'+_sessionUserid;
+        var _accessLW=@Html.Raw(Json.Encode(@_isAccessLW));
 
         var CaseNoteHeading = {
             'AddCaseNote': 'Add New Case Note',
@@ -34,6 +37,22 @@
             'AppendCaseNote':'Append Case Note'
         }
 
+        var UrlObj={
+            getCaseNoteTags:'@Url.Action("GetCaseNoteTag", "Roster")',
+            gAnalysis:"@Url.Action("GrowthAnalysis","Teacher")?clsid="
+        };
+
+
+        $(document).on('change', '#Classroom', function () {
+            var _clsId = parseInt( $(this).val());
+            if (_clsId) {
+                $("#lwbtn").slideDown();
+                $("#lwbtn").attr('href', UrlObj.gAnalysis.concat(_clsId));
+            } else {
+                $("#lwbtn").slideUp();
+                $("#lwbtn").attr('href', 'javascript:void(0)');
+            }
+        });
 
         function clearHVSchedule(ele)
         {
@@ -667,11 +686,12 @@
                             width: 'auto',
                             height: 'auto',
                             delimiter: [',', ';'],
+                            autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                             autocomplete: {
                                 //'source': tags_array[0].split(/,\s*/)
-                                'source': getTagsOnInput()
+                                // 'source': getTagsOnInput()
                             },
-                            autocomplete_url: '',
+                            //  autocomplete_url: UrlObj.getCaseNoteTags,
                         });
 
                         $('#CaseNoteDetails_CaseNotetags').importTags('Home Found,,;Address Change');
@@ -1715,13 +1735,14 @@
                 width: 'auto',
                 height: 'auto',
                 delimiter: [',', ';'],
+                autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                 autocomplete: {
                     //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInputAll('#AppendCaseNotetags'),
+                    // 'source': getTagsOnInputAll('#AppendCaseNotetags'),
                     'appendTo': "#att-issue-modal"
                 },
-                autocomplete_url: '',
-                autocomplete_url: '',
+                //  autocomplete_url: '',
+                //  autocomplete_url: '',
             });
 
 
@@ -1998,13 +2019,14 @@
                 width: 'auto',
                 height: 'auto',
                 delimiter: [',', ';'],
+                autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                 autocomplete: {
                     //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInputnREF(),
+                    //'source': getTagsOnInputnREF(),
                     'appendTo': "#ModalAddCasenote"
                 },
-                autocomplete_url: '',
-                autocomplete_url: '',
+                // autocomplete_url: '',
+                //autocomplete_url: '',
             });
             $('#nREF_status_CaseNotetags').importTags("nREF,,;");
 
@@ -3613,7 +3635,47 @@
 
 
                         if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0 && data.list.Rosters[i].IsClassStarted === 1) {
-                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+
+                            if(data.list.ClosedDetails!=null && data.list.ClosedDetails.ClosedToday>0)
+                            {
+                                switch (data.list.ClosedDetails.ClosedToday)
+                                {
+                                    case 1:
+                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.ClosedDetails.AgencyName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                        break;
+                                    case 2:
+                                        if(data.list.ClosedDetails.CenterName==data.list.Rosters[i].CenterName)
+                                        {
+                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.ClosedDetails.CenterName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                        }
+                                        else{
+                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                        }
+                                        break;
+                                    case 3:
+                                        if(data.list.ClosedDetails.ClassRoomName==data.list.Rosters[i].ClassroomName)
+                                        {
+                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.Rosters[i].ClassroomName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+
+                                        }
+                                        else{
+                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+
+                                        }
+                                        break;
+                                    default:
+                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                        break;
+                                }
+
+
+
+                                 //   tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+
+                            }
+
+
+
                             tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
                         }
                         tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" data-toggle="tooltip" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
@@ -3905,13 +3967,14 @@
                 width: 'auto',
                 height: 'auto',
                 delimiter: [',', ';'],
+                autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                 autocomplete: {
                     //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInputAll('#casenotetags_attissue'),
+                    //  'source': getTagsOnInputAll('#casenotetags_attissue'),
                     'appendTo': "#att-issue-modal"
                 },
-                autocomplete_url: '',
-                autocomplete_url: '',
+                // autocomplete_url: '',
+                //autocomplete_url: '',
             });
 
             $('#casenotetags_attissue').importTags("Excessive Absences,,;");
@@ -4306,6 +4369,63 @@
             });
             return tagsArr;
         }
+
+
+
+        function showClosedAlert(ele,closedMode,closedtext)
+        {
+        
+        
+            if(!checkCookie($cookieName))
+            {
+                BootstrapDialog.show({
+                    title: 'Confirmation',
+                    message: '<p><strong>'+closedtext+'</strong> has been closed today. Click <strong>OK</strong> to Proceed.</p>\
+                            <p><input type="checkbox" name="checkboxnoShow" id="checkboxnoShow">&nbsp;<span for="checkboxnoShow">Don\'t show this message again</span></p>',
+                    closable: true,
+                    closeByBackdrop: false,
+                    closeByKeyboard: false,
+                    buttons: [{
+                        label: 'Cancel',
+                        cssClass: 'btn-danger',
+                        action: function(dialogRef){
+                            //   dialogRef.close();
+
+                            dialogRef.close();
+
+                        }
+                    },
+
+                    {
+                        label: 'OK',
+                        cssClass: 'btn-primary',
+                        action: function(dialogRef){
+
+                            var $isNoshowChecked= $('input:checkbox[name="checkboxnoShow"]').is(":checked");
+
+                            if($isNoshowChecked)
+                            {
+                                setCookie($cookieName,'1',1);
+                            }
+
+                            AbsentMarkingPopup(ele);
+                            dialogRef.close();
+                        }
+                    }
+                    ]
+                });
+            }
+            else
+            {
+                AbsentMarkingPopup(ele);
+            }
+       
+
+
+        }
+
+
+
     </script>
 }
 
@@ -4353,10 +4473,9 @@
                     outline: none;
                 }
 
-                #homeVisitDivAttenissue #StartTime
-                {
-                    position:absolute;
-                }
+        #homeVisitDivAttenissue #StartTime {
+            position: absolute;
+        }
 
 
         #att-issue-modal .addn-content-desc {
@@ -5119,9 +5238,8 @@
             padding-left: 0;
         }
 
-        #att-issue-modal transition-content-desc p
-        {
-            padding-left:0;
+        #att-issue-modal transition-content-desc p {
+            padding-left: 0;
         }
 
         .form-group.eduicc-trans.radio.radio-info {
@@ -5340,33 +5458,28 @@
             }
 
                 #GridRoster tbody tr td:first-child a,
-                    #tbl_attendanceissue_casenotes tbody tr td:first-child a
-                 {
+                #tbl_attendanceissue_casenotes tbody tr td:first-child a {
                     width: initial !important;
                     text-overflow: initial !important;
                 }
+
                 /* Hide table headers (but not display: none;, for accessibility) */
 
                 #GridRoster thead tr,
-                
-                 #tbl_attendanceissue_casenotes thead tr
-                 {
+                #tbl_attendanceissue_casenotes thead tr {
                     position: absolute;
                     top: -9999px;
                     left: -9999px;
                 }
 
-                #GridRoster tr ,
-                 #tbl_attendanceissue_casenotes tr 
-                {
+                #GridRoster tr,
+                #tbl_attendanceissue_casenotes tr {
                     margin: 0 7px 2em 0;
                     box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
                 }
 
                     #GridRoster tr:nth-child(odd),
-                    
-                       #tbl_attendanceissue_casenotes tr:nth-child(odd)
-                     {
+                    #tbl_attendanceissue_casenotes tr:nth-child(odd) {
                         background: #ffffff;
                         border: 1px solid #ccc;
                         border-radius: 8px;
@@ -5374,9 +5487,7 @@
 
 
                     #GridRoster tr:nth-child(even),
-                    
-                      #tbl_attendanceissue_casenotes tr:nth-child(even)
-                     {
+                    #tbl_attendanceissue_casenotes tr:nth-child(even) {
                         background: #f1f5f8;
                         border: 1px solid #ccc;
                         border-radius: 8px;
@@ -5442,33 +5553,95 @@
                 border: none !important;
             }
         }
-         #organization-list .container-radio{    max-width: 194px!important;
-    width: 194px!important;}
-        
-        #org-list{padding-left:31px;}
-    .org-list-left-width{width:40%;display:inline-block;vertical-align:top;}
-      .org-list-right-width{width:58%;display:inline-block;vertical-align:top;}
-      #organization-list{margin-top:10px;max-height: 100%!important;}
+
+        #organization-list .container-radio {
+            max-width: 194px !important;
+            width: 194px !important;
+        }
+
+        #org-list {
+            padding-left: 31px;
+        }
+
+        .org-list-left-width {
+            width: 40%;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .org-list-right-width {
+            width: 58%;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #organization-list {
+            margin-top: 10px;
+            max-height: 100% !important;
+        }
 
 
         @@media (min-width: 992px) and (max-width: 1199px) {
-           #att-issue-modal .modal-dialog-ch {width: 95%;}
-           #tbl_attendanceissue_casenotes tbody#table_body td p{text-align:right;}
-           .transition-content-desc p{padding:10px 0;}
-           .duration-margin{margin-top:20px!important;}
-           .duration-padding{padding:0!important;}
-           .select-editable input,.select-editable{width:100%!important;}
-          
+            #att-issue-modal .modal-dialog-ch {
+                width: 95%;
+            }
+
+            #tbl_attendanceissue_casenotes tbody#table_body td p {
+                text-align: right;
+            }
+
+            .transition-content-desc p {
+                padding: 10px 0;
+            }
+
+            .duration-margin {
+                margin-top: 20px !important;
+            }
+
+            .duration-padding {
+                padding: 0 !important;
+            }
+
+            .select-editable input, .select-editable {
+                width: 100% !important;
+            }
         }
         @@media (min-width: 768px) and (max-width: 991px) {
-            #att-issue-modal .modal-dialog-ch {width: 95%;}
-             #tbl_attendanceissue_casenotes tbody#table_body td p{text-align:right;}
-             .transition-content-desc p{padding:10px 0;}
-                        .duration-margin{margin-top:20px!important;}
-                         .duration-padding{padding:0!important;}
-           .select-editable input,.select-editable{width:99%!important;}
-                .org-list-left-width{width:43%;display:inline-block;vertical-align:top;}
-      .org-list-right-width{width:55%;display:inline-block;vertical-align:top;}
+            #att-issue-modal .modal-dialog-ch {
+                width: 95%;
+            }
+
+            #tbl_attendanceissue_casenotes tbody#table_body td p {
+                text-align: right;
+            }
+
+            .transition-content-desc p {
+                padding: 10px 0;
+            }
+
+            .duration-margin {
+                margin-top: 20px !important;
+            }
+
+            .duration-padding {
+                padding: 0 !important;
+            }
+
+            .select-editable input, .select-editable {
+                width: 99% !important;
+            }
+
+            .org-list-left-width {
+                width: 43%;
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .org-list-right-width {
+                width: 55%;
+                display: inline-block;
+                vertical-align: top;
+            }
         }
 
         /*responsive section*/

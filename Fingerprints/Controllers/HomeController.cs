@@ -55,7 +55,7 @@ namespace Fingerprints.Controllers
         FamilyData _family = new FamilyData();
         StaffDetails staffDetails = StaffDetails.GetInstance();
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult SuperAdminDashboard()
         {
             ViewBag.superadmindashboard = superAdmin.GetSuperAdmindashboard();
@@ -73,8 +73,9 @@ namespace Fingerprints.Controllers
                 {
 
                     Session["AgencyID"] = id;
+                    staffDetails = StaffDetails.GetInstance();
                 }
-                ViewBag.agencyadmindashboard = agencydata.GetagencyAdmindashboard(Session["AgencyID"].ToString());
+                ViewBag.agencyadmindashboard = agencydata.GetagencyAdmindashboard(staffDetails.AgencyId.ToString());
             }
             catch (Exception ex)
             {
@@ -86,7 +87,7 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792")]
+        [CustAuthFilter(RoleEnum.HRManager)]
         public ActionResult AgencyHRDashboard()
         {
             try
@@ -109,11 +110,11 @@ namespace Fingerprints.Controllers
             try
             {
 
-                TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(Session["Roleid"].ToString());
+                TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(staffDetails.RoleId.ToString());
                 var dec = FingerprintsModel.EncryptDecrypt.Decrypt64("ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5");
                 int yakkrcount = 0;
                 int appointment = 0;
-                string  PYSDate = "";
+                string PYSDate = "";
                 ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.RoleId), Convert.ToString(staffDetails.UserId));
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
@@ -127,7 +128,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter(RoleEnum.HealthNurse)]
         public ActionResult AgencyHealthNurse()
         {
             try
@@ -979,18 +980,24 @@ namespace Fingerprints.Controllers
 
         }
 
+        [CustAuthFilter()]
+        [HttpGet]
         public ActionResult VolunteerBudget()
         {
+            
+          ViewBag.InkindPeriodList=  new InKindData().GetInkindPeriodsDate(staffDetails, staffDetails.AgencyId).Where(x=>!x.IsClosed).ToList();
+
             return View();
         }
 
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult SaveInkind(Inkind inkind)
         {
             bool isResult = false;
             try
             {
-                isResult = new ExecutiveData().SaveInkind(inkind, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                isResult = new ExecutiveData().SaveInkind(inkind, staffDetails.AgencyId.ToString(), staffDetails.UserId.ToString());
             }
             catch (Exception Ex)
             {
@@ -1000,6 +1007,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult DeleteInkind(string Id)
         {
             bool isResult = false;
@@ -1015,13 +1023,14 @@ namespace Fingerprints.Controllers
             return Json(isResult);
         }
 
-        public ActionResult GetInkindByUserId()
+        [CustAuthFilter()]
+        public ActionResult GetInkindByUserId(int inkindPeriodId=0)
         {
             string JSONString = string.Empty;
             try
             {
                 DataTable dtInkind = new DataTable();
-                new ExecutiveData().GetInkindDetailsByUserId(ref dtInkind, Session["UserID"].ToString(), Session["AgencyID"].ToString());
+                new ExecutiveData().GetInkindDetailsByUserId(ref dtInkind, Session["UserID"].ToString(), Session["AgencyID"].ToString(), inkindPeriodId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtInkind);
             }
             catch (Exception Ex)

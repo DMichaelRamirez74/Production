@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
-    public class TeacherModel
+    public class TeacherModel:IInkindPeriod
     {
        
         public string Tdate { get; set; }
@@ -136,6 +136,7 @@ namespace FingerprintsModel
 
         public string AllowCaseNoteTeacher { get; set; }
 
+        public  List<InkindPeriods> InkindPeriodList {get;set;}
     }
 
     public class OfflineAttendance
@@ -201,7 +202,50 @@ namespace FingerprintsModel
         public long ClassRoomId { get; set; }
     }
 
-   
 
-  
+    public class ClientGrowth
+    {
+        public string ClientID { get; set; }
+       // public string EClientId { get; set; }
+        public string Name { get; set; }
+        public string DOB { get; set; }
+        public string AssessmentDate { get; set; }
+
+        public decimal Height { get; set; }
+        public decimal Weight { get; set; }
+        public decimal BMI { get; set; }
+        public decimal HeadCirc { get;set;}
+        public string createdby { get; set; }
+
+        public long InputType { get; set; }
+        public decimal Age { get; set; }
+
+      //  public DateTime CreatedDate { get; set; }
+    }
+
+
+    public class GrowthChart {
+
+        public List<ClientGrowth> ChildGrowth { get; set; }
+
+         public List<STDTable> STDTables { get; set; }
+       // public STDTable STDTables { get; set; }
+    }
+
+
+    public class STDTable {
+
+        public string AgeInMonth { get; set; }
+        public string Percentiles { get; set; }
+        public string P3 { get; set; }
+        public string P5 { get; set; }
+        public string P10 { get; set; }
+        public string P25 { get; set; }
+        public string P50 { get; set; }
+        public string P75 { get; set; }
+        public string P90 { get; set; }
+        public string P95 { get; set; }
+        public string P98 { get; set; }
+    }
+
 }

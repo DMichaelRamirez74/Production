@@ -33,8 +33,23 @@
                             }
                         </div>
                         <div>
-                            <img class="img-cross" src="~/Content/check_btn.png" />
-                            <img class="img-tick" src="~/Content/img-tick.png" />
+                            @if (Convert.ToBoolean(@objImages.PassFailCode))
+                            {
+                                <img class="img-tick" src="~/Content/close_btn.png" />
+                                <img class="img-cross" src="~/Content/img-tick.png"  style = "display:block;" />
+                            }
+                            else if (@objImages.PassFailCode != null && Convert.ToBoolean(@objImages.PassFailCode) == false)
+                            {
+                                <img class="img-tick" src="~/Content/close_btn.png" style="display:block;" />
+                                <img class="img-cross" src="~/Content/img-tick.png" />
+                            }
+                            else
+                            {
+
+                                <img class="img-cross"   src = "~/Content/img-tick.png" />
+                                <img class="img-tick" src="~/Content/close_btn.png" />
+                            }
+
                         </div>
                         <div>
                             @if (@objImages.ImageDescription.Contains("Fire"))
@@ -155,18 +170,75 @@
                     <input name="CNotes" class="form-control txt-date number-only" maxlength="10" id="txtExpirationDate" style="width:50% !important;" type="text"  placeholder="MM/DD/YYYY" value="">
                         <div style="height:10px;margin-top: 8px;">
                             <span class="date-future-validation" style="display:none;color:indianred;margin-left: 133px;font-size: 12px;">Enter only future date</span>
-                        <span class="date-valid-validation" style="display:none;color:indianred;margin-left: 133px;font-size: 12px;">Enter valid date</span>
+                            <span class="date-valid-validation" style="display:none;color:indianred;margin-left: 133px;font-size: 12px;">Enter valid date</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btnUpdateDate address-btn">Submit</button>
-                <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                <div class="modal-footer">
+                    <button class="btnUpdateDate address-btn" data-role="Teacher">Submit</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-    <script src="~/Content/Scripts/DailySafetyCheck.js"></script>
+@if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
+{
+    <div class="modal fade in" id="myModalClassRoom" role="dialog" style="display: none; padding-right: 17px;">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Do you suggest the center manager close the classroom today?</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3 pass_btn" style="text-align:center;">
+                        <input type="button" value="Yes" class="btn btn-success  btn-room" isclosed="true" message="Classroom should be closed" style="padding:6px 35px;display:block;">
+                        
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3" style="text-align:center;">
+                        <input type="button" value="No" class="btn btn-danger btn-room" isclosed="true" message="Classroom should be opened" style="padding:6px 35px;display:block;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (Session["Roleid"].ToString().Contains("b4d86d72-0b86-41b2-adc4-5ccce7e9775b"))
+{
+    <div class="modal fade in" id="myModalClassRoom" role="dialog" style="display: none; padding-right: 17px;">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Do you suggest to close the center today? </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">Center</label>
+                        @Html.DropDownList("ddlCenters", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["RoleId"].ToString()), new { @class = "form-control ddl-Centers mandatory ddl-mandatory" })
+                        <div class="err-container">
+                            <label class="control-label"></label>
+                            <span class="error-message error-center-message">Center is mandatory</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3 pass_btn" style="text-align:center;">
+                        <input type="button" value="Yes" class="btn btn-success btn-room" isclosed="true" message="Center should be closed" style="padding:6px 35px;display:block;">
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3" style="text-align:center;">
+                        <input type="button" value="No" class="btn  btn-danger btn-room" isclosed="false" message="Center should be opened" style="padding:6px 35px;display:block;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+    <script src="~/Content/Scripts/DailySafetyCheck.js?v=1"></script>
     <script>
         $('body').on("focusout", ".txt-date", function () {
             var isValid = Checkdate($(this).val());
@@ -233,6 +305,27 @@
             }
 
         }
-       
+        $(function () {
+            ShowExpiration();
+        });
+        function ShowExpiration() {
+            $.ajax(
+                {
+
+                    type: "POST",
+                    async: false,
+                    url: "/Teacher/GetFireExpiration",
+                    data: { 'Role': 'Teacher' },
+                    success: function (data) {
+                        if (data != "")
+                            $('.spn-expiration-date').text(data).show();
+                        else
+                            $('.spn-expiration-date').text("No Date").show();
+                    },
+                    error: function (data) {
+
+                    }
+                });
+        }
     </script>
 }

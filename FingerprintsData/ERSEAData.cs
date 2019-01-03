@@ -1205,7 +1205,6 @@ namespace FingerprintsData
                             childrenInfo.ChildAttendance = dr["AttendanceType"].ToString();
                             childrenInfo.Dob = dr["Dob"].ToString();
                             childrenInfo.ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-
                             childrenList.Add(childrenInfo);
                         }
                     }

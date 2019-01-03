@@ -333,7 +333,7 @@ namespace FingerprintsModel
 
     }
 
-    public class CaseNoteByClientID : IPagination
+    public class CaseNoteByClientID : Pagination
     {
         public string Role { get; set; }
         public List<CaseNote> CaseNoteList { get; set; }
@@ -343,15 +343,6 @@ namespace FingerprintsModel
      
     
         public List<ParentInfo> ParentContactInfoList { get; set; }
-        public int TotalRecord { get; set; }
-        public int RequestedPage { get; set; }
-        public int PageSize { get; set; }
-        public int SkipRows { get; set; }
-        public int GetSkipRows()
-        {
-            return this.PageSize * (RequestedPage - 1);
-        }
-
 
         public string ReferenceYakkrID { get; set; }
     }
@@ -606,12 +597,26 @@ namespace FingerprintsModel
 
     public interface IPagination
     {
-        int TotalRecord { get; set; }
-        int PageSize { get; set; }
-        int SkipRows { get; set; }
-
-        int RequestedPage { get; set; }
-
         int GetSkipRows();
     }
+
+    public abstract class Pagination:IPagination
+    {
+        public  int TotalRecord { get; set; }
+        public  int PageSize { get; set; }
+        public  int SkipRows { get; set; }
+        public int RequestedPage { get; set; }
+
+       
+
+        public virtual int GetSkipRows()
+        {
+            return (this.RequestedPage - 1) * PageSize;
+        }
+    }
+
+
+
+
+
 }

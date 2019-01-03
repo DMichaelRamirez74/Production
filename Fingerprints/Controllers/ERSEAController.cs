@@ -924,7 +924,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 

@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using FingerprintsModel;
 using System.Globalization;
+using System.Web.Mvc;
 
 namespace FingerprintsData
 {
@@ -180,6 +181,23 @@ namespace FingerprintsData
                     if (dataset.Tables.Count > 2)
                     {
                         inkindDetails.HomeActivityCount = Convert.ToInt32(dataset.Tables[2].Rows[0]["HomeActivityCount"]);
+                    }
+
+                    if(dataset.Tables.Count>3 && dataset.Tables[3]!=null && dataset.Tables[3].Rows.Count>0)
+                    {
+                        inkindDetails.InkindPeriodsList = (from DataRow dr3 in dataset.Tables[3].Rows
+                                                           select new InkindPeriods
+                                                           {
+                                                               StartDate = Convert.ToString(dr3["StartDate"]),
+                                                               EndDate = Convert.ToString(dr3["EndDate"]),
+                                                               InkindPeriodID = Convert.ToInt64(dr3["InkindPeriodID"])
+                                                           }
+
+                                                         ).ToList();
+                    }
+                    else
+                    {
+                        inkindDetails.InkindPeriodsList = new List<InkindPeriods>();
                     }
                 }
 
@@ -441,6 +459,8 @@ new DataColumn("Status",typeof(bool))
                     command.Parameters.Add(new SqlParameter("@MilesDriven", inkindTransactions.MilesDriven));
                     command.Parameters.Add(new SqlParameter("@ParentType", inkindTransactions.ParentType));
                     command.Parameters.Add(new SqlParameter("@InkindAttachmentType", attachmentdt));
+                    command.Parameters.Add(new SqlParameter("@InkindTransactionID", inkindTransactions.InkindTransactionID));
+                    command.Parameters.Add(new SqlParameter("@IsActive", inkindTransactions.IsActive));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkInkindActivity";
                     command.Connection = _connection;
@@ -623,6 +643,7 @@ new DataColumn("Status",typeof(bool))
                 {
                     foreach (var item in inkindTransList)
                     {
+                        item.IsActive = true;
                         returnResult = new InKindData().InsertInkindTransactions(item);
                     }
                 }
@@ -733,5 +754,604 @@ new DataColumn("Status",typeof(bool))
             }
             return isRowsAffected;
         }
+
+
+
+        /// <summary>
+        /// method to get the In-Kind Transaction List based on the Filter applied.
+        /// </summary>
+        /// <param name="inkindReportModel"></param>
+        /// <param name="staffDetails"></param>
+        public void GetInkindReportData(ref InkindReportModel inkindReportModel, StaffDetails staffDetails)
+        {
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@FilterType", (int)inkindReportModel.FilterTypeEnum));
+                    command.Parameters.Add(new SqlParameter("@SubFilterOption", inkindReportModel.SubFilterOption));
+                    command.Parameters.Add(new SqlParameter("@FromDate", inkindReportModel.FromDate));
+                    command.Parameters.Add(new SqlParameter("@ToDate", inkindReportModel.ToDate));
+                    command.Parameters.Add(new SqlParameter("@DateEntered", inkindReportModel.DateEntered));
+                    command.Parameters.Add(new SqlParameter("@SortOrder", inkindReportModel.SortOrder));
+                    command.Parameters.Add(new SqlParameter("@SortColumn", inkindReportModel.SortColumn));
+                    command.Parameters.Add(new SqlParameter("@Skip", inkindReportModel.SkipRows));
+                    command.Parameters.Add(new SqlParameter("@Take", inkindReportModel.PageSize));
+                    command.Parameters.Add(new SqlParameter("@SearchTerm", inkindReportModel.SearchTerm));
+                    command.Parameters.Add(new SqlParameter("@SearchTermType", inkindReportModel.SearchTermType));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetInkindReport";
+                    _connection.Open();
+                    dataset = new DataSet();
+                    adapter = new SqlDataAdapter(command);
+                    adapter.Fill(dataset);
+
+                    if (dataset != null && dataset.Tables.Count > 0)
+                    {
+
+                        if (dataset.Tables[0] != null && dataset.Tables[0].Rows.Count > 0)
+                        {
+                            inkindReportModel.InkindReportList = (from DataRow dr in dataset.Tables[0].Rows
+                                                                  select new InkindReport
+                                                                  {
+                                                                      ActivityID = Convert.ToInt32(dr["ActivityCode"]),
+                                                                      ActivityDescription = Convert.ToString(dr["ActivityDescription"]),
+                                                                      ActivityType = Convert.ToString(dr["ActivityType"]),
+                                                                      Hours = Convert.ToInt32(dr["Hours"]),
+                                                                      Minutes = Convert.ToInt32(dr["Minutes"]),
+                                                                      MilesDriven = Convert.ToDecimal(dr["Miles"]),
+                                                                      InkindTransactionID = Convert.ToInt32(dr["InKindTransactionID"]),
+                                                                      ActivityDate = Convert.ToString(dr["ActivityDate"]),
+                                                                      InKindAmount = Convert.ToDecimal(dr["InkindAmount"]),
+                                                                      Name = Convert.ToString(dr["Name"]),
+                                                                      CenterName = Convert.ToString(dr["CenterName"]),
+                                                                      StaffEntered = Convert.ToString(dr["StaffEntered"]),
+                                                                      IsClosed=Convert.ToBoolean(dr["IsClosed"])
+                                                                  }
+
+
+                             ).ToList();
+                            inkindReportModel.TotalRecord = Convert.ToInt32(dataset.Tables[0].Rows[0]["TotalRecord"]);
+                        }
+
+
+
+
+                        if (dataset.Tables.Count > 1 && dataset.Tables[1] != null && dataset.Tables[1].Rows.Count > 0)
+                        {
+                            inkindReportModel.TotalHours = Convert.ToString(Math.Round(Convert.ToDouble(dataset.Tables[1].Rows[0]["TotalHours"])));
+                            inkindReportModel.TotalMiles = Convert.ToString(Math.Round(Convert.ToDouble(dataset.Tables[1].Rows[0]["TotalMiles"])));
+                            inkindReportModel.TotalAmount = string.Concat("$" + "\t" + Math.Round(Convert.ToDouble(dataset.Tables[1].Rows[0]["TotalInKindAmount"])).ToString("N", System.Globalization.CultureInfo.InvariantCulture));
+
+                        }
+
+
+
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+        }
+
+
+        public List<SelectListItem> GetInkindOptionByFilter(StaffDetails staff, int inkindFilterType)
+        {
+
+            List<SelectListItem> filterOptionList = new List<SelectListItem>();
+            try
+            {
+
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@FilterType", inkindFilterType));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Connection = _connection;
+                    command.CommandText = "USP_GetInKindOptionsByFilterType";
+                    _connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            filterOptionList.Add(new SelectListItem
+                            {
+                                Text = reader["Name"].ToString(),
+                                Value = reader["ID"].ToString()
+                            });
+                        }
+                        reader.Close();
+                    }
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+
+            }
+            return filterOptionList;
+
+
+        }
+
+
+        public Inkind GetInkindTransactions(StaffDetails staff, string inkindTransactionId)
+        {
+
+            Inkind inkind = new Inkind();
+            string activityType = string.Empty;
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@InkindTransactionID", inkindTransactionId));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetInkindTransactions";
+                    _connection.Open();
+                    adapter = new SqlDataAdapter(command);
+                    dataset = new DataSet();
+                    adapter.Fill(dataset);
+                    if (dataset != null && dataset.Tables.Count > 0)
+                    {
+                        if (dataset.Tables[0] != null && dataset.Tables[0].Rows.Count > 0)
+                        {
+                            inkind.InKindTransactions = (from DataRow dr in dataset.Tables[0].Rows
+                                                         select new InKindTransactions
+                                                         {
+                                                             InkindTransactionID = Convert.ToInt32(dr["InkindTransactionID"]),
+                                                             InKindAmount = Convert.ToDecimal(dr["InkindAmount"]),
+                                                             ActivityID = Convert.ToInt32(dr["ActivityID"]),
+                                                             ActivityNotes = Convert.ToString(dr["ActivityNotes"]),
+                                                             Hours = Convert.ToInt32(dr["Hours"]),
+                                                             Minutes = Convert.ToInt32(dr["Minutes"]),
+                                                             MilesDriven = Convert.ToDecimal(dr["Miles"]),
+                                                             CenterID = Convert.ToInt32(dr["CenterID"]),
+                                                             Enc_CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])),
+                                                             ClassroomID = Convert.ToInt32(dr["ClassroomID"]),
+                                                             Enc_ClassroomID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClassroomID"])),
+                                                             Name = Convert.ToString(dr["Name"]),
+                                                             ActivityDate = Convert.ToString(dr["ActivityDate"]),
+                                                             InkindAttachmentsList = (dataset.Tables.Count > 1 && dataset.Tables[1] != null && dataset.Tables[1].Rows.Count > 0) ?
+                                                             (from DataRow dr1 in dataset.Tables[1].Rows
+                                                              where Convert.ToInt32(dr["InKindTransactionID"])==Convert.ToInt32(dr1["InKindTransactionID"])
+                                                              select new InkindAttachments
+                                                              {
+                                                                  InkindAttachmentID = Convert.ToInt32(dr1["InkindAttachmentID"]),
+                                                                  InkindAttachmentFileExtension=Convert.ToString(dr1["AttachmentExtension"]),
+                                                                  InkindAttachmentFileName=Convert.ToString(dr1["AttachmentName"])
+                                                              }).ToList() : new List<InkindAttachments>()
+                                                         }
+
+                                                       ).FirstOrDefault();
+
+
+
+                            inkind.InkindActivityList = (from DataRow dr1 in dataset.Tables[0].Rows
+                                                    
+                                                         select new InkindActivity
+                                                         {
+                                                             ActivityCode = Convert.ToString(dr1["ActivityID"]),
+                                                             ActivityDescription = Convert.ToString(dr1["ActivityDescription"]),
+                                                             ActivityType = Convert.ToString(dr1["ActivityType"]),
+                                                             ActivityAmountType = Convert.ToString(dr1["AmountType"]),
+                                                             ActivityAmountRate = Convert.ToString(dr1["ActivityAmountRate"]),
+                                                             IsAllowDocumentUpload = Convert.ToInt32(dr1["AllowDocumentUpload"])
+                                                         }).ToList();
+
+                            activityType = Convert.ToString(dataset.Tables[0].Rows[0]["ActivityType"]);
+                        }
+
+
+                        if(dataset.Tables.Count>2 && dataset.Tables[2]!=null && dataset.Tables[2].Rows.Count>0)
+                        {
+                            inkind.InkindPeriodsList = (from DataRow dr2 in dataset.Tables[2].Rows
+                                                        select new InkindPeriods
+                                                        {
+                                                            StartDate = Convert.ToString(dr2["StartDate"]),
+                                                            EndDate = Convert.ToString(dr2["EndDate"]),
+                                                            InkindPeriodID = Convert.ToInt64(dr2["InkindPeriodID"])
+                                                        }
+                                                      ).ToList();
+                        }
+
+
+
+
+                        //if (dataset.Tables.Count > 2 && dataset.Tables[2] != null && dataset.Tables[2].Rows.Count > 0)
+                        //{
+                        //    inkind.InkindActivityList = (from DataRow dr2 in dataset.Tables[2].Rows
+                        //                                 where Convert.ToString(dr2["ActivityType"]) == activityType
+                        //                                 select new InkindActivity
+                        //                                 {
+                        //                                     ActivityCode = Convert.ToString(dr2["ActivityCode"]),
+                        //                                     ActivityDescription = Convert.ToString(dr2["ActivityDescription"]),
+                        //                                     ActivityType = Convert.ToString(dr2["ActivityType"]),
+                        //                                     ActivityAmountType = Convert.ToString(dr2["AmountType"]),
+                        //                                     ActivityAmountRate = Convert.ToString(dr2["ActivityAmountRate"]),
+                        //                                     IsAllowDocumentUpload=Convert.ToInt32(dr2["AllowDocumentUpload"])
+                        //                                 }
+
+                        //                               ).ToList();
+
+
+
+                        //}
+
+
+
+                    }
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+            }
+            return inkind;
+        }
+
+        public List<SelectListItem> AutoCompleteInkindTransactionData(InkindReportModel inkindReportModel, StaffDetails staffDetails)
+        {
+
+            List<SelectListItem> autoCompleteList = new List<SelectListItem>();
+
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@FilterType", (int)inkindReportModel.FilterTypeEnum));
+                    command.Parameters.Add(new SqlParameter("@SubFilterOption", inkindReportModel.SubFilterOption));
+                    command.Parameters.Add(new SqlParameter("@FromDate", inkindReportModel.FromDate));
+                    command.Parameters.Add(new SqlParameter("@ToDate", inkindReportModel.ToDate));
+                    command.Parameters.Add(new SqlParameter("@SortOrder", inkindReportModel.SortOrder));
+                    command.Parameters.Add(new SqlParameter("@SortColumn", inkindReportModel.SortColumn));
+                    command.Parameters.Add(new SqlParameter("@Skip", inkindReportModel.SkipRows));
+                    command.Parameters.Add(new SqlParameter("@Take", inkindReportModel.PageSize));
+                    command.Parameters.Add(new SqlParameter("@SearchText", inkindReportModel.SearchTerm));
+                    //  command.Parameters.Add(new SqlParameter("@S"))
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_InkindTransactions_Search";
+                    _connection.Open();
+                    dataset = new DataSet();
+                    adapter = new SqlDataAdapter(command);
+                    adapter.Fill(dataset);
+
+                    if (dataset != null && dataset.Tables.Count > 0)
+                    {
+
+                        if (dataset.Tables[0] != null && dataset.Tables[0].Rows.Count > 0)
+                        {
+                            //inkindReportModel.InkindReportList = (from DataRow dr in dataset.Tables[0].Rows
+                            //                                      select new InkindReport
+                            //                                      {
+                            //                                          //  ActivityID = Convert.ToInt32(dr["ActivityCode"]),
+                            //                                          ActivityDescription = Convert.ToString(dr["ActivityDescription"]),
+                            //                                          //  ActivityType = Convert.ToString(dr["ActivityType"]),
+                            //                                          //  Hours = Convert.ToInt32(dr["Hours"]),
+                            //                                          //  Minutes = Convert.ToInt32(dr["Minutes"]),
+                            //                                          //  MilesDriven = Convert.ToDecimal(dr["Miles"]),
+                            //                                          //  InkindTransactionID = Convert.ToInt32(dr["InKindTransactionID"]),
+                            //                                          //  ActivityDate = Convert.ToString(dr["ActivityDate"]),
+                            //                                          //  InKindAmount = Convert.ToDecimal(dr["InkindAmount"]),
+                            //                                          Name = Convert.ToString(dr["Name"]),
+                            //                                          CenterName = Convert.ToString(dr["CenterName"]),
+                            //                                          StaffEntered = Convert.ToString(dr["StaffEntered"])
+                            //                                      }
+
+
+                            // ).ToList();
+
+
+                            autoCompleteList = (from DataRow dr in dataset.Tables[0].Rows
+                                                select new SelectListItem
+                                                {
+                                                    Text = Convert.ToString(dr["Text"]),
+                                                    Value = Convert.ToString(dr["Value"])
+                                                }
+
+
+                                              ).ToList();
+
+
+                        }
+
+
+
+
+
+
+
+
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+
+            }
+
+            return autoCompleteList;
+
+        }
+
+        public List<InkindPeriods> GetInkindPeriodsDate(StaffDetails staff,Guid? _targetAgencyID)
+        {
+
+            List<InkindPeriods> inkindPeriodList = new List<InkindPeriods>();
+            try
+            {
+
+
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@TargetAgencyID", _targetAgencyID));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetInkindPeriods";
+                    _connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inkindPeriodList.Add(new InkindPeriods
+                            {
+                                InkindPeriodID = Convert.ToInt64(reader["InkindPeriodID"]),
+                                StartDate = Convert.ToString(reader["InkindEntryStartDate"]),
+                                EndDate = Convert.ToString(reader["InKindEntryEndDate"]),
+                                IsClosed=Convert.ToBoolean(reader["IsClosed"])
+                            });
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+
+            }
+            return inkindPeriodList;
+        }
+
+        public bool ModifyInkindEntryPeriodData(StaffDetails staff, List<InkindPeriods> inkindPeriodList,Guid? targetAgencyID)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+
+
+                DataTable dtInkindPeriod = new DataTable();
+
+                dtInkindPeriod.Columns.AddRange(new DataColumn[5] {
+                new DataColumn("InkindPeriodID",typeof(long)),
+                new DataColumn("StartDate",typeof(string)),
+                new DataColumn("EndDate",typeof(string)),
+                new DataColumn("Closed",typeof(bool)),
+                 new DataColumn("Status",typeof(bool)),
+
+                });
+
+
+                if (inkindPeriodList != null && inkindPeriodList.Count > 0)
+                {
+
+                    foreach (var item in inkindPeriodList)
+                    {
+                        dtInkindPeriod.Rows.Add(item.InkindPeriodID,
+                                                  item.StartDate,
+                                                  item.EndDate,
+                                                  item.IsClosed,
+                                                  item.IsStatus
+                                                  );
+                    }
+
+                }
+
+
+
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@InkindPeriodTypeTable", dtInkindPeriod));
+                    command.Parameters.Add(new SqlParameter("@TargetAgencyID", targetAgencyID));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_ModifyInkindPeriods";
+                    _connection.Open();
+                 isRowsAffected= command.ExecuteNonQuery() >0;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+                command.Dispose();
+
+            }
+
+
+            return isRowsAffected;
+        }
+
+
+        public bool CheckInKindRecordExistsData(StaffDetails _staff,string _startDate,string _endDate,Guid?_targetAgencyId,long _inkindPeriodID)
+        {
+            bool isExists = false;
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", _staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", _staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", _staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@StartDate", _startDate));
+                    command.Parameters.Add(new SqlParameter("@EndDate", _endDate));
+                    command.Parameters.Add(new SqlParameter("@TargetAgencyID", _targetAgencyId));
+                    command.Parameters.Add(new SqlParameter("@InkindPeriodID", _inkindPeriodID));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_CheckInkindRecordExistsByDates";
+                    _connection.Open();
+                    isExists = Convert.ToBoolean(command.ExecuteScalar());
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+            }
+
+            return isExists;
+
+        }
+
+
+        public InkindAttachments GetInkindAttachmentData(StaffDetails _staff,int attachmentId,int inkindTransactionId)
+        {
+
+            InkindAttachments inkindAttachments = new InkindAttachments();
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Add(new SqlParameter("@AgencyID", _staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", _staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", _staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@InkindAttachmentID", attachmentId));
+                    command.Parameters.Add(new SqlParameter("@InkindTransactionID", inkindTransactionId));
+                    command.Connection = _connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetInkindAttachments";
+                    _connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inkindAttachments.InkindAttachmentFileExtension = Convert.ToString(reader["AttachmentExtension"]);
+                            inkindAttachments.InkindAttachmentFileByte = (Byte[])reader["Attachment"];
+                            inkindAttachments.InkindAttachmentFileName = Convert.ToString(reader["AttachmentName"]);
+                            inkindAttachments.InkindAttachmentID = Convert.ToInt64(reader["InkindAttachmentID"]);
+                            inkindAttachments.InkindTransactionID = Convert.ToInt64(reader["InkindTransactionID"]);
+                        }
+
+                    }
+                }
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+            }
+
+            return inkindAttachments;
+
+        }
+
+        public bool DeleteInkindAttachments(StaffDetails _staff,int attachmentId,int inkindTranactionId)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", _staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", _staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", _staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@InkindAttachmentID", attachmentId));
+                    command.Parameters.Add(new SqlParameter("@InkindTransactionID", inkindTranactionId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_DeleteInkindAttachments";
+                    command.Connection = _connection;
+                    _connection.Open();
+                    isRowsAffected = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
+                }
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                _connection.Dispose();
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
+
     }
 }

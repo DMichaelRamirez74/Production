@@ -13344,7 +13344,7 @@ namespace FingerprintsData
                     foreach (DataRow dr in _dataset.Tables[2].Rows)
                     {
                         obj1 = new FamilyHousehold.Programdetail();
-                        obj1.Id = Convert.ToInt32(dr["programid"]);
+                        obj1.Id = Convert.ToInt32(dr["ProgramTypeID"]);
                         obj1.ReferenceId = dr["ReferenceId"].ToString();
                         ProgramdetailRecords.Add(obj1);
                     }
@@ -14851,12 +14851,12 @@ namespace FingerprintsData
                                     };
 
 
-                                    if ( qns.QuestionType == EnumScreeningQuestionType.Dropdown.ToString())
+                                    if (qns.QuestionType == Convert.ToString((int)EnumScreeningQuestionType.Dropdown))
                                     {
                                         qns.OptionList.Insert(0, new Options
                                         {
 
-                                            Option = string.Empty,
+                                            Option ="--Select--",
                                             OptionId = 0,
                                             IsChecked = false
 
@@ -14912,7 +14912,7 @@ namespace FingerprintsData
                                                           }
                                                         ).ToList();
 
-                        screening.ScreeningPeriodsList.Insert(0, new ScreeningPeriods());
+                        screening.ScreeningPeriodsList.Insert(0, new ScreeningPeriods { Description="--Select--" });
                     }
 
 

@@ -5,14 +5,11 @@
 
 }
 
-@*<script type="text/javascript" src="code.jquery.com/jquery-migrate-1.2.1.js"></script>
-<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>*@
-@*<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/south-street/jquery-ui.css" rel="stylesheet">
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/south-street/jquery-ui.css" rel="stylesheet">*@
+
 
 
 @section Script{
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+   
     <style>
         .kbw-signature {
             width: 400px;
@@ -81,6 +78,9 @@
 
 
     <script>
+
+        var inkindBudgetPeriods=@Html.Raw(Json.Encode(Model.InkindPeriodList));
+
         function validatedate(inputTextObject) {
             if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
                 var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
@@ -88,9 +88,24 @@
                 if (regex.test($(inputTextObject).val())) {
                     var dob = new Date();
                     var now = new Date();
+
                     if (Date.parse($(inputTextObject).val()) >= now) {
                         customAlert("Invalid Activity Date. Date must be less than today's date. ");
                         $(inputTextObject).val('');
+                        return false;
+                    }
+
+                    if (!isValidAllowedDates($(inputTextObject).val())) {
+                        plainValidation($(inputTextObject));
+                        $(inputTextObject).val('');
+                        customAlert('Please enter valid date');
+                        return false;
+                    }
+
+                    if (new Date($(inputTextObject).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                        plainValidation($(inputTextObject));
+                        $(inputTextObject).val('');
+                        customAlert('Future dates are not allowed');
                         return false;
                     }
 
@@ -143,11 +158,129 @@
 
             return month + '/' + day + '/' + year;
         }
+
+        function isValidAllowedDates(enteredDate)
+        {
+            debugger;
+            var $inkindPeriods= inkindBudgetPeriods;
+            var $isAllowed=false;
+            if($inkindPeriods!=null && $inkindPeriods.length>0)
+            {
+
+                    
+                $.each($inkindPeriods,function(){
+
+                    if( new Date(enteredDate).setHours(0,0,0,0) >= new Date($(this)[0].StartDate).setHours(0,0,0,0)
+                        && new Date(enteredDate).setHours(0,0,0,0)<=new Date($(this)[0].EndDate).setHours(0,0,0,0))
+                    {
+                        $isAllowed=true;
+                        return $isAllowed;
+                    }
+
+
+
+                });
+
+                return $isAllowed;
+
+            }
+            else
+            {
+                $isAllowed=true;
+                return $isAllowed;
+            }
+
+
+
+
+        }
+
+
         $(function () {
 
 
 
-            $('#ActivityDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            if (inkindBudgetPeriods != null && inkindBudgetPeriods.length > 0)
+            {
+                debugger;
+                console.log(inkindBudgetPeriods);
+                var $mindate = new Date(inkindBudgetPeriods[0].StartDate).setHours(0, 0, 0, 0);
+                console.log($mindate);
+
+                $('#ActivityDate').datetimepicker({
+                    timepicker:false,
+                    format: 'm/d/Y',
+                    minDate: $mindate,
+                    maxDate: new Date(),
+                    validateOnBlur: false,
+                    mask: true,
+                    autoClose: true,
+                    onSelectDate: function (e, ele) {
+
+                        cleanValidation();
+                        if (!isValidAllowedDates(e)) {
+
+                            customAlert('Entered date is not allowed');
+                            plainValidation('#ActivityDate');
+                            return false;
+                        }
+
+                    },
+                    onChangeDateTime: function (e, ele) {
+                        cleanValidation();
+                        if (!isValidAllowedDates(e)) {
+
+                            customAlert('Entered date is not allowed');
+                            plainValidation('#ActivityDate');
+                            return false;
+                        }
+                    }
+                });
+
+
+
+
+                $('#imageinfoInkindDates').popover({
+                    html:true,
+                    content:function(){
+                        var $appendtext='';
+                        if(inkindBudgetPeriods!=null && inkindBudgetPeriods.length>0)
+                        {
+                            $.each(inkindBudgetPeriods,function(i,period){
+
+                                var $endDate=new Date(period.EndDate).setHours(0,0,0,0)>new Date().setHours(0,0,0,0)?getFormattedDate(new Date().setHours(0,0,0,0)):period.EndDate;
+
+                                $appendtext+='<p>Dates allowed from '+period.StartDate+' '+'to '+$endDate+'</p>';
+                            });
+
+                            return $appendtext;
+                        }
+                    },
+                    container:'body',
+                    title: function () {
+                        //  return $(this).data('title') + '<span class="close">&times;</span';
+                        return 'In-Kind Entry Dates'
+
+                    },
+                    
+                    delay: { "show": 500, "hide": 100 }
+                })
+
+
+                //$('#imageinfoInkindDates').on('click',function(){
+                
+                //    $('#imageinfoInkindDates').popover('show');
+            
+            
+                //});
+
+
+
+
+            }
+
+          
             @*$('#side-menu').hide();
             $('#menu-head').hide();*@
             if ('@ViewBag.message' != '') {
@@ -251,14 +384,14 @@
 
 
 
-            $('#ActivityDate').datetimepicker({
-                timepicker: false,
-                format: 'm/d/Y',
-                validateOnBlur: false,
-                value: getFormattedDate(new Date()),
-                maxDate: new Date(),
-                autoClose: true
-            });
+            //$('#ActivityDate').datetimepicker({
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+            //    validateOnBlur: false,
+            //    value: getFormattedDate(new Date()),
+            //    maxDate: new Date(),
+            //    autoClose: true
+            //});
 
             $('#parentCheckdDatePicker').on('click', function () {
 
@@ -397,6 +530,38 @@
                     customAlert("Please sign and accept signature. ");
                     plainValidation('#imageSig');
                     isValid = false;
+                }
+
+                if($("#parent-check-inkind-div").length>0 && $('#parent-check-inkind-div').is(':visible'))
+                {
+                    if($("#parent-check-inkind-div").find('input:checkbox[name="ActivityCode"]:checked').length>0)
+                    {
+                        if($('#ActivityDate').val()==null || $('#ActivityDate').val()=='' || $('#ActivityDate').val()=="__/__/____")
+                        {
+                            plainValidation('#ActivityDate');
+                            customAlert('Please enter Activity date');
+                            isValid=false;
+                            return isValid;
+                        }
+
+                        if($("#parent-check-inkind-div").find('input:radio[name="Hours"]:checked').length==0)
+                        {
+                            plainValidation('input:radio[name="Hours"]');
+                            customAlert('Please select hours');
+                            isValid=false;
+                            return isValid;
+                        }
+
+                        if($("#parent-check-inkind-div").find('input:radio[name="Minutes"]:checked').length==0)
+                        {
+                            plainValidation('input:radio[name="Minutes"]');
+                            customAlert('Please select minutes');
+                            isValid=false;
+                            return isValid;
+                        }
+
+                    }
+
                 }
 
 
@@ -542,13 +707,15 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-12 col-xs-12" id="parent-check-inkind-div">
-                                                   
+                                                @if (Model.InkindPeriodList != null && Model.InkindPeriodList.Count > 0)
+                                                {
+                                                    <div class="col-lg-12 col-xs-12" id="parent-check-inkind-div">
+
                                                         <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
                                                             <h4 class="page-header">
-                                                                                                                                @if (Model.Activitylst.Count() > 0)
-                                                                                                                                {
-                                                                                                                                    <span> @Model.Activitylst[0].ActivityDescription:</span>
+                                                                @if (Model.Activitylst.Count() > 0)
+                                                                {
+                                                                    <span> @Model.Activitylst[0].ActivityDescription:</span>
                                                                 }
                                                                 else
                                                                 {
@@ -562,12 +729,16 @@
                                                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                                                 <div class="col-lg-6 col-md-6 col-sm-12">
                                                                     <label class="witpart">Activity Date:</label>
-                                                                       <div class="input-group date" id="parentCheckdDatePicker">
+                                                                    <div class="input-group date" id="parentCheckdDatePicker">
                                                                         <input class="form-control" id="ActivityDate" name="ActivityDate" type="text" maxlength="50" onblur="return validatedate(this);" placeholder="MM/DD/YYYY">
                                                                         <span class="input-group-addon">
                                                                             <span class="glyphicon glyphicon-calendar"></span>
                                                                         </span>
                                                                     </div>
+                                                                </div>
+
+                                                                <div class="col-lg-2" style="margin-top: 8px; font-weight: bold;">
+                                                                    <img src="/Images/info.png" id="imageinfoInkindDates" data-placement="top" data-toggle="popover" style="height: 20px;width :20px;padding: 0;" data-original-title="" title="" aria-describedby="popover984329">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -623,10 +794,11 @@
                                                                             {
                                                                                 <label>@Html.RadioButton("Minutes", item.minID, false, new { @class = "minsRadio" })@item.minDes</label>
 
+                                                                                }
                                                                             }
-                                                                        }
-                                                                       
-                                                                    </div></div>
+
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -638,8 +810,12 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    
-                                                </div>
+
+                                                    </div>
+                                                }
+                                                
+
+                                                
 
                                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
                                                     <div class="add-useragform student-scroll full-border full-border-margin">

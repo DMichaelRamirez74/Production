@@ -39,8 +39,14 @@ namespace Fingerprints.Controllers
         /// allows the Users: Teacher, Agency Admin,GenesisEarth Administrator, Center Manager,ERSEA Manager
         /// </summary>
         /// <returns></returns>
+        // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+
+
+
+        StaffDetails staff = StaffDetails.GetInstance();
+
         [CustAuthFilter()]
-        public ActionResult PublicAssetEntry()
+        public ActionResult InKindEntry()
         {
             Inkind inkind = new Inkind();
 
@@ -49,11 +55,18 @@ namespace Fingerprints.Controllers
 
                 inkind = GetInkindActivityFromTempData();
 
+
+                if(inkind!=null && inkind.InkindPeriodsList!=null && inkind.InkindPeriodsList.Count>0)
+                {
+                    inkind.InkindPeriodsList = inkind.InkindPeriodsList.Where(x => x.IsClosed == false).ToList();
+                }
+
                 //StaffDetails details = StaffDetails.GetInstance();
 
                 //inkind = new InKindData().GetInkindActivities(details);
 
                 //TempData["Inkind"] = inkind;
+
             }
             catch (Exception ex)
             {
@@ -68,8 +81,8 @@ namespace Fingerprints.Controllers
         /// <param name="searchName"></param>
         /// <returns>JsonResult list</returns>
 
+        // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
         [CustAuthFilter()]
-
         public JsonResult GetParentCompanyDonorsBySearch(string searchName = "")
         {
             Inkind inkind = new Inkind();
@@ -92,8 +105,8 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="Centerid"></param>
         /// <returns></returns>
-       [CustAuthFilter()]
-
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter()]
         public JsonResult GetClassRoomsForInkind(string Centerid = "0")
         {
             try
@@ -111,8 +124,9 @@ namespace Fingerprints.Controllers
         /// Gets the InKind Activities Page.
         /// </summary>
         /// <returns></returns>
+        //[CustAuthFilter("3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
         [CustAuthFilter()]
-       
         public ActionResult InKindActivities()
         {
             try
@@ -387,6 +401,9 @@ namespace Fingerprints.Controllers
 
                             item.InKindAmount = GetAmountByInkindType(item);
 
+                            item.CenterID = (item.CenterID > 0) ? item.CenterID : !string.IsNullOrEmpty(item.Enc_CenterID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_CenterID)) : item.CenterID;
+                            item.ClassroomID = (item.ClassroomID > 0) ? item.ClassroomID : !string.IsNullOrEmpty(item.Enc_ClassroomID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_ClassroomID)) : item.ClassroomID;
+                            item.IsActive = true;
                             returnResult = new InKindData().InsertInkindTransactions(item);
                         }
 
@@ -399,6 +416,11 @@ namespace Fingerprints.Controllers
                     {
                         item.InKindAmount = GetAmountByInkindType(item);
 
+
+                        item.CenterID = (item.CenterID > 0) ? item.CenterID : !string.IsNullOrEmpty(item.Enc_CenterID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_CenterID)) : item.CenterID;
+                        item.ClassroomID = (item.ClassroomID > 0) ? item.ClassroomID : !string.IsNullOrEmpty(item.Enc_ClassroomID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_ClassroomID)) : item.ClassroomID;
+
+                        item.IsActive = true;
                         returnResult = new InKindData().InsertInkindTransactions(item);
                     }
                 }
@@ -595,5 +617,328 @@ namespace Fingerprints.Controllers
             return inkindAmount;
 
         }
+
+
+        [CustAuthFilter()]
+        public ActionResult InkindReport()
+        {
+
+            InkindReportModel inkindReportModel = new FingerprintsModel.InkindReportModel();
+            inkindReportModel.TotalAmount = "$ 0.00";
+            inkindReportModel.TotalHours = "0.00";
+            inkindReportModel.TotalMiles = "0.00";
+
+            inkindReportModel.InkindPeriodList = new InKindData().GetInkindPeriodsDate(staff, staff.AgencyId);
+
+            return View(inkindReportModel);
+        }
+
+
+        [CustAuthFilter()]
+        public JsonResult GetInkindOptionByFilterType(int filterType)
+        {
+            List<SelectListItem> inKindOptionList = new List<SelectListItem>();
+
+            StaffDetails staff = StaffDetails.GetInstance();
+            inKindOptionList = new InKindData().GetInkindOptionByFilter(staff, filterType);
+
+            return Json(inKindOptionList, JsonRequestBehavior.AllowGet);
+        }
+
+
+        /// <summary>
+        /// Returns the In-Kind Activities List as Partial View, based on the filter criteria
+        /// </summary>
+        /// <param name="filterType"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="requestedPage"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        /// 
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetInkindReportPartial(int filterType, string selectedOption, string fromDate, string toDate,string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        {
+            InkindReportModel inkindReportmodel = new InkindReportModel();
+
+            try
+            {
+
+                inkindReportmodel.RequestedPage = requestedPage;
+                inkindReportmodel.PageSize = pageSize;
+                inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
+                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+                inkindReportmodel.FromDate = fromDate;
+                inkindReportmodel.ToDate = toDate;
+                inkindReportmodel.DateEntered = dateEntered;
+                inkindReportmodel.SortColumn = string.IsNullOrEmpty(sortColumn) ||sortColumn=="null" ? string.Empty : sortColumn.ToUpperInvariant();
+                inkindReportmodel.SortOrder =string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty: sortOrder;
+
+                inkindReportmodel.SubFilterOption = selectedOption;
+                inkindReportmodel.SearchTerm = searchTerm;
+                inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType)||searchTermType=="null" ? string.Empty : searchTermType;
+
+
+
+                new InKindData().GetInkindReportData(ref inkindReportmodel, staff);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return PartialView("~/Views/InKind/_InkindReportListPartial.cshtml", inkindReportmodel);
+        }
+
+
+
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult GetInkindTransactions(string transactionId)
+        {
+
+
+            Inkind inkind = new Inkind();
+
+            transactionId = EncryptDecrypt.Decrypt64(transactionId);
+
+            inkind = new InKindData().GetInkindTransactions(staff, transactionId);
+
+
+            bool isCenterBased = false;
+            bool isHomeBased = false;
+            //if (inkind != null && inkind.InkindActivityList != null && inkind.InkindActivityList.Count > 0)
+            //{
+            //    isCenterBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)InkindActivityTypeEnum.Center;
+            //    isHomeBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)InkindActivityTypeEnum.HomeBased;
+
+            //}
+
+            List<SelectListItem> centerList = Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), isCenterBasedOnly: isCenterBased, isHomebasedonly: isHomeBased);
+
+            centerList.ForEach(x => x.Value = EncryptDecrypt.Encrypt64(x.Value));
+
+            return Json(new { inkind, centerList }, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        /// <summary>
+        /// Post method to delete the in-kind transaction record by the InkindTransactionID
+        /// </summary>
+        /// <param name="inkindTransactionId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult DeleteInkindTransactions(string inkindTransactionId)
+        {
+
+            bool isResult = false;
+            try
+            {
+                InKindTransactions inkindTransactions = new InKindTransactions();
+
+                inkindTransactions.IsActive = false;
+                inkindTransactions.InkindTransactionID = Convert.ToInt32(EncryptDecrypt.Decrypt64(inkindTransactionId));
+
+
+
+                isResult = new InKindData().InsertInkindTransactions(inkindTransactions) > 0;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult AutoCompleteInkindTransactions(int filterType, string selectedOption, string fromDate, string toDate, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        {
+
+            InkindReportModel inkindReportmodel = new InkindReportModel();
+            inkindReportmodel.RequestedPage = requestedPage;
+            inkindReportmodel.PageSize = pageSize;
+            inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
+            inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+            inkindReportmodel.FromDate = fromDate;
+            inkindReportmodel.ToDate = toDate;
+            inkindReportmodel.SortColumn = sortColumn.ToUpperInvariant();
+            inkindReportmodel.SortOrder = sortOrder;
+            inkindReportmodel.SubFilterOption = selectedOption;
+            inkindReportmodel.SearchTerm = searchTerm;
+            //inkindReportmodel.SearchFilterType = searchFilterType;
+
+
+            List<SelectListItem> inkindSearchList = new InKindData().AutoCompleteInkindTransactionData(inkindReportmodel, staff);
+
+
+
+
+
+            return Json(inkindSearchList, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult GetInkindPeriods(Guid? targetAgencyId)
+        {
+             List<InkindPeriods> inkindPeriodList = new InKindData().GetInkindPeriodsDate(staff, targetAgencyId);
+            return Json(inkindPeriodList, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult ModifyInkindEntryPeriods(List<InkindPeriods> inkindPeriodList, Guid? targetAgencyId)
+        {
+
+            bool isResult = false;
+            try
+            {
+                isResult = new InKindData().ModifyInkindEntryPeriodData(staff, inkindPeriodList, targetAgencyId);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult CheckInKindRecordExistsByDate(string startDate, string endDate, Guid? targetAgencyId, long inkindPeriodID)
+        {
+            bool isExists = new InKindData().CheckInKindRecordExistsData(staff, startDate, endDate, targetAgencyId, inkindPeriodID);
+
+            return Json(isExists, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public FileResult GetInkindAttachment(int attachmentId, int inkindTransactionId)
+        {
+
+            try
+            {
+                InkindAttachments inkindAttachments = new InKindData().GetInkindAttachmentData(staff, attachmentId, inkindTransactionId);
+
+                string attachmentFormat = "";
+
+                switch (inkindAttachments.InkindAttachmentFileExtension)
+                {
+                    case ".xlsx":
+                        attachmentFormat = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case ".pdf":
+                        attachmentFormat = "application/pdf";
+                        break;
+                    case ".jpg":
+                        attachmentFormat = "image/jpeg";
+                        break;
+
+                    case ".png":
+                        attachmentFormat = "image/png";
+                        break;
+                    case ".docx":
+                        attachmentFormat = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                        break;
+                    case ".txt":
+                        attachmentFormat = "text/plain";
+                        break;
+                    default:
+                        attachmentFormat = "application/octet-stream";
+                        break;
+                }
+
+                return File(inkindAttachments.InkindAttachmentFileByte, attachmentFormat);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return File(new byte[0], "");
+            }
+
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult DeleteInkindAttachments(int attachmentId, int inkindTransactionId)
+        {
+            bool isResult = false;
+            try
+            {
+                isResult = new InKindData().DeleteInkindAttachments(staff, attachmentId, inkindTransactionId);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult ExportInkindReport(int filterType, string selectedOption, string fromDate, string toDate, string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        {
+            InkindReportModel inkindReportmodel = new InkindReportModel();
+
+            try
+            {
+
+                inkindReportmodel.RequestedPage = requestedPage;
+                inkindReportmodel.PageSize = pageSize;
+                inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
+                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+                inkindReportmodel.FromDate = fromDate;
+                inkindReportmodel.ToDate = toDate;
+                inkindReportmodel.DateEntered = dateEntered;
+                inkindReportmodel.SortColumn = string.IsNullOrEmpty(sortColumn) ||sortColumn=="null" ? string.Empty : sortColumn.ToUpperInvariant();
+                inkindReportmodel.SortOrder = string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty:sortOrder ;
+
+                inkindReportmodel.SubFilterOption = selectedOption;
+                inkindReportmodel.SearchTerm = searchTerm;
+                inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType) || searchTermType == "null" ? string.Empty : searchTermType;
+
+
+
+                new InKindData().GetInkindReportData(ref inkindReportmodel, staff);
+
+
+
+                if (inkindReportmodel != null && inkindReportmodel.InkindReportList != null && inkindReportmodel.InkindReportList.Count > 0)
+                {
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=In-Kind Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                    System.IO.MemoryStream ms = new Export().ExportInkindReport(inkindReportmodel);
+                    ms.WriteTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+                    return View();
+                }
+                return Json("Error occurred. Please, try again later", JsonRequestBehavior.AllowGet);
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return Json("Error occurred. Please, try again later", JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
     }
 }

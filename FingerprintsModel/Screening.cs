@@ -43,7 +43,7 @@ namespace FingerprintsModel
 
     }
 
-    public class ScreeningPeriods
+    public class ScreeningPeriods 
     {
         public double ScreeningPeriod { get; set; }
         public int ScreeningPeriodType { get; set; }
