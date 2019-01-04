@@ -2162,10 +2162,12 @@ namespace FingerprintsData
                 List<Tuple<int, DateTime, long,DateTime>> classStartDateList = new List<Tuple<int, DateTime, long, DateTime>>();
                 List<Tuple<int, DateTime, long, DateTime>> droppedList = new List<Tuple<int, DateTime, long, DateTime>>();
                 List<Tuple<int, DateTime, long, DateTime>> withdrawnList = new List<Tuple<int, DateTime, long, DateTime>>();
+
                 var inputDatesString = attendanceDate.Split(',').OrderBy(x => DateTime.Parse(x
-                                                  , new CultureInfo("en-US", true))).ToList();
-                var inputDates = inputDatesString.OrderBy(x => x).Select(x => DateTime.Parse(x
-                                                    , new CultureInfo("en-US", true))).ToList();
+                                                  , new CultureInfo("en-US", true))).OrderBy(x=>x).ToList();
+
+                var inputDates = inputDatesString.Select(x => DateTime.Parse(x
+                                                    , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
                 if (_dataset.Tables.Count > 4 && _dataset.Tables[4].Rows.Count > 0)
                 {
                     classStartDateList = (from DataRow dr4 in _dataset.Tables[4].Rows

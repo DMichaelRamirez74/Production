@@ -72,7 +72,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
         public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")
         {
             try
@@ -105,15 +105,15 @@ namespace Fingerprints.Controllers
         //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         //[CustAuthFilter(new string[] { Role.teacher,Role.educationManager})]
 
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
-        public ActionResult Roster(string id="")
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
+        public ActionResult Roster(string id = "")
         {
             try
             {
                 int res = 0;
                 bool notChecked = false;
                 ViewBag.NotChecked = false;
-                if(int.TryParse(id,out res) && res==1)
+                if (int.TryParse(id, out res) && res == 1)
                 {
                     ViewBag.NotChecked = true;
                     notChecked = true;
@@ -175,14 +175,14 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                int reasonid = 0;string NewReason = "";
+                int reasonid = 0; string NewReason = "";
                 string childID = collection.Get("childid");
                 string absentType = collection.Get("AbsentType");
                 string Cnotes = "";//= collection.Get("CNotes");
                 if (!string.IsNullOrEmpty(collection.Get("txtNewReason")))
-                     NewReason = collection.Get("txtNewReason");
+                    NewReason = collection.Get("txtNewReason");
                 if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
-                   reasonid = Convert.ToInt32(collection.Get("ReasonList"));
+                    reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 string result = "";
                 new TeacherData().MarkAbsent(ref result, childID, Session["UserID"].ToString(), absentType, Cnotes, Session["AgencyID"].ToString(), reasonid, NewReason);
                 if (result == "1")
@@ -307,7 +307,9 @@ namespace Fingerprints.Controllers
             try
             {
                 string result = "";
-                return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
+                //return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
+
+                return View();
             }
             catch (Exception Ex)
             {
@@ -344,7 +346,7 @@ namespace Fingerprints.Controllers
                 if (available == "1" && Oavailable == "0")
                 {
                     ViewData["ActiveTabTeacher"] = 1;
-                     _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return View(_teach);
@@ -352,7 +354,7 @@ namespace Fingerprints.Controllers
                 }
                 else if (available == "2")
                 {
-                     _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("Roster");
@@ -361,7 +363,7 @@ namespace Fingerprints.Controllers
 
                 else
                 {
-                     _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("~/Teacher/ParentCheckIn_CheckOut?available=" + available + "");
@@ -478,7 +480,7 @@ namespace Fingerprints.Controllers
             bool Result = false;
             try
             {
-                
+
                 if (monitor != null)
                 {
                     foreach (Monitoring obj_Monitor in monitor)
@@ -506,14 +508,14 @@ namespace Fingerprints.Controllers
                         if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
                         {
 
-                       
+
                             Guid userid = new Guid(Session["UserID"].ToString());
                             new TeacherData().AddDailySafetyCheckOpenCloseRequest(Notes, Convert.ToBoolean(isClosed), false, true, userid, monitor.ElementAt(0), null);
                         }
                         else
                         {
                             Guid userId = new Guid(Session["UserID"].ToString());
-                            new TeacherData().AddDailySafetyCheckOpenCloseRequest(Notes, Convert.ToBoolean(isClosed), true, false,userId, monitor.ElementAt(0), monitor.ElementAt(0).CenterId.ToString());
+                            new TeacherData().AddDailySafetyCheckOpenCloseRequest(Notes, Convert.ToBoolean(isClosed), true, false, userId, monitor.ElementAt(0), monitor.ElementAt(0).CenterId.ToString());
                         }
                     }
                     else
@@ -655,7 +657,7 @@ namespace Fingerprints.Controllers
 
                     }
                 }
-                List<Tuple<bool, string, string, string, long, string,string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string,string>>();
+                List<Tuple<bool, string, string, string, long, string, string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string, string>>();
 
                 string Reason = daysOff.OffDayComments;
 
@@ -683,7 +685,7 @@ namespace Fingerprints.Controllers
                                 path = path.Replace("{Name}", tuple.Item2).Replace("{reason}", Reason).Replace("{reasonBody}", "all classes for the center: " + tuple.Item5 + " are closed today.").Replace("{reportbody}", "Do not report to office today.");
 
                             }
-                          SendMail.SendEmailToParentAndTeacher(tuple.Item3, path, Session["EmailID"].ToString());
+                            SendMail.SendEmailToParentAndTeacher(tuple.Item3, path, Session["EmailID"].ToString());
 
 
                             // for send sms to the parents and teacher 
@@ -713,7 +715,7 @@ namespace Fingerprints.Controllers
 
         //    var people = new Dictionary<string, string>() {
         //        {"+918668170944", "Test"},
-               
+
         //    };
 
         //    foreach (var person in people)
@@ -726,7 +728,7 @@ namespace Fingerprints.Controllers
 
         //    }
         //}
-     
+
         public ActionResult DownloadDocuments(string FilePath)
         {
             byte[] fileBytes = null;
@@ -873,7 +875,7 @@ namespace Fingerprints.Controllers
 
                 }
 
-                List<Tuple<bool, string, string, string, long, string,string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string,string>>();
+                List<Tuple<bool, string, string, string, long, string, string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string, string>>();
 
                 if (yakkrList.Count() > 0)
                 {
@@ -904,7 +906,7 @@ namespace Fingerprints.Controllers
                                     //{
                                     //    SendSMSToParentTeacher(tuple, Reason);
                                     //}
-                                   
+
 
                                 }
                             }
@@ -957,7 +959,7 @@ namespace Fingerprints.Controllers
 
                         _imgname = Guid.NewGuid().ToString();
                         _imgname = "Damage_" + _imgname + _ext;
-                        var _comPath = Server.MapPath("/Content/ImageDamage/") + _imgname ;
+                        var _comPath = Server.MapPath("/Content/ImageDamage/") + _imgname;
                         _imgpath = "/Content/ImageDamage/" + _imgname;
                         var path = _comPath;
 
@@ -1041,7 +1043,7 @@ namespace Fingerprints.Controllers
                 ViewBag.PageVersion = DateTime.Now.DayOfYear.ToString();
 
                 TeacherModel model = new TeacherModel();
-                model=new TeacherData().GetCenterBasedCenters(Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["RoleId"].ToString());
+                model = new TeacherData().GetCenterBasedCenters(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleId"].ToString());
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.RoleId = Session["RoleID"].ToString();
                 return View(model);
@@ -1057,18 +1059,20 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
 
 
-        public JsonResult GetChildListForCenterBased(string centerId,string classroomId,bool isHistorical,string attendanceDate="")
-         {
+        public JsonResult GetChildListForCenterBased(string centerId, string classroomId, bool isHistorical, string attendanceDate = "")
+        {
             TeacherModel model = new TeacherModel();
             try
             {
-               // attendanceDate = (isHistorical) ? "" : attendanceDate;
-               long _centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-              long  _classroomId = Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
-                model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(),_centerId,_classroomId,isHistorical,attendanceDate);
+                // attendanceDate = (isHistorical) ? "" : attendanceDate;
+                long _centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
+                long _classroomId = Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
+                model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(), _centerId, _classroomId, isHistorical, attendanceDate);
 
                 var jsonSerialiser = new JavaScriptSerializer();
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
+
+
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
                 model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
                 model.CenterString = jsonSerialiser.Serialize(model.CenterList);
@@ -1085,21 +1089,22 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter()]
 
-        public JsonResult GetChildAttendanceDetailsByDate(string centerId,string classroomId,string attendaneDate,bool isHistorical)
+        public JsonResult GetChildAttendanceDetailsByDate(string centerId, string classroomId, string attendaneDate, bool isHistorical)
         {
             TeacherModel model = new TeacherModel();
             try
             {
                 long _centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
                 long _classroomId = Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
-                // model = new TeacherData().GetChildAttendanceDetailsByDate(Session["AgencyId"].ToString(),attendaneDate, isHistorical, _centerId, _classroomId);
-              model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(), _centerId, _classroomId, isHistorical, attendaneDate);
+
+                model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(), _centerId, _classroomId, isHistorical, attendaneDate);
                 var jsonSerialiser = new JavaScriptSerializer();
+
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
                 model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1118,9 +1123,9 @@ namespace Fingerprints.Controllers
                 model.CenterID = Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
-             model=   new TeacherData().GetClassRoomsByCenterHistorical(model);
+                model = new TeacherData().GetClassRoomsByCenterHistorical(model);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1129,7 +1134,7 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
 
-        public JsonResult GetFSWNameandTeacherName(string centerId,string classroomId)
+        public JsonResult GetFSWNameandTeacherName(string centerId, string classroomId)
         {
             TeacherModel model = new TeacherModel();
 
@@ -1151,14 +1156,14 @@ namespace Fingerprints.Controllers
         }
 
 
-        
+
 
 
 
         [HttpPost]
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
 
-        public JsonResult InsertAttendanceData(string userId, string agencyId, string centerId, string classRoomId,bool historical, string WeeklyAttendString = "", string dailyMealsString = "",string dateString = "")
+        public JsonResult InsertAttendanceData(string userId, string agencyId, string centerId, string classRoomId, bool historical, string WeeklyAttendString = "", string dailyMealsString = "", string dateString = "")
         {
 
             List<TeacherModel> teacherModel = new List<TeacherModel>();
