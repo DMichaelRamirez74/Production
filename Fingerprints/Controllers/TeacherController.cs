@@ -307,9 +307,7 @@ namespace Fingerprints.Controllers
             try
             {
                 string result = "";
-                //return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
-
-                return View();
+                return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
             }
             catch (Exception Ex)
             {
