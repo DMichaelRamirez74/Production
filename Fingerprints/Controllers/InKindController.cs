@@ -347,15 +347,15 @@ namespace Fingerprints.Controllers
         [JsonMaxLength]
         [ValidateInput(false)]
         [CustAuthFilter()]
-
-        public JsonResult InsertInkindTransactions(string modelString = "")
-            //public JsonResult InsertInkindTransactions(Inkind _inkind)
+        public JsonResult InsertInkindTransactions(string modelString = "", string cameraUploads=null)
+        //public JsonResult InsertInkindTransactions(Inkind _inkind)
         {
             int returnResult = 0;
             long identityRet = 0;
             try
             {
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
                 Inkind model = new Inkind();
                 model = serializer.Deserialize<Inkind>(modelString);
 
@@ -378,6 +378,23 @@ namespace Fingerprints.Controllers
                             InkindAttachmentFileByte= new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength)
                         });
                     }
+
+                    if(!string.IsNullOrEmpty(cameraUploads))
+                    {
+                        List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+
+                        foreach(var item in cameraUplodList)
+                        {
+                            model.InkindTransactionsList[0].InkindAttachmentsList.Add(new InkindAttachments
+                            {
+                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
+                                InkindAttachmentFileName = item.Text,
+                                InkindAttachmentFileExtension = ".png",
+                                InkindAttachmentFileByte = Convert.FromBase64String(item.Value)
+                            });
+                        }
+                    }
+
                 }
                 
 

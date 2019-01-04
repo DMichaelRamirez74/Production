@@ -39,7 +39,7 @@
         var _allowExceedingWarninghrs = false;
         var _sortOrder = null;
         var _sortColumn = null;
-
+         _validFileExtensions = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
 
         var inKindReport = {
 
@@ -107,7 +107,9 @@
                 'modallabelInkindActivity':null,
                 'modalspanAllowedDates':null,
                 'modalImageUploadCamera':null,
-                'modalUploadDocument':null
+                'modalUploadDocument':null,
+                'modal_buttonAdd_uploadDocument':null,
+                'modal_div_uploadDocument_image_gallery':null
 
 
 
@@ -210,7 +212,8 @@
                 $selfElements.modalImageUploadCamera=$selfElements.modalEditInkind.find('#uploadImageCamera');
 
                 $selfElements.modalUploadDocument=$('#modal-uploaddocument');
-
+                $selfElements.modal_buttonAdd_uploadDocument=$selfElements.modalUploadDocument.find('#btn-modal-doc-add');
+                $selfElements.modal_div_uploadDocument_image_gallery=$selfElements.modalUploadDocument.find('.div-image-snap-gallery');
 
 
             },
@@ -289,6 +292,8 @@
                 $selfElements.modalImageUploadCamera.on('click',function(){
                     $selfElements.modalEditInkind.modal('hide');
                     //$('body').addClass('modal-open');
+
+                    $selfElements.modalUploadDocument.find('.div-image-snap-gallery').html('');
                     $selfElements.modalUploadDocument.modal('show');
                 });
 
@@ -299,21 +304,21 @@
                 
 
 
-                    if($selfElements.modalImageUploadCamera.is(':visible'))
-                    {
+                    //if($selfElements.modalImageUploadCamera.is(':visible'))
+                    //{
                     
-                        $selfElements.modalImageUploadCamera.popover('destroy');
-                        $selfElements.modalImageUploadCamera.popover({
+                    //    $selfElements.modalImageUploadCamera.popover('destroy');
+                    //    $selfElements.modalImageUploadCamera.popover({
 
-                            title:function(){
+                    //        title:function(){
 
-                                return 'Upload document using Webcam is available';
-                            }
+                    //            return 'Upload document using Webcam is available';
+                    //        }
 
-                        });
+                    //    });
 
-                        $selfElements.modalImageUploadCamera.popover('show');
-                    }
+                    //    $selfElements.modalImageUploadCamera.popover('show');
+                    //}
 
                     $('body').css({'padding-right':'0px'});
 
@@ -937,6 +942,25 @@
                         fileData.append('modelString', JSON.stringify(model1));
 
 
+                        var $cameraDocuments=$selfElements.modalEditInkind.find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+                        var cameraDocumentsArray=[];
+
+                        if($cameraDocuments.length>0)
+                        {
+
+                            $.each($cameraDocuments,function(j,doc){
+                                debugger;
+                                var $doc=$(doc).find('img');
+                                cameraDocumentsArray.push({'Text':'InkindDocument','Value':self.getBase64Image($doc)});
+                            
+                            });
+                        }
+
+                        fileData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+
+
                         $.ajax({
 
                             url: HostedDir + '/InKind/InsertInkindTransactions',
@@ -985,6 +1009,29 @@
                 });
 
 
+
+                $selfElements.modal_buttonAdd_uploadDocument.on('click',function(){
+                
+
+                    var $imageGallerylength= $selfElements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
+
+                    if($imageGallerylength==0)
+                    {
+                        customAlert('Please capture image using camera');
+                        return false;
+                    }
+
+
+                    $('#div-edit-modal-img-gallery').append($selfElements.modal_div_uploadDocument_image_gallery.html());
+
+                    $selfElements.modal_div_uploadDocument_image_gallery.html('');
+
+                    $selfElements.modalUploadDocument.modal('hide');
+
+                });
+
+
+
                 $selfElements.modalEditInkind.on('hidden.bs.modal', function () {
 
                     if($selfElements.modalUploadDocument.is(':visible'))
@@ -1014,6 +1061,8 @@
                     $selfElements.modalselectinkindcenter.html('');
                     $selfElements.modalselectinkindclassroom.html('');
                     $selfElements.modalinkindAmount.prop('disabled', true);
+
+                    $selfElements.modalEditInkind.find('#div-edit-modal-img-gallery').html('');
 
                     //$selfElements.modalImageUploadCamera.hide();
 
@@ -1124,6 +1173,40 @@
                     $(this).popover('show');
 
                 });
+
+
+
+                $(document).on('click','.delete-file-upload',function(){
+                    
+                    $(this).closest('.setup_viewscreen').remove();
+
+                });
+
+
+                
+                $(document).on('click','.view-file-upload',function(){
+                    
+                  //  window.open($(this)., 'newwindow','width=500,height=500');
+
+                    var imageAttr=  $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+                 //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
+                    console.log(imageAttr);
+
+                    //imageAttr='<embed src='+imageAttr+'></embed>';
+                    //window.open(imageAttr, 'newwindow','width=500,height=500');
+
+
+
+                    var w = window.open('about:blank','newwindow','width=500,height=500');
+
+                    setTimeout(function(){ //FireFox seems to require a setTimeout for this to work.
+                        w.document.body.appendChild(w.document.createElement('img'))
+                            .src = imageAttr;
+                    }, 0);
+
+                });
+
+
 
                 $(document).ajaxStart(function () {
 
@@ -1816,42 +1899,7 @@
                 }, 10)
             },
             gotoNextPage: function (reqPage, pageSize) {
-                //$('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
-                //if (imgID != '' && imgID != 'undefined' && imgID != null) {
-                //    direction = $("#" + imgID).siblings('input').val();
-                //}
-                //if (direction == "Asc") {
-                //    sortDirection = $("#" + imgID).siblings('input').val();
-
-                //} else if (direction == "Desc") {
-                //    sortDirection = $("#" + imgID).siblings('input').val();
-                //}
-
-
-                //getList();
-                //bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-
-
-                //REQUESTED_PAGE = $selfElements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : $selfElements.dropdownPageNumber.val();
-
-                //PAGE_SIZE = $selfElements.dropdownRecordsPerpage.val();
-
-
-
-                //self.ajaxParameters.filterType = $selfElements.inKindFilter.val();
-
-                //self.ajaxParameters.selectedOption = parseInt($selfElements.inKindFilter.val()) == self.filterType.Center ? $selfElements.dropdownCenter.val().join(',')
-                //                                    : parseInt($selfElements.inKindFilter.val()) == self.filterType.Contributor ? $selfElements.dropdownContributor.val().join(',')
-                //                                    : $selfElements.dropdownContributionActivity.val().join(',');
-
-                //self.ajaxParameters.fromDate = $selfElements.inkindFromDate.val();
-
-                //self.ajaxParameters.toDate = $selfElements.inkindToDate.val();
-
-
-
-                //self.ajaxParameters.requestedPage = REQUESTED_PAGE;
-                //self.ajaxParameters.pageSize = PAGE_SIZE;
+                
 
                 self.getInkindTransactionsReport(self.bindAjaxParameters());
 
@@ -1911,20 +1959,10 @@
                 START_INDEX = (PAGE_SIZE * (REQUESTED_PAGE - 1)) + 1;
                 LAST_INDEX = parseInt(PAGE_SIZE * REQUESTED_PAGE) - parseInt(PAGE_SIZE);
 
-                //$('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
-
-                //if (imgID != '' && imgID != 'undefined' && imgID != null) {
-                //    direction = $("#" + imgID).siblings('input').val();
-                //}
-                //if (direction == "Asc") {
-                //    sortDirection = $("#" + imgID).siblings('input').val();
-                //} else if (direction == "Desc") {
-                //    sortDirection = $("#" + imgID).siblings('input').val();
-                //}
-
+                
                 var $selfElements = self.elements;
 
-                //  getList();
+               
 
                 self.getInkindTransactionsReport(self.bindAjaxParameters());
 
@@ -1954,9 +1992,7 @@
 
 
 
-                // bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-
-                //$selfElements.dropdownPageNumber.val(REQUESTED_PAGE);
+              
             },
 
             bindAjaxParameters: function () {
@@ -2334,7 +2370,7 @@
 
                 }
 
-          // showCameraOption();
+           showCameraOption();
 
             
 
@@ -2748,7 +2784,7 @@
                 var attachmentLength=self.elements.divAddAttachments.find('input:file').length;
 
                 var appendDiv = '<div class="sum_attachparticic list_panic_info">\
-                                   <input type="file" name="InkindAttachmentsList[' + attachmentLength + '].InkindAttachmentFile" class="form-control text-bg" />\
+                                   <input type="file" name="InkindAttachmentsList[' + attachmentLength + '].InkindAttachmentFile" class="form-control text-bg" onchange="self.ValidateSingleInputpdf(this)" />\
                                    <a href="javascript:void(0)" title="Remove Attachment" class="anchor-remove-attachment"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
                                </div>';
 
@@ -2796,11 +2832,74 @@
 
                 if(result)
                 {
-                    ele.parent('div').remove();
+                    ele.popover('hide');
+                    ele.closest('.attachment-icons-block').remove();
+                }
+              
+            },
+         
+         ValidateSingleInputpdf:function(oInput) {
+            // debugger;
+
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+
+                    var blnValid = false;
+                    var valid_size = 3 * 1000 * 1000;
+                    var v = oInput.files[0].size;
+                    if (v <= valid_size) {
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                //  $('#documentlabel').text(oInput.files[0].name);
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            customAlertforlongtime("Only (pdf,jpg,jpeg,bmp,gif,png) of file type allowed.");
+                            // $('#documentlabel').text("");
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 3 MB. ");
+                        $('#documentlabel').text("");
+                        return false;
+
+                    }
 
                 }
-                ele.popover('hide');
             }
+
+
+
+           
+
+            return true;
+         },
+
+         convertStringToByteArray:function(inputString)
+         {
+             var bytes = []; // char codes
+             var bytesv2 = []; // char codes
+
+             for (var i = 0; i < inputString.length; ++i) {
+                 var code = inputString.charCodeAt(i);
+  
+                 bytes = bytes.concat([code]);
+  
+                 bytesv2 = bytesv2.concat([code & 0xff, code / 256 >>> 0]);
+             }
+         },
+         getBase64Image:function(img) {
+          
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+     }
 
         }
 
@@ -2852,7 +2951,8 @@
          
 
             screenshotButton = document.querySelector('#anchor-capture');
-            img = document.querySelector('#setup-camera-div #capt-img');
+
+           // img = document.querySelector('#setup-camera-div #capt-img');
 
         
 
@@ -2861,12 +2961,29 @@
 
             screenshotButton.onclick = video.onclick = function () {
 
+                var $index=  $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                var $imageQuery='<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_'+$index+'">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 // Other browsers will fall back to image/png
                 console.log(canvas);
-                img.src = canvas.toDataURL('image/png');
+               // img.src = canvas.toDataURL('image/png');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+              
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_'+$index+'').find('img').attr('src', canvas.toDataURL('image/png'));
             };
 
             function handleSuccess(stream) {
@@ -2985,7 +3102,9 @@
             //  alert();
             debugger;
             var videoInputAvailable = 0;
+            $('#uploadImageCamera').tooltip('hide');
             $('#uploadImageCamera').hide();
+          
             navigator.mediaDevices.enumerateDevices().then(function (devices) {
 
                 console.log(devices);
@@ -3001,11 +3120,12 @@
 
                 if (videoInputAvailable == 0) {
                   $('#uploadImageCamera').hide();
-
+                  $('#uploadImageCamera').tooltip('hide');
                   
                 }
                 else {
-                  $('#uploadImageCamera').show();
+                    $('#uploadImageCamera').show();
+                    $('#uploadImageCamera').tooltip('show');
                 }
 
                 console.log(videoInputAvailable);
@@ -3050,9 +3170,7 @@
                 {
 
                     $('#uploadImageCamera').show();
-
-                    $('#uploadImageCamera').popover('show');
-
+                    $('#uploadImageCamera').tooltip('show');
                 }
 
           
@@ -3060,8 +3178,9 @@
             }, function() {
                 
                 $('#uploadImageCamera').hide();
+                $('#uploadImageCamera').tooltip('hide');
 
-                $('#uploadImageCamera').popover('hide');
+               
             });
 
            
@@ -3073,9 +3192,7 @@
 
             userMediaInterval=  setInterval(function(){
             
-            
-             
-                //checkUserMedia();
+               checkUserMedia();
             
             },1000);
 
@@ -3844,17 +3961,32 @@
 }
 
 
-    #modal-uploaddocument .setup_viewscreen {
-    width: 96%;
+    #modal-uploaddocument .setup_viewscreen,  #modal-edit-inkind .setup_viewscreen {
+    /*width: 96%;
     float: none;
     display: inline-block;
     background-color: #000;
     height: 350px;
+    max-width: 100%;*/
+        width: 130px;
+    float: left;
+    display: inline-block;
+    background-color: #000;
+    height: 90px;
     max-width: 100%;
+    padding: 0;
+    border-radius: 5px;
+    position: relative;
+    margin-right: 10px;
 }
 
-    #modal-uploaddocument .setup_viewscreen-camera {
-    height: 350px;
+    #modal-uploaddocument .setup_viewscreen-camera, #modal-edit-inkind .setup_viewscreen-camera {
+    /*height: 350px;*/
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
 }
 
     #modal-uploaddocument video {
@@ -3872,10 +4004,70 @@
     background: #c6c3c3;
 }
 
-
-
-
-
+     .mob-div-pad
+        {
+          height: 260px;
+    margin-bottom: 30px;
+        }
+     .mob-div-pad video
+        {
+            height: 265px;
+        }
+     .attach-icon-div-gallery {
+   position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    width: 20px;
+    text-align: center;
+    padding: 0px 0;
+    /* background: #ffffff; */
+    border-left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    border-radius: 5px;
+    line-height: 90px;z-index:9;
+    opacity:0;
+    -webkit-transition:  all 0.5s linear;
+  -moz-transition: all 0.5s linear;
+  -o-transition: all 0.5s linear;
+  transition: all 0.5s linear;
+}
+     .no-padding{padding:0;}
+     .attach-icon-div-gallery .delete-file-upload {
+       color: #fff;
+    background: #ce635a;
+    padding: 5px;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;margin-left:5px;
+    cursor: pointer;
+}
+     .attach-icon-div-gallery .view-file-upload {
+     color: #fff;
+    background: #42af3c;
+    padding: 5px;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+    cursor: pointer;
+}
+      .setup_viewscreen{
+         -webkit-transition:  all 0.5s linear;
+  -moz-transition: all 0.5s linear;
+  -o-transition: all 0.5s linear;
+  transition: all 0.5s linear;
+     }
+     .setup_viewscreen:hover .attach-icon-div-gallery{
+         opacity:1;
+         -webkit-transition:  all 0.5s linear;
+  -moz-transition: all 0.5s linear;
+  -o-transition: all 0.5s linear;
+  transition: all 0.5s linear;
+     }
         @@media (min-width: 768px) and (max-width: 991px) {
             .search-block-main {
                 display: block !important;
@@ -4071,7 +4263,7 @@
 
                                 <!-------In-kind Report table section------->
 
-                                <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
 
 
 
@@ -4374,15 +4566,21 @@
                                     <label for="inkind-attachments-div" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Add Attachment(s)</label>
                                     <div class="col-md-8 col-lg-6 col-xs-12">
                                         <div class="col-xs-12 row sum_attachparticic">
-                                            <input type="file" class="form-control text-bg" name="InkindAttachmentsList[0].InkindAttachmentFile">
+                                            <input type="file" class="form-control text-bg" onchange="self.ValidateSingleInputpdf(this);" name="InkindAttachmentsList[0].InkindAttachmentFile">
                                             <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                              <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" />
+                                              <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
                                         </div>
 
 
                                         <div class="col-xs-12 row attachparticic_myactive">
 
                                         </div>
+
+
+                                        <div class="col-md-12 col-xs-12 adddivspace"  id="div-edit-modal-img-gallery">
+
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -4444,12 +4642,12 @@
 
 
                             </div>
-                            <div class="setup-camo" id="setup-camera-div">
-                                <div class="col-xs-12 col-sm-12 col-lg-12 mob-div-pad" style="height:350px;margin-bottom:20px;">
+                            <div class="col-xs-12 setup-camo" id="setup-camera-div">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 mob-div-pad no-padding">
 
-                                    <video autoplay="" style="height:350px;" muted="" playsinline=""></video>
+                                    <video autoplay="" muted="" playsinline=""></video>
 
-                                    <div class="setup-snap">
+                                    <div class="col-xs-12 setup-snap">
 
 
                                         <a href="javascript:void(0);" id="anchor-capture" data-toggle="tooltip" title="" data-original-title="click to capture image">
@@ -4458,21 +4656,22 @@
 
                                     </div>
                                 </div>
-                                <div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:20px;">
 
-                                    <img id="capt-img" class="setup_viewscreen-camera">
+                                <div class="col-xs-12 div-image-snap-gallery">
 
+                                   
                                 </div>
+
                             </div>
 
 
                             <div class="col-xs-12 bdr-popup"></div>
                             <div class="form-group final-btn text-center glossy_btn adddivspace">
 
-                                <button class="glossy-button-button button-green" type="button" id="btn-modal-doc-save">
+                                <button class="glossy-button-button button-green" type="button" id="btn-modal-doc-add">
                                     <span class="glossy-button-after"></span>
                                     <span class="glossy-button-before"></span>
-                                    Save
+                                    Add
                                 </button>
                                 <button class="glossy-button-button button-red" type="button" id="btn-modal-doc-cancel" data-dismiss="modal">
                                     <span class="glossy-button-after"></span>
