@@ -3075,11 +3075,11 @@ namespace Fingerprints.Controllers
         #region TimeLine
 
         [CustAuthFilter()]
-        public ActionResult TimeLine(string clientid = "0", bool dev=false)
+        public ActionResult TimeLine(string clientid = "0")
         {
-            if (dev) {
-                clientid = EncryptDecrypt.Encrypt64(clientid);
-            }
+            //if (dev) {
+            //    clientid = EncryptDecrypt.Encrypt64(clientid);
+            //}
 
             long cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientid));
 

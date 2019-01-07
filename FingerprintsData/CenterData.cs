@@ -11,6 +11,7 @@ using System.Web.Mvc;
 
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Globalization;
 //using System.Web.Script.Serialization;
 
 namespace FingerprintsData
@@ -1104,8 +1105,10 @@ namespace FingerprintsData
                                                  RecordType = Convert.ToInt32(dr["RecordType"]),
                                                  //Enum.GetName(typeof(EnumDaysOff), Convert.ToInt64(dr["RecordType"]))
                                                  RecordName = (dr["RecordType"].ToString() == "1") ? "Agency Wide Closure" : (dr["RecordType"].ToString() == "2") ? "Entire Center Closure" : "Classroom Closure",
-                                                 FromDate = Convert.ToDateTime(dr["FromDate"]).ToString("MM/dd/yyyy"),
-                                                 ToDate = Convert.ToDateTime(dr["ToDate"]).ToString("MM/dd/yyyy"),
+                                               // FromDate = Convert.ToDateTime(dr["FromDate"]).ToString("MM/dd/yyyy"),
+                                                // ToDate = Convert.ToDateTime(dr["ToDate"]).ToString("MM/dd/yyyy"),
+                                                  FromDate = dr["FromDate"].ToString(),
+                                                 ToDate = dr["ToDate"].ToString(),
                                                  OffDayComments = string.IsNullOrEmpty(dr["OffDayComments"].ToString()) ? "" : dr["OffDayComments"].ToString(),
                                                  DaysOffID = dr["DaysOffID"].ToString(),
                                                  CenterName = string.IsNullOrEmpty(dr["CenterName"].ToString()) ? "" : dr["CenterName"].ToString(),
@@ -1208,7 +1211,8 @@ namespace FingerprintsData
 
                             foreach (var item in list)
                             {
-                                model.DatesList.AddRange(GetDatesBetween(Convert.ToDateTime(item.Text), Convert.ToDateTime(item.Value)));
+                                // model.DatesList.AddRange(GetDatesBetween(Convert.ToDateTime(item.Text), Convert.ToDateTime(item.Value)));
+                                model.DatesList.AddRange(GetDatesBetween( DateTime.Parse(item.Text, new CultureInfo("en-US", true)), DateTime.Parse(item.Value, new CultureInfo("en-US", true))));
                             }
                             //model.OffDaysString = jsonSerialiser.Serialize(datesList);
                         }

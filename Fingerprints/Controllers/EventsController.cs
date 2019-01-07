@@ -109,16 +109,11 @@ namespace Fingerprints.Controllers
                 objEvents.AgencyId = Session["AgencyID"].ToString();
                 objEvents.UserId = Session["UserID"].ToString();
                 isResult = new EventsData().SaveEvents(objEvents);
-
-
                 if (objEvents.IsUpdate)
                 {
                     List<ReasonList> reasonList = new List<ReasonList>();
                     GetRegisteredParentAndMail(objEvents);
-
                 }
-
-
             }
             catch (Exception Ex)
             {

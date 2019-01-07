@@ -131,7 +131,8 @@ namespace FingerprintsData
                     {
                         decimal Count = _dataset.Tables[7].Rows.Count;
                         executive.ThermHours = _dataset.Tables[7].Rows[0]["TotalHours"].ToString();
-                        executive.ThermDollars = Convert.ToDouble(_dataset.Tables[7].Rows[0]["Dollars"]).ToString("N", CultureInfo.InvariantCulture);
+                        executive.ThermDollars = Convert.ToDouble(_dataset.Tables[7].Rows[0]["Dollars"]).ToString();
+                            //ToString("N", CultureInfo.InvariantCulture);
 
 
                     }

@@ -27,6 +27,28 @@ function getADASeatsDaily() {
 }
 
 
+function formatCurrency(val) {
+   
+    //var val = ctrl.value;
+
+    val = val.replace(/,/g, "")
+    //ctrl.value = "";
+    val += '';
+    x = val.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+
+    var rgx = /(\d+)(\d{3})/;
+
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        console.log(x1);
+    }
+
+    return x1 + x2;
+}
+
+
 
 
 
@@ -350,7 +372,7 @@ $(window).load(function () {
     GoogleChart();
     var hours = parseFloat($('#txtThermHours').val()).toFixed(0);
     var _txtDollars = $('#txtThermDollars').val();
-    var _flotDollars =_txtDollars.replace(',', '');
+    var _flotDollars =_txtDollars;
    // _txtDollars = 
 
     for (var i = 0; i < hours.length; i++) {
@@ -371,23 +393,28 @@ $(window).load(function () {
     }
     var totalDOllers = 0;
     if ($('#txtTotalDollars').val() != "")
-        totalDOllers = parseInt($('#txtTotalDollars').val().replace(',',''));
+        totalDOllers = parseInt($('#txtTotalDollars').val());
     else
         totalDOllers = parseFloat("1" + Dollars);
     var oTherm = new jlionThermometerDollars(0, totalDOllers, true, false);
 
    
 
-    $('#txtThermDollars').val(parseFloat(_flotDollars))
+    $('#txtThermDollars').val(parseFloat(_flotDollars));
+
+  
     oTherm.RefreshByID('txtThermDollars');
 
     $('#bar').removeClass('barDollarThermo').addClass('barHoursThermo');
     var height = $('.barHoursThermo').height() + 9;
     $('.barHoursThermo').css('height', height + 'px');
     $('#thermometer .Title').text('');
-    $('#thermometer .CurrentValue').text($('#txtThermHours').val() + " Hours");
 
+
+    $('#thermometer .CurrentValue').text(formatCurrency($('#txtThermHours').val()) + ' Hours');
 
     $('#thermometer-hours .Title').text('');
-    $('#thermometer-hours .CurrentValue').text("$ " + _txtDollars);
+
+    $('#thermometer-hours .CurrentValue').text("$ " + formatCurrency($('#txtThermDollars').val()));
+
 });
