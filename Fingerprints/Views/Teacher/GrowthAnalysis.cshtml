@@ -1,0 +1,724 @@
+﻿@using FingerprintsModel
+@{
+
+    @section Title
+{
+        Growth Analysis
+    }
+
+    if (Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(RoleEnum.AgencyAdmin).ToLowerInvariant()
+        || Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+}
+
+
+@section style{
+    <style type="text/css">
+        .page-wrapper-change {
+            background-image: url(../../Images/body-bg.jpg);
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+
+        .table-div {
+            width: 100%;
+            float: left;
+            padding: 15px;
+            border-radius: 7px;
+        }
+
+        #GrowthMeasure-table thead {
+          /*  background: #9B58B4;*/
+            color: #fff;
+        }
+
+        .reswidth {
+            /* width:100px !important;*/
+        }
+
+    .minwidth-td{
+
+     
+        width:150px;
+        }
+        #filtercontent-div label,
+        #maincontent-div p {
+        color:#1d5381;
+        }
+        .service-td {
+        width:100px;
+        }
+    </style>
+
+}
+
+@section MainContentHolder{
+
+
+
+    <div class="row" style="padding-top:25px;">
+        <div class="col-lg-12">
+            <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                <span><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;Children Growth Analysis</span>
+                @*<button type="button" class="btn btn-success pull-right">Submit</button>*@
+                @if (Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(RoleEnum.Teacher).ToLowerInvariant())
+                {
+                <a href="@Url.Action("Roster", "Teacher")" class="btn pull-right" style="color:#fff;background:#9b59b6;text-transform:none;">Back to Roster</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Roster", "Roster")" class="btn pull-right" style="color:#fff;background:#9b59b6;text-transform:none;">Back to Roster</a>
+                }
+
+            </h2>
+        </div>
+    </div>
+
+
+<div id="filtercontent-div" style="display:@(ViewBag.ExploreAll ?  "block" : "none" )">
+
+    <div class="row content-bg-main" style="margin:0px;">
+        <div class="col-md-12"  style="color:#fff;margin-bottom:15px;padding:0px;">
+           
+            <div class="col-md-5">
+                <label>Center:</label>
+                @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input" })
+            </div>
+            <div class="col-md-5">
+                <label>ClassRoom:</label>
+                <select id="Classroom" style="" class="form-control glossy-input"></select>
+                </div>
+            </div>
+        
+    </div>
+
+    </div>
+
+
+    <div id="maincontent-div" style="margin-top:25px;display:@(ViewBag.ExploreAll ? "none" : "block")" class="content-bg-main">
+
+
+        <div class="row" style="color:#fff;margin-bottom:15px;">
+
+            <div class="col-md-6">
+                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Select Type of Input: </p>
+            </div>
+            <div class="col-md-6">
+                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Assessment Date: </p>
+            </div>
+            <div class="col-md-6" style="line-height:2;color:#1d5381;">
+
+                <input name="MeasurementType" type="radio" value="1" checked>
+                <span>Imperial (Inches/LBS)</span>
+
+                <span style="margin-left:20px;">
+                    <input name="MeasurementType" type="radio" value="2">
+                    <span>Metrical (CM/Kgs) </span>
+                </span>
+
+            </div>
+            <div class="col-md-4">
+
+                <div class="input-group" style="display: inline-block;">
+                    <input style="width:150px;display:inline-block;border-radius: 5px 0px 0px 5px !important" type="text" id="AssessmentDate-picker" name="AssessmentDate-picker" placeholder="MM/DD/YYYY" class="form-control glossy-input" autocomplete="off">
+                    <div id="calender_icon" class="fa fa-calendar input-group-addon glossy-date" style="height: 34px;width:36px;cursor:pointer;"></div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="button-green glossy-button-button pull-right" id="submitall-btn"
+                        style="width:89px;">
+                    <span class="glossy-button-after"></span>
+                    <span class="glossy-button-before"></span>
+                    Submit
+                </button>
+            </div>
+
+            <!--   <div class="col-sm-12">
+                        @*<div class="col-sm-12">
+                            <p style="font-size: 16px;margin-bottom: 5px;">Select Type of Input: </p>
+
+                        </div>*@
+                        <div class="col-sm-12">
+                            <div class="col-sm-2">
+                                <input id="HWInput1" name="HWInput" type="radio" value="1">
+                                <span>Imperial (Inches/LBS)</span>
+                            </div>
+                            <div class="col-sm-2">
+                                <label style="padding-left:27px;">Assessment Date : </label>
+                                </div>
+                            <div class="col-sm-3">
+                                @*<input type="text" id="AssessmentDate-picker" />*@
+
+                                <div class="input-group" style="display: inline-block;">
+                                    <input style="width:150px;display:inline-block;border-radius: 5px 0px 0px 5px !important" type="text" id="AssessmentDate-picker" name="AssessmentDate-picker" placeholder="MM/DD/YYYY" class="form-control">
+                                    <div id="calender_icon" class="fa fa-calendar input-group-addon" style="height: 34px;width:36px;cursor:pointer;"></div>
+
+                                </div>
+                            </div>
+                            @*<span style="margin-left:20px;">
+                            <input id="HWInput2" name="HWInput" type="radio" value="2" checked>
+            <span>Metrical (CM/Kgs) </span>
+                            </span>*@
+
+                            <button type="button" class="btn btn-success pull-right" id="submitall-btn">Submit</button>
+
+                        </div>
+                        @*<div class="col-sm-12">
+                            <input id="HWInput2" name="HWInput" type="radio" value="2">
+                            <span>Metrical (CM/Kgs) </span>
+                        </div>*@
+
+                        </div> -->
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="table-div">
+
+                    <table class="table table-striped table-bordered glossy-table" id="GrowthMeasure-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th class="minwidth-td">DOB</th>
+                                @*<th>Assessment Date</th>*@
+                                <th class="minwidth-td">Length</th>
+                                <th class="minwidth-td">Weight</th>
+                                <th class="minwidth-td">Head Circ.</th>
+                                <th class="minwidth-td">BMI</th>
+                                <th class="service-td"></th>
+                                @*<th></th>*@
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+}
+
+
+
+@section Script{
+
+    <script type="text/javascript">
+
+        var Urls = {
+            getChildrenInfoForWH: '@Url.Action("GetChildrenInfoForWH", "Teacher")',
+            addChildWH: '@Url.Action("AddChildWH", "Teacher")',
+            getClassRoom: '@Url.Action("Getclassrooms", "Roster")?Centerid='
+        };
+
+        var GAnalysis = {
+            exploreAll:@Html.Raw(Json.Encode(@ViewBag.ExploreAll)),
+            init: function () {
+                var self = this;
+                self.initEvents();
+                if (!self.exploreAll) { self.drawGATable(); }
+            },
+            assDate: moment().format('MM/DD/YYYY'), //default AssDate=today
+            // measurementType: $("[name='MeasurementType']:checked").val(),
+            measurementType: "1",
+            clsId: '@ViewBag.ClassRoomId',
+            eCId: '@ViewBag.EClientId',
+            CenterId:0,
+            data: [],
+            cons: {
+                m: { //model
+                    H: "Height",
+                    W: "Weight",
+                    HC: "HeadCirc",
+                    BMI: "BMI"
+                }
+            },
+            //Urls:Urls,
+            initEvents: function () {
+                var self = this;
+
+
+                $(document).on('change', "#Classroom", function (e) {
+                    e.preventDefault();
+                    self.clsId = $(this).val();
+                    if ($(this).val()) {
+                        $("#maincontent-div").slideDown();
+                        self.drawGATable();
+                    }
+
+
+                });
+
+                $(document).on('change', '#Centers', function (e) {
+                    e.preventDefault();
+                    self.CenterId = $(this).val();
+                    $("#Classroom").html('');
+                    self.clsId = 0;
+                    self.renderTable([]);
+                    self.renderClassRoom();
+
+                });
+
+                $(document).on('change', "[name='MeasurementType']", function (e) {
+
+                    e.preventDefault();
+                    self.measurementType = $("[name='MeasurementType']:checked").val();
+                });
+
+
+                $('#calender_icon').click(function(){
+                    $('[name="AssessmentDate-picker"]').datetimepicker('show');
+                });
+
+
+                $('[name="AssessmentDate-picker"]').datetimepicker({
+
+                    // maxDate: '+1d',
+                    timepicker: false,
+                    // minDate: 0,
+                    maxDate: new Date(),
+                    mask: true,
+                    format: 'm/d/Y',
+                    validateOnBlur: false,
+                    onChangeDateTime: function (dp, $input) {
+                        //console.log(dp,$input);
+                        //self.selectedDate = $("#AssessmentDate-picker").val(),
+                        // self.editJsonData.MeetingDate = self.selectedDate;
+                        self.assDate = $("#AssessmentDate-picker").val();
+                        self.drawGATable();
+                    },
+                });
+                $('[name="AssessmentDate-picker"]').val(self.assDate); //inital set
+
+                $(document).on("click", "#submitall-btn", function (e) {
+                    e.preventDefault();
+
+                    self.submitScales();
+
+                });
+
+                $(document).on("click", ".child-submit", function (e) {
+                    e.preventDefault();
+                    var _indx = $(this).data("index");
+                    var _ele = $('.pro[data-index="' + _indx + '"]');
+                    // self.drawGATable();
+                    var _tmpObj = {};
+                    $.each(_ele, function (i, obj) {
+                        //  console.log(i, obj);
+                        //$(obj).data("type")
+
+                        var _prop = $(obj).data("type");
+                        _tmpObj["" + _prop + ""] = $(obj).val();
+
+
+                    });
+                    // _tmpObj["BMI"] = 25;
+
+                    self.data[_indx] = _tmpObj;
+
+                    self.submitScales([self.data[_indx]]);
+
+                });
+
+
+                //$(document).on('blur',
+                //    '[data-type="' + self.cons.m.H + '"],[data-type="' + self.cons.m.W + '"],[data-type="' + self.cons.m.HC + '"]', function () {
+
+                $(document).on('blur', '.pro', function () {
+
+                    var _indx = $(this).data("index");
+                    var _type = $(this).data("type");
+                    var _val = $(this).val();
+                    var _clientId = $('[data-type="ClientID"][data-index="' + _indx + '"]').val();
+                    var _bimEle = $('[data-type="BMI"][data-index="' + _indx + '"]');
+
+                    if (self.data[_indx]) { //if  have data
+                        self.data[_indx][_type] = _val;
+                    } else {
+                        self.data[_indx] = {};
+                        self.data[_indx][_type] = _val;
+                        self.data[_indx]['ClientId'] = _clientId;
+                    }
+
+                    if ([self.cons.m.H, self.cons.m.W].lastIndexOf(_type) != -1) { //if weight or height
+
+                        if (self.data[_indx][self.cons.m.H] && self.data[_indx][self.cons.m.W]) {  //have weight and height
+
+                            var _weight = self.data[_indx][self.cons.m.W];
+                            var _height = self.data[_indx][self.cons.m.H];
+
+                            if (self.measurementType == "1") {
+                                _weight = (parseFloat(_weight) * 0.45359237);
+                                _height = (parseInt(_height) * 2.54);
+
+                            }
+
+                            var BMI = _weight / Math.pow((_height / 100), 2);
+                            //  var BMI = self.data[_indx][self.cons.m.W] / Math.pow((self.data[_indx][self.cons.m.H] / 100), 2)
+                            BMI = BMI.toFixed(2);
+                            //BMI= Math.round(BMI * 100) / 100
+                            // _bimEle.val(BMI.toFixed(2));
+                            self.data[_indx][self.cons.m.BMI] = BMI;
+                        } else {
+                            self.data[_indx][self.cons.m.BMI] = '-'
+
+                        }
+                        _bimEle.val(self.data[_indx][self.cons.m.BMI]);
+
+                    }
+
+                    //var _height = $('[data-type="Height"][data-index="' + _indx + '"]').val();
+                    //var _weight = $('[data-type="Weight"][data-index="' + _indx + '"]').val();
+                    //var _bimEle = $('[data-type="BMI"][data-index="' + _indx + '"]');
+
+                    //if (_height && _weight) {
+                    //    var BMI = _weight / Math.pow((_height / 100), 2)
+                    //    //BMI= Math.round(BMI * 100) / 100
+                    //    _bimEle.val(BMI.toFixed(2));
+                    //} else {
+                    //    _bimEle.val('-');
+                    //}
+
+                    //  weight / Math.pow(height, 2);
+                });
+
+
+                //$(document).on('blur', '[data-type="Height"], [data-type="Weight"]', function () {
+
+                //    var _indx = $(this).data("index");
+
+
+
+                //    var _height = $('[data-type="Height"][data-index="' + _indx + '"]').val();
+                //    var _weight = $('[data-type="Weight"][data-index="' + _indx + '"]').val();
+                //    var _bimEle = $('[data-type="BMI"][data-index="' + _indx + '"]');
+
+                //    if (_height && _weight) {
+                //        var BMI = _weight / Math.pow((_height / 100), 2)
+                //        //BMI= Math.round(BMI * 100) / 100
+                //        _bimEle.val(BMI.toFixed(2));
+                //    } else {
+                //        _bimEle.val('-');
+                //    }
+
+                //    //  weight / Math.pow(height, 2);
+                //});
+
+                $(document).on("keyup", ".numonly", function (e) {
+                    var text = $(this).val();
+                    var _type = $(this).data("type");
+
+                    if (_type == self.cons.m.W) return false;
+
+                    if(text.length > 2 && text.indexOf('.') == -1)
+                    {
+                        $(this).val(text.slice(0, 2));
+
+                    }
+
+                });
+
+                $(document).on("keyup", ".numonly", function (e) {
+                    var text = $(this).val();
+                    var _type = $(this).data("type");
+                    var _val = parseInt($(this).val());
+
+                    if (_type != self.cons.m.W) return false;
+
+                    if(text.length > 3 && text.indexOf('.') == -1)
+                    {
+                        $(this).val(text.slice(0, 3));
+
+                    }else if (_val > 200) {
+                        $(this).val(String(_val).slice(0, 2));
+                        customAlert('Weight not exceed 200');
+                    }
+
+                });
+
+
+/*
+                $(document).on("keyup", ".numonly", function (e) {
+
+                    var _val = parseInt($(this).val());
+                    var _ele = $(this);
+                    var _type = _ele.data("type");
+
+                    if(isNaN(_val)){
+                        $(this).val("");
+                    }
+
+                    if(String(_val).length > 2 && String(_val).indexOf('.') == -1){
+                        // console.log(text)
+                        if (_type == self.cons.m.W) {
+
+
+                            if (String(_val).length > 3) { //if weight digit is more the 2 ex:1799
+
+                                $(this).val(String(_val).slice(0, 3));
+
+                            }else if (_val > 200) { //if weight is exceed more then 200
+
+                                $(this).val(String(_val).slice(0, 2));
+                                //$(this).val('');
+                                customAlert('Weight not exceed 200');
+                            }
+
+                        }else{
+
+                            $(this).val( String(_val).slice(0, 2))
+                        }
+                    }
+
+                });
+                */
+                $(document).on("keypress", ".numonly", function (event) {
+
+                    if ((event.which != 46 || $(this).val().indexOf('.') != -1) &&
+  ((event.which < 48 || event.which > 57) &&
+    (event.which != 0 && event.which != 8))) {
+                        event.preventDefault();
+                    }
+
+                    var text = $(this).val();
+
+
+
+                    if ((text.indexOf('.') != -1) &&
+                      (text.substring(text.indexOf('.')).length > 2) &&
+                      (event.which != 0 && event.which != 8) &&
+                      ($(this)[0].selectionStart >= text.length - 2)) {
+                        event.preventDefault();
+                    }
+
+                });
+
+/*
+                $(document).on("keyup", ".numonly", function (e) {
+                    var _val = parseInt($(this).val());
+                    var _ele = $(this);
+                    var _type = _ele.data("type");
+                    // _ele.css("background", "#fff");
+                    if (!_val) {
+                        $(this).val('');
+
+                        //   } else if (String(_val).length > 2) {
+                    } else if (String(_val).length > 2) {
+
+                        if (_type == self.cons.m.W) {
+
+                            if (String(_val).length > 3) { //if weight digit is more the 2 ex:1799
+
+                                $(this).val(String(_val).slice(0, 3));
+
+                            }else if (_val > 200) { //if weight is exceed more then 200
+
+                                $(this).val(String(_val).slice(0, 2));
+                                //$(this).val('');
+                                customAlert('Weight not exceed 200');
+                            }
+
+                        } else {
+                            $(this).val(String(_val).slice(0, 2));
+                        }
+
+                    } else {
+
+
+                        $(this).val(_val);
+
+                    }
+
+                });
+                */
+
+            },
+            renderClassRoom:function(){
+                var self = this;
+
+                $.ajax({
+                    type: 'POST',
+                    url: Urls.getClassRoom.concat(self.CenterId),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    beforeSend:function(){$("#spinner").show(); },
+                    success: function (data) {
+
+                        if (data && data.length) {
+                            var _opt = "";
+                            _opt += '<option value="0"> -Select Classroom- </option>';
+                            data.forEach(function (obj, i) {
+
+                                _opt += '<option value="' + obj.ClassroomID + '">' + obj.ClassName + '</option>'
+                            });
+                            $("#Classroom").append(_opt);
+
+                        } else {
+                            customAlert("No classroom found");
+                        }
+                    },
+                    error: function (res) {
+                        customAlert("Something went wrong. Please try again")
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+                })
+
+            },
+            submitScales: function (data) {
+                var self = this;
+
+                if (!data) data = self.data; //if bulk data
+
+                if(!data.length){
+                    customAlert("No data to submit");
+                    return false;
+                }
+
+                for (var i = 0; i < data.length; i++) {
+
+                    if (data[i].hasOwnProperty('ClientID')) {
+                        data[i].AssessmentDate = self.assDate;
+                        if (!data[i].InputType) {
+                            data[i].InputType = self.measurementType;
+                        }
+                    }
+                };
+
+                $.ajax({
+                    url: Urls.addChildWH,
+                    type: 'POST',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function (data) {
+                        if (data) {
+                            customAlert("Data updated Succesfully");
+                            $("#GrowthMeasure-table tbody").html('');
+                            // setTimeout(function () {
+                            //  window.location.
+                            GAnalysis.drawGATable()
+
+                            //})
+                        }
+                    },
+                    error: function () {
+
+                    }
+
+                });
+
+
+            },
+            renderTable: function (data) {
+                var self = this;
+                $("#GrowthMeasure-table tbody").html('');
+                var _tr = "";
+                if (!data) {
+                    customAlert("Something went wrong. Please try again");
+                    return false;
+                }
+
+                if (data.length == 0) {
+
+                    _tr += '<tr style="text-align:center;"><td colspan="7">No students were present on this day.</td></tr>';
+                    $("#GrowthMeasure-table tbody").append(_tr)
+                }
+
+                self.data = data;
+
+                data.forEach(function (obj, i) {
+
+                    _tr = "";
+                    obj.Height = obj.Height ? obj.Height : '';
+                    obj.Weight = obj.Weight ? obj.Weight : '';
+                    obj.HeadCirc = obj.HeadCirc ? obj.HeadCirc : '';
+                    obj.BMI = obj.BMI ? obj.BMI : '';
+                    if (moment(obj.AssessmentDate)._i) {
+                        obj.AssessmentDate = new Date(obj.AssessmentDate);
+                        obj.AssessmentDate = obj.AssessmentDate.toISOString();
+                    } else {
+                        obj.AssessmentDate = "";
+                    }
+                    _tr += '<input type="hidden" value="' + obj.ClientID + '" data-index="' + i + '" data-type="ClientID" class="pro" />';
+                    _tr += '<input type="hidden" value="' + obj.AssessmentDate + '" data-index="' + i + '" data-type="AssessmentDate" class="pro" />';
+                    _tr += "<td>" + obj.Name + "</td>";
+                    _tr += '<td class="minwidth-td">' + obj.DOB + '</td>';
+                    // _tr += '<td><input data-index="' + i + '" data-type="AssessmentDate" class="" type="text"/></td>';
+                    _tr += '<td class="minwidth-td"><input value="' + obj.Height + '" data-index="' + i + '" data-type="' + self.cons.m.H + '"   class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td class="minwidth-td"><input value="' + obj.Weight + '" data-index="' + i + '"  data-type="' + self.cons.m.W + '"   class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td class="minwidth-td"><input value="' + obj.HeadCirc + '" data-index="' + i + '"  data-type="' + self.cons.m.HC + '" class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td class="minwidth-td"><input value="' + obj.BMI + '" data-index="' + i + '" type="text" data-type="' + self.cons.m.BMI + '" disabled class="form-control pro reswidth numonly"/></td>';
+                    //_tr += '<td> <button type="button" data-index="' + i + '" class="btn child-submit"\ style="background:#337ab7;    color: #fff;border-radius: 0px;">Save</button> </td>'
+
+                    _tr+='<td class="service-td"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="Growth Chart" data-toggle="tooltip">LW Chart </a></td>';
+
+                    _tr = "<tr>" + _tr + "</tr>";
+
+                    $("#GrowthMeasure-table tbody").append(_tr)
+                });
+
+            },
+            drawGATable: function () {
+                var self = this;
+
+
+
+                $.ajax({
+                    url: Urls.getChildrenInfoForWH,
+                    data: JSON.stringify({ AssDate: self.assDate, ClassroomId: self.clsId, ClientId: self.eCId }),
+                    type: 'POST',
+                    dataType: "json",
+                    beforeSend:function(){ $("#spinner").show(); },
+                    contentType: "application/json",
+                    success: function (data) {
+
+                        self.renderTable(data);
+
+                    },
+                    error: function (res) {
+
+
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+
+                })
+
+            }
+
+        };
+
+
+        $(document).ready(function () {
+            GAnalysis.init();
+        });
+    </script>
+
+
+
+}

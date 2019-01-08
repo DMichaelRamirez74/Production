@@ -1331,5 +1331,106 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
 
         }
+
+
+        #region GrowthAnalysis
+
+        //   [CustAuthFilter(RoleEnum.Teacher)]
+        [CustAuthFilter()]
+        public ActionResult GrowthAnalysis(long clsid=0, string client="",bool ExploreAll=false)
+        {
+            //var stf = StaffDetails.GetInstance();
+            //if(RoleEnum.Teacher.GetEnumDescription())
+            ViewBag.ClassRoomId = clsid;
+            ViewBag.EClientId = client;
+            ViewBag.ExploreAll = ExploreAll;
+              return View();
+
+        }
+
+        // [CustAuthFilter(RoleEnum.Teacher)]
+        [CustAuthFilter()]
+        public ActionResult GetChildrenInfoForWH(string AssDate="", long ClassroomId=0,string ClientId="")
+        {
+            var result = new List<ClientGrowth>();
+            try
+            {
+                long cid = 0;
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                     cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(ClientId));
+                }
+
+                result = _Teacher.GetChildrenInfoForWH(1, AssDate, ClassroomId,cid);
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+            return Json(result,JsonRequestBehavior.AllowGet);
+        }
+
+
+        public ActionResult AddChildWH(List<ClientGrowth> data)
+        {
+
+            var result = _Teacher.AddChildWH(data, 1);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult GrowthChart(string client = "")
+        {
+            ViewBag.eClientId = client;
+
+            try {
+                long cid = 0;
+                Clientprofile cp = new Clientprofile();
+                if (!string.IsNullOrEmpty(client))
+                {
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt(client));
+                     cp =new RosterData().GetClientDetails(cid);
+
+                }
+                ViewBag.ClientDetail = cp;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return View();
+        }
+
+        [CustAuthFilter()]
+        public ActionResult GetGrowthChart(string eClientID="")
+        {
+            //   var result = new List<ClientGrowth>();
+            var result = new GrowthChart();
+            try
+            {
+                long cid = 0;
+                if (!string.IsNullOrEmpty(eClientID))
+                {
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt(eClientID));
+                }
+                result = _Teacher.GetGrowthChart(1, cid);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
+
+        #endregion GrowthAnalysis
+
+
+
     }
 }

@@ -3793,8 +3793,12 @@
                             tr += '<a title="Client here to see the Completed Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
 
                         }
+                        if(_accessLW){
+                            tr += '<a href="@Url.Action("GrowthAnalysis", "Teacher")?client=' + data.list.Rosters[i].Eclientid+ '" title="Individual Growth Analysis" style="margin-left:5px;text-decoration:underline;" data-toggle="tooltip">LW </a>';
+                        }
 
-                        tr += '</td></tr>';
+                        @*tr+='<a style="display:none;" href="@Url.Action("GrowthChart", "Teacher")?client=' + data.list.Rosters[i].Eclientid+ '" title="Growth Chart" data-toggle="tooltip" style="text-decoration:underline;">LW Chart </a>';
+                        tr += '</td></tr>';*@
 
                     }
 
@@ -3827,6 +3831,12 @@
                             tr += '<a title="Client here to see the Completed Screening Follow-up" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
 
                         }
+
+                        if(_accessLW){
+                            tr += '<a href="@Url.Action("GrowthAnalysis", "Teacher")?client=' + data.list.Rosters[i].Eclientid+ '" title="Individual Growth Analysis" style="text-decoration:underline;" data-toggle="tooltip">LW </a>';
+                        }
+
+                        @*tr+='<a style="display:none;" href="@Url.Action("GrowthChart", "Teacher")?client=' + data.list.Rosters[i].Eclientid+ '" title="Growth Chart" data-toggle="tooltip">LW Chart </a>';*@
 
                         tr += '</td>';
                        
@@ -5744,6 +5754,14 @@
                 <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
             </div>
 
+        @if (_isAccessLW)
+        {
+            <div class="col-sm-12">
+                <div class="col-sm-2">
+                    <a href="javascript:void(0);" id="lwbtn" class="btn" style="margin-top:10px;border-radius:0px;background:#295b8f;color:#fff;display:none;">LW</a>
+                </div>
+            </div>
+        }
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
 
             @if (ViewBag.IsManager)

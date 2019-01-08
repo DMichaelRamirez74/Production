@@ -3129,5 +3129,175 @@ namespace FingerprintsData
             }
             return result;
         }
+
+        #region GrowthAnalysis
+
+        public List<ClientGrowth> GetChildrenInfoForWH(int mode,string AssDate,long classroomid,long ClientId)
+        {
+
+            var _clientGrowth = new List<ClientGrowth>();
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GrowthAnalysisDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+
+                command.Parameters.Add(new SqlParameter("@mode", mode)); //1
+                command.Parameters.Add(new SqlParameter("@AssessmentDate", AssDate)); 
+                command.Parameters.Add(new SqlParameter("@ClassroomId", classroomid));
+                command.Parameters.Add(new SqlParameter("@ClientId", ClientId)); 
+
+                DataAdapter = new SqlDataAdapter(command);
+                DataSet _ds = new DataSet();
+                DataAdapter.Fill(_ds);
+
+                if (_ds != null && _ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
+                {
+                    var encryField = new List<string>();
+                   encryField.Add("ClientID");
+
+                    _clientGrowth= _ds.Tables[0].DataTableToList<ClientGrowth>(encryField);
+                   // _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return _clientGrowth;
+        }
+
+
+        public bool AddChildWH(List<ClientGrowth> data, int mode) {
+            bool IsSuccess = false;
+
+
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_UpdateGrowthAnalysis";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@mode", mode)); //1
+
+                var _GrowthTable = new List<string>()
+                { "ClientID","AssessmentDate","Height","Weight","BMI","HeadCirc","InputType" };
+                var _decrypted = new List<string>() { "ClientID" };
+                DataTable dt = Helpers.ToUserDefinedDataTable(data, _GrowthTable,_decrypted);
+                command.Parameters.AddWithValue("@data", dt);
+
+                int res = command.ExecuteNonQuery();
+                if (res > 0)
+                    IsSuccess = true;
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            return IsSuccess;
+        }
+
+        public GrowthChart GetGrowthChart(int mode, long clientid)
+        {
+            var result = new GrowthChart();
+            //result.ChildGrowth = new List<ClientGrowth>();
+              result.DTHeadCircuGrowth = new List<STDTable>();
+            result.DTLengthGrowth = new List<STDTable>();
+            result.DTWeightGrowth = new List<STDTable>();
+            result.DTWeightLengthGrowth = new List<STDTable>();
+
+           // result.STDTables = new STDTable();
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetGrowthAnalysisChart";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", mode)); //1
+                command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+
+                DataAdapter = new SqlDataAdapter(command);
+                DataSet _ds = new DataSet();
+                DataAdapter.Fill(_ds);
+                if (_ds != null)
+                {
+                    if (_ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
+                    {
+                        result.ChildGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(new List<string>());
+
+                    }
+
+
+                    //Standard Datatables
+                    if (_ds.Tables.Count > 1 && _ds.Tables[1].Rows.Count > 0)
+                    { 
+                        result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+
+                        //result.STDTables = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+                    }
+                    if ( _ds.Tables.Count > 2 && _ds.Tables[2].Rows.Count > 0)
+                    {
+                        result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
+
+                    }
+                    if (_ds.Tables.Count > 3 && _ds.Tables[3].Rows.Count > 0)
+                    {
+                        result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
+
+                    }
+                    if (_ds.Tables.Count > 4 && _ds.Tables[4].Rows.Count > 0)
+                    {
+                        result.DTWeightLengthGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
+
+                    }
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return result;
+        }
+
+
+            #endregion GrowthAnalysis
+
     }
 }

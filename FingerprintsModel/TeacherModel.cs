@@ -228,15 +228,22 @@ namespace FingerprintsModel
 
         public List<ClientGrowth> ChildGrowth { get; set; }
 
-         public List<STDTable> STDTables { get; set; }
-       // public STDTable STDTables { get; set; }
+        //  public List<STDTable> STDTables { get; set; }
+        public List<STDTable> DTHeadCircuGrowth { get; set; }
+        public List<STDTable> DTLengthGrowth { get; set; }
+
+        public List<STDTable> DTWeightGrowth { get; set; }
+
+        public List<STDTable> DTWeightLengthGrowth { get; set; }
+        // public STDTable STDTables { get; set; }
     }
 
 
     public class STDTable {
 
         public string AgeInMonth { get; set; }
-        public string Percentiles { get; set; }
+        // public string Percentiles { get; set; }
+        public decimal Length { get; set; }
         public string P3 { get; set; }
         public string P5 { get; set; }
         public string P10 { get; set; }
