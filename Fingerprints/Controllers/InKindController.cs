@@ -9,6 +9,7 @@ using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Web;
 
 namespace Fingerprints.Controllers
 {
@@ -83,21 +84,12 @@ namespace Fingerprints.Controllers
 
         // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
         [CustAuthFilter()]
-        public JsonResult GetParentCompanyDonorsBySearch(string searchName = "")
+        public JsonResult GetParentCompanyDonorsBySearch(int requestedPage,int pageSize,string searchName = "" )
         {
-            Inkind inkind = new Inkind();
-            try
-            {
-                StaffDetails staffDetails = StaffDetails.GetInstance();
-                inkind = new InKindData().GetInkindParentCompanyDonors(staffDetails, searchName);
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return Json(inkind, JsonRequestBehavior.AllowGet);
-
+               Inkind inkind;
+            
+                inkind = new InKindData().GetInkindParentCompanyDonors(staff, searchName,requestedPage,pageSize);
+                return Json(inkind, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -111,7 +103,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new RosterData().Getclassrooms(Centerid, Session["AgencyID"].ToString(), isEndOfYear: false, isInkind: true));
+                return Json(new RosterData().Getclassrooms(Centerid, staff.AgencyId.ToString(), isEndOfYear: false, isInkind: true));
             }
             catch (Exception Ex)
             {
@@ -152,12 +144,10 @@ namespace Fingerprints.Controllers
 
             try
             {
-                StaffDetails details = new StaffDetails();
-                //details.AgencyId = (Session["AgencyId"] == null) ? (Guid?)null : new Guid(Session["AgencyID"].ToString());
-                //details.UserId = new Guid(Session["UserID"].ToString());
-                //details.RoleId = new Guid(Session["RoleID"].ToString());
+              
 
-                inkind = new InKindData().GetInkindActivities(details);
+
+                inkind = new InKindData().GetInkindActivities(staff);
             }
             catch (Exception ex)
             {
@@ -182,14 +172,6 @@ namespace Fingerprints.Controllers
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 InkindActivity activity = new InkindActivity();
                 activity = serializer.Deserialize<InkindActivity>(inkindActivity);
-
-                //activity.StaffDetails = new StaffDetails
-                //{
-                //    UserId = new Guid(Session["UserID"].ToString()),
-                //    RoleId = new Guid(Session["RoleID"].ToString()),
-                //    AgencyId = (Session["AgencyId"] == null) ? (Guid?)null : new Guid(Session["AgencyID"].ToString())
-                //};
-
 
                 returnResult = CheckActivityExists(activity);
 
@@ -219,15 +201,10 @@ namespace Fingerprints.Controllers
             bool isResult = false;
             try
             {
-                //StaffDetails details = new StaffDetails
-                //{
-                //    UserId = new Guid(Session["UserID"].ToString()),
-                //    RoleId = new Guid(Session["RoleID"].ToString()),
-                //    AgencyId = (Session["AgencyId"] == null) ? (Guid?)null : new Guid(Session["AgencyID"].ToString())
-                //};
-                StaffDetails details = StaffDetails.GetInstance();
+               
+    
 
-                isResult = new InKindData().DeleteInkindActivity(details, activityCode);
+                isResult = new InKindData().DeleteInkindActivity(staff, activityCode);
             }
             catch (Exception ex)
             {
@@ -257,8 +234,8 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
 
+        // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
         [CustAuthFilter()]
-
         public JsonResult GetDetailsByActivityType(string activityCode, int reqDetails, string hours = "0", string minutes = "0", string miles = "0")
         {
             string returnDetails = string.Empty;
@@ -346,6 +323,7 @@ namespace Fingerprints.Controllers
         /// 
         [JsonMaxLength]
         [ValidateInput(false)]
+        //[CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106,82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
         [CustAuthFilter()]
         public JsonResult InsertInkindTransactions(string modelString = "", string cameraUploads=null)
         //public JsonResult InsertInkindTransactions(Inkind _inkind)
@@ -364,8 +342,8 @@ namespace Fingerprints.Controllers
 
 
                 model.InkindTransactionsList[0].InkindAttachmentsList = new List<InkindAttachments>();
-                var count =model.InkindTransactionsList.Count;
-                if(count==1)
+                var count = model.InkindTransactionsList.Count;
+                if (count == 1)
                 {
                     for (int i = 0; i < fileKeys.Length; i++)
                     {
@@ -374,8 +352,8 @@ namespace Fingerprints.Controllers
 
                             InkindAttachmentFile = Request.Files[i],
                             InkindAttachmentFileName = Request.Files[i].FileName,
-                            InkindAttachmentFileExtension=Path.GetExtension(Request.Files[i].FileName),
-                            InkindAttachmentFileByte= new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength)
+                            InkindAttachmentFileExtension = Path.GetExtension(Request.Files[i].FileName),
+                            InkindAttachmentFileByte = new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength)
                         });
                     }
 
@@ -396,7 +374,10 @@ namespace Fingerprints.Controllers
                     }
 
                 }
-                
+
+
+
+
 
 
                 if (Session["UserID"] == null)
@@ -451,23 +432,17 @@ namespace Fingerprints.Controllers
             }
         }
 
-       [CustAuthFilter()]
+        [CustAuthFilter()]
         public ActionResult ParentParticipation()
         {
-            ParentParticipation parentParticipation = new FingerprintsModel.ParentParticipation();
-
-            try
-            {
-                parentParticipation = new InKindData().GetParentParticipationInkind(StaffDetails.GetInstance());
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
+            ParentParticipation parentParticipation;
+                parentParticipation = new InKindData().GetParentParticipationInkind(staff);
+           
             return View(parentParticipation);
         }
 
-       [CustAuthFilter()]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter()]
         public JsonResult CheckaddressForInKind(int Zipcode, string Address = "", string HouseHoldId = "0")
         {
             try
@@ -573,8 +548,8 @@ namespace Fingerprints.Controllers
                 }
                 else
                 {
-                    StaffDetails details = StaffDetails.GetInstance();
-                    _tempinkindDetails = new InKindData().GetInkindActivities(details);
+                 
+                    _tempinkindDetails = new InKindData().GetInkindActivities(staff);
                     Session["Inkind"] = _tempinkindDetails;
                 }
             }
@@ -656,7 +631,7 @@ namespace Fingerprints.Controllers
         {
             List<SelectListItem> inKindOptionList = new List<SelectListItem>();
 
-            StaffDetails staff = StaffDetails.GetInstance();
+         
             inKindOptionList = new InKindData().GetInkindOptionByFilter(staff, filterType);
 
             return Json(inKindOptionList, JsonRequestBehavior.AllowGet);
@@ -675,7 +650,7 @@ namespace Fingerprints.Controllers
         /// 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult GetInkindReportPartial(int filterType, string selectedOption, string fromDate, string toDate,string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        public PartialViewResult GetInkindReportPartial(int filterType, string selectedOption,string centers, string fromDate, string toDate,string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
         {
             InkindReportModel inkindReportmodel = new InkindReportModel();
 
@@ -693,6 +668,8 @@ namespace Fingerprints.Controllers
                 inkindReportmodel.SortOrder =string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty: sortOrder;
 
                 inkindReportmodel.SubFilterOption = selectedOption;
+                inkindReportmodel.Centers = centers;
+
                 inkindReportmodel.SearchTerm = searchTerm;
                 inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType)||searchTermType=="null" ? string.Empty : searchTermType;
 
@@ -776,7 +753,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public JsonResult AutoCompleteInkindTransactions(int filterType, string selectedOption, string fromDate, string toDate, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        public JsonResult AutoCompleteInkindTransactions(int filterType, string selectedOption,string centers, string fromDate, string toDate, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
         {
 
             InkindReportModel inkindReportmodel = new InkindReportModel();
@@ -789,6 +766,7 @@ namespace Fingerprints.Controllers
             inkindReportmodel.SortColumn = sortColumn.ToUpperInvariant();
             inkindReportmodel.SortOrder = sortOrder;
             inkindReportmodel.SubFilterOption = selectedOption;
+            inkindReportmodel.Centers = centers;
             inkindReportmodel.SearchTerm = searchTerm;
             //inkindReportmodel.SearchFilterType = searchFilterType;
 
@@ -905,7 +883,7 @@ namespace Fingerprints.Controllers
 
         [HttpGet]
         [CustAuthFilter()]
-        public ActionResult ExportInkindReport(int filterType, string selectedOption, string fromDate, string toDate, string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        public ActionResult ExportInkindReport(int filterType, string selectedOption,string centers, string fromDate, string toDate, string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
         {
             InkindReportModel inkindReportmodel = new InkindReportModel();
 
@@ -923,6 +901,7 @@ namespace Fingerprints.Controllers
                 inkindReportmodel.SortOrder = string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty:sortOrder ;
 
                 inkindReportmodel.SubFilterOption = selectedOption;
+                inkindReportmodel.Centers = centers;
                 inkindReportmodel.SearchTerm = searchTerm;
                 inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType) || searchTermType == "null" ? string.Empty : searchTermType;
 
@@ -955,6 +934,28 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred. Please, try again later", JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+
+        public JsonResult GetInkindPeriodYakkrMappings(string yakkrId)
+        {
+
+                List<InkindPeriods> inkindPeriodList;
+                inkindPeriodList= new InKindData().GetInkindPeriodYakkrMappingData(staff, yakkrId);
+               return Json(inkindPeriodList,JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult ActivateNewInkindPeriod(string yakkrId)
+        {
+            bool isResult = false;
+
+            isResult= new InKindData().ActivateNewInkindPeriodData(staff, yakkrId);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
     }

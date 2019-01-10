@@ -16,7 +16,9 @@ namespace Fingerprints
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Login", action = "Loginagency", id = UrlParameter.Optional }
+           //     constraints:new { lang = @"(\w{2})|(\w{2}-\w{2})" },
+                defaults: new { controller = "Login", action = "Loginagency", id = UrlParameter.Optional },
+                namespaces:new[] { "Fingerprints.Controllers"}
             );
         }
     }

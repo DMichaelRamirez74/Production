@@ -832,5 +832,31 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
+
+        public ActionResult ClientGrowthChart(string client)
+        {
+
+            ViewBag.eClientId = client;
+
+            try
+            {
+                long cid = 0;
+                Clientprofile cp = new Clientprofile();
+                if (!string.IsNullOrEmpty(client))
+                {
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt(client));
+                    cp = new RosterData().GetClientDetails(cid);
+
+                }
+                ViewBag.ClientDetail = cp;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return View();
+        }
+
     }
 }

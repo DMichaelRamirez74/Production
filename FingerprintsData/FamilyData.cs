@@ -6074,6 +6074,63 @@ namespace FingerprintsData
                 return "0";
             }
         }
+
+
+
+
+        #region "Advanced Search for Family under In-Take"
+        public DataTable AdvanceFamilySearchData(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode,  string Roleid)
+        {
+            try
+            {
+                FamilyHousehold Info = new FamilyHousehold();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                  
+
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@Street", Street);
+                    command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                    command.Parameters.AddWithValue("@StreetName", StreetName);
+                    command.Parameters.AddWithValue("@ZipCode", ZipCode);
+                    command.Parameters.AddWithValue("@City", City);
+                    command.Parameters.AddWithValue("@State", State);
+                    command.Parameters.AddWithValue("@Pfirstname", Pfirstname);
+                    command.Parameters.AddWithValue("@Plastname", Plastname);
+                    command.Parameters.AddWithValue("@Cfirstname", Cfirstname);
+                    command.Parameters.AddWithValue("@Clastname", Clastname);
+                    command.Parameters.AddWithValue("@County", County);
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@Roleid", Roleid);
+                    command.Connection = Connection;
+                    command.CommandText = "USP_AdvancedSearchFamily";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataTable = new DataTable();
+                    DataAdapter.Fill(_dataTable);
+
+                    Connection.Close();
+                }
+
+                return _dataTable;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return new DataTable();
+            }
+            finally
+            {
+                DataAdapter.Dispose();
+            }
+        }
+
+        #endregion
+
         public string Getassociatefamily(string Firstname, string Lastname, string Address, string ZipCode, string City, string State, string Agencyid, string mode, string userid)
         {
 

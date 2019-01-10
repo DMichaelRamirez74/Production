@@ -61,6 +61,8 @@
                 'inkindFromDate': null,
                 'inkindToDate': null,
                 'inkindDateEntered':null,
+                'divEnteredByDropdown':null,
+                'dropdownEnteredBy':null,
                 'inkindSearch': null,
                 'inkindExport':null,
                 'divCenterDropdown': null,
@@ -119,7 +121,8 @@
                 'Center': 1,
                 'Contributor': 2,
                 'ContributionActivity': 3,
-                'DateEntered':4
+                'DateEntered':4,
+                'EnteredBy':5
             },
             amountType: {
                 'Miles': 1,
@@ -139,6 +142,7 @@
 
                 'filterType': null,
                 'selectedOption': null,
+                'centers':null,
                 'fromDate': null,
                 'toDate': null,
                 'requestedPage': REQUESTED_PAGE,
@@ -158,6 +162,8 @@
                 $selfElements.inkindFromDate = $('#fromDateDateTimePicker');
                 $selfElements.inkindToDate = $('#toDateDateTimePicker');
                 $selfElements.inkindDateEntered=$('#dateEnteredDateTimePicker');
+                $selfElements.divEnteredByDropdown=$('#div-enteredby-dropdown');
+                $selfElements.dropdownEnteredBy=$('#selectEnteredBy');
                 $selfElements.inkindSearch = $('#btnSearchInkind');
                 $selfElements.inkindExport=$('#btninkindExport');
                 $selfElements.divCenterDropdown = $('#div-center-dropdown');
@@ -264,7 +270,8 @@
 
 
 
-                self.elements.divCenterDropdown.hide();
+                // self.elements.divCenterDropdown.hide();
+
                 self.elements.divAgencyDropdown.hide();
                 self.elements.divContributionActivityDropdown.hide();
                 self.elements.divContributorDropdown.hide();
@@ -288,6 +295,7 @@
               //  $('[data-toggle="popover"]').popover();
 
 
+               self.getOptionsByFilterType(self.filterType.Center);
 
                 $selfElements.modalImageUploadCamera.on('click',function(){
                     $selfElements.modalEditInkind.modal('hide');
@@ -349,9 +357,10 @@
 
 
                     self.elements.divAgencyDropdown.hide('slow');
-                    self.elements.divCenterDropdown.hide('slow');
+                 //   self.elements.divCenterDropdown.hide('slow');
                     self.elements.divContributionActivityDropdown.hide('slow');
                     self.elements.divContributorDropdown.hide('slow');
+                    self.elements.divEnteredByDropdown.hide('slow');
 
 
 
@@ -369,6 +378,18 @@
                             self.elements.inkindDateEntered.val('');
                             self.elements.inkindDateEntered.parent('div').parent('div').show('slow');
 
+                            break;
+
+
+                        case self.filterType.EnteredBy:
+
+
+                            self.elements.inkindFromDate.parent('div').parent('div').hide('slow');
+                            self.elements.inkindToDate.parent('div').parent('div').hide('slow');
+                            self.elements.inkindDateEntered.val('');
+                            self.elements.inkindDateEntered.parent('div').parent('div').hide('slow');
+                            self.elements.dropdownEnteredBy.parent('div').parent('div').show('slow');
+                            self.getOptionsByFilterType($filterOption);
                             break;
 
                         default:
@@ -529,7 +550,7 @@
                         self.bindAjaxParameters();
 
                         window.location.href = HostedDir + '/InKind/ExportInkindReport?filterType='+self.ajaxParameters.filterType+
-                            '&selectedOption='+self.ajaxParameters.selectedOption+'&fromDate='+self.ajaxParameters.fromDate+'&toDate='+self.ajaxParameters.toDate+
+                            '&selectedOption='+self.ajaxParameters.selectedOption+'&centers='+self.ajaxParameters.centers+' &fromDate='+self.ajaxParameters.fromDate+'&toDate='+self.ajaxParameters.toDate+
                             '&dateEntered='+self.ajaxParameters.dateEntered+'&requestedPage='+0+'&pageSize='+0+
                             '&sortOrder='+self.ajaxParameters.sortOrder+'&sortColumn='+self.ajaxParameters.sortColumn+'&searchTerm='+self.ajaxParameters.searchTerm+
                             '&searchTermType=""';
@@ -1237,15 +1258,28 @@
 
 
 
-                else if ($selfElements.inKindFilter.val() == self.filterType.Center
-                       && ($selfElements.dropdownCenter.val() == null
-                      || $selfElements.dropdownCenter.val() == '') ) {
+                //else if ($selfElements.inKindFilter.val() == self.filterType.Center
+                //       && ($selfElements.dropdownCenter.val() == null
+                //      || $selfElements.dropdownCenter.val() == '') ) {
+
+                //    plainValidation($selfElements.dropdownCenter);
+                //    customAlert('Please select center');
+                //    return false;
+                //}
+
+
+
+                else if (($selfElements.inKindFilter.val() == self.filterType.Contributor 
+                                      || $selfElements.inKindFilter.val()==self.filterType.ContributionActivity
+                                      || $selfElements.inKindFilter.val()== self.filterType.DateEntered
+                                      || $selfElements.inKindFilter.val()==self.filterType.EnteredBy)
+                                 && ($selfElements.dropdownCenter.val() == null
+                                || $selfElements.dropdownCenter.val() == '') ) {
 
                     plainValidation($selfElements.dropdownCenter);
                     customAlert('Please select center');
                     return false;
                 }
-
 
                 else if ($selfElements.inKindFilter.val() == self.filterType.Contributor
                         && ($selfElements.dropdownContributor.val() == null
@@ -1265,9 +1299,23 @@
                     return false;
                 }
 
+                
+
+                else if ($selfElements.inKindFilter.val() == self.filterType.EnteredBy
+                && ($selfElements.dropdownEnteredBy.val() == null
+                || $selfElements.dropdownEnteredBy.val() == '')) {
+
+                    plainValidation($selfElements.dropdownEnteredBy);
+                    customAlert('Please select Entered By');
+                    return false;
+                }
+
+
+               
+
                 else if ($selfElements.inKindFilter.val() == self.filterType.DateEntered
-               && ($selfElements.inkindDateEntered.val() == null
-               || $selfElements.inkindDateEntered.val() == '')) {
+           && ($selfElements.inkindDateEntered.val() == null
+           || $selfElements.inkindDateEntered.val() == '')) {
 
                     plainValidation($selfElements.inkindDateEntered);
                     customAlert('Please enter date');
@@ -1276,24 +1324,27 @@
 
 
 
-
-
                 else if (($selfElements.inkindFromDate.val() == null || $selfElements.inkindFromDate.val() == '' || $selfElements.inkindFromDate.val() == "__/__/____")
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy
+                    
+                    ) {
                     plainValidation($selfElements.inkindFromDate);
                     customAlert('Please enter From date');
                     return false;
                 }
 
                 else if (($selfElements.inkindToDate.val() == null || $selfElements.inkindToDate.val() == '' || $selfElements.inkindToDate.val() == "__/__/____")
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
+                    && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('Please enter To date');
                     return false;
                 }
                 else if ((new Date($selfElements.inkindToDate.val()).setHours(0, 0, 0, 0)
                          < new Date($selfElements.inkindFromDate.val()).setHours(0, 0, 0, 0))
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
+                    && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('To date should by greater than or equal to From date');
                     return false;
@@ -1422,10 +1473,13 @@
                                 appendSection += '<option value=' + option.Value + '>' + option.Text + '</option>';
                             });
 
+                           
 
                             switch (filterType) {
 
                                 case self.filterType.Center:
+
+                                    self.elements.dropdownCenter.multiselect('destroy');
 
                                     self.elements.dropdownCenter.html(appendSection);
                                     self.elements.dropdownCenter.val('');
@@ -1447,6 +1501,9 @@
                                     break;
 
                                 case self.filterType.Contributor:
+
+                                    self.elements.dropdownContributor.multiselect('destroy');
+
                                     self.elements.dropdownContributor.html(appendSection);
                                     self.elements.dropdownContributor.val('');
 
@@ -1467,6 +1524,8 @@
 
                                 case self.filterType.ContributionActivity:
 
+                                    self.elements.dropdownContributionActivity.multiselect('destroy');
+
                                     self.elements.dropdownContributionActivity.html(appendSection);
                                     self.elements.dropdownContributionActivity.val('');
                                     self.elements.dropdownContributionActivity.multiselect({
@@ -1481,6 +1540,31 @@
                                     self.elements.divContributionActivityDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
                                     self.elements.divContributionActivityDropdown.find('.btn-group').css({ 'width': '100%' });
                                     self.elements.divContributionActivityDropdown.show('slow');
+
+                                    break;
+
+
+
+                                case self.filterType.EnteredBy:
+
+
+                                    self.elements.dropdownEnteredBy.multiselect('destroy');
+
+
+                                    self.elements.dropdownEnteredBy.html(appendSection);
+                                    self.elements.dropdownEnteredBy.val('');
+                                    self.elements.dropdownEnteredBy.multiselect({
+
+                                        maxHeight: 200,
+                                        includeSelectAllOption: true,
+                                        enableFiltering: true,
+                                        filterPlaceholder: 'Search Staffs',
+                                        enableCaseInsensitiveFiltering: true,
+                                        numberDisplayed: 1
+                                    });
+                                    self.elements.divEnteredByDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
+                                    self.elements.divEnteredByDropdown.find('.btn-group').css({ 'width': '100%' });
+                                    self.elements.divEnteredByDropdown.show('slow');
 
                                     break;
 
@@ -2000,15 +2084,21 @@
 
                 self.ajaxParameters.filterType = self.elements.inKindFilter.val();
 
-                self.ajaxParameters.selectedOption = parseInt(self.elements.inKindFilter.val()) == self.filterType.Center ? self.elements.dropdownCenter.val().join(',')
-                                                    : parseInt(self.elements.inKindFilter.val()) == self.filterType.Contributor ? self.elements.dropdownContributor.val().join(',')
-                                                    : parseInt(self.elements.inKindFilter.val()) == self.filterType.ContributionActivity ? self.elements.dropdownContributionActivity.val().join(','):[];
+                self.ajaxParameters.selectedOption = parseInt(self.elements.inKindFilter.val()) == self.filterType.Contributor ? self.elements.dropdownContributor.val().join(',')
+                                                    : parseInt(self.elements.inKindFilter.val()) == self.filterType.ContributionActivity ? self.elements.dropdownContributionActivity.val().join(',')
+                                                    :parseInt(self.elements.inKindFilter.val()) == self.filterType.EnteredBy ? self.elements.dropdownEnteredBy.val().join(','):[];
 
-                self.ajaxParameters.fromDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered ? self.elements.inkindFromDate.val():"";
 
-                self.ajaxParameters.toDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered ? self.elements.inkindToDate.val():"";
+                self.ajaxParameters.centers= self.elements.dropdownCenter.val().join(',');
 
-                self.ajaxParameters.dateEntered = parseInt(self.elements.inKindFilter.val()) == self.filterType.DateEntered?self.elements.inkindDateEntered.val():"";
+                self.ajaxParameters.fromDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered 
+                                               && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindFromDate.val():"";
+
+                self.ajaxParameters.toDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered
+                                             && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindToDate.val():"";
+
+                self.ajaxParameters.dateEntered = parseInt(self.elements.inKindFilter.val()) == self.filterType.DateEntered
+                                                  && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindDateEntered.val():"";
 
                 self.ajaxParameters.requestedPage = REQUESTED_PAGE;
                 self.ajaxParameters.pageSize = PAGE_SIZE;
@@ -2923,19 +3013,7 @@
 
 
 
-            var $topscroll = $(".top-scroll");
-
-            $(window).on("scroll", function() {
-                if ($(window).scrollTop() >= 20) {
-                    $topscroll.fadeIn();
-                } else {
-                    $topscroll.fadeOut();
-                }
-            });
-
-            $topscroll.on("click", function() {
-                $("html, body").animate({ scrollTop: 0 }, 300);
-            });
+          
 
 
 
@@ -3247,6 +3325,10 @@
 
 
     <style type="text/css">
+        #selectCenter{
+            height:30px;
+        }
+
         body {
             font-family: Arial,sans-serif !important;
         }
@@ -3313,23 +3395,7 @@
             border-left: 0;
         }
 
-        .top-scroll {
-            position: fixed;
-            display: none;
-            bottom: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            border-radius: 100%;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.6);
-            color: #295b8f;
-            z-index: 999;
-            text-align: center;
-            font-size: 22px;
-            line-height: 40px;
-            cursor: pointer;
-        }
+       
 
         #modal-edit-inkind .text-bg , #modal-uploaddocument .text-bg {
             text-shadow: 0 1px #7e50b7;
@@ -4068,6 +4134,12 @@
   -o-transition: all 0.5s linear;
   transition: all 0.5s linear;
      }
+
+
+     .search-block{
+          margin-top: 70px;
+     }
+
         @@media (min-width: 768px) and (max-width: 991px) {
             .search-block-main {
                 display: block !important;
@@ -4096,7 +4168,7 @@
             }
         }
 
-        }
+      
     </style>
 
     }
@@ -4111,9 +4183,7 @@
                 <div class="page-wrapper-change">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="top-scroll">
-                                <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                            </div>
+                           
                             <!-----Right Side Container Section------->
                             <div class="right-side-container-ch col-xs-12">
 
@@ -4147,7 +4217,7 @@
 
 
 
-                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.Center)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Center)</option>
+                                                @*<option value="@((int)FingerprintsModel.InkindReportFilterEnum.Center)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Center)</option>*@
 
                                                 <option value="@((int)FingerprintsModel.InkindReportFilterEnum.Contributor)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Contributor)</option>
 
@@ -4155,23 +4225,15 @@
 
                                                 <option value="@((int)FingerprintsModel.InkindReportFilterEnum.DateEntered)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.DateEntered)</option>
 
+                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.EnteredBy)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.EnteredBy)</option>
+
                                             </select>
 
                                         </div>
 
 
-                                        <!-----Agency Type section-->
-                                        @*<div class="form-group col-xs-2" id="div-agency-dropdown" style="display:none;">
-                                                <label for="selectAgency" style="color:#ffffff;">Agency <sup style="color:red;">*</sup></label>
-
-
-                                                <select class="ersa-select" id="selectAgency"></select>
-
-                                            </div>*@
-
-
                                         <!---Center dropdown section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-center-dropdown" style="display:none;">
+                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-center-dropdown" >
                                             <label for="selectCenter">Center <sup style="color:red;">*</sup></label>
 
                                             <select id="selectCenter" class="ersa-select" multiple="multiple"></select>
@@ -4203,7 +4265,7 @@
                                         </div>
 
 
-                                        <!-----In-kind activity From date section-->
+                                        <!-----In-kind activity Date Entered section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
                                             <label for="dateEnteredDateTimePicker">Date Entered <sup style="color:red;">*</sup></label>
                                             <div class="input-group date">
@@ -4213,6 +4275,19 @@
                                                 </span>
                                             </div>
                                         </div>
+                                        
+                                        <!-----In-kind activity Date Entered section-->
+                                       
+
+
+                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enteredby-dropdown" style="display:none;">
+                                            <label for="selectEnteredBy">Entered By <sup style="color:red;">*</sup></label>
+
+                                            <select class="ersa-select" id="selectEnteredBy" multiple="multiple"></select>
+
+                                        </div>
+
+                                      
 
 
                                         <!-----In-kind activity From date section-->
@@ -4582,26 +4657,33 @@
                                         </div>
 
                                     </div>
+
+
+                                   
+
                                 </div>
+
+                              
+
+
+
+
+
+                            </div>
+
 
                                 <div class="form-group final-btn text-center glossy_btn adddivspace">
 
-                                    <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
-                                        <span class="glossy-button-after"></span>
-                                        <span class="glossy-button-before"></span>
-                                        Save
-                                    </button>
-                                    <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
-                                        <span class="glossy-button-after"></span>
-                                        <span class="glossy-button-before"></span>
-                                        Exit
-                                    </button>
-                                </div>
-
-
-
-
-
+                                <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Save
+                                </button>
+                                <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Exit
+                                </button>
                             </div>
                         </form>
 
@@ -4665,20 +4747,7 @@
                             </div>
 
 
-                            <div class="col-xs-12 bdr-popup"></div>
-                            <div class="form-group final-btn text-center glossy_btn adddivspace">
-
-                                <button class="glossy-button-button button-green" type="button" id="btn-modal-doc-add">
-                                    <span class="glossy-button-after"></span>
-                                    <span class="glossy-button-before"></span>
-                                    Add
-                                </button>
-                                <button class="glossy-button-button button-red" type="button" id="btn-modal-doc-cancel" data-dismiss="modal">
-                                    <span class="glossy-button-after"></span>
-                                    <span class="glossy-button-before"></span>
-                                    Exit
-                                </button>
-                            </div>
+                           
 
                         </div>
 
@@ -4692,6 +4761,24 @@
 
 
                     </div>
+
+
+
+                    <div class="col-xs-12 bdr-popup"></div>
+                    <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                        <button class="glossy-button-button button-green" type="button" id="btn-modal-doc-add">
+                            <span class="glossy-button-after"></span>
+                            <span class="glossy-button-before"></span>
+                            Add
+                        </button>
+                        <button class="glossy-button-button button-red" type="button" id="btn-modal-doc-cancel" data-dismiss="modal">
+                            <span class="glossy-button-after"></span>
+                            <span class="glossy-button-before"></span>
+                            Exit
+                        </button>
+                    </div>
+
                 </form>
 
 

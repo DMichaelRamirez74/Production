@@ -1553,12 +1553,21 @@ namespace FingerprintsModel
 
                 if(inkindReportModel.FilterTypeEnum!=InkindReportFilterEnum.DateEntered)
                 {
-                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
+
+
+                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
 
                 }
+
+                else if(inkindReportModel.FilterTypeEnum!=InkindReportFilterEnum.EnteredBy)
+                {
+                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum);
+
+                }
+
                 else
                 {
-                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
+                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
 
                 }
                 workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);

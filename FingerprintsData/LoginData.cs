@@ -88,6 +88,66 @@ namespace FingerprintsData
            }
 
         }
+
+        public FingerprintsModel.Login LoginParent(out string result, string userName, string password, string ipAddress,out int primarylang)
+        {
+
+            Login Login = null;
+            result = string.Empty;
+            primarylang = 1;
+            try
+            {
+                Command.Parameters.Add(new SqlParameter("@emailid", userName));
+                Command.Parameters.Add(new SqlParameter("@password", EncryptDecrypt.Encrypt(password)));
+                Command.Parameters.Add(new SqlParameter("@IPaddress", ipAddress));
+                Command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar, 100)).Direction = ParameterDirection.Output;
+                Command.Connection = Connection;
+                Command.CommandType = CommandType.StoredProcedure;
+                Command.CommandText = "USP_ParentLoginDetails";
+                DataAdapter = new SqlDataAdapter(Command);
+                _Dataset = new DataSet();
+                DataAdapter.Fill(_Dataset);
+                result = Command.Parameters["@result"].Value.ToString();
+                if (result.ToLower().Contains("success"))
+                {
+                    if (_Dataset != null && _Dataset.Tables[0] != null && _Dataset.Tables[0].Rows.Count > 0)
+                    {
+                        Login = new Login();
+                        Login.UserId = Guid.Parse(Convert.ToString(_Dataset.Tables[0].Rows[0]["userid"]));
+                        Login.RoleName = Convert.ToString(_Dataset.Tables[0].Rows[0]["RoleName"]);
+                        Login.Emailid = Convert.ToString(_Dataset.Tables[0].Rows[0]["Emailid"]);
+                        Login.UserName = Convert.ToString(_Dataset.Tables[0].Rows[0]["name"]);
+                        Login.roleId = Guid.Parse(_Dataset.Tables[0].Rows[0]["Roleid"].ToString());
+
+                        if (!string.IsNullOrEmpty(_Dataset.Tables[0].Rows[0]["AgencyId"].ToString()))
+                            Login.AgencyId = Guid.Parse(_Dataset.Tables[0].Rows[0]["AgencyId"].ToString());
+                        else
+                            Login.AgencyId = null;
+
+                    }
+
+                    if (_Dataset != null && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0) {
+                        primarylang = DBNull.Value == _Dataset.Tables[1].Rows[0]["PrimaryLanguageSpoken"] ? 1 : Convert.ToInt32(_Dataset.Tables[1].Rows[0]["PrimaryLanguageSpoken"].ToString());
+                    }
+
+                }
+                return Login;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                if (Connection != null)
+                    Connection.Close();
+                return Login;
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+        }
+
+
         public FingerprintsModel.Login LoginUseragency(out string result, string UserName, string Password, string IPaddress)
         {
             Login Login = null;

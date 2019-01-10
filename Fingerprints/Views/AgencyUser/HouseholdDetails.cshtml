@@ -102,6 +102,10 @@
             if ('@ViewBag.message' != '')
             {
                 customAlert('@ViewBag.message');
+
+                setTimeout(function () {
+                    $('#backtofamily').trigger('click');
+                },2000);
             }
 
             CKEDITOR.replace('CaseNoteDetails_Note', {
@@ -110,6 +114,11 @@
                 disableNativeSpellChecker: false
             });
 
+
+            $(document).on("click", "#householdExit", function (e) {
+                e.preventDefault();
+                $("#backtofamily").trigger("click");
+            })
 
             $('#backtofamily').on('click', function () {
 
@@ -337,14 +346,15 @@
                         if (response.Result == 1) {
                             BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
                                 if (!result) {
-                                    $('#Street').val("");
+                                    //code643
+                                   /* $('#Street').val("");
                                     $('#StreetName').val("");
                                     $('#ZipCode').val("");
                                     $('#City').find('option').remove().end();
                                     $('#City').val('');
                                     $('#State').val('');
                                     $('#County').val('');
-                                    bindCaseNoteForAddressChange();
+                                    bindCaseNoteForAddressChange();*/
                                 }
                                 if (result) {
                                     bindCaseNoteForAddressChange();

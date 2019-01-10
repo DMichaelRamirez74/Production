@@ -25,6 +25,9 @@ using System.Dynamic;
 using System.Web.Script.Serialization;
 using Fingerprints.ViewModel;
 using Newtonsoft.Json.Linq;
+using System.Resources;
+using System.Globalization;
+using System.Collections;
 
 namespace Fingerprints.Controllers
 {
@@ -1653,7 +1656,42 @@ namespace Fingerprints.Controllers
         #endregion
 
 
+        public ActionResult SetLanguage(string id="en", string returnurl = "") {
+            Session["CurrentCluture"] = id;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(id);
 
+            return Redirect(returnurl);
+        }
+
+
+        public  string GetAllLocalResoure()
+        {
+            var _jsonStr = "";
+            try
+            {
+                ResourceSet resourceSet = LocalResource.Resources.ResourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
+
+               var dict= resourceSet.Cast<DictionaryEntry>()
+                       .ToDictionary(x => x.Key.ToString(),
+                                     x => x.Value.ToString());
+
+              //  var dict = JsonConvert.SerializeObject(resourceSet);
+
+                var entries = dict.Select(d =>
+        string.Format("\"{0}\": \"{1}\"", d.Key, string.Join(",", d.Value)));
+
+                _jsonStr =  "{" + string.Join(",", entries) + "}";
+
+                return _jsonStr;
+               // return entries.ToString() ;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return _jsonStr;
+        }
 
 
     }

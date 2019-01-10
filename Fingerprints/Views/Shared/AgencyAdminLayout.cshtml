@@ -46,7 +46,7 @@
     <script src="~/Scripts/USmobilevalidation.js"></script>
     <link href="~/Content/style_latest.css" rel="stylesheet" />
     <link href="~/Content/glossy-theme.css" rel="stylesheet" />
-
+    <link href="~/Content/popup-theme.css" rel="stylesheet" />
 
     <script src="~/Scripts/jquery.signature.js"></script>
     <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
@@ -62,7 +62,7 @@
                 datatype: "json",
                 type: 'post',
                 success: function (data) {
-                    $('.yakkr-span').html(data);
+                    $('.yakkr-span').html('('+data+')');
                 },
                 error: function (data) {
 
@@ -77,6 +77,26 @@
 
 
         $(document).ready(function () {
+
+
+            //Go to top Section//
+
+
+            var $topscroll = $(".top-scroll");
+
+            $(window).on("scroll", function () {
+                if ($(window).scrollTop() >= 20) {
+                    $topscroll.fadeIn();
+                } else {
+                    $topscroll.fadeOut();
+                }
+            });
+
+            $topscroll.on("click", function () {
+                $("html, body").animate({ scrollTop: 0 }, 300);
+            });
+
+
 
 
             $('#anchor-approval').on('click', function () {
@@ -336,6 +356,27 @@
     </script>
     @RenderSection(name: "Style", required: false)
     <style>
+
+
+        .top-scroll {
+            position: fixed;
+            display: none;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
+            color: #295b8f;
+            z-index: 999;
+            text-align: center;
+            font-size: 22px;
+            line-height: 40px;
+            cursor: pointer;
+        }
+
+
 
         .navbar-brand{float:left;width:100%;}
         ul#settab li.active a {

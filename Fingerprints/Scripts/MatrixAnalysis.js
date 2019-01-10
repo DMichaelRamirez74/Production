@@ -813,6 +813,7 @@ $('body').on('click', '.close-div', function () {
 
 //On Click over the Matrix Value or Score in the Description Popup/Insert matrix value//
 $('body').on('click', '#matrixValue', function () {
+    
     var groupID = $(this).attr('group-id');
     var value = $(this).html().trim();
     $('#fill_As' + savetype + '_' + groupID).html(value);
@@ -829,7 +830,10 @@ $('body').on('click', '#matrixValue', function () {
     matrixScore.AssessmentGroupId = parseInt(groupID);
     matrixScore.ProgramType = $('#programType').val().trim();
     matrixScore.classRoomId = parseInt($('#classRoomId').val().trim());
+
     matrixScore.MatrixScoreId = scoreId;
+
+
     $.ajax({
         url: "/Roster/InsertMatrixScore",
         datatype: 'json',
@@ -842,6 +846,7 @@ $('body').on('click', '#matrixValue', function () {
                 if (data.recommendationList != null) {
                     assessmentNo_rec = savetype;
                     bindRecommendtions(data.recommendationList);
+
                 }
             
             }

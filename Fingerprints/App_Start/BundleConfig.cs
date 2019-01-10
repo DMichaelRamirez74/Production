@@ -55,6 +55,9 @@ namespace Fingerprints
                       "~/Scripts/OfflineStorage/Config.js","~/Scripts/OfflineStorage/db.js","~/Scripts/OfflineStorage/DbManager.js", "~/Scripts/Samplescript/jqueryui.js",
                       "~/Scripts/jquery.signature.js"));
             bundles.Add(new ScriptBundle("~/bundles/datetimepicker").Include("~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"));
+
+            BundleTable.EnableOptimizations = true;
+
         }
     }
 }

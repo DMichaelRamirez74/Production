@@ -23,10 +23,30 @@
     <link href="~/Content/css/weekly-attendance.css" rel="stylesheet" />
     <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
     <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
-
+    <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
 
     <style>
 
+
+
+        
+         .top-scroll {
+            position: fixed;
+            display: none;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
+            color: #295b8f;
+            z-index: 999;
+            text-align: center;
+            font-size: 22px;
+            line-height: 40px;
+            cursor: pointer;
+        }
 
 div#spinner
 {
@@ -555,7 +575,39 @@ div#spinner
                 jQuery.browser.msie = true;
                 jQuery.browser.version = RegExp.$1;
             }
+
+
+
+
+
+            //Go to top Section//
+
+
+         
+
         })();
+
+
+
+        $(function () {
+
+
+            var $topscroll = $(".top-scroll");
+
+            $(window).on("scroll", function () {
+                if ($(window).scrollTop() >= 20) {
+                    $topscroll.fadeIn();
+                } else {
+                    $topscroll.fadeOut();
+                }
+            });
+
+            $topscroll.on("click", function () {
+                $("html, body").animate({ scrollTop: 0 }, 300);
+            });
+
+        });
+
     </script>
 
 </head>
@@ -1702,7 +1754,21 @@ div#spinner
                 </div>
             </div>
         </div>
+
+
+        <!----Scroll top Div-->
+
+        <div class="top-scroll">
+            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+        </div>
+
+
     </div>
+
+
+
+   
+
 
     @Html.Hidden("WeeklyAttendancestring", "")
     @Html.Hidden("childInfoString", "")

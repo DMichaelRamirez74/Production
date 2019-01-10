@@ -24,6 +24,18 @@
         var _inkindBudgetPeriods = @Html.Raw(Json.Encode(Model.InkindPeriodsList));
         var _sessionUserid='@(FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()+"_"+FingerprintsModel.StaffDetails.GetInstance().UserId.ToString())';
         var $cookieName='InkinEntry'+_sessionUserid;
+        var _requestedPageInkindentry=1;
+        var _pageSizeInkindentry=10;
+        var _lastIndexInkindentry=0;
+        var _pageLoadedFirst=false;
+        var _startIndexInkindEntry=0;
+        var _totalRecordsInkindentry=0;
+        var _numOfPagesInkindEntry=0;
+        var ajaxParameters={
+            'searchName':null,
+            'requestedPage':null,
+            'pageSize':null
+        }
 
         $(function () {
             var searchBtn = $('#searchByNamebtn');
@@ -155,13 +167,13 @@
 
 
 
-            $('input:checkbox[name=parenttype]').on('click', function () {
+            $('#inkind-info-form').find('input:checkbox[name=parenttype]').on('click', function () {
 
                 if ($(this).is(':checked')) {
                     $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
                         .parent('span').parent('div').hide();
 
-                    $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=1]').trigger('click');
+                    //  $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=1]').trigger('click');
 
 
                 }
@@ -187,7 +199,7 @@
                     // $('.not-exists-div').show();
                     // $('#contact-legend').html('Add Contact Information');
                     //// $('#contact-info-form').trigger('reset');
-                    getInkindDonorsFromDb(searchText.val());
+                    getInkindDonorsFromDb(searchText.val(),'');
 
                     return false;
                 }
@@ -560,7 +572,7 @@
 
                 $('#searchText').val('');
                 $('#no-more-tables8').find('#totalCountSpan').text(0);
-                $('#no-more-tables8').find('.scroll-tbody').html('');
+                $('#no-more-tables8').find('.bind_body').html('');
                 $('#no-more-tables8').hide();
                 $('#inkindPersonName').html('');
                 $('#contact-info-form').trigger('reset')
@@ -572,16 +584,42 @@
             });
 
             //Triggers the Search Button Click option on click of Enter key on focus of Search Text//
-            $('#searchText').on('focus', function () {
+            //$('#searchText').on('focus', function (event) {
 
 
-                document.addEventListener("keydown", function (event) {
-                    if (event.which == 13 || event.keyCode == 13) {
-                        $('#searchByNamebtn').trigger('click');
-                        return false;
+
+            //    document.getElementById("searchText").addEventListener("keydown", function (event) {
+            //        if (event.which == 13 || event.keyCode == 13) {
+            //           // $('#searchByNamebtn').trigger('click');
+            //            getInkindDonorsFromDb(searchText.val());
+            //            return true;
+            //        }
+
+            //    });
+            //});
+
+
+
+            document.getElementById("searchText").addEventListener("keydown", function (event) {
+
+                if (event.which == 13 || event.keyCode == 13) {
+
+
+                    if($('#searchText').is(':focus') && $('#searchText').val())
+                    {
+                        // $('#searchByNamebtn').trigger('click');
+
+                        _requestedPageInkindentry=1;
+                        _pageSizeInkindentry=10
+                        _lastIndexInkindentry=0;
+                        _pageLoadedFirst=false;
+
+                        getInkindDonorsFromDb(searchText.val(),'');
+                        return true;
                     }
 
-                });
+                }
+
             });
 
 
@@ -1287,15 +1325,15 @@
                             $('.inkind-entry-div').hide();
                             $('.contact-entry-div').hide();
 
-                            if (parentType == true && $('#no-more-tables8').is(':visible') && searchText.val() != '') {
+                            if ( $('#no-more-tables8').is(':visible') && searchText.val() != '') {
 
                                 if (InKindTransactions.ParentID != null || InKindTransactions.ParentID != '') {
                                     $('#no-more-tables8').find('#centerTable').
-                                        find('.scroll-tbody').find('tr').
-                                        children('td:eq(0)').children('p[accesskey=' + InKindTransactions.ParentID + ']').attr('data-ppp', '1');
+                                        find('.bind_body').find('tr').
+                                        children('td:eq(0)').children('p[accesskey=' + InKindTransactions.ParentID + ']').attr('data-ppp', (parentType == true?'1':'0'));
                                 }
 
-                              //  searchBtn.trigger('click');
+                                //  searchBtn.trigger('click');
                             }
                             $('#spinner').hide();
                             customAlert('Record saved successfully');
@@ -1345,7 +1383,436 @@
                 _allowExceedingWarninghrs = false;
             });
 
+
+
+
+
+            $('#contact-info-form').find('#ddlpagetodisplay').on('change', function () {
+               
+
+                _lastIndexInkindentry = 0;
+
+
+                _requestedPageInkindentry = $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val() == null ? _requestedPageInkindentry : $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+                _pageSizeInkindentry =   $('#contact-info-form').find('#ddlpagetodisplay').val();
+
+                getInkindDonorsFromDb(searchText.val(),'');
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+            });
+
+
+
+
+            $('#contact-info-form').find('#ulPaging').find('#First').on('click', function () {
+
+                var $thisValue = 'First';
+
+                _requestedPageInkindentry = $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val() == null ? _requestedPageInkindentry : $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+                fnChangePage($thisValue);
+
+            });
+
+
+            $('#contact-info-form').find('#ulPaging').find('#Back').on('click', function () {
+
+                var $thisValue = 'Back';
+
+                _requestedPageInkindentry = $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val()== null ? _requestedPageInkindentry : $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+                fnChangePage($thisValue);
+
+            });
+
+            $('#contact-info-form').find('#ulPaging').find('#ddlpaging').on('change', function () {
+
+
+                getListafterupdation();
+            });
+
+            $('#contact-info-form').find('#ulPaging').find('#Next').on('click', function () {
+
+                var $thisValue = 'Next';
+
+                _requestedPageInkindentry = $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val() == null ? _requestedPageInkindentry : $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+                fnChangePage($thisValue);
+
+            });
+
+            $('#contact-info-form').find('#ulPaging').find('#Last').on('click', function () {
+
+                var $thisValue = 'Last';
+
+                _requestedPageInkindentry =  $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val()== null ? _requestedPageInkindentry :  $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+                fnChangePage($thisValue);
+
+            });
+
         });
+
+
+
+
+
+        function  fnChangePage(val) {
+
+            if ($('#centerTable').find('tbody').find('.child-row').length === 0) {
+
+                return false;
+            }
+
+
+
+
+
+            window.setTimeout(function () {
+             
+
+
+                _pageLoadedFirst = false;
+
+                _pageSizeInkindentry =  $('#contact-info-form').find('#ddlpagetodisplay').val();
+
+                if (val == 'First') {
+                    _startIndexInkindEntry = 0;
+
+                    _lastIndexInkindentry = parseInt( _pageSizeInkindentry) + parseInt(_lastIndexInkindentry * _requestedPageInkindentry);
+
+                    _requestedPageInkindentry = ((_startIndexInkindEntry / 10) + 1);
+
+                    gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+
+                    // _lastIndexInkindentry = 0;
+                }
+                else if (val == 'Last') {
+
+                    _startIndexInkindEntry = parseInt((_totalRecordsInkindentry - 1) / _pageSizeInkindentry) * _pageSizeInkindentry;
+
+                    _lastIndexInkindentry = _totalRecordsInkindentry;
+
+                    _requestedPageInkindentry = _numOfPagesInkindEntry;
+
+                    gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+
+
+
+
+
+
+
+
+
+                }
+                else if (val == 'Next') {
+
+
+                    _lastIndexInkindentry = parseInt(_pageSizeInkindentry) + parseInt(_lastIndexInkindentry);
+
+                    _requestedPageInkindentry = (parseInt(_lastIndexInkindentry / _pageSizeInkindentry) + 1);
+
+                    gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
+
+
+                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+
+                    //if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) >= _totalRecordsInkindentry) {
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+                    //}
+                    //else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+                    //}
+                }
+                else if (val == 'Back') {
+
+
+                    _requestedPageInkindentry = _requestedPageInkindentry - 1;
+
+                    _lastIndexInkindentry = parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry);
+
+                    gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
+
+                    //if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) > _totalRecordsInkindentry) {
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+                    //}
+                    //else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+                    //}
+                    //if (_requestedPageInkindentry == 1) {
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                    //    $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+                    //}
+                }
+                else {
+                }
+
+            }, 10)
+        }
+
+
+        function  gotoNextPage(reqPage, pageSize,valElement) {
+
+
+            getInkindDonorsFromDb($('#searchText').val(),valElement);
+
+        }
+
+        function getTotalRecord (data, val) {
+
+            debugger;
+
+
+            $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+            $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+            $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+            $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+
+            _pageSizeInkindentry =    $('#contact-info-form').find('#ddlpagetodisplay').val();
+
+            if (data > 0) {
+
+                _totalRecordsInkindentry = parseInt(data);
+
+                if (_totalRecordsInkindentry <= _pageSizeInkindentry) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+
+
+                    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+
+                }
+
+                _numOfPagesInkindEntry = parseInt(_totalRecordsInkindentry / _pageSizeInkindentry) + ((_totalRecordsInkindentry % _pageSizeInkindentry == 0) ? 0 : 1);
+
+                $('#contact-info-form').find('#ulPaging').find('#ddlpaging').empty();
+
+                for (i = 1; i <= _numOfPagesInkindEntry; i++) {
+
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $('#contact-info-form').find('#ulPaging').find('#ddlpaging').append(newOption);
+                }
+
+                $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val(_requestedPageInkindentry);
+            }
+            else {
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+
+            }
+
+
+
+            if (val == 'First') {
+
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+
+                _lastIndexInkindentry = 0;
+            }
+            else if (val == 'Last') {
+
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+
+            }
+            else if (val == 'Next') {
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+                if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) >= _totalRecordsInkindentry) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+                }
+                else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+
+
+                if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) > _totalRecordsInkindentry) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+                }
+                else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+                }
+                if (_requestedPageInkindentry == 1) {
+
+                    $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                    $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+
+
+            if(data==1 || data==0)
+            {
+                $('#contact-info-form').find('.pagination-file').parent('div').hide();
+            }
+            else{
+                $('#contact-info-form').find('.pagination-file').parent('div').show();
+
+            }
+
+            
+
+
+        }
+
+        function  getListafterupdation() {
+
+
+            _pageSizeInkindentry = $('#contact-info-form').find('#ddlpagetodisplay').val();
+
+            _requestedPageInkindentry =   $('#contact-info-form').find('#ulPaging').find('#ddlpaging').val();
+
+            _startIndexInkindEntry = (_pageSizeInkindentry * (_requestedPageInkindentry - 1)) + 1;
+
+            _lastIndexInkindentry = parseInt(_pageSizeInkindentry * _requestedPageInkindentry) - parseInt(_pageSizeInkindentry);
+
+
+
+
+
+
+            getInkindDonorsFromDb($('#searchText').val());
+
+            if (_requestedPageInkindentry == 1) {
+
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+            }
+            else if (_requestedPageInkindentry == _numOfPagesInkindEntry) {
+
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
+
+            }
+            else {
+
+                $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
+
+
+                $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
+
+                $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
+
+
+            }
+
+
+
+
+        }
+
+
+
 
 
 
@@ -1527,19 +1994,23 @@
         }
 
         // function to get the inkind donors available in database based on the search text entered//
-        function getInkindDonorsFromDb(searchtext) {
+        function getInkindDonorsFromDb(searchtext, val) {
 
             $.ajax({
                 url: HostedDir + '/InKind/GetParentCompanyDonorsBySearch',
                 datatype: 'json',
                 type: 'post',
-                data: { searchName: $('#searchText').val() },
+                data: { searchName: $('#searchText').val(),requestedPage:_requestedPageInkindentry,pageSize:_pageSizeInkindentry },
                 beforeSend: function () { $('#spinner').show() },
                 success: function (data) {
-
+                 
                     $('#spinner').hide();
 
                     if (data != null) {
+                        getTotalRecord(parseInt(data.TotalRecord),val);
+
+
+
                         if (data.InkindDonorsList != null) {
                             if (data.InkindDonorsList.length > 0) {
 
@@ -1581,20 +2052,20 @@
 
                                 });
 
-                                $('#totalCountSpan').text(data.InkindDonorsList.length);
-                                $('.scroll-tbody').html(appendDiv);
+                                $('#totalCountSpan').text(data.TotalRecord);
+                                $('.bind_body').html(appendDiv);
                                 $('#no-more-tables8').show();
                                 $('.contact-entry-div').hide();
                                 $('.not-exists-div').hide();
                                 $('.inkind-entry-div').hide();
 
 
-                                if ($('.scroll-tbody').find('tr').length === 1) {
-                                    $('.scroll-tbody').css({ 'width': '98.5%' });
+                                if (  $('.bind_body').find('tr').length === 1) {
+                                    $('.bind_body').css({ 'width': '100%' });
                                 }
-                                else if ($('.scroll-tbody').find('tr').length > 0) {
+                                else if (  $('.bind_body').find('tr').length > 0) {
 
-                                    $('.scroll-tbody').css({ 'width': '98.5%' });
+                                    $('.bind_body').css({ 'width': '100%' });
                                 }
 
                             }
@@ -1935,20 +2406,34 @@
                 $('#inkindCompanyName').attr({ 'cl_id': '0', 'is_comp': '0' });
                 $('.inkind-company-div').hide();
 
-                if (isPastPresentParent == 0) {
-                    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
-                    $('#inkind-info-form').find('.individual-parent-type-div-act').show();
-                    //home shown for all code0643
-                    //$('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').hide();
-                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
-                }
-                else {
-                    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
-                    $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
+                //if (isPastPresentParent == 0) {
+                //    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                //    $('#inkind-info-form').find('.individual-parent-type-div-act').show();
+                //    //home shown for all code0643
+                //    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
+                //}
+                //else {
+                //    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                //    $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
 
-                    $homeCheck.prop('checked', false).parent('span').parent('div').show();
-                     //home shown for all code0643
-                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
+                //    $homeCheck.prop('checked', false).parent('span').parent('div').show();
+                //    //home shown for all code0643
+                //    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
+                //}
+
+
+
+                if(isPastPresentParent===1 || isShowHome==0)
+                {
+                    if(isPastPresentParent===1)
+                    {
+                        $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', true);
+                        $('#inkind-info-form').find('.individual-parent-type-div-act').show();
+                    }
+                    else{
+                        $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                        $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
+                    }
                 }
 
                 if (isShowHome === 1) {
@@ -2040,9 +2525,13 @@
             $('#sig2').signature('clear');
 
             $('#parent-sig-div,#staff-sig-div').hide();
-            //home shown for all code0643 
-           // $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
-           //prop('checked', false).parent('span').parent('div').hide();
+
+            //home shown for all code0643
+            // $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
+            //prop('checked', false).parent('span').parent('div').hide();
+
+            $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
+                 .parent('span').parent('div').hide();
 
             $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
 
@@ -2104,6 +2593,9 @@
             //home shown for all code0643
           //  $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
             //    prop('checked', false).parent('span').parent('div').hide();
+
+            $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
+                      .parent('span').parent('div').hide();
 
             $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
 
@@ -2340,10 +2832,57 @@
 @section maincontentholder
 {
 
-    <style>
+    <style type="text/css">
+        .div-search-section {
+            border-radius: 10px;
+            background: #f1f5f8;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
 
-        #searchText{
-            height:30px!important;
+
+        #ulPaging a[disabled="disabled"] {
+            pointer-events: none;
+        }
+
+        #contact-info-form {
+            margin-top: 20px;
+        }
+
+        #ulPaging li {
+            display: inherit;
+        }
+
+        #ulPaging a {
+            color: #333;
+            width: 34px;
+            padding: 0px 12px 3px;
+        }
+
+        #no-more-tables8 {
+            bottom: 20px;
+            display: none;
+        }
+
+        /*.table-container {
+            border-radius: 10px;
+            background: #f1f5f8;
+            padding: 10px;
+            width: 100%;
+            margin: 20px 0%;
+        }*/
+
+
+
+
+
+
+
+
+
+
+        #searchText {
+            height: 32px !important;
         }
 
         body {
@@ -2362,20 +2901,7 @@
             text-align: right;
         }
 
-        .scroll-thead {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            width: 98.3%;
-        }
 
-        .scroll-tbody {
-            display: block;
-            height: 0px;
-            overflow: auto;
-            overflow-x: hidden;
-            width: 100%;
-        }
 
         .checkbox-validation {
             border: 1px solid #a94442;
@@ -2399,9 +2925,157 @@
             font-size: 18px;
             color: #f9c751;
         }
+
+
+        @@media only screen and (max-width: 3000px), (min-device-width: 2560) and (max-device-width: 3000px) {
+
+            .inset-width {
+                width: 26.47%;
+            }
+        }
+
+
+
+        @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
+
+
+            #centerTable, #inkind-table thead, #inkind-table tbody, #inkind-table th, #inkind-table td, #inkind-table tr {
+                display: block;
+                border: none;
+            }
+
+            #centerTable {
+                float: left;
+                width: 100%;
+            }
+
+                #centerTable tbody tr td:first-child a {
+                    width: initial !important;
+                    text-overflow: initial !important;
+                }
+
+                #centerTable thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+
+                #centerTable tr {
+                    margin: 0 7px 2em 0;
+                    box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+                    float: left;
+                    width: 100%;
+                }
+
+                    #centerTable tr:nth-child(odd) {
+                        background: #ffffff;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+
+                    #centerTable tr:nth-child(even) {
+                        background: #f1f5f8;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+
+                #centerTable td {
+                    border: none;
+                    border-bottom: 1px solid #eee;
+                    position: relative;
+                    float: left;
+                    width: 100%;
+                }
+
+                    #centerTable td:before {
+                        position: relative;
+                        top: 10px;
+                        left: 0;
+                        width: 35%;
+                        padding-right: 10px;
+                        white-space: nowrap;
+                        height: auto;
+                        display: inline-block;
+                        float: left;
+                    }
+
+            .table-div {
+                border: none !important;
+            }
+
+
+
+            #centerTable td:before {
+                content: attr(data-title);
+                text-align: left;
+                padding-top: 0.6em;
+                margin-left: 1em;
+            }
+
+            #centerTable > tbody > tr > td {
+                text-align: right !important;
+                margin-right: 2em;
+            }
+
+            .bind_body tr td p {
+                padding: 10px 10px 10px 10px;
+                text-align: right;
+                font-size: 14px;
+                margin: 0;
+                border-right: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                width: 55%;
+                margin-right: 0;
+                display: inline-block;
+            }
+
+            .ersea-table-head {
+                height: auto !important;
+            }
+        }
     </style>
     <link href="~/Content/css/Inkindprocessing.css" rel="stylesheet" />
     <link href="~/Content/css/parentcontact.css" rel="stylesheet" />
+    <style>
+        .ersea-table thead tr {
+            color: #fff;
+            text-align: left;
+            background: rgba(203,96,179,1) !important;
+            background: -moz-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            background: -webkit-gradient(left top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            background: -webkit-linear-gradient(top,rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            background: -o-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            background: -ms-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            background: linear-gradient(to bottom, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%) !important;
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cb60b3', endColorstr='#a80077', GradientType=0 ) !important;
+        }
+
+            .ersea-table thead tr th {
+                border-bottom: 0 !important;
+                text-align: left;
+                text-transform: capitalize;
+                /* font-size: 18px; */
+                font-size: 14px;
+                font-weight: normal;
+                line-height: 25px;
+                border: 1px solid #e7e7e7;
+                cursor: pointer;
+            }
+
+        tbody.ersea-table-head tr td, .ersea-table-head p {
+            background: none !important;
+        }
+
+        tbody.ersea-table-head tr:nth-of-type(odd) {
+            background-color: #fff !important;
+        }
+
+        tbody.ersea-table-head tr:nth-of-type(even) {
+            background-color: #f9f9f9 !important;
+        }
+    </style>
     <div class="row Zoom">
         <div class="col-lg-12" style="padding:0;">
             <div class="page-wrapper-change">
@@ -2434,89 +3108,175 @@
                                 </button>
                             </div>
 
-        <div class="col-lg-12 col-xs-12">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="col-xs-12 div-search-section">
 
-            <div class="row">
-                <div class="col-xs-12 col-lg-12">
-                    <div class="col-lg-4 impart-rght">
-                        <label class="" style="color:#fff;margin-top:8px;">Search By Name</label>
+                                    <div class="col-xs-12 search-block-main">
 
-                                        </div>
-                                        <div class="col-lg-4 impart-inpart">
-                                            <input type="text" class="form-control" id="searchText" name="SearchByName" placeholder="Search Name...">
-                                        </div>
-                                        <div class="col-lg-2">
-                                            <button class="glossy-button-button button-green glossy-button-hover"  type="button" id="searchByNamebtn">Search
-                                            
-                                                <span class="glossy-button-after"></span>
-                                                <span class="glossy-button-before"></span>
-                                            </button>
+                                        <div class="col-lg-4 impart-rght">
+                                            <label class="" style="margin-top:8px;">Search By Name</label>
 
                                         </div>
 
-                                        @* Search Section *@
-
-
-                                        @*<div class="col-xs-12 search-block-main">
-                                            <div class="search-block">
-                                                <input type="text" placeholder="Search..." id="searchText" name="SearchByName" class="form-control">
-                                                <div class="ersa-search-btn">
-                                                    <button id="searchByNamebtn" data-search-item="">Search</button>
-                                                </div>
+                                        <div class="search-block">
+                                            <input type="text" placeholder="Search..." name="SearchByName" id="searchText" class="form-control">
+                                            <div class="ersa-search-btn">
+                                                <button id="searchByNamebtn" data-search-item="">Search</button>
                                             </div>
-
-
-                                        </div>*@
-
+                                        </div>
 
 
                                     </div>
+
+                                    <div class="row text-center not-exists-div co-xs-12">
+                                        <small>Name does not exists in the system. Kindly, add the contact information.</small>
+                                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                 </div>
 
-            <div class="row text-center not-exists-div">
-                <small style="color: #f9c751;">Name does not exists in the system. Kindly, add the contact information.</small>
-            </div>
-            <form id="contact-info-form">
-
-
-                <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;display:none;">
-                    <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
-
-
-                        <div class="col-xs-12 text-left">
-                            <label style="color:#1d5381;">Total Count : <span id="totalCountSpan">0</span></label>
-
-                        </div>
-
-                        <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
-                            <thead class="table-hd scroll-thead">
-                                <tr>
-                                    <th style="width:24%;">Name</th>
-                                    <th style="width:15%;">Company Name</th>
-                                    <th>Address </th>
-                                    <th style="width:15%;">Phone No</th>
-                                    <th>Email</th>
-                                </tr>
-                            </thead>
-                            <tbody class="ersea-table-head bind_body scroll-tbody" style="height: 244px;">
 
 
 
 
 
-                                <tr style="width:98.3%">
-                                    <td colspan="9" style="padding: 25px;text-align:center;font-weight:bold;">Search by Center and Classroom<sup style="color:red;">*</sup></td>
-                                </tr>
-
-                            </tbody>
 
 
 
-                        </table>
 
 
-                    </div>
-                </div>
+
+
+
+
+
+
+
+                                <form id="contact-info-form">
+
+                                    <!-------In-kind Entry Donars section------->
+                                    <div id="no-more-tables8" class="col-xs-12 no-padding">
+                                        <div class="col-xs-12 table-container">
+
+
+                                            <div class="col-xs-12 text-right">
+                                                <label style="color:#1d5381;">Total Count : <span id="totalCountSpan">0</span></label>
+
+                                            </div>
+
+                                            <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
+                                                <thead class="table-hd">
+                                                    <tr>
+                                                        <th style="width:24%;">
+                                                            @*<i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>*@
+                                                            Name
+                                                        </th>
+                                                        <th style="width:15%;">Company Name</th>
+                                                        <th>Address </th>
+                                                        <th style="width:15%;">Phone No</th>
+                                                        <th>Email</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="ersea-table-head bind_body">
+
+
+
+
+
+                                                    <tr style="width:98.3%">
+                                                        <td colspan="9" style="padding: 25px;text-align:center;font-weight:bold;">Search by Center and Classroom<sup style="color:red;">*</sup></td>
+                                                    </tr>
+
+                                                </tbody>
+
+
+
+                                            </table>
+
+
+                                        </div>
+
+
+
+
+                                        <!---Pagination Section-->
+                                        <div class="col-xs-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
+                                                <div class="pages_display">
+                                                    <ul>
+                                                        <li style="color:#ffffff;">Display</li>
+                                                        <li>
+                                                            <select id="ddlpagetodisplay">
+                                                                <option value="10" selected="selected">10</option>
+                                                                <option value="20">20</option>
+                                                                <option value="30">30</option>
+                                                                <option value="50">50</option>
+                                                                <option value="100">100</option>
+                                                            </select>
+                                                        </li>
+                                                        <li style="color:#ffffff;">Records Per Page</li>
+                                                    </ul>
+                                                    <div class="clear"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                                <div id="divPaging" class="pagination_wrp">
+                                                    <ul id="ulPaging" class="pagination">
+                                                        <li title="First">
+                                                            <a href="javascript:void(0);" id="First" disabled="disabled">
+                                                                <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <li title="Back">
+
+
+                                                            <a href="javascript:void(0);" id="Back" disabled="disabled">
+                                                                <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <li title="Select">
+                                                            <select class="select_cl" id="ddlpaging"></select>
+                                                        </li>
+                                                        <li title="Next">
+
+                                                            <a href="javascript:void(0);" id="Next" disabled="disabled">
+                                                                <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li title="Last">
+
+                                                            <a href="javascript:void(0);" id="Last" disabled="disabled">
+                                                                <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
 
 
 
@@ -2846,14 +3606,16 @@
                                             </div>
                                         </div>
                                         <div class="form-group final-btn glossy_btn">
-                                            <button class="glossy-button-button button-green glossy-button-hover"  type="button" id="inKindEntrySubmit">
-                                            <span class="glossy-button-before"></span>
-                                            <span class="glossy-button-after"></span>
-                                            Submit</button>
+                                            <button class="glossy-button-button button-green glossy-button-hover" type="button" id="inKindEntrySubmit">
+                                                <span class="glossy-button-before"></span>
+                                                <span class="glossy-button-after"></span>
+                                                Submit
+                                            </button>
                                             <button class="glossy-button-button button-red glossy-button-hover" type="button" id="inKindEntryExit">
                                                 <span class="glossy-button-before"></span>
                                                 <span class="glossy-button-after"></span>
-                                            Cancel</button>
+                                                Cancel
+                                            </button>
                                         </div>
                                     </fieldset>
                                 </form>

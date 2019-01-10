@@ -42,12 +42,16 @@ namespace FingerprintsData
         /// </summary>
         /// <param name="staffDetails">StafDetails</param>
         /// <param name="searchText">string</param>
-        /// <returns>Unkind</returns>
-        public Inkind GetInkindParentCompanyDonors(StaffDetails staffDetails, string searchText)
+        /// <returns>Inkind</returns>
+        public Inkind GetInkindParentCompanyDonors(StaffDetails staffDetails, string searchText, int requestedPage, int pageSize)
         {
 
             Inkind inkind = new Inkind();
             inkind.InkindDonorsList = new List<InkindDonors>();
+
+            inkind.RequestedPage = requestedPage;
+            inkind.PageSize = pageSize;
+            inkind.SkipRows = inkind.GetSkipRows();
             try
             {
                 using (_connection)
@@ -57,6 +61,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
                     command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
                     command.Parameters.Add(new SqlParameter("@SearchText", searchText));
+                    command.Parameters.Add(new SqlParameter("@Take", inkind.PageSize));
+                    command.Parameters.Add(new SqlParameter("@Skip", inkind.SkipRows));
+                    command.Parameters.Add(new SqlParameter("@TotalRecord", inkind.TotalRecord)).Direction = ParameterDirection.Output;
                     command.Connection = _connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetInkindDonors";
@@ -66,8 +73,12 @@ namespace FingerprintsData
                     adapter.Fill(dataset);
                     _connection.Close();
 
+
+
                     if (dataset != null && dataset.Tables.Count > 0)
                     {
+                        inkind.TotalRecord = (int)command.Parameters["@TotalRecord"].Value;
+
                         inkind.InkindDonorsList = (from DataRow dr in dataset.Tables[0].Rows
                                                    select new InkindDonors
                                                    {
@@ -104,6 +115,7 @@ namespace FingerprintsData
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
+                inkind.TotalRecord = 0;
             }
             finally
             {
@@ -774,6 +786,7 @@ new DataColumn("Status",typeof(bool))
                     command.Parameters.Add(new SqlParameter("@UserID", staffDetails.UserId));
                     command.Parameters.Add(new SqlParameter("@FilterType", (int)inkindReportModel.FilterTypeEnum));
                     command.Parameters.Add(new SqlParameter("@SubFilterOption", inkindReportModel.SubFilterOption));
+                    command.Parameters.Add(new SqlParameter("@Centers", inkindReportModel.Centers));
                     command.Parameters.Add(new SqlParameter("@FromDate", inkindReportModel.FromDate));
                     command.Parameters.Add(new SqlParameter("@ToDate", inkindReportModel.ToDate));
                     command.Parameters.Add(new SqlParameter("@DateEntered", inkindReportModel.DateEntered));
@@ -1353,5 +1366,117 @@ new DataColumn("Status",typeof(bool))
             return isRowsAffected;
         }
 
+        public List<InkindPeriods> GetInkindPeriodYakkrMappingData(StaffDetails staff, string yakkrId)
+        {
+
+            List<InkindPeriods> inkindPeriodList = new List<InkindPeriods>();
+
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@YakkrID", yakkrId));
+                    command.Connection = _connection;
+                    command.CommandText = "USP_GetInkindPeriodYakkrMappings";
+                    command.CommandType = CommandType.StoredProcedure;
+                    _connection.Open();
+                    adapter = new SqlDataAdapter(command);
+                    dataset = new DataSet();
+                    adapter.Fill(dataset);
+                    if (dataset != null && dataset.Tables.Count > 0)
+                    {
+                        if (dataset.Tables[0].Rows.Count > 0)
+                        {
+                            inkindPeriodList = (from DataRow dr0 in dataset.Tables[0].Rows
+                                                select new InkindPeriods
+                                                {
+                                                    InkindPeriodID = Convert.ToInt64(dr0["InkindPeriodID"]),
+                                                    StartDate = Convert.ToString(dr0["StartDate"]),
+                                                    EndDate = Convert.ToString(dr0["EndDate"]),
+                                                    IsStatus = Convert.ToBoolean(dr0["Status"])
+
+                                                }
+
+
+                                              ).ToList();
+                        }
+
+                        if (dataset.Tables.Count > 1 && dataset.Tables[1] != null && dataset.Tables[1].Rows.Count > 0)
+                        {
+                            inkindPeriodList.AddRange(
+
+                                (from DataRow dr1 in dataset.Tables[1].Rows
+                                 select new InkindPeriods
+                                 {
+                                     InkindPeriodID = Convert.ToInt64(dr1["InkindPeriodID"]),
+                                     StartDate = Convert.ToString(dr1["StartDate"]),
+                                     EndDate = Convert.ToString(dr1["EndDate"]),
+                                     IsStatus = Convert.ToBoolean(dr1["Status"])
+
+                                 }
+
+
+                                              ).ToList()
+
+                                );
+                        }
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                _connection.Dispose();
+                adapter.Dispose();
+                dataset.Dispose();
+            }
+
+            return inkindPeriodList;
+        }
+
+        public bool ActivateNewInkindPeriodData(StaffDetails staff, string yakkrId)
+        {
+
+            bool isRowsAffected;
+
+            try
+            {
+                using (_connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@YakkrID", yakkrId));
+                    command.Connection = _connection;
+                    command.CommandText = "USP_ActivateNewInkindPeriod";
+                    command.CommandType = CommandType.StoredProcedure;
+                    _connection.Open();
+                    isRowsAffected = Convert.ToBoolean(command.ExecuteNonQuery());
+                    _connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                isRowsAffected = false;
+            }
+            finally
+            {
+                _connection.Dispose();
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
     }
 }

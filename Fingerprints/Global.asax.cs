@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -46,5 +48,21 @@ namespace Fingerprints
 
             
         }
+
+        protected void Application_AcquireRequestState(object sender, EventArgs e)
+        {
+            if (System.Web.HttpContext.Current.Session != null)
+            {
+                if (Session["CurrentCluture"] != null)
+                {
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo(Session["CurrentCluture"].ToString());
+                }
+                else {
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
+                }
+            }
+        }
+        
+
     }
 }

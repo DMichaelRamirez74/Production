@@ -30,11 +30,30 @@
     <script src="~/Scripts/USmobilevalidation.js"></script>
     <script src="~/Scripts/moment.min.js"></script>
     <link href="~/Content/style_latest.css" rel="stylesheet" />
-
+    <link href="~/Content/popup-theme.css" rel="stylesheet" />
     @RenderSection(name: "Style", required: false)
 
 
     <style>
+
+
+            .top-scroll {
+            position: fixed;
+            display: none;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
+            color: #295b8f;
+            z-index: 999;
+            text-align: center;
+            font-size: 22px;
+            line-height: 40px;
+            cursor: pointer;
+        }
 
         .navbar-brand{float:left;width:100%;}
         .ui-autocomplete {
@@ -95,6 +114,29 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+
+
+            //Go to top Section//
+
+
+            var $topscroll = $(".top-scroll");
+
+            $(window).on("scroll", function () {
+                if ($(window).scrollTop() >= 20) {
+                    $topscroll.fadeIn();
+                } else {
+                    $topscroll.fadeOut();
+                }
+            });
+
+            $topscroll.on("click", function () {
+                $("html, body").animate({ scrollTop: 0 }, 300);
+            });
+
+
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -649,6 +691,11 @@
     <div id="page-wrapper">
         @RenderSection(name: "MainContentHolder", required: false)
     </div>
+
+    <div class="top-scroll">
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </div>
+
     <div class="footer-one">
         <footer>
             <p class="text-center">Copyright © @DateTime.Now.Year All Rights Reserved.<br />Application Link Inc.</p>

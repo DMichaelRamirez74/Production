@@ -9,7 +9,7 @@ using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
-    public class Inkind
+    public class Inkind:Pagination
     {
         public string Id { get; set; }
         public string ProgramYear { get; set; }
@@ -206,6 +206,8 @@ namespace FingerprintsModel
         public InkindReportFilterEnum FilterTypeEnum { get; set; }
         public string SubFilterOption { get; set; }
 
+        public string Centers { get; set; }
+
         public string FromDate { get; set; }
         public string ToDate { get; set; }
 
@@ -279,7 +281,10 @@ namespace FingerprintsModel
         ContributionActivity =3,
 
         [Description("Date Entered")]
-        DateEntered = 4
+        DateEntered = 4,
+
+        [Description("Entered By")]
+        EnteredBy = 5
 
 
     }
