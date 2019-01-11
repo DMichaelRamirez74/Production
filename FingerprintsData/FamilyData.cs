@@ -6079,12 +6079,20 @@ namespace FingerprintsData
 
 
         #region "Advanced Search for Family under In-Take"
-        public DataTable AdvanceFamilySearchData(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode,  string Roleid)
+        public List<FamilyHousehold> AdvanceFamilySearchData(out int totalRecord, string HouseholdId, string Street, string StreetName, 
+            string ZipCode, string City, string State, string County, string Pfirstname, string Plastname,
+            string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, 
+            string mode,  string Roleid,int pageSize, int skip,string sortOrder, string sortDirection)
+
         {
+
+
+            List<FamilyHousehold> familyHouseholdList = new List<FamilyHousehold>();
+            totalRecord = 0;
             try
             {
-                FamilyHousehold Info = new FamilyHousehold();
-
+              
+            
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6101,32 +6109,68 @@ namespace FingerprintsData
                     command.Parameters.AddWithValue("@Plastname", Plastname);
                     command.Parameters.AddWithValue("@Cfirstname", Cfirstname);
                     command.Parameters.AddWithValue("@Clastname", Clastname);
+                    command.Parameters.AddWithValue("@CDOB", CDOB);
+                    command.Parameters.AddWithValue("@CGender", CGender);
                     command.Parameters.AddWithValue("@County", County);
                     command.Parameters.AddWithValue("@UserId", userId);
                     command.Parameters.AddWithValue("@Roleid", Roleid);
+                    command.Parameters.AddWithValue("@take", pageSize);
+                    command.Parameters.AddWithValue("@skip", skip);
+                    command.Parameters.AddWithValue("@sortcolumn", sortOrder);
+                    command.Parameters.AddWithValue("@sortorder", sortDirection);
+                    command.Parameters.AddWithValue("@TotalRecord", totalRecord).Direction = ParameterDirection.Output;
+                        
                     command.Connection = Connection;
                     command.CommandText = "USP_AdvancedSearchFamily";
                     command.CommandType = CommandType.StoredProcedure;
                     Connection.Open();
 
                     DataAdapter = new SqlDataAdapter(command);
-                    _dataTable = new DataTable();
-                    DataAdapter.Fill(_dataTable);
-
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
                     Connection.Close();
+
                 }
 
-                return _dataTable;
+
+                if (_dataset!=null && _dataset.Tables.Count>0)
+                    {
+                        if(_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count>0)
+                        {
+                            for (int i = 0; i < _dataset.Tables[0].Rows.Count; i++)
+                            {
+                                FamilyHousehold addhouseholdRow = new FamilyHousehold();
+                                addhouseholdRow.HouseholdId = Convert.ToInt32(_dataset.Tables[0].Rows[i]["HouseholdID"]);
+                                addhouseholdRow.Street = _dataset.Tables[0].Rows[i]["Street"].ToString();
+                                addhouseholdRow.clientIdnew = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[i]["ClientId"].ToString());
+                                addhouseholdRow.ClientFname = _dataset.Tables[0].Rows[i]["name"].ToString();
+                                addhouseholdRow.RPhoneno = _dataset.Tables[0].Rows[i]["PHONENO"].ToString();
+                                addhouseholdRow.CreatedOn = Convert.ToString(_dataset.Tables[0].Rows[i]["DateEntered"]);
+                                addhouseholdRow.Encrypthouseholid = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[i]["HouseholdID"].ToString());
+                                addhouseholdRow.ApplicationStatusChild = _dataset.Tables[0].Rows[i]["ApplicationStatus"].ToString();
+                                addhouseholdRow.IsFutureApplication = _dataset.Tables[0].Rows[i]["IsFutureIntake"].ToString() == "1" ? true : false;
+                                addhouseholdRow.CDOB = _dataset.Tables[0].Rows[i]["DOB"].ToString();
+                                familyHouseholdList.Add(addhouseholdRow);
+                            }
+                            totalRecord = Convert.ToInt32(command.Parameters["@totalRecord"].Value);
+                        }
+
+                    }
+             
+
+              
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
-                return new DataTable();
+               
             }
             finally
             {
                 DataAdapter.Dispose();
             }
+
+            return familyHouseholdList;
         }
 
         #endregion

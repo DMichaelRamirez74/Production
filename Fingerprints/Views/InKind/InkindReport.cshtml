@@ -384,11 +384,12 @@
                         case self.filterType.EnteredBy:
 
 
-                            self.elements.inkindFromDate.parent('div').parent('div').hide('slow');
-                            self.elements.inkindToDate.parent('div').parent('div').hide('slow');
+                      
                             self.elements.inkindDateEntered.val('');
                             self.elements.inkindDateEntered.parent('div').parent('div').hide('slow');
                             self.elements.dropdownEnteredBy.parent('div').parent('div').show('slow');
+                            self.elements.inkindFromDate.parent('div').parent('div').show('slow');
+                            self.elements.inkindToDate.parent('div').parent('div').show('slow');
                             self.getOptionsByFilterType($filterOption);
                             break;
 
@@ -1326,7 +1327,7 @@
 
                 else if (($selfElements.inkindFromDate.val() == null || $selfElements.inkindFromDate.val() == '' || $selfElements.inkindFromDate.val() == "__/__/____")
                      && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy
+                     && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy
                     
                     ) {
                     plainValidation($selfElements.inkindFromDate);
@@ -1336,7 +1337,7 @@
 
                 else if (($selfElements.inkindToDate.val() == null || $selfElements.inkindToDate.val() == '' || $selfElements.inkindToDate.val() == "__/__/____")
                      && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                    && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy) {
+                    && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('Please enter To date');
                     return false;
@@ -1344,7 +1345,7 @@
                 else if ((new Date($selfElements.inkindToDate.val()).setHours(0, 0, 0, 0)
                          < new Date($selfElements.inkindFromDate.val()).setHours(0, 0, 0, 0))
                      && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                    && parseInt($selfElements.inKindFilter.val())!=self.filterType.EnteredBy) {
+                    && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('To date should by greater than or equal to From date');
                     return false;
@@ -1494,7 +1495,7 @@
                                         numberDisplayed: 1
 
                                     });
-                                    self.elements.divCenterDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
+                                    self.elements.divCenterDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
                                     self.elements.divCenterDropdown.find('.btn-group').css({ 'width': '100%' });
                                     self.elements.divCenterDropdown.show('slow');
 
@@ -1516,7 +1517,7 @@
                                         enableCaseInsensitiveFiltering: true,
                                         numberDisplayed: 1
                                     });
-                                    self.elements.divContributorDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
+                                    self.elements.divContributorDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
                                     self.elements.divContributorDropdown.find('.btn-group').css({ 'width': '100%' });
                                     self.elements.divContributorDropdown.show('slow');
 
@@ -1537,7 +1538,7 @@
                                         enableCaseInsensitiveFiltering: true,
                                         numberDisplayed: 1
                                     });
-                                    self.elements.divContributionActivityDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
+                                    self.elements.divContributionActivityDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
                                     self.elements.divContributionActivityDropdown.find('.btn-group').css({ 'width': '100%' });
                                     self.elements.divContributionActivityDropdown.show('slow');
 
@@ -1562,7 +1563,7 @@
                                         enableCaseInsensitiveFiltering: true,
                                         numberDisplayed: 1
                                     });
-                                    self.elements.divEnteredByDropdown.find('.multiselect').addClass('ersa-select').removeClass('btn btn-default');
+                                    self.elements.divEnteredByDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
                                     self.elements.divEnteredByDropdown.find('.btn-group').css({ 'width': '100%' });
                                     self.elements.divEnteredByDropdown.show('slow');
 
@@ -1723,11 +1724,10 @@
 
                         });
 
-
-
+                       
                         self.elements.textSearchInkind.autocomplete({
                             search: function (event, ui) {
-
+                              
                                 if (self.elements.textSearchInkind.val().trim().length > 0 && self.elements.textSearchInkind.val().length > 2) {
                                     //$('#Search').hide();
                                     //$('#Searchloader').show();
@@ -2092,13 +2092,13 @@
                 self.ajaxParameters.centers= self.elements.dropdownCenter.val().join(',');
 
                 self.ajaxParameters.fromDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered 
-                                               && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindFromDate.val():"";
+                                              ? self.elements.inkindFromDate.val():"";
 
                 self.ajaxParameters.toDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered
-                                             && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindToDate.val():"";
+                                            ? self.elements.inkindToDate.val():"";
 
                 self.ajaxParameters.dateEntered = parseInt(self.elements.inKindFilter.val()) == self.filterType.DateEntered
-                                                  && parseInt(self.elements.inKindFilter.val()) != self.filterType.EnteredBy ? self.elements.inkindDateEntered.val():"";
+                                                ? self.elements.inkindDateEntered.val():"";
 
                 self.ajaxParameters.requestedPage = REQUESTED_PAGE;
                 self.ajaxParameters.pageSize = PAGE_SIZE;
@@ -3325,13 +3325,11 @@
 
 
     <style type="text/css">
-        #selectCenter{
-            height:30px;
-        }
 
-        body {
-            font-family: Arial,sans-serif !important;
-        }
+
+       
+
+    
 
         .img-camera {
             height: 30px;
@@ -3414,27 +3412,13 @@
             color: #fff;
         }
 
-        .right-side-container-ch {
-            width: 100%;
-            float: left;
-            background: url(../../Images/body-bg.jpg) center no-repeat;
-            background-size: cover;
-            min-height: 689px;
-            padding-top: 15px;
-        }
+       
 
         .container-fluid {
             margin-top: 15px;
         }
 
-        .row {
-            margin-right: -15px;
-            margin-left: -15px;
-        }
-
-        .navbar-inverse {
-            background-color: #295b8f !important;
-        }
+       
 
         .header_ge {
             color: #fff;
@@ -3453,49 +3437,11 @@
             padding: 30px 15px 0;
         }
 
-        .ersa-select {
-            /* width: 220px; */
-            width: 100%;
-            /* font-size: 19px; */
-            font-size: 14px;
-            color: #fff;
-            display: inline-block;
-            padding: 5px;
-            resize: none;
-            background: transparent;
-            height: 32px;
-            margin-right: 10px;
-            border: 1px solid #fff !important;
-            border-radius: 4px;
-            position: relative;
-            line-height: 25px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-            .ersa-select option {
-                background: #164273;
-            }
+     
 
 
-        .ersa-date-input {
-            /* width: 220px; */
-            width: 245px;
-            /* font-size: 19px; */
-            font-size: 14px;
-            color: #fff;
-            display: inline-block;
-            padding: 5px;
-            resize: none;
-            background: transparent;
-            height: 32px;
-            margin-right: 10px;
-            border: 1px solid #fff !important;
-            border-radius: 4px 0px 0px 4px !important;
-            position: relative;
-            line-height: 25px;
-        }
+
+      
 
         .ersa-search-btn, .ersa-search-btn:hover {
             /*font-size: 18px;*/
@@ -3514,62 +3460,15 @@
             border: none;
         }
 
-        /*.scroll-thead {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }*/
+       
 
-        .ersea-table thead tr {
-            color: #fff;
-            text-align: left;
-        }
+       
 
-            .ersea-table thead tr th, .ersea-table-head p {
-                font-size: 14px;
-            }
+     
 
-            .ersea-table thead tr th {
-                border-bottom: 0 !important;
-                text-align: left;
-                text-transform: capitalize;
-                /*font-size: 18px;*/
-                font-size: 14px;
-                font-weight: normal;
-                line-height: 25px;
-                border: 1px solid #e7e7e7;
-                width: 12.5%;
-                cursor: pointer;
-            }
+      
 
-        /*.scroll-tbody {
-            display: block;
-            height: 250px;
-            overflow: auto;
-            overflow-x: hidden;
-        }*/
-
-        /*.scroll-tbody tr {
-                display: table;
-                width: 100%;
-                table-layout: fixed;
-            }*/
-
-        tbody.ersea-table-head tr td {
-            border: solid 1px #e7e7e7;
-        }
-
-        #inkind-tbody tr td p {
-            padding: 10px 10px 10px 10px;
-            text-align: left;
-            font-size: 14px;
-            margin: 0;
-            border-right: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 110px;
-        }
+    
 
         /*Edit In-Kind Transactions Modal*/
 
@@ -3649,21 +3548,7 @@
             margin-bottom: 1rem !important;
         }
 
-        /*.fa-custom-sort-date-asc::before {
-            content: "\f175";
-        }
-
-        .fa-custom-sort-date-desc::before {
-            content: "\f175";
-        }
-
-        .fa-custom-sort-date-asc::after {
-            content: "JAN DEC";
-        }
-
-        .fa-custom-sort-date-desc::after {
-            content: "DEC JAN";
-        }*/
+      
 
         .fa-custom-sort-date-asc,
         .fa-custom-sort-date-desc {
@@ -3864,6 +3749,10 @@
             margin-top: 15px;
         }
 
+        .glossy-select{
+            height:32px;
+        }
+
 
         @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
 
@@ -3960,9 +3849,7 @@
                 display: inline-block;
             }
 
-            .ersea-table-head {
-                height: auto !important;
-            }
+           
         }
 
 
@@ -4136,7 +4023,7 @@
      }
 
 
-     .search-block{
+     .search-block, .glossy-search-block {
           margin-top: 70px;
      }
 
@@ -4145,7 +4032,7 @@
                 display: block !important;
             }
 
-            .search-block input {
+            .search-block input ,  .glossy-search-block input {
                 width: 81% !important;
             }
 
@@ -4155,7 +4042,7 @@
                 margin-top: 20px;
             }
 
-            .search-block {
+            .search-block, .glossy-search-block {
                 width: 100% !important;
             }
         }
@@ -4185,7 +4072,7 @@
                         <div class="row">
                            
                             <!-----Right Side Container Section------->
-                            <div class="right-side-container-ch col-xs-12">
+                            <div class="glossy-right-side-container col-xs-12">
 
                                 <!----Heading Section------>
                                 <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
@@ -4207,13 +4094,13 @@
 
 
                                     <!--Filter Section----->
-                                    <div class="col-xs-12" id="div-filter-section">
+                                    <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
 
                                         <!---Filter Type Section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12">
-                                            <label for="selectFilterBy">Filter By <sup style="color:red;">*</sup></label>
+                                            <label for="selectFilterBy" class="lbl-text" >Filter By <sup>*</sup></label>
 
-                                            <select class="ersa-select" id="selectFilterBy">
+                                            <select class="glossy-select" id="selectFilterBy">
 
 
 
@@ -4234,26 +4121,26 @@
 
                                         <!---Center dropdown section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-center-dropdown" >
-                                            <label for="selectCenter">Center <sup style="color:red;">*</sup></label>
+                                            <label for="selectCenter"  class="lbl-text">Center <sup>*</sup></label>
 
-                                            <select id="selectCenter" class="ersa-select" multiple="multiple"></select>
+                                            <select id="selectCenter" class="glossy-select" multiple="multiple"></select>
 
                                         </div>
 
 
                                         <!----Contributor section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributor-dropdown" style="display:none;">
-                                            <label for="selectContributor">Contributor <sup style="color:red;">*</sup></label>
+                                            <label for="selectContributor"  class="lbl-text">Contributor <sup>*</sup></label>
 
-                                            <select class="ersa-select" id="selectContributor" multiple="multiple"></select>
+                                            <select class="glossy-select" id="selectContributor" multiple="multiple"></select>
 
                                         </div>
 
                                         <!-----Contribution Activity section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributionactivity-dropdown" style="display:none;">
-                                            <label for="selectContributonActivity">Contribution Activity</label>
+                                            <label for="selectContributonActivity"  class="lbl-text">Contribution Activity</label>
 
-                                            <select class="ersa-select" id="selectContributonActivity" multiple="multiple">
+                                            <select class="glossy-select" id="selectContributonActivity" multiple="multiple">
                                                 <option value="@FingerprintsModel.InkindAmountTypeEnum.Miles.ToString()">@FingerprintsModel.InkindAmountTypeEnum.Miles.ToString()</option>
 
                                                 <option value="@FingerprintsModel.InkindAmountTypeEnum.Hours.ToString()">@FingerprintsModel.InkindAmountTypeEnum.Hours.ToString()</option>
@@ -4267,9 +4154,9 @@
 
                                         <!-----In-kind activity Date Entered section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
-                                            <label for="dateEnteredDateTimePicker">Date Entered <sup style="color:red;">*</sup></label>
+                                            <label for="dateEnteredDateTimePicker"  class="lbl-text">Date Entered <sup>*</sup></label>
                                             <div class="input-group date">
-                                                <input type="text" class="form-control ersa-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="dateEnteredDateTimePicker">
+                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="dateEnteredDateTimePicker">
                                                 <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                 </span>
@@ -4281,20 +4168,20 @@
 
 
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enteredby-dropdown" style="display:none;">
-                                            <label for="selectEnteredBy">Entered By <sup style="color:red;">*</sup></label>
+                                            <label for="selectEnteredBy"  class="lbl-text">Entered By <sup>*</sup></label>
 
-                                            <select class="ersa-select" id="selectEnteredBy" multiple="multiple"></select>
+                                            <select class="glossy-select" id="selectEnteredBy" multiple="multiple"></select>
 
                                         </div>
 
                                       
-
+                                            
 
                                         <!-----In-kind activity From date section-->
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12">
                                             <label for="fromDateDateTimePicker">From Date <sup style="color:red;">*</sup></label>
                                             <div class="input-group date">
-                                                <input type="text" class="form-control ersa-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
+                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
                                                 <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                 </span>
@@ -4304,7 +4191,7 @@
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12">
                                             <label for="toDateDateTimePicker">To Date <sup style="color:red;">*</sup></label>
                                             <div class="input-group date">
-                                                <input type="text" class="form-control ersa-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
+                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
                                                 <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                 </span>
@@ -4342,84 +4229,9 @@
 
 
 
-                                    <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 100%;margin:20px 0%;" id="div-table-responsive">
+                                    <div class="col-xs-12 glossy-panel-div"  id="div-table-responsive">
 
 
-                                        @*<div class="col-xs-12 col-lg-6 pull-right" style="margin-bottom:10px;">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                <div class="col-md-12 pull-right" style="margin-top:10px;font-size:12px;">
-
-                                                    <label class="col-lg-5" style="color: #295b8f;">Total Hours</label> <label class="col-lg-6">0</label>
-                                                </div>
-
-                                                <div class="col-md-12 pull-right" style="margin-top:10px;font-size:12px;">
-
-                                                    <label class="col-lg-5" style="color: #295b8f;">Total Miles Driven</label> <label class="col-lg-6">0</label>
-                                                </div>
-
-                                                <div class="col-md-12 pull-right" style="margin-top:10px;font-size:12px;">
-
-                                                    <label class="col-lg-5" style="color: #295b8f;">Total In-Kind Amount</label> <label class="col-lg-6">$	0.00</label>
-                                                </div>
-
-
-
-
-                                            </div>
-
-
-                                            <div class="col-xs-12 text-left">
-                                                <label style="color:#295b8f;">Total Count : <span id="totalCountSpan" style="color: #333;font-weight: normal;">0</span></label>
-
-                                            </div>
-                                            <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="inkind-table">
-                                                <thead class="table-hd scroll-thead">
-                                                    <tr>
-
-                                                        <th>Contributor</th>
-                                                        <th>Center</th>
-                                                        <th>Contribution Activity</th>
-
-
-
-                                                        <th>Activity Date</th>
-
-
-                                                        <th>Time Spent</th>
-                                                        <th>Miles Driven</th>
-                                                        <th>In-Kind Amount</th>
-                                                        <th>Action</th>
-
-
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="ersea-table-head bind_body scroll-tbody" id="inkind-tbody" style="height: 396px;">
-
-
-                                                    <tr style="width:98.3%">
-                                                        <td colspan="9" style="padding: 25px;text-align:center;font-weight:bold;">Search by Filter<sup style="color:red;">*</sup></td>
-                                                    </tr>
-
-
-
-                                                </tbody>
-
-
-
-                                            </table>*@
 
 
                                         @{
@@ -4542,7 +4354,7 @@
 
 
                                         <div class="input-group date">
-                                            <input type="text" class="form-control ersa-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="inkindActivityDate">
+                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="inkindActivityDate">
                                             <span class="input-group-addon datepicker-icon" id="1" style="cursor:pointer;">
                                                 <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
@@ -4552,7 +4364,7 @@
 
                                     </div>
                                     <div class="col-lg-5">
-                                        @*<div class="col-lg-5" id="spanAllowedDates">*@
+                                     
                                         <img src="/Images/info.png" id="imageinfoInkindDates" title="Dates Allowed" data-toggle="popover" style="height: 20px;width :20px;padding: 0;cursor:pointer;">
 
                                     </div>
@@ -4564,9 +4376,7 @@
 
                                 <div class="form-group col-xs-12">
                                     <label for="lbl-inkind-activity" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity </label>
-                                    @*<div class="col-md-5 col-lg-5 col-xs-12">
-                                            <select class="form-control ersa-select" id="select-inkind-activity"></select>
-                                        </div>*@
+                                   
                                     <label id="lbl-inkind-activity" class="col-md-8 col-lg-5 col-xs-12"></label>
                                 </div>
 
@@ -4615,14 +4425,14 @@
                                 <div class="form-group col-xs-12">
                                     <label for="select-inkind-center" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Center <sup style="color:red;">*</sup></label>
                                     <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <select class="form-control ersa-select" id="select-inkind-center"></select>
+                                        <select class="form-control glossy-select" id="select-inkind-center"></select>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-xs-12">
                                     <label for="select-inkind-classroom" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Classroom</label>
                                     <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <select class="form-control ersa-select" id="select-inkind-classroom"></select>
+                                        <select class="form-control glossy-select" id="select-inkind-classroom"></select>
                                     </div>
                                 </div>
 
@@ -4672,7 +4482,7 @@
                             </div>
 
 
-                                <div class="form-group final-btn text-center glossy_btn adddivspace">
+                            <div class="form-group final-btn text-center glossy_btn adddivspace">
 
                                 <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
                                     <span class="glossy-button-after"></span>

@@ -2870,6 +2870,38 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
+
+
+        #region "Advanced Search option on Add Family section of Family Intake"
+
+
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        public JsonResult AdvancedSearchFamily(string HouseholdId, string Street, string StreetName,
+            string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, 
+            string Cfirstname, string Clastname, string CDOB, string CGender,int pageSize, int skipRows,
+            string sortOrder, string sortDirection)
+        {
+            List<FamilyHousehold> familyHouseholdList = new List<FamilyHousehold>();
+            int totalRecord = 0;
+            try
+            {
+              
+
+                familyHouseholdList = new FamilyData().AdvanceFamilySearchData(out totalRecord,HouseholdId, Street, StreetName, ZipCode, City, State, County, Pfirstname, Plastname, Cfirstname, 
+                    Clastname, CDOB, CGender, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0",
+                    Session["Roleid"].ToString(),pageSize,skipRows,sortOrder,sortDirection);
+                
+            }
+            catch (Exception Ex)
+            {
+                return Json(Ex.Message);
+            }
+            return Json( new { totalRecord, familyHouseholdList }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public ActionResult Qualifiertab()
         {
