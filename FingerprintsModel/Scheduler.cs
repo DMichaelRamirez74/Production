@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FingerprintsModel
 {
-    public class Scheduler
+    public class Scheduler :Acronym
     {
         public long MeetingId { get; set; }
         public string MeetingDescription { get; set; }
@@ -36,7 +36,7 @@ namespace FingerprintsModel
         public bool allDay { get; set; }
         public string ParentId { get; set; }
         public string EndDate { get; set; }
-        public bool Status { get; set; }
+        public new bool Status { get; set; }
         public int Mode { get; set; }
         public string CreatedDate { get; set; }
         public string InstanceId { get; set; }

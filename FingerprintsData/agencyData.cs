@@ -5165,8 +5165,8 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@fswid", string.IsNullOrEmpty(fswid) || fswid == "0" ? (Guid?)null : new Guid(fswid)));
                     // command.Parameters.Add(new SqlParameter("@fswid",null));
 
-                    command.Parameters.Add(new SqlParameter("@SearchText1", (searchText != "") ? searchText.Split(' ')[0] : searchText));
-                    command.Parameters.Add(new SqlParameter("@SearchText2", (searchText != "") ? searchText.Split(' ')[1] : searchText));
+                    command.Parameters.Add(new SqlParameter("@SearchText1", (searchText != "" && searchText.Split(' ').Count() > 0) ? searchText.Split(' ')[0] : searchText));
+                    command.Parameters.Add(new SqlParameter("@SearchText2", (searchText != "" && searchText.Split(' ').Count() > 1) ? searchText.Split(' ')[1] : searchText));
                     command.Parameters.Add(new SqlParameter("@take", pgSize));
                     command.Parameters.Add(new SqlParameter("@skip", skip));
                     command.Parameters.Add(new SqlParameter("@sortcolumn", ""));

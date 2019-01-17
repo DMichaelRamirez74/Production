@@ -11477,6 +11477,7 @@ namespace FingerprintsData
                                                  }
                                                ).ToList();
                         obj.RosterYakkr = familydataTable.Rows[0]["yakkr"].ToString();
+                        obj.AcronymName = familydataTable.Rows[0]["Acronym"].ToString();
 
                     }
 

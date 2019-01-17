@@ -1,5 +1,449 @@
 ﻿<link href="~/Content/popup-theme.css" rel="stylesheet" />
 
+<script type="text/javascript">
+    requestedPage_family = 0;
+    StartIndexFamily = 0;
+    LastIndexFamily = 0
+    listAgencyFamily = null;
+    totalrecords_family = 0;
+    pageSize_family = 0;
+    numOfPages_family = 0;
+    pageLoadedFirst_family = false;
+    var sortOrder_family = '';
+    var sortDirection_family = '';
+    var imgID_family = '';
+    var direction_family = '';
+
+    function drawgrid_family() {
+        requestedPage_family = 1;
+
+        $('#spinner').show();
+        window.setTimeout(function () {
+            getListFamily();
+            bindAdvancedSearchClients(listAgencyFamily, $('#modal-family-search').find('.custom-modal-table').find('thead').find('tr > th').length);
+            LastIndexFamily = 0;
+            $("#modal-family-search").find('#First_family').attr('disabled', true);
+            $("#modal-family-search").find('#Back_family').attr('disabled', true);
+        },10);
+     
+    
+    }
+
+    function getData_family(dataAgencyFamily) {
+        listAgencyFamily = dataAgencyFamily;
+    }
+
+
+    function bindAdvancedSearchClients(data, num_cols) {
+       
+        $('#modal-family-search').find('table > tbody > tr').remove();
+
+        if (data.familyHouseholdList.length == 0) {
+
+
+            // $('#divPaging').hide();
+
+            //BootstrapDialog.confirm('No record found. Do you want to add new family record ?', function (result) {
+            //    if (result) {
+            //        $('#myModalClient').modal('toggle');
+            //    }
+            //});
+
+            tr += "<tr><td colspan='5'>No records found</td>";
+            $('#modal-family-search').find('table > tbody').append(tr);
+        }
+        else {
+
+            //if ($('#txtsearch').val().trim() != "")
+            //    $('#btnadd').show();
+            //$('#div1').hide();
+            //$('#divPaging').show();
+            //var tbody = $('#gridViewHousehold > tbody');
+
+
+            for (var i = 0; i < data.familyHouseholdList.length; i++) {
+                var tr = "";
+
+
+                tr += (data.familyHouseholdList[i].IsFutureApplication) ? "<tr class='trow'>" : "<tr>";   //by atul 24-3-2017
+                tr += '<td data-title="Child(Guardian)"><a style="text-decoration: underline;cursor:pointer;" Encrypthouseholid= "' + data.familyHouseholdList[i].Encrypthouseholid + '" ?ClientId="' + data.familyHouseholdList[i].ClientID + '" &ClientName="' + data.familyHouseholdList[i].ClientFname.split('(')[0] + '" onclick="openAgencyUserviewfamilydetailsById(this)";"href="#" >' + ((typeof (data.familyHouseholdList[i].ClientFname) != 'undefined') && (data.familyHouseholdList[i].ClientFname != null) ? data.familyHouseholdList[i].ClientFname : '') + '</a></td>';
+                //tr += "<td><a style='text-decoration: underline;' href='" + HostedDir + "/AgencyUser/FamilyDetails/" + data.list[i].Encrypthouseholid + "?ClientId=" + data.list[i].ClientID + "&ClientName=" + data.list[i].ClientFname.split('(')[0] + "'>" + ((typeof (data.list[i].ClientFname) != 'undefined') && (data.list[i].ClientFname != null) ? data.list[i].ClientFname : '') + "</a></td>";
+
+                tr += '<td data-title="Date of Birth">' + ((typeof (data.familyHouseholdList[i].CDOB) != 'undefined') && (data.familyHouseholdList[i].CDOB != null) ? data.familyHouseholdList[i].CDOB : '') + '</td>';
+
+                tr += '<td data-title="Address">' + ((typeof (data.familyHouseholdList[i].Street) != 'undefined') && (data.familyHouseholdList[i].Street != null) ? data.familyHouseholdList[i].Street : '') + '</td>';
+                tr += '<td data-title="Phone Number">' + ((typeof (data.familyHouseholdList[i].RPhoneno) != 'undefined') && (data.familyHouseholdList[i].RPhoneno != null) ? data.familyHouseholdList[i].RPhoneno : '') + '</td>';
+                tr += "<td data-title='Status'>" + ((typeof (data.familyHouseholdList[i].ApplicationStatusChild) != 'undefined') && (data.familyHouseholdList[i].ApplicationStatusChild != null) ? data.familyHouseholdList[i].ApplicationStatusChild : '') + "</td>";
+                tr += "<td data-title='Created on'>" + ((typeof (data.familyHouseholdList[i].CreatedOn) != 'undefined') && (data.familyHouseholdList[i].CreatedOn != null) ? data.familyHouseholdList[i].CreatedOn : '') + "</td>";
+                tr += "</tr>";
+                $('#modal-family-search').find('table > tbody').append(tr);
+            }
+
+        }
+
+        $('#modal-family-search').find('.totalCountSpan').html(data.totalRecord);
+
+
+    }
+
+
+    function getListFamily() {
+
+        if ($('#Cfirstname')[0].value.trim() != '' || $('#Clastname')[0].value.trim() != ''
+              || $('#CDOB')[0].value.trim() != '' || $('input:radio[name="CGender"]').is(':checked') == true
+              ) {
+
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/AdvancedSearchFamily",
+                type: "POST",
+                data: {
+
+                    HouseholdId: $('#HouseholdId')[0].value,
+                    Street: $('#Street')[0].value,
+                    StreetName: $('#StreetName')[0].value,
+                    ZipCode: $('#ZipCode')[0].value,
+                    City: $('#City')[0].value,
+                    State: $('#State')[0].value,
+                    County: $('#County')[0].value,
+                    Pfirstname: $('#Pfirstname')[0].value,
+                    Plastname: $('#Plastname')[0].value,
+                    Cfirstname: $('#Cfirstname')[0].value,
+                    Clastname: $('#Clastname')[0].value,
+                    CDOB: $('#CDOB')[0].value,
+                    CGender: $('input[type="radio"]:checked').val(),
+                    pageSize: $('#modal-family-search').find('#ddlpagetodisplay_family').val(),
+                    requestedPage: requestedPage_family,
+                    sortOrder: sortOrder_family,
+                    sortDirection: sortDirection_family
+                },
+
+                dataType: "json",
+                beforeSend:function(){$('#spinner').show() },
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response != null) {
+
+                        //data-target="#modal-family-search" data-toggle="modal"
+
+                     
+
+                        getData_family(response);
+                        getTotalRecord_Family(response.totalRecord);
+
+
+                        bindAdvancedSearchClients(response, $('#modal-family-search').find('.custom-modal-table').find('thead').find('tr > th').length);
+
+                     
+                        $('#modal-family-search').modal('show');
+                    }
+
+                },
+                error: function (response) {
+                    customAlert("Error occurred. Please try again later. ");
+                },
+                complete: function (response) {
+
+                    $('#spinner').hide();
+                }
+            });
+
+        }
+        else {
+
+            $('#spinner').hide();
+            customAlert('Enter child information');
+        }
+    }
+
+
+    function getTotalRecord_Family(data) {
+
+       
+
+        var $familyModal = $('#modal-family-search');
+
+        $familyModal.find('#First_family').attr('disabled', false);
+        $familyModal.find('#Back_family').attr('disabled', false);
+        $familyModal.find('#Next_family').attr('disabled', false);
+        $familyModal.find('#Last_family').attr('disabled', false);
+
+        pageSize_family = $familyModal.find('#ddlpagetodisplay_family').val();
+        $familyModal.find("#ddlpaging_family").empty(); 
+        if (data > 0) {
+
+            totalrecords_family = parseInt(data);
+
+            if (totalrecords_family <= pageSize_family) {
+
+                $familyModal.find('#First_family').attr('disabled', true);
+                $familyModal.find('#Back_family').attr('disabled', true);
+                $familyModal.find('#Next_family').attr('disabled', true);
+                $familyModal.find('#Last_family').attr('disabled', true);
+
+            }
+
+            numOfPages_family = parseInt(totalrecords_family / pageSize_family) + ((totalrecords_family % pageSize_family == 0) ? 0 : 1);
+
+         
+
+            for (i = 1; i <= numOfPages_family; i++) {
+                var newOption = "<option value='" + i + "'>" + i + "</option>";
+
+                $familyModal.find("#ddlpaging_family").append(newOption);
+            }
+            $familyModal.find("#ddlpaging_family").val(requestedPage_family);
+        }
+        else {
+
+
+            $familyModal.find('#First_family').attr('disabled', true);
+            $familyModal.find('#Back_family').attr('disabled', true);
+            $familyModal.find('#Next_family').attr('disabled', true);
+            $familyModal.find('#Last_family').attr('disabled', true);
+        }
+    }
+
+    function fnChangePage_family(val) {
+      
+
+        pageLoadedFirst_family = false;
+
+        var $familyModal = $('#modal-family-search');
+
+        pageSize_family = $familyModal.find('#ddlpagetodisplay_family').val();
+        //getTotalRecord();
+
+        if (val == 'First') {
+
+            StartIndexFamily = 0;
+            LastIndexFamily = parseInt(pageSize_family) + parseInt(LastIndexFamily * requestedPage_family);
+            requestedPage_family = ((StartIndexFamily / 10) + 1);
+
+
+            $('#spinner').show();
+            window.setTimeout(function () {
+
+                GoToNextPage_family(requestedPage_family, pageSize_family);
+                $familyModal.find('#First_family').attr('disabled', true);
+                $familyModal.find('#Back_family').attr('disabled', true);
+                $familyModal.find('#Next_family').attr('disabled', false);
+                $familyModal.find('#Last_family').attr('disabled', false);
+                LastIndexFamily = 0;
+
+            }, 10);
+
+         
+        }
+        else if (val == 'Last') {
+
+            StartIndexFamily = parseInt((totalrecords_family - 1) / pageSize_family) * pageSize_family;
+
+            LastIndexFamily = totalrecords_family;
+
+            requestedPage_family = numOfPages_family;
+
+
+            $('#spinner').show();
+            window.setTimeout(function () {
+
+                GoToNextPage_family(requestedPage_family, pageSize_family);
+
+                $familyModal.find('#First_family').attr('disabled', false);
+                $familyModal.find('#Back_family').attr('disabled', false);
+                $familyModal.find('#Next_family').attr('disabled', true);
+                $familyModal.find('#Last_family').attr('disabled', true);
+
+            },10);
+         
+        }
+        else if (val == 'Next') {
+
+            LastIndexFamily = parseInt(pageSize_family) + parseInt(LastIndexFamily);
+
+            requestedPage_family = (parseInt(LastIndexFamily / pageSize_family) + 1);
+
+
+
+            $('#spinner').show();
+            window.setTimeout(function () {
+
+
+                GoToNextPage_family(requestedPage_family, pageSize_family);
+
+                $familyModal.find('#First_family').attr('disabled', false);
+                $familyModal.find('#Back_family').attr('disabled', false);
+
+
+                if (parseInt(LastIndexFamily) + parseInt(pageSize_family) >= totalrecords_family) {
+
+                    $familyModal.find('#Next_family').attr('disabled', true);
+                    $familyModal.find('#Last_family').attr('disabled', true);
+                }
+                else if (parseInt(LastIndexFamily) - parseInt(pageSize_family) < totalrecords_family) {
+
+                    $familyModal.find('#Next_family').attr('disabled', false);
+                    $familyModal.find('#Last_family').attr('disabled', false);
+                }
+            }, 10);
+        }
+
+        else if (val == 'Back') {
+            requestedPage_family = requestedPage_family - 1;
+
+            LastIndexFamily = parseInt(LastIndexFamily) - parseInt(pageSize_family);
+
+
+
+            $('#spinner').show();
+            window.setTimeout(function () {
+
+                GoToNextPage_family(requestedPage_family, pageSize_family);
+
+                if (parseInt(LastIndexFamily) + parseInt(pageSize_family) > totalrecords_family) {
+
+                    $familyModal.find('#Next_family').attr('disabled', true);
+                    $familyModal.find('#Last_family').attr('disabled', true);
+                }
+                else if (parseInt(LastIndexFamily) - parseInt(pageSize_family) < totalrecords_family) {
+
+                    $familyModal.find('#Next_family').attr('disabled', false);
+                    $familyModal.find('#Last_family').attr('disabled', false);
+                }
+                if (requestedPage_family == 1) {
+                    $familyModal.find('#First_family').attr('disabled', true);
+                    $familyModal.find('#Back_family').attr('disabled', true);
+                }
+
+            }, 10);
+        }
+        else {
+        }
+    }
+
+    function GoToNextPage_family(requestedPage, pageSize) {
+
+        var $familyModal = $('#modal-family-search');
+        $familyModal.find('.custom-modal-table > thead > tr > th > img').css("visibility", "hidden");
+
+        if (imgID_family != '' && imgID_family != 'undefined' && imgID_family != null) {
+            direction =  $familyModal.find("#" + imgID_family).siblings('input').val();
+        }
+        if (direction_family == "Asc") {
+            sortDirection_family = $familyModal.find("#" + imgID_family).siblings('input').val();
+
+        } else if (direction_family == "Desc") {
+
+            sortDirection_family = $("#" + imgID_family).siblings('input').val();
+        }
+
+     
+
+      
+            getListFamily();
+            bindAdvancedSearchClients(listAgencyFamily, $familyModal.find('.custom-modal-table').find('thead').find('tr > th').length);
+
+      
+    }
+
+    function getListafterupdation_family(ele) {
+
+        var $familyModal = $('#modal-family-search');
+
+        pageSize_family = $familyModal.find('#ddlpagetodisplay_family').val();
+
+        requestedPage_family = $(ele).val();
+
+        StartIndexFamily = (pageSize_family * (requestedPage_family - 1)) + 1;
+
+        LastIndexFamily = parseInt(pageSize_family * requestedPage_family) - parseInt(pageSize_family);
+
+        $familyModal.find('.custom-table > thead > tr > th > img').css("visibility", "hidden");
+
+
+        if (imgID_family != '' && imgID_family != 'undefined' && imgID_family != null) {
+            direction_family = $("#" + imgID_family).siblings('input').val();
+        }
+        if (direction_family == "Asc") {
+            sortDirection_family = $("#" + imgID_family).siblings('input').val();
+        } else if (direction_family == "Desc") {
+            sortDirection_family = $("#" + imgID_family).siblings('input').val();
+        }
+        getListFamily();
+        //var totalRecord = getTotalRecord();
+        if (requestedPage_family == 1) {
+
+
+            $familyModal.find('#First_family').attr('disabled', true);
+            $familyModal.find('#Back_family').attr('disabled', true);
+            $familyModal.find('#Next_family').attr('disabled', false);
+            $familyModal.find('#Last_family').attr('disabled', false);
+        }
+        else if (requestedPage == numOfPages) {
+
+
+            $familyModal.find('#First_family').attr('disabled', false);
+            $familyModal.find('#Back_family').attr('disabled', false);
+            $familyModal.find('#Next_family').attr('disabled', true);
+            $familyModal.find('#Last_family').attr('disabled', true);
+
+        }
+        else {
+            $familyModal.find('#First_family').attr('disabled', false);
+            $familyModal.find('#Back_family').attr('disabled', false);
+            $familyModal.find('#Next_family').attr('disabled', false);
+            $familyModal.find('#Last_family').attr('disabled', false);
+        }
+        bindAdvancedSearchClients(listAgencyFamily, $familyModal.find('.custom-modal-table').find('thead').find('tr > th').length);
+
+        $(ele).val(requestedPage_family);
+    }
+
+    $(function () {
+
+        $('#modal-family-search').find('.custom-modal-table > thead > tr > th').click(function () {
+            sortOrder_family = this.id;
+            if (sortOrder_family == "thAN")
+                return false;
+            imgID_family = $("#" + this.id).find('img').attr('id');
+
+            $('#modal-family-search').find('.custom-modal-table > thead > tr > th > img').css("visibility", "hidden");
+
+            direction_family = $("#" + imgID_family).siblings('input').val();
+            if (direction_family == "Asc") {
+
+                $("#" + imgID_family).siblings('input').val("Desc");
+
+                sortDirection_family = $("#" + imgID_family).siblings('input').val();
+            }
+            else {
+
+                $("#" + imgID_family).siblings('input').val("Asc");
+
+                sortDirection_family = $("#" + imgID_family).siblings('input').val();
+            }
+
+            $('#spinner').show();
+
+            window.setTimeout(function () {
+                getListFamily();
+                bindAdvancedSearchClients(listAgencyFamily, $('#modal-family-search').find('.custom-modal-table').find('thead').find('tr > th').length);
+
+            }, 10);
+        });
+
+
+        //$('#modal-family-search').find('#ddlpaging_family').change(function () {
+        //    getListafterupdation_family();
+        //});
+
+
+    });
+
+</script>
+
+
 <div class="modal fade scroll-modal in custom-modal" id="modal-family-search" role="dialog">
     <div class="modal-dialog modal-dialog-ch">
         <div class="modal-content">
@@ -10,22 +454,13 @@
 
                 <div class="custom-modal-body-div">
 
-                    <div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:10px;">
-                        <div class="col-lg-3 col-xs-12 custom-modal-total-count">
-                            <label>Total Count:</label>&nbsp;<span class="totalCountSpan">13</span>
+                    <div class="col-xs-12 col-lg-12 pull-right" style="padding:0;margin-bottom:10px;">
+                        <div class="col-lg-12 text-right col-xs-12 custom-modal-total-count">
+                            <label>Total Count:</label>&nbsp;<span class="totalCountSpan">0</span>
                         </div>
 
-                        <div class="col-lg-4 input-group date custom-modal-search">
-                            <input type="text" class="form-control searchTextAll" placeholder="Search by Name...">
-                            <span class="input-group-addon searchByClientName search-group" onclick="searchByClientName('#EnrolledModal', this);">
 
-                                <i class="glyphicon glyphicon-search"></i><span class="searchName">Search</span>
-                            </span>
-                        </div>
 
-                        <div class="col-lg-4 text-right custom-modal-button-export">
-                            <button class="download-excel btn btn-primary" onclick="downloadReportExcel('#EnrolledModal', this);">Export to Excel</button>
-                        </div>
 
                     </div>
 
@@ -35,75 +470,20 @@
                             <table class="col-md-12 table-striped table-condensed cf table-change ersea-table ersea-table-sz custom-modal-table" style="margin-bottom:24px;padding:16px;width:100%;">
                                 <thead class="table-hd scroll-thead">
                                     <tr>
-                                        <th>Client</th>
-                                        <th>Profile Picture</th>
-                                        <th>Gender</th>
-                                        <th>Date of Birth</th>
-                                        <th class="center_name_head" style="display:none;">Center Name</th>
-                                        <th>Start Date</th>
-                                        <th>Attendance</th>
-                                        <th>Over Income</th>
-                                        <th>Foster</th>
-                                        <th>Present/Absent</th>
+                                        <th id="thMN" style="cursor:pointer;">Child(Guardian)<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                                        <th id="thDN" style="text-transform:none;cursor:pointer;"><img id="imgthDN" style="visibility:hidden" /><input type="hidden" id="directionDB" />Date of Birth</th>
+                                        <th id="thIN" style="cursor:pointer;">Address <img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                                        <th id="thCN" style="cursor:pointer;">Phone Number <img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionCA" /></th>
+                                        <th id="thJN" style="cursor:pointer;">Status <img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionCA" /></th>
+                                        <th id="thCust" style="text-transform:none;cursor:pointer;">Created on <img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+
                                     </tr>
 
                                 </thead>
                                 <tbody class="ersea-table-head enrolledModalBody scroll-tbody">
-                                    <tr>
-                                        <td data-title="Client" class="childName" clientid="MjUzNDQ="><div>ewrew</div></td>
-                                        <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid="MjUzNDQ=">View</a></td>
-                                        <td data-title="Gender">Male</td>
-                                        <td data-title="Date Of Birth">05/07/2015</td>
-                                        <td data-title="Class Start Date">08/23/2018</td>
-                                        <td data-title="Attendance">86% </td>
-                                        <td data-title="Over Income">N</td>
-                                        <td data-title="Foster"></td>
-                                        <td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Client" class="childName" clientid="MjUzNDQ="><div>ewrew</div></td>
-                                        <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid="MjUzNDQ=">View</a></td>
-                                        <td data-title="Gender">Male</td>
-                                        <td data-title="Date Of Birth">05/07/2015</td>
-                                        <td data-title="Class Start Date">08/23/2018</td>
-                                        <td data-title="Attendance">86% </td>
-                                        <td data-title="Over Income">N</td>
-                                        <td data-title="Foster"></td>
-                                        <td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Client" class="childName" clientid="MjUzNDQ="><div>ewrew</div></td>
-                                        <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid="MjUzNDQ=">View</a></td>
-                                        <td data-title="Gender">Male</td>
-                                        <td data-title="Date Of Birth">05/07/2015</td>
-                                        <td data-title="Class Start Date">08/23/2018</td>
-                                        <td data-title="Attendance">86% </td>
-                                        <td data-title="Over Income">N</td>
-                                        <td data-title="Foster"></td>
-                                        <td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Client" class="childName" clientid="MjUzNDQ="><div>ewrew</div></td>
-                                        <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid="MjUzNDQ=">View</a></td>
-                                        <td data-title="Gender">Male</td>
-                                        <td data-title="Date Of Birth">05/07/2015</td>
-                                        <td data-title="Class Start Date">08/23/2018</td>
-                                        <td data-title="Attendance">86% </td>
-                                        <td data-title="Over Income">N</td>
-                                        <td data-title="Foster"></td>
-                                        <td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Client" class="childName" clientid="MjUzNDQ="><div>ewrew</div></td>
-                                        <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid="MjUzNDQ=">View</a></td>
-                                        <td data-title="Gender">Male</td>
-                                        <td data-title="Date Of Birth">05/07/2015</td>
-                                        <td data-title="Class Start Date">08/23/2018</td>
-                                        <td data-title="Attendance">86% </td>
-                                        <td data-title="Over Income">N</td>
-                                        <td data-title="Foster"></td>
-                                        <td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>
-                                    </tr>
+
+
+
                             </table>
                         </div>
                     </div>
@@ -115,7 +495,7 @@
                                 <ul>
                                     <li>Display</li>
                                     <li>
-                                        <select id="ddlpagetodisplay" onchange="drawgrid('#EnrolledModal', this);" center="NzU=">
+                                        <select id="ddlpagetodisplay_family" onchange="drawgrid_family();">
                                             <option value="10" selected="selected">10</option>
                                             <option value="25">25</option>
                                             <option value="50">50</option>
@@ -130,13 +510,13 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div id="divPaging" class="pagination_wrp">
                                 <ul id="ulPaging" class="pagination">
-                                    <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('#EnrolledModal', 'First'); return false;" center="NzU=" disabled="disabled"></li>
-                                    <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePage('#EnrolledModal','Back'); return false;" center="NzU=" disabled="disabled"></li>
+                                    <li><input id="First_family" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage_family('First'); return false;" center="NzU=" disabled="disabled"></li>
+                                    <li title="Back"><input id="Back_family" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePage_family('Back'); return false;" center="NzU=" disabled="disabled"></li>
                                     <li title="Select">
-                                        <select class="select_cl" id="ddlpaging" onchange="getListafterupdation('#EnrolledModal', this);" center="NzU="><option value="1">1</option><option value="2">2</option></select>
+                                        <select class="select_cl" id="ddlpaging_family" onchange="getListafterupdation_family(this);" center="NzU="><option value="1">1</option><option value="2">2</option></select>
                                     </li>
-                                    <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePage('#EnrolledModal','Next'); return false;" center="NzU="></li>
-                                    <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePage('#EnrolledModal','Last'); return false;" center="NzU="></li>
+                                    <li title="Next"><input id="Next_family" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePage_family('Next'); return false;" center="NzU="></li>
+                                    <li title="Last"><input id="Last_family" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePage_family('Last'); return false;" center="NzU="></li>
                                 </ul>
                             </div>
                         </div>
