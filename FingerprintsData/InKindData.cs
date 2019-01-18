@@ -77,7 +77,7 @@ namespace FingerprintsData
 
                     if (dataset != null && dataset.Tables.Count > 0)
                     {
-                        inkind.TotalRecord = (int)command.Parameters["@TotalRecord"].Value;
+                        inkind.TotalRecord = Convert.ToInt32(command.Parameters["@TotalRecord"].Value);
 
                         inkind.InkindDonorsList = (from DataRow dr in dataset.Tables[0].Rows
                                                    select new InkindDonors

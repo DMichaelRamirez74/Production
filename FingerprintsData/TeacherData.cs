@@ -2213,28 +2213,43 @@ namespace FingerprintsData
                            .OrderBy(x => x.Item2).ThenBy(x => x.Item4).ToList();
                          if (finalEnrolledList.Select(x => x.Item1).Last() == 1)
                          {
-                             var alldayslist = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
-                             .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
-                             var allDays = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
+                             //var alldayslist = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
+                             //.Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
+
+                             //var alldayslist = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
+                             //.Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
+
+
+                             var allDays = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
                .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset))
                .Intersect(inputDates).ToList();
                              dateList.AddRange(
                                  allDays
                                  );
+
+                             // dateList.AddRange(dateList,dateL);
                          }
+
+
                          int i = 0;
+
                          while (i < finalEnrolledList.Count - 1)
                          {
                              var status1 = finalEnrolledList[i].Item1;
                              var date1 = finalEnrolledList[i].Item2;
+
+
                              var status2 = finalEnrolledList[i + 1].Item1;
                              var date2 = finalEnrolledList[i + 1].Item2;
+
                              if (status1 == 1)
                              {
                                  var allDays2 = Enumerable.Range(0, 1 + date2.Subtract(date1).Days)
               .Select(offset => date1.AddDays(offset)).Intersect(inputDates)
               .ToList();
                                  dateList.AddRange(allDays2);
+
+
                              }
                              else
                              {

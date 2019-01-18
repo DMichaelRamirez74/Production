@@ -425,7 +425,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CaseNoteID", _caseNote.CaseNoteid));
                 command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
                 command.Parameters.Add(new SqlParameter("@Householdid", _caseNote.HouseHoldId));
-                command.Parameters.Add(new SqlParameter("@CaseNotetags", _caseNote.CaseNotetags.Trim(',').TrimEnd(',')));
+                command.Parameters.Add(new SqlParameter("@CaseNotetags", !string.IsNullOrEmpty(_caseNote.CaseNotetags)? _caseNote.CaseNotetags.Trim(',').TrimEnd(','):string.Empty));
                 command.Parameters.Add(new SqlParameter("@SubCaseNoteDate", _caseNote.CaseNoteDate));
                 command.Parameters.Add(new SqlParameter("@WrittenBy", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@RoleOfOwner", staff.RoleId));

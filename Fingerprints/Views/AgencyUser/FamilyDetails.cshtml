@@ -9227,6 +9227,106 @@
             }
         }
 
+        function CheckCommonZipCode(ele, city, state, county) {
+
+            if ($(ele).val() != "") {
+                var ret = true;
+                var Zipcode = $(ele).val();
+                var len = Zipcode.length;
+                if ((isNaN(ele.value)) && (len < 2)) {
+                    $(ele).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(ele).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(ele.value)) {
+                    $(ele).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckCommonZipAddress(ele, city, state, county);
+                return ret;
+            }
+            else {
+
+                $('#' + city).find('option').remove();
+                $('#'+state).val('');
+                $('#'+county).val('');
+            }
+        };
+
+        function CheckCommonZipAddress(ele, city, state, county) {
+
+                var Zipcode = 0;
+                Zipcode = $(ele).val();
+                if (Zipcode.trim() != "") {
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Billing/Checkaddress",
+                        data: { 'Zipcode': Zipcode },
+                        async: false,
+                        success: function (response) {
+
+                            if (response != null && response.length > 0) {
+                                var option = "<option value='0'>Choose</option>";
+                                for (var i = 0; i < response.length; i++) {
+                                    option = option + '<option value="' + response[i].City + '">' + response[i].City + '</option>';
+                                }
+
+                                $("#" + city).find('option').remove().end().append(option);
+                                $("#" + city).val('0');
+                                $('#' + state).val(response[0].State);
+                                $('#' + county).val(response[0].County);
+
+                                //if ($(ele).attr('id') == "txtPickupZipcode") {
+                                //    $('.ddlPickupCity').find('option').remove().end().append(option);
+                                //    $('.ddlPickupCity').val('0');
+                                //    $('#txtPickupState').val(response[0].State);
+                                //}
+                                //else if ($(value).attr('id') == "txtDropZipcode") {
+                                //    $('.ddlDropCity').find('option').remove().end().append(option);
+                                //    $('.ddlDropCity').val('0');
+                                //    $('#txtDropState').val(response[0].State);
+                                //}
+                            }
+                            else {
+                                $("#" + city).find('option').remove().end();
+                                $("#" + city).val('0');
+                                $('#' + state).val('');
+                                $('#' + county).val('');
+
+                                //if ($(value).attr('id') == "txtPickupZipcode") {
+                                //    $('.ddlPickupCity').find('option').remove().end();
+                                //    $('.ddlPickupCity').val('0');
+                                //    $('#txtPickupState').val('');
+                                //}
+                                //else if ($(value).attr('id') == "txtDropZipcode") {
+                                //    $('.ddlDropCity').find('option').remove();
+                                //    $('.ddlDropCity').val('0');
+                                //    $('#txtDropState').val('');
+                                //}
+
+                                customAlert("Could not find zipcode details.");
+                            }
+                        }, error: function (response) {
+                            customAlert("Something went wrong. Please Try Again");
+                            //customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                    });
+                }
+            
+
+
+
+
+
+        }
 
         function checkZipCode(inputTextObject) {
 

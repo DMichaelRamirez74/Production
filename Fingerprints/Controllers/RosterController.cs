@@ -97,6 +97,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter()]
         public ActionResult CheckIn(FormCollection collection)
         {
             try
@@ -114,7 +115,7 @@ namespace Fingerprints.Controllers
                 if (collection.Get("ReasonList").ToString() != "")
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 string result = "";
-                RosterData.MarkAbsent(ref result, childID, Session["UserID"].ToString(), absentType, Cnotes, Session["AgencyID"].ToString(), reasonid, NewReason);
+                RosterData.MarkAbsent(ref result, childID, staff.UserId.ToString(), absentType, Cnotes, staff.AgencyId.ToString(), reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
 
