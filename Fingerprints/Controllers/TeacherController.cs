@@ -1344,7 +1344,17 @@ namespace Fingerprints.Controllers
             ViewBag.ClassRoomId = clsid;
             ViewBag.EClientId = client;
             ViewBag.ExploreAll = ExploreAll;
-              return View();
+            long cid = 0;
+            Clientprofile cp = new Clientprofile();
+            if (!string.IsNullOrEmpty(client))
+            {
+                cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(client));
+                cp = new RosterData().GetClientDetails(cid);
+
+            }
+            ViewBag.ClientDetail = cp;
+
+            return View();
 
         }
 
@@ -1369,7 +1379,7 @@ namespace Fingerprints.Controllers
             return Json(result,JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter()]
         public ActionResult AddChildWH(List<ClientGrowth> data)
         {
 
@@ -1377,6 +1387,29 @@ namespace Fingerprints.Controllers
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
+        [CustAuthFilter()]
+        public ActionResult GetHistoricalRecordByChildId(string ClientId = "") {
+
+            var result = new List<ClientGrowth>();
+            try
+            {
+                long cid = 0;
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt(ClientId));
+
+                }
+
+                result = _Teacher.GetHistoricalRecordByChildId(cid);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
 
         [CustAuthFilter()]
         public ActionResult GrowthChart(string client = "")

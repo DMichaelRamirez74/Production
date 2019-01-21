@@ -56,6 +56,113 @@
         .service-td {
         width:100px;
         }
+
+
+        @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
+
+
+            .respo-table,
+            .respo-table thead,
+            .respo-table tbody,
+            .respo-table th,
+            .respo-table td,
+            .respo-table tr {
+                display: block;
+                border: none;
+            }
+
+            .respo-table {
+                float: left;
+                width: 100%;
+            }
+
+                .respo-table tbody tr td:first-child a {
+                    width: initial !important;
+                    text-overflow: initial !important;
+                }
+
+                .respo-table thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+
+                .respo-table tr {
+                    margin: 0 7px 2em 0;
+                    box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+                    float: left;
+                    width: 100%;
+                }
+
+                    .respo-table tr:nth-child(odd) {
+                        background: #ffffff;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+
+                    .respo-table tr:nth-child(even) {
+                        background: #f1f5f8;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                    }
+
+                .respo-table td {
+                    border: none;
+                    border-bottom: 1px solid #eee;
+                    position: relative;
+                    float: left;
+                    width: 100%;
+                }
+
+                    .respo-table td:before {
+                        position: relative;
+                        top: 0px;
+                        left: 0;
+                        width: 35%;
+                        padding-right: 10px;
+                        white-space: nowrap;
+                        height: auto;
+                        display: inline-block;
+                        float: left;
+                    }
+
+            .table-div {
+                border: none !important;
+            }
+
+
+
+            .respo-table td:before {
+                content: attr(data-title);
+                text-align: left;
+                padding-top: 0em;
+                margin-left: 1em;
+            }
+
+            .respo-table > tbody > tr > td {
+                text-align: right !important;
+                margin-right: 2em;
+            }
+
+            .respo-tbody tr td p {
+                padding: 10px 10px 10px 10px;
+                text-align: right;
+                font-size: 14px;
+                margin: 0;
+                border-right: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                width: 55%;
+                margin-right: 0;
+                display: inline-block;
+            }
+
+            .respo-table tr td input.reswidth {
+                display: inline-block !important;
+                width: 50% !important;
+            }
+        }
     </style>
 
 }
@@ -108,14 +215,15 @@
 
         <div class="row" style="color:#fff;margin-bottom:15px;">
 
-            <div class="col-md-6">
-                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Select Type of Input: </p>
-            </div>
-            <div class="col-md-6">
-                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Assessment Date: </p>
-            </div>
+            @*<div class="col-md-6">
+                    <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Select Type of Input: </p>
+                </div>
+                <div class="col-md-6">
+                    <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Assessment Date: </p>
+                </div>*@
             <div class="col-md-6" style="line-height:2;color:#1d5381;">
 
+                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Select Type of Input: </p>
                 <input name="MeasurementType" type="radio" value="1" checked>
                 <span>Imperial (Inches/LBS)</span>
 
@@ -126,6 +234,7 @@
 
             </div>
             <div class="col-md-4">
+                <p style="font-size: 16px;margin-bottom: 5px;font-weight:bold;">Assessment Date: </p>
 
                 <div class="input-group" style="display: inline-block;">
                     <input style="width:150px;display:inline-block;border-radius: 5px 0px 0px 5px !important" type="text" id="AssessmentDate-picker" name="AssessmentDate-picker" placeholder="MM/DD/YYYY" class="form-control glossy-input" autocomplete="off">
@@ -136,7 +245,7 @@
             </div>
 
             <div class="col-md-2">
-                <button type="button" class="button-green glossy-button-button pull-right" id="submitall-btn"
+                <button type="button" class="button-green glossy-button-button glossy-button-hover pull-right" id="submitall-btn"
                         style="width:89px;">
                     <span class="glossy-button-after"></span>
                     <span class="glossy-button-before"></span>
@@ -189,7 +298,7 @@
 
                 <div class="table-div">
 
-                    <table class="table table-striped table-bordered glossy-table" id="GrowthMeasure-table">
+                    <table class="table table-striped table-bordered glossy-table respo-table" id="GrowthMeasure-table">
                         <thead>
                             <tr>
                                 <th>Client</th>
@@ -199,7 +308,7 @@
                                 <th class="minwidth-td">Weight</th>
                                 <th class="minwidth-td">Head Circ.</th>
                                 <th class="minwidth-td">BMI</th>
-                                <th class="service-td"></th>
+                                <th class="service-td">Option</th>
                                 @*<th></th>*@
 
                             </tr>
@@ -219,6 +328,68 @@
 
     </div>
 
+
+    @*@if (!string.IsNullOrEmpty(ViewBag.EClientId)) {    *@ @* For Single Child Analysis *@
+
+
+    <div id="Historical-div" style="margin-top:50px;display:none;" class="content-bg-main">
+
+        <div class="row" style="color: #1d5381;margin-bottom:15px;">
+
+            <div class="col-md-12">
+                <h4 style="margin-bottom: 5px;font-weight:bold;" id="his-title">   </h4>
+            </div>
+            @*<div class="col-md-6">
+
+                <button class="glossy-button-button button-green glossy-button-hover pull-right" type="button" id="btn-Historic-submit">
+                    <span class="glossy-button-after"></span>
+                    <span class="glossy-button-before"></span>
+                    Submit
+                </button>
+            </div>*@
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="table-div">
+
+                    <table class="table table-striped table-bordered glossy-table respo-table" id="HistoricalData-table">
+                        <thead>
+                            <tr>
+
+                                <th class="">Assessment Date</th>
+                                <th class="">Length</th>
+                                <th class="">Weight</th>
+                                <th class="">Head Circ.</th>
+                                <th class="">BMI</th>
+                                <th class="" style="">Input Type</th>
+                                <th></th>
+
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+    @*}*@
+
+
 }
 
 
@@ -230,8 +401,14 @@
         var Urls = {
             getChildrenInfoForWH: '@Url.Action("GetChildrenInfoForWH", "Teacher")',
             addChildWH: '@Url.Action("AddChildWH", "Teacher")',
-            getClassRoom: '@Url.Action("Getclassrooms", "Roster")?Centerid='
+            getClassRoom: '@Url.Action("Getclassrooms", "Roster")?Centerid=',
+            getHistoricalRecordByChildId: '@Url.Action("GetHistoricalRecordByChildId", "Teacher")',
         };
+        var _cname="@ViewBag.ClientDetail.ChildName";
+
+        var _ecidstr="@EncryptDecrypt.Encrypt( EncryptDecrypt.Decrypt64(@ViewBag.EClientId))"; //convert encry string for get history data
+
+
 
         var GAnalysis = {
             exploreAll:@Html.Raw(Json.Encode(@ViewBag.ExploreAll)),
@@ -245,6 +422,7 @@
             measurementType: "1",
             clsId: '@ViewBag.ClassRoomId',
             eCId: '@ViewBag.EClientId',
+            isedit:0,
             CenterId:0,
             data: [],
             cons: {
@@ -252,13 +430,46 @@
                     H: "Height",
                     W: "Weight",
                     HC: "HeadCirc",
-                    BMI: "BMI"
+                    BMI: "BMI",
+                    IT:"InputType",
+                    AD:"AssessmentDate"
                 }
             },
             //Urls:Urls,
             initEvents: function () {
                 var self = this;
 
+
+                //if(self.eCId){
+
+
+                //}
+
+                $(document).on("click",".edit-history-btn",function(e){
+                    e.preventDefault();
+                    var _date = $(this).data("date");
+                    var _ipType = $(this).data("inputtype");
+                    $("#AssessmentDate-picker").val(_date);
+                    self.assDate = $("#AssessmentDate-picker").val();
+                    self.InputType = _ipType;
+                    $('[name="MeasurementType"][value="'+_ipType+'"]')[0].checked=true;
+                    //_cname=$(this).data("name");; _ecidstr = $(this).data("id");
+                    //self.isedit=1;
+
+
+                    self.drawGATable();
+
+                });
+
+                $(document).on("click",".history-btn",function(e){
+                    e.preventDefault();
+                    var _cid = $(this).data("client");
+                    var _name = $(this).data("name");
+
+                    $("#his-title").text("Historical Records of "+_name);
+                    $("#Historical-div").slideDown();
+                    self.renderHistoricalRecord(_cid,_name);
+                })
 
                 $(document).on('change', "#Classroom", function (e) {
                     e.preventDefault();
@@ -316,6 +527,12 @@
                     e.preventDefault();
 
                     self.submitScales();
+                    //if(self.isedit==1){
+                    //    self.renderHistoricalRecord(_ecidstr ,_cname);
+                    //    self.isedit=0;
+                    //}
+                    
+
 
                 });
 
@@ -614,6 +831,7 @@
                     dataType: "json",
                     contentType: "application/json",
                     data: JSON.stringify(data),
+                    beforeSend:function(){ $("#spinner").show(); },
                     success: function (data) {
                         if (data) {
                             customAlert("Data updated Succesfully");
@@ -627,6 +845,10 @@
                     },
                     error: function () {
 
+                    },
+                    complete:function(){
+                        $("#spinner").hide();
+                       
                     }
 
                 });
@@ -665,21 +887,26 @@
                     }
                     _tr += '<input type="hidden" value="' + obj.ClientID + '" data-index="' + i + '" data-type="ClientID" class="pro" />';
                     _tr += '<input type="hidden" value="' + obj.AssessmentDate + '" data-index="' + i + '" data-type="AssessmentDate" class="pro" />';
-                    _tr += "<td>" + obj.Name + "</td>";
-                    _tr += '<td class="minwidth-td">' + obj.DOB + '</td>';
+                    _tr += '<td data-title="Client">' + obj.Name + '</td>';
+                    _tr += '<td data-title="DOB" class="minwidth-td">' + obj.DOB + '</td>';
                     // _tr += '<td><input data-index="' + i + '" data-type="AssessmentDate" class="" type="text"/></td>';
-                    _tr += '<td class="minwidth-td"><input value="' + obj.Height + '" data-index="' + i + '" data-type="' + self.cons.m.H + '"   class="form-control pro reswidth numonly" type="text"/></td>';
-                    _tr += '<td class="minwidth-td"><input value="' + obj.Weight + '" data-index="' + i + '"  data-type="' + self.cons.m.W + '"   class="form-control pro reswidth numonly" type="text"/></td>';
-                    _tr += '<td class="minwidth-td"><input value="' + obj.HeadCirc + '" data-index="' + i + '"  data-type="' + self.cons.m.HC + '" class="form-control pro reswidth numonly" type="text"/></td>';
-                    _tr += '<td class="minwidth-td"><input value="' + obj.BMI + '" data-index="' + i + '" type="text" data-type="' + self.cons.m.BMI + '" disabled class="form-control pro reswidth numonly"/></td>';
+                    _tr += '<td data-title="Length" class="minwidth-td"><input value="' + obj.Height + '" data-index="' + i + '" data-type="' + self.cons.m.H + '"   class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td data-title="Weight" class="minwidth-td"><input value="' + obj.Weight + '" data-index="' + i + '"  data-type="' + self.cons.m.W + '"   class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td data-title="HeadCirc." class="minwidth-td"><input value="' + obj.HeadCirc + '" data-index="' + i + '"  data-type="' + self.cons.m.HC + '" class="form-control pro reswidth numonly" type="text"/></td>';
+                    _tr += '<td data-title="BMI" class="minwidth-td"><input value="' + obj.BMI + '" data-index="' + i + '" type="text" data-type="' + self.cons.m.BMI + '" disabled class="form-control pro reswidth numonly"/></td>';
                     //_tr += '<td> <button type="button" data-index="' + i + '" class="btn child-submit"\ style="background:#337ab7;    color: #fff;border-radius: 0px;">Save</button> </td>'
 
-                    _tr+='<td class="service-td"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="Growth Chart" data-toggle="tooltip">LW Chart </a></td>';
-
+                    @*_tr+='<td class="service-td"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="Growth Chart" data-toggle="tooltip">LW Chart </a>  <i class="fa fa-cubes" title="view historical records" data-toggle="tooltip" style="cursor:pointer;"></i>  </td>';*@
+                    _tr+='<td data-title="Options" class="service-td text-center"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="View Growth Chart" data-toggle="tooltip" style="margin-right:5px;text-decoration:none;font-size:23px;"> <i class="fa fa-bar-chart-o"></i> </a>'
+                    if(self.eCId){    //for single child entry only
+                        _tr+='<i data-client="'+obj.ClientID+'" data-name="'+obj.Name+'" class="fa fa-cubes history-btn" title="view historical records" data-toggle="tooltip" style="cursor:pointer;font-size:23px;"></i>  </td>';
+                    }
                     _tr = "<tr>" + _tr + "</tr>";
 
                     $("#GrowthMeasure-table tbody").append(_tr)
                 });
+
+                $('[data-toggle="tooltip"]').tooltip()
 
             },
             drawGATable: function () {
@@ -705,12 +932,82 @@
                     },
                     complete: function (res) {
                         $("#spinner").hide();
+                        if(_ecidstr && _cname && $("#Historical-div").css("display") == "block"){
+                            self.renderHistoricalRecord(_ecidstr,_cname);
+                        }
                     }
 
                 })
 
-            }
+            },
+            renderHistoricalRecord:function(clientid,clientname){
+                var self = this;
 
+
+
+                $.ajax({
+                    url: Urls.getHistoricalRecordByChildId,
+                    data: JSON.stringify({ ClientId: clientid }),
+                    type: 'POST',
+                    dataType: "json",
+                    beforeSend:function(){ $("#spinner").show(); },
+                    contentType: "application/json",
+                    success: function (data) {
+
+                        console.log(data);
+                        $("#HistoricalData-table tbody").html('');
+
+                        if(!data.length){
+                            $("#HistoricalData-table tbody").append('<tr><td colspan="6" class="text-center">No records found</td></tr>')
+                        }
+
+                        data.forEach(function(obj,i){
+
+                            var _Htr = "";
+                            var _intype = obj.InputType == 2 ? "Metrical" : "Imperial";
+                            _Htr+='<td data-title="Assessment Date">'+obj.AssessmentDate+'</td><td data-title="Length">'+obj.Height+'</td><td data-title="Weight">'+obj.Weight+'</td><td data-title="Head Circu.">'+obj.HeadCirc+'</td><td data-title="BMI">'+obj.BMI+'</td><td data-title="Input Type">'+_intype+'</td><td><button  data-id="'+obj.ClientID+'" data-date="'+obj.AssessmentDate+'" data-inputtype="'+obj.InputType+'" data-name="'+obj.Name+'" type="button" class="glossy-button-button button-blue glossy-button-hover edit-history-btn"  style="min-width:86px;"> <span class="glossy-button-after"></span><span class="glossy-button-before"></span><i class="fa fa-pencil" style="margin-right:5px;" aria-hidden="true"></i>Edit</button></td>';
+
+                         /*   _Htr+='<td data-title="Assessment Date"><input  data-index="'+i+'" data-type="'+self.cons.m.AD+'" type="text" class="form-control assdate-picker" value="'+obj.AssessmentDate+'"></td>';
+                            _Htr+='<td data-title="Length"><input data-index="'+i+'" data-type="'+self.cons.m.H+'" type="text" class="form-control numonly" value="'+obj.Height+'"></td>';
+                            _Htr+='<td data-title="Weigth"><input data-index="'+i+'" data-type="'+self.cons.m.W+'" type="text" class="form-control numonly" value="'+obj.Weight+'"></td>';
+                            _Htr+='<td data-title="Head Circu."><input data-index="'+i+'" data-type="'+self.cons.m.HC+'" type="text" class="form-control numonly" value="'+obj.HeadCirc+'"></td>';
+                            _Htr+='<td data-title="BMI"><input data-index="'+i+'" data-type="'+self.cons.m.BMI+'" type="text" class="form-control" disabled value="'+obj.BMI+'"></td>';
+                            //_Htr+='<td><input data-index="'+i+'" data-type="'+self.cons.m.IT+'" type="text" class="form-control" value="'+obj.InputType+'"></td>';
+                            if(obj.InputType == 2){
+                                _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" >Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" checked>Metrical  </td>';
+                            }else{
+                                _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" checked>Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" >Metrical  </td>';
+                            }
+                            */
+
+                            _Htr = "<tr>" + _Htr + "</tr>";
+
+                            $("#HistoricalData-table tbody").append(_Htr)
+                        });
+
+                        $('.assdate-picker').datetimepicker({
+
+                            // maxDate: '+1d',
+                            timepicker: false,
+                            // minDate: 0,
+                            maxDate: new Date(),
+                            mask: true,
+                            format: 'm/d/Y'
+
+                        });
+
+                    },
+                    error: function (res) {
+
+
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+
+                });
+
+            }
         };
 
 

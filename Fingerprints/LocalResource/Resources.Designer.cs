@@ -79,6 +79,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Child Length.
+        /// </summary>
+        public static string Child_Length {
+            get {
+                return ResourceManager.GetString("Child_Length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Child Weight.
+        /// </summary>
+        public static string Child_Weight {
+            get {
+                return ResourceManager.GetString("Child_Weight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Child Development Center of America.
         /// </summary>
         public static string ChildDevelopmentCenterofAmerica {
@@ -88,11 +106,29 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Child Length.
+        /// </summary>
+        public static string ChildLength {
+            get {
+                return ResourceManager.GetString("ChildLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Export All.
         /// </summary>
-        public static string ExportAll {
+        public static string Export_All {
             get {
-                return ResourceManager.GetString("ExportAll", resourceCulture);
+                return ResourceManager.GetString("Export_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export PDF.
+        /// </summary>
+        public static string Export_PDF {
+            get {
+                return ResourceManager.GetString("Export_PDF", resourceCulture);
             }
         }
         
@@ -142,6 +178,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Length(CM).
+        /// </summary>
+        public static string LengthofCM {
+            get {
+                return ResourceManager.GetString("LengthofCM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Length(Inch).
+        /// </summary>
+        public static string LengthofInch {
+            get {
+                return ResourceManager.GetString("LengthofInch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Length vs Age.
         /// </summary>
         public static string LengthvsAge {
@@ -160,6 +214,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please Wait.
+        /// </summary>
+        public static string Please_Wait {
+            get {
+                return ResourceManager.GetString("Please_Wait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pound.
         /// </summary>
         public static string Pound {
@@ -174,6 +237,24 @@ namespace Fingerprints.LocalResource {
         public static string Weight {
             get {
                 return ResourceManager.GetString("Weight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weight(kg).
+        /// </summary>
+        public static string Weight_Kg {
+            get {
+                return ResourceManager.GetString("Weight_Kg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weight(Pound).
+        /// </summary>
+        public static string Weight_Pound {
+            get {
+                return ResourceManager.GetString("Weight_Pound", resourceCulture);
             }
         }
         

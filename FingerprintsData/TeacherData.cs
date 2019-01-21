@@ -3236,6 +3236,48 @@ namespace FingerprintsData
             return IsSuccess;
         }
 
+
+
+        public List<ClientGrowth> GetHistoricalRecordByChildId(long clientid)
+        {
+            var _clientGrowth = new List<ClientGrowth>();
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_HistoricalGrowthDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+                command.Parameters.Add(new SqlParameter("@mode", 1)); //1
+
+                DataAdapter = new SqlDataAdapter(command);
+                DataSet _ds = new DataSet();
+                DataAdapter.Fill(_ds);
+
+                if (_ds != null && _ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
+                {
+                    var encryField = new List<string>();
+                    encryField.Add("ClientID");
+
+                    _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(encryField);
+                    // _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>();
+                }
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+            return _clientGrowth;
+            }
+
         public GrowthChart GetGrowthChart(int mode, long clientid)
         {
             var result = new GrowthChart();
