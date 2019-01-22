@@ -347,6 +347,10 @@ namespace FingerprintsModel
         public byte[] EImageByte { get; set; }
         public string EAvatarUrl { get; set; }
         public string ERelationwithchild { get; set; }
+
+        public int EnableHomeVisitActivities { get;set;}
+
+       
         //Restricted Details
         public Int32 RestrictedId { get; set; }
         public string Rfirstname { get; set; }
@@ -373,6 +377,9 @@ namespace FingerprintsModel
         public string Areabreakdown { get; set; }
 
         public bool Oemergencycontact { get; set; }
+        public int OEnableHomeVisitActivities { get; set; }
+
+        public int OIncomeSupported { get; set; }
         public int Alreadyemergencycontact { get; set; }
         public List<FamilyHousehold> _Clist = new List<FamilyHousehold>();
         public List<FamilyHousehold> _Elist = new List<FamilyHousehold>();

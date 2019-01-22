@@ -57,6 +57,7 @@ namespace FingerprintsModel
         public int PastPresentParent { get; set; }
 
         public int AllowHomeBasedActivity { get; set; }
+        public int EmergencyContact { get; set; }
     }
 
     public class InkindActivity
@@ -128,6 +129,8 @@ namespace FingerprintsModel
         public string ActivityNotes { get; set; }
         public bool IsActive { get; set; }
         public bool IsCompany { get; set; }
+
+        public bool IsEmergencyContact { get; set; }
         public string DonorSignature { get; set; }
         public string StaffSignature { get; set; }
         public decimal InKindAmount { get; set; }

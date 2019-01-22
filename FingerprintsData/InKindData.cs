@@ -102,7 +102,9 @@ namespace FingerprintsData
 
                                                                                                      ).ToList() : new List<FamilyHousehold.phone>(),
 
-                                                       AllowHomeBasedActivity=(Convert.ToBoolean(dr["AllowHomeBasedActivity"]))?1:0
+                                                       AllowHomeBasedActivity = (Convert.ToBoolean(dr["AllowHomeBasedActivity"])) ? 1 : 0,
+
+                                                       EmergencyContact=(Convert.ToBoolean(dr["IsEmergencyContact"]))?1:0
                                                    }
 
 
@@ -465,6 +467,7 @@ new DataColumn("Status",typeof(bool))
                     command.Parameters.Add(new SqlParameter("@minutes", inkindTransactions.Minutes));
                     command.Parameters.Add(new SqlParameter("@ActivityNotes", inkindTransactions.ActivityNotes));
                     command.Parameters.Add(new SqlParameter("@IsCompany", inkindTransactions.IsCompany));
+                    command.Parameters.Add(new SqlParameter("@IsEmergencyContact", inkindTransactions.IsEmergencyContact));
                     command.Parameters.Add(new SqlParameter("@DonorSignature", inkindTransactions.DonorSignature));
                     command.Parameters.Add(new SqlParameter("@StaffSignature", inkindTransactions.StaffSignature));
                     command.Parameters.Add(new SqlParameter("@InKindAmount", inkindTransactions.InKindAmount));

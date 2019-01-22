@@ -1461,6 +1461,8 @@
                     BootstrapDialog.confirm('Do you want to remove this emergency contact ?', function (result) {
                         if (result) {
                             $('#Oemergencycontact').prop("checked", false);
+                            $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                            $('#divOallowhomeVisit').hide('slow');
                         }
                         else {
                             $('#Oemergencycontact').prop("checked", true);
@@ -1469,6 +1471,31 @@
 
 
                 }
+                else if (!$('#divOallowhomeVisit').is(':visible')) {
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                    $('#divOallowhomeVisit').show('slow');
+
+                }
+
+
+            }
+
+            else if ($('#Oemergencycontact').prop("checked")) {
+
+                if (!$('#divOallowhomeVisit').is(':visible')) {
+
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                    $('#divOallowhomeVisit').show('slow');
+
+                }
+            }
+            else if ($('#divOallowhomeVisit').is(':visible')) {
+
+                $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                $('#divOallowhomeVisit').hide('slow');
 
             }
 
@@ -1517,6 +1544,25 @@
                 customAlert("Gender is required. ");
                 return isValid;
             }
+
+            if ($('#lblOemergencycontact').is(':visible')
+                && $('input:checkbox[name="Oemergencycontact"]').is(':checked')
+                && $('#divOallowhomeVisit').is(':visible') &&
+                !$('input:radio[name="OEnableHomeVisitActivities"]').is(':checked')) {
+                isValid = false;
+                customAlert("Enable Home Visit Activities field is required.");
+                return isValid;
+            }
+
+
+            if (!$('input:radio[name="OIncomeSupported"]').is(':checked'))
+            {
+                isValid = false;
+                customAlert("Income support field is required.");
+                return isValid;
+            }
+
+
             if (ssnothervalue != null) {
                 if (ssnothervalue != $('#ParentSSN3').val()) {
                     if ($('#ParentSSN3').val() == "") {
@@ -1545,6 +1591,19 @@
             formData.append("OthersId", $('#OthersId').val());
             formData.append("HouseholdId", $('#HouseholdId').val());
             formData.append("IsEmer", $('#Oemergencycontact').is(":checked"));
+
+
+            if ($('#Oemergencycontact').is(":checked"))
+            {
+                formData.append("OEnableHomeVisitActivities", $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]:checked').val());
+
+            }
+            else {
+                formData.append("OEnableHomeVisitActivities", 0);
+
+            }
+
+            formData.append("OIncomeSupported", $('input:radio[name="OIncomeSupported"]:checked').val());
 
             formData.append("HouseHoldAvatar", $('#HouseHoldAvatar')[0].files[0]);
 
@@ -1616,6 +1675,12 @@
                             }
                             else
                                 customAlert(response);
+
+                            if(response.result=="1" || response.result=="2")
+                            {
+                                drawEmergencygrid();
+                            }
+
                         }
                     },
                     error: function (response) { alert(response); }
@@ -3653,6 +3718,15 @@
                 plainValidation('#ERelationwithchild');
                 return isValid;
             }
+
+
+            if (!$('input:radio[name="EnableHomeVisitActivities"]').is(':checked')) {
+                isValid = false;
+                customAlert("Enable Home Visit Activities field is required. ");
+                plainValidation($('input:radio[name="EnableHomeVisitActivities"]'));
+                return isValid;
+            }
+
             if ($('#gridphoneE1 > tbody tr').length == 0) {
                 isValid = false;
                 customAlert("Please add contact no. ");
@@ -4348,7 +4422,7 @@
             $('#EFileExtension').val("");
             $('#EImagejson').val("");
             $('#ERelationwithchild').val("");
-
+            $('input:radio[name="EnableHomeVisitActivities"]').prop('checked', false)
             $('#gridphoneE1').find('tbody').find("tr").remove();
 
         }
@@ -7932,7 +8006,7 @@
         }
         function EditEmergencycontact(data) {
             round = 0;
-            $("#gridphoneE1 tbody tr").remove();
+            //$("#gridphoneE1 tbody tr").remove();
             $('#EmegencyId').val(data.EmegencyId);
             $('#Efirstname').val(data.Efirstname);
             $('#Emiddlename').val(data.Emiddlename);
@@ -7946,82 +8020,107 @@
             $('#EDOB').val(data.EDOB);
             $('#EEmail').val(data.EEmail);
             $('#ERelationwithchild').val(data.ERelationwithchild);
+            $('input:radio[name="EnableHomeVisitActivities"][value='+data.EnableHomeVisitActivities+']').prop('checked',true);
             $('#Enotes').val(data.Enotes);
             $('#EFileName').val(data.EFileName);
             $('#EFileExtension').val(data.EFileExtension);
             $('#EImagejson').val(data.EImagejson);
-            for (var i = 0; i < data.phoneList.length; i++) {
 
-                var phonetype = "PhoneNos[" + round + "].PhoneType";
-                var phoneno = "PhoneNos[" + round + "].PhoneNo";
-                var primarycontact = "PhoneNos[" + round + "].IsPrimary";
-                var notes = "PhoneNos[" + round + "].Notes";
-                var sms = "PhoneNos[" + round + "].IsSms";
-                var Phoneid = "PhoneNos[" + round + "].PhoneId";
-                $('#gridphoneE1').show();
-                var tr = "";
-                tr += "<tr><style='text-align:center;'>";
-                if (data.phoneList[i].PhoneType == "1") {
-                    tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
-                          ' <option selected="selected" value="1">Home</option><option value="2">Mobile</option><option value="3">Work</option> ' +
-                         '</select></td>';
-                    tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
-                    if (data.phoneList[i].IsPrimary) {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
-                    }
-                    else {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
-                    }
-                    tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
+            if (data.phoneList.length > 0)
+            {
+
+                $("#gridphoneE1 tbody tr").remove();
+
+
+                for (var i = 0; i < data.phoneList.length; i++) {
+
+                    var phonetype = "PhoneNos[" + round + "].PhoneType";
+                    var phoneno = "PhoneNos[" + round + "].PhoneNo";
+                    var primarycontact = "PhoneNos[" + round + "].IsPrimary";
+                    var notes = "PhoneNos[" + round + "].Notes";
+                    var sms = "PhoneNos[" + round + "].IsSms";
+                    var Phoneid = "PhoneNos[" + round + "].PhoneId";
+                    $('#gridphoneE1').show();
+                    var tr = "";
+                    tr += "<tr><style='text-align:center;'>";
+                    if (data.phoneList[i].PhoneType == "1") {
+                        tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
+                              ' <option selected="selected" value="1">Home</option><option value="2">Mobile</option><option value="3">Work</option> ' +
+                             '</select></td>';
+                        tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
+                        if (data.phoneList[i].IsPrimary) {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
+                        }
+                        else {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
+                        }
+                        tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
 
                     tr = tr + '<td><input style="width:50%;" disabled="disabled" type="checkbox" name=' + sms + ' value="true"/></td>';
 
 
+                    }
+                    if (data.phoneList[i].PhoneType == "2") {
+                        tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
+                              ' <option  value="1">Home</option><option selected="selected" value="2">Mobile</option><option value="3">Work</option> ' +
+                             '</select></td>';
+                        tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
+                        if (data.phoneList[i].IsPrimary) {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
+                        }
+                        else {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
+                        }
+                        tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
+                        if (data.phoneList[i].IsSms) {
+                            tr = tr + '<td><input style="width:50%;" type="checkbox" checked=checked name=' + sms + ' value="true"/></td>';
+                        }
+                        else {
+                            tr = tr + '<td><input style="width:50%;" type="checkbox" name=' + sms + ' value="true"/></td>';
+                        }
+
+                    }
+                    if (data.phoneList[i].PhoneType == "3") {
+                        tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
+                              ' <option  value="1">Home</option><option value="2">Mobile</option><option selected="selected" value="3">Work</option> ' +
+                             '</select></td>';
+                        tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
+                        if (data.phoneList[i].IsPrimary) {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
+                        }
+                        else {
+                            tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
+                        }
+                        tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
+
+                        tr = tr + '<td><input style="width:50%;" type="checkbox" disabled="disabled" name=' + sms + ' value="true"/></td>';
+
+
+                    }
+                    tr = tr + '<td><input type="hidden"  name="' + Phoneid + '" value="' + data.phoneList[i].PhoneId + '" />  <a href="javascript:void(0)" onclick="RemovePhoneE1(this);" accesskey="' + data.phoneList[i].PhoneId + '" style=" text-decoration:underline;">Delete</a></td></tr>';
+                    $('#gridphoneE1 > tbody').append(tr);
+                    $('#gridphoneE1 > tbody tr').each(function () {
+                        var y = $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+                    });
+                    round = round + 1;
                 }
-                if (data.phoneList[i].PhoneType == "2") {
-                    tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
-                          ' <option  value="1">Home</option><option selected="selected" value="2">Mobile</option><option value="3">Work</option> ' +
-                         '</select></td>';
-                    tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
-                    if (data.phoneList[i].IsPrimary) {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
-                    }
-                    else {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
-                    }
-                    tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
-                    if (data.phoneList[i].IsSms) {
-                        tr = tr + '<td><input style="width:50%;" type="checkbox" checked=checked name=' + sms + ' value="true"/></td>';
-                    }
-                    else {
-                        tr = tr + '<td><input style="width:50%;" type="checkbox" name=' + sms + ' value="true"/></td>';
-                    }
 
-                }
-                if (data.phoneList[i].PhoneType == "3") {
-                    tr = tr + '<td><select class="form-control" style="width:100%;" name=' + phonetype + ' onchange="addcontact(this);" >' +
-                          ' <option  value="1">Home</option><option value="2">Mobile</option><option selected="selected" value="3">Work</option> ' +
-                         '</select></td>';
-                    tr = tr + '<td><input  name=' + phoneno + ' class = "form-control" type="text" value="' + data.phoneList[i].PhoneNo + '" ></td>';
-                    if (data.phoneList[i].IsPrimary) {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true" checked=checked /></td>';
-                    }
-                    else {
-                        tr = tr + '<td><input value="true" onchange="uncheckother(this);" name=' + primarycontact + '  type="checkbox" data-val="true"  /></td>';
-                    }
-                    tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + notes + ' value="' + data.phoneList[i].Notes + '"></td>';
-
-                    tr = tr + '<td><input style="width:50%;" type="checkbox" disabled="disabled" name=' + sms + ' value="true"/></td>';
-
-
-                }
-                tr = tr + '<td><input type="hidden"  name="' + Phoneid + '" value="' + data.phoneList[i].PhoneId + '" />  <a href="javascript:void(0)" onclick="RemovePhoneE1(this);" accesskey="' + data.phoneList[i].PhoneId + '" style=" text-decoration:underline;">Delete</a></td></tr>';
-                $('#gridphoneE1 > tbody').append(tr);
-                $('#gridphoneE1 > tbody tr').each(function () {
-                    var y = $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
-                });
-                round = round + 1;
+              
             }
+            else {
+                $("#gridphoneE1 tbody tr:gt(0)").remove();
+
+                $.each($("#gridphoneE1 tbody tr"), function (k, row) {
+
+                    $(row).find('td:eq(0)').find('[name="PhoneNos['+k+'].PhoneType"]').val('');
+                    $(row).find('td:eq(1)').find('[name="PhoneNos['+k+'].PhoneNo"]').val('');
+                    $(row).find('td:eq(2)').find('[name="PhoneNos['+k+'].IsPrimary"]').prop('checked', false);
+                    $(row).find('td:eq(3)').find('[name="PhoneNos['+k+'].Notes"]').val('');
+                    $(row).find('td:eq(3)').find('[name="PhoneNos['+k+'].IsSms"]').prop('checked',false).attr('disabled',true);
+
+                });
+            }
+            
         }
         function RemovePhoneE1(value) {
             //if ($(value).attr("accesskey")) {
@@ -8974,8 +9073,15 @@
             $('input:radio[name=OGender]:checked').prop('checked', false);
             $('#Alreadyemergencycontact').val(0);
             $('#Oemergencycontact').prop('checked', false);
+            $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+            $('input:radio[name="OIncomeSupported"]').prop('checked', false);
+            $('#divOallowhomeVisit').hide();
             $('#ParentSSN3').val('');
-            $('#OtherinHousehold').find('#HouseHoldAvatar').val('')
+            $('#OtherinHousehold').find('#HouseHoldAvatar').val('');
+
+            $('#lblOemergencycontact').hide();
+            $('#Oemergencycontact').hide();
+
         }
         function EditOther(data) {
             $('#OthersId').val(data.OthersId);
@@ -8983,6 +9089,8 @@
             $('#Omiddlename').val(data.Omiddlename);
             $('#Olastname').val(data.Olastname);
             $('#ODOB').val(data.ODOB);
+            $('input:radio[name="OIncomeSupported"][value=' + data.OIncomeSupported + ']').prop('checked', true);
+
             if (data.OGender == "1")
                 $('#OGendermale').prop("checked", true);
             if (data.OGender == "2")
@@ -9005,11 +9113,23 @@
                 if (data.Oemergencycontact != null && data.Oemergencycontact == true) {
                     $('#Oemergencycontact').prop('checked', true);
                     $('#Alreadyemergencycontact').val(1);
+
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"][value=' + data.OEnableHomeVisitActivities + ']').prop('checked', true);
+                    $('#divOallowhomeVisit').show();
+
+                }
+                else {
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                    $('#divOallowhomeVisit').hide();
                 }
             }
             else {
                 $('#Oemergencycontact').hide();
                 $('#lblOemergencycontact').hide();
+
+
+                $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                $('#divOallowhomeVisit').hide();
             }
 
             if (data.ParentSSN3 != "") {
@@ -14238,7 +14358,15 @@
             $('input:radio[name=OGender]:checked').prop('checked', false);
             $('#Alreadyemergencycontact').val(0);
             $('#Oemergencycontact').prop('checked', false);
+            $('#Oemergencycontact').prop('checked', false);
+            $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+            $('input:radio[name="OIncomeSupported"]').prop('checked', false);
+
+            $('#divOallowhomeVisit').hide();
             $('#ParentSSN3').val('');
+            $('#Oemergencycontact').hide();
+            $('#lblOemergencycontact').hide();
+
             ssnothervalue = null;
 
         }
@@ -22602,6 +22730,48 @@
                                                 </div>
                                             </div>
                                         </div>
+
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12" id="divOallowhomeVisit" style="display:none;">
+                                            <div class="form-group">
+                                                <label id="lblOallowhomeVisit">Enable Home Visit Activities<sup>*</sup></label>
+
+                                                <div class="cont-sz">
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.OEnableHomeVisitActivities, 1)
+                                                        <span>Yes </span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        @Html.RadioButtonFor(m => m.OEnableHomeVisitActivities, 2)
+                                                        <span>No</span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12" >
+                                            <div class="form-group">
+                                                <label>Does Parent/Guardian income support to this person ?<sup>*</sup></label>
+
+                                                <div class="cont-sz">
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.OIncomeSupported, 1)
+                                                        <span>Yes </span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        @Html.RadioButtonFor(m => m.OIncomeSupported, 2)
+                                                        <span>No</span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
                                                 <label>Profile Picture </label>
@@ -23457,6 +23627,34 @@
                                                 }
                                             </div>
                                         </div>
+
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Enable Home Visit Activities<sup>*</sup></label>
+
+
+                                                <div class="cont-sz">
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.EnableHomeVisitActivities, 1) 
+                                                        <span>Yes </span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        @Html.RadioButtonFor(m => m.EnableHomeVisitActivities, 2) 
+                                                        <span>No</span>
+                                                    </div>
+                                               
+                                                </div>
+
+                                              
+
+
+
+                                            </div>
+                                        </div>
+
+
+
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
                                                 <label>Notes </label>
@@ -23542,7 +23740,7 @@
                                                             foreach (var Eitem in Model._Elist)
                                                             {
 
-                                                                <tr>
+                                                                <tr data-other-cid="@Eitem.ClientID">
                                                                     <td height="70">
                                                                         <a href="#" onclick="Getemergencycontact(this);" accesskey="@Eitem.EmegencyId">@Eitem.Efirstname</a>
                                                                     </td>
