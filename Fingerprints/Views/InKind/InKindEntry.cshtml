@@ -1222,12 +1222,13 @@
                         InKindTransactions.Minutes = minutes;
                         InKindTransactions.CenterID = parseInt(centerSelect.val());
                         InKindTransactions.Enc_CenterID = "";
-                        InKindTransactions.ClassroomID = parseInt(classroomSelect.val());
+                        InKindTransactions.ClassroomID = parseInt(classroomSelect.val())==NaN || classroomSelect.val()==null || classroomSelect.val()==''?0:parseInt(classroomSelect.val());
                         InKindTransactions.Enc_ClassroomID = "";
                         InKindTransactions.FromNo = 0;
                         InKindTransactions.ActivityDate = activityDate.val();
                         InKindTransactions.ClientID = "0";
                         InKindTransactions.ParentID = $('#inkindPersonName').attr('cl_id');
+                        InKindTransactions.IsEmergencyContact =parseInt($('#inkindPersonName').attr('is_ec'))==1;
                         InKindTransactions.MilesDriven = miles;
                         InKindTransactions.ParentType = parentType;
                         InKindTransactions.InkindTransactionID = 0;
@@ -2034,7 +2035,7 @@
 
                                     appendDiv += '<tr class="child-row" style="line-height:25px;">\
                                                   <td data-title="Name" class="inset-width">\
-                                                    <p class="client-name" onclick="showParentInfo(this);" style="cursor:pointer;text-decoration:underline;" data-ppp=' + donors.PastPresentParent + ' accesskey=' + donors.InkindDonorId + '  data-hme=' + donors.AllowHomeBasedActivity + '>' + donors.Name + '</p>\
+                                                    <p class="client-name" onclick="showParentInfo(this);" style="cursor:pointer;text-decoration:underline;" data-ppp=' + donors.PastPresentParent + ' accesskey=' + donors.InkindDonorId + '  data-hme=' + donors.AllowHomeBasedActivity + '  data-ec='+donors.EmergencyContact+'>' + donors.Name + '</p>\
                                                     </td>\
                                                      <td data-title="Company Name" class="inset-width">\
                                                       <p class="parent-name">'+ donors.CompanyName + '</p>\
@@ -2371,15 +2372,19 @@
             var companyName = '';
             var isPastPresentParent = 0;
             var isShowHome = 0;
+            var isEmergencyContact=0;
             companyName = $(ele).parent('td').parent('tr[class=child-row]').children('td').eq(1).children('p').html();
             iscompany = (companyName === '') ? '0' : '1';
 
             isPastPresentParent = parseInt($(ele).attr('data-ppp'));
+            
             isShowHome = parseInt($(ele).attr('data-hme'));
 
-            var $homeCheck= $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]');
+            isEmergencyContact=parseInt($(ele).attr('data-ec'));
 
-            $('#inkindPersonName').html($(ele).html()).attr({ 'cl_id': $(ele).attr('accesskey'), 'is_comp': iscompany });
+            var $homeCheck = $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]');
+
+            $('#inkindPersonName').html($(ele).html()).attr({ 'cl_id': $(ele).attr('accesskey'), 'is_comp': iscompany ,'is_ec':isEmergencyContact });
             $('#inkindCompanyName').html('');
             $('.inkind-company-div').hide();
             $('.inkind-miles-div,.inkind-hours-div,.amount-div').hide();
@@ -2507,7 +2512,7 @@
             //  $('.inkind-hours-div').hide();
             $('.inkind-entry-div').show();
             $('#text-contact-name,#text-company-name,#text-addressline1,#text-addressline2,#text-zipcode,#text-select-phoneNo,#text-select-email,#text-apartment-no,#text-county,#text-state').val('');
-            $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0' });
+            $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0','is_ec':'0' });
             $('#inkindPersonName').html('');
             $('#inkindCompanyName').attr({ 'cl_id': '0', 'is_comp': '0' });
             $('#inkindCompanyName').html('');
@@ -2572,7 +2577,7 @@
             $inkindForm.trigger('reset');
 
 
-            $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0' });
+            $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0','is_ec':'0' });
             $('#inkindPersonName').html('');
             $('#inkindCompanyName').html('');
             $('#inkindCompanyName').attr({ 'cl_id': '0', 'is_comp': '0' });

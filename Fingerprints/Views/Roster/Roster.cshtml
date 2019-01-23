@@ -54,6 +54,18 @@
             }
         });
 
+
+        function showCameraPopupmodal(ele)
+        {
+            $('.camera-file-modal').attr('id','updateDocumentModal');
+            $('.camera-file-modal').find('#SaveNoteSubmit').html('Add');
+            $('.camera-file-modal').find('#SaveNoteSubmit').attr('onclick','addDocument();');
+            $('.camera-file-modal').find('.up-device').attr('onclick','uploadFromDeviceDoc();');
+            $('.camera-file-modal').modal('show');
+        }
+
+
+
         function clearHVSchedule(ele)
         {
 
@@ -631,7 +643,7 @@
                             if (data.UsersList.UserList.length > 0) {
                                 $.each(data.UsersList.UserList, function (d, staff) {
 
-                                    staffAppend += '<div class="col-sm-12 m-tp">\
+                                    staffAppend += '<div class="no-padding col-sm-12 m-tp">\
                                         <input type="checkbox" class="staff-check" name="UsersList.UserList[' + d + '].Id" value=' + staff.Id + '>\
                                         <span name="UsersList.UserList[' + d + '].Name">' + staff.Name + '</span>\
                                         </div>';
@@ -645,7 +657,7 @@
 
                         houselessModal.find('#CaseNoteDetails_caseNoteDate').val(getFormattedDate(new Date()));
 
-                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Homelessness and Address Change");
+                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
                         houselessModal.find('#oldAddress').val('');
 
                         if (data.FamilyHousehold != null) {
@@ -688,13 +700,12 @@
                             delimiter: [',', ';'],
                             autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                             autocomplete: {
-                                //'source': tags_array[0].split(/,\s*/)
-                                // 'source': getTagsOnInput()
+                                
                             },
-                            //  autocomplete_url: UrlObj.getCaseNoteTags,
+                           
                         });
 
-                        $('#CaseNoteDetails_CaseNotetags').importTags('Home Found,,;Address Change');
+                        $('#CaseNoteDetails_CaseNotetags').importTags('Address Change,,;Home Found');
 
 
                     }
@@ -1213,7 +1224,7 @@
             var appendDiv = '<div class="form-group">\
                                             <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach"  onchange="ValidateSingleInputpdf2(this);" id="CaseNoteAttachments_' + index + '_file"  style="width:54%;" tabindex="6" type="file" value="">\
                                             <div class="some_attach">\
-                                                <a href="javascript:void(0);" title="Remove Attachment" onclick="removeAttachment(this);">Remove &nbsp;<i class="fa fa-times-circle" aria-hidden="true"></i></a>\
+                                                <a href="javascript:void(0);" title="Remove Attachment" onclick="removeAttachment(this);"><i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;Remove</a>\
                                             </div>\
                                         </div>';
 
@@ -4889,7 +4900,7 @@
             border: none;
         }
 
-        .glossy-button-button {
+        /*.glossy-button-button {
             display: inline-block;
             vertical-align: top;
             position: relative;
@@ -4901,11 +4912,10 @@
             color: white;
             text-align: center;
             text-decoration: none;
-            /*text-shadow: 0 1px #154c86;
-                       background-color: #247edd;*/
+      
             background-clip: padding-box;
             border: 1px solid;
-            /*border-color: #1c65b2 #18589c #18589c;*/
+    
             border-radius: 4px;
             -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
             box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -4913,54 +4923,16 @@
             background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
             background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
             background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-        }
+        }*/
 
-        .glossy-button-after {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 0%;
-            height: 100%;
-            background-color: rgba(255,255,255,0.4);
-            -webkit-transition: none;
-            -moz-transition: none;
-            -ms-transition: none;
-            -o-transition: none;
-            transition: none;
-        }
+      
 
 
-        .glossy-button-before {
-            position: absolute;
-            top: -25%;
-            bottom: -25%;
-            left: -20%;
-            right: -20%;
-            border-radius: 50%;
-            background: transparent;
-            -webkit-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -moz-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -ms-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -o-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-        }
+        
 
-        .glossy-button-button:hover:after {
-            width: 120%;
-            background-color: rgba(255,255,255,0);
-            -webkit-transition: all 0.3s ease-out;
-            -moz-transition: all 0.3s ease-out;
-            -ms-transition: all 0.3s ease-out;
-            -o-transition: all 0.3s ease-out;
-            transition: all 0.3s ease-out;
-        }
+        
 
-        .button-green {
-            text-shadow: 0 1px #0d4d09;
-            background-color: #1ca913;
-            border-color: #147b0e #11640b #11640b;
-        }
-
+       
         .button-pink {
             text-shadow: 0 1px #0d4d09;
             background-color: #9b59b6;
@@ -4981,7 +4953,7 @@
 
 
 
-        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+        /*.glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
             width: 120%;
             background-color: rgba(255,255,255,0);
             -webkit-transition: all 0.3s ease-out;
@@ -4989,7 +4961,7 @@
             -ms-transition: all 0.3s ease-out;
             -o-transition: all 0.3s ease-out;
             transition: all 0.3s ease-out;
-        }
+        }*/
 
         #att-issue-modal .btn-primary {
             color: #fff;
@@ -5128,13 +5100,7 @@
             padding: 0 15px;
         }
 
-        div#StaffDiv {
-            background-color: #fff;
-        }
-
-            div#StaffDiv div {
-                padding: 0;
-            }
+        
 
         .import_ft_files input {
             width: 47% !important;
@@ -5145,10 +5111,10 @@
             padding: 10px;
         }
 
-        div#Houselessmodal label {
-            /*color: #295b8f;*/
+        /*div#Houselessmodal label {
+          
             color: #333;
-        }
+        }*/
     </style>
 
     <style>
@@ -5419,37 +5385,21 @@
                 }
 
 
-        #Houselessmodal .modal-content {
-            background: #f1f5f8 none repeat scroll 0 0;
-            border: 6px solid #295b8f;
-            border-radius: 3px;
-            /* color: #ffffff; */
-            float: left;
-            padding: 15px 3%;
-            position: relative;
-            width: 100%;
-        }
+      
 
         .m-tp {
             margin-top: 10px;
         }
 
-        #Houselessmodal .modal-header {
-            border-bottom: 1px solid #adadad;
-        }
-
-        #Houselessmodal .btnwrp_subcal {
-            border-top: 1px solid #adadad;
-        }
-
-        #Houselessmodal h3 {
-            font-size: 20px;
-            font-weight: bold;
-            color: #295b8f;
-        }
-
-
-
+      
+            #FamilyHousehold_City{margin-right:0;}
+        .addapplicant{margin-bottom:20px!important;}
+        #Houselessmodal div#section_attachment label{width: 23%;}
+        #Houselessmodal .import_ft_files input {width: 45% !important;margin-right: 10px;}
+        #Houselessmodal .import_ft_files {width: 76%;float: right;}
+      
+        /*.addapplicant-change{    border-bottom: 2px solid #34495e!important;
+    color: #34495e!important;}*/
 
         /*responsive Section*/
 
@@ -7101,27 +7051,29 @@
 
     <!--no home modal-->
 
-    <div class="modal fade in" id="Houselessmodal" role="dialog" style="display: none;background: rgba(0,0,0,0.7);overflow:auto;">
-        <div class="modal-dialog income-popup width-auto">
+    <div class="modal fade in custom-modal" id="Houselessmodal" role="dialog" style="display: none;">
+        <div class="modal-dialog modal-dialog-ch">
 
 
-            @using (Html.BeginForm("FamilyHouseless", "Roster", FormMethod.Post, new { enctype = "multipart/form-data" }))
-            {
         <!-- Modal content-->
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-center" style="margin:0;">Update Household<span class="extra-title muted"></span></h3>
-                    </div>
-                    <div class="control-group">
-                        <div class="row">
+                   
+                    <div class="modal-body">
+
+                        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                        <h2 id="CaseNoteHeading" class="extra-title muted">Home Found</h2>
+
+@using (Html.BeginForm("FamilyHouseless", "Roster", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+                        <div class="max_items_addn popup-addn-scroll">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                <div class="add-useragform">
+                                <div class="col-xs-12 add-useragform">
 
 
                                     <div class="col-lg-6 col-md-6 col-sm-12">
 
-                                        <label for="ClientId">Client</label>
-                                        <label id="FamilyHousehold_ClientFname" name="FamilyHousehold_ClientFname" style="color:#295b8f;font-weight:bold;"></label>
+                                        <label for="FamilyHousehold_ClientFname" class="lbl-head col-lg-12">Client</label>
+                                        <label id="FamilyHousehold_ClientFname" class="lbl-text" name="FamilyHousehold_ClientFname"></label>
 
 
                                         <input type="hidden" id="FamilyHousehold_clientIdnew" name="FamilyHousehold.clientIdnew" />
@@ -7132,136 +7084,239 @@
 
                                     <div class="col-lg-12 col-md-12 col-sm-12">
                                         <div class="form-group">
-                                            <h3 class="addapplicant">Household Address</h3>
+                                            <h3 class="addapplicant addapplicant-change">New Address</h3>
                                         </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Address <sup>*</sup></label>
-                                            <input class="form-control" id="FamilyHousehold_Street" maxlength="50" name="FamilyHousehold.Street" onblur="CheckAddress(0);" placeholder="Address" tabindex="1" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Apartment No., Lot No. </label>
-                                            <input class="form-control" id="FamilyHousehold_StreetName" maxlength="100" name="FamilyHousehold.StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="2" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Zip Code  <sup>*</sup></label>
-                                            <input class="form-control" id="FamilyHousehold_ZipCode" maxlength="5" name="FamilyHousehold.ZipCode" onblur="checkZipCode(this,'#Houselessmodal');" placeholder="Zip Code " tabindex="3" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">City  <sup>*</sup></label>
-                                            <select id="FamilyHousehold_City" name="FamilyHousehold.City" class="form-control" tabindex="4"></select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">State  <sup>*</sup></label>
-                                            <input class="form-control" id="FamilyHousehold_State" maxlength="100" name="FamilyHousehold.State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="5" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">County  <sup>*</sup></label>
-                                            <input class="form-control" id="FamilyHousehold_County" maxlength="100" name="FamilyHousehold.County" placeholder="County " readonly="readonly" tabindex="6" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label>Address Verification Form (pdf,jpg,jpeg,bmp,gif,png) </label>
-                                            <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;" tabindex="7" type="file" value="">
-                                            <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="FamilyHousehold_AdresssverificationinPaper" name="FamilyHousehold.AdresssverificationinPaper" tabindex="8" type="checkbox" value="true"><input name="FamilyHousehold.AdresssverificationinPaper" type="hidden" value="false">
-                                                <label style="width:45px;">Paper</label>
+
+
+                                        <div class="col-xs-12" style="margin-top:20px;">
+
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="FamilyHousehold_Street" class="lbl-head">Address <sup>*</sup></label>
+                                                    <input class="form-control glossy-input" id="FamilyHousehold_Street" maxlength="50" name="FamilyHousehold.Street" onblur="CheckAddress(0);" placeholder="Address" tabindex="1" type="text">
+                                                </div>
                                             </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email" class="lbl-head">Apartment No., Lot No. </label>
+                                                    <input class="form-control glossy-input" id="FamilyHousehold_StreetName" maxlength="100" name="FamilyHousehold.StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="2" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="FamilyHousehold_ZipCode" class="lbl-head">Zip Code  <sup>*</sup></label>
+                                                    <input class="form-control glossy-input" id="FamilyHousehold_ZipCode" maxlength="5" name="FamilyHousehold.ZipCode" onblur="checkZipCode(this,'#Houselessmodal');" placeholder="Zip Code " tabindex="3" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="FamilyHousehold_City" class="lbl-head">City  <sup>*</sup></label>
+                                                    <select id="FamilyHousehold_City" name="FamilyHousehold.City" class="form-control glossy-select" tabindex="4"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="FamilyHousehold_State" class="lbl-head">State  <sup>*</sup></label>
+                                                    <input class="form-control glossy-input" id="FamilyHousehold_State" maxlength="100" name="FamilyHousehold.State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="5" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email" class="lbl-head">County  <sup>*</sup></label>
+                                                    <input class="form-control glossy-input" id="FamilyHousehold_County" maxlength="100" name="FamilyHousehold.County" placeholder="County " readonly="readonly" tabindex="6" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label class="lbl-head" for="FamilyHousehold_FileaddressAvatar">Address Verification Form (pdf,jpg,jpeg,bmp,gif,png) </label>
+
+
+
+
+                                                   
+                                                        <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
+
+                                                            <span class="glossy-button-before"></span>
+                                                            <span class="glossy-button-after"></span>
+
+                                                           
+
+
+                                                            <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                Add new document
+                                                            </span>
+
+
+
+                                                        </button>
+
+                                                    <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control glossy-input" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;display:none;" tabindex="7" type="file" value="">
+                                                    <span class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                        <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="FamilyHousehold_AdresssverificationinPaper" name="FamilyHousehold.AdresssverificationinPaper" tabindex="8" type="checkbox" value="true"><input name="FamilyHousehold.AdresssverificationinPaper" type="hidden" value="false">
+                                                        <label style="width:45px;">Paper</label>
+                                                    </span>
+
+
+
+                                                       
+                                                 
+
+
+
+                                                   
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
+
+
+                                    
 
                                     <div class="col-lg-12 col-md-12 col-sm-12">
                                         <div class="form-group">
                                             <h3 class="addapplicant">Case Note </h3>
                                         </div>
-                                    </div>
-                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                        <div class="col-lg-8 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Date <sup>*</sup></label>
-                                                <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control">
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="CaseNoteDetails_caseNoteDate" class="lbl-head">Date <sup>*</sup></label>
+                                                    <div class="input-group date">
+                                                        <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control glossy-date-input">
+                                                        <span class="input-group-addon datepicker-icon" id="1" style="cursor:pointer;">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    </div>
                                             </div>
-                                        </div>
-                                        <div class="col-lg-8 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Title <sup>*</sup></label>
-                                                <input class="form-control" id="CaseNoteDetails_CaseNotetitle" maxlength="50" name="CaseNoteDetails.CaseNotetitle" placeholder="Case Note Title" tabindex="10" type="text">
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="CaseNoteDetails_CaseNotetitle" class="lbl-head">Title <sup>*</sup></label>
+                                                        <input class="form-control glossy-input" id="CaseNoteDetails_CaseNotetitle" maxlength="50" name="CaseNoteDetails.CaseNotetitle" placeholder="Case Note Title" tabindex="10" type="text">
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                        <div class="col-lg-8 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Note <sup>*</sup></label>
+
+
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="CaseNoteDetails_Note" class="lbl-head">Note <sup>*</sup></label>
+                                                    <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
+                                                        <textarea id="CaseNoteDetails_Note" name="CaseNoteDetails.Note"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <label for="ClientDiv" class="lbl-head">Parent/Guardian <sup>*</sup></label>
+                                                <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12" style="margin-bottom:15px;">
+                                            
+                                                <label for="CaseNoteDetails_CaseNotetags" class="lbl-head">Tags <sup>*</sup></label>
+                                                <div class="addn-poup-div1">
+                                                    <input type="text" id="CaseNoteDetails_CaseNotetags" name="CaseNoteDetails.CaseNotetags" class="form-control ui-autocomplete-input" />
+                                                </div>
+                                            
+                                            </div>
+
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <label for="StaffDiv" class="lbl-head">Developmental Team <sup>*</sup></label>
+                                                <div id="StaffDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-8 col-md-6 col-sm-12">
+                                                <label for="CaseNoteDetails_CaseNoteSecurity" class="lbl-head" style="width:34%;">Secure Note Level?</label>
                                                 <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
-                                                    <textarea id="CaseNoteDetails_Note" name="CaseNoteDetails.Note"></textarea>
+                                                    <input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">
+                                                    <span style="margin-top:10px;float:left;">Yes</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-lg-8 col-md-6 col-sm-12">
-                                            <label for="email">Parent/Guardian <sup>*</sup></label>
-                                            <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
 
+                                            <div class="col-sm-12 no-padding">
+                                                <div id="section_attachment">
+
+                                                    <label class="lbl-head">Attachment</label>
+                                                    <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach glossy-input" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
+                                                    <div class="adddivspace" style="width:auto;display:inline-block;float:right;">
+                                                        <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+
+                                                    </div>
+                                                    <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" style="/* display: block; */" data-original-title="Capture using Camera" aria-describedby="tooltip217218">
+                                                </div>
+                                              
+                                                <div class="import_ft_files">
+
+                                                </div>
                                             </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
-                                                    <div class="form-group">
-                                                        <label for="email">Tags <sup>*</sup></label>
-                                                        <div class="addn-poup-div1">
-                                                            <input type="text" id="CaseNoteDetails_CaseNotetags" name="CaseNoteDetails.CaseNotetags" class="form-control ui-autocomplete-input" />
+
+                                                @*<div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
+                                                        <div class="form-group">
+                                                            <label for="CaseNoteDetails_CaseNotetags" class="lbl-head">Tags <sup>*</sup></label>
+                                                            <div class="addn-poup-div1">
+                                                                <input type="text" id="CaseNoteDetails_CaseNotetags" name="CaseNoteDetails.CaseNotetags" class="form-control ui-autocomplete-input" />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-sm-12 no-padding">
-                                                    <div class="form-group">
-                                                        <label for="email">Developmental Team <sup>*</sup></label>
-                                                        <div id="StaffDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <label for="StaffDiv" class="lbl-head">Developmental Team <sup>*</sup></label>
+                                                            <div id="StaffDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
 
 
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                <div class="col-sm-12 no-padding">
-                                                    <div class="form-group">
-                                                        <label for="email">Secure Note Level?</label>
-                                                        <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
-                                                            <input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">
-                                                            <span style="margin-top:10px;float:left;">Yes</span>
+                                                </div>*@
+
+                                                @*<div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <label for="CaseNoteDetails_CaseNoteSecurity" class="lbl-head">Secure Note Level?</label>
+                                                            <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
+                                                                <input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">
+                                                                <span style="margin-top:10px;float:left;">Yes</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                            </div>
-                                        </div>
-                                        <!-- import -->
-                                        <div class="col-sm-12 no-padding">
-                                            <div class="form-group" id="section_attachment">
+                                                </div>*@
 
-                                                <label>Attachment</label>
-                                                <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
-                                                <div class="adddivspace" style="width: 8%;display:inline-block;float:right;">
-                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;">Add&nbsp;<i class="fa fa-plus-circle"></i></a>
 
-                                                </div>
 
-                                            </div>
-                                            <div class="import_ft_files">
+                                                <!-- import -->
 
-                                            </div>
+                                                @*<div class="col-sm-12">
+                                                    <div class="form-group" id="section_attachment">
+
+                                                        <label class="lbl-head">Attachment</label>
+                                                        <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
+                                                        <div class="adddivspace" style="width: 8%;display:inline-block;float:right;">
+                                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;">Add&nbsp;<i class="fa fa-plus-circle"></i></a>
+
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="import_ft_files">
+
+                                                    </div>
+
+                                                </div>*@
+                                        
+
+
 
                                         </div>
                                     </div>
@@ -7273,17 +7328,35 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0 30px;">
-                                <div class="btnwrp_subcal">
+                            <div class="form-group final-btn text-center glossy_btn adddivspace" style="padding: 0 30px;">
+
+                                <button class="glossy-button-button glossy-button-hover button-green" type="submit" id="btnSubmitHouseless">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Save
+                                </button>
+
+                                <button class="glossy-button-button glossy-button-hover button-red"  type="button" data-dismiss="modal" id="btnCancelhouseless">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Exit
+                                </button>
+                                <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="">
+
+
+                                @*<div class="btnwrp_subcal">
                                     <button id="btnSubmitHouseless" tabindex="16" value="Householdbutton" onclick="" class="my-btn" type="submit">Save</button>
                                     <button id="btnCancelhouseless" tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
-                                    <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="">
-                                </div>
+                                    
+                                </div>*@
+
+
                             </div>
                         </div>
+}
                     </div>
                 </div>
-            }
+          
         </div>
     </div>
 
@@ -7698,6 +7771,9 @@
     </div>
 </div>
 
+    @{
+        Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
+    }
 
 }
 

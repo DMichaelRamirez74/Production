@@ -917,6 +917,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@EGender", obj.EGender));
                 command.Parameters.Add(new SqlParameter("@EEmail", obj.EEmail));
                 command.Parameters.Add(new SqlParameter("@relationship", obj.ERelationwithchild));
+                command.Parameters.Add(new SqlParameter("@EnableHomeVisitActivities", obj.EnableHomeVisitActivities));
                 command.Parameters.Add(new SqlParameter("@Enotes", obj.Enotes));
                 command.Parameters.Add(new SqlParameter("@FileName", obj.EFileName));
                 command.Parameters.Add(new SqlParameter("@FileExtension", obj.EFileExtension));
@@ -2607,6 +2608,7 @@ namespace FingerprintsData
                         familyinfo.EDOB = Convert.ToString(_dataset.Tables[8].Rows[i]["DOB"]);
                         familyinfo.ERelationwithchild = Convert.ToString(_dataset.Tables[8].Rows[i]["RelationName"]);
                         familyinfo.EImagejson = _dataset.Tables[8].Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[8].Rows[i]["DocumentFile"]);
+                        familyinfo.ClientID = Convert.ToInt32(_dataset.Tables[8].Rows[i]["OthersClientID"]);
                         _Elist.Add(familyinfo);
                     }
                     obj._Elist = _Elist;
@@ -2642,7 +2644,7 @@ namespace FingerprintsData
                         familyinfo.OthersId = Convert.ToInt32(_dataset.Tables[10].Rows[i]["ID"]);
                         familyinfo.CSSN = _dataset.Tables[10].Rows[i]["ssn"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(_dataset.Tables[10].Rows[i]["ssn"].ToString());
                         familyinfo.HouseHoldImagejson = _dataset.Tables[10].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[10].Rows[i]["ProfilePic"]);
-
+                        familyinfo.OIncomeSupported = Convert.ToInt32(_dataset.Tables[10].Rows[i]["IncomeSupported"]);
 
                         if ((Convert.ToString(_dataset.Tables[10].Rows[i]["Gender"]) == "1"))
                         {
@@ -5364,9 +5366,17 @@ namespace FingerprintsData
                     obj.Ofirstname = familydataTable.Rows[0]["Firstname"].ToString();
                     obj.Omiddlename = familydataTable.Rows[0]["Middlename"].ToString();
                     obj.Olastname = familydataTable.Rows[0]["Lastname"].ToString();
-                    obj.ODOB = Convert.ToDateTime(familydataTable.Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+                    //   obj.ODOB = Convert.ToDateTime(familydataTable.Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+
+                    obj.ODOB = Convert.ToString(familydataTable.Rows[0]["DOB"]);
+
                     obj.OGender = familydataTable.Rows[0]["Gender"].ToString();
                     obj.Oemergencycontact = familydataTable.Rows[0]["isemergency"].ToString() == "" ? false : Convert.ToBoolean(familydataTable.Rows[0]["isemergency"]);
+
+                    obj.OEnableHomeVisitActivities = Convert.ToInt32(familydataTable.Rows[0]["EnableHomeVisitActivities"]);
+
+                    obj.OIncomeSupported = Convert.ToInt32(familydataTable.Rows[0]["IncomeSupported"]);
+
                     obj.HouseHoldImagejson = familydataTable.Rows[0]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[0]["ProfilePic"]);
 
                     try
@@ -5565,7 +5575,9 @@ namespace FingerprintsData
                         //obj.ECity = Convert.ToString(_dataset.Tables[0].Rows[0]["City"]);
                         //obj.EState = Convert.ToString(_dataset.Tables[0].Rows[0]["State"]);
                         //obj.EZipcode = Convert.ToString(_dataset.Tables[0].Rows[0]["ZipCode"]);
-                        obj.EDOB = _dataset.Tables[0].Rows[0]["DOB"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+                        //obj.EDOB = _dataset.Tables[0].Rows[0]["DOB"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+
+                        obj.EDOB = Convert.ToString(_dataset.Tables[0].Rows[0]["DOB"]);
                         obj.EGender = Convert.ToString(_dataset.Tables[0].Rows[0]["gender"]);
                         obj.EEmail = Convert.ToString(_dataset.Tables[0].Rows[0]["Email"]);
                         obj.ERelationwithchild = Convert.ToString(_dataset.Tables[0].Rows[0]["Relationwithchild"]);
@@ -5573,6 +5585,7 @@ namespace FingerprintsData
                         obj.EFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["FileNameul"]);
                         obj.EFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["FileExtension"]);
                         obj.EImagejson = _dataset.Tables[0].Rows[0]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["DocumentFile"]);
+                        obj.EnableHomeVisitActivities = Convert.ToInt32(_dataset.Tables[0].Rows[0]["EnableHomeVisitActivities"]);
                     }
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
@@ -9788,6 +9801,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Isemergency", obj.Oemergencycontact));
                 else
                     command.Parameters.Add(new SqlParameter("@Isemergency", DBNull.Value));
+
+                command.Parameters.Add(new SqlParameter("@EnableHomeVisitActivities", obj.OEnableHomeVisitActivities));
+                command.Parameters.Add(new SqlParameter("@IncomeSupported", obj.OIncomeSupported));
                 command.Parameters.Add(new SqlParameter("@OGender", obj.OGender));
                 command.Parameters.Add(new SqlParameter("@ParentSSN3", obj.ParentSSN3 == null ? null : EncryptDecrypt.Encrypt(obj.ParentSSN3)));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
@@ -9831,6 +9847,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@EGender", obj.EGender));
                 command.Parameters.Add(new SqlParameter("@EEmail", obj.EEmail));
                 command.Parameters.Add(new SqlParameter("@relationship", obj.ERelationwithchild));
+                command.Parameters.Add(new SqlParameter("@EnableHomeVisitActivities", obj.EnableHomeVisitActivities));
                 command.Parameters.Add(new SqlParameter("@Enotes", obj.Enotes));
                 command.Parameters.Add(new SqlParameter("@FileName", obj.EFileName));
                 command.Parameters.Add(new SqlParameter("@FileExtension", obj.EFileExtension));
@@ -11650,6 +11667,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Isemergency", obj.IsEmergency));
                 else
                     command.Parameters.Add(new SqlParameter("@Isemergency", DBNull.Value));
+
+                command.Parameters.Add(new SqlParameter("@EnableHomeVisitActivities", obj.OEnableHomeVisitActivities));
+                command.Parameters.Add(new SqlParameter("@IncomeSupported", obj.OIncomeSupported));
                 command.Parameters.AddWithValue("@CreatedBy", userId);
                 command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@roleid", roleId));

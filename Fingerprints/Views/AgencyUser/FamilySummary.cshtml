@@ -1598,6 +1598,7 @@
 
                 $('#Oemergencycontact').hide();
                 $('#lblOemergencycontact').hide();
+                $('#divOallowhomeVisit').hide();
             });
             $('#seatsDatetimePicker1').datetimepicker({
                 timepicker: false,
@@ -2626,6 +2627,23 @@
                 customAlert("Gender is required. ");
                 return isValid;
             }
+
+            if ($('#lblOemergencycontact').is(':visible')
+                && $('input:checkbox[name="Oemergencycontact"]').is(':checked')
+                && $('#divOallowhomeVisit').is(':visible') &&
+                !$('input:radio[name="OEnableHomeVisitActivities"]').is(':checked')) {
+                isValid = false;
+                customAlert("Enable Home Visit Activities field is required.");
+                return isValid;
+            }
+
+            if (!$('input:radio[name="OIncomeSupported"]').is(':checked')) {
+                isValid = false;
+                customAlert("Income support field is required.");
+                return isValid;
+            }
+
+
             if (ssnothervalue != null) {
                 if (ssnothervalue != $('#ParentSSN3').val()) {
                     if ($('#ParentSSN3').val() == "") {
@@ -2675,16 +2693,47 @@
                     BootstrapDialog.confirm('Do you want to remove this emergency contact ?', function (result) {
                         if (result) {
                             $('#Oemergencycontact').prop("checked", false);
+                            $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                            $('#divOallowhomeVisit').hide('slow');
                         }
                         else {
                             $('#Oemergencycontact').prop("checked", true);
+
                         }
                     });
 
 
                 }
+                else if (!$('#divOallowhomeVisit').is(':visible')) {
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                    $('#divOallowhomeVisit').show('slow');
+
+                }
+
 
             }
+
+            else if ($('#Oemergencycontact').prop("checked")) {
+
+                if (!$('#divOallowhomeVisit').is(':visible')) {
+
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                    $('#divOallowhomeVisit').show('slow');
+
+                }
+            }
+            else if ($('#divOallowhomeVisit').is(':visible')) {
+
+                $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+
+                $('#divOallowhomeVisit').hide('slow');
+
+            }
+
+
+
 
         }
         function validatedate(inputTextObject) {
@@ -3148,6 +3197,14 @@
                 plainValidation('#ERelationwithchild');
                 return isValid;
             }
+
+            if (!$('input:radio[name="EnableHomeVisitActivities"]').is(':checked')) {
+                isValid = false;
+                customAlert("Enable Home Visit Activities field is required. ");
+                plainValidation($('input:radio[name="EnableHomeVisitActivities"]'));
+                return isValid;
+            }
+
             if ($('#gridphoneE1 > tbody tr').length == 0) {
                 isValid = false;
                 customAlert("Please add contact no. ");
@@ -3231,6 +3288,9 @@
             $('#Omiddlename').val(data.Omiddlename);
             $('#Olastname').val(data.Olastname);
             $('#ODOB').val(data.ODOB);
+
+            $('input:radio[name="OIncomeSupported"][value=' + data.OIncomeSupported + ']').prop('checked', true);
+
             if (data.OGender == "1")
                 $('#OGendermale').prop("checked", true);
             if (data.OGender == "2")
@@ -3253,11 +3313,23 @@
                 if (data.Oemergencycontact != null && data.Oemergencycontact == true) {
                     $('#Oemergencycontact').prop('checked', true);
                     $('#Alreadyemergencycontact').val(1);
+
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"][value=' + data.OEnableHomeVisitActivities + ']').prop('checked', true);
+                    $('#divOallowhomeVisit').show();
+
+                }
+                else {
+                    $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                    $('#divOallowhomeVisit').hide();
                 }
             }
             else {
                 $('#Oemergencycontact').hide();
                 $('#lblOemergencycontact').hide();
+
+
+                $('#divOallowhomeVisit').find('input:radio[name="OEnableHomeVisitActivities"]').prop('checked', false);
+                $('#divOallowhomeVisit').hide();
             }
 
             if (data.ParentSSN3 != "") {
@@ -3291,6 +3363,7 @@
             $('input:radio[name=OGender]:checked').prop('checked', false);
             $('#Alreadyemergencycontact').val(0);
             $('#Oemergencycontact').prop('checked', false);
+            $('input:radio[name="OIncomeSupported"]').prop('checked', false);
             $('#ParentSSN3').val('');
             $('#Heading').text('Add Other In Household');
             $('#OtherModel').modal('show');
@@ -3412,6 +3485,7 @@
             $('#Emiddlename').val("");
             $('#Elastname').val("");
             $('#ERelationwithchild').val("");
+            $('input:radio[name="EnableHomeVisitActivities"]').prop('checked', false);
             $('#EGendermale').prop("checked", false);
             $('#EGenderfemale').prop("checked", false);
             $('#EGenderother').prop("checked", false);
@@ -3436,6 +3510,7 @@
             $('#EDOB').val(data.EDOB);
             $('#EEmail').val(data.EEmail);
             $('#ERelationwithchild').val(data.ERelationwithchild);
+            $('input:radio[name="EnableHomeVisitActivities"][value=' + data.EnableHomeVisitActivities + ']').prop('checked', true);
             $('#Enotes').val(data.Enotes);
             $('#EFileName').val(data.EFileName);
             $('#EFileExtension').val(data.EFileExtension);
@@ -3528,6 +3603,7 @@
             $('#Emiddlename').val("");
             $('#Elastname').val("");
             $('#ERelationwithchild').val("");
+            $('input:radio[name="EnableHomeVisitActivities"]').prop('checked', false);
             $('#EGendermale').prop("checked", false);
             $('#EGenderfemale').prop("checked", false);
             $('#EGenderother').prop("checked", false);
@@ -4976,47 +5052,96 @@
         .container-fluid{
             padding:0;
         }
+
+        .anchor_yellow {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #9b59b6;
+    border-color: #9b59b6 #9b59b6 #9b59b6;
+}
+        .glossy_btn button, .backto_listspan .anchor_yellow {
+    width: auto;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+        .backto_listspan .anchor_yellow:hover {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #21945a;
+    border-color: #2bc577 #2bc577 #2bc577;
+    color: #fff;
+    text-shadow: 0 1px #154c86;
+    text-decoration: none;
+}
+
+.anchor_yellow:hover {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #21945a;
+    border-color: #2bc577 #2bc577 #2bc577;
+    color: #fff;
+    text-shadow: 0 1px #154c86;
+    text-decoration: none;
+}
+
+   .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+    width: 120%;
+    background-color: rgba(255,255,255,0);
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
     </style>
     <div class="row Zoom">
 
         <div class="col-lg-12" style="padding:0;">
-    
-               
-                    <div class="row">
-                        <!------------Your Code----------------->
-                        <div class="right-side-container-ch col-xs-12" style="padding-top: 30px;">
-                            <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
-                                <div class="col-lg-12">
-                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                        <i class="fa fa-group"></i> Family Summary
 
-                                        <span class="view-btn backto_listspan">
-                                            <a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>
-                                        </span>
-                                    </h2>
-                                </div>
+
+            <div class="row">
+
+                <!------------Your Code----------------->
+                <div class="right-side-container-ch col-xs-12" style="padding-top: 30px;">
+                    <div class="col-xs-12" style="padding:0px 0px;margin-bottom:20px;">
+                        <div class="col-lg-12">
+                            <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                <i class="fa fa-group"></i> Family Summary
+
+                                <span class="view-btn backto_listspan">
+                                    <a href="/Roster/Roster"  class="glossy-button-button anchor_yellow" style="text-decoration:none;">Back to Roster
+                                   
+                                     <span class="glossy-button-before"></span>
+                                    <span class="glossy-button-after"></span>
+                                    
+                                    </a>
+
+                                </span>
+                            </h2>
+                        </div>
 
 
                             </div>
 
-                            <input type="hidden" id="UserId" value="@Session["UserId"].ToString()" />
-                            <div class="col-xs-12">
-                                <div class="col-xs-12 no-padding">
-                                    <div class="information_titles icr-title" style="background-color: #3498db;">
-                                        <h4>Household</h4>
-                                        <span>Family Advocate</span>
-                                        @*<button class="btn btn-add">Add</button>*@
-                                    </div>
-                                </div>
-                                <div class="inforeader-inner inforeader-inner-ch">
-                                    <div class="col-md-5 col-lg-5 col-xs-12 col-sm-12">
-                                        <div class="home-in-img household-main-ch house-info-div" style="height:auto;">
-                                            <img src="~/Content/imgs/home-fam.png" alt="home" />
-                                            <p>
-                                                @Model.Street<br>@Model.StreetName<br>
-                                                @Model.City  &nbsp;  @Model.State  @Model.ZipCode<br />
-                                                @Model.County
-                                            </p>
+                    <input type="hidden" id="UserId" value="@Session["UserId"].ToString()" />
+                    <div class="col-xs-12">
+                        <div class="col-xs-12 no-padding">
+                            <div class="information_titles icr-title panel-head-div-blue">
+                                <h4 class="glossy-panel-heading">Household</h4>
+                                <span class="glossy-panel-heading">Family Advocate</span>
+                                @*<button class="btn btn-add">Add</button>*@
+                            </div>
+                        </div>
+                        <div class="inforeader-inner inforeader-inner-ch">
+                            <div class="col-md-5 col-lg-5 col-xs-12 col-sm-12">
+                                <div class="home-in-img household-main-ch house-info-div" style="height:auto;">
+                                    <img src="~/Content/imgs/home-fam.png" alt="home" />
+                                    <p>
+                                        @Model.Street<br>@Model.StreetName<br>
+                                        @Model.City  &nbsp;  @Model.State  @Model.ZipCode<br />
+                                        @Model.County
+                                    </p>
 
                                             <div class="home-fft col-xs-12">
                                                 <a href="#">@Model.RentTypetext</a>
@@ -5025,9 +5150,15 @@
                                                 <span style="margin-left: 4%; text-decoration: underline;color: #fff;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,1)"><span style="background-color:#20b4fb !important;" class="badge">CN</span></span>
                                                 <span style="margin-left: 4%; text-decoration: underline;color: #fff;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)"><span style="background-color:#bb20fb !important;" class="badge">Tags</span></span>
 
-                                                @*<a href="#" style="margin-left: 4%; text-decoration: underline;color: #db4437;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)">Tags</a>*@
+                                            @*<a href="#" style="margin-left: 4%; text-decoration: underline;color: #db4437;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)">Tags</a>*@
 
-                                                    <button class="btn btn-success" type="button" onclick="updateHousehold();"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
+                                            <button class="glossy-button-button glossy-button-hover button-green" type="button" onclick="updateHousehold();">
+                                                <i class="fa fa-pencil" aria-hidden="true"></i>	Change
+                                                <span class="glossy-button-before"></span>
+
+                                                <span class="glossy-button-after"></span>
+
+                                            </button>
 
                                                     <button class="btn btn-success" data-toggle="modal" data-target="#HouseholdData" href="#" style="display:none;"><i class="fa fa-pencil" aria-hidden="true" ></i>	Change</button>
 
@@ -5050,36 +5181,42 @@
                                                     <h4 style="padding-left:10px;float:left;width:100%;">
                                                         <span style="display:inline-block;float:left;width:58%;color:#164b7b;font-weight:bold;">@Model.staffList[0].Username </span>
 
-                                                        @if (Model.staffList[0].ServiceYears != "0")
-                                                        {
-                                                            <span style="display:inline-block;float:left;color:#009688;font-weight:bold;font-size:14px;">(@Model.staffList[0].ServiceYears Year(s) of Service)</span>
-                                                        }
-                                                    </h4>
-                                                    <div class="col-xs-7 col-lg-4">
-                                                        <label style="color:#333;"><i class="fa fa-user" style="padding-right:10px;width:20px;"></i><strong>Gender</strong></label>
-                                                    </div>
-                                                    <div class="col-xs-3 col-lg-7">
-                                                        <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].Gender</label>
-                                                    </div>
-
-
-                                                    <div class="col-xs-7 col-lg-4">
-                                                        <label style="color:#333;display:inline-flex;"><i class="fa fa-phone" style="padding-right:10px;width:20px;"></i><strong>Mobile Number</strong></label>
-                                                    </div>
-                                                    <div class="col-xs-3 col-lg-7">
-                                                        <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].CellNumber</label>
-                                                    </div>
-
-
-                                                </div>
-
-
-                                                <div class="col-xs-12 home-fft">
-                                                    <button class="btn btn-success" id="btn_change_fa"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
-
-                                                </div>
+                                                @if (Model.staffList[0].ServiceYears != "0")
+                                                {
+                                                    <span style="display:inline-block;float:left;color:#009688;font-weight:bold;font-size:14px;">(@Model.staffList[0].ServiceYears Year(s) of Service)</span>
+                                                }
+                                            </h4>
+                                            <div class="col-xs-7 col-lg-5">
+                                                <label style="color:#333;"><i class="fa fa-user" style="padding-right:10px;width:20px;"></i><strong>Gender</strong></label>
                                             </div>
+                                            <div class="col-xs-3 col-lg-7">
+                                                <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].Gender</label>
+                                            </div>
+
+
+                                            <div class="col-xs-7 col-lg-5">
+                                                <label style="color:#333;display:inline-flex;"><i class="fa fa-phone" style="padding-right:10px;width:20px;"></i><strong>Mobile Number</strong></label>
+                                            </div>
+                                            <div class="col-xs-3 col-lg-7">
+                                                <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].CellNumber</label>
+                                            </div>
+
+
                                         </div>
+
+
+                                        <div class="col-xs-12 home-fft" style="margin-top:5px;">
+                                            <button class="glossy-button-button glossy-button-hover button-green" id="btn_change_fa">
+                                                <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;
+                                                <span class="glossy-button-before"></span>
+
+                                                <span class="glossy-button-after"></span>
+                                                Change
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </div>
 
                                     }
 
@@ -5136,11 +5273,11 @@
 
                             </div>
 
-                            <div class="col-xs-12">
-                                <div class="col-xs-12 no-padding">
-                                    <div class="information_titles icr-title" style="background-color: #009688;">
+                    <div class="col-xs-12">
+                        <div class="col-xs-12 no-padding">
+                            <div class="information_titles icr-title panel-head-div-green">
 
-                                        <span>File Cabinet</span>
+                                <span class="glossy-panel-heading">File Cabinet</span>
 
                                     </div>
                                 </div>
@@ -5172,31 +5309,40 @@
                             </div>
 
 
-                            <div class="col-xs-12">
-                                <div class="col-xs-12 no-padding">
-                                    <div class="information_titles" style="background:#e67e22;">
-                                        <h4 style="text-transform:none;">Household Child(ren)</h4>
-                                        <div class="btn btn-add btn-hover-none"><a href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName">Add</a></div>
-                                    </div>
+                    <div class="col-xs-12">
+                        <div class="col-xs-12 no-padding">
+                            <div class="information_titles panel-head-div-orange">
+                                <h4 style="text-transform:none;" class="glossy-panel-heading">Household Child(ren)</h4>
+                                <div style="float:right;padding:10px;">
+
+                                    <a class="glossy-button-button glossy-button-hover button-yellow" style="text-decoration:none;" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName">
+                                        Add
+
+                                        <span class="glossy-button-before"></span>
+                                        <span class="glossy-button-after"></span>
+
+                                    </a>
                                 </div>
-                                <div class="inforeader-inner">
-                                    @if (Model._Clist != null && Model._Clist.Count > 0)
-                                    {
-                                        foreach (var item in Model._Clist)
-                                        {
-                                            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
-                                                <div class="house-hold household-main-ch child-info-div">
-                                                    <div class="bade-div">
-                                                        <div class="bade-div-hidden hidden">
-                                                            <p class="house-hold-badge RX-bg"><img src="~/Images/rx.png" style="max-width: 55%;" /></p>
-                                                            <p class="house-hold-badge F-bg">F</p>
-                                                            <p class="house-hold-badge T-bg">T</p>
-                                                            <p class="house-hold-badge A-bg">A</p>
-                                                            <p class="house-hold-badge D-bg">D</p>
-                                                            @*<p class="house-hold-badge E-bg">E</p>*@
-                                                        </div>
-                                                    </div>
-                                                    <div class="hld-img">
+                            </div>
+                        </div>
+                        <div class="inforeader-inner">
+                            @if (Model._Clist != null && Model._Clist.Count > 0)
+                            {
+                                foreach (var item in Model._Clist)
+                                {
+                                    <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                                        <div class="house-hold household-main-ch child-info-div">
+                                            <div class="bade-div">
+                                                <div class="bade-div-hidden hidden">
+                                                    <p class="house-hold-badge RX-bg"><img src="~/Images/rx.png" style="max-width: 55%;" /></p>
+                                                    <p class="house-hold-badge F-bg">F</p>
+                                                    <p class="house-hold-badge T-bg">T</p>
+                                                    <p class="house-hold-badge A-bg">A</p>
+                                                    <p class="house-hold-badge D-bg">D</p>
+                                                    @*<p class="house-hold-badge E-bg">E</p>*@
+                                                </div>
+                                            </div>
+                                            <div class="hld-img">
 
                                                         @if (string.IsNullOrEmpty(item.Imagejson) && item.CGender == "2")
                                                         {
@@ -5220,31 +5366,33 @@
                                                             <img width="108" height="108" src="~/Content/img/download.jpg" style="margin-top:4px;" />
                                                         }
 
-
-                                                    </div>
-                                                    <div class="det-cont" style="min-height: 130px;">
-                                                        @{ 
-                                                  var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
+                                                @*<div class="glossy-update-icon">
+                                                    <i class="fa fa-plus"></i>
+                                                </div>*@
+                                            </div>
+                                            <div class="det-cont" style="min-height: 130px;">
+                                                @{
+                                                    var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
+                                                }
+                                                @*<h4 class="household-heading-txt">@item.Cfirstname</h4>*@
+                                                <a href="@Url.Action("TimeLine","Roster")?clientid=@_ecid" data-toggle="tooltip" title="Timeline of @item.Cfirstname">
+                                                    <h4 style="text-decoration:underline;" class="household-heading-txt">@item.Cfirstname</h4>
+                                                </a>
+                                                <ul>
+                                                    <li>
+                                                        <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
+                                                        @if (item.CProgramType != null && item.CenterId > 0 && item.ClassRoomId > 0)
+                                                        {
+                                                            <span class="household-right-txt">
+                                                                <a href="#" id="dob@(item.ChildId)" onclick="ChangeDOB(this)" data-programtype="@item.CProgramType" data-childid="@item.ChildId" style="text-decoration:underline">@item.CDOB</a>
+                                                            </span>
                                                         }
-                                                        @*<h4 class="household-heading-txt">@item.Cfirstname</h4>*@
-                                                        <a href="@Url.Action("TimeLine","Roster")?clientid=@_ecid" data-toggle="tooltip" title="Timeline of @item.Cfirstname">
-                                                            <h4 style="text-decoration:underline;" class="household-heading-txt">@item.Cfirstname</h4>
-                                                        </a>
-                                                        <ul>
-                                                            <li>
-                                                                <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
-                                                                @if (item.CProgramType != null && item.CenterId > 0 && item.ClassRoomId > 0)
-                                                                {
-                                                                    <span class="household-right-txt">
-                                                                        <a href="#" id="dob@(item.ChildId)" onclick="ChangeDOB(this)" data-programtype="@item.CProgramType" data-childid="@item.ChildId" style="text-decoration:underline">@item.CDOB</a>
-                                                                    </span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span class="household-right-txt">
-                                                                        @item.CDOB
-                                                                    </span>
-                                                                }
+                                                        else
+                                                        {
+                                                            <span class="household-right-txt">
+                                                                @item.CDOB
+                                                            </span>
+                                                        }
 
                                                             </li>
 
@@ -5333,29 +5481,39 @@
 
                                                         }
 
-                                                        <div class="btn btn-success btn-hover-none" style="float: right;"><i class="fa fa-pencil" aria-hidden="true"></i><a style="color:#fff;" class="edit-client" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString())">&nbsp;Edit</a>	</div>
-                                                    </div>
+                                                <div style="float: right;">
+                                                    <a style="color:#fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-green edit-client" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString())">
+                                                        <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;Edit
+
+                                                        <span class="glossy-button-before"></span>
+                                                        <span class="glossy-button-after"></span>
+
+                                                    </a>
                                                 </div>
                                             </div>
-                                                                }
-                                                            }
-                                                            @*<div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                                    <div class="house-hold">
-                                                                        <div class="hld-img"><img src="~/Content/imgs/child5.png" alt="child" /></div>
-                                                                        <div class="det-cont">
-                                                                            <h4>Barret Jack</h4>
-                                                                            <ul>
-                                                                                <li><p>Female</p><span>11/11/2015</span></li>
-                                                                                <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                                <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="home-fft">
-                                                                            <a href="#">Enrolled</a>
-                                                                            <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                        </div>
-                                                                    </div>
+                                        </div>
+                                    </div>
+                                                        }
+                                                    }
+
+
+                                                    @*<div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
+                                                            <div class="house-hold">
+                                                                <div class="hld-img"><img src="~/Content/imgs/child5.png" alt="child" /></div>
+                                                                <div class="det-cont">
+                                                                    <h4>Barret Jack</h4>
+                                                                    <ul>
+                                                                        <li><p>Female</p><span>11/11/2015</span></li>
+                                                                        <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
+                                                                        <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
+                                                                    </ul>
                                                                 </div>
+                                                                <div class="home-fft">
+                                                                    <a href="#">Enrolled</a>
+                                                                    <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                                 <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
                                                                     <div class="house-hold">
@@ -5429,21 +5587,30 @@
                                                                     </div>
                                                                 </div>*@
 
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="information_titles" style="background:#9b59b6;">
-                                                                @if (Model.ParentID1 != 0)
-                                                                {
-                                                                    <h4>Parent/Guardian</h4>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <h4>Parent/Guardian</h4>
-                                                                    @*<h3 class="panel-title">Parent/Guardian<a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid" class="pull-right">Add</a> </h3>*@
-                                                                    <div class="btn btn-add btn-hover-none"><a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid">Add</a></div>
-                                                                }
+
+
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="information_titles panel-head-div-violet">
+                                                        @if (Model.ParentID1 != 0)
+                                                        {
+                                                            <h4 class="glossy-panel-heading">Parent/Guardian</h4>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h4 class="glossy-panel-heading">Parent/Guardian</h4>
+                                                            @*<h3 class="panel-title">Parent/Guardian<a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid" class="pull-right">Add</a> </h3>*@
+                                                            <div style="float:right;padding:10px;">
+                                                                <a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid" class="glossy-button-button glossy-button-hover button-yellow">
+                                                                    Add
+                                                                    <span class="glossy-button-before"></span>
+                                                                    <span class="glossy-button-after"></span>
+
+                                                                </a>
+                                                            </div>
+                                                        }
 
                                                             </div>
                                                         </div>
@@ -5635,16 +5802,22 @@
 
 
 
-                                                                            @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
-                                                                                <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
-                                                                        </div>
-                                                                        <div class="btn btn-success btn-hover-none" style="float: right;">
-                                                                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                                            <a style="color:#fff;" class="edit-client" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())">&nbsp;Edit</a>
-                                                                        </div>
-                                                                    </div>
+                                                                    @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                                        <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
+                                                                </div>
+                                                                <div style="float: right;">
+
+                                                                    <a style="color:#fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-green edit-client" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())">
+                                                                        <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;Edit
+
+                                                                        <span class="glossy-button-before"></span>
+
+                                                                        <span class="glossy-button-after"></span>
+                                                                    </a>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    </div>
 
                                                             @if (Model.ParentID1 != 0)
                                                             {
@@ -5828,87 +6001,107 @@
 
                                                                                 }
 
-                                                                                @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
-                                                                                    <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
-                                                                            </div>
-                                                                            <div class="btn btn-success btn-hover-none" style="float:right;">
-                                                                                <i class="fa fa-pencil" aria-hidden="true"></i>	<a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())">&nbsp;Edit</a>
+                                                                        @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                                            <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
+                                                                    </div>
+                                                                    <div style="float:right;">
+                                                                        <a class="glossy-button-button glossy-button-hover button-green" style="color:#fff;text-decoration:none;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())">
+                                                                            <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;Edit
+
+                                                                            <span class="glossy-button-before"></span>
+                                                                            <span class="glossy-button-after"></span>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                                            }
+
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="information_titles panel-head-div-light-green">
+                                                        <h4 style="text-transform:none;" class="glossy-panel-heading">Others in Household</h4>
+                                                        <div style="float:right;padding:10px;">
+
+                                                            <a href="javascript:void(0);" onclick="Addothers();" class="glossy-button-button glossy-button-hover button-yellow">
+                                                                Add
+                                                                <span class="glossy-button-before"></span>
+                                                                <span class="glossy-button-after"></span>
+                                                            </a>
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <div class="inforeader-inner">
+                                                        @if (Model._Olist != null && Model._Olist.Count > 0)
+                                                        {
+                                                            foreach (var item in Model._Olist)
+                                                            {
+                                                                <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                                                                    <div class="house-hold  household-main-ch others-info-div household-main-ht">
+                                                                        <div class="hld-img">
+                                                                            @if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "2")
+                                                                            {
+                                                                                <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
+                                                                            }
+                                                                            else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "1")
+                                                                            {
+                                                                                <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
+                                                                            }
+                                                                            else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "3")
+                                                                            {
+                                                                                <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
+                                                                            }
+                                                                            else if (!string.IsNullOrEmpty(item.HouseHoldImagejson))
+                                                                            {
+                                                                                <img width="108" height="108" src="data:image/jpg;base64,@item.HouseHoldImagejson" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
+                                                                            }
+                                                                        </div>
+                                                                        <div class="det-cont" style="min-height: 130px;">
+                                                                            <h4 class="household-heading-txt">@item.Ofirstname</h4>
+                                                                            <ul>
+                                                                                <li>
+                                                                                    <p class="household-left-txt">
+                                                                                        <i class="fa fa-user"></i>@item.Gender
+                                                                                    </p><span class="household-right-txt">@item.ODOB</span>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                        <div class="home-fft col-xs-12">
+                                                                            @if (item.OtherEligible)
+                                                                            {
+                                                                                <a title="Click to enroll" style="color:red;" class="edit-client" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName&OthersId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.OthersId.ToString())">Eligible</a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a style="color:red;" href="javascript:void(0)">Not Eligible</a>
+                                                                            }
+
+                                                                            <div style="float:right;">
+
+                                                                                <a href="javascript:void(0)" style="color:#fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-green" accesskey="@item.OthersId" onclick="GetOther(this);">
+                                                                                    <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;Edit
+                                                                                    <span class="glossy-button-before"></span>
+                                                                                    <span class="glossy-button-after"></span>
+                                                                                </a>
+
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                                    }
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="information_titles" style="background:#4caf50;">
-                                                                <h4 style="text-transform:none;">Others in Household</h4>
-                                                                <div class="btn btn-add btn-hover-none" onclick="Addothers();">Add</div>
-
-
-                                                            </div>
-
-                                                            <div class="inforeader-inner">
-                                                                @if (Model._Olist != null && Model._Olist.Count > 0)
-                                                                {
-                                                                    foreach (var item in Model._Olist)
-                                                                    {
-                                                                        <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
-                                                                            <div class="house-hold  household-main-ch others-info-div household-main-ht">
-                                                                                <div class="hld-img">
-                                                                                    @if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "2")
-                                                                                    {
-                                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
-                                                                                    }
-                                                                                    else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "1")
-                                                                                    {
-                                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
-                                                                                    }
-                                                                                    else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "3")
-                                                                                    {
-                                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
-                                                                                    }
-                                                                                    else if (!string.IsNullOrEmpty(item.HouseHoldImagejson))
-                                                                                    {
-                                                                                        <img width="108" height="108" src="data:image/jpg;base64,@item.HouseHoldImagejson" />
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
-                                                                                    }
-                                                                                </div>
-                                                                                <div class="det-cont" style="min-height: 130px;">
-                                                                                    <h4 class="household-heading-txt">@item.Ofirstname</h4>
-                                                                                    <ul>
-                                                                                        <li>
-                                                                                            <p class="household-left-txt">
-                                                                                                <i class="fa fa-user"></i>@item.Gender
-                                                                                            </p><span class="household-right-txt">@item.ODOB</span>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div>
-                                                                                <div class="home-fft col-xs-12">
-                                                                                    @if (item.OtherEligible)
-                                                                                    {
-                                                                                        <a title="Click to enroll" style="color:red;" class="edit-client" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName&OthersId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.OthersId.ToString())">Eligible</a>
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        <a style="color:red;" href="javascript:void(0)">Not Eligible</a>
-                                                                                    }
-
-                                                                                    <div class="btn btn-success btn-hover-none" style="float:right;"><i class="fa fa-pencil" aria-hidden="true"></i><a href="javascript:void(0)" style="color:#fff;" accesskey="@item.OthersId" onclick="GetOther(this);">&nbsp;Edit</a></div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div class="info-none"><p>- None -</p></div>
-                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="info-none"><p>- None -</p></div>
+                                                        }
 
 
                                                             </div>
@@ -5917,125 +6110,178 @@
 
                                                     </div>
 
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="information_titles" style="background:#e74c3c;">
-                                                                <h4>Emergency Contact</h4>
-                                                                <div class="btn btn-add btn-hover-none" onclick="AddEcontacts();">Add</div>
-                                                            </div>
-
+                                            <div class="col-xs-12">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="information_titles panel-head-div-light-blue">
+                                                        <h4 class="glossy-panel-heading">Emergency Contact</h4>
+                                                        <div style="padding:10px;float:right;">
+                                                            <a href="javascript:void(0);" onclick="AddEcontacts();" class="glossy-button-button glossy-button-hover button-yellow">
+                                                                Add
+                                                                <span class="glossy-button-before"></span>
+                                                                <span class="glossy-button-after"></span>
+                                                            </a>
                                                         </div>
-                                                        <div class="inforeader-inner">
-                                                            @if (Model._Elist != null && Model._Elist.Count > 0)
-                                                            {
-                                                                foreach (var item in Model._Elist)
-                                                                {
-                                                                    <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
-                                                                        <div class="house-hold household-main-ch emergency-contact-div household-main-ht">
-                                                                            <div class="hld-img">
-                                                                                @if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "2")
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
-                                                                                }
-                                                                                else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "1")
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
-                                                                                }
-                                                                                else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "3")
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
-                                                                                }
-                                                                                else if (!string.IsNullOrEmpty(item.EImagejson))
-                                                                                {
-                                                                                    <img width="108" height="108" src="data:image/jpg;base64,@item.EImagejson" />
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
-                                                                                }
-                                                                            </div>
-                                                                            <div class="det-cont" style="min-height: 130px;">
-                                                                                <h4 class="household-heading-txt">@item.Efirstname</h4>
-                                                                                <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
-                                                                                    <li>
-                                                                                        <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
-                                                                                        <span class="household-right-txt">@item.EDOB</span>
-                                                                                    </li>
-                                                                                </ul>
-                                                                            </div>
-                                                                            <div class="home-fft col-xs-12" style="margin: 10px 0 0;">
-                                                                                <a href="javascript:void(0)" accesskey="@item.EmegencyId" onclick="Getemergencycontact(this);" style="padding:15px;float: right; color: #fff;background-color:#5cb85c;border-radius: 4px;">View</a>
+                                                    </div>
 
-
-                                                                                <a href="javascript:void(0)" accesskey="@item.EmegencyId" onclick="deleteEmergencycontact(this);" style="padding:15px;float: right;color: #fff;margin-right: 15px;background-color:#e74c3c;border-radius: 4px; ">Delete</a>
-
-
-                                                                                @*<button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i><a href="javascript:void(0)" accesskey="@item.OthersId" onclick="GetOther(this);">Edit</a></button>*@
-                                                                            </div>
-                                                                        </div>
+                                                </div>
+                                                <div class="inforeader-inner">
+                                                    @if (Model._Elist != null && Model._Elist.Count > 0)
+                                                    {
+                                                        foreach (var item in Model._Elist)
+                                                        {
+                                                            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                                                                <div class="house-hold household-main-ch emergency-contact-div household-main-ht">
+                                                                    <div class="hld-img">
+                                                                        @if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "2")
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
+                                                                        }
+                                                                        else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "1")
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
+                                                                        }
+                                                                        else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "3")
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
+                                                                        }
+                                                                        else if (!string.IsNullOrEmpty(item.EImagejson))
+                                                                        {
+                                                                            <img width="108" height="108" src="data:image/jpg;base64,@item.EImagejson" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
+                                                                        }
                                                                     </div>
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="info-none"><p>- None -</p></div>
-                                                            }
+                                                                    <div class="det-cont" style="min-height: 130px;">
+                                                                        <h4 class="household-heading-txt">@item.Efirstname</h4>
+                                                                        <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
+                                                                            <li>
+                                                                                <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
+                                                                                <span class="household-right-txt">@item.EDOB</span>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="home-fft col-xs-12" style="margin: 10px 0 0;">
+
+                                                                        <div style="float:right;">
+
+                                                                            <a href="javascript:void(0)" accesskey="@item.EmegencyId" onclick="Getemergencycontact(this);" style="color: #fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-green">
+                                                                                <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;
+                                                                                View
+                                                                                <span class="glossy-button-before"></span>
+                                                                                <span class="glossy-button-after"></span>
+
+                                                                            </a>
+
+                                                                            <a href="javascript:void(0)" accesskey="@item.EmegencyId" onclick="deleteEmergencycontact(this);" style="color: #fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-red">
+                                                                                <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;
+                                                                                Delete
+                                                                                <span class="glossy-button-before"></span>
+                                                                                <span class="glossy-button-after"></span>
+
+                                                                            </a>
+
+                                                                        </div>
+
+
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="info-none"><p>- None -</p></div>
+                                                    }
 
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="information_titles" style="background:#e74c3c;">
-                                                                <h4>Restricted Contact</h4>
-                                                                <div class="btn btn-add btn-hover-none" onclick="Addrestricted();">Add</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="inforeader-inner">
-                                                            @if (Model._Rlist != null && Model._Rlist.Count > 0)
-                                                            {
-                                                                foreach (var item in Model._Rlist)
-                                                                {
-                                                                    <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
-                                                                        <div class="house-hold household-main-ch restricted-contact-div household-main-ht">
-                                                                            <div class="hld-img">
-                                                                                @if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "2")
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
-                                                                                }
-                                                                                else if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "1")
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
-                                                                                }
-                                                                                else if (!string.IsNullOrEmpty(item.RImagejson))
-                                                                                {
-                                                                                    <img width="108" height="108" src="data:image/jpg;base64,@item.RImagejson" />
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
-                                                                                }
-                                                                            </div>
-                                                                            <div class="det-cont" style="min-height: 130px;">
-                                                                                <h4 class="household-heading-txt">@item.Rfirstname @item.Rlastname</h4>
-                                                                                @*<ul>
-                                                                                        <li><p class="household-left-txt"> </p><span>@item.EDOB</span></li>
-                                                                                    </ul>*@
-                                                                            </div>
-                                                                            <div class="home-fft col-xs-12">
-                                                                                <a href="javascript:void(0)" accesskey="@item.RestrictedId" onclick="GetRestricted(this);" style="padding:15px;float: right; color: #fff;background-color:#5cb85c;border-radius: 4px;">View</a>&nbsp;
-                                                                                <a href="javascript:void(0)" onclick="deleteRestricted(this);" accesskey="@item.RestrictedId" style="padding:15px;float: right;color: #fff;margin-right: 15px;background-color:#e74c3c;border-radius: 4px; ">Delete</a>
+                                            <div class="col-xs-12">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="information_titles panel-head-div-red">
+                                                        <h4 class="glossy-panel-heading">Restricted Contact</h4>
+                                                        <div style="float:right;padding:10px;" >
+                                                            <a href="javascript:void(0);" class="glossy-button-button glossy-button-hover button-yellow" onclick="Addrestricted();">
+                                                                Add
+                                                                <span class="glossy-button-before"></span>
+                                                                <span class="glossy-button-after"></span>
+                                                            </a>
 
-                                                                                @*<button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i><a href="javascript:void(0)" accesskey="@item.OthersId" onclick="GetOther(this);">Edit</a></button>*@
-                                                                            </div>
-                                                                        </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="inforeader-inner">
+                                                    @if (Model._Rlist != null && Model._Rlist.Count > 0)
+                                                    {
+                                                        foreach (var item in Model._Rlist)
+                                                        {
+                                                            <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
+                                                                <div class="house-hold household-main-ch restricted-contact-div household-main-ht">
+                                                                    <div class="hld-img">
+                                                                        @if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "2")
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
+                                                                        }
+                                                                        else if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "1")
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
+                                                                        }
+                                                                        else if (!string.IsNullOrEmpty(item.RImagejson))
+                                                                        {
+                                                                            <img width="108" height="108" src="data:image/jpg;base64,@item.RImagejson" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
+                                                                        }
                                                                     </div>
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="info-none"><p>- None -</p></div>
-                                                            }
+                                                                    <div class="det-cont" style="min-height: 130px;">
+                                                                        <h4 class="household-heading-txt">@item.Rfirstname @item.Rlastname</h4>
+                                                                        @*<ul>
+                                                                                <li><p class="household-left-txt"> </p><span>@item.EDOB</span></li>
+                                                                            </ul>*@
+                                                                    </div>
+                                                                    <div class="home-fft col-xs-12">
+
+                                                                        <div style="float:right;">
+
+
+
+                                                                            <a href="javascript:void(0)" accesskey="@item.RestrictedId" onclick="GetRestricted(this);" style="color: #fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-green">
+                                                                                <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;View
+
+                                                                                <span class="glossy-button-before"></span>
+                                                                                <span class="glossy-button-after"></span>
+                                                                            </a>&nbsp;
+
+                                                                            <a href="javascript:void(0)" onclick="deleteRestricted(this);" accesskey="@item.RestrictedId" style="color: #fff;text-decoration:none;" class="glossy-button-button glossy-button-hover button-red">
+
+                                                                                <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;Delete
+
+                                                                                <span class="glossy-button-before"></span>
+                                                                                <span class="glossy-button-after"></span>
+
+                                                                            </a>
+
+
+                                                                        </div>
+
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="info-none"><p>- None -</p></div>
+                                                    }
 
                                                         </div>
                                                     </div>
@@ -6578,7 +6824,7 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 coHouseholdl-sm-12">
                                                                 <div class="form-group">
                                                                     <label>Gender <sup>*</sup></label>
                                                                     <div class="cont-sz">
@@ -6606,6 +6852,49 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="divOallowhomeVisit" style="display:none;">
+                                                                <div class="form-group">
+                                                                    <label id="lblOallowhomeVisit">Enable Home Visit Activities<sup>*</sup></label>
+
+
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.OEnableHomeVisitActivities, 1)
+                                                                            <span>Yes </span>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-3">
+                                                                            @Html.RadioButtonFor(m => m.OEnableHomeVisitActivities, 2)
+                                                                            <span>No</span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="form-group">
+                                                                    <label>Does Parent/Guardian income support to this person ?<sup>*</sup></label>
+
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.OIncomeSupported, 1)
+                                                                            <span>Yes </span>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-3">
+                                                                            @Html.RadioButtonFor(m => m.OIncomeSupported, 2)
+                                                                            <span>No</span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="form-group datepicker-days">
                                                                     <label>SSN </label>
@@ -6614,6 +6903,8 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+
+
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="form-group">
                                                                     <label>Profile Picture </label>
@@ -6709,6 +7000,8 @@
                                                                     @Html.TextBoxFor(m => m.EEmail, new { placeholder = "Email", id = "EEmail", maxlength = "100", @class = "form-control", onblur = "validateEmail1(this);" })
                                                                 </div>
                                                             </div>
+
+
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="form-group">
                                                                     <label>Relation With Child <sup>*</sup></label>
@@ -6723,6 +7016,32 @@
                                                                     }
                                                                 </div>
                                                             </div>
+
+
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="form-group">
+                                                                    <label>Allow Home Visit Activities<sup>*</sup></label>
+
+
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.EnableHomeVisitActivities, 1)
+                                                                            <span>Yes </span>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-3">
+                                                                            @Html.RadioButtonFor(m => m.EnableHomeVisitActivities, 2)
+                                                                            <span>No</span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+
+
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="form-group">
                                                                     <label>Notes </label>
