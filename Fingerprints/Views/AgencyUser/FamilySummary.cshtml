@@ -5128,8 +5128,8 @@
                     <div class="col-xs-12">
                         <div class="col-xs-12 no-padding">
                             <div class="information_titles icr-title panel-head-div-blue">
-                                <h4>Household</h4>
-                                <span>Family Advocate</span>
+                                <h4 class="glossy-panel-heading">Household</h4>
+                                <span class="glossy-panel-heading">Family Advocate</span>
                                 @*<button class="btn btn-add">Add</button>*@
                             </div>
                         </div>
@@ -5277,7 +5277,7 @@
                         <div class="col-xs-12 no-padding">
                             <div class="information_titles icr-title panel-head-div-green">
 
-                                        <span>File Cabinet</span>
+                                <span class="glossy-panel-heading">File Cabinet</span>
 
                                     </div>
                                 </div>
@@ -5312,7 +5312,7 @@
                     <div class="col-xs-12">
                         <div class="col-xs-12 no-padding">
                             <div class="information_titles panel-head-div-orange">
-                                <h4 style="text-transform:none;">Household Child(ren)</h4>
+                                <h4 style="text-transform:none;" class="glossy-panel-heading">Household Child(ren)</h4>
                                 <div style="float:right;padding:10px;">
 
                                     <a class="glossy-button-button glossy-button-hover button-yellow" style="text-decoration:none;" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName">
@@ -5366,31 +5366,33 @@
                                                             <img width="108" height="108" src="~/Content/img/download.jpg" style="margin-top:4px;" />
                                                         }
 
-
-                                                    </div>
-                                                    <div class="det-cont" style="min-height: 130px;">
-                                                        @{ 
-                                                  var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
+                                                <div class="glossy-update-icon">
+                                                    <i class="fa fa-plus"></i>
+                                                </div>
+                                            </div>
+                                            <div class="det-cont" style="min-height: 130px;">
+                                                @{
+                                                    var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
+                                                }
+                                                @*<h4 class="household-heading-txt">@item.Cfirstname</h4>*@
+                                                <a href="@Url.Action("TimeLine","Roster")?clientid=@_ecid" data-toggle="tooltip" title="Timeline of @item.Cfirstname">
+                                                    <h4 style="text-decoration:underline;" class="household-heading-txt">@item.Cfirstname</h4>
+                                                </a>
+                                                <ul>
+                                                    <li>
+                                                        <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
+                                                        @if (item.CProgramType != null && item.CenterId > 0 && item.ClassRoomId > 0)
+                                                        {
+                                                            <span class="household-right-txt">
+                                                                <a href="#" id="dob@(item.ChildId)" onclick="ChangeDOB(this)" data-programtype="@item.CProgramType" data-childid="@item.ChildId" style="text-decoration:underline">@item.CDOB</a>
+                                                            </span>
                                                         }
-                                                        @*<h4 class="household-heading-txt">@item.Cfirstname</h4>*@
-                                                        <a href="@Url.Action("TimeLine","Roster")?clientid=@_ecid" data-toggle="tooltip" title="Timeline of @item.Cfirstname">
-                                                            <h4 style="text-decoration:underline;" class="household-heading-txt">@item.Cfirstname</h4>
-                                                        </a>
-                                                        <ul>
-                                                            <li>
-                                                                <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
-                                                                @if (item.CProgramType != null && item.CenterId > 0 && item.ClassRoomId > 0)
-                                                                {
-                                                                    <span class="household-right-txt">
-                                                                        <a href="#" id="dob@(item.ChildId)" onclick="ChangeDOB(this)" data-programtype="@item.CProgramType" data-childid="@item.ChildId" style="text-decoration:underline">@item.CDOB</a>
-                                                                    </span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span class="household-right-txt">
-                                                                        @item.CDOB
-                                                                    </span>
-                                                                }
+                                                        else
+                                                        {
+                                                            <span class="household-right-txt">
+                                                                @item.CDOB
+                                                            </span>
+                                                        }
 
                                                             </li>
 
@@ -5594,11 +5596,11 @@
                                                     <div class="information_titles panel-head-div-violet">
                                                         @if (Model.ParentID1 != 0)
                                                         {
-                                                            <h4>Parent/Guardian</h4>
+                                                            <h4 class="glossy-panel-heading">Parent/Guardian</h4>
                                                         }
                                                         else
                                                         {
-                                                            <h4>Parent/Guardian</h4>
+                                                            <h4 class="glossy-panel-heading">Parent/Guardian</h4>
                                                             @*<h3 class="panel-title">Parent/Guardian<a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid" class="pull-right">Add</a> </h3>*@
                                                             <div style="float:right;padding:10px;">
                                                                 <a href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid" class="glossy-button-button glossy-button-hover button-yellow">
@@ -6020,7 +6022,7 @@
                                             <div class="col-xs-12">
                                                 <div class="col-xs-12 no-padding">
                                                     <div class="information_titles panel-head-div-light-green">
-                                                        <h4 style="text-transform:none;">Others in Household</h4>
+                                                        <h4 style="text-transform:none;" class="glossy-panel-heading">Others in Household</h4>
                                                         <div style="float:right;padding:10px;">
 
                                                             <a href="javascript:void(0);" onclick="Addothers();" class="glossy-button-button glossy-button-hover button-yellow">
@@ -6031,7 +6033,7 @@
                                                         </div>
 
 
-                                                            </div>
+                                                    </div>
 
                                                     <div class="inforeader-inner">
                                                         @if (Model._Olist != null && Model._Olist.Count > 0)
@@ -6110,8 +6112,8 @@
 
                                             <div class="col-xs-12">
                                                 <div class="col-xs-12 no-padding">
-                                                    <div class="information_titles panel-head-div-red">
-                                                        <h4>Emergency Contact</h4>
+                                                    <div class="information_titles panel-head-div-light-blue">
+                                                        <h4 class="glossy-panel-heading">Emergency Contact</h4>
                                                         <div style="padding:10px;float:right;">
                                                             <a href="javascript:void(0);" onclick="AddEcontacts();" class="glossy-button-button glossy-button-hover button-yellow">
                                                                 Add
@@ -6201,7 +6203,7 @@
                                             <div class="col-xs-12">
                                                 <div class="col-xs-12 no-padding">
                                                     <div class="information_titles panel-head-div-red">
-                                                        <h4>Restricted Contact</h4>
+                                                        <h4 class="glossy-panel-heading">Restricted Contact</h4>
                                                         <div style="float:right;padding:10px;" >
                                                             <a href="javascript:void(0);" class="glossy-button-button glossy-button-hover button-yellow" onclick="Addrestricted();">
                                                                 Add
@@ -6822,7 +6824,7 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 coHouseholdl-sm-12">
                                                                 <div class="form-group">
                                                                     <label>Gender <sup>*</sup></label>
                                                                     <div class="cont-sz">

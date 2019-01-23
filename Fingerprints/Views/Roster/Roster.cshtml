@@ -54,6 +54,18 @@
             }
         });
 
+
+        function showCameraPopupmodal(ele)
+        {
+            $('.camera-file-modal').attr('id','updateDocumentModal');
+            $('.camera-file-modal').find('#SaveNoteSubmit').html('Add');
+            $('.camera-file-modal').find('#SaveNoteSubmit').attr('onclick','addDocument();');
+            $('.camera-file-modal').find('.up-device').attr('onclick','uploadFromDeviceDoc();');
+            $('.camera-file-modal').modal('show');
+        }
+
+
+
         function clearHVSchedule(ele)
         {
 
@@ -645,7 +657,7 @@
 
                         houselessModal.find('#CaseNoteDetails_caseNoteDate').val(getFormattedDate(new Date()));
 
-                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Homelessness and Address Change");
+                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
                         houselessModal.find('#oldAddress').val('');
 
                         if (data.FamilyHousehold != null) {
@@ -688,13 +700,12 @@
                             delimiter: [',', ';'],
                             autocomplete_url: UrlObj.getCaseNoteTags,//code0643
                             autocomplete: {
-                                //'source': tags_array[0].split(/,\s*/)
-                                // 'source': getTagsOnInput()
+                                
                             },
-                            //  autocomplete_url: UrlObj.getCaseNoteTags,
+                           
                         });
 
-                        $('#CaseNoteDetails_CaseNotetags').importTags('Home Found,,;Address Change');
+                        $('#CaseNoteDetails_CaseNotetags').importTags('Address Change,,;Home Found');
 
 
                     }
@@ -7050,7 +7061,7 @@
                     <div class="modal-body">
 
                         <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
-                        <h2 id="CaseNoteHeading" class="extra-title muted">Update Household</h2>
+                        <h2 id="CaseNoteHeading" class="extra-title muted">Home Found</h2>
 
 @using (Html.BeginForm("FamilyHouseless", "Roster", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
@@ -7073,7 +7084,7 @@
 
                                     <div class="col-lg-12 col-md-12 col-sm-12">
                                         <div class="form-group">
-                                            <h3 class="addapplicant addapplicant-change">Household Address</h3>
+                                            <h3 class="addapplicant addapplicant-change">New Address</h3>
                                         </div>
 
 
@@ -7118,11 +7129,41 @@
                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                 <div class="form-group">
                                                     <label class="lbl-head" for="FamilyHousehold_FileaddressAvatar">Address Verification Form (pdf,jpg,jpeg,bmp,gif,png) </label>
-                                                    <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control glossy-input" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;" tabindex="7" type="file" value="">
-                                                    <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+
+
+
+
+                                                   
+                                                        <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
+
+                                                            <span class="glossy-button-before"></span>
+                                                            <span class="glossy-button-after"></span>
+
+                                                           
+
+
+                                                            <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                Add new document
+                                                            </span>
+
+
+
+                                                        </button>
+
+                                                    <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control glossy-input" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;display:none;" tabindex="7" type="file" value="">
+                                                    <span class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
                                                         <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="FamilyHousehold_AdresssverificationinPaper" name="FamilyHousehold.AdresssverificationinPaper" tabindex="8" type="checkbox" value="true"><input name="FamilyHousehold.AdresssverificationinPaper" type="hidden" value="false">
                                                         <label style="width:45px;">Paper</label>
-                                                    </div>
+                                                    </span>
+
+
+
+                                                       
+                                                 
+
+
+
+                                                   
                                                 </div>
                                             </div>
 
@@ -7143,7 +7184,7 @@
                                                 <div class="form-group">
                                                     <label for="CaseNoteDetails_caseNoteDate" class="lbl-head">Date <sup>*</sup></label>
                                                     <div class="input-group date">
-                                                        <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control glossy-input-date">
+                                                        <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control glossy-date-input">
                                                         <span class="input-group-addon datepicker-icon" id="1" style="cursor:pointer;">
                                                             <span class="glyphicon glyphicon-calendar"></span>
                                                         </span>
@@ -7730,6 +7771,9 @@
     </div>
 </div>
 
+    @{
+        Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
+    }
 
 }
 

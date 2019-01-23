@@ -2037,8 +2037,24 @@ namespace FingerprintsData
                 _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
                 SqlConnection Connection = connection.returnConnection();
                 SqlCommand command = new SqlCommand();
-                SqlDataAdapter DataAdapter = null;
-                DataSet _dataset = null;
+                //SqlDataAdapter DataAdapter = null;
+                //DataSet _dataset = null;
+                List<TeacherModel> chList = new List<TeacherModel>();
+                List<TeacherModel> chListByDate = new List<TeacherModel>();
+                List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
+                Center center = new Center();
+                List<Center> _centerList = new List<Center>();
+                _TeacherM.AbsenceReasonList = new List<SelectListItem>();
+
+                List<Tuple<int, DateTime, long, DateTime>> classStartDateList = new List<Tuple<int, DateTime, long, DateTime>>();
+                List<Tuple<int, DateTime, long, DateTime>> droppedList = new List<Tuple<int, DateTime, long, DateTime>>();
+                List<Tuple<int, DateTime, long, DateTime>> withdrawnList = new List<Tuple<int, DateTime, long, DateTime>>();
+                var inputDatesString = attendanceDate.Split(',').OrderBy(x => DateTime.Parse(x
+                                                  , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
+
+                var inputDates = inputDatesString.Select(x => DateTime.Parse(x
+                                                    , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
+
                 if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
@@ -2057,149 +2073,133 @@ namespace FingerprintsData
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandTimeout = 500; //timeout 3mins
                     command.CommandText = "USP_GetWeeklyAttendanceList";
-                    DataAdapter = new SqlDataAdapter(command);
-                    _dataset = new DataSet();
-                    DataAdapter.Fill(_dataset);
-                    Connection.Close();
-                }
+                    //DataAdapter = new SqlDataAdapter(command);
+                    //_dataset = new DataSet();
+                    //DataAdapter.Fill(_dataset);
+                    //Connection.Close();
 
-                DataTable dt = new DataTable();
-                dt = _dataset.Tables[0];
-                List<TeacherModel> chList = new List<TeacherModel>();
-                List<TeacherModel> chListByDate = new List<TeacherModel>();
-                List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
-                Center center = new Center();
-                List<Center> _centerList = new List<Center>();
-                //Child Information//
 
-                if (_dataset != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+                    using (SqlDataReader dr = command.ExecuteReader())
                     {
-                        chList = (from DataRow dr1 in _dataset.Tables[0].Rows
-                                  select new TeacherModel
-                                  {
-                                      ClientID = Convert.ToString(dr1["ClientID"]),
-                                      Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
-                                      CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
-                                      CDOB = Convert.ToString(dr1["DOB"]),
-                                      CenterID = (ishistorical) ? centerId.ToString(): dr1["CenterId"].ToString(),
-                                      Enc_CenterId = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString():dr1["CenterID"].ToString()),
-                                      ClassID =(ishistorical)?classroomId.ToString(): dr1["ClassRoomId"].ToString(),
-                                      Enc_ClassRoomId = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString():dr1["ClassRoomId"].ToString()),
-                                      Parent1ID = dr1["Parent1ID"].ToString(),
-                                      Parent2ID = dr1["Parent2ID"].ToString(),
-                                      Parent1Name = dr1["Parent1Name"].ToString(),
-                                      Parent2Name = dr1["Parent2Name"].ToString(),
-                                      //AccessDateString = dr1["AccessDateString"].ToString(),
-                                      //RestrictedDateString = dr1["RestrictedDateString"].ToString()
-                                      AccessDateString = string.Empty,
-                                      Dateofclassstartdate = string.Empty
-                                  }
 
 
+                        int resultSet = 0;
 
-                                ).ToList();
-                    }
-                }
-
-                teacherList = (from DataRow dr in _dataset.Tables[1].Rows
-                               select new OfflineAttendance
-                               {
-                                   ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                                   CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
-                                   ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
-                                   AttendanceType = dr["AttendanceType"].ToString(),
-                                   AttendanceDate = dr["AttendanceDate"].ToString(),
-                                   TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
-                                   TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
-                                   BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                   Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
-                                   Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
-                                   AdultBreakFast = dr["AdultBreakFast"].ToString(),
-                                   AdultLunch = dr["AdultLunch"].ToString(),
-                                   AdultSnacks = dr["AdultSnacks"].ToString(),
-                                   PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
-                                   PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
-                                   SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
-                                   SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
-                                   TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
-                                   TSignatureOut = "",
-                                   AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
-                               }
-                           ).ToList();
-
-                _TeacherM.AbsenceReasonList = new List<SelectListItem>();
-                if (_dataset.Tables[2] != null)
-                {
-                    if (_dataset.Tables[2].Rows.Count > 0)
-                    {
-                        _TeacherM.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[2].Rows
-                                                       select new SelectListItem
-                                                       {
-                                                           Text = dr5["Reason"].ToString(),
-                                                           Value = dr5["ReasonId"].ToString()
-                                                       }).ToList();
-
-                    }
-                }
-
-                if (_dataset.Tables[3] != null)
-                {
-                    if (_dataset.Tables[3].Rows.Count > 0)
-                    {
-                        _TeacherM.ClosedDetails = new ClosedInfo
+                        do
                         {
-                            ClosedToday = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]),
-                            CenterName = _dataset.Tables[3].Rows[0]["ClosedCenterName"].ToString(),
-                            ClassRoomName = _dataset.Tables[3].Rows[0]["ClosedClassRoomName"].ToString(),
-                            AgencyName = _dataset.Tables[3].Rows[0]["ClosedAgencyName"].ToString()
-                        };
+
+                            while (dr.Read() && dr.HasRows)
+                            {
+                                switch (resultSet)
+                                {
+                                    case 0:
+
+                                        chList.Add(new TeacherModel
+                                        {
+
+                                            ClientID = Convert.ToString(dr["ClientID"]),
+                                            Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                                            CName = Convert.ToString(dr["Firstname"]) + " " + Convert.ToString(dr["Lastname"]),
+                                            CDOB = Convert.ToString(dr["DOB"]),
+                                            CenterID = (ishistorical) ? centerId.ToString() : dr["CenterId"].ToString(),
+                                            Enc_CenterId = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                                            ClassID = (ishistorical) ? classroomId.ToString() : dr["ClassRoomId"].ToString(),
+                                            Enc_ClassRoomId = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomId"].ToString()),
+                                            Parent1ID = dr["Parent1ID"].ToString(),
+                                            Parent2ID = dr["Parent2ID"].ToString(),
+                                            Parent1Name = dr["Parent1Name"].ToString(),
+                                            Parent2Name = dr["Parent2Name"].ToString(),
+                                            //AccessDateString = dr1["AccessDateString"].ToString(),
+                                            //Dateofclassstartdate = Convert.ToString(dr1["DateOfClassStartDate"])
+                                            AccessDateString = string.Empty,
+                                            Dateofclassstartdate = string.Empty
+
+
+                                        });
+                                        break;
+                                    case 1:
+                                        teacherList.Add(new OfflineAttendance
+                                        {
+                                            ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                                            CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                                            ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
+                                            AttendanceType = dr["AttendanceType"].ToString(),
+                                            AttendanceDate = dr["AttendanceDate"].ToString(),
+                                            TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
+                                            TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
+                                            BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                                            Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
+                                            Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
+                                            AdultBreakFast = dr["AdultBreakFast"].ToString(),
+                                            AdultLunch = dr["AdultLunch"].ToString(),
+                                            AdultSnacks = dr["AdultSnacks"].ToString(),
+                                            PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                                            PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                                            SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                                            SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                                            TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                                            TSignatureOut = "",
+                                            AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
+                                        });
+
+                                        break;
+                                    case 2:
+                                        _TeacherM.AbsenceReasonList.Add(new SelectListItem
+                                        {
+                                            Text = dr["Reason"].ToString(),
+                                            Value = dr["ReasonId"].ToString()
+                                        });
+                                        break;
+                                    case 3:
+                                        _TeacherM.ClosedDetails = new ClosedInfo
+                                        {
+
+                                            ClosedToday = Convert.ToInt32(dr["TodayClosed"]),
+                                            CenterName = Convert.ToString(dr["ClosedCenterName"]),
+                                            ClassRoomName = Convert.ToString(dr["ClosedClassRoomName"]),
+                                            AgencyName = Convert.ToString(dr["ClosedAgencyName"])
+                                        };
+                                        break;
+                                    case 4:
+                                        classStartDateList.Add(
+                                                 Tuple.Create(1, DateTime.Parse(Convert.ToString(dr["ClassStartDate"])
+                                                 , new CultureInfo("en-US", true))
+                                                 , Convert.ToInt64(dr["ClientID"])
+                                                 , DateTime.Parse(Convert.ToString(dr["DateEntered"])
+                                                 , new CultureInfo("en-US", true))));
+
+                                        classStartDateList = classStartDateList.OrderBy(x => x.Item2).ToList();
+                                        break;
+                                    case 5:
+                                        droppedList.Add(Tuple.Create(2, DateTime.Parse(Convert.ToString(dr["DateDropped"])
+                                                      , new CultureInfo("en-US", true))
+                                                      , Convert.ToInt64(dr["ClientID"])
+                                                        , DateTime.Parse(Convert.ToString(dr["DateEntered"])
+                                                             , new CultureInfo("en-US", true))));
+
+                                        droppedList = droppedList.OrderBy(x => x.Item2).ToList();
+                                        break;
+                                    case 6:
+                                        withdrawnList.Add(Tuple.Create(3, DateTime.Parse(Convert.ToString(dr["DateWithDrawn"])
+                                                        , new CultureInfo("en-US", true))
+                                                        , Convert.ToInt64(dr["ClientID"])
+                                                          , DateTime.Parse(Convert.ToString(dr["DateEntered"])
+                                                             , new CultureInfo("en-US", true))));
+
+                                        withdrawnList = withdrawnList.OrderBy(x => x.Item2).ToList();
+                                        break;
+
+
+
+                                }
+
+                            }
+
+                            resultSet++;
+
+                        } while (dr.NextResult());
                     }
 
-                }
-
-                List<Tuple<int, DateTime, long,DateTime>> classStartDateList = new List<Tuple<int, DateTime, long, DateTime>>();
-                List<Tuple<int, DateTime, long, DateTime>> droppedList = new List<Tuple<int, DateTime, long, DateTime>>();
-                List<Tuple<int, DateTime, long, DateTime>> withdrawnList = new List<Tuple<int, DateTime, long, DateTime>>();
-
-                var inputDatesString = attendanceDate.Split(',').OrderBy(x => DateTime.Parse(x
-                                                  , new CultureInfo("en-US", true))).OrderBy(x=>x).ToList();
-
-                var inputDates = inputDatesString.Select(x => DateTime.Parse(x
-                                                    , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
-                if (_dataset.Tables.Count > 4 && _dataset.Tables[4].Rows.Count > 0)
-                {
-                    classStartDateList = (from DataRow dr4 in _dataset.Tables[4].Rows
-                                          select
-                                                  Tuple.Create(1, DateTime.Parse(Convert.ToString(dr4["ClassStartDate"])
-                                                  , new CultureInfo("en-US", true))
-                                                  , Convert.ToInt64(dr4["ClientID"])
-                                                  , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
-                                                  , new CultureInfo("en-US", true)))
-                        ).OrderBy(x => x.Item2).ToList();
-                }
-                if (_dataset.Tables.Count > 5 && _dataset.Tables[5].Rows.Count > 0)
-                {
-                    droppedList = (from DataRow dr4 in _dataset.Tables[5].Rows
-                                   select
-                                           Tuple.Create(2, DateTime.Parse(Convert.ToString(dr4["DateDropped"])
-                                           , new CultureInfo("en-US", true))
-                                           , Convert.ToInt64(dr4["ClientID"])
-                                             , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
-                                                  , new CultureInfo("en-US", true)))
-                        ).OrderBy(x => x.Item2).ToList();
-                }
-                if (_dataset.Tables.Count > 5 && _dataset.Tables[6].Rows.Count > 0)
-                {
-                    withdrawnList = (from DataRow dr4 in _dataset.Tables[6].Rows
-                                     select
-                                             Tuple.Create(3, DateTime.Parse(Convert.ToString(dr4["DateWithDrawn"])
-                                             , new CultureInfo("en-US", true))
-                                             , Convert.ToInt64(dr4["ClientID"])
-                                               , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
-                                                  , new CultureInfo("en-US", true)))
-                       ).OrderBy(x => x.Item2).ToList();
                 }
                 if (chList.Count > 0)
                 {
