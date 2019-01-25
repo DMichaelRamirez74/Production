@@ -12,6 +12,7 @@ using System.Web;
 using System.IO;
 using System.Reflection;
 using System.Globalization;
+using System.Dynamic;
 //using System.Web.Script.Serialization;
 
 namespace FingerprintsData
@@ -3278,16 +3279,60 @@ namespace FingerprintsData
             return _clientGrowth;
             }
 
-        public GrowthChart GetGrowthChart(int mode, long clientid)
+        public bool DeleteHistoricalRecordById(long indexid,long clientid)
         {
-            var result = new GrowthChart();
-            //result.ChildGrowth = new List<ClientGrowth>();
-              result.DTHeadCircuGrowth = new List<STDTable>();
+            var success = false;
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_HistoricalGrowthDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+                command.Parameters.Add(new SqlParameter("@mode", 2)); //1
+                command.Parameters.Add(new SqlParameter("@IndexId", indexid)); //1
+
+                var re = command.ExecuteNonQuery();
+
+                if(re > 0) {
+                    success = true;
+                }
+
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+            return success;
+
+        }
+
+
+
+        // public GrowthChart GetGrowthChart(int mode, long clientid,int type)
+        public ExpandoObject GetGrowthChart(int mode, long clientid, int type)
+        {
+            // var result = new GrowthChart();
+            dynamic result = new ExpandoObject();
+            result.ChildGrowth = new List<ClientGrowth>();
+            result.DTHeadCircuGrowth = new List<STDTable>();
             result.DTLengthGrowth = new List<STDTable>();
             result.DTWeightGrowth = new List<STDTable>();
             result.DTWeightLengthGrowth = new List<STDTable>();
+            result.DTBMIGrowth = new List<STDTable>();
 
-           // result.STDTables = new STDTable();
+
+
             try
             {
 
@@ -3305,40 +3350,52 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
                 command.Parameters.Add(new SqlParameter("@Mode", mode)); //1
                 command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+                command.Parameters.Add(new SqlParameter("@type", type));
+                
 
                 DataAdapter = new SqlDataAdapter(command);
                 DataSet _ds = new DataSet();
                 DataAdapter.Fill(_ds);
                 if (_ds != null)
                 {
+                    
+
                     if (_ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
                     {
-                        result.ChildGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(new List<string>());
+                        // result.ChildGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(new List<string>());
+                        result.ChildGrowth = _ds.Tables[0];
 
                     }
-
-
+                    
                     //Standard Datatables
                     if (_ds.Tables.Count > 1 && _ds.Tables[1].Rows.Count > 0)
-                    { 
-                        result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+                    {
+                        //  result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
 
-                        //result.STDTables = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+                        result.DTHeadCircuGrowth = _ds.Tables[1];
                     }
+                    
                     if ( _ds.Tables.Count > 2 && _ds.Tables[2].Rows.Count > 0)
                     {
-                        result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
-
+                        //  result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
+                        result.DTLengthGrowth = _ds.Tables[2];
                     }
                     if (_ds.Tables.Count > 3 && _ds.Tables[3].Rows.Count > 0)
                     {
-                        result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
-
+                        //result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
+                        result.DTWeightGrowth = _ds.Tables[3];
                     }
                     if (_ds.Tables.Count > 4 && _ds.Tables[4].Rows.Count > 0)
                     {
-                        result.DTWeightLengthGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
-
+                        if (type == 1)
+                        {
+                            // result.DTWeightLengthGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
+                            result.DTWeightLengthGrowth = _ds.Tables[4];
+                        }
+                        else if (type == 2) {
+                            //result.DTBMIGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
+                            result.DTBMIGrowth = _ds.Tables[4];
+                        }
                     }
 
                 }
@@ -3350,6 +3407,7 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
             }
 
+            //  return result;
             return result;
         }
 

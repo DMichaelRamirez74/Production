@@ -32,7 +32,8 @@ namespace FingerprintsData
                         {
                             PropertyInfo propertyInfo = obj.GetType().GetProperty(prop.Name);
 
-                            if (encry.Contains(prop.Name)) {
+                            if (encry.Contains(prop.Name))
+                            {
 
                                 propertyInfo.SetValue(obj, EncryptDecrypt.Encrypt(Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType).ToString()), null);
                                 //if (propertyInfo.PropertyType == typeof(System.Int64)) {  //if long value

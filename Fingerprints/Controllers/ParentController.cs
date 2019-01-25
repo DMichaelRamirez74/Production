@@ -833,10 +833,11 @@ namespace Fingerprints.Controllers
         }
 
 
-        public ActionResult ClientGrowthChart(string client)
+        public ActionResult ClientGrowthChart(string client="", int type = 0)
         {
 
             ViewBag.eClientId = client;
+            ViewBag.Type = type;
 
             try
             {

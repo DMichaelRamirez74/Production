@@ -205,6 +205,7 @@ namespace FingerprintsModel
 
     public class ClientGrowth
     {
+        public long IndexId { get; set; }
         public string ClientID { get; set; }
        // public string EClientId { get; set; }
         public string Name { get; set; }
@@ -235,6 +236,8 @@ namespace FingerprintsModel
         public List<STDTable> DTWeightGrowth { get; set; }
 
         public List<STDTable> DTWeightLengthGrowth { get; set; }
+
+        public List<STDTable> DTBMIGrowth { get; set; }
         // public STDTable STDTables { get; set; }
     }
 
@@ -250,8 +253,10 @@ namespace FingerprintsModel
         public string P25 { get; set; }
         public string P50 { get; set; }
         public string P75 { get; set; }
+        public string P85 { get; set; }
         public string P90 { get; set; }
         public string P95 { get; set; }
+        public string P97 { get; set; }
         public string P98 { get; set; }
     }
 

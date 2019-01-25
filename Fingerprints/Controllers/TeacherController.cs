@@ -10,6 +10,11 @@ using Fingerprints.CustomClasses;
 using System.Data;
 using System.Web.Helpers;
 using System.Web.Script.Serialization;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.tool.xml;
+using System.Dynamic;
+using Newtonsoft.Json;
 
 namespace Fingerprints.Controllers
 {
@@ -1410,9 +1415,34 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
+        public ActionResult DeleteHistoricalRecordById(long indexid,string ClientId = "")
+        {
+
+            var result = false;
+            try
+            {
+                long cid = 0;
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt(ClientId));
+
+                }
+
+                result = _Teacher.DeleteHistoricalRecordById(indexid,cid);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        
+
 
         [CustAuthFilter()]
-        public ActionResult GrowthChart(string client = "")
+        public ActionResult GrowthChart(string client = "" , int type=0)
         {
             ViewBag.eClientId = client;
 
@@ -1426,6 +1456,7 @@ namespace Fingerprints.Controllers
 
                 }
                 ViewBag.ClientDetail = cp;
+                ViewBag.Type = type;
             }
             catch (Exception ex)
             {
@@ -1436,10 +1467,11 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetGrowthChart(string eClientID="")
+        public ActionResult GetGrowthChart(string eClientID="", int type=0)
         {
             //   var result = new List<ClientGrowth>();
-            var result = new GrowthChart();
+            // var result = new GrowthChart();
+            dynamic result = new ExpandoObject();
             try
             {
                 long cid = 0;
@@ -1447,14 +1479,20 @@ namespace Fingerprints.Controllers
                 {
                     cid = Convert.ToInt64(EncryptDecrypt.Decrypt(eClientID));
                 }
-                result = _Teacher.GetGrowthChart(1, cid);
+                result = _Teacher.GetGrowthChart(1, cid,type);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
 
-            return Json(result, JsonRequestBehavior.AllowGet);
+            var sm = JsonConvert.SerializeObject(result, Formatting.Indented,
+                              new JsonSerializerSettings
+                              {
+                                  ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                              });
+
+            return Json(sm, JsonRequestBehavior.AllowGet);
         }
 
 

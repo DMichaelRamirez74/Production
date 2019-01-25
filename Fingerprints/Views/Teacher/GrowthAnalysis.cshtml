@@ -163,6 +163,9 @@
                 width: 50% !important;
             }
         }
+        .bootstrap-dialog-title {
+    margin-top: 15px;
+}
     </style>
 
 }
@@ -355,11 +358,12 @@
 
                 <div class="table-div">
 
-                    <table class="table table-striped table-bordered glossy-table respo-table" id="HistoricalData-table">
+                    <table class="table table-striped table-bordered glossy-table respo-table text-center" id="HistoricalData-table">
                         <thead>
                             <tr>
 
                                 <th class="">Assessment Date</th>
+                                <th class="">Age(M)</th>
                                 <th class="">Length</th>
                                 <th class="">Weight</th>
                                 <th class="">Head Circ.</th>
@@ -403,6 +407,7 @@
             addChildWH: '@Url.Action("AddChildWH", "Teacher")',
             getClassRoom: '@Url.Action("Getclassrooms", "Roster")?Centerid=',
             getHistoricalRecordByChildId: '@Url.Action("GetHistoricalRecordByChildId", "Teacher")',
+            deleteHistoricalRecordById:'@Url.Action("DeleteHistoricalRecordById", "Teacher")',
         };
         var _cname="@ViewBag.ClientDetail.ChildName";
 
@@ -444,6 +449,48 @@
 
 
                 //}
+
+
+                $(document).on("click",".delete-history-btn",function(e){
+                    e.preventDefault();
+                    var _index = $(this).data("indexid");
+                    var _cid = $(this).data("id");
+
+                    
+                    BootstrapDialog.show({
+                        title: 'Confirmation',
+                        message: "<p><i class='fa fa-warning' aria-hidden='true' style='font-weight:bold;color:red;'></i>&nbsp;You are about to delete the historical entry.</p><p style='margin-left:18px;'>Click <strong>OK</strong> to proceed.</p>",
+                        closable: true,
+                        closeByBackdrop: false,
+                        closeByKeyboard: false,
+
+                        buttons: [{
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> Cancel',
+                            cssClass: 'glossy-button-button button-green button-red',
+                            action: function (dialogItself) {
+                                dialogItself.close();
+                            }
+                        }, {
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> OK',
+                            cssClass: 'glossy-button-button button-green',
+                            autospin: true,
+                            action: function (dialogItself) {
+
+                                self.deleteHistoricalRecord(_index,_cid);
+
+                                window.setTimeout(function () {
+
+                                    dialogItself.close();
+
+                                }, 1000);
+                            }
+                        }]
+                    });
+
+
+                    // self.renderHistoricalRecord(_cid);
+                   
+                });
 
                 $(document).on("click",".edit-history-btn",function(e){
                     e.preventDefault();
@@ -732,44 +779,7 @@
 
                 });
 
-/*
-                $(document).on("keyup", ".numonly", function (e) {
-                    var _val = parseInt($(this).val());
-                    var _ele = $(this);
-                    var _type = _ele.data("type");
-                    // _ele.css("background", "#fff");
-                    if (!_val) {
-                        $(this).val('');
 
-                        //   } else if (String(_val).length > 2) {
-                    } else if (String(_val).length > 2) {
-
-                        if (_type == self.cons.m.W) {
-
-                            if (String(_val).length > 3) { //if weight digit is more the 2 ex:1799
-
-                                $(this).val(String(_val).slice(0, 3));
-
-                            }else if (_val > 200) { //if weight is exceed more then 200
-
-                                $(this).val(String(_val).slice(0, 2));
-                                //$(this).val('');
-                                customAlert('Weight not exceed 200');
-                            }
-
-                        } else {
-                            $(this).val(String(_val).slice(0, 2));
-                        }
-
-                    } else {
-
-
-                        $(this).val(_val);
-
-                    }
-
-                });
-                */
 
             },
             renderClassRoom:function(){
@@ -897,7 +907,8 @@
                     //_tr += '<td> <button type="button" data-index="' + i + '" class="btn child-submit"\ style="background:#337ab7;    color: #fff;border-radius: 0px;">Save</button> </td>'
 
                     @*_tr+='<td class="service-td"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="Growth Chart" data-toggle="tooltip">LW Chart </a>  <i class="fa fa-cubes" title="view historical records" data-toggle="tooltip" style="cursor:pointer;"></i>  </td>';*@
-                    _tr+='<td data-title="Options" class="service-td text-center"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '" title="View Growth Chart" data-toggle="tooltip" style="margin-right:5px;text-decoration:none;font-size:23px;"> <i class="fa fa-bar-chart-o"></i> </a>'
+                    _tr+='<td data-title="Options" class="service-td text-center"><a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '&type=1" title="View Growth Chart" data-toggle="tooltip" style="margin-right:5px;text-decoration:none;font-size:23px;"> <i class="fa fa-bar-chart-o"></i> </a>';
+                   // _tr+='<a  href="@Url.Action("GrowthChart", "Teacher")?client=' + obj.ClientID+ '&type=2" title="View Growth Chart (2-5 Year)" data-toggle="tooltip" style="margin-right:5px;text-decoration:none;font-size:23px;color:#ff0000;"> <i class="fa fa-bar-chart-o"></i> </a>'
                     if(self.eCId){    //for single child entry only
                         _tr+='<i data-client="'+obj.ClientID+'" data-name="'+obj.Name+'" class="fa fa-cubes history-btn" title="view historical records" data-toggle="tooltip" style="cursor:pointer;font-size:23px;"></i>  </td>';
                     }
@@ -940,6 +951,35 @@
                 })
 
             },
+            deleteHistoricalRecord:function(indexid,cid){
+                var self = this;
+                $.ajax({
+                    url:Urls.deleteHistoricalRecordById.concat('?indexid=',indexid,'&ClientId=',cid),
+                    type: 'POST',
+                    dataType: "json",
+                    beforeSend:function(){ $("#spinner").show(); },
+                    contentType: "application/json",
+                    success: function (data) {
+                        if(data){
+                            
+                            customAlert("Record deleted successfully");
+                            self.renderHistoricalRecord(cid);
+                        }else{
+                            customAlert("Something went wrong. Please try again");
+                        }
+                    },
+                    error: function (res) {
+
+                        customAlert("Something went wrong. Please try again");
+                },
+                complete: function (res) {
+                    $("#spinner").hide();
+                }
+
+            });
+
+
+            },
             renderHistoricalRecord:function(clientid,clientname){
                 var self = this;
 
@@ -965,20 +1005,23 @@
 
                             var _Htr = "";
                             var _intype = obj.InputType == 2 ? "Metrical" : "Imperial";
-                            _Htr+='<td data-title="Assessment Date">'+obj.AssessmentDate+'</td><td data-title="Length">'+obj.Height+'</td><td data-title="Weight">'+obj.Weight+'</td><td data-title="Head Circu.">'+obj.HeadCirc+'</td><td data-title="BMI">'+obj.BMI+'</td><td data-title="Input Type">'+_intype+'</td><td><button  data-id="'+obj.ClientID+'" data-date="'+obj.AssessmentDate+'" data-inputtype="'+obj.InputType+'" data-name="'+obj.Name+'" type="button" class="glossy-button-button button-blue glossy-button-hover edit-history-btn"  style="min-width:86px;"> <span class="glossy-button-after"></span><span class="glossy-button-before"></span><i class="fa fa-pencil" style="margin-right:5px;" aria-hidden="true"></i>Edit</button></td>';
+                            _Htr+='<td data-title="Assessment Date">'+obj.AssessmentDate+'</td><td data-title="Age(M)">'+obj.Age+'</td><td data-title="Length">'+obj.Height+'</td><td data-title="Weight">'+obj.Weight+'</td><td data-title="Head Circu.">'+obj.HeadCirc+'</td><td data-title="BMI">'+obj.BMI+'</td><td data-title="Input Type">'+_intype+'</td>'
+                            _Htr+= '<td style=""><button  data-id="'+obj.ClientID+'" data-date="'+obj.AssessmentDate+'" data-inputtype="'+obj.InputType+'" data-name="'+obj.Name+'" type="button" class="glossy-button-button button-blue glossy-button-hover edit-history-btn"  style="min-width:86px;"> <span class="glossy-button-after"></span><span class="glossy-button-before"></span><i class="fa fa-pencil" style="margin-right:5px;" aria-hidden="true"></i>Edit</button>';
 
-                         /*   _Htr+='<td data-title="Assessment Date"><input  data-index="'+i+'" data-type="'+self.cons.m.AD+'" type="text" class="form-control assdate-picker" value="'+obj.AssessmentDate+'"></td>';
-                            _Htr+='<td data-title="Length"><input data-index="'+i+'" data-type="'+self.cons.m.H+'" type="text" class="form-control numonly" value="'+obj.Height+'"></td>';
-                            _Htr+='<td data-title="Weigth"><input data-index="'+i+'" data-type="'+self.cons.m.W+'" type="text" class="form-control numonly" value="'+obj.Weight+'"></td>';
-                            _Htr+='<td data-title="Head Circu."><input data-index="'+i+'" data-type="'+self.cons.m.HC+'" type="text" class="form-control numonly" value="'+obj.HeadCirc+'"></td>';
-                            _Htr+='<td data-title="BMI"><input data-index="'+i+'" data-type="'+self.cons.m.BMI+'" type="text" class="form-control" disabled value="'+obj.BMI+'"></td>';
-                            //_Htr+='<td><input data-index="'+i+'" data-type="'+self.cons.m.IT+'" type="text" class="form-control" value="'+obj.InputType+'"></td>';
-                            if(obj.InputType == 2){
-                                _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" >Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" checked>Metrical  </td>';
-                            }else{
-                                _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" checked>Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" >Metrical  </td>';
-                            }
-                            */
+                            _Htr+='<button data-indexid="'+obj.IndexId+'"  data-id="'+obj.ClientID+'" data-date="'+obj.AssessmentDate+'" data-inputtype="'+obj.InputType+'" data-name="'+obj.Name+'" type="button" class="glossy-button-button button-red glossy-button-hover delete-history-btn"  style="min-width:86px;"> <span class="glossy-button-after"></span><span class="glossy-button-before"></span><i class="fa fa-trash" style="margin-right:5px;" aria-hidden="true"></i>Delete</button></td>';
+
+                            /*   _Htr+='<td data-title="Assessment Date"><input  data-index="'+i+'" data-type="'+self.cons.m.AD+'" type="text" class="form-control assdate-picker" value="'+obj.AssessmentDate+'"></td>';
+                               _Htr+='<td data-title="Length"><input data-index="'+i+'" data-type="'+self.cons.m.H+'" type="text" class="form-control numonly" value="'+obj.Height+'"></td>';
+                               _Htr+='<td data-title="Weigth"><input data-index="'+i+'" data-type="'+self.cons.m.W+'" type="text" class="form-control numonly" value="'+obj.Weight+'"></td>';
+                               _Htr+='<td data-title="Head Circu."><input data-index="'+i+'" data-type="'+self.cons.m.HC+'" type="text" class="form-control numonly" value="'+obj.HeadCirc+'"></td>';
+                               _Htr+='<td data-title="BMI"><input data-index="'+i+'" data-type="'+self.cons.m.BMI+'" type="text" class="form-control" disabled value="'+obj.BMI+'"></td>';
+                               //_Htr+='<td><input data-index="'+i+'" data-type="'+self.cons.m.IT+'" type="text" class="form-control" value="'+obj.InputType+'"></td>';
+                               if(obj.InputType == 2){
+                                   _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" >Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" checked>Metrical  </td>';
+                               }else{
+                                   _Htr+='<td data-title="Input Type"> <input type="radio" value="1" name="MeasurementType_'+i+'" checked>Imperial </br>  <input type="radio" value="2" name="MeasurementType_'+i+'" >Metrical  </td>';
+                               }
+                               */
 
                             _Htr = "<tr>" + _Htr + "</tr>";
 
