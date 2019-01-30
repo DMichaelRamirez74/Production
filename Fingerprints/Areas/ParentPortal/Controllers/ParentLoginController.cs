@@ -80,6 +80,7 @@ namespace Fingerprints.Areas.ParentPortal.Controllers
                 Session["EmailID"] = UserInfo.Emailid;
                 Session["FullName"] = UserInfo.UserName;
                 Session["AgencyName"] = UserInfo.AgencyName;
+                Session["AgencyId"] = UserInfo.AgencyId;
                 Session["Roleid"] = UserInfo.roleId;
                 if (primarylang == 10)
                 {

@@ -414,6 +414,13 @@ namespace Fingerprints.Controllers
             Session.RemoveAll();
             return Redirect("~/login/Loginagency");
         }
+        public ActionResult LogoutParent()
+        {
+            Session.Abandon();
+            Session.Clear();
+            Session.RemoveAll();
+            return Redirect("~/parentportal");
+        }
         public ActionResult ForgetPasswordagency()
         {
             return View();
