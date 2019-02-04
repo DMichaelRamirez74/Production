@@ -8716,7 +8716,7 @@ namespace FingerprintsData
                         // familyinfo.IsFutureWithdrawal = Convert.ToBoolean(_dataset.Tables[2].Rows[i]["IsFutureWithdrawal"]);
 
                         familyinfo.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["ProgramID"].ToString()));
-
+                        familyinfo.IsFoster = Convert.ToInt32(_dataset.Tables[2].Rows[i]["FosterChild"]);
                         _Childlist.Add(familyinfo);
                     }
                     obj._Clist = _Childlist;
@@ -14290,11 +14290,7 @@ namespace FingerprintsData
                 householdDetails.FamilyHousehold.relationship = new List<FamilyHousehold.Relationship>();
                 householdDetails.FamilyHousehold.langList = new List<FamilyHousehold.PrimarylangInfo>();
 
-
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-
-                using (Connection)
+                using (Connection=connection.returnConnection())
                 {
                     command.Parameters.Clear();
                     command.Connection = Connection;
@@ -14356,7 +14352,16 @@ namespace FingerprintsData
                         householdDetails.FamilyHousehold.ExistPmprogram = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Pmprogram"]);
 
                         householdDetails.HasNewAddress = (string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString()));
-                        householdDetails.FamilyHousehold.FamilyHasAddress = (string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString())) ? 2 : 1;
+                        householdDetails.FamilyHousehold.FamilyHasAddress = (!string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString()) && householdDetails.FamilyHousehold.HomeType == 1) ? 1 
+                                                                            : (string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString()) && householdDetails.FamilyHousehold.HomeType == 1)? 2: 0;
+                        householdDetails.FamilyHousehold.HFileInString = (DBNull.Value != _dataset.Tables[0].Rows[0]["DocumentFile"]) ? Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["DocumentFile"]) : string.Empty;
+                        householdDetails.FamilyHousehold.HFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["FileName"]);
+                        householdDetails.FamilyHousehold.HFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["FileExtension"]);
+                    }
+
+                    if(householdDetails.FamilyHousehold.HomeType==1 && householdDetails.FamilyHousehold.FamilyHasAddress==1)
+                    {
+                        householdDetails.NewAddressHousehold = householdDetails.FamilyHousehold;
                     }
 
                     if (_dataset.Tables[1].Rows.Count > 0)
@@ -15592,6 +15597,98 @@ namespace FingerprintsData
 
 
         #endregion
+
+
+        #region method to delete the Verification documents
+        public bool DeleteVerificationDocumentData(StaffDetails staff,int tabId, string householdId)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@TabId", tabId));
+                    command.Parameters.Add(new SqlParameter("@HouseholdID", EncryptDecrypt.Decrypt64(householdId)));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_DeletetVerificationDocuments";
+                    Connection.Open();
+                    isRowsAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+              
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
+
+        #endregion
+
+
+        #region method to add the profile picture of the persons in the Household
+
+        public bool AddProfilePictureData(StaffDetails staff,RosterNew.Attachment attachements,string eClientID,string emer_rst_contact)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", EncryptDecrypt.Decrypt64(eClientID)));
+                    command.Parameters.Add(new SqlParameter("@Emergency_RestrictedContact", emer_rst_contact));
+                    command.Parameters.Add(new SqlParameter("@ProfilePicture", attachements.AttachmentFileByte));
+                    command.Parameters.Add(new SqlParameter("@PictureName", attachements.AttachmentFileName));
+                    command.Parameters.Add(new SqlParameter("@PictureExtension", attachements.AttachmentFileExtension));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_AddProfilePicture";
+                    command.Connection = Connection;
+                    Connection.Open();
+                    isRowsAffected = Convert.ToBoolean(command.ExecuteNonQuery());
+                    Connection.Close();
+
+                }
+
+                //if(isRowsAffected)
+                //{
+                //    attachements.AttachmentJson = Convert.ToBase64String(attachements.AttachmentFileByte);
+                //}
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+
+            return isRowsAffected;
+        }
+
+        #endregion
+
 
     }
 }

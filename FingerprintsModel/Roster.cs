@@ -77,6 +77,12 @@ namespace FingerprintsModel
         {
 
             public HttpPostedFileBase file { get; set; }
+
+            public string AttachmentJson { get; set; }
+            public string AttachmentFileName { get; set; }
+            public string AttachmentFileExtension { get; set; }
+            public string AttachmentFileUrl { get; set; }
+            public byte[] AttachmentFileByte { get; set; }
         }
     }
     public class InternalRefferalCaseNote

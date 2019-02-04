@@ -31,5 +31,6 @@ namespace FingerprintsModel
 
         public bool IsInAcceptanceProcess { get; set; }
         
+        public StaffSignature StaffSignature { get; set; }
     }
 }

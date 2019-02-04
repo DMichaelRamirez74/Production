@@ -546,6 +546,8 @@ namespace Fingerprints.Controllers
             try
             {
                 EventsList events = new EventsList();
+                List<EventsCenter> centerList = new List<EventsCenter>();
+                List<EventsList> eventsList = new List<EventsList>();
                 events.AgencyId = new Guid(Session["AgencyId"].ToString());
                 events.UserId = new Guid(Session["UserID"].ToString());
                 modal = new EventsData().GetParentEventSelectionData(events, Session["EmailId"].ToString());

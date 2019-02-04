@@ -19,7 +19,9 @@
         var ssnothervalue = null;
         var EnrolledObject = null;
         var CN_count = 1;
-
+        var $profilePictureModalId = 'modal-profile-picture';
+        var $profilePictureImg = null;
+        var $emerRestClient = 0;
         $('[data-toggle="tooltip"]').tooltip();
 
         function getTagsOnInput() {
@@ -1368,7 +1370,203 @@
             $('.addn-table-head').empty();
         }
 
+
+        function updateProfilePicture(ele,clientType)
+        {
+            var $eClientID = $(ele).data('accesskey');
+
+            $emerRestClient = clientType;
+
+            $profilePictureImg= $(ele).siblings('img');
+
+            var $clientName = $(ele).closest('.household-main-ch').find('.household-heading-txt').html();
+
+            var $modalHeading = 'Profile Picture of ' + $clientName;
+
+            $('#' + $profilePictureModalId).find('#CaseNoteHeading').html($modalHeading);
+
+            $('#' + $profilePictureModalId).find('input[name="eClientID"]').val($eClientID);
+
+
+
+            $('#' + $profilePictureModalId).find('#divcamnotfound').hide();
+            $('#' + $profilePictureModalId).find('#divcapimage').hide();
+
+           
+
+            $('#' + $profilePictureModalId).find('#capt-img').removeAttr('src');
+
+            $('#' + $profilePictureModalId).modal('show');
+           
+        }
+
+        function openPictureUpload(ele)
+        {
+           
+            $(ele).closest('.camera-setup').find('input[name="uploadfileInput"]').trigger('click');
+        }
+
+        var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInputpdf(oInput,mode) {
+            // debugger;
+
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+
+                    var blnValid = false;
+                    var valid_size = 3 * 1000 * 1000;
+                    var v = oInput.files[0].size;
+                    if (v <= valid_size) {
+                        for (var j = 0; j < _validFileExtensions1.length; j++) {
+                            var sCurExtension = _validFileExtensions1[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                //  $('#documentlabel').text(oInput.files[0].name);
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            customAlertforlongtime("Only (pdf,jpg,jpeg,bmp,gif,png) of file type allowed.");
+                            // $('#documentlabel').text("");
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 3 MB. ");
+                        $('#documentlabel').text("");
+                        return false;
+
+                    }
+
+                }
+            }
+
+
+            if (mode == 1)
+            {
+                saveProfilePicture(oInput, 1);
+
+            }
+
+
+            return true;
+        }
+
+
+        function saveDocumentCamera(ele) {
+            var docImage = $('#'+$profilePictureModalId).find('#capt-img');
+
+            if (docImage[0].src.replace('data:,', '') == '') {
+                customAlert('Please capture image using camera');
+                return false;
+            }
+            else {
+
+                saveProfilePicture(docImage, 2);
+
+            }
+
+        }
+
+        function saveProfilePicture(ele, imageType) {
+            //     debugger;
+            var fd = new FormData();
+
+            var $eClientID=$('#'+$profilePictureModalId).find('input[name="eClientID"]').val();
+
+            if (imageType == 1) {
+
+                var fileUpload = $(ele).get(0);
+                var files = fileUpload.files;
+
+                // Create FormData object
+
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fd.append(files[i].name, files[i]);
+                }
+
+            }
+            else {
+                fd.append('imageJson', getBase64Image(ele));
+            }
+
+            fd.append('eClientID', $eClientID);
+            fd.append('em_res_contact', $emerRestClient);
+           
+
+
+            $.ajax({
+
+                url: HostedDir + '/AgencyUser/AddProfilePicture',
+                type: 'post',
+                secureuri: false,
+                processData: false,
+                contentType: false,
+                async: true,
+                beforeSend: function () { $('#spinner').show() },
+                data: fd,
+                success: function (data) {
+                    if (data != null && data.result == true) {
+                        customAlert('Profile picture updated successfully');
+
+                        $profilePictureImg.attr('src', 'data:image/png;base64,' + data.imageString)
+                        $('#' + $profilePictureModalId).modal('hide');
+
+                    }
+                    else {
+                        customAlert('Error occurred. Please, try again later');
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+
+        }
+
+
+        function getBase64Image(img) {
+            //debugger;
+            //var canvas = document.createElement("canvas");
+            //canvas.width = img.width;
+            //canvas.height = img.height;
+            //var ctx = canvas.getContext("2d");
+            //ctx.drawImage(img, 0, 0);
+            //var dataURL = ctx.toDataURL("image/png");
+            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+        }
+
+
         $(document).ready(function () {
+
+
+            /********** Camera Modal *************/
+
+            var $singleCameraModal = $('.camera-file-modal');
+           
+           $('#'+ $profilePictureModalId).find('#CaseNoteHeading').html('Update Profie Picture');
+           $singleCameraModal.attr('id', $profilePictureModalId);
+
+         
+           $singleCameraModal.find('.up-device').closest('.camera-setup').append('<input type="file" name="uploadfileInput"   onchange = "ValidateSingleInputpdf(this,1)" accept = "image/*"  capture = "camera"  style="display:none;" /><input type="hidden" name="eClientID"/>');
+            $singleCameraModal.find('.up-device').attr('onclick', 'openPictureUpload(this);');
+
+            //  $singleCameraModal.find('#SaveNoteSubmit').attr('onclick','return saveProfilePicture()');
+
+
+           
+            /*************** Camera Modal ************/
+
 
 
 
@@ -5144,12 +5342,13 @@
                                         @Model.County
                                     </p>
 
-                                            <div class="home-fft col-xs-12">
-                                                <a href="#">@Model.RentTypetext</a>
-                                                @Html.Hidden("hiddenHousehold", Model.Encrypthouseholid)
-                                                <div class="household-tag">
-                                                <span style="margin-left: 4%; text-decoration: underline;color: #fff;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,1)"><span style="background-color:#20b4fb !important;" class="badge">CN</span></span>
-                                                <span style="margin-left: 4%; text-decoration: underline;color: #fff;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)"><span style="background-color:#bb20fb !important;" class="badge">Tags</span></span>
+                                    <div class="home-fft col-xs-12">
+                                        <a href="javascript:void(0);" style="text-decoration:none;cursor:auto;">@(Model.HomeType==1?"Homeless":Model.RentTypetext)</a>
+                                        @Html.Hidden("hiddenHousehold", Model.Encrypthouseholid)
+                                        <div class="household-tag">
+
+                                            <span style="margin-left: 4%; text-decoration: underline;color: #fff;" title="Case notes by Household" data-toggle="tooltip" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,1)"><span class="badge glossy-badge-light-blue">CN</span></span>
+                                            <span style="margin-left: 4%; text-decoration: underline;color: #fff;"title="Case notes by Tags" data-toggle="tooltip"    housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)"><span  class="badge glossy-badge-light-violet">Tags</span></span>
 
                                             @*<a href="#" style="margin-left: 4%; text-decoration: underline;color: #db4437;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)">Tags</a>*@
 
@@ -5240,15 +5439,24 @@
 
 
 
-                                                    <div class="col-xs-12 adddivspace" style="margin-top:9%;text-align:center;">
+                                            <div class="col-xs-12 adddivspace" style="margin-top:9%;text-align:center;">
 
-                                                        <button type="button" onclick="SaveFamilyAdvocate(this);" class="btn btn-success"><i class="fa fa-save" aria-hidden="true"></i> Submit</button>
+                                                <button type="button" onclick="SaveFamilyAdvocate(this);" class="glossy-button-button glossy-button-hover button-green">
+                                                <i class="fa fa-save" aria-hidden="true"></i> Submit
+                                                <span class="glossy-button-before"></span>
+                                                    <span class="glossy-button-after"></span>
+                                                
+                                                </button>
 
 
-                                                        @if (Model.staffList != null && Model.staffList.Count() > 0)
-                                                        {
-                                                            <button type="button" class="btn btn-primary" style="background-color:#9b59b6;border-color: #9048ad;" id="anchor_back_fa"><i class="fa fa-undo" aria-hidden="true"></i> Back</button>
-                                                        }
+                                                @if (Model.staffList != null && Model.staffList.Count() > 0)
+                                                {
+                                                    <button type="button" class="glossy-button-button glossy-button-hover anchor_yellow" id="anchor_back_fa">
+                                                        <i class="fa fa-undo" aria-hidden="true"></i> Back
+                                                        <span class="glossy-button-before"></span>
+                                                        <span class="glossy-button-after"></span>
+                                                    </button>
+                                                }
 
 
                                                     </div>
@@ -5334,12 +5542,22 @@
                                     <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
                                         <div class="house-hold household-main-ch child-info-div">
                                             <div class="bade-div">
-                                                <div class="bade-div-hidden hidden">
-                                                    <p class="house-hold-badge RX-bg"><img src="~/Images/rx.png" style="max-width: 55%;" /></p>
-                                                    <p class="house-hold-badge F-bg">F</p>
-                                                    <p class="house-hold-badge T-bg">T</p>
-                                                    <p class="house-hold-badge A-bg">A</p>
-                                                    <p class="house-hold-badge D-bg">D</p>
+                                                <div class="bade-div-hidden">
+
+                                                    
+
+                                                    <p class="house-hold-badge badge-rx glossy-badge glossy-badge-purple" style="display:none;"><img src="~/Images/rx.png" style="width: 16px;height:16px;" data-toggle="tooltip" title="Receiving Drug Treatments" /></p>
+                                                   
+                                                    @if (item.IsFoster == 1)
+                                                    {
+                                                        <p class="house-hold-badge bage-foster glossy-badge glossy-badge-orange" data-toggle="tooltip" title="Foster Child">F</p>
+                                                    }
+
+
+                                                    <p class="house-hold-badge badge-transport glossy-badge glossy-badge-blue" style="display:none;" data-toggle="tooltip" title="Transport Provided">T</p>
+                                                    <p class="house-hold-badge badge-attendance glossy-badge glossy-badge-red" style="display:none;" data-toggle="tooltip" title="Excessive Absences">A</p>
+                                                    <p class="house-hold-badge bage-disability glossy-badge glossy-badge-yellow" style="display:none;" data-toggle="tooltip" title="Child has Disability">D</p>
+
                                                     @*<p class="house-hold-badge E-bg">E</p>*@
                                                 </div>
                                             </div>
@@ -5367,9 +5585,9 @@
                                                             <img width="108" height="108" src="~/Content/img/download.jpg" style="margin-top:4px;" />
                                                         }
 
-                                                @*<div class="glossy-update-icon">
+                                                <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString())" data-toggle="modal" title="Add/Update Picture">
                                                     <i class="fa fa-plus"></i>
-                                                </div>*@
+                                                </div>
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
                                                 @{
@@ -5497,99 +5715,6 @@
                                                         }
                                                     }
 
-
-                                                    @*<div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                            <div class="house-hold">
-                                                                <div class="hld-img"><img src="~/Content/imgs/child5.png" alt="child" /></div>
-                                                                <div class="det-cont">
-                                                                    <h4>Barret Jack</h4>
-                                                                    <ul>
-                                                                        <li><p>Female</p><span>11/11/2015</span></li>
-                                                                        <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                        <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="home-fft">
-                                                                    <a href="#">Enrolled</a>
-                                                                    <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                                <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                                    <div class="house-hold">
-                                                                        <div class="hld-img"><img src="~/Content/imgs/child4.png" alt="child" /></div>
-                                                                        <div class="det-cont">
-                                                                            <h4>Sarah Fred</h4>
-                                                                            <ul>
-                                                                                <li><p>Female</p><span>11/11/2015</span></li>
-                                                                                <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                                <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="home-fft">
-                                                                            <a href="#">Enrolled</a>
-                                                                            <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                                    <div class="house-hold">
-                                                                        <div class="hld-img"><img src="~/Content/imgs/child3.png" alt="child" /></div>
-                                                                        <div class="det-cont">
-                                                                            <h4>Kevin John</h4>
-                                                                            <ul>
-                                                                                <li><p>Female</p><span>11/11/2015</span></li>
-                                                                                <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                                <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="home-fft">
-                                                                            <a href="#">Enrolled</a>
-                                                                            <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                                    <div class="house-hold">
-                                                                        <div class="hld-img"><img src="~/Content/imgs/child1.png" alt="child" /></div>
-                                                                        <div class="det-cont">
-                                                                            <h4>Shaggy Wany</h4>
-                                                                            <ul>
-                                                                                <li><p>Female</p><span>11/11/2015</span></li>
-                                                                                <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                                <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="home-fft">
-                                                                            <a href="#">Enrolled</a>
-                                                                            <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                                                    <div class="house-hold">
-                                                                        <div class="hld-img"><img src="~/Content/imgs/child2.png" alt="child" /></div>
-                                                                        <div class="det-cont">
-                                                                            <h4>Zaira Wasim</h4>
-                                                                            <ul>
-                                                                                <li><p>Female</p><span>11/11/2015</span></li>
-                                                                                <li><p>Center</p><span><a href="#">ABC Center</a></span></li>
-                                                                                <li><p>Classroom</p><span><a href="#">Room 51</a></span></li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="home-fft">
-                                                                            <a href="#">Enrolled</a>
-                                                                            <button class="btn btn-success"><i class="fa fa-pencil" aria-hidden="true"></i>	Edit</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>*@
-
-
-
                                                 </div>
                                             </div>
                                             <div class="col-xs-12">
@@ -5641,9 +5766,11 @@
                                                                             <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
                                                                         }
 
-
-                                                                    </div>
-                                                                    <div class="det-cont" style="min-height: 130px;">
+                                                                <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);"  data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())" title="Add/Update Picture">
+                                                                    <i class="fa fa-plus"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="det-cont" style="min-height: 130px;">
 
                                                                         <h4 class="household-heading-txt">@Model.Pfirstname</h4>
 
@@ -5776,10 +5903,10 @@
                                                                                 {
                                                                                     <p style="background:#be20d0;" class="house-hold-badge Parent-badge-bg-b">J</p>
 
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <p onclick="ShowJobPopup(@Model.ParentID,1)" style="background:#e2ad0f;cursor:pointer;" class="house-hold-badge job-badge Parent-badge-bg-b">J</p>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <p onclick="ShowJobPopup(@Model.ParentID,1)" style="cursor:pointer;" class="house-hold-badge  glossy-badge glossy-badge-orange job-badge Parent-badge-bg-b">J</p>
 
                                                                                 }
 
@@ -5829,27 +5956,31 @@
                                                                             @if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 2)
                                                                             {
 
-                                                                                <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
-                                                                            }
-                                                                            else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
-                                                                            {
-                                                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
-                                                                            }
-                                                                            else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
-                                                                            {
-                                                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
-                                                                            }
-                                                                            else if (!string.IsNullOrEmpty(Model.P1Imagejson))
-                                                                            {
-                                                                                <img width="108" height="108" src="data:image/jpg;base64,@Model.P1Imagejson" style="margin-top: 4px;" />
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
-                                                                            }
-                                                                        </div>
-                                                                        <div class="det-cont" style="min-height: 130px;">
-                                                                            <h4 class="household-heading-txt">@Model.P1firstname</h4>
+                                                                        <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
+                                                                    }
+                                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
+                                                                    {
+                                                                        <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                                                    }
+                                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
+                                                                    {
+                                                                        <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                                                    }
+                                                                    else if (!string.IsNullOrEmpty(Model.P1Imagejson))
+                                                                    {
+                                                                        <img width="108" height="108" src="data:image/jpg;base64,@Model.P1Imagejson" style="margin-top: 4px;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
+                                                                    }
+
+                                                                    <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())"  title="Add/Update Picture">
+                                                                        <i class="fa fa-plus"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="det-cont" style="min-height: 130px;">
+                                                                    <h4 class="household-heading-txt">@Model.P1firstname</h4>
 
                                                                             <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
                                                                                 <li>
@@ -5980,11 +6111,11 @@
                                                                                     {
                                                                                         <p style="background:#be20d0;" class="house-hold-badge Parent-badge-bg-b">J</p>
 
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        <p onclick="ShowJobPopup(@Model.ParentID1,2)" style="background:#e2ad0f;cursor:pointer;" class="house-hold-badge job-badge Parent-badge-bg-b">J</p>
-                                                                                    }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <p onclick="ShowJobPopup(@Model.ParentID1,2)" style="cursor:pointer;" class="house-hold-badge  glossy-badge glossy-badge-orange job-badge Parent-badge-bg-b">J</p>
+                                                                            }
 
                                                                                 }
                                                                                 @if (Model.IsPreg1 == 1 && Model.PregnantmotherenrolledP1)
@@ -6064,6 +6195,12 @@
                                                                             {
                                                                                 <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                                             }
+
+
+                                                                            <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.OthersId.ToString())" title="Add/Update Picture">
+                                                                                <i class="fa fa-plus"></i>
+                                                                            </div>
+
                                                                         </div>
                                                                         <div class="det-cont" style="min-height: 130px;">
                                                                             <h4 class="household-heading-txt">@item.Ofirstname</h4>
@@ -6153,6 +6290,10 @@
                                                                         {
                                                                             <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                                         }
+
+                                                                        <div class="glossy-update-icon" onclick="updateProfilePicture(this,2);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.EmegencyId.ToString())" title="Add/Update Picture">
+                                                                            <i class="fa fa-plus"></i>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="det-cont" style="min-height: 130px;">
                                                                         <h4 class="household-heading-txt">@item.Efirstname</h4>
@@ -6240,6 +6381,9 @@
                                                                         {
                                                                             <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                                         }
+                                                                        <div class="glossy-update-icon" onclick="updateProfilePicture(this,2);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.RestrictedId.ToString())" title="Add/Update Picture">
+                                                                            <i class="fa fa-plus"></i>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="det-cont" style="min-height: 130px;">
                                                                         <h4 class="household-heading-txt">@item.Rfirstname @item.Rlastname</h4>
@@ -6303,41 +6447,7 @@
 
 
 
-                                    @*<div class="modal fade show-modal" id="logout_popup" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-body">
-                                                        <div style="width:100%;height:100%;margin: 0px; padding:0px">
-                                                            <div style="width:25%;margin: 0px; padding:0px;float:left;">
-                                                                <img src="content/img/ge_logo_banner_left2.png" width="100%;" />
-                                                            </div>
-                                                            <div style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
-                                                                <div><h4>Your session has expired!</h4></div>
-                                                                <p id="hidetimer" style="font-size: 15px;">You will be logged out in <span id="timer" style="display: inline;font-size: 30px;font-style: bold">10</span> seconds.</p>
-                                                                <p style="font-size: 15px;">Do you want to stay signed in?</p>
-                                                            </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12" style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
-                                                                <div class="form-group">
-                                                                    <label for="RaceId">Email <sup style="color:red">*</sup></label>
-                                                                    <input type="text" name="Email" readonly="readonly" class="form-control" id="Email" placeholder="Email" value="fingerprintsersea@gmail.com" maxlength="50">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12" style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
-                                                                <div class="form-group">
-                                                                    <label for="RaceSubCatDesc">Password <sup style="color:red">*</sup></label>
-                                                                    <input type="password" name="Password" class="form-control" id="Password" placeholder="Password" maxlength="11">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="clearfix"></div>
-                                                    <div style="margin-left: 34%; margin-bottom: 20px; margin-top: 20px; padding-bottom: 23px; padding-top: 17px;">
-                                                        <a href="javascript:;" onclick="resetTimer()" class="my-btn" aria-hidden="true">Yes, Keep me signed in</a>
-                                                        <a href="/Login/LogoutAgency" class="my-btn" aria-hidden="true">No, Sign me out</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>*@
+                                   
 
                                 </div>
                             </div>
@@ -8108,6 +8218,12 @@
                                         }
                                     });
                                 </script>*@
+
+
+
+                            @{
+                                Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
+                            }
 
 }
 

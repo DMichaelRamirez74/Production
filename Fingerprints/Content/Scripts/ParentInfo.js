@@ -805,6 +805,8 @@ function BindChildDetails(ClientId) {
                 else {
                     $('.tick-symbol').show(); $('.mark-symbol').hide();
                 }
+                var percentage = parseFloat(val.PresentPercentage).toFixed(2) > 90 ? _langList.Child_has_very_great_attendance : parseFloat(val.PresentPercentage).toFixed(2) > 80 ? "Child has very good attendance" : parseFloat(val.PresentPercentage).toFixed(2) > 70 ? "Child has  good attendance" : parseFloat(val.PresentPercentage).toFixed(2) < 70 ? _langList.Child_has_poor_attendance : "";
+
                 $('.child-attendance').text(percentage);
                 $('.insurance-status').text(Insurance);
                 $('.head-child-name').text(val.ClientName);

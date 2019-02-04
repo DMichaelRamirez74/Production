@@ -149,13 +149,15 @@ namespace FingerprintsData
 
             try
             {
+                var centerid = EncryptDecrypt.Decrypt64(CenterId);
+
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
                 DataSet ds = new DataSet();
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
-                command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64(CenterId)));
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetClientAttendancePercentage";

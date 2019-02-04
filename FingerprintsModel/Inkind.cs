@@ -132,7 +132,14 @@ namespace FingerprintsModel
 
         public bool IsEmergencyContact { get; set; }
         public string DonorSignature { get; set; }
-        public string StaffSignature { get; set; }
+      //  public string StaffSignature { get; set; }
+
+        //public string SignatureCode
+        //{
+        //    get;set;
+        //}
+
+        public StaffSignature StaffSignature { get; set; }
         public decimal InKindAmount { get; set; }
         public decimal MilesDriven { get; set; }
 

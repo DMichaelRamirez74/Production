@@ -70,11 +70,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accept Signature.
+        /// </summary>
+        public static string Accept_Signature {
+            get {
+                return ResourceManager.GetString("Accept_Signature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accepted.
+        /// </summary>
+        public static string Accepted {
+            get {
+                return ResourceManager.GetString("Accepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Action.
         /// </summary>
         public static string Action {
             get {
                 return ResourceManager.GetString("Action", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Action is not available.
+        /// </summary>
+        public static string Action_is_not_available {
+            get {
+                return ResourceManager.GetString("Action_is_not_available", resourceCulture);
             }
         }
         
@@ -111,6 +138,24 @@ namespace Fingerprints.LocalResource {
         public static string Address_Change {
             get {
                 return ResourceManager.GetString("Address_Change", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Advanced Degree.
+        /// </summary>
+        public static string Advanced_Degree {
+            get {
+                return ResourceManager.GetString("Advanced_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to African Languages.
+        /// </summary>
+        public static string African_Languages {
+            get {
+                return ResourceManager.GetString("African_Languages", resourceCulture);
             }
         }
         
@@ -160,6 +205,42 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Associate Degree.
+        /// </summary>
+        public static string Associate_Degree {
+            get {
+                return ResourceManager.GetString("Associate_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baccalaureate Degree.
+        /// </summary>
+        public static string Baccalaureate_Degree {
+            get {
+                return ResourceManager.GetString("Baccalaureate_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to BCI Check.
+        /// </summary>
+        public static string BCI_Check {
+            get {
+                return ResourceManager.GetString("BCI_Check", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to BCI Check Date.
+        /// </summary>
+        public static string BCI_Check_Date {
+            get {
+                return ResourceManager.GetString("BCI_Check_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Billing Attachments.
         /// </summary>
         public static string Billing_Attachments {
@@ -187,11 +268,47 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Caribbean Languages.
+        /// </summary>
+        public static string Caribbean_Languages {
+            get {
+                return ResourceManager.GetString("Caribbean_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CDA.
+        /// </summary>
+        public static string CDA {
+            get {
+                return ResourceManager.GetString("CDA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Center Name.
+        /// </summary>
+        public static string CenterName {
+            get {
+                return ResourceManager.GetString("CenterName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Center Overview.
         /// </summary>
         public static string CenterOverview {
             get {
                 return ResourceManager.GetString("CenterOverview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change.
+        /// </summary>
+        public static string Change {
+            get {
+                return ResourceManager.GetString("Change", resourceCulture);
             }
         }
         
@@ -313,6 +430,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear.
+        /// </summary>
+        public static string Clear {
+            get {
+                return ResourceManager.GetString("Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Click here for Parent Engagement Request.
         /// </summary>
         public static string Click_here_for_Parent_Engagement_Request {
@@ -367,11 +493,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Communicable Disease Test Date.
+        /// </summary>
+        public static string Communicable_Disease_Test_Date {
+            get {
+                return ResourceManager.GetString("Communicable_Disease_Test_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Communicable Disease Test Results.
+        /// </summary>
+        public static string Communicable_Disease_Test_Results {
+            get {
+                return ResourceManager.GetString("Communicable_Disease_Test_Results", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copyright.
         /// </summary>
         public static string Copyright {
             get {
                 return ResourceManager.GetString("Copyright", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Credential.
+        /// </summary>
+        public static string Credential {
+            get {
+                return ResourceManager.GetString("Credential", resourceCulture);
             }
         }
         
@@ -403,6 +556,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Currently Enrolled.
+        /// </summary>
+        public static string Currently_Enrolled {
+            get {
+                return ResourceManager.GetString("Currently_Enrolled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Date.
         /// </summary>
         public static string Date {
@@ -421,11 +583,83 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date can not be earlier than the date of birth or greater than today date.
+        /// </summary>
+        public static string DateNotEarlierBirthDate {
+            get {
+                return ResourceManager.GetString("DateNotEarlierBirthDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Day of Volunteer.
         /// </summary>
         public static string Day_of_Volunteer {
             get {
                 return ResourceManager.GetString("Day_of_Volunteer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Degree.
+        /// </summary>
+        public static string Degree {
+            get {
+                return ResourceManager.GetString("Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Degree Date.
+        /// </summary>
+        public static string Degree_Date {
+            get {
+                return ResourceManager.GetString("Degree_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Degree Type.
+        /// </summary>
+        public static string Degree_Type {
+            get {
+                return ResourceManager.GetString("Degree_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to East Asian Languages.
+        /// </summary>
+        public static string East_Asian_Languages {
+            get {
+                return ResourceManager.GetString("East_Asian_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit Profile.
+        /// </summary>
+        public static string Edit_Profile {
+            get {
+                return ResourceManager.GetString("Edit_Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Education.
+        /// </summary>
+        public static string Education {
+            get {
+                return ResourceManager.GetString("Education", resourceCulture);
             }
         }
         
@@ -439,11 +673,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Employment Requirements.
+        /// </summary>
+        public static string Employment_Requirements {
+            get {
+                return ResourceManager.GetString("Employment_Requirements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Employment Status.
         /// </summary>
         public static string Employment_Status {
             get {
                 return ResourceManager.GetString("Employment_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to English.
+        /// </summary>
+        public static string English {
+            get {
+                return ResourceManager.GetString("English", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error occurred. Please, try again later.
+        /// </summary>
+        public static string ErrrorOccurred {
+            get {
+                return ResourceManager.GetString("ErrrorOccurred", resourceCulture);
             }
         }
         
@@ -502,6 +763,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fail.
+        /// </summary>
+        public static string Fail {
+            get {
+                return ResourceManager.GetString("Fail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Family Access Portal.
         /// </summary>
         public static string Family_Access_Portal {
@@ -516,6 +786,51 @@ namespace Fingerprints.LocalResource {
         public static string Family_Service_Worker {
             get {
                 return ResourceManager.GetString("Family_Service_Worker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Federal Background.
+        /// </summary>
+        public static string Federal_Background {
+            get {
+                return ResourceManager.GetString("Federal_Background", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Federal Background Check Date.
+        /// </summary>
+        public static string Federal_Background_Check_Date {
+            get {
+                return ResourceManager.GetString("Federal_Background_Check_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File Name.
+        /// </summary>
+        public static string File_Name {
+            get {
+                return ResourceManager.GetString("File_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File Type.
+        /// </summary>
+        public static string File_Type {
+            get {
+                return ResourceManager.GetString("File_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full.
+        /// </summary>
+        public static string Full {
+            get {
+                return ResourceManager.GetString("Full", resourceCulture);
             }
         }
         
@@ -565,6 +880,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Highest Degree.
+        /// </summary>
+        public static string Highest_Degree {
+            get {
+                return ResourceManager.GetString("Highest_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Homeless Status.
         /// </summary>
         public static string Homeless_Status {
@@ -610,11 +934,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Institution.
+        /// </summary>
+        public static string Institution {
+            get {
+                return ResourceManager.GetString("Institution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Insurance Status.
         /// </summary>
         public static string Insurance_Status {
             get {
                 return ResourceManager.GetString("Insurance_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Date.
+        /// </summary>
+        public static string InvalidDate {
+            get {
+                return ResourceManager.GetString("InvalidDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Languages Spoken.
+        /// </summary>
+        public static string Languages_Spoken {
+            get {
+                return ResourceManager.GetString("Languages_Spoken", resourceCulture);
             }
         }
         
@@ -664,6 +1015,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Major.
+        /// </summary>
+        public static string Major {
+            get {
+                return ResourceManager.GetString("Major", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mark Absent.
         /// </summary>
         public static string Mark_Absent {
@@ -700,6 +1060,33 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Medical Statement.
+        /// </summary>
+        public static string Medical_Statement {
+            get {
+                return ResourceManager.GetString("Medical_Statement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medical Statement Date.
+        /// </summary>
+        public static string Medical_Statement_Date {
+            get {
+                return ResourceManager.GetString("Medical_Statement_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Middle Eastern &amp; South Asian Languages.
+        /// </summary>
+        public static string Middle_Eastern_and_South_Asian_Languages {
+            get {
+                return ResourceManager.GetString("Middle_Eastern_and_South_Asian_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Military Status.
         /// </summary>
         public static string Military_Status {
@@ -727,11 +1114,56 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Native Central American, South American, and Mexican Languages.
+        /// </summary>
+        public static string Native_Mexican_Languages {
+            get {
+                return ResourceManager.GetString("Native_Mexican_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native North American/Alaska Native Languages.
+        /// </summary>
+        public static string Native_North_American_Alaska_Languages {
+            get {
+                return ResourceManager.GetString("Native_North_American_Alaska_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Events Available For This Center.
         /// </summary>
         public static string No_Events_Available_For_This_Center {
             get {
                 return ResourceManager.GetString("No_Events_Available_For_This_Center", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Image.
+        /// </summary>
+        public static string No_Image {
+            get {
+                return ResourceManager.GetString("No_Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non Conviction Statement.
+        /// </summary>
+        public static string Non_Conviction_Statement {
+            get {
+                return ResourceManager.GetString("Non_Conviction_Statement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non Conviction Statement Date.
+        /// </summary>
+        public static string Non_Conviction_Statement_Date {
+            get {
+                return ResourceManager.GetString("Non_Conviction_Statement_Date", resourceCulture);
             }
         }
         
@@ -754,11 +1186,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Seats.
+        /// </summary>
+        public static string OpenSeats {
+            get {
+                return ResourceManager.GetString("OpenSeats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string Other {
+            get {
+                return ResourceManager.GetString("Other", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Other Centers.
         /// </summary>
         public static string Other_Centers {
             get {
                 return ResourceManager.GetString("Other_Centers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pacific Island Languages.
+        /// </summary>
+        public static string Pacific_Island_Languages {
+            get {
+                return ResourceManager.GetString("Pacific_Island_Languages", resourceCulture);
             }
         }
         
@@ -781,6 +1240,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pass.
+        /// </summary>
+        public static string Pass {
+            get {
+                return ResourceManager.GetString("Pass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pendiente.
+        /// </summary>
+        public static string Pending {
+            get {
+                return ResourceManager.GetString("Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please complete the following survey.
         /// </summary>
         public static string Please_complete_the_following_survey {
@@ -790,11 +1267,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please enter signature.
+        /// </summary>
+        public static string Please_Enter_Signature {
+            get {
+                return ResourceManager.GetString("Please_Enter_Signature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter signature code.
+        /// </summary>
+        public static string Please_Enter_Signature_Code {
+            get {
+                return ResourceManager.GetString("Please_Enter_Signature_Code", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please Wait.
         /// </summary>
         public static string Please_Wait {
             get {
                 return ResourceManager.GetString("Please_Wait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please sign and accept signature.
+        /// </summary>
+        public static string PleaseSignAcceptSignature {
+            get {
+                return ResourceManager.GetString("PleaseSignAcceptSignature", resourceCulture);
             }
         }
         
@@ -853,6 +1357,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Returned.
+        /// </summary>
+        public static string Returned {
+            get {
+                return ResourceManager.GetString("Returned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to School Calendar.
         /// </summary>
         public static string School_Calendar {
@@ -885,6 +1407,87 @@ namespace Fingerprints.LocalResource {
         public static string Select_Child_s {
             get {
                 return ResourceManager.GetString("Select_Child_s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select anyone Language.
+        /// </summary>
+        public static string SelectAnyoneLanguage {
+            get {
+                return ResourceManager.GetString("SelectAnyoneLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter at least 4 numbers.
+        /// </summary>
+        public static string SigCodeOnly4digits {
+            get {
+                return ResourceManager.GetString("SigCodeOnly4digits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign above and click on Accept Signature.
+        /// </summary>
+        public static string Sign_Above_Accept_Signature {
+            get {
+                return ResourceManager.GetString("Sign_Above_Accept_Signature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign here.
+        /// </summary>
+        public static string Sign_here {
+            get {
+                return ResourceManager.GetString("Sign_here", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signature.
+        /// </summary>
+        public static string Signature {
+            get {
+                return ResourceManager.GetString("Signature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signature Code.
+        /// </summary>
+        public static string Signature_Code {
+            get {
+                return ResourceManager.GetString("Signature_Code", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signature code doesn&apos;t match.
+        /// </summary>
+        public static string SignatureCodeNotMatch {
+            get {
+                return ResourceManager.GetString("SignatureCodeNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spanish.
+        /// </summary>
+        public static string Spanish {
+            get {
+                return ResourceManager.GetString("Spanish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify Other Language.
+        /// </summary>
+        public static string Specify_Other_Language {
+            get {
+                return ResourceManager.GetString("Specify_Other_Language", resourceCulture);
             }
         }
         
@@ -934,6 +1537,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tuberculosis Test Date.
+        /// </summary>
+        public static string Tuberculosis_Test_Date {
+            get {
+                return ResourceManager.GetString("Tuberculosis_Test_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tuberculosis Test Results.
+        /// </summary>
+        public static string Tuberculosis_Test_Results {
+            get {
+                return ResourceManager.GetString("Tuberculosis_Test_Results", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Upcoming Events.
         /// </summary>
         public static string Upcoming_Events {
@@ -943,11 +1564,65 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upload BCI Check Image.
+        /// </summary>
+        public static string Upload_BCI_Check_Image {
+            get {
+                return ResourceManager.GetString("Upload_BCI_Check_Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload Federal Background Image.
+        /// </summary>
+        public static string Upload_Federal_Background_Image {
+            get {
+                return ResourceManager.GetString("Upload_Federal_Background_Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload Medical Statement Image.
+        /// </summary>
+        public static string Upload_Medical_Statement_Image {
+            get {
+                return ResourceManager.GetString("Upload_Medical_Statement_Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload Non Conviction Statement Image.
+        /// </summary>
+        public static string Upload_Non_Conviction_Statement_Image {
+            get {
+                return ResourceManager.GetString("Upload_Non_Conviction_Statement_Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Volunteer.
         /// </summary>
         public static string Volunteer {
             get {
                 return ResourceManager.GetString("Volunteer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wait.
+        /// </summary>
+        public static string Wait {
+            get {
+                return ResourceManager.GetString("Wait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Esperando.
+        /// </summary>
+        public static string Waiting {
+            get {
+                return ResourceManager.GetString("Waiting", resourceCulture);
             }
         }
         
@@ -1011,6 +1686,15 @@ namespace Fingerprints.LocalResource {
         public static string Writing {
             get {
                 return ResourceManager.GetString("Writing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can add up to three degrees.
+        /// </summary>
+        public static string You_add_upto_three_degrees {
+            get {
+                return ResourceManager.GetString("You_add_upto_three_degrees", resourceCulture);
             }
         }
         

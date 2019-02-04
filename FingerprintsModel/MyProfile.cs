@@ -64,6 +64,11 @@ namespace FingerprintsModel
         public string BCIFileUploaded { get; set; }
         public string NCFileUploaded { get; set; }
        public List<PrimaryLanguages> LangList { get; set; }
+
+
+        public StaffSignature StaffSignature { get; set; }
+        
+
     }
     public class PrimaryLanguages
     {
@@ -71,5 +76,14 @@ namespace FingerprintsModel
         public string LanguageName { get; set; }
         public bool IsSpoken { get; set; }
         public string OtherLanguage { get; set; }
+    }
+
+    public class StaffSignature
+    {
+
+        public long StaffSignatureID { get; set; }
+        public string  Signature { get; set; }
+        public string SignatureCode { get; set; }
+
     }
 }

@@ -19,7 +19,7 @@ namespace FingerprintsModel
         public string TimeZone { get; set; }
         public bool IsRepeat { get; set; }
         public long RecurringId { get; set; }
-        public Guid AgencyId { get; set; }
+        public new Guid AgencyId { get; set; }
         public Guid StaffId { get; set; }
         public long ClientId { get; set; }
 

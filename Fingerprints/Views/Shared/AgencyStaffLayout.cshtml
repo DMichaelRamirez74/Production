@@ -284,6 +284,8 @@
                                     dataType: "json",
                                     data: { term: request.term },
                                     success: function (data) {
+                                        $('#spinner').hide();
+
                                         $('#Search').show();
                                         $('#Searchloader').hide();
                                         response($.map(data, function (item) {
@@ -2345,9 +2347,11 @@
         </ul>
     </div>
     <div id="spinner">
-        <img src="~/Content/img/spinner.gif" />
-        <br />
-        <b>Please Wait...</b>
+        <div class="spinner-block">
+            <img src="~/Content/img/spinner.gif" />
+            <br />
+            <b>Please Wait...</b>
+        </div>
     </div>
     @{Html.RenderAction("ChangePassword", "Login", new { area = "" });}
     <div class="modal fade show-modal" id="logout_popup" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -2488,6 +2492,56 @@
         }
 
 
+        function CheckStaffSignature(sigCode)
+        {
+            debugger;
+            var returnResult = false;
+            $.ajax({
+                url: HostedDir + '/MyProfile/CheckSignatureCode',
+                type: 'post',
+                datatype: 'json',
+                async: false,
+                data: { signatureCode: sigCode.val(), id: '@FingerprintsModel.StaffDetails.GetInstance().UserId.ToString()' },
+                success: function (data) {
+                    debugger;
+
+                    switch (data) {
+                        case '0':
+                            $('#spinner').hide();
+                            customAlertforlongtime(_langList.SignatureCodeNotMatch);
+                            plainValidation(sigCode);
+                            returnResult = false;
+                            break;
+                        case '2':
+                            $('#spinner').hide();
+                            customAlertforlongtime(_langList.ErrrorOccurred);
+                            returnResult = false;
+                            break;
+                        case '1':
+                            returnResult = true;
+                            break;
+                        default:
+                            returnResult = false;
+                            break;
+
+                    }
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                    customAlertforlongtime(_langList.ErrrorOccurred);
+                    returnResult = false;
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+
+                }
+
+            });
+
+            return returnResult;
+        }
+
+
         function showClosedParentCheckIn(ele)
         {
 
@@ -2596,6 +2650,25 @@
 
 
         });
+
+
+
+        // Restricts input for each element in the set of matched elements to the given inputFilter.
+        (function ($) {
+            $.fn.inputFilter = function (inputFilter) {
+                return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
+                    if (inputFilter(this.value)) {
+                        this.oldValue = this.value;
+                        this.oldSelectionStart = this.selectionStart;
+                        this.oldSelectionEnd = this.selectionEnd;
+                    } else if (this.hasOwnProperty("oldValue")) {
+                        this.value = this.oldValue;
+                        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                    }
+                });
+            };
+        }(jQuery));
+
     </script>
 
     @RenderSection(name: "Script", required: false)

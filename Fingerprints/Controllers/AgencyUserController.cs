@@ -3045,7 +3045,7 @@ namespace Fingerprints.Controllers
 
             string contentType = "application/pdf";
 
-            if (Convert.ToString(FileName[1]) == "pdf")
+            if (image1.EFileExtension== "pdf")
             {
                 //Document document = new Document();
                 //MemoryStream stream = new MemoryStream();
@@ -3055,14 +3055,15 @@ namespace Fingerprints.Controllers
                 //return File(FileName[0] + ".pdf", "application/pdf");
 
                 // byte[] contents = image1.EImageByte; //GetFileContentsFromDatabase();
-                return File(image1.EImageByte, contentType, FileName[0] + "." + FileName[1]);// "image/jpeg");
+                return File(image1.EImageByte, contentType, image1.HFileName + "." + image1.EFileExtension);// "image/jpeg");
 
             }
             else
             {
                 //if (image1 != null)
                 //{
-                return File(image1.EImageByte, "application/octet-stream", FileName[0] + "." + FileName[1]);// "image/jpeg");
+              return File(image1.EImageByte, "application/octet-stream", image1.HFileName + "." + image1.EFileExtension);// "image/jpeg");
+
 
                 //System.Drawing.Image image = System.Drawing.Image.FromStream(new MemoryStream(image1.EImageByte));
                 //Document doc = new Document(PageSize.A4);
@@ -3395,29 +3396,31 @@ namespace Fingerprints.Controllers
 
             try
             {
-                if (Command == "Householdbutton")
-                {
+                //if (Command == "Householdbutton")
+                //{
 
-                    if (info.FileaddressAvatar != null)
-                    {
-                        info.HFileName = info.FileaddressAvatar.FileName;
-                        info.HFileExtension = Path.GetExtension(info.FileaddressAvatar.FileName);
-                        BinaryReader b = new BinaryReader(info.FileaddressAvatar.InputStream);
-                        info.HImageByte = b.ReadBytes(info.FileaddressAvatar.ContentLength);
-                    }
-                    else
-                    {
-                        info.HImageByte = info.HFileInString == null ? null : Convert.FromBase64String(info.HFileInString);
-                    }
+                //    if (info.FileaddressAvatar != null)
+                //    {
+                //        info.HFileName = info.FileaddressAvatar.FileName;
+                //        info.HFileExtension = Path.GetExtension(info.FileaddressAvatar.FileName);
+                //        BinaryReader b = new BinaryReader(info.FileaddressAvatar.InputStream);
+                //        info.HImageByte = b.ReadBytes(info.FileaddressAvatar.ContentLength);
+                //    }
+                //    else
+                //    {
+                //        info.HImageByte = info.HFileInString == null ? null : Convert.FromBase64String(info.HFileInString);
+                //    }
 
-                    message = familyData.SaveFamilySummary(info, Session["AgencyID"].ToString(), Session["UserID"].ToString());
-                    if (message == "1")
-                    {
-                        ViewBag.message = "Household summary updated successfully.";
+                //    message = familyData.SaveFamilySummary(info, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                //    if (message == "1")
+                //    {
+                //        ViewBag.message = "Household summary updated successfully.";
 
-                    }
-                }
-                else if (Command == "SaveOthershousehold")
+                //    }
+                //}
+
+
+                 if (Command == "SaveOthershousehold")
                 {
 
 
@@ -6527,12 +6530,21 @@ namespace Fingerprints.Controllers
         [HttpGet]
         public ActionResult HouseholdDetails(string id = "0")
         {
+
+
+            ViewBag.HomeFound = false;
+
             FamilyHouseless householdDetails = new FamilyHouseless();
             householdDetails.FamilyHousehold = new FamilyHousehold();
             householdDetails.FamilyHousehold.Encrypthouseholid = id;
-
             householdDetails = new FamilyData().GetHouseholdDetails(householdDetails);
             ViewBag.message = "";
+
+
+            if(ViewBag.HomeFound)
+            {
+                householdDetails.NewAddressHousehold = new FamilyHousehold();
+            }
 
             return View(householdDetails);
         }
@@ -6540,13 +6552,13 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public ActionResult HouseholdDetails(FamilyHouseless homeless, string clientids="", string staffIds="")
+        public ActionResult HouseholdDetails(FamilyHouseless homeless, string clientids="", string staffIds="" , string cameraUploads = null)
         {
             string message = "";
             List<CaseNote> CaseNoteList = new List<CaseNote>();
             RosterNew.Users Users = new RosterNew.Users();
 
-
+            
             if (homeless.HasNewAddress && homeless.FamilyHousehold.HomeType == 1)
             {
                 homeless.FamilyHousehold.Street = homeless.NewAddressHousehold.Street;
@@ -6555,9 +6567,17 @@ namespace Fingerprints.Controllers
                 homeless.FamilyHousehold.City = homeless.NewAddressHousehold.City;
                 homeless.FamilyHousehold.State = homeless.NewAddressHousehold.State;
                 homeless.FamilyHousehold.County = homeless.NewAddressHousehold.County;
-                homeless.FamilyHousehold.FileaddressAvatar = homeless.FamilyHousehold.FileaddressAvatar;
+                homeless.FamilyHousehold.FileaddressAvatar = homeless.NewAddressHousehold.FileaddressAvatar;
+                homeless.FamilyHousehold.HFileInString = homeless.NewAddressHousehold.HFileInString;
+                homeless.FamilyHousehold.HFileName = homeless.NewAddressHousehold.HFileName;
+                homeless.FamilyHousehold.HFileExtension = homeless.NewAddressHousehold.HFileExtension;
 
-            }
+              }
+
+            //code0643
+           // if (!string.IsNullOrEmpty(homeless.NewAddressHousehold.ZipCode) && homeless.FamilyHousehold.HomeType == 1) {
+           //     homeless.FamilyHousehold.HomeType = 2;
+          //  }
 
 
             if (homeless.FamilyHousehold.FileaddressAvatar != null)
@@ -6572,7 +6592,7 @@ namespace Fingerprints.Controllers
                 homeless.FamilyHousehold.HImageByte = homeless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(homeless.FamilyHousehold.HFileInString);
             }
 
-            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
+            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FamilyHouseholdEnum.UpdateHousehold);
             if (message == "1")
             {
 
@@ -6592,10 +6612,30 @@ namespace Fingerprints.Controllers
                     //homeless.CaseNoteDetails.ProgramId = homeless.FamilyHousehold.CProgramType;
                     //homeless.CaseNoteDetails.CenterId = homeless.FamilyHousehold.CenterId.ToString();
                     homeless.CaseNoteDetails.CaseNoteid = "0";
+
+                    if (!string.IsNullOrEmpty(cameraUploads))
+                    {
+
+                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+                        List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+
+                        foreach (var item in cameraUplodList)
+                        {
+                            homeless.CaseNoteAttachments.Add(new RosterNew.Attachment
+                            {
+                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
+                                AttachmentFileName = item.Text,
+                                AttachmentFileExtension = ".png",
+                                AttachmentFileByte = Convert.FromBase64String(item.Value)
+                            });
+                        }
+                    }
+
+
                     message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, homeless.CaseNoteDetails, homeless.CaseNoteAttachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
                 }
 
-                ViewBag.message = "Household summary updated successfully.";
+                 TempData["HouseholdMessage"] = "Household summary updated successfully.";
 
             }
 
@@ -6604,9 +6644,143 @@ namespace Fingerprints.Controllers
 
 
             var sre = homeless.FamilyHousehold.FamilyHasAddress;
-            return View(homeless);
 
-            //return RedirectToAction("HouseholdDetails", "AgencyUser", new { @id = homeless.FamilyHousehold.Encrypthouseholid });
+            return RedirectToAction("HouseholdDetails","AgencyUser", new { @id = homeless.FamilyHousehold.Encrypthouseholid });
+
+       
+        }
+
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult FamilyHouseless(string id = "")
+        {
+
+            FamilyHouseless householdDetails = new FamilyHouseless();
+            householdDetails.FamilyHousehold = new FamilyHousehold();
+            householdDetails.FamilyHousehold.Encrypthouseholid = id;
+            householdDetails = new FamilyData().GetHouseholdDetails(householdDetails);
+            ViewBag.message = "";
+            ViewBag.HomeFound = true;
+
+            householdDetails.NewAddressHousehold = new FamilyHousehold();
+
+            return View("~/Views/AgencyUser/HouseholdDetails.cshtml",householdDetails);
+        }
+
+
+        [HttpPost]
+        [ValidateInput(false)]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Teacher, RoleEnum.DisabilitiesManager, RoleEnum.SocialServiceManager)]
+
+        public ActionResult FamilyHouseless(FamilyHouseless houseless, string clientids = "", string staffIds = "",string cameraUploads = null)
+        {
+            string message = "";
+            List<CaseNote> CaseNoteList = new List<CaseNote>();
+            RosterNew.Users Users = new RosterNew.Users();
+            try
+            {
+
+
+                //if (houseless.HasNewAddress && houseless.FamilyHousehold.HomeType == 1)
+                //{
+                    houseless.FamilyHousehold.Street = houseless.NewAddressHousehold.Street;
+                    houseless.FamilyHousehold.StreetName = houseless.NewAddressHousehold.StreetName;
+                    houseless.FamilyHousehold.ZipCode = houseless.NewAddressHousehold.ZipCode;
+                    houseless.FamilyHousehold.City = houseless.NewAddressHousehold.City;
+                    houseless.FamilyHousehold.State = houseless.NewAddressHousehold.State;
+                    houseless.FamilyHousehold.County = houseless.NewAddressHousehold.County;
+                    houseless.FamilyHousehold.FileaddressAvatar = houseless.NewAddressHousehold.FileaddressAvatar;
+                    houseless.FamilyHousehold.HFileInString = houseless.NewAddressHousehold.HFileInString;
+                    houseless.FamilyHousehold.HFileName = houseless.NewAddressHousehold.HFileName;
+                    houseless.FamilyHousehold.HFileExtension = houseless.NewAddressHousehold.HFileExtension;
+
+                //}
+
+
+                houseless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(houseless.CaseNoteDetails.CaseNotetags) ? "" : houseless.CaseNoteDetails.CaseNotetags.Substring(0, houseless.CaseNoteDetails.CaseNotetags.Length - 1);
+
+                houseless.CaseNoteDetails.ClientIds = (houseless.UsersList.Clientlist != null && houseless.UsersList.Clientlist.Count > 0) ? string.Join(",", houseless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
+
+                houseless.CaseNoteDetails.StaffIds = (houseless.UsersList.UserList != null && houseless.UsersList.UserList.Count > 0) ? string.Join(",", houseless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
+                houseless.CaseNoteDetails.HouseHoldId = houseless.FamilyHousehold.HouseholdId.ToString();
+                //houseless.FamilyHousehold.CProgramType = EncryptDecrypt.Decrypt64(houseless.FamilyHousehold.CProgramType);
+                houseless.CaseNoteDetails.IsLateArrival = false;
+                //houseless.CaseNoteDetails.ClientId = EncryptDecrypt.Decrypt64(houseless.FamilyHousehold.clientIdnew);
+                //houseless.CaseNoteDetails.ProgramId = houseless.FamilyHousehold.CProgramType;
+                //houseless.CaseNoteDetails.CenterId = houseless.FamilyHousehold.CenterId.ToString();
+                houseless.FamilyHousehold.HomeType = 2;
+                if (houseless.FamilyHousehold.FileaddressAvatar != null)
+                {
+                    houseless.FamilyHousehold.HFileName = houseless.FamilyHousehold.FileaddressAvatar.FileName;
+                    houseless.FamilyHousehold.HFileExtension = Path.GetExtension(houseless.FamilyHousehold.FileaddressAvatar.FileName);
+                    BinaryReader b = new BinaryReader(houseless.FamilyHousehold.FileaddressAvatar.InputStream);
+                    houseless.FamilyHousehold.HImageByte = b.ReadBytes(houseless.FamilyHousehold.FileaddressAvatar.ContentLength);
+                }
+                else
+                {
+                    houseless.FamilyHousehold.HImageByte = houseless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(houseless.FamilyHousehold.HFileInString);
+                }
+
+
+                message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FamilyHouseholdEnum.HomeFound);
+                if (message == "1")
+                {
+                  
+                    houseless.CaseNoteDetails.CaseNoteid = "0";
+
+                    if (!string.IsNullOrEmpty(cameraUploads))
+                    {
+
+                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+                        List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+
+                        foreach (var item in cameraUplodList)
+                        {
+                            houseless.CaseNoteAttachments.Add(new RosterNew.Attachment
+                            {
+                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
+                                AttachmentFileName = item.Text,
+                                AttachmentFileExtension = ".png",
+                                AttachmentFileByte = Convert.FromBase64String(item.Value)
+                            });
+                        }
+                    }
+
+
+
+                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, houseless.CaseNoteDetails, houseless.CaseNoteAttachments, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
+                    TempData["message"] = "Record updated successfully";
+
+                  
+
+                }
+                else
+                {
+                    TempData["message"] = "Error occurred. Please, try again later.";
+                }
+                //else
+                //{
+                //    houseless.FamilyHousehold.HomeType = 1;
+                //    TempData["HouseholdMessage"] = "Error occurred. Please, try again later.";
+                //    ViewBag.HomeFound = true;
+                //    return View("~/Views/AgencyUser/HouseholdDetails.cshtml", houseless);
+                //}
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                //houseless.FamilyHousehold.HomeType = 1;
+                //TempData["HouseholdMessage"] = "Error occurred. Please, try again later.";
+                //ViewBag.HomeFound = true;
+
+                TempData["message"] = "Error occurred. Please, try again later.";
+            }
+            return RedirectToAction("Roster", "Roster");
+
+
         }
 
 
@@ -7502,5 +7676,96 @@ namespace Fingerprints.Controllers
         }
 
         #endregion
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public FileResult GetAttachments(string id="")
+        {
+            string attachmentFormat = "";
+            string[] name = id.Split(',');
+
+            FamilyHousehold image1 = new FamilyData().getpdfimage1(Session["AgencyID"].ToString(), Convert.ToInt32(name[0]), name[1], name[2]);
+
+            switch (image1.EFileExtension)
+            {
+                case ".xlsx":
+                    attachmentFormat = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    break;
+                case ".pdf":
+                    attachmentFormat = "application/pdf";
+                    break;
+                case ".jpg":
+                    attachmentFormat = "image/jpeg";
+                    break;
+
+                case ".png":
+                    attachmentFormat = "image/png";
+                    break;
+                case ".docx":
+                    attachmentFormat = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                    break;
+                case ".txt":
+                    attachmentFormat = "text/plain";
+                    break;
+                default:
+                    attachmentFormat = "application/octet-stream";
+                    break;
+            }
+
+            return File(image1.EImageByte,attachmentFormat);
+
+        }
+
+        #region Method to delete the Verification Documents
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult DeleteVerificationDocuments(int tabId,string householdId)
+        {
+            return Json(
+
+                new FamilyData().DeleteVerificationDocumentData(staff, tabId, householdId),
+                
+                JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        [ValidateInput(false)]
+        [HttpPost]
+        public JsonResult AddProfilePicture(string eClientID, string imageJson="",string em_res_contact="0")
+        {
+            bool isResult = false;
+
+
+            RosterNew.Attachment attachment = new RosterNew.Attachment();
+
+            var reqFiles = Request.Files;
+
+            attachment.AttachmentFileName = string.Concat("ProfilePicture", "_", eClientID); // reqFiles[0].FileName;
+
+            if (reqFiles.AllKeys.Length > 0)
+            {
+                attachment.AttachmentFileExtension = System.IO.Path.GetExtension(reqFiles[0].FileName);
+                BinaryReader br = new BinaryReader(reqFiles[0].InputStream);
+                attachment.AttachmentFileByte = br.ReadBytes(reqFiles[0].ContentLength);
+            }
+            else if(!string.IsNullOrEmpty(imageJson))
+            {
+                attachment.AttachmentFileExtension = ".png";
+                attachment.AttachmentFileByte = string.IsNullOrEmpty(imageJson) ? null : Convert.FromBase64String(imageJson);
+
+            }
+            else
+            {
+                return Json( new { result=isResult, imageString=string.Empty } , JsonRequestBehavior.AllowGet);
+            }
+
+            isResult = new FamilyData().AddProfilePictureData(staff, attachment, eClientID, em_res_contact);
+
+           
+
+            return Json(new { result=isResult, imageString=Convert.ToBase64String(attachment.AttachmentFileByte) }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

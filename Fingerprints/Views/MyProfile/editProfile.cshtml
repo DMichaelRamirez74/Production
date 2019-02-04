@@ -13,34 +13,7 @@
     {
         Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     }
-    //if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
-    //if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
-    //{
-    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    //}
+
 
 }
 @Scripts.Render("~/bundles/jquery")
@@ -123,6 +96,25 @@
             if ('@Model.DegreeDate3' == '01/01/1900') $('#DegreeDate3').val("");
 
 
+
+
+            //Signature Part //
+
+            //$('#staff-sig-div').signature({guideline: true,
+            //guidelineOffset: 25, guidelineIndent: 20, guidelineColor: '#ff0000'});
+
+            $('#staff-sig-div').signature();
+
+            $('#staff-sig-div').signature('draw', ('@Html.Raw(Model.StaffSignature.Signature)'));
+
+            $("#SignatureCode").inputFilter(function (value) {
+                return /^\d*$/.test(value) && value.toString().length <= 4;
+            });
+
+            $('#signature-img-preview').signature();
+            $('#signature-img-preview').signature('draw', ('@Html.Raw(Model.StaffSignature.Signature)'));
+
+            $('#signature-img-preview').signature('disable');
         });
 
 
@@ -198,18 +190,14 @@
 
             }
         }
-        function IsValidLanguage()
-        {
+        function IsValidLanguage() {
             $('#profileindex').val("4");
-            if($('.lang-req').is(':checked')==false)
-            {
-                customAlert("Please select anyone Language ");
+            if ($('.lang-req').is(':checked') == false) {
+                customAlert(_langList.SelectAnyoneLanguage);
                 return false;
             }
-            if ($('input[name="LangList[10].IsSpoken"]').is(':checked') === true)
-            {
-                if($('#OLang12').val()=="")
-                {
+            if ($('input[name="LangList[10].IsSpoken"]').is(':checked') === true) {
+                if ($('#OLang12').val() == "") {
                     $('#OLang12').focus();
                     customAlert("Please specify other language.");
                     return false;
@@ -308,8 +296,7 @@
                 }
             }
             else {
-                if ( $(object).closest('tr').find('td:eq(1)').text() == "No Image")
-                {
+                if ($(object).closest('tr').find('td:eq(1)').text() == "No Image") {
                     isValid = false;
                     customAlert("No file available to delete.");
                     return isValid;
@@ -411,12 +398,12 @@
                 var today = new Date();
                 if ($('#CDResults').val() == 0) {
                     isValid = false;
-                    customAlert("Communical Disease Result is required when a Communical Disease Date is entered. ")
+                    customAlert("Communicable Disease Result is required when a Communicable Disease Date is entered. ")
                     return isValid;
                 }
                 if (Date.parse($("#CDDate").val()) > today) {
                     isValid = false;
-                    customAlert("Communical Disease Date can't be greater than current date. ");
+                    customAlert("Communicable Disease Date can't be greater than current date. ");
                     plainValidation('#CDDate');
 
                     return isValid;
@@ -439,7 +426,7 @@
                 if (regex.test($(inputTextObject).val())) {
                     var dob = new Date();
                     if (Date.parse($(inputTextObject).val()) >= dob) {
-                        customAlert("Invalid Date.");
+                        customAlert(_langList.InvalidDate);
                         $(inputTextObject).val('');
                         return false;
                     }
@@ -480,7 +467,7 @@
                     var childdob = Date.parse($('#CDOB').val());
                     //var childdob = $('#CDOB').val();
                     if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
-                        customAlert("Date can not be earlier than the date of birth or greater than today date. ");
+                        customAlert(_langList.DateNotEarlierBirthDate);
                         $(inputTextObject).val('');
                         return false;
                     }
@@ -499,22 +486,238 @@
 
         }
 
+        function clearStaffSignature(val, ele) {
+            
+            isValid = false;
+            if (val === 1) {
 
+                $(ele).parent('div').siblings('.kbw-signature').css('background-color', '');
+                //$('#' + $(ele).parent('div').siblings('.kbw-signature').attr('id')).signature('clear');
+                $(ele).parent('div').siblings('.kbw-signature').signature('clear');
+                $(ele).parent('div').siblings('#conv-staff-image').val(0);
+                $(ele).parent('div').siblings('#image-staff-hidden').val('');
+                // $('#image-staff-sig').attr('src', '');
+
+
+                //$('#sig').css('background-color', '');
+                //$('#sig').signature('clear');
+                //$('#ConvertedImage').val(0);
+            }
+            //else {
+            //    $('#sig1').css('background-color', '');
+            //    $('#sig1').signature('clear');
+            //    $('#ConvertedImage').val(0);
+            //}
+
+            //$('#clear').click(function () {
+            //    $('#sig').signature('clear');
+            //});
+            //$('#clearTeacher').click(function () {
+            //    $('#sig1').signature('clear');
+            //});
+            return isValid;
+        }
+
+        function saveStaffSignature(ele) {
+           
+            $(ele).parent('div').siblings('.kbw-signature').css('background-color', '');
+            isValid = false;
+            $(ele).parent('div').siblings('#conv-staff-image').val(0);
+            //  $('#image-staff-sig').attr('src','');
+            var sigToImage = $(ele).parent('div').siblings('.kbw-signature').signature('toJSON');
+            if (sigToImage == '{"lines":[]}' || sigToImage.length <= 12) {
+                $(ele).parent('div').siblings('.kbw-signature').css('background-color', 'pink');
+                customAlert(_langList.Please_Enter_Signature);
+                return isValid;
+            }
+
+            else if (sigToImage.length <= 300) {
+                $(ele).parent('div').siblings('.kbw-signature').css('background-color', 'pink');
+                customAlert('Please enter valid signature');
+                return isValid;
+            }
+            else {
+
+                // $('#image-staff-sig').attr('src', $(ele).parent('div').siblings('.kbw-signature').signature('toDataURL'))
+                $(ele).parent('div').siblings('#image-staff-hidden').val(sigToImage);
+                $(ele).parent('div').siblings('#conv-staff-image').val(1);
+                // $('#sigtype').val(1);
+                return isValid;
+            }
+
+        }
+
+        function IsValidSignature(deletID, object) {
+
+           
+            $('#profileindex').val("5");
+            cleanValidation();
+            $(object).closest('#addSignature').find('#staff-sig-div').css('background-color', '');
+
+            var signature = $(object).closest('#addSignature').find('#staff-sig-div').signature('toJSON');
+            var sigCode = $(object).closest('#addSignature').find('#SignatureCode');
+            var convertedStaffImage = $(object).closest('#addSignature').find('#conv-staff-image');
+            if (signature == '{"lines":[]}' || signature.length <= 300) {
+                $(object).closest('#addSignature').find('#staff-sig-div').css('background-color', 'pink');
+                customAlert(_langList.Please_Enter_Signature);
+                return false;
+            }
+            else if (convertedStaffImage.val() == 0) {
+                customAlert(_langList.PleaseSignAcceptSignature);
+                $(object).closest('#addSignature').find('#staff-sig-div').css('background-color', 'pink');
+                //  isValid = false;
+                return false;
+            }
+
+            else if (sigCode.val() == null || sigCode.val() == '') {
+                plainValidation(sigCode);
+                customAlert(_langList.Please_Enter_Signature_Code);
+                //isValid = false;
+                return false;
+            }
+                
+            else if (sigCode.val().trim().length != 4 ) {
+                plainValidation(sigCode);
+                customAlert(_langList.SigCodeOnly4digits);
+                //isValid = false;
+                return false;
+            }
+
+            else{
+                $('#spinner').show();
+                // return CheckStaffSignature(sigCode);
+                return true;
+
+                
+            }
+           
+
+            //else {
+             
+            //    var result = CheckSignatureCode(sigCode.val())
+            //    if (result == '1') {
+            //        return true;
+            //    }
+            //    else if (result == "0") {
+            //        $('#spinner').hide();
+            //        customAlertforlongtime('Signature code doesn\'t match');
+            //        return false;
+
+            //    }
+            //    else if (result == "2") {
+            //        $('#spinner').hide();
+            //        customAlertforlongtime('Error occurred. Please, try again later.');
+            //        return false;
+            //    }
+            //    else
+            //    {
+            //        $('#spinner').hide();
+            //        return false;
+            //    }
+
+
+            //}
+
+
+        }
+
+        function changeSignature(ele) {
+            var $drawSignature = $(ele).closest('#div-signature-preview').siblings('#div-signature-draw');
+
+            $drawSignature.find('#clear1').trigger('click');
+            $drawSignature.find('#SignatureCode').val($('#lblSignatureCode').html());
+            $drawSignature.show();
+        }
+
+
+        
     </script>
 
 }
 @section MainContentHolder{
 
     <style>
+         .kbw-signature {
+             width: 400px;
+             height: 200px;
+             background: #fff;
+         }
 
-        .icc_colspan_import {
-    width: 48%;
-    float: left;
-    margin-bottom: 12px;
-    padding: 0 1%;
-}
-       .icc_colspan_import input { width: 45%; float: left;}
-       .icc_colspan_import label {float: right;    width: 75%;}
+         .icc_colspan_import {
+             width: 48%;
+             float: left;
+             margin-bottom: 12px;
+             padding: 0 1%;
+         }
+
+             .icc_colspan_import input {
+                 width: 45%;
+                 float: left;
+             }
+
+             .icc_colspan_import label {
+                 float: right;
+                 width: 75%;
+             }
+
+         .custom-time-change {
+             width: 65%;
+             float: right;
+         }
+
+             .custom-time-change .form-control {
+                 height: 130px;
+                 margin-bottom: 10px;
+             }
+
+             .custom-time-change .add-useragform {
+                 margin-bottom: 20px;
+             }
+         /*.signature-img-preview{position:relative;height:130px;}
+        .signature-img-preview img{position:absolute;left:0;right:0;top:0;bottom:0;right:0;max-height:100%;max-width:100%;margin:auto;}*/
+
+         @@media (min-width: 768px) and (max-width: 991px) {
+
+             .canvas-inner-block {
+                 width: 430px !important;
+                 text-align: center;
+             }
+
+                 .canvas-inner-block .add-useragform button, .canvas-inner-block .student-scroll {
+                     margin-right: 0 !important;
+                 }
+         }
+
+         @@media (min-width: 992px) and (max-width: 1199px) {
+             .canvas-inner-block {
+                 width: 430px !important;
+                 text-align: center;
+             }
+
+                 .canvas-inner-block .add-useragform button, .canvas-inner-block .student-scroll {
+                     margin-right: 0 !important;
+                 }
+         }
+
+         @@media (max-width: 767px) {
+             .canvas-inner-block {
+                 width: 100% !important;
+                 text-align: center;
+                 overflow-x: auto;
+             }
+
+                 .canvas-inner-block .add-useragform button, .canvas-inner-block .student-scroll {
+                     margin-right: 0 !important;
+                 }
+
+             .add-useragform label {
+                 width: 100% !important;
+             }
+
+             .add-useragform input {
+                 width: 65% !important;
+             }
+         }
     </style>
 
     <form method="post" role="form" enctype="multipart/form-data">
@@ -539,7 +742,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h2 class="page-header">
-                    Edit Profile
+                    @Fingerprints.LocalResource.Resources.Edit_Profile
                 </h2>
 
             </div>
@@ -552,10 +755,11 @@
 
                         <input id="hidtab" name="hidtab" type="hidden" value="#" />
                         <ul id="myTab" class="nav nav-tabs">
-                            <li class="active"><a href="#addEducation" data-toggle="tab">Education</a></li>
-                            <li><a href="#addHealth" data-toggle="tab">Health</a></li>
-                            <li><a href="#addEmployment" data-toggle="tab">Employment Requirements</a></li>
-                            <li><a href="#addLanguage" data-toggle="tab">Languages Spoken</a></li>
+                            <li class="active"><a href="#addEducation" data-toggle="tab">@Fingerprints.LocalResource.Resources.Education</a></li>
+                            <li><a href="#addHealth" data-toggle="tab">@Fingerprints.LocalResource.Resources.Health</a></li>
+                            <li><a href="#addEmployment" data-toggle="tab">@Fingerprints.LocalResource.Resources.Employment_Requirements</a></li>
+                            <li><a href="#addLanguage" data-toggle="tab">@Fingerprints.LocalResource.Resources.Languages_Spoken</a></li>
+                            <li><a href="#addSignature" data-toggle="tab">@Fingerprints.LocalResource.Resources.Signature</a></li>
                         </ul>
                     </div>
                     <div id="myTabContent" class="tab-content">
@@ -566,7 +770,7 @@
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Institution <sup>*</sup></label>
+                                                <label>@Fingerprints.LocalResource.Resources.Institution <sup>*</sup></label>
                                                 <div class="date custom-time">
                                                     <input data-val="true" class="form-control" id="Institution" maxlength="100" name="Institution" type="text" value="" />
 
@@ -575,7 +779,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Major <sup>*</sup></label>
+                                                <label>@Fingerprints.LocalResource.Resources.Major <sup>*</sup></label>
                                                 <div class="date custom-time">
                                                     <input data-val="true" class="form-control" id="Major" maxlength="100" name="Major" type="text" value="" />
 
@@ -584,20 +788,20 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Degree/Credential <sup>*</sup></label>
-
+                                                <label>@Fingerprints.LocalResource.Resources.Degree / @Fingerprints.LocalResource.Resources.Credential <sup>*</sup></label>
+                                                 
                                                 <select name="Degree" class="form-control" id="Degree">
 
-                                                    <option value="1">Associate Degree</option>
-                                                    <option value="2">Baccalaureate Degree</option>
-                                                    <option value="3">Advanced Degree</option>
-                                                    <option value="4">CDA</option>
+                                                    <option value="1">@Fingerprints.LocalResource.Resources.Associate_Degree</option>
+                                                    <option value="2">@Fingerprints.LocalResource.Resources.Baccalaureate_Degree</option>
+                                                    <option value="3">@Fingerprints.LocalResource.Resources.Advanced_Degree</option>
+                                                    <option value="4">@Fingerprints.LocalResource.Resources.CDA</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Degree Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Degree_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="DegreeDate" maxlength="50" name="DegreeDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="" />
                                                 </div>
@@ -607,7 +811,7 @@
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
                                                 <div>
-                                                    <label>Currently Enrolled </label>
+                                                    <label>@Fingerprints.LocalResource.Resources.Currently_Enrolled </label>
                                                 </div>
                                                 <div class="cont-sz program_type" id="customChecklist">
                                                     <div>
@@ -623,7 +827,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Degree Type </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Degree_Type </label>
                                                 <div class="cont-sz">
                                                     <div class="col-xs-6 col-sm-3">
                                                         <input name="Type" id="DegreeTypeNA" type="radio" value="1" checked="checked">
@@ -642,7 +846,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Highest Degree <sup>*</sup></label>
+                                                <label>@Fingerprints.LocalResource.Resources.Highest_Degree <sup>*</sup></label>
 
                                                 <div id="divO1" style="text-align: center;">
                                                     <label>@Model.HighestDegree</label>
@@ -654,7 +858,7 @@
                                 <div class="row">
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="btnwrp_subcal">
-                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return isValideduInfo(0,this);" tabindex="1">Save</button>
+                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return isValideduInfo(0,this);" tabindex="1">@Fingerprints.LocalResource.Resources.Save</button>
 
                                             <div class="clear"></div>
                                         </div>	<!--btnwrp_subcal--->
@@ -671,11 +875,11 @@
                                                 <table class="table table_size" id="gridViewOther">
                                                     <thead style="cursor: pointer;">
                                                         <tr style="text-align: center;">
-                                                            <th>Institution </th>
-                                                            <th>Degree/Credential</th>
-                                                            <th>Major</th>
-                                                            <th>Date</th>
-                                                            <th>Action</th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Institution </th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Degree / @Fingerprints.LocalResource.Resources.Credential</th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Major</th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Date</th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Action</th>
                                                         </tr>
                                                     </thead>
 
@@ -686,14 +890,14 @@
                                                             <td>@Model.Degree</td>
                                                             <td>@Model.Major</td>
                                                             <td>@Model.DegreeDate</td>
-                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 1, Userid =Model.UserID}, new { onclick = "return isValideduInfo(1,this);" })</td>
+                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 1, Userid = Model.UserID }, new { onclick = "return isValideduInfo(1,this);" })</td>
                                                         </tr>
                                                         <tr style="text-align: center;" id="EDU2" hidden>
                                                             <td>@Model.Institution2 </td>
                                                             <td>@Model.Degree2</td>
                                                             <td>@Model.Major2</td>
                                                             <td>@Model.DegreeDate2</td>
-                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfo(2,this);" })</td>
+                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfo(2,this);" })</td>
 
 
 
@@ -703,13 +907,13 @@
                                                             <td>@Model.Degree3</td>
                                                             <td>@Model.Major3</td>
                                                             <td>@Model.DegreeDate3</td>
-                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfo(3,this);" })</td>
+                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfo(3,this);" })</td>
 
                                                     </tbody>
                                                 </table>
 
                                                 <div id="divO1" style="text-align: center; margin-left: 36%;">
-                                                    <label>You can add up to three degrees.</label>
+                                                    <label>@Fingerprints.LocalResource.Resources.You_add_upto_three_degrees.</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -726,7 +930,7 @@
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Tuberculosis Test Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Tuberculosis_Test_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="TBDate" maxlength="50" name="TBDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.TBDate" />
                                                 </div>
@@ -735,19 +939,19 @@
 
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Tuberculosis Test Results </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Tuberculosis_Test_Results</label>
 
                                                 <select name="TBResults" class="form-control" id="TBResults">
 
-                                                    <option value="1" @if (@Model.TBResults == "1") { <text> selected="selected" </text>           }>Pass</option>
-                                                    <option value="2" @if (@Model.TBResults == "2") { <text> selected="selected" </text>           }>Fail</option>
+                                                    <option value="1" @if (@Model.TBResults == "1") { <text> selected="selected" </text>            }>@Fingerprints.LocalResource.Resources.Pass</option>
+                                                    <option value="2" @if (@Model.TBResults == "2") { <text> selected="selected" </text>            }>@Fingerprints.LocalResource.Resources.Fail</option>
 
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Communicable Disease Test Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Communicable_Disease_Test_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="CDDate" maxlength="50" name="CDDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.CDDate" />
                                                 </div>
@@ -756,12 +960,12 @@
 
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
-                                                <label>Communicable Disease Test Results </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Communicable_Disease_Test_Results </label>
 
                                                 <select name="CDResults" class="form-control" id="CDResults">
 
-                                                    <option value="1" @if (@Model.CDResults == "1") { <text> selected="selected" </text>           }>Pass</option>
-                                                    <option value="2" @if (@Model.CDResults == "2") { <text> selected="selected" </text>           }>Fail</option>
+                                                    <option value="1" @if (@Model.CDResults == "1") { <text> selected="selected" </text>             }>@Fingerprints.LocalResource.Resources.Pass</option>
+                                                    <option value="2" @if (@Model.CDResults == "2") { <text> selected="selected" </text>             }>@Fingerprints.LocalResource.Resources.Fail</option>
 
                                                 </select>
                                             </div>
@@ -772,9 +976,9 @@
 
                                                     <div class="clear"></div>
                                                     @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
-                                                            {
-                                                        <button type="submit" name="btnsubmit" value="health" id="btnsubmit" class="my-btn" onclick="return isValidhealthInfo();" tabindex="2">Save</button>
-}
+                                                    {
+                                                        <button type="submit" name="btnsubmit" value="health" id="btnsubmit" class="my-btn" onclick="return isValidhealthInfo();" tabindex="2">@Fingerprints.LocalResource.Resources.Save</button>
+                                                    }
                                                     <div class="clear"></div>
 
                                                 </div>	<!--btnwrp_subcal--->
@@ -790,7 +994,7 @@
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Medical Statement Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Medical_Statement_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="MSDate" maxlength="50" name="MSDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.MSDate" />
                                                 </div>
@@ -798,7 +1002,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Federal Background Check Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Federal_Background_Check_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="FBDate" maxlength="50" name="FBDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.FBDate" />
                                                 </div>
@@ -806,7 +1010,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>BCI Check Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.BCI_Check_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="BCIDate" maxlength="50" name="BCIDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.BCIDate" />
                                                 </div>
@@ -814,7 +1018,7 @@
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
-                                                <label>Non Conviction Statement Date </label>
+                                                <label>@Fingerprints.LocalResource.Resources.Non_Conviction_Statement_Date </label>
                                                 <div class="date custom-time">
                                                     <input class="form-control" id="NCDate" maxlength="50" name="NCDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.NCDate" />
                                                 </div>
@@ -826,7 +1030,7 @@
 
                                                 <div class="date custom-time">
 
-                                                    <label for="file">Upload Medical Statement Image:</label>
+                                                    <label for="file">@Fingerprints.LocalResource.Resources.Upload_Medical_Statement_Image </label>
                                                     <input type="file" name="MSIfile" id="MSIfile" /><br><br>
 
                                                     <br><br>
@@ -840,7 +1044,7 @@
 
                                                 <div class="date custom-time">
 
-                                                    <label for="file">Upload Federal Background Image:</label>
+                                                    <label for="file">@Fingerprints.LocalResource.Resources.Upload_Federal_Background_Image </label>
                                                     <input type="file" name="FBfile" id="FBfile" /><br><br>
 
                                                     <br><br>
@@ -852,7 +1056,7 @@
                                             <div class="form-group datepicker-days">
 
                                                 <div class="date custom-time">
-                                                    <label for="file">Upload BCI Check Image:</label>
+                                                    <label for="file">@Fingerprints.LocalResource.Resources.Upload_BCI_Check_Image</label>
                                                     <input type="file" name="BCIfile" id="BCIfile" /><br><br>
 
                                                     <br><br>
@@ -866,7 +1070,7 @@
 
                                                 <div class="date custom-time">
 
-                                                    <label for="file">Upload Non Conviction Statement Image:</label>
+                                                    <label for="file">@Fingerprints.LocalResource.Resources.Upload_Non_Conviction_Statement_Image /label>
                                                     <input type="file" name="NCfile" id="NCfile" /><br><br>
 
                                                     <br><br>
@@ -881,9 +1085,9 @@
                                                     <table class="table table_size" id="gridViewOther">
                                                         <thead style="cursor: pointer;">
                                                             <tr style="text-align: center;">
-                                                                <th>File Type </th>
-                                                                <th>File Name</th>
-                                                                <th>Action</th>
+                                                                <th>@Fingerprints.LocalResource.Resources.File_Type </th>
+                                                                <th>@Fingerprints.LocalResource.Resources.File_Name</th>
+                                                                <th>@Fingerprints.LocalResource.Resources.Action</th>
 
                                                             </tr>
                                                         </thead>
@@ -894,50 +1098,50 @@
                                                                 <td>Medical Statement </td>
                                                                 <td>@Model.MSIFileUploaded</td>
                                                                 @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
-                                                            {
-                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 1, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(1,this);" })</td>
-                                                            }
-                                                            else
-                                                            {
-                                                                    <td> Action is not available</td>
-                                                            }
+                                                                {
+                                                                    <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEMP", "MyProfile", new { emp = 1, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(1,this);" })</td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td>@Fingerprints.LocalResource.Resources.Action_is_not_available</td>
+                                                                }
                                                             </tr>
                                                             <tr style="text-align: center;" id="EMP1">
                                                                 <td>Federal Background </td>
                                                                 <td>@Model.FBFileUploaded</td>
                                                                 @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
-                                                            {
-                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(2,this);" })</td>
-                                                            }
-                                                            else
-                                                            {
-                                                                    <td> Action is not available</td>
-                                                            }
+                                                                {
+                                                                    <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEMP", "MyProfile", new { emp = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(2,this);" })</td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td>@Fingerprints.LocalResource.Resources.Action_is_not_available</td>
+                                                                }
 
                                                             </tr>
                                                             <tr style="text-align: center;" id="EMP2">
                                                                 <td>BCI Check </td>
                                                                 <td>@Model.BCIFileUploaded</td>
                                                                 @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
-                                                            {
-                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(3,this);" })</td>
-                                                            }
-                                                            else
-                                                            {
-                                                                    <td> Action is not available</td>
-                                                            }
+                                                                {
+                                                                    <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEMP", "MyProfile", new { emp = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(3,this);" })</td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td>@Fingerprints.LocalResource.Resources.Action_is_not_available</td>
+                                                                }
                                                             </tr>
                                                             <tr style="text-align: center;" id="EMP3">
                                                                 <td>Non Conviction Statement </td>
                                                                 <td>@Model.NCFileUploaded</td>
                                                                 @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
-                                                            {
-                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 4, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(4,this);" })</td>
-                                                            }
-                                                            else
-                                                            {
-                                                                    <td> Action is not available</td>
-                                                            }
+                                                                {
+                                                                    <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEMP", "MyProfile", new { emp = 4, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(4,this);" })</td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td>@Fingerprints.LocalResource.Resources.Action_is_not_available</td>
+                                                                }
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -991,16 +1195,16 @@
                                                     @if (item.LanguageId == 12 && item.IsSpoken == true)
                                                     {
                                                         <div id="OtherLanguage@(item.LanguageId)" style="margin-top:10px;float:left;">
-                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color:#295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
-                                                            <input type="text" name="LangList[@i].OtherLanguage" value="@item.OtherLanguage"  style="padding: 20px;"  id="OLang@(item.LanguageId)" class="form-control"/>
-                                                            
+                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color:#295b8f;padding-top:7px;font-weight:bold;">@Fingerprints.LocalResource.Resources.Specify_Other_Language</label>
+                                                            <input type="text" name="LangList[@i].OtherLanguage" value="@item.OtherLanguage" style="padding: 20px;" id="OLang@(item.LanguageId)" class="form-control" />
+
                                                         </div>
                                                     }
                                                     else
                                                     {
                                                         <div id="OtherLanguage@(item.LanguageId)" style="display:none;margin-top:10px;float:left;">
-                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color: #295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
-                                                            <input type="text" name="LangList[@i].OtherLanguage" id="OLang@(item.LanguageId)" style="padding: 20px;"  class="form-control"/>
+                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color: #295b8f;padding-top:7px;font-weight:bold;">@Fingerprints.LocalResource.Resources.Specify_Other_Language</label>
+                                                            <input type="text" name="LangList[@i].OtherLanguage" id="OLang@(item.LanguageId)" style="padding: 20px;" class="form-control" />
                                                         </div>
                                                     }
                                                 </div>
@@ -1015,7 +1219,7 @@
                                 <div class="row">
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="btnwrp_subcal">
-                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return IsValidLanguage(0, this);" tabindex="1">Save</button>
+                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return IsValidLanguage(0, this);" tabindex="1">@Fingerprints.LocalResource.Resources.Save</button>
 
                                             <div class="clear"></div>
                                         </div>	
@@ -1026,8 +1230,96 @@
 
                             </div>
                         </div>
-                        </div>
 
+                        <div class="tab-pane fade" id="addSignature">
+                            <div class="add-useragform">
+                                <div class="row" style="margin-top:20px;">
+
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+
+                                        <div class="col-lg-6 col-md-12 col-sm-12" id="div-signature-preview" @if (Model.StaffSignature.StaffSignatureID == 0) { <text> style="display:none;" </text>  }>
+                                            <div class="form-group">
+
+                                                <div class="col-xs-12 adddivspace canvas-inner-block">
+                                                    <label style="font-weight:bold;">Signature</label>
+
+                                                    <div class="signature-img-preview" id="signature-img-preview">
+
+                                                    </div>
+
+                                                    <div class="signature-code-preview adddivspace" style="margin-top:20px;">
+
+                                                        <label style="font-weight:bold;">Signature Code</label>
+
+                                                        <div class="form-group">
+                                                            <label id="lblSignatureCode">@Model.StaffSignature.SignatureCode</label>
+                                                          @*  @Html.TextBoxFor(m => m.StaffSignature.SignatureCode, new { @class = "form-control" })*@
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="add-useragform student-scroll full-border full-border-margin text-center cent-section" style="margin:20px 0;">
+                                                        <button class="btnPassword" type="button" id="clear1" onclick="return changeSignature(this);" style="border-radius:50px;margin-right:100px;">@Fingerprints.LocalResource.Resources.Change</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-6 col-md-12 col-sm-12" id="div-signature-draw" @if (Model.StaffSignature.StaffSignatureID > 0) { <text> style="display:none;" </text>   }>
+                                            <div class="form-group">
+                                                <label class="col-xs-12" style="font-weight:bold;">Signature <sup>*</sup></label>
+
+                                                <div class="col-xs-12 adddivspace canvas-inner-block">
+
+                                                    <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">@Fingerprints.LocalResource.Resources.Sign_here</i>
+                                                    <div id="staff-sig-div"></div>
+
+                                                    @Html.HiddenFor(m => m.StaffSignature.Signature, new { @id = "image-staff-hidden" })
+                                                    @*<input type="hidden" id="image-staff-hidden" name="StaffSignature.Signature" />*@
+                                                    <input type="hidden" id="conv-staff-image" />
+                                                    <div class="add-useragform student-scroll full-border full-border-margin text-center cent-section" style="margin: 20px 95px 25px 0px;">
+                                                        <button class="btnPassword" type="button" id="clear1" onclick="return clearStaffSignature(1,this);" style="border-radius:50px;">@Fingerprints.LocalResource.Resources.Clear</button>
+                                                        <button class="btnPassword" type="button" id="accept1" onclick="return saveStaffSignature(this);" style="border-radius:50px;">@Fingerprints.LocalResource.Resources.Accept_Signature</button>
+                                                        <i style="display:block;margin-top:10px;font-size:12px;">(@Fingerprints.LocalResource.Resources.Sign_Above_Accept_Signature)</i>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group">
+                                                <label class="col-xs-12" style="font-weight:bold;">@Fingerprints.LocalResource.Resources.Signature_Code <sup>*</sup></label>
+                                                <div class="col-xs-12 adddivspace">
+
+                                                    @Html.TextBoxFor(m => m.StaffSignature.SignatureCode, new { @class = "form-control", @id = "SignatureCode", @autocomplete = "off", @maxlength = "4", @style = "width:12%" })
+                                                    @*<input class="form-control" id="SignatureCode" autocomplete="off" maxlength="4" name="StaffSignature.SignatureCode" type="text" value="" style="width: 12%;">*@
+                                                </div>
+                                                <div class="col-xs-12 adddivspace">
+                                                    <small style="color:red;">Only 4 - digits numeric (0 - 9) values</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="btnwrp_subcal">
+                                                <button type="submit" name="btnSignatureSubmit" id="btnSignatureSubmit" value="sig" class="my-btn" onclick="return IsValidSignature(0, this);" tabindex="1">@Fingerprints.LocalResource.Resources.Save</button>
+
+                                                <div class="clear"></div>
+                                            </div>
+
+                                        </div>
+
+
+
+                                    </div>
+
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
 
 
                     </div>
@@ -1036,9 +1328,11 @@
 
             </div>
 
+        </div>
 
-        </form>
-        }
+
+    </form>
+}
 
 
 

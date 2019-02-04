@@ -154,7 +154,7 @@ label.btn-eduupload {
 }
 </style>
 
-<div class="modal fade scroll-modal in custom-modal camera-file-modal" id="modalScreenDoc" role="dialog" aria-hidden="false">
+<div class="modal fade scroll-modal in custom-modal camera-file-modal" data-backdrop="static" data-keyboard="false" id="modalScreenDoc" role="dialog" aria-hidden="false">
     <div class="modal-dialog modal-dialog-ch modal-lg">
         <div class="modal-content">
 
@@ -249,21 +249,21 @@ label.btn-eduupload {
                 <div class="row">
                     <div class="form-group final-btn text-center glossy_btn adddivspace" style="padding: 0 30px;">
 
-                        <button type="button" id="SaveNoteSubmit" onclick="return saveDocumentCamera();" class="glossy-button-button button-green glossy-button-hover" style="background:#2ecc71;">
+                        <button type="button" id="SaveNoteSubmit" onclick="return saveDocumentCamera();" class="glossy-button-button button-green glossy-button-hover">
                             Save
 
                             <span class="glossy-button-after"></span>
                             <span class="glossy-button-before"></span>
                         </button>
-
-                        <button type="button" class="glossy-button-button button-red glossy-button-hover" data-dismiss="modal" style="background:#db4437;">
+                        &nbsp;&nbsp;
+                        <button type="button" class="glossy-button-button button-red glossy-button-hover" data-dismiss="modal">
                             Exit
 
                             <span class="glossy-button-after"></span>
                             <span class="glossy-button-before"></span>
                         </button>
 
-                        <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="3955">
+                        <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="">
 
 
 
@@ -289,6 +289,123 @@ label.btn-eduupload {
 <script type="text/javascript">
 
 
+    const videoElement = document.querySelector('.camera-file-modal video');
+    //var audioSelect = document.querySelector('select#audioSource');
+    const videoSelect = document.querySelector('.camera-file-modal select#videoSource');
+    var constraints = {};
+    var front = true;
+
+
+    const screenshotButton = document.querySelector('.camera-file-modal #anchor-capture');
+    const img = document.querySelector('.camera-file-modal #setup-camera-div #capt-img');
+    const video = document.querySelector('.camera-file-modal #setup-camera-div video');
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    const canvas = document.createElement('canvas');
+
+
+    screenshotButton.onclick = video.onclick = function () {
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        // Other browsers will fall back to image/png
+        console.log(canvas);
+        img.src = canvas.toDataURL('image/png');
+      
+    };
+
+    function handleSuccess(stream) {
+        screenshotButton.disabled = false;
+        video.srcObject = stream;
+    }
+
+    function stopMediaTracks(stream) {
+        
+        stream.getTracks().forEach(function (track) { track.stop(); })
+
+    }
+
+
+
+
+
+    //new code//
+
+
+
+
+    var currentStream;
+
+    function stopMediaTracks(stream) {
+        stream.getTracks().forEach(function (track) {
+            track.stop();
+        });
+    }
+
+    function gotDevices(mediaDevices) {
+        // debugger;
+        videoSelect.innerHTML = '';
+        // videoSelect.appendChild(document.createElement('option'));
+        var count = 1;
+        mediaDevices.forEach(function (mediaDevice) {
+            if (mediaDevice.kind === 'videoinput') {
+                const option = document.createElement('option');
+                option.value = mediaDevice.deviceId;
+                const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                const textNode = document.createTextNode(label);
+                option.appendChild(textNode);
+                videoSelect.appendChild(option);
+            }
+        });
+
+
+
+
+
+    }
+
+    function getStream() {
+        // alert('change event');
+        if (typeof currentStream !== 'undefined') {
+            stopMediaTracks(currentStream);
+        }
+        const videoConstraints = {};
+        if (videoSelect.value === '') {
+            videoConstraints.facingMode = 'environment';
+        } else {
+            videoConstraints.deviceId = { exact: videoSelect.value };
+        }
+        const constraints = {
+            video: videoConstraints,
+            audio: false
+        };
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(function (stream) {
+              currentStream = stream;
+              video.srcObject = stream;
+              return navigator.mediaDevices.enumerateDevices();
+          })
+          .then(gotDevices)
+          .catch(function (error) {
+              console.error(error);
+              //alert(error);
+          });
+    }
+
+    videoSelect.addEventListener('change', function (event) {
+
+        getStream();
+    });
+
+    navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+
+
+
+
     function showCameraOption(ele) {
         //  alert();
         var videoInputAvailable = 0;
@@ -306,14 +423,14 @@ label.btn-eduupload {
 
 
             if (videoInputAvailable == 0) {
-                $('#divcapimage').hide();
+                $('.camera-file-modal #divcapimage').hide();
 
-                $("#divcamnotfound").show();
+                $(".camera-file-modal #divcamnotfound").show();
             }
             else {
-                $('#divcamnotfound').hide();
+                $('.camera-file-modal #divcamnotfound').hide();
 
-                $("#divcapimage").show();
+                $(".camera-file-modal #divcapimage").show();
             }
 
         }).catch(function (err) {

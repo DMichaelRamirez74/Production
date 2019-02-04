@@ -102,6 +102,8 @@ namespace Fingerprints.Controllers
                         Session["Roleid"] = UserInfo.roleId;
                         Session["EmailID"] = UserInfo.Emailid;
                         Session["FullName"] = UserInfo.UserName;
+                        Session["HasSignatureCode"] =( UserInfo.StaffSignature.StaffSignatureID > 0);
+                        Session["StaffSignature"] = UserInfo.StaffSignature.Signature;
                         //if (UserInfo.AgencyId != null)
                         //    Session["AgencyID"] = UserInfo.AgencyId;
 
@@ -313,6 +315,9 @@ namespace Fingerprints.Controllers
                     Session["IsShowScreening"] = UserInfo.IsShowScreening;
                     Session["IsInAcceptanceProcess"] = UserInfo.IsInAcceptanceProcess;
                     Session["AllowCaseNoteTeacher"] = UserInfo.AllowCaseNoteTeacher;
+
+                    Session["HasSignatureCode"] = (UserInfo.StaffSignature.StaffSignatureID > 0);
+                    Session["StaffSignature"] = UserInfo.StaffSignature.Signature;
 
                     if (UserInfo.AgencyId != null)
                     {

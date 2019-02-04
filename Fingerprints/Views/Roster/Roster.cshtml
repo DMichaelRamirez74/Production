@@ -53,15 +53,93 @@
                 $("#lwbtn").attr('href', 'javascript:void(0)');
             }
         });
+        $(document).on('click', '[data-toggle="tooltip"]',function(){
+        
+        
+        
+            $(this).tooltip('hide');
+        
+        
+        });
 
 
         function showCameraPopupmodal(ele)
         {
-            $('.camera-file-modal').attr('id','updateDocumentModal');
-            $('.camera-file-modal').find('#SaveNoteSubmit').html('Add');
-            $('.camera-file-modal').find('#SaveNoteSubmit').attr('onclick','addDocument();');
-            $('.camera-file-modal').find('.up-device').attr('onclick','uploadFromDeviceDoc();');
-            $('.camera-file-modal').modal('show');
+            var $modalId='updateDocumentModal';
+            var $sourceModalId=$(ele).closest('.modal').attr('id');
+
+            $('.camera-file-modal').attr('id',$modalId);
+            $('#'+$modalId+'').find('#SaveNoteSubmit').html('Add');
+            $('#'+$modalId+'').find('#SaveNoteSubmit').attr('onclick','addDocumentCamera("'+$modalId+'",this,"'+$sourceModalId+'");');
+            $('#'+$modalId+'').find('.up-device').attr('onclick','uploadFromDeviceDoc("'+$sourceModalId+'","'+$modalId+'");');
+            $('#'+$modalId+'').find('#divcapimage').hide();
+            $('#'+$modalId+'').find('#capt-img').removeAttr('src');
+            $('#'+$modalId+'').modal('show');
+        }
+
+
+        function uploadFromDeviceDoc(ele,targetId)
+        {
+
+            $('#'+ele).find('#FamilyHousehold_FileaddressAvatar').attr('data-target-id',targetId).trigger('click');
+        }
+
+
+        function bindInputFile(ele,imageType,sourceObjId)
+        {
+
+            var $srcModal=$('#'+sourceObjId);
+
+            debugger;
+            if(imageType==1)
+            {
+                console.log($(ele).get(0));
+                var fileName=$(ele).get(0).files[0].name;
+                console.log(fileName);
+
+                $srcModal.find('#lblFileName').html(fileName);
+
+                $srcModal.find('#cap-img').parent('div').hide();
+                $srcModal.find('#cap-img').attr('src','');
+
+                $srcModal.find('input[name="FamilyHousehold.HFileInString"]').val('');
+
+                $srcModal.find('.span-upload').html('Update document');
+            }
+            else if(imageType==2)
+            {
+                $srcModal.find('#cap-img').attr({'src': $(img)[0].src});
+                $srcModal.find('#cap-img').show();
+                $srcModal.find('.span-upload').html('Update document');
+
+                $srcModal.find('#FamilyHousehold_FileaddressAvatar').val('');
+
+                $srcModal.find('#lblFileName').html('');
+
+                $srcModal.find('#cap-img').show();
+
+                $srcModal.find('input[name="FamilyHousehold.HFileInString"]').val(getBase64Image(img));
+
+
+                $srcModal.find('#cap-img').parent('div').show();
+
+            }
+
+
+
+        }
+
+        function getBase64Image(img) {
+            //debugger;
+            //var canvas = document.createElement("canvas");
+            //canvas.width = img.width;
+            //canvas.height = img.height;
+            //var ctx = canvas.getContext("2d");
+            //ctx.drawImage(img, 0, 0);
+            //var dataURL = ctx.toDataURL("image/png");
+            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
         }
 
 
@@ -485,7 +563,9 @@
 
 
         var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
-        function ValidateSingleInputpdf2(oInput) {
+
+        function ValidateSingleInputpdf2(oInput,callback) {
+            
             if (oInput.type == "file") {
                 var sFileName = oInput.value;
                 if (sFileName.length > 0) {
@@ -515,8 +595,41 @@
 
                 }
             }
+
+            if(callback !=null)
+            {
+                var imagetype=1;
+                var $scrId=$(oInput).closest('.modal').attr('id');
+
+                callback(oInput,imagetype,$scrId);
+
+                var targId=$(oInput).attr('data-target-id');
+                $('#'+targId).modal('hide');
+
+            }
+
             return true;
         }
+
+
+
+        function addDocumentCamera(modal,ele,sourceObjId) {
+            var docImage = $('#'+modal).find('#capt-img');
+
+            if (docImage[0].src.replace('data:,', '') == '') {
+                customAlert('Please capture image using camera');
+                return false;
+            }
+            else {
+
+
+                bindInputFile(docImage,2,sourceObjId);
+
+                $('#'+modal).modal('hide');
+            }
+
+        }
+
         var flag = 0;
 
         var EnrolledObject = null;
@@ -609,117 +722,100 @@
 
         function loadHouselessClient(ele) {
 
-            $.ajax({
-
-                url: '/Roster/GetHouselessClient',
-                type: 'post',
-                datatype: "json",
-                data: { householdId: $(ele).attr('data-house'), clientId: $(ele).attr('data-cli') },
-                beforeSend: function () { $('#spinner').show() },
-                success: function (data) {
-
-
-                    $('#spinner').hide();
-
-                    var houselessModal = $('#Houselessmodal');
-                    var clientAppend = '';
-                    var staffAppend = '';
-                    houselessModal.find('#CaseNoteDetails_Note').val('');
-                    if (data != null) {
-                        if (data.UsersList.Clientlist != null) {
-                            if (data.UsersList.Clientlist.length > 0) {
-                                $.each(data.UsersList.Clientlist, function (c, client) {
-
-                                    clientAppend += '<div class="col-sm-12 m-tp">\
-                                        <input type="checkbox" class="client-check" name="UsersList.clientlist['+ c + '].Id" value=' + client.Id + '>\
-                                            <span name="UsersList.clientlist['+ c + '].Name">' + client.Name + '</span></div>';
-                                });
-
-
-                            }
-                        }
-
-                        if (data.UsersList.UserList != null) {
-                            if (data.UsersList.UserList.length > 0) {
-                                $.each(data.UsersList.UserList, function (d, staff) {
-
-                                    staffAppend += '<div class="no-padding col-sm-12 m-tp">\
-                                        <input type="checkbox" class="staff-check" name="UsersList.UserList[' + d + '].Id" value=' + staff.Id + '>\
-                                        <span name="UsersList.UserList[' + d + '].Name">' + staff.Name + '</span>\
-                                        </div>';
-                                });
-                            }
-                        }
-                        houselessModal.find('#ClientDiv').html(clientAppend);
-
-                        houselessModal.find('#StaffDiv').html(staffAppend);
-
-
-                        houselessModal.find('#CaseNoteDetails_caseNoteDate').val(getFormattedDate(new Date()));
-
-                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
-                        houselessModal.find('#oldAddress').val('');
-
-                        if (data.FamilyHousehold != null) {
-                            if (data.FamilyHousehold.EAddress1 != null || data.FamilyHousehold.EAddress1 != '') {
-                                var list = "<h2 style='text-decoration:underline;'>Old Address</h2><hr>";
-                                list += data.FamilyHousehold.EAddress1;
-                                houselessModal.find('#CaseNoteDetails_Note').val(list);
-
-                                houselessModal.find('#oldAddress').val(list);
-                            }
-
-                            houselessModal.find('#FamilyHousehold_ClientFname').html(data.FamilyHousehold.ClientFname);
-
-                            houselessModal.find('#FamilyHousehold_clientIdnew').val(data.FamilyHousehold.clientIdnew);
-
-                            houselessModal.find('#FamilyHousehold_CProgramType').val(data.FamilyHousehold.CProgramType);
-
-                            houselessModal.find('#FamilyHousehold_CenterId').val(data.FamilyHousehold.CenterId);
-
-                            houselessModal.find('#FamilyHousehold_HouseholdId').val(data.FamilyHousehold.HouseholdId);
-                        }
-
-                        if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                            CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
-
-                        }
-
-
-                        CKEDITOR.replace('CaseNoteDetails_Note', {
-                            language: 'en-gb',
-                            uiColor: '#295b8f',
-                            disableNativeSpellChecker: false
-                        });
+            //$.ajax({
+            //    url: '/Roster/GetHouselessClient',
+            //    type: 'post',
+            //    datatype: "json",
+            //    data: { householdId: $(ele).attr('data-house'), clientId: $(ele).attr('data-cli') },
+            //    beforeSend: function () { $('#spinner').show() },
+            //    success: function (data) {
+            //        $('#spinner').hide();
+            //        var houselessModal = $('#Houselessmodal');
+            //        var clientAppend = '';
+            //        var staffAppend = '';
+            //        houselessModal.find('#CaseNoteDetails_Note').val('');
+            //        if (data != null) {
+            //            if (data.UsersList.Clientlist != null) {
+            //                if (data.UsersList.Clientlist.length > 0) {
+            //                    $.each(data.UsersList.Clientlist, function (c, client) {
+            //                        clientAppend += '<div class="col-sm-12 m-tp">\
+            //                            <input type="checkbox" class="client-check" name="UsersList.clientlist['+ c + '].Id" value=' + client.Id + '>\
+            //                                <span name="UsersList.clientlist['+ c + '].Name">' + client.Name + '</span></div>';
+            //                    });
+            //                }
+            //            }
+            //            if (data.UsersList.UserList != null) {
+            //                if (data.UsersList.UserList.length > 0) {
+            //                    $.each(data.UsersList.UserList, function (d, staff) {
+            //                        staffAppend += '<div class="no-padding col-sm-12 m-tp">\
+            //                            <input type="checkbox" class="staff-check" name="UsersList.UserList[' + d + '].Id" value=' + staff.Id + '>\
+            //                            <span name="UsersList.UserList[' + d + '].Name">' + staff.Name + '</span>\
+            //                            </div>';
+            //                    });
+            //                }
+            //            }
+            //            houselessModal.find('#ClientDiv').html(clientAppend);
+            //            houselessModal.find('#StaffDiv').html(staffAppend);
+            //            houselessModal.find('#CaseNoteDetails_caseNoteDate').val(getFormattedDate(new Date()));
+            //            houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
+            //            houselessModal.find('#oldAddress').val('');
+            //            if (data.FamilyHousehold != null) {
+            //                if (data.FamilyHousehold.EAddress1 != null || data.FamilyHousehold.EAddress1 != '') {
+            //                    var list = "<h2 style='text-decoration:underline;'>Contact Address</h2><hr>";
+            //                    list += data.FamilyHousehold.EAddress1;
+            //                    houselessModal.find('#CaseNoteDetails_Note').val(list);
+            //                    houselessModal.find('#oldAddress').val(list);
+            //                }
+            //                houselessModal.find('#FamilyHousehold_ClientFname').html(data.FamilyHousehold.ClientFname);
+            //                houselessModal.find('#FamilyHousehold_clientIdnew').val(data.FamilyHousehold.clientIdnew);
+            //                houselessModal.find('#FamilyHousehold_CProgramType').val(data.FamilyHousehold.CProgramType);
+            //                houselessModal.find('#FamilyHousehold_CenterId').val(data.FamilyHousehold.CenterId);
+            //                houselessModal.find('#FamilyHousehold_HouseholdId').val(data.FamilyHousehold.HouseholdId);
+            //            }
+            //            if (CKEDITOR.instances['CaseNoteDetails_Note']) {
+            //                CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+            //            }
+            //            CKEDITOR.replace('CaseNoteDetails_Note', {
+            //                language: 'en-gb',
+            //                uiColor: '#295b8f',
+            //                disableNativeSpellChecker: false
+            //            });
+            //            $('#CaseNoteDetails_CaseNotetags').tagsInput({
+            //                width: 'auto',
+            //                height: 'auto',
+            //                delimiter: [',', ';'],
+            //                autocomplete_url: UrlObj.getCaseNoteTags,//code0643
+            //                autocomplete: {
+            //                },
+            //            });
+            //            $('#CaseNoteDetails_CaseNotetags').importTags('Address Change,,;Home Found');
+            //        }
+            //        houselessModal.find('#uploadImageCamera').attr('onclick','showMultipleCamera(this);')
+            //        houselessModal.modal('show');
+            //    },
+            //    error: function (data) {
+            //    },
+            //    complete: function (data) {
+            //    }
+            //});
 
 
 
-                        $('#CaseNoteDetails_CaseNotetags').tagsInput({
-                            width: 'auto',
-                            height: 'auto',
-                            delimiter: [',', ';'],
-                            autocomplete_url: UrlObj.getCaseNoteTags,//code0643
-                            autocomplete: {
-                                
-                            },
-                           
-                        });
+            $('#spinner').show();
 
-                        $('#CaseNoteDetails_CaseNotetags').importTags('Address Change,,;Home Found');
+            location.href= HostedDir+'/AgencyUser/FamilyHouseless?id='+$(ele).attr('data-house');
+
+        }
 
 
-                    }
-                    houselessModal.modal('show');
-
-
-                },
-                error: function (data) {
-
-                },
-                complete: function (data) {
-
-                }
-            });
+        function showMultipleCamera(ele)
+        {
+            var $scrModal=$(ele).closest('.modal').attr('id');
+            var $targetModal=$('.multiple-camera-modal');
+            var $targetId='multipleCameraModal';
+            $targetModal.attr('id',$targetId);
+          $('#'+$targetId+'').find('.div-image-snap-gallery').html('');
+          $('#'+$targetId+'').modal('show');
 
         }
 
@@ -1222,7 +1318,7 @@
 
 
             var appendDiv = '<div class="form-group">\
-                                            <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach"  onchange="ValidateSingleInputpdf2(this);" id="CaseNoteAttachments_' + index + '_file"  style="width:54%;" tabindex="6" type="file" value="">\
+                                            <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach glossy-input"  onchange="ValidateSingleInputpdf2(this,null);" id="CaseNoteAttachments_' + index + '_file"  style="width:54%;" tabindex="6" type="file" value="">\
                                             <div class="some_attach">\
                                                 <a href="javascript:void(0);" title="Remove Attachment" onclick="removeAttachment(this);"><i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;Remove</a>\
                                             </div>\
@@ -1443,7 +1539,7 @@
             //            var index = $('#att_issueattachmentsDiv').find('input:file').length;
 
             var appendDiv = '<div class="col-xs-12 no-padding"> <div class="col-sm-9 col-lg-9 col-xs-7 no-padding" style="margin-top:10px;">\
-                                                       <input type="file"  onchange="ValidateSingleInputpdf2(this)" class="form-control">\
+                                                       <input type="file"  onchange="ValidateSingleInputpdf2(this,null)" class="form-control">\
                                                   </div>\
                                                   <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:4%;">\
                                                        <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeAttendanceIssueAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
@@ -3791,9 +3887,9 @@
                             }
                         }
 
-                        //if (data.list.Rosters[i].FamilyHomeless == 1) {
-                        //    tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
-                        //}
+                        if (data.list.Rosters[i].FamilyHomeless == 1) {
+                            tr += '<a title="Click here to update household address for family" data-toggle="tooltip" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
+                        }
 
 
                         if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
@@ -5391,13 +5487,29 @@
             margin-top: 10px;
         }
 
-      
-            #FamilyHousehold_City{margin-right:0;}
-        .addapplicant{margin-bottom:20px!important;}
-        #Houselessmodal div#section_attachment label{width: 23%;}
-        #Houselessmodal .import_ft_files input {width: 45% !important;margin-right: 10px;}
-        #Houselessmodal .import_ft_files {width: 76%;float: right;}
-      
+
+        #FamilyHousehold_City {
+            margin-right: 0;
+        }
+
+        .addapplicant {
+            margin-bottom: 20px !important;
+        }
+
+        #Houselessmodal div#section_attachment label {
+            width: 23%;
+        }
+
+        #Houselessmodal .import_ft_files input {
+            width: 45% !important;
+            margin-right: 10px;
+        }
+
+        #Houselessmodal .import_ft_files {
+            width: 76%;
+            float: right;
+        }
+
         /*.addapplicant-change{    border-bottom: 2px solid #34495e!important;
     color: #34495e!important;}*/
 
@@ -5672,17 +5784,17 @@
             @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
             {
                     <div class="col-sm-12 col-lg-4">
-                    <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
-                        <option value="0">--Select--</option>
-                        <option value="1">ABT</option>
-                        <option value="2">TRN</option>
-                        @*<option value="3">HOM</option>*@
-                        <option value="4">ALL SFU</option>
-                        <option value="5">SFU (Need Follow-up) </option>
-                        <option value="6">SFU (Follow-up Completed) </option>
-                    </select>
-                </div>
-            }
+                        <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
+                            <option value="0">--Select--</option>
+                            <option value="1">ABT</option>
+                            <option value="2">TRN</option>
+                            <option value="3">HOM</option>
+                            <option value="4">ALL SFU</option>
+                            <option value="5">SFU (Need Follow-up) </option>
+                            <option value="6">SFU (Follow-up Completed) </option>
+                        </select>
+                    </div>
+                }
 
             else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
             {
@@ -6367,7 +6479,7 @@
 
                                                 <div class="col-lg-9 col-sm-12">
                                                     <div class="col-sm-9 col-lg-9 col-xs-7 no-padding">
-                                                        <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this)" class="form-control">
+                                                        <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
                                                     </div>
                                                     <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:2%;">
 
@@ -6610,7 +6722,7 @@
 
                                                     <div class="col-lg-9 col-xs-12">
                                                         <div class="col-sm-9 col-lg-9 no-padding">
-                                                            <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this)" class="form-control">
+                                                            <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
                                                         </div>
                                                         <div class="col-sm-3 col-lg-3 adddivspace response-addicspace" style="margin-top:2%;">
 
@@ -7150,7 +7262,9 @@
 
                                                         </button>
 
-                                                    <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control glossy-input" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;display:none;" tabindex="7" type="file" value="">
+                                                    <label id="lblFileName"></label>
+
+                                                    <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control glossy-input" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this,bindInputFile)" style="width:65%;display:none;" tabindex="7" type="file" value="">
                                                     <span class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
                                                         <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="FamilyHousehold_AdresssverificationinPaper" name="FamilyHousehold.AdresssverificationinPaper" tabindex="8" type="checkbox" value="true"><input name="FamilyHousehold.AdresssverificationinPaper" type="hidden" value="false">
                                                         <label style="width:45px;">Paper</label>
@@ -7167,6 +7281,17 @@
                                                 </div>
                                             </div>
 
+
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+
+                                                <div class="setup_viewscreen-div" style="display:none;">
+                                                    <img id="cap-img" class="setup_viewscreen-camera-div" />
+
+                                                </div>
+                                                <input type="hidden" name="FamilyHousehold.HFileInString" />
+                                                <input type="hidden" name="FamilyHousehold.HFileName" value="AddressVerificationForm" />
+                                                <input type="hidden" name="FamilyHousehold.HFileExtension" value=".png" />
+                                            </div>
                                         </div>
                                     </div>
 
@@ -7774,6 +7899,13 @@
     @{
         Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
     }
+
+
+
+    @{
+        Html.RenderPartial(Url.Content("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml"));
+    }
+
 
 }
 

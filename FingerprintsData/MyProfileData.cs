@@ -23,6 +23,7 @@ namespace FingerprintsData
         {
             PrimaryLanguages language = new PrimaryLanguages();
             _Profile.LangList = new List<PrimaryLanguages>();
+            _Profile.StaffSignature = new StaffSignature();
             if (_dataset != null)
             {
                 if (_dataset.Tables[0].Rows.Count > 0)
@@ -60,6 +61,9 @@ namespace FingerprintsData
                         _Profile.BCIFileUploaded = dr["BCIImageFileName"].ToString();
                         _Profile.NCFileUploaded = dr["NCImageFileName"].ToString();
                         _Profile.UserID = dr["userid"].ToString();
+                        _Profile.StaffSignature.Signature = dr["StaffSignature"].ToString();
+                        _Profile.StaffSignature.SignatureCode = (!string.IsNullOrEmpty(dr["SignatureCode"].ToString()) ? EncryptDecrypt.Decrypt(dr["SignatureCode"].ToString()) : string.Empty);
+                        _Profile.StaffSignature.StaffSignatureID = Convert.ToInt64(dr["StaffSignatureID"]);
 
                     }
 
@@ -389,11 +393,36 @@ namespace FingerprintsData
                     command.CommandText = "USP_AddStaffPrimaryLanguage";
 
                 }
+
+                if (savetype == "5") //StaffSignature
+                {
+
+                    StaffDetails staff = StaffDetails.GetInstance();
+                    _Profile.hidtab = "#addSignature";
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@StaffSignature", _Profile.StaffSignature.Signature));
+                    command.Parameters.Add(new SqlParameter("@SignatureCode", EncryptDecrypt.Encrypt(_Profile.StaffSignature.SignatureCode)));
+                    command.Parameters.Add(new SqlParameter("@StaffUserID", ID));
+                    command.CommandText = "USP_AddStaffSignature";
+                    command.CommandType = CommandType.StoredProcedure;
+                }
+
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
                 result = command.Parameters["@result"].Value.ToString();
+
+                if (savetype == "5" && result == "1")
+                {
+                    HttpContext.Current.Session["HasSignatureCode"] = (!string.IsNullOrEmpty(_Profile.StaffSignature.Signature));
+                    HttpContext.Current.Session["StaffSignature"] = _Profile.StaffSignature.Signature;
+                }
+
                 GetProfile(_dataset, _Profile);
 
 
@@ -411,7 +440,43 @@ namespace FingerprintsData
             return result;
 
         }
-        public List<Role> Getallroles( string userid)
+
+        public string CheckSignatureCodeData(string signatureCode, string staffUserID)
+        {
+
+            string result = "0";
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@StaffUserID", staffUserID));
+                    command.Parameters.Add(new SqlParameter("@SignatureCode", EncryptDecrypt.Encrypt(signatureCode)));
+                    command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
+                    command.Connection = Connection;
+                    command.CommandText = "USP_VerifyStaffSignatureCode";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    command.ExecuteReader();
+                    result = command.Parameters["@result"].Value.ToString();
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                result = "2";
+            }
+
+            return result;
+        }
+        public List<Role> Getallroles(string userid)
         {
             List<Role> RoleList = new List<Role>();
             try

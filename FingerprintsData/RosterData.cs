@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 using FingerprintsModel;
 using System.Web.Mvc;
 using System.IO;
-using System.Web;
 using System.Collections;
 using System.Globalization;
 using System.Xml;
@@ -641,6 +637,12 @@ namespace FingerprintsData
                         dt.Rows.Add(new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName));
 
                     }
+
+                    else if(Attachment.AttachmentFileByte!=null && Attachment.AttachmentFileByte.Length>0)
+                    {
+                        dt.Rows.Add(Attachment.AttachmentFileByte, Attachment.AttachmentFileName,Attachment.AttachmentFileExtension);
+
+                    }
                 }
                 command.Parameters.Add(new SqlParameter("@Attachments", dt));
                 command.CommandType = CommandType.StoredProcedure;
@@ -694,154 +696,295 @@ namespace FingerprintsData
             List<Roster> RosterList = new List<Roster>();
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             _roster.Rosters = new List<Roster>();
-            int IssuePercentage = 0;
+            _roster.AbsenceTypeList = new List<SelectListItem>();
+            _roster.AbsenceReasonList = new List<SelectListItem>();
+            List<ClosedInfo> closedList = new List<ClosedInfo>();
+            //int IssuePercentage = 0;
             try
             {
-                totalrecord = string.Empty;
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Center", Center));
-                command.Parameters.Add(new SqlParameter("@Classroom", Classroom));
-                command.Parameters.Add(new SqlParameter("@take", pageSize));
-                command.Parameters.Add(new SqlParameter("@skip", skip));
-                command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
-                command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@RoleId", roleId));
-                command.Parameters.Add(new SqlParameter("@SearchText", searchText));
-                command.Parameters.Add(new SqlParameter("@FilterOption", filterOption));
-                command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
-                command.Parameters.Add(new SqlParameter("@issuePercentage", 0)).Direction = ParameterDirection.Output;
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_rosterList";
-              // command.CommandText = "SP_rosterList_Test_02_05_2018";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                totalrecord = command.Parameters["@totalRecord"].Value.ToString();
-                IssuePercentage = Convert.ToInt32(command.Parameters["@issuePercentage"].Value.ToString());
-                if (_dataset.Tables[0] != null)
+
+
+                using (Connection = connection.returnConnection())
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+
+                    totalrecord = string.Empty;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Center", Center));
+                    command.Parameters.Add(new SqlParameter("@Classroom", Classroom));
+                    command.Parameters.Add(new SqlParameter("@take", pageSize));
+                    command.Parameters.Add(new SqlParameter("@skip", skip));
+                    command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
+                    command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
+                    command.Parameters.Add(new SqlParameter("@userid", userid));
+                    command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                    command.Parameters.Add(new SqlParameter("@RoleId", roleId));
+                    command.Parameters.Add(new SqlParameter("@SearchText", searchText));
+                    command.Parameters.Add(new SqlParameter("@FilterOption", filterOption));
+                    //command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
+                    //command.Parameters.Add(new SqlParameter("@issuePercentage", 0)).Direction = ParameterDirection.Output;
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_rosterList";
+                    Connection.Open();
+                    using (SqlDataReader dr = command.ExecuteReader())
                     {
-                        totalrecord = Convert.ToString(_dataset.Tables[0].Rows[0]["TotalRecord"]);
 
-                        _roster.Rosters = (from DataRow dr in _dataset.Tables[0].Rows
-                                           select new Roster
-                                           {
-                                               Householid = dr["Householdid"].ToString(),
-                                               Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
-                                               EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
-                                               Name = dr["name"].ToString(),
-                                               Gender = dr["gender"].ToString(),
-                                               CenterName = dr["CenterName"].ToString(),
-                                               CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
-                                               ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
-                                               RosterYakkr = dr["Yakkr"].ToString(),
-                                               //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
-                                               Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
-                                               ClassroomName = dr["ClassroomName"].ToString(),
-                                               MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
-                                               IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
-                                               Acronym = dr["AcronymName"].ToString(),
-                                               LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
-                                               LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
-                                               LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
-                                               LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
-                                               LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
-                                               IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
-                                               IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
-                                               IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
-                                              // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
-                                               Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
-                                               IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
-                                               IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
-                                               PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
-                                               ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
-                                               FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
-                                               IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
-                                               IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
-                                               ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
-                                               IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
-                                               IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
-                                               TransitionColor = Convert.ToString(dr["TransitionColor"]),
-                                               TransitionType = Convert.ToInt32(dr["TransitionType"]),
-                                               Returning = Convert.ToString(dr["Returning"]),
-                                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
-                                               FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
-                                               IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
-
-                                           }
-
-                                         ).Distinct().ToList();
 
                         
-                    }
-                }
-
-                
-
-                _roster.AbsenceTypeList = new List<SelectListItem>();
-
-                if (_dataset.Tables[1] != null)
-                {
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-                        _roster.AbsenceTypeList = (from DataRow dr5 in _dataset.Tables[1].Rows
-                                                   select new SelectListItem
-                                                   {
-                                                       Text = dr5["Description"].ToString(),
-                                                       Value = dr5["AttendanceTypeId"].ToString()
-                                                   }).ToList();
-
-                    }
-                }
-                _roster.AbsenceReasonList = new List<SelectListItem>();
-                if (_dataset.Tables[2] != null)
-                {
-                    if (_dataset.Tables[2].Rows.Count > 0)
-                    {
-                        _roster.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[2].Rows
-                                                     select new SelectListItem
-                                                     {
-                                                         Text = dr5["absenseReason"].ToString(),
-                                                         Value = dr5["reasonid"].ToString()
-                                                     }).ToList();
-
-                    }
-                }
-
-                if (_dataset.Tables[3] != null)
-                {
-                    // _TeacherM.TodayClosed = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]);
-
-                    List<ClosedInfo> closedList = new List<ClosedInfo>();
-                    closedList = (from DataRow dr5 in _dataset.Tables[3].Rows
-                                  select new ClosedInfo
-                                  {
-                                      ClosedToday = Convert.ToInt32(dr5["TodayClosed"]),
-                                      CenterName = dr5["CenterName"].ToString(),
-                                      ClassRoomName = dr5["ClassRoomName"].ToString(),
-                                      AgencyName = dr5["AgencyName"].ToString()
-                                  }
-                              ).ToList();
-                    closedList = closedList.Where(x => x.ClosedToday > 0).ToList();
-                    if (closedList.Count() > 0)
-                    {
-                        _roster.ClosedDetails = new ClosedInfo
+                        int resultSet = 0;
+                        do
                         {
-                            ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
-                            CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
-                            ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
-                            AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
-                        };
+
+                            while (dr.Read() && dr.HasRows)
+                            {
+                                switch (resultSet)
+                                {
+                                    case 0:
+                                        totalrecord = Convert.ToString(dr["TotalRecord"]);
+                                        _roster.Rosters.Add(
+                                                            new Roster
+                                                            {
+                                                                Householid = dr["Householdid"].ToString(),
+                                                                Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
+                                                                EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
+                                                                Name = dr["name"].ToString(),
+                                                                Gender = dr["gender"].ToString(),
+                                                                CenterName = dr["CenterName"].ToString(),
+                                                                CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
+                                                                ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
+                                                                RosterYakkr = dr["Yakkr"].ToString(),
+                                                                //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
+                                                                Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
+                                                                ClassroomName = dr["ClassroomName"].ToString(),
+                                                                MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
+                                                                IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
+                                                                Acronym = dr["AcronymName"].ToString(),
+                                                                LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
+                                                                LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
+                                                                LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
+                                                                LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
+                                                                LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
+                                                                IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
+                                                                IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
+                                                                IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
+                                                                // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
+                                                                Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
+                                                                IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
+                                                                IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
+                                                                PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
+                                                                ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
+                                                                FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
+                                                                IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
+                                                                IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
+                                                                ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
+                                                                IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
+                                                                IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
+                                                                TransitionColor = Convert.ToString(dr["TransitionColor"]),
+                                                                TransitionType = Convert.ToInt32(dr["TransitionType"]),
+                                                                Returning = Convert.ToString(dr["Returning"]),
+                                                                IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
+                                                                FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
+                                                                IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
+
+                                                            }
+                                      );
+
+                                        _roster.Rosters = _roster.Rosters.Distinct().ToList();
+
+
+                                        break;
+
+                                    case 1:
+                                        _roster.AbsenceTypeList.Add(
+                                                                    new SelectListItem
+                                                                    {
+                                                                        Text = Convert.ToString(dr["Description"]),
+                                                                        Value =Convert.ToString(dr["AttendanceTypeId"])
+                                                                    });
+                                        break;
+                                    case 2:
+                                        _roster.AbsenceReasonList.Add(new SelectListItem
+                                        {
+                                            Text = Convert.ToString(dr["absenseReason"]),
+                                            Value =Convert.ToString(dr["reasonid"])
+                                        });
+                                        break;
+
+                                    case 3:
+
+
+                                        if (Convert.ToInt32(dr["TodayClosed"]) > 0)
+                                        {
+                                            closedList.Add(new ClosedInfo
+                                            {
+                                                ClosedToday = Convert.ToInt32(dr["TodayClosed"]),
+                                                CenterName = Convert.ToString(dr["CenterName"]),
+                                                ClassRoomName =Convert.ToString(dr["ClassRoomName"]),
+                                                AgencyName =Convert.ToString(dr["AgencyName"])
+                                            }
+                                                 );
+                                        }
+
+
+
+                                        break;
+                                }
+
+                            }
+
+                            resultSet++;
+
+
+                        } while (dr.NextResult());
+
                     }
-                    else
-                    {
-                        _roster.ClosedDetails = new ClosedInfo();
-                    }
+
+
                 }
+
+
+
+
+                if (closedList.Count() > 0)
+                {
+                    _roster.ClosedDetails = new ClosedInfo
+                    {
+                        ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
+                        CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
+                        ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
+                        AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
+                    };
+                }
+                else
+                {
+                    _roster.ClosedDetails = new ClosedInfo();
+                }
+
+
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+                //totalrecord = command.Parameters["@totalRecord"].Value.ToString();
+                //IssuePercentage = Convert.ToInt32(command.Parameters["@issuePercentage"].Value.ToString());
+                //if (_dataset.Tables[0] != null)
+                //{
+                //    if (_dataset.Tables[0].Rows.Count > 0)
+                //    {
+                //        totalrecord = Convert.ToString(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
+                //        _roster.Rosters = (from DataRow dr in _dataset.Tables[0].Rows
+                //                           select new Roster
+                //                           {
+                //                               Householid = dr["Householdid"].ToString(),
+                //                               Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
+                //                               EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
+                //                               Name = dr["name"].ToString(),
+                //                               Gender = dr["gender"].ToString(),
+                //                               CenterName = dr["CenterName"].ToString(),
+                //                               CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
+                //                               ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
+                //                               RosterYakkr = dr["Yakkr"].ToString(),
+                //                               //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
+                //                               Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
+                //                               ClassroomName = dr["ClassroomName"].ToString(),
+                //                               MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
+                //                               IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
+                //                               Acronym = dr["AcronymName"].ToString(),
+                //                               LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
+                //                               LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
+                //                               LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
+                //                               LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
+                //                               LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
+                //                               IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
+                //                               IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
+                //                               IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
+                //                               // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
+                //                               Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
+                //                               IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
+                //                               IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
+                //                               PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
+                //                               ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
+                //                               FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
+                //                               IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
+                //                               IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
+                //                               ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
+                //                               IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
+                //                               IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
+                //                               TransitionColor = Convert.ToString(dr["TransitionColor"]),
+                //                               TransitionType = Convert.ToInt32(dr["TransitionType"]),
+                //                               Returning = Convert.ToString(dr["Returning"]),
+                //                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
+                //                               FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
+                //                               IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
+
+                //                           }
+                //                         ).Distinct().ToList();
+
+
+                //    }
+                //}
+
+
+
+                //_roster.AbsenceTypeList = new List<SelectListItem>();
+
+                //if (_dataset.Tables[1] != null)
+                //{
+                //    if (_dataset.Tables[1].Rows.Count > 0)
+                //    {
+                //        _roster.AbsenceTypeList = (from DataRow dr5 in _dataset.Tables[1].Rows
+                //                                   select new SelectListItem
+                //                                   {
+                //                                       Text = dr5["Description"].ToString(),
+                //                                       Value = dr5["AttendanceTypeId"].ToString()
+                //                                   }).ToList();
+
+                //    }
+                //}
+                //_roster.AbsenceReasonList = new List<SelectListItem>();
+                //if (_dataset.Tables[2] != null)
+                //{
+                //    if (_dataset.Tables[2].Rows.Count > 0)
+                //    {
+                //        _roster.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[2].Rows
+                //                                     select new SelectListItem
+                //                                     {
+                //                                         Text = dr5["absenseReason"].ToString(),
+                //                                         Value = dr5["reasonid"].ToString()
+                //                                     }).ToList();
+
+                //    }
+                //}
+
+                //if (_dataset.Tables[3] != null)
+                //{
+                  
+
+                //    closedList = (from DataRow dr5 in _dataset.Tables[3].Rows
+                //                  select new ClosedInfo
+                //                  {
+                //                      ClosedToday = Convert.ToInt32(dr5["TodayClosed"]),
+                //                      CenterName = dr5["CenterName"].ToString(),
+                //                      ClassRoomName = dr5["ClassRoomName"].ToString(),
+                //                      AgencyName = dr5["AgencyName"].ToString()
+                //                  }
+                //              ).ToList();
+                //    closedList = closedList.Where(x => x.ClosedToday > 0).ToList();
+                //    if (closedList.Count() > 0)
+                //    {
+                //        _roster.ClosedDetails = new ClosedInfo
+                //        {
+                //            ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
+                //            CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
+                //            ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
+                //            AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
+                //        };
+                //    }
+                //    else
+                //    {
+                //        _roster.ClosedDetails = new ClosedInfo();
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -851,8 +994,9 @@ namespace FingerprintsData
             }
             finally
             {
-                DataAdapter.Dispose();
+               
                 command.Dispose();
+                Connection.Dispose();
 
             }
             return _roster;
@@ -5999,16 +6143,18 @@ namespace FingerprintsData
                         success = Convert.ToBoolean( _dataset.Tables[0].Rows[0]["Result"].ToString());
                     }
 
-                    if (!success && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0) { //if tagname available
+                    if (!success && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
+                    { //if tagname available
 
                         availableTag = Convert.ToInt64(_dataset.Tables[1].Rows[0]["TagKey"].ToString());
                     }
-                    
+
 
                 }
 
-                }
-            catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -6057,7 +6203,8 @@ namespace FingerprintsData
                     }
                     }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -6133,7 +6280,8 @@ namespace FingerprintsData
 
                                 result.Add(row);
                             }
-                            else if (Mode == 2) {
+                            else if (Mode == 2)
+                            {
 
                                 var row = new ClientTimeLineModel()
                                 {
@@ -6204,7 +6352,8 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 

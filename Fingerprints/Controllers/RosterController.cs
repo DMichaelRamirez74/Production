@@ -2825,69 +2825,6 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        [ValidateInput(false)]
-        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor,RoleEnum.Teacher, RoleEnum.DisabilitiesManager,RoleEnum.SocialServiceManager)]
-
-        public ActionResult FamilyHouseless(FamilyHouseless houseless)
-        {
-            string message = "";
-            List<CaseNote> CaseNoteList = new List<CaseNote>();
-            RosterNew.Users Users = new RosterNew.Users();
-            try
-            {
-                houseless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(houseless.CaseNoteDetails.CaseNotetags) ? "" : houseless.CaseNoteDetails.CaseNotetags.Substring(0, houseless.CaseNoteDetails.CaseNotetags.Length - 1);
-                houseless.CaseNoteDetails.ClientIds = (houseless.UsersList.Clientlist != null && houseless.UsersList.Clientlist.Count > 0) ? string.Join(",", houseless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => EncryptDecrypt.Decrypt64(x.Id)).ToArray()) : "";
-                houseless.CaseNoteDetails.StaffIds = (houseless.UsersList.UserList != null && houseless.UsersList.UserList.Count > 0) ? string.Join(",", houseless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
-                houseless.CaseNoteDetails.HouseHoldId = houseless.FamilyHousehold.HouseholdId.ToString();
-                houseless.FamilyHousehold.CProgramType = EncryptDecrypt.Decrypt64(houseless.FamilyHousehold.CProgramType);
-                houseless.CaseNoteDetails.IsLateArrival = false;
-                houseless.CaseNoteDetails.ClientId = EncryptDecrypt.Decrypt64(houseless.FamilyHousehold.clientIdnew);
-                houseless.CaseNoteDetails.ProgramId = houseless.FamilyHousehold.CProgramType;
-                houseless.CaseNoteDetails.CenterId = houseless.FamilyHousehold.CenterId.ToString();
-                houseless.FamilyHousehold.HomeType = 2;
-                if (houseless.FamilyHousehold.FileaddressAvatar != null)
-                {
-                    houseless.FamilyHousehold.HFileName = houseless.FamilyHousehold.FileaddressAvatar.FileName;
-                    houseless.FamilyHousehold.HFileExtension = Path.GetExtension(houseless.FamilyHousehold.FileaddressAvatar.FileName);
-                    BinaryReader b = new BinaryReader(houseless.FamilyHousehold.FileaddressAvatar.InputStream);
-                    houseless.FamilyHousehold.HImageByte = b.ReadBytes(houseless.FamilyHousehold.FileaddressAvatar.ContentLength);
-                }
-                else
-                {
-                    houseless.FamilyHousehold.HImageByte = houseless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(houseless.FamilyHousehold.HFileInString);
-                }
-
-
-                //message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
-                if (message == "1")
-                {
-                    houseless.CaseNoteDetails.CaseNoteid = "0";
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, houseless.CaseNoteDetails, houseless.CaseNoteAttachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
-                }
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return RedirectToAction("Roster", "Roster");
-        }
-
-        //[HttpPost]
-        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
-
-        //public JsonResult NextProgramYearTransition(string clientId)
-        //{
-
-        //    bool isResult = false;
-
-        //    isResult = new RosterData().NextProgramYearTransition(clientId);
-
-        //    return Json(isResult);
-        //}
-
-
-        [HttpPost]
         [CustAuthFilter(RoleEnum.Teacher,RoleEnum.DisabilitiesManager,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.HomeVisitor,RoleEnum.FamilyServiceWorker)]
 
         public JsonResult UpdateReturningTransitionClient(int returnValue,string clientId)

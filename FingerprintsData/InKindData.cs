@@ -469,7 +469,8 @@ new DataColumn("Status",typeof(bool))
                     command.Parameters.Add(new SqlParameter("@IsCompany", inkindTransactions.IsCompany));
                     command.Parameters.Add(new SqlParameter("@IsEmergencyContact", inkindTransactions.IsEmergencyContact));
                     command.Parameters.Add(new SqlParameter("@DonorSignature", inkindTransactions.DonorSignature));
-                    command.Parameters.Add(new SqlParameter("@StaffSignature", inkindTransactions.StaffSignature));
+                    command.Parameters.Add(new SqlParameter("@StaffSignature", inkindTransactions.StaffSignature.Signature));
+                    command.Parameters.Add(new SqlParameter("@StaffSignatureCode", (!string.IsNullOrEmpty(inkindTransactions.StaffSignature.SignatureCode)? EncryptDecrypt.Encrypt(inkindTransactions.StaffSignature.SignatureCode):inkindTransactions.StaffSignature.SignatureCode)));
                     command.Parameters.Add(new SqlParameter("@InKindAmount", inkindTransactions.InKindAmount));
                     command.Parameters.Add(new SqlParameter("@MilesDriven", inkindTransactions.MilesDriven));
                     command.Parameters.Add(new SqlParameter("@ParentType", inkindTransactions.ParentType));

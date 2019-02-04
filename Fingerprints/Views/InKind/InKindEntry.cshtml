@@ -1,6 +1,8 @@
 ﻿@model FingerprintsModel.Inkind
 
 @{
+
+    bool hasSignatureCode = Convert.ToBoolean(Session["HasSignatureCode"]);
     ViewBag.Title = "In-Kind Entry";
     Layout = (Session["RoleID"].ToString() == "a65bb7c2-e320-42a2-aed4-409a321c08a5" || Session["RoleID"].ToString() == "3b49b025-68eb-4059-8931-68a0577e5fa2") ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
@@ -303,7 +305,7 @@
 
                 },
                 onChangeDateTime:function(e, ele){
-                    debugger;
+
 
                     $('#activity-date').css('background-color','');
                
@@ -873,6 +875,24 @@
             });
 
 
+
+            // check for the signature if the signature code input//
+
+
+
+            $('#txtSignatureCode').on('input',function(){
+            
+            
+                if($(this).val().trim().length==4)
+                {
+                    if(CheckStaffSignature($('#txtSignatureCode')))
+                    {
+                      
+                    }
+                }
+            });
+
+
             //On click of Inkind Entry Form Submit, Validates the form and Saves the Record to Database//
             $('#inKindEntrySubmit').on('click', function () {
            
@@ -1112,9 +1132,55 @@
                     return false;
                 }
 
-                if ($('#staff-sig-div').is(':visible') && staffSig.val() === '') {
-                    plainValidation('#sig2');
-                    customAlert('Please enter and accept signature');
+
+                var isSignature=true;
+
+
+                if('@hasSignatureCode'=="True")
+                {
+                   
+                    if(!$('input:radio[name="signatureRadio"]').is(':checked'))
+                    {
+                        isSignature=false;
+                        customAlert('Please select signature type');
+                    }
+
+                    else if($('input:radio[name="signatureRadio"]:checked').val()==1)
+                    {
+                        if($('#txtSignatureCode').val()=="")
+                        {
+                            
+                            isSignature=false;
+                            plainValidation('#txtSignatureCode');
+                            customAlert(_langList.Please_Enter_Signature_Code);
+                        }
+                        else if($('#txtSignatureCode').val().trim().length!=4)
+                        {
+
+                            isSignature=false;
+                            plainValidation('#txtSignatureCode');
+                            customAlert(_langList.SigCodeOnly4digits);
+                        }
+                        else
+                        {
+                            isSignature=CheckStaffSignature($('#txtSignatureCode'));
+                        }
+                    }
+
+                    else if($('input:radio[name="signatureRadio"]:checked').val()==2)
+                    {
+                        if ($('#staff-sig-div').is(':visible') && staffSig.val() === '') {
+                            plainValidation('#sig2');
+                            customAlert('Please enter and accept signature');
+                            isSignature= false;
+                        }
+                    }
+                    
+
+                }
+
+                if(!isSignature)
+                {
                     return false;
                 }
 
@@ -1216,7 +1282,7 @@
                         InKindTransactions.ActivityID = parseInt(activeCode);
                         InKindTransactions.IsActive = true;
                         InKindTransactions.DonorSignature = parentSig.val();
-                        InKindTransactions.StaffSignature = staffSig.val();
+                        InKindTransactions.StaffSignature ={'Signature':staffSig.val(),'SignatureCode': $('#txtSignatureCode').val()} ;
                         InKindTransactions.IsCompany = ($('.inkind-company-div').is(':visible')) ? true : false;
                         InKindTransactions.Hours = hrs;
                         InKindTransactions.Minutes = minutes;
@@ -1384,6 +1450,15 @@
                 $('#parent-sig-div').find('#imageSig1').val('');
                 $('#sig1').signature('clear');
                 $('#parent-sig-div').hide();
+
+                if($('#staff-sig-div').find('input:radio[name="signatureRadio"]').length>0)
+                {
+                    $('#staff-sig-div').find('input:radio[name="signatureRadio"]').prop('checked',false);
+                    $('#staff-sig-div').find('#txtSignatureCode').val('');
+                    $('#staff-sig-div').find('#div-add-signature-code').hide();
+                }
+
+
                 $('#staff-sig-div').find('#imageSig2').val('');
                 $('#sig2').signature('clear');
                 $('#staff-sig-div').hide();
@@ -1459,6 +1534,36 @@
 
                 fnChangePage($thisValue);
 
+            });
+
+
+
+            //Signature Radio click event//
+
+
+            $('input:radio[name="signatureRadio"]').on('click',function(){
+            
+            
+                if($(this).val()=="1")
+                {
+                    $('#txtSignatureCode').val('');
+                    $('#div-add-signature-code').show();
+                    $('#div-draw-Signature').hide();
+
+                }
+                else if($(this).val()=="2")
+                {
+                    $('#div-add-signature-code').hide();
+
+                    $('#div-draw-Signature').show();
+                }
+            
+            });
+
+            // Signature Code Validation Check //
+
+            $("#txtSignatureCode").inputFilter(function (value) {
+                return /^\d*$/.test(value) && value.toString().length <= 4;
             });
 
         });
@@ -1609,7 +1714,7 @@
 
         function getTotalRecord (data, val) {
 
-            debugger;
+  
 
 
             $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
@@ -1928,7 +2033,7 @@
         // validation for in-kind dates to check, whether entered date is allowed//
         function  isValidAllowedDates(enteredDate)
         {
-            debugger;
+        
 
 
             var $inkindPeriods= _inkindBudgetPeriods;
@@ -2283,6 +2388,16 @@
                         $('#inkindMilesText').val('');
                         $('#inkindAmountTxt').prop('disabled', true);
                         $('#descriptionTextArea').val(data.ActivityDescription);
+
+
+                        // hides the signature code div//
+
+                        if($('#staff-sig-div').find('input:radio[name="signatureRadio"]').length>0)
+                        {
+                            $('#staff-sig-div').find('input:radio[name="signatureRadio"]').prop('checked',false);
+                            $('#staff-sig-div').find('#txtSignatureCode').val('');
+                            $('#staff-sig-div').find('#div-add-signature-code').hide();
+                        }
 
                         if (data.ActivityAmountType === '2')//Hours Type
                         {
@@ -3088,6 +3203,42 @@
         tbody.ersea-table-head tr:nth-of-type(even) {
             background-color: #f9f9f9 !important;
         }
+        .signature-margin-top{margin-top: 55px;}
+        .signature-padding
+        {
+                text-align: left;
+    padding: 0;
+    padding-left: 2px;
+        }
+
+        @@media (min-width: 992px) and (max-width: 1199px) {
+            .attachparticic_myactive {width:100%!important;padding-left:15px!important;}
+            .cent-section,.kbw-signature{width:100%!important;}
+            .pad-left-signature {padding-right: 0!important;text-align: center!important;margin-top: 30px!important;}
+            .impo-censect{width:100%!important;margin-bottom:30px!important;}
+            #no-more-tables8 td{padding-right: 20px;}
+
+        }
+        @@media (min-width: 768px) and (max-width: 991px) {
+        .attachparticic_myactive {width:100%!important;padding-left:15px!important;}
+            .cent-section,.kbw-signature{width:100%!important;}
+            .pad-left-signature {padding-right: 0!important;text-align: center!important;margin-top: 30px!important;}
+            .impo-censect{width:100%!important;margin-bottom:30px!important;}
+            #no-more-tables8 td:before {top: 6px !important;padding-top:0!important;}
+            #searchText {width: 70%;}
+        }
+         @@media (max-width: 767px)  {
+        .attachparticic_myactive {width:100%!important;padding-left:15px!important;}
+            .cent-section,.kbw-signature{width:100%!important;}
+           .kbw-signature{overflow:auto;}
+            .pad-left-signature {padding-right: 0!important;text-align: center!important;margin-top: 30px!important;}
+            .impo-censect{width:100%!important;margin-bottom:30px!important;}
+            #searchText{width:60%;}
+            legend {width: 80% !important;}
+            .no-padding-res{padding:0!important;}
+            .col-lg-8.sum_attachparticic input,.sum_attachparticic.list_panic_info input {width:58%!important;}
+               #no-more-tables8 td:before {top: 6px !important;padding-top:0!important;}
+        }
     </style>
     <div class="row Zoom">
         <div class="col-lg-12" style="padding:0;">
@@ -3234,7 +3385,7 @@
 
                                         <!---Pagination Section-->
                                         <div class="col-xs-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
                                                 <div class="pages_display">
                                                     <ul>
                                                         <li style="color:#ffffff;">Display</li>
@@ -3252,7 +3403,7 @@
                                                     <div class="clear"></div>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                                 <div id="divPaging" class="pagination_wrp">
                                                     <ul id="ulPaging" class="pagination">
                                                         <li title="First">
@@ -3464,12 +3615,12 @@
 
 
 
-        <div class="col-lg-12 col-xs-12 inkind-entry-div" style="margin-top:20px;" id="inkind_Entry_scroll">
-            <form id="inkind-info-form">
-                <fieldset>
-                    <legend>Inkind Activity Entry</legend>
+                            <div class="col-lg-12 col-xs-12 inkind-entry-div" style="margin-top:20px;" id="inkind_Entry_scroll">
+                                <form id="inkind-info-form">
+                                    <fieldset>
+                                        <legend>In-Kind Activity Entry</legend>
 
-                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+                                        <div class="col-md-12 col-sm-12 col-lg-6 col-xs-12 no-padding-res">
 
                         <div class="form-group row inkind-name-div">
                             <label class="col-lg-4 col-form-label">Name</label>
@@ -3488,8 +3639,8 @@
                                             <div class="form-group row">
 
                                                 <label class="col-lg-4 col-form-label lbl-required">Date</label>
-                                                <div class="col-lg-6" data-placement="top">
-                                                    <div class="input-group date col-lg-12"  data-placement="top" id='datetimepicker1' style="padding-left:0;padding-right:0;">
+                                                <div class="col-lg-6 col-xs-10" data-placement="top">
+                                                    <div class="input-group date col-lg-12" data-placement="top" id='datetimepicker1' style="padding-left:0;padding-right:0;">
                                                         <input type="text" class="form-control" data-placement="top" id="activity-date" placeholder="MM/DD/YYYY" maxlength="10" />
                                                         <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
@@ -3497,7 +3648,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-2" style="margin-top: 8px;font-weight: bold;">
+                                                <div class="col-lg-2  col-xs-2" style="margin-top: 8px;font-weight: bold;">
                                                     <img src="/Images/info.png" id="imageinfoInkindDates" data-placement="top" data-toggle="popover" style="height: 20px;width :20px;padding: 0;">
                                                 </div>
 
@@ -3552,22 +3703,22 @@
                             </div>
                         </div>
 
-                    </div>
-                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
-                        <div class="form-group row">
-                            <label class="col-lg-4 col-form-label lbl-required">Center Name</label>
-                            <div class="col-lg-8">
-                                @Html.DropDownList("ddlCenterDetails", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString(), false, false, false, false, true), new { @class = "form-control" })
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Classroom</label>
-                            <div class="col-lg-8">
-                                <select class="form-control" id="classroomSelect">
-                                    <option value="0">--Select Classroom--</option>
-                                </select>
-                            </div>
-                        </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-lg-6 col-xs-12 no-padding-res">
+                                            <div class="form-group row">
+                                                <label class="col-lg-4 col-form-label lbl-required">Center Name</label>
+                                                <div class="col-lg-8">
+                                                    @Html.DropDownList("ddlCenterDetails", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString(), false, false, false, false, true), new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-lg-4 col-form-label">Classroom</label>
+                                                <div class="col-lg-8">
+                                                    <select class="form-control" id="classroomSelect">
+                                                        <option value="0">--Select Classroom--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
 
 
                         <div class="form-group row individual-parent-type-div-act">
@@ -3582,13 +3733,14 @@
                             </div>
                         </div>
 
-                        <div class="form-group row attach-div" style="display:none;">
-                            <label class="col-lg-4 col-form-label">Attachment(s)</label>
-                            <div class="col-lg-8 sum_attachparticic">
-                                <input type="file" class="form-control" name="InkindAttachmentsList[0].InkindAttachmentFile" />
-                                <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreInkindAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                            </div>
-                            <div class="attachparticic_myactive">
+                                            <div class="form-group row attach-div" style="display:none;">
+                                                <label class="col-lg-4 col-form-label">Attachment(s)</label>
+                                                <div class="col-lg-8 sum_attachparticic">
+                                                    <input type="file" class="form-control" name="InkindAttachmentsList[0].InkindAttachmentFile" />
+                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreInkindAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                                                   @* <img id="" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" data-original-title="Capture using Camera" style="margin-left: 10px;">*@
+                                                </div>
+                                                <div class="attachparticic_myactive">
 
                             </div>
                         </div>
@@ -3597,24 +3749,67 @@
 
                     </div>
 
-                    <div class="form-group row">
-                        <div class="col-lg-6 text-left" id="parent-sig-div" style="display:none;">
-                            <label for="sig1">Signature of Parent / Representative</label>
-                            <div id="sig1" class="form-control"></div>
-                            <input type="hidden" id="imageSig1" />
-                            <div class="add-useragform student-scroll full-border full-border-margin text-center cent-section">
-                                <button class="btnPassword" type="button" id="clear1" onclick="return ClearSignature(1);" style="border-radius:50px;">Clear</button>
-                                <button class="btnPassword" type="button" id="accept1" onclick="return SaveSignature();" style="border-radius:50px;">Accept Signature</button>
-                            </div>
-                        </div>
+                                        <div class="form-group">
+                                            <div class="col-lg-6 text-left" id="parent-sig-div" style="display:none;">
+                                              
+                                                  <label for="sig1" class="signature-margin-top">Signature of Parent / Representative</label>
+                                                <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
+                                                
+                                                <div id="sig1" class="form-control"></div>
+                                                <input type="hidden" id="imageSig1" />
+                                                <div class="add-useragform student-scroll full-border full-border-margin text-center cent-section">
+                                                    <button class="btnPassword" type="button" id="clear1" onclick="return ClearSignature(1);" style="border-radius:50px;">Clear</button>
+                                                    <button class="btnPassword" type="button" id="accept1" onclick="return SaveSignature();" style="border-radius:50px;">Accept Signature</button>
+                                                    <i style="display:block;margin-top:10px;font-size:12px;color:red;line-height:20px;">(Sign above and click on Accept Signature)</i>
+                                                
+                                                </div>
+                                            </div>
 
                                             <div class="col-lg-6 text-right" id="staff-sig-div" style="display:none;">
-                                                <label for="sig2" style="margin-left:0;" class="pad-left-signature">Signature of Staff</label>
-                                                <div id="sig2" class="form-control" style="margin-left:0;"></div>
-                                                <input type="hidden" id="imageSig2" />
-                                                <div class="add-useragform student-scroll full-border full-border-margin impo-censect">
-                                                    <button class="btnPassword" type="button" id="clear2" onclick="return ClearSignature(2);" style="border-radius:50px;">Clear</button>
-                                                    <button class="btnPassword" type="button" id="accept2" onclick="return SaveSignatureStaff();" style="border-radius:50px;">Accept Signature</button>
+
+                                                <label for="sig2" style="margin-left:auto;" class="pad-left-signature">Signature of Staff</label>
+                                                
+
+                                                @if (hasSignatureCode)
+                                                {
+                                                    <div class="co-xs-12 text-right adddivspace">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 col-xs-12 col-form-label lbl-required no-padding">Signature Type</label>
+                                                            <label class="radio-inline col-sm-4 col-xs-12" style="float:right;">
+                                                                <input type="radio" name="signatureRadio" value="2">Sign manually
+                                                            </label>
+                                                            <label class="radio-inline col-sm-4 col-xs-12" style="float:right;">
+                                                                <input type="radio" name="signatureRadio" value="1">Use Signature Code
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                               
+                                                
+                                                <div class="col-xs-12 adddivspace" id="div-add-signature-code"  @if (hasSignatureCode) { <text>style = "display:none;"</text>}>
+
+
+
+
+<div class="form-group">
+                                                        <label class="col-sm-4 col-form-label lbl-required signature-padding">Signature Code</label>
+                                                        <div class="col-sm-8 no-padding">
+                                                            <input type="text" class="form-control" style="width:30%;" autocomplete="off" id="txtSignatureCode" maxlength="4">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-xs-12 adddivspace no-padding-res" id="div-draw-Signature" style="display:none;">
+                                                    <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
+                                                    <div id="sig2" class="form-control" style="margin:auto;"></div>
+                                                    <input type="hidden" id="imageSig2" />
+                                                    <div class="add-useragform student-scroll full-border full-border-margin impo-censect">
+                                                        <button class="btnPassword" type="button" id="clear2" onclick="return ClearSignature(2);" style="border-radius:50px;">Clear</button>
+                                                        <button class="btnPassword" type="button" id="accept2" onclick="return SaveSignatureStaff();" style="border-radius:50px;">Accept Signature</button>
+                                                        <i style="display:block;margin-top:10px;font-size:12px;color:red;line-height:20px;">(Sign above and click on Accept Signature)</i>
+                                                      </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>

@@ -42,6 +42,7 @@ namespace FingerprintsData
                     if (_Dataset != null && _Dataset.Tables[0] != null && _Dataset.Tables[0].Rows.Count > 0)
                     {
                         Login = new Login();
+                        Login.StaffSignature = new StaffSignature();
                         Login.UserId = Guid.Parse(Convert.ToString(_Dataset.Tables[0].Rows[0]["userid"]));
                         Login.RoleName = Convert.ToString(_Dataset.Tables[0].Rows[0]["RoleName"]);
                         Login.Emailid = Convert.ToString(_Dataset.Tables[0].Rows[0]["Emailid"]);
@@ -56,6 +57,8 @@ namespace FingerprintsData
                         Login.IsShowSectionB = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowSectionB"]);
                         Login.IsShowScreening = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowScreening"]);
                         Login.AllowCaseNoteTeacher = Convert.ToString(_Dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
+                        Login.StaffSignature.Signature = Convert.ToString(_Dataset.Tables[0].Rows[0]["StaffSignature"]);
+                        Login.StaffSignature.StaffSignatureID = Convert.ToInt64(_Dataset.Tables[0].Rows[0]["StaffSignatureID"]);
                     }
                     if (_Dataset != null && _Dataset.Tables.Count > 1 && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
                     {

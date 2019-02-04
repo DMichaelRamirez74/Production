@@ -1329,4 +1329,11 @@ namespace FingerprintsModel
 
     }
 
+
+    public enum FamilyHouseholdEnum
+    {
+        UpdateHousehold=1,
+        HomeFound=2
+    }
+
 }
