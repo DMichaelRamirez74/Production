@@ -127,9 +127,9 @@ namespace FingerprintsModel
         public string MotherDOB { get; set; }
         public string MotherIsEmployed { get; set; }
 
+        public string ProgramType { get; set; }
 
-
-
+        public List<string> ProgramHistroy { get; set; }
 
     }
 

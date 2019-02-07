@@ -335,7 +335,7 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult ParentCheckIn(string clientid, FormCollection collection)
         {
 
@@ -1456,6 +1456,15 @@ namespace Fingerprints.Controllers
 
                 }
                 ViewBag.ClientDetail = cp;
+                if (type == 0) {
+                    if (cp.ProgramType == "HS")  //initial load based on program type
+                    {
+                        type = 2;
+                    }
+                    else {
+                        type = 1;
+                    }
+                }
                 ViewBag.Type = type;
             }
             catch (Exception ex)

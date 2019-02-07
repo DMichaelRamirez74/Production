@@ -6187,7 +6187,26 @@ namespace FingerprintsData
 
                     command.Connection = Connection;
                     command.Parameters.Clear();
-                    command.CommandText = "select Name=(Firstname+' '+Lastname),DOB=(convert(varchar(10),DOB,101)),ProfilePic from Client where ClientID =" + clientid + "";
+                    // command.CommandText = "select Name=(Firstname+' '+Lastname),DOB=(convert(varchar(10),DOB,101)),ProfilePic from Client where ClientID =" + clientid + "";
+                    //command.CommandText = "select Name=(Firstname+' '+Lastname),DOB=(convert(varchar(10),DOB,101)),ProfilePic," +
+                    //     "ED.ProgramID,PD.ProgramType from Client C inner join EnrollmentDetail ED" +
+                    //     " on C.ClientID = ED.ClientID and C.Status = 1 and ED.Status in (0,1,4,5) and ED.IsActive = 0" +
+                    //     " inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID where ED.ClientID = " + clientid + " ";
+
+                    string query=  @"select Name = (Firstname + ' ' + Lastname), DOB = (convert(varchar(10), DOB, 101)), ProfilePic,
+                         ED.ProgramID,PD.ProgramType from Client C inner join EnrollmentDetail ED
+                          on C.ClientID = ED.ClientID and C.Status = 1 and ED.Status in (0,1,4,5) and ED.IsActive = 0
+                          inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID 
+where ED.ClientID = {0} ; select PD.ProgramType,Ed.ProgramID from Client C
+inner join EnrollmentDetail ED on C.ClientID = ED.ClientID and C.Status = 1
+ inner join
+ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID
+inner join ReferenceProgram RP on RP.Name = PD.ProgramType
+ where ED.ClientID = {1}
+group by PD.ProgramType, ED.ProgramID
+";
+                    command.CommandText = string.Format(query, clientid, clientid);
+
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
@@ -6198,9 +6217,22 @@ namespace FingerprintsData
                         var dr = _dataset.Tables[0].Rows[0];
                         result.ChildName = dr["Name"].ToString();
                         result.DOB = dr["DOB"].ToString();
-                        result.Profilepic = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);  
+                        result.Profilepic = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
+                        result.ProgramType = dr["ProgramType"].ToString();
 
                     }
+
+                    if (_dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        result.ProgramHistroy = new List<string>();
+
+                        foreach (DataRow dr1 in _dataset.Tables[1].Rows) { 
+
+                            result.ProgramHistroy.Add( dr1["ProgramType"].ToString());
+                        }
+                    }
+
+
                     }
             }
             catch (Exception ex)
