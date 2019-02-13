@@ -7733,6 +7733,7 @@ namespace Fingerprints.Controllers
 
         [ValidateInput(false)]
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult AddProfilePicture(string eClientID, string imageJson="",string em_res_contact="0")
         {
             bool isResult = false;

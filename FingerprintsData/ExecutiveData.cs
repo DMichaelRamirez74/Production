@@ -21,7 +21,7 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
 
-        public ExecutiveDashBoard GetExecutiveDetails(string Agencyid, string userid, string Command)
+        public ExecutiveDashBoard GetExecutiveDetails(StaffDetails staff, string Command)
         {
             ExecutiveDashBoard executive = new ExecutiveDashBoard();
             try
@@ -31,8 +31,8 @@ namespace FingerprintsData
                     Connection.Close();
 
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@Command", Command));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

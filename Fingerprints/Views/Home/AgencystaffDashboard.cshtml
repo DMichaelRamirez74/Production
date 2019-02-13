@@ -12,6 +12,9 @@
     //{
     //    Layout = "~/Views/Shared/HomeVisitorLayout.cshtml";
     //}
+
+    int fswHV = (FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FamilyServiceWorker).ToLowerInvariant()
+                    || FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HomeVisitor).ToLowerInvariant()) ? 1 : 0;
 }
 @section Script{
 
@@ -37,9 +40,12 @@
         var reloadPage = false;
 
         $(document).ready(function () {
+            BindDropdownDisable();
 
             //tool tip on hover center name//
             $('[data-toggle="tooltip"]').tooltip();
+
+
             $("#ModalWaitingList,#ModalWaitingListAll").on("hide.bs.modal", function () {
 
                 if (reloadPage) {
@@ -290,11 +296,22 @@
                 var option = "";
                 $('#DivWaitingListPopup > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
-                    tbody = tbody + '<tr><td><input   name="' + Data[i].Name + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" IsHomeBased="' + Data[i].IsHomeBased + '"  type="Checkbox" class="chckClient" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
-					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#"  onclick="LoadFSWorHVList(this);" name="' + Data[i].Name + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" IsHomeBased="' + Data[i].IsHomeBased + '" style="text-decoration:underline;">Acceptance Process</a> </td>' +
-                    '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  IsHomeBased="' + Data[i].IsHomeBased + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
-                   '</tr>';
+
+
+                    if ('@fswHV' == '1') {
+                        tbody = tbody + '<tr><td><input   name="' + Data[i].Name + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" IsHomeBased="' + Data[i].IsHomeBased + '"  type="Checkbox" class="chckClient" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+                 ' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
+                '<a href="#"  onclick="LoadFSWorHVList(this);" name="' + Data[i].Name + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" IsHomeBased="' + Data[i].IsHomeBased + '" style="text-decoration:underline;">Acceptance Process</a> </td>' +
+                 '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  IsHomeBased="' + Data[i].IsHomeBased + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
+                '</tr>';
+                    }
+                    else {
+                        tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+      ' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> ' +
+     '</tr>';
+                    }
+
+
                 }
                 if (_programtype == 0) {
                     if (Data[0].UserList != null && Data[0].UserList.length > 0) {
@@ -354,9 +371,349 @@
         }
 
 
-      
+        var disbilityTypeJson = null;
+        //method to bind the disability type//
+
+        //function BindDropdownDisable() {;
+        //    $.ajax({
+        //        url: HostedDir + "/Home/BindDisabilityType",
+        //        type: "POST",
+        //        dataType: "json",
+        //        secureuri: false,
+        //        async: false,
+        //        success: function (data) {
+        //            //var dts = ''
+        //            //$('#pchechkbox').html('');
+        //            //for (var i = 0; i < data.list.disabilitytype.length; i++) {
+        //            //    dts += '<div class="col-xs-6 col-sm-4" style="width:300px;"><label class="checkbox-inline"><input  type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype" onclick="bindPrimaryDisability(this);"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>'
+        //            //}
+        //            //$('#pchechkbox').html(dts);
+
+        //            disbilityTypeJson = data;
+
+        //        }
+        //       , error: function (data) {
+        //           customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+        //       }
+        //    });
+        //}
+
+        function loadDisability(ele) {
+          
+
+            
+
+            var $centerId = $(ele).closest('tr').find('td:eq(0)').find('a').attr('accesskey')
+
+            $.ajax({
+                url: HostedDir + "/Home/LoadPendingDisableRoster",
+                type: "POST",
+                data: {
+                    Centerid: $centerId,
+                    Mode: 'Qualified',
+                    sortOrder: "ss",
+                    sortDirection: "ss",
+                    clientId: '0'
+                },
+                dataType: "json",
+                secureuri: true,
+                async: true,
+                success: function (data) {
+                    debugger;
+                    console.log(data);
+                    var appendData = null;
+                    $('#ModalDisabilityList').find('tbody').html('');
+                    if (data != null && data.list!=null && data.list.Rosters != null && data.list.Rosters.length > 0) {
+                        $('#ModalDisabilityList').find('#CenterName').html(data.list.Rosters[0].CenterName + '- Qualified Disability Client');
 
 
+                        $.each(data.list.Rosters, function (i, roster) {
+
+                            var gender = (roster.Gender == '1') ? 'Male' : (roster.Gender == "2") ? 'Female' : 'Other';
+
+                            if (roster.IsWithdrawn == 1)
+                            {
+                                appendData += '<tr style="color:red;">';
+                                appendData += '<td><a href="javascript:void(0);" clientid="' + roster.Eclientid + '"  onclick="LoadNotes(this);" style="text-decoration:underline;cursor:pointer;color:red;">' + roster.Name + '</a></td>';
+
+                            }
+                            else {
+
+                                appendData += '<tr>';
+                                appendData+='<td><a href="javascript:void(0);" clientid="'+roster.Eclientid+'"  onclick="LoadNotes(this);" style="text-decoration:underline;cursor:pointer;">' + roster.Name + '</a></td>';
+
+                            }
+
+                            appendData+='<td>'+ gender + '</td>\
+    <td>'+ roster.DOB + '</td>\
+    <td>'+ roster.District + '</td>\
+    <td>'+ roster.FSW + '</td>\
+    <td>' + roster.ClassroomName + '</td>\
+    <td>'+ roster.recordCreated + '</td>\
+    </tr>';
+
+
+
+                        });
+
+                        $('#ModalDisabilityList').find('tbody').html(appendData);
+
+                    }
+                    else {
+                        $('#ModalDisabilityList').find('#CenterName').html($(ele).closest('tr').find('td:eq(0)').find('a').html() + '- Qualified Disability Client');
+
+                    }
+
+
+
+
+
+                    $('#ModalDisabilityList').modal('show');
+
+                }
+          , error: function (data) {
+              customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+          }
+            });
+        }
+
+        function loadOverIncome(ele)
+        {
+            var $centerId = $(ele).closest('tr').find('td:eq(0)').find('a').attr('accesskey')
+
+            var $centerName = $(ele).closest('tr').find('td:eq(0)').find('a').html();
+            $.ajax({
+                url: HostedDir + '/Home/GetOverIncomeClient',
+                datatype: 'json',
+                type: 'post',
+                async: false,
+                data: { encCenterId: $centerId },
+                success: function (data) {
+
+                    var overIncomeAppend = '';
+                 
+                    if (data != null && data.childInfo != null && data.childInfo.OverIncomeChildrenList != null && data.childInfo.OverIncomeChildrenList.length > 0)
+                    {
+                        $.each(data.childInfo.OverIncomeChildrenList, function (i, child) {
+
+                            var Gender = (child.Gender == '1') ? 'Male' : (child.Gender == '2') ? 'Female' : 'Other';
+
+                            var parentguard = '';
+
+
+                            if (data.parentNameList.length > 0) {
+
+                                var parentarray = [];
+
+                                $.each(data.parentNameList, function (k, parent) {
+                                    if (child.ClientId == parent.Value)
+                                        parentarray.push(parent.Text);
+                                });
+                                parentguard = '<td data-title="Parent Name">' + parentarray.join() + '</td>';
+                            }
+
+
+                            overIncomeAppend += '<tr>\
+                                              <td>'+ child.ClientName + '</td>\
+                                              <td>'+ Gender + '</td>\
+                                               <td>' + child.Dob + '</td>\
+                                                '+parentguard+'\
+                                                <td>' + child.ChildIncome + '</td>\
+                                                </tr>';
+                        });
+                    }
+
+                    $('#ModalOverIncome').find('tbody').html(overIncomeAppend);
+
+                    $('#ModalOverIncome').find('#centerName').html($centerName);
+                    $('#ModalOverIncome').modal('show');
+                },
+                error: function (data) {
+                   
+                    customAlert('Error occurred. Please, try again later.');
+
+                }
+
+            });
+        }
+
+        //method to bind the notes from db//
+        //function LoadNotes(Object) {
+        //    $.ajax({
+        //        url: HostedDir + "/Home/LoadNotes",
+        //        type: "POST",
+        //        data: {
+        //            Clientid: $(Object).attr("clientid")
+        //        },
+        //        dataType: "json",
+        //        secureuri: false,
+        //        async: false,
+        //        success: function (data) {
+
+        //            if (data != null) {
+        //                debugger;
+
+        //                BindSelectedDisabilities(data,Object);
+        //                BindNotesHtml(data);
+        //               BindDocumentsHtml(data);
+        //            }
+        //        }
+        //       , error: function (data) {
+        //           customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+        //       }
+        //    });
+        //}
+
+
+        function hideDisabilityDiv(ele)
+        {
+
+            $(ele).closest('#divChangeStatus').find('.checkbox-inline').html('');
+            $(ele).closest('#divChangeStatus').hide();
+        }
+
+
+
+        //function BindSelectedDisabilities(data,Object)
+        //{
+        //    var $disabilityModal = $('#ModalDisabilityList');
+        //    var $divChangeStatus = $disabilityModal.find('#divChangeStatus');
+        //    $divChangeStatus.find('#divddlDisabilityType').show();
+
+        //    var disabilityType = '';
+        //    var disability = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+        //        if (item.Id === parseInt(data.list.disablenotes[0].NotesList[0].DisabilityTypeID)) {
+        //            disabilityType = item.DisabilityType;
+
+        //            return i;
+        //        }
+        //    });
+        //    $divChangeStatus.find('#pchechkbox').html(disabilityType);
+        //    var _primaryDisability = '';
+        //    var primaryDisability = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+        //        if (item.Id == parseInt(data.list.disablenotes[0].NotesList[0].PrimaryDisability)) {
+        //            _primaryDisability = item.DisabilityType;
+        //            return i;
+        //        }
+        //    });
+        //    $divChangeStatus.find('#primaryDisabilityLbl').html(_primaryDisability);
+
+
+
+        //    var $specialServiceDisability = [];
+
+        //    var disabilityList = data.list.disablenotes[0].NotesList[0].SpecialServiceDisability.split(',');
+
+        //    $.each(disabilityList, function (i, dis) {
+
+
+        //        var disService = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+        //            if (item.Id == parseInt(dis)) {
+        //                $specialServiceDisability.push(item.DisabilityType);
+        //                return i;
+        //            }
+        //        });
+        //    });
+
+
+        //    if ($specialServiceDisability.length > 0) {
+        //        $divChangeStatus.find('#specialServiceDisability').html($specialServiceDisability.join(', '));
+
+        //    }
+        //    else {
+        //        $divChangeStatus.find('#specialServiceDisability').html('Not Available');
+
+        //    }
+
+        //    $divChangeStatus.find('#lblClientName').html($(Object).html());
+
+        //    $divChangeStatus.show();
+
+
+        //}
+
+
+        ////method to bind the notes to modal popup//
+        //function BindNotesHtml(data) {
+
+        //    var $disabilityModal = $('#ModalDisabilityList');
+
+        //    if (data.list.disablenotes == null) {
+        //        $disabilityModal.find('#tblNotesList > tbody > tr').remove();
+        //        $disabilityModal.find('#divnodata').show();
+        //    }
+        //    else {
+        //        $disabilityModal.find('#divnodata').hide();
+        //        $disabilityModal.find('#disableheader').show();
+        //        $disabilityModal.find('#tblNotesList > tbody > tr').remove();
+
+        //        for (var i = 0; i < data.list.disablenotes.length; i++) {
+
+        //            if (data.list.disablenotes[i].NotesList.length > 0) {
+        //                $.each(data.list.disablenotes[i].NotesList, function (k, notes) {
+        //                    var tr = "";
+        //                    tr += "<tr>";
+        //                    tr += '<td height="50">' + notes.Notes + '</td>';
+        //                    tr += '<td height="50">' + notes.Name + '</td>';
+        //                    tr += '<td height="50">' + notes.Createdon + '</td>';
+        //                    tr += "</tr>";
+        //                    $disabilityModal.find('#tblNotesList > tbody').append(tr);
+        //                });
+        //            }
+        //        }
+
+
+        //    }
+        //}
+
+        ////method to bind the disability documents to modal popup//
+        //function BindDocumentsHtml(data) {
+
+        //    var $disabilityModal = $('#ModalDisabilityList');
+
+        //    if (data.list.disablenotes == null) {
+
+        //        $disabilityModal.find('#Docdivnodata').show();
+        //        $disabilityModal.find('#tblDocumentList > tbody > tr').remove();
+        //    }
+        //    else {
+        //        $disabilityModal.find('#Docdivnodata').hide();
+        //        $disabilityModal.find('#disableheader').show();
+        //        $disabilityModal.find('#tblDocumentList > tbody > tr').remove();
+        //        for (var i = 0; i < data.list.disablenotes.length; i++) {
+        //            if (data.list.disablenotes[i].DocumentList.length > 0) {
+
+        //                var tr = "";
+        //                var documentDesc = '';
+        //                var docName = '';
+
+        //                $.each(data.list.disablenotes[i].DocumentList, function (j, notes) {
+
+        //                    if (notes.DisableDocumentName != '') {
+
+        //                        docName += '<tr><td height="50">\
+        //                                    <a title="Click here to open document" style="text-decoration:underline;font-size:17px;cursor:pointer;" href="/Home/getDisableDocument/' + notes.NotesId + '"> ' + notes.DisableDocumentName + '<i class="fa fa-arrow-down"></i></a></td>\
+        //                                    <td height="50">'+ notes.DocumentDescription + '</td></tr>';
+        //                    }
+        //                });
+        //                if (docName != '') {
+        //                    $disabilityModal.find('#tblDocumentList > tbody').html(docName);
+        //                    $disabilityModal.find('#Docdivnodata').hide();
+        //                }
+        //                else {
+        //                    $disabilityModal.find('#Docdivnodata').show();
+        //                    $disabilityModal.find('#tblDocumentList > tbody > tr').remove();
+        //                }
+
+
+        //            }
+        //            else {
+        //                $disabilityModal.find('#Docdivnodata').show();
+        //                $disabilityModal.find('#tblDocumentList > tbody > tr').remove();
+        //            }
+        //        }
+        //    }
+        //}
 
 
         function ShowHealthstaff() {
@@ -688,9 +1045,17 @@
                     else
                         tbody = tbody + ' <td>Not Reviewed</td>';
 
+
+
                     tbody = tbody + '  <td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
-					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td></tr>';
+                  ' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td>';
+
+
+                    if ('@fswHV' == '1') {
+                        tbody = tbody + '<td><a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>';
+                    }
+                    tbody = tbody + '</tr>';
+
                 }
 
 
@@ -1596,7 +1961,12 @@
                     tr += "<td>" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
                     tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
                     tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
-                    tr += '<td><a href="#" onclick="showdiv(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" IsIEP="' + data[i].IsIEP + '" IsIFSP="' + data[i].IsIFSP + '" IsExpired="' + data[i].IsExpired + '" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Assign Classroom</td>';//Disability="' + Data[i].Programid + '"
+
+
+                    if ('@fswHV' == '1') {
+                        tr += '<td><a href="#" onclick="showdiv(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" IsIEP="' + data[i].IsIEP + '" IsIFSP="' + data[i].IsIFSP + '" IsExpired="' + data[i].IsExpired + '" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Assign Classroom</td>';//Disability="' + Data[i].Programid + '"
+                    }
+
                     tr += "</tr>";
                     $('#DivAcceptanceListPopup > tbody').append(tr);
                 }
@@ -2186,8 +2556,14 @@
                 $('#DivRejectedList > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
                     //tbody = tbody + '<tr><td><a style="text-decoration: underline;" href="' + HostedDir + '/AgencyUser/FamilyDetails?id=' + Data[i].HouseholdIdencrypted + '&returned=1">'+Data[i].Name+'</a></td><td>' + Data[i].DateOnList +
-                    tbody = tbody + '<tr><td><a href="#DivRejectedStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="3"  style="text-decoration:underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList +
-					  '</td><td>' + Data[i].Notes + '</td><td><a href="#" style="cursor:pointer;text-decoration: underline;" aria-hidden="true" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '">Remove</a></td></tr>';
+                    tbody = tbody + '<tr><td><a href="#DivRejectedStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="3"  style="text-decoration:underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList + '</td>';
+
+                    if ('@fswHV' == '1') {
+                        tbody = tbody + '<td>' + Data[i].Notes + '</td><td><a href="#" style="cursor:pointer;text-decoration: underline;" aria-hidden="true" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '">Remove</a></td>';
+
+                    }
+
+                    tbody = tbody + '</tr>';
                 }
                 $('#DivRejectedList > tbody').append(tbody);
                 if (!$('#Modalrejected').hasClass('in'))
@@ -2802,6 +3178,47 @@
         }
 
 
+        function showImage(ele) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    //$(pic).parent('td').find('.roundimage').zoomify();
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
+
     </script>
 }
 
@@ -2837,13 +3254,36 @@
             background-color: #8e44ad;
         }
         #gridViewAgency > thead > tr > th:nth-child(5) {
-                background-color:  #58ac8e;
-                background-image: linear-gradient(to right, #58ac8e, #4fa484);
+            /*background-color: #58ac8e;
+            background-image: linear-gradient(to right, #58ac8e, #4fa484);*/
+
+
+            background-color: #75522b;
+    background-image: linear-gradient(to right, #754e2c, #6b6824);
         }
+
+
+
+        #ModalPending .scroll-thead
+        {
+            width:100%;
+        }
+
+
+
+
         #gridViewAgency > thead > tr > th:nth-child(6) {
-              background-color: #4ea383;
-              background-image: linear-gradient(to right, #4ea383, #469c7b);
+            /*background-color: #4ea383;
+            background-image: linear-gradient(to right, #4ea383, #469c7b);*/
+
+                background-color: #2f3e62;
+    background-image: linear-gradient(to right, #37416f, #2f597d);
         }
+
+
+
+
+
         #gridViewAgency > thead > tr > th:nth-child(7) {
                 background-color: #449a78;
                 background-image: linear-gradient(to right, #449a78, #3b926f);
@@ -2967,7 +3407,7 @@
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
 
-        @if (FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant() == Session["RoleId"].ToString())
+       @* @if (FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant() == Session["RoleId"].ToString())
         {
             var RandomChild = new FingerprintsData.RosterData().GetChildofTheDay();
             <!-- Tab -->
@@ -2994,28 +3434,38 @@
             <div class="col-lg-12">
                 <h2 class="page-header">@Fingerprints.LocalResource.Resources.CenterOverview</h2>
             </div>
-        }
+        }*@
 
+
+        <div class="col-lg-12">
+            <h2 class="page-header">@Fingerprints.LocalResource.Resources.CenterOverview</h2>
+        </div>
 
     </div>
     <div class="row">
+
+
+
+
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
             <div class="table-responsive table-div">
                 <table class="table table_size table-striped" id="gridViewAgency" role="table">
                     <thead style="cursor: pointer;" role="rowgroup">
                         <tr role="row">
-                            <th role="columnheader">Center Name</th>
-                            <th role="columnheader">%Full</th>
-                            <th role="columnheader">Open Seats</th>
+                            <th role="columnheader">@Fingerprints.LocalResource.Resources.CenterName</th>
+                            <th role="columnheader">@Fingerprints.LocalResource.Resources.PercentageFull</th>
+                            <th role="columnheader">@Fingerprints.LocalResource.Resources.OpenSeats</th>
                             <th role="columnheader">HV's</th>
-                            <th role="columnheader">Wait1</th>
-                            <th role="columnheader">Wait2</th>
-                            <th role="columnheader">Wait3</th>
-                            <th role="columnheader">T-Waiting</th>
-                            <th role="columnheader">F-Waiting</th>
-                            <th role="columnheader" title="100">Pending</th>
-                            <th role="columnheader" title="101">Accepted</th>
-                            <th role="columnheader" title="102">Returned</th>
+                            <th role="columnheader">@Fingerprints.LocalResource.Resources.OverIncome</th>
+                            <th resource="columnheader">@Fingerprints.LocalResource.Resources.Disability</th>
+                            @*<th role="columnheader">Wait1</th>
+                                <th role="columnheader">Wait2</th>
+                                <th role="columnheader">Wait3</th>*@
+                            <th role="columnheader">T-@Fingerprints.LocalResource.Resources.Waiting</th>
+                            <th role="columnheader">F-@Fingerprints.LocalResource.Resources.Waiting</th>
+                            <th role="columnheader" title="100">@Fingerprints.LocalResource.Resources.Pending</th>
+                            <th role="columnheader" title="101">@Fingerprints.LocalResource.Resources.Accepted</th>
+                            <th role="columnheader" title="102">@Fingerprints.LocalResource.Resources.Returned</th>
                         </tr>
                     </thead>
                     <tbody role="rowgroup">
@@ -3024,9 +3474,9 @@
                             foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
                             {
                                 <tr role="row">
-                                    <td data-title="Center Name" role="gridcell"><a style="text-decoration: underline;" onclick="Showaddchart(this);" data-toggle="tooltip" data-displacement="top" title="@center.Name" accesskey="@center.CenterId" href="#">@center.Name</a></td>
-                                    <td role="gridcell" data-title="%Full" style="text-align: right;">@Convert.ToDecimal(center.Attendance)</td>
-                                    <td role="gridcell" data-title="Open Seats" style="text-align: right;">@center.SeatsAvailable</td>
+                                    <td data-title="@Fingerprints.LocalResource.Resources.CenterName" role="gridcell"><a style="text-decoration: underline;" onclick="Showaddchart(this);" data-toggle="tooltip" data-displacement="top" title="@center.Name" accesskey="@center.CenterId" href="#">@center.Name</a></td>
+                                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.PercentageFull" style="text-align: right;">@Convert.ToDecimal(center.Attendance)</td>
+                                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.OpenSeats" style="text-align: right;">@center.SeatsAvailable</td>
 
                                     <td role="gridcell" data-title="HV's" style="text-align: right;">
 
@@ -3043,58 +3493,63 @@
                                     </td>
 
 
-                                    @if (center.option1 != "0")
-                                    {
-                                        <td role="gridcell" data-title="Wait1" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',1);" href="#">@center.option1</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td  role="gridcell" data-title="Wait1" class="centered-td"><a href="#">@center.option1</a></td>
-                                    }
-                                    @if (center.option2 != "0")
-                                    {
-                                        <td role="gridcell" data-title="Wait2" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',2);" href="#">@center.option2</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td role="gridcell" data-title="Wait2" class="centered-td" ><a href="#">@center.option2</a></td>
-                                    }
-                                    @if (center.option3 != "0")
-                                    {
-                                        <td role="gridcell" data-title="Wait3" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',3);" href="#">@center.option3</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td role="gridcell" data-title="Wait3" class="centered-td" ><a href="#">@center.option3</a></td>
-                                    }
+                                    @*@if (center.option1 != "0")
+                                        {
+                                            <td role="gridcell" data-title="Wait1" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',1);" href="#">@center.option1</a></td>
+                                        }
+                                        else
+                                        {
+                                            <td role="gridcell" data-title="Wait1" class="centered-td"><a href="#">@center.option1</a></td>
+                                        }
+                                        @if (center.option2 != "0")
+                                        {
+                                            <td role="gridcell" data-title="Wait2" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',2);" href="#">@center.option2</a></td>
+                                        }
+                                        else
+                                        {
+                                            <td role="gridcell" data-title="Wait2" class="centered-td"><a href="#">@center.option2</a></td>
+                                        }
+                                        @if (center.option3 != "0")
+                                        {
+                                            <td role="gridcell" data-title="Wait3" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',3);" href="#">@center.option3</a></td>
+                                        }
+                                        else
+                                        {
+                                            <td role="gridcell" data-title="Wait3" class="centered-td"><a href="#">@center.option3</a></td>
+                                        }*@
+
+                                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.OverIncome" class="centered-td"><a href="javascript:void(0);" onclick="loadOverIncome(this);">@center.OverIncome</a></td>
+
+                                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Disability" class="centered-td"><a href="javascript:void(0);"typeofdatacount="Qualified" mode="Released" accesskey="@center.CenterId"  onclick="LoadPendingDisable(this,false);">@center.Disability</a></td>
+
 
                                     @if (center.TotalWaitingList != "0")
                                     {
-                                        <td role="gridcell" data-title="T-Waiting" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlistAll(this,'@center.CenterId');" href="#">@center.TotalWaitingList</a></td>
+                                        <td role="gridcell" data-title="T-@Fingerprints.LocalResource.Resources.Waiting" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientlistAll(this,'@center.CenterId');" href="#">@center.TotalWaitingList</a></td>
                                     }
                                     else
                                     {
-                                        <td role="gridcell" data-title="T-Waiting" class="centered-td" ><a href="#">0</a></td>
+                                        <td role="gridcell" data-title="T-@Fingerprints.LocalResource.Resources.Waiting" class="centered-td"><a href="#">0</a></td>
                                     }
 
                                     @if (center.FutureWaiting != "0")
                                     {
-                                        <td role="gridcell" data-title="F-Waiting"  class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',4);" href="#">@center.FutureWaiting</a></td>
+                                        <td role="gridcell" data-title="F-@Fingerprints.LocalResource.Resources.Waiting" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',4);" href="#">@center.FutureWaiting</a></td>
                                     }
                                     else
                                     {
-                                        <td role="gridcell" data-title="F-Waiting" class="centered-td" ><a href="#">@center.FutureWaiting</a></td>
+                                        <td role="gridcell" data-title="F-@Fingerprints.LocalResource.Resources.Waiting" class="centered-td"><a href="#">@center.FutureWaiting</a></td>
                                     }
 
 
 
                                     @if (center.Routecode100 != "0")
                                     {
-                                        <td role="gridcell" data-title="Pending" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Pending" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>
                                     }
                                     else
                                     {
-                                        <td role="gridcell"  data-title="Pending" class="centered-td" ><a href="#">@center.Routecode100</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Pending" class="centered-td"><a href="#">@center.Routecode100</a></td>
                                     }
 
                                     @if (center.Routecode101 != "0")
@@ -3103,24 +3558,24 @@
                                         if (TempData["userrole"].ToString() == "ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5")
                                         {
                                             TempData.Keep("userrole");
-                                            <td role="gridcell"  data-title="Accepted" class="centered-td" ><a id="url" style="text-decoration: underline;" href="#" onclick="loadHVclientinfo(this, '@center.CenterId',101)">@center.Routecode101</a></td>
+                                            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Accepted" class="centered-td"><a id="url" style="text-decoration: underline;" href="#" onclick="loadHVclientinfo(this, '@center.CenterId',101)">@center.Routecode101</a></td>
                                         }
                                         else
                                         {
-                                            <td role="gridcell"  data-title="Accepted" class="centered-td" ><a style="text-decoration:underline;" onclick="loadclientinfo(this, '@center.CenterId',101);" href="#">@center.Routecode101</a></td>
+                                            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Accepted" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientinfo(this, '@center.CenterId',101);" href="#">@center.Routecode101</a></td>
                                         }
                                     }
                                     else
                                     {
-                                        <td role="gridcell" data-title="Accepted"  class="centered-td" ><a href="#">@center.Routecode101</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Accepted" class="centered-td"><a href="#">@center.Routecode101</a></td>
                                     }
                                     @if (center.Routecode102 != "0")
                                     {
-                                        <td role="gridcell" data-title="Returned"  class="centered-td" ><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId');" href="#">@center.Routecode102</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId');" href="#">@center.Routecode102</a></td>
                                     }
                                     else
                                     {
-                                        <td role="gridcell" data-title="Returned"  class="centered-td"><a href="#">@center.Routecode102</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a href="#">@center.Routecode102</a></td>
                                     }
                                 </tr>
                             }
@@ -3143,15 +3598,15 @@
                 <div class="dailySummarydetails">
                     <div class='dailySummary-data' id="todayReport">
                         <div class="col-sm-12 amcharts-chart-div-label">
-                            <h2>Today's Attendance Percentage</h2>
+                            <h2>@Fingerprints.LocalResource.Resources.TodayAttendancePercentage</h2>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label ">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present </p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofPresent </p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 0 </p></div>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label totdays">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofTotal</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">0 </p></div>
                         </div>
 
                     </div>
@@ -3166,15 +3621,15 @@
                 <div class="dailySummarydetails">
                     <div class='dailySummary-data' id="weeklyReport">
                         <div class="col-sm-12 amcharts-chart-div-label">
-                            <h2>This Week's Attendance Percentage </h2>
+                            <h2>@Fingerprints.LocalResource.Resources.ThisWeeksAttendancePercentage </h2>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label ">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofPresent</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 0 </p></div>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label totdays">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofTotal</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">0 </p></div>
                         </div>
 
                     </div>
@@ -3191,15 +3646,15 @@
                 <div class="dailySummarydetails">
                     <div class='dailySummary-data' id="monthlyReport">
                         <div class="col-sm-12 amcharts-chart-div-label">
-                            <h2>This Month's Attendance Percentage</h2>
+                            <h2>@Fingerprints.LocalResource.Resources.ThisMonthsAttendancePercentage</h2>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label ">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofPresent</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 0 </p></div>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label totdays">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofTotal</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">0 </p></div>
                         </div>
 
                     </div>
@@ -3214,15 +3669,15 @@
                 <div class="dailySummarydetails">
                     <div class='dailySummary-data' id="yearlyReport">
                         <div class="col-sm-12 amcharts-chart-div-label">
-                            <h2>This Year's Attendance Percentage</h2>
+                            <h2>@Fingerprints.LocalResource.Resources.ThisYearsAttendancePercentage</h2>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label ">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofPresent</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 0 </p></div>
                         </div>
                         <div class="col-sm-12 amcharts-chart-div-label totdays">
-                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            <div class="col-xs-6" style="padding:0;"> <p>@Fingerprints.LocalResource.Resources.NumberofTotal</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">0 </p></div>
                         </div>
 
                     </div>
@@ -3313,6 +3768,9 @@
                                                 <table class="table table_size" id="DivWaitingListPopup">
                                                     <thead style="cursor: pointer;">
                                                         <tr>
+
+                                                            @if (fswHV == 1)
+                                                            {
                                                             <th>Select</th>
                                                             <th>Name</th>
                                                             <th>Selection Points</th>
@@ -3322,6 +3780,17 @@
                                                             <th>DOB</th>
                                                             <th>Acceptance</th>
                                                             <th>Remove</th>
+                                                            }
+                                                            else
+                                                            {
+                                                            <th>Name</th>
+                                                            <th>Selection Points</th>
+                                                            <th>Date on List</th>
+                                                            <th>Program Type</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                            }
+
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -3410,7 +3879,13 @@
                                                 <th>Program Type</th>
                                                 <th>Gender</th>
                                                 <th>DOB</th>
+
+                                                @if (fswHV == 1)
+                                                {
                                                 <th>Remove</th>
+
+                                                }
+
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -3560,7 +4035,12 @@
                         <p>Status : <span>CurrentStatus</span></p>
                         <p>Reviewer Level : <span>ReviewerLevel</span></p>
                         @*<p>Note  : <span>UserReason</span></p>*@
+
+                        @if (fswHV == 1)
+                        {
                         <p>Request for Review Again  : <span id="ReviewId">ReviewAgain</span></p>
+                        }
+
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="padding:0;">
                         <div class="table-responsive">
@@ -3615,7 +4095,11 @@
                                                             <th style="text-align: left !important;">Date on List</th>
                                                             <th style="text-align: left !important;">Gender</th>
                                                             <th style="text-align: left !important;">DOB</th>
+                                                            @if (fswHV == 1)
+                                                            {
                                                             <th style="text-align: left !important;">Assign Classroom</th>
+
+                                                            }
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -3951,71 +4435,7 @@
         </div>
     </div>
 
-    @*<div class="modal fade" id="AcceptanceProcessStatus" role="dialog">
-            <div class="modal-dialog" style="width:80%;">
-                @*Modal conten
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 id="ASClientName" class="text-center">Acceptance status for  <span class="extra-title muted"></span></h3>
-                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
-                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
 
-                                <div class="clear"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div class="panel-group" id="accordion">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Collapsible Group 1</a>
-                                    </h4>
-                                </div>
-                                <div id="collapse1" class="panel-collapse collapse in">
-                                    <div class="panel-body">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Collapsible Group 2</a>
-                                    </h4>
-                                </div>
-                                <div id="collapse2" class="panel-collapse collapse">
-                                    <div class="panel-body">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Collapsible Group 3</a>
-                                    </h4>
-                                </div>
-                                <div id="collapse3" class="panel-collapse collapse">
-                                    <div class="panel-body">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" data-dismiss="modal" class="my-btn1">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>*@
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="HVAcceptanceList" role="dialog">
             <div class="modal-dialog income-popup width-auto">
@@ -4216,5 +4636,79 @@
             </div>
         </div>
     </div>
+
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalOverIncome" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                         <h2><span id="centerName"></span> - Over Income</h2>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="add-useragform">
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+
+
+
+
+
+
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive" style="margin-bottom:20px;">
+                                                <table class="table table_size">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+
+                                                            <th>Client</th>
+                                                            <th>Gender</th>
+                                                            <th>Date of Birth</th>
+                                                            <th>Parent/Guardian</th>
+                                                            <th>Income Percentage</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div1" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+
+
+                                                
+
+                                            </div>
+
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<div class="row qualifierdiv">
+    @{
+
+        Html.RenderPartial("~/Views/Partialviews/DisabilityClient.cshtml");
+            }
+        <input type="hidden" id="centerIdGrid" name="centerIdGrid" value="">
+</div>
 
 }

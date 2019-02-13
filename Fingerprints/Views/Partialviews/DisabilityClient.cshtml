@@ -154,7 +154,12 @@
                                                 <legend class="legend1"></legend>
 
                                                 <div id="divform">
-                                                  
+                                                    @if (Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilitiesManager).ToLowerInvariant()
+
+                                                    || Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilityStaff).ToLowerInvariant()
+
+                                                    )
+                                                    {
                                                     <div class="col-sm-10">
                                                         <div class="col-sm-3">
                                                             <label style="width: 100%;">Client</label>
@@ -162,7 +167,7 @@
                                                             <input id="hdnTypeOfCountData" name="hdnTypeOfCountData" type="hidden" />
                                                         </div>
                                                         <div class="col-sm-5">
-                                                            <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="ClientNameAccept"></label>
+                                                            <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="disabilityClientNameAccept"></label>
                                                         </div>
                                                     </div>
 
@@ -286,6 +291,63 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    }
+
+                                                    else
+                                                    {
+                                                        <div id="divCompleted" style="display:block">
+
+                                                            <div class="col-sm-10 adddivspace">
+                                                                <div class="col-sm-3">
+                                                                    <label style="width: 100%;font-weight:bold;" class="lbl-text"> Client </label>
+                                                                    <input id="hdnModeType" name="hdnModeType" type="hidden" />
+                                                                    <input id="hdnTypeOfCountData" name="hdnTypeOfCountData" type="hidden" />
+                                                                </div>
+                                                                <div class="col-sm-8">
+
+                                                                    <label class="checkbox-inline" id="disabilityClientNameAccept"> </label>
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div id="divddlDisabilityType" class="col-sm-10 adddivspace">
+                                                                <div class="col-sm-3">
+                                                                    <label style="width: 100%;font-weight:bold;" class="lbl-text">  Disability Type </label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+
+                                                                    <label class="checkbox-inline" id="pchechkbox"> </label>
+
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div id="divdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
+                                                                <div class="col-sm-3">
+                                                                    <label style="width: 100%;font-weight:bold;" class="lbl-text"> Primary Disability Type</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+
+                                                                    <label id="primaryDisabilityLbl" class="checkbox-inline"></label>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div style="" class="col-sm-10 adddivspace">
+                                                                <div class="col-sm-3">
+                                                                    <label style="width: 100%;font-weight:bold;" class="lbl-text"> Special Services Received </label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+
+                                                                    <label id="specialServiceDisability" class="checkbox-inline"></label>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                        </div>
+                                                    }
+
                                                 </div>
                                            
 
@@ -338,6 +400,8 @@
 
 <script>
 
+    var disbilityTypeJson = null;
+
     //method to bind the disability type//
     function BindDropdownDisable() {;
         $.ajax({
@@ -347,6 +411,8 @@
             secureuri: false,
             async: false,
             success: function (data) {
+                disbilityTypeJson = data;
+
                 var dts = ''
                 $('#pchechkbox').html('');
                 for (var i = 0; i < data.list.disabilitytype.length; i++) {
@@ -558,7 +624,7 @@
                    
 
 
-                    tr += '<td height="70"  class="child_name"  IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  special-service="' + data.list.Rosters[i].SpecialService + '"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
+                    tr += '<td height="70"  class="child_name"  IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showDisabilitydiv(this)"  special-service="' + data.list.Rosters[i].SpecialService + '"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
 
                     tr += '<td height="70" style="text-align:center;width:11%;">';
                     tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
@@ -603,7 +669,7 @@
                     else {
                         tr += '<tr style="border:1px solid #cfcfcf;">';
                     }
-                    tr += '<td height="70" class="child_name" IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"    EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" Clientid="' + data.list.Rosters[i].Eclientid + '" classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
+                    tr += '<td height="70" class="child_name" IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"    EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showDisabilitydiv(this)"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" Clientid="' + data.list.Rosters[i].Eclientid + '" classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
                     tr += '<td height="70" style="text-align:center;width:11%;">';
                     tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
                     tr += '</td>';
@@ -661,7 +727,7 @@
     }
 
     //method to show the div on click of client name//
-    function showdiv(Aobject) {
+    function showDisabilitydiv(Aobject) {
         cleanValidation();
         $('#txtappnotes,#DocumentDate,#txtdocdesc,#ddlqualifiedreleased').val('');
         $('.file-upload').val('');
@@ -670,7 +736,7 @@
         var Transport = null;
         $('#tblNotesList').show();
         $('#disableheader').show();
-        $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
+        $('#disabilityClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
         $('#IsWithdrawn').val($(_Object).attr('IsWithdrawn'));
      
         $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
@@ -1174,7 +1240,18 @@
                 if (data != null) {
                     
                   
-                    BindSelectedDisabilities(data);
+                    if('@Session["RoleId"].ToString().ToLowerInvariant()'=='@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilitiesManager).ToLowerInvariant()' ||
+                        '@Session["RoleId"].ToString().ToLowerInvariant()' == '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilityStaff).ToLowerInvariant()'
+                        )
+                    {
+
+                        BindSelectedDisabilities(data);
+                    }
+
+                    else {
+                        BindSelectedDisabilitiesOther(data);
+                    }
+                 //   BindSelectedDisabilities(data);
                     BindNotesHtml(data);
                    BindDocumentsHtml(data);
                 }
@@ -1347,6 +1424,67 @@
 
             }
         }
+    }
+
+    //method to bind the selected Disabilities for other than disability roles //
+
+    function BindSelectedDisabilitiesOther(data) {
+
+
+        var $disabilityModal = $('#ModalPending');
+        var $divChangeStatus = $disabilityModal.find('#divChangeStatus');
+        $divChangeStatus.find('#divddlDisabilityType').show();
+
+        var disabilityType = '';
+        var disability = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+            if (item.Id === parseInt(data.list.disablenotes[0].NotesList[0].DisabilityTypeID)) {
+                disabilityType = item.DisabilityType;
+
+                return i;
+            }
+        });
+        $divChangeStatus.find('#pchechkbox').html(disabilityType);
+        var _primaryDisability = '';
+        var primaryDisability = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+            if (item.Id == parseInt(data.list.disablenotes[0].NotesList[0].PrimaryDisability)) {
+                _primaryDisability = item.DisabilityType;
+                return i;
+            }
+        });
+        $divChangeStatus.find('#primaryDisabilityLbl').html(_primaryDisability);
+
+
+
+        var $specialServiceDisability = [];
+
+        var disabilityList = data.list.disablenotes[0].NotesList[0].SpecialServiceDisability.split(',');
+
+        $.each(disabilityList, function (i, dis) {
+
+
+            var disService = disbilityTypeJson.list.disabilitytype.find(function (item, i) {
+                if (item.Id == parseInt(dis)) {
+                    $specialServiceDisability.push(item.DisabilityType);
+                    return i;
+                }
+            });
+        });
+
+
+        if ($specialServiceDisability.length > 0) {
+            $divChangeStatus.find('#specialServiceDisability').html($specialServiceDisability.join(', '));
+
+        }
+        else {
+            $divChangeStatus.find('#specialServiceDisability').html('Not Available');
+
+        }
+
+      //  $divChangeStatus.find('#lblClientName').html($(Object).html());
+
+        $divChangeStatus.show();
+
+
     }
 
     //method to bind the notes to modal popup//

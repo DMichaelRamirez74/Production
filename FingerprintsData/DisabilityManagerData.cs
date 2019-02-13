@@ -285,7 +285,9 @@ namespace FingerprintsData
                             if (dr["recordCreated"] != DBNull.Value)
                             {
                                 info.recordCreated = dr["recordCreated"].ToString();
-                                DateTime dt = Convert.ToDateTime(info.recordCreated);
+                                //DateTime dt = Convert.ToDateTime(info.recordCreated);
+                                DateTime dt = DateTime.Parse(info.recordCreated, new System.Globalization.CultureInfo("en-US", true));
+
                                 TimeSpan tt = DateTime.Now.Subtract(dt);
                                 info.totalday = tt.Days.ToString();
                             }

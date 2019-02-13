@@ -6943,6 +6943,8 @@ namespace FingerprintsData
                             info.Attendance = Convert.ToDecimal(dr["Attendance"]) == Convert.ToInt32(dr["Attendance"]) ? Convert.ToInt32(dr["Attendance"]).ToString() : dr["Attendance"].ToString();
                             info.TotalWaitingList = dr["TotalWaitinglist"].ToString();
                             info.HomeVisitAppointment= Convert.ToInt32(dr["appointment"]);
+                            info.OverIncome = Convert.ToInt32(dr["OverIncome"]);
+                            info.Disability = Convert.ToInt32(dr["Disability"]);
                             yakkrcount = Convert.ToInt32(dr["yakkrcount"]);
                          
                             centerList.Add(info);
@@ -8717,6 +8719,7 @@ namespace FingerprintsData
 
                         familyinfo.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["ProgramID"].ToString()));
                         familyinfo.IsFoster = Convert.ToInt32(_dataset.Tables[2].Rows[i]["FosterChild"]);
+                        familyinfo.CParentdisable = Convert.ToInt32(_dataset.Tables[2].Rows[i]["DisabilityChild"]);
                         _Childlist.Add(familyinfo);
                     }
                     obj._Clist = _Childlist;
@@ -15690,5 +15693,97 @@ namespace FingerprintsData
         #endregion
 
 
+
+
+        public ChildrenInfoClass GetOverIncomeChildrenData(out List<SelectListItem> parentNameList, string centerId)
+        {
+            List<ChildrenInfo> overIncomChildList = new List<ChildrenInfo>();
+
+            SelectListItem parentInfo = null;
+            parentNameList = new List<SelectListItem>();
+            ChildrenInfoClass childInfo = new ChildrenInfoClass();
+            childInfo.OverIncomeChildrenList = new List<ChildrenInfo>();
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Open();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetOverIncomeChild_CenterOverview";
+                    command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
+                    command.Parameters.AddWithValue("@CenterId", centerId);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                       
+
+
+                        childInfo.OverIncomeChildrenList = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                                            select new ChildrenInfo
+                                                            {
+                                                                ClientName = dr1["name"].ToString(),
+                                                                Gender = dr1["Gender"].ToString(),
+                                                                CenterName = dr1["centername"].ToString(),
+                                                               // ProgramType = dr1["ProgramType"].ToString(),
+                                                                Dob = dr1["dob"].ToString(),
+                                                               // ClassStartDate = dr1["Dateofclassstartdate"].ToString(),
+                                                              //  ClassRoomName = dr1["ClassRoomName"].ToString(),
+                                                                ChildIncome = (Convert.ToInt64(dr1["PovertyCalculated"].ToString()) > 100 && Convert.ToInt64(dr1["PovertyCalculated"].ToString()) < 130) ? "less than 130%" : "greater than 130%",
+                                                                ClientId = dr1["ClientId"].ToString(),
+                                                                Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientId"].ToString()),
+                                                              //  ClientId1 = dr1["clientId1"].ToString(),
+                                                              //  ClientId2 = dr1["clientId2"].ToString()
+
+                                                            }).ToList();
+                    }
+
+                    if (_dataset.Tables.Count>1 && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr1 in _dataset.Tables[1].Rows)
+                        {
+                            parentInfo = new SelectListItem
+                            {
+                                Text = dr1["ParentName"].ToString(),
+                                Value = dr1["ClientId"].ToString()
+                            };
+                            parentNameList.Add(parentInfo);
+
+                        }
+                    }
+
+
+                  
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return childInfo;
+        }
     }
 }

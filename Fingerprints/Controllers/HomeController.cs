@@ -107,7 +107,7 @@ namespace Fingerprints.Controllers
         }
         //Changes on 18Jan2017
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor,RoleEnum.Executive,RoleEnum.SocialServiceManager,RoleEnum.AreaManager,RoleEnum.CenterManager)]
         public ActionResult AgencystaffDashboard()
         {
             try
@@ -154,14 +154,16 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
         public JsonResult GetclientWaitingList(string Centerid, string Option, string Programtype)
         {
             try
             {
                 List<ClientWaitingList> _clientWaitingList = new List<ClientWaitingList>();
                 Dictionary<string, Int32> slotsDictionary = new Dictionary<string, int>();
-                _clientWaitingList= _family.GetclientWaitingList(ref slotsDictionary,  Centerid, Option, Programtype,Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
+                _clientWaitingList = _family.GetclientWaitingList(ref slotsDictionary, Centerid, Option, Programtype, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 return Json(new { _clientWaitingList, slotsDictionary }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
@@ -211,12 +213,14 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
         public JsonResult LoadClientPendinglist(string Centerid, string Type)
         {
             try
             {
-                return Json(_family.LoadClientPendinglist(Centerid, Type, Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.UserId)));
+                return Json(_family.LoadClientPendinglist(Centerid, Type, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
             }
             catch (Exception Ex)
             {
@@ -237,7 +241,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
         public JsonResult GetclientAcceptedList(string Centerid, string Option)
         {
             try
@@ -335,22 +341,26 @@ namespace Fingerprints.Controllers
 
 
 
-        public ActionResult AreaManagerDashboard()
-        {
-            try
-            {
-                //string AgencyId = Session["AgencyID"].ToString();
-                ExecutiveDashBoard executive;
-                executive = new ExecutiveData().GetExecutiveDetails(Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.UserId), "AreaManager");
-                TempData["CaseNote"] = executive.listCaseNote;
-                return View(executive);
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return View();
-            }
-        }
+        //public ActionResult AreaManagerDashboard()
+        //{
+        //    try
+        //    {
+        //        //string AgencyId = Session["AgencyID"].ToString();
+        //        ExecutiveDashBoard executive;
+        //        executive = new ExecutiveData().GetExecutiveDetails(staffDetails,"AreaManager");
+        //        TempData["CaseNote"] = executive.listCaseNote;
+        //        return View(executive);
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        clsError.WriteException(Ex);
+        //        return View();
+        //    }
+        //}
+
+
+
+
         [CustAuthFilter("9ad1750e-2522-4717-a71b-5916a38730ed")]
         public ActionResult HealthManager()
         {
@@ -388,13 +398,13 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.AreaManager,RoleEnum.CenterManager,RoleEnum.ERSEAManager,RoleEnum.Executive,RoleEnum.SocialServiceManager)]
         public ActionResult CenterClosure()
         {
             return View();
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a65bb7c2-e320-42a2-aed4-409a321c08a5,b65759ba-4813-4906-9a69-e180156e42fc")]
+        [CustAuthFilter(RoleEnum.AreaManager, RoleEnum.CenterManager, RoleEnum.ERSEAManager, RoleEnum.Executive, RoleEnum.SocialServiceManager)]
         public ActionResult DaysOff()
         {
             List<DaysOff> offList = new List<DaysOff>();
@@ -421,6 +431,7 @@ namespace Fingerprints.Controllers
 
 
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult InsertOffDays(string daysOffString = "")
         {
             DaysOffModel model = new DaysOffModel();
@@ -449,7 +460,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-
+        [CustAuthFilter()]
         public JsonResult DeleteOffDays(string dayOffIdString)
         {
             DaysOffModel model = new DaysOffModel();
@@ -477,7 +488,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetOffDayValidation(string fromDate, string toDate, string centerId, string classroomArray, string daysOffType, string daysOffId)
         {
             bool isResult = false;
@@ -508,7 +519,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.AreaManager,RoleEnum.CenterManager,RoleEnum.ERSEAManager,RoleEnum.Executive)]
         public ActionResult GetClassroomsByCenterId(string CenterId)
         {
             string JSONString = string.Empty;
@@ -544,7 +555,7 @@ namespace Fingerprints.Controllers
         //}
 
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.CenterManager,RoleEnum.AreaManager,RoleEnum.Executive,RoleEnum.SocialServiceManager)]
         public ActionResult Dashboard()
         {
             try
@@ -554,7 +565,8 @@ namespace Fingerprints.Controllers
                 StaffDetails details = StaffDetails.GetInstance();
                 bool hasHomeBased = false;
 
-                if (Session["Roleid"].ToString().Contains("b4d86d72-0b86-41b2-adc4-5ccce7e9775b"))
+
+                if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.CenterManager).ToLowerInvariant())
                 {
                     details.AgencyId = new Guid(Session["AgencyID"].ToString());
                     details.RoleId = new Guid(Session["RoleID"].ToString());
@@ -566,16 +578,23 @@ namespace Fingerprints.Controllers
 
                     ViewBag.RoleName = "Center Manager"; ViewBag.ViewType = "Center";
                 }
-                else if (Session["Roleid"].ToString().Contains("7c2422ba-7bd4-4278-99af-b694dcab7367"))
+                else if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.Executive).ToLowerInvariant())
                 {
                     ViewBag.RoleName = "Executive"; ViewBag.ViewType = "Agency";
                 }
-                else if (Session["Roleid"].ToString().Contains("2af7205e-87b4-4ca7-8ca8-95827c08564c"))
+                else if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.AreaManager).ToLowerInvariant())
                 {
                     ViewBag.RoleName = "Area Manager"; ViewBag.ViewType = "Center";
                 }
-                ExecutiveDashBoard executive=new ExecutiveDashBoard();
-                executive = new ExecutiveData().GetExecutiveDetails(Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
+
+                else if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.SocialServiceManager).ToLowerInvariant())
+                {
+                    ViewBag.RoleName = "Social Service Manager"; ViewBag.ViewType = "Agency";
+                }
+
+
+                    ExecutiveDashBoard executive = new ExecutiveDashBoard();
+                executive = new ExecutiveData().GetExecutiveDetails(staffDetails, Session["Roleid"].ToString());
                 TempData["CaseNote"] = executive.listCaseNote;
 
                 return View(executive);
@@ -665,8 +684,9 @@ namespace Fingerprints.Controllers
             }
         }
 
-       // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
-       [CustAuthFilter(RoleEnum.SocialServiceManager,RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor)]
+
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
         public JsonResult GetDailyAttendance(string Centerid)
         {
             try
@@ -746,7 +766,9 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        //[CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+
+        [CustAuthFilter(RoleEnum.DisabilitiesManager, RoleEnum.DisabilityStaff)]
         public JsonResult Loadallenrolled(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -762,7 +784,10 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+      //  [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        [CustAuthFilter(RoleEnum.DisabilitiesManager, RoleEnum.DisabilityStaff, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
+      
         public JsonResult LoadPendingDisableRoster(string Centerid = "0", string Classroom = "0", string Mode = "", string sortOrder = "", string sortDirection = "DESC", string clientId = "0")
         {
             try
@@ -779,7 +804,9 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        // [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        [CustAuthFilter(RoleEnum.DisabilitiesManager, RoleEnum.DisabilityStaff, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
         public JsonResult LoadNotes(string ClientId)
         {
             try
@@ -918,7 +945,9 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        //[CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        [CustAuthFilter(RoleEnum.DisabilitiesManager, RoleEnum.DisabilityStaff, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
+
         public JsonResult BindDisabilityType()
         {
             try
@@ -964,7 +993,7 @@ namespace Fingerprints.Controllers
         }
         
 
-        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        [CustAuthFilter(RoleEnum.AreaManager,RoleEnum.CenterManager,RoleEnum.DisabilitiesManager,RoleEnum.DisabilityStaff, RoleEnum.Executive,RoleEnum.SocialServiceManager,RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor)]
         public FileResult getDisableDocument(string id = "0")
         {
 
@@ -1691,6 +1720,17 @@ namespace Fingerprints.Controllers
             }
 
             return _jsonStr;
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult GetOverIncomeClient(string encCenterId)
+        {
+            List<SelectListItem> parentNameList = new List<SelectListItem>();
+            ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,EncryptDecrypt.Decrypt64(encCenterId));
+
+            return Json(new { childInfo, parentNameList }, JsonRequestBehavior.AllowGet);
         }
 
 
