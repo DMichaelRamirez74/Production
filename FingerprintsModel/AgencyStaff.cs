@@ -165,6 +165,8 @@ namespace FingerprintsModel
         public List<HrCenterInfo> AllCentersList { get; set; }
 
         public int HomeVisitAppointment { get; set; }
+        public int OverIncome { get; set; }
+        public int Disability { get; set; }
     }
 
     public class Roster
@@ -607,7 +609,8 @@ namespace FingerprintsModel
         public  int SkipRows { get; set; }
         public int RequestedPage { get; set; }
 
-       
+        public string SortOrder { get; set; }
+        public string SortColumn { get; set; }
 
         public virtual int GetSkipRows()
         {

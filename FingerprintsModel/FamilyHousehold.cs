@@ -334,6 +334,8 @@ namespace FingerprintsModel
         public string EState { get; set; }
         public string Enotes { get; set; }
 
+
+        public FamilyHousehold NewAddressHousehold { get;set;}
         public HttpPostedFileBase HouseHoldAvatar { get; set; }
         public string HouseHoldFileName { get; set; }
         public string HouseHoldFileExtension { get; set; }

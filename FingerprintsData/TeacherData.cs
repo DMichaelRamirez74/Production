@@ -626,6 +626,7 @@ namespace FingerprintsData
                         _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
                         _TeacherM.CIFileData = (byte[])dr["profilepic"];
                         _TeacherM.CImage = dr["FileNameul"].ToString();
+                        _TeacherM.ParentSig = Convert.ToString(dr["PSignature"]);
 
                     }
 
@@ -867,6 +868,8 @@ namespace FingerprintsData
                     string TeacherID = collection.Get("Teacher");
                     string OtherNotes = collection.Get("OtherNotesTeacher");
                     string observation = collection.Get("Observation");
+                    string SignatureCode = collection.Get("SignatureCode");
+                    SignatureCode = !string.IsNullOrEmpty(SignatureCode) ? EncryptDecrypt.Encrypt(SignatureCode) : SignatureCode;
                     List<string> observationlist = null;
                     if (observation != null)
                     {
@@ -883,14 +886,13 @@ namespace FingerprintsData
                                 command.Parameters.Add(new SqlParameter("@UserID", UserID));
                                 command.Parameters.Add(new SqlParameter("@ClientID", clientID));
                                 command.Parameters.Add(new SqlParameter("@TSignature", imgSig));
+                                command.Parameters.Add(new SqlParameter("@StaffSignatureCode", SignatureCode));
                                 command.Parameters.Add(new SqlParameter("@TeacherOther", OtherNotes));
                                 command.Parameters.Add(new SqlParameter("@Observation", obs));
                                 command.Parameters.Add(new SqlParameter("@ObservationType", 1));
                                 command.CommandType = CommandType.StoredProcedure;
                                 command.CommandText = "SP_MarkDailyObservation";
-                                DataAdapter = new SqlDataAdapter(command);
-                                _dataset = new DataSet();
-                                DataAdapter.Fill(_dataset);
+                                command.ExecuteNonQuery();
                                 Connection.Close();
                                 command.Parameters.Clear();
                                 command.Dispose();

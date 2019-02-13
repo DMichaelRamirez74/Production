@@ -222,10 +222,6 @@ namespace FingerprintsModel
         public string ToDate { get; set; }
 
         public string DateEntered { get; set; }
-
-        public string SortOrder { get; set; }
-        public string SortColumn { get; set; }
-
         public string TotalHours { get; set; }
         public string TotalMiles{get;set;}
         public string TotalAmount { get; set; }

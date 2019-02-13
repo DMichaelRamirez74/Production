@@ -17,6 +17,24 @@
 
     <script type="text/javascript">
 
+
+
+        //Camera Parameters //
+
+        var videoSelect =null;
+        var screenshotButton=null;
+        var img =null;
+        var canvas=null;
+        var button=null;
+        var currentStream;
+        var video;
+        var constraints = {};
+        var front = true;
+
+
+        //Camera Parameters //
+
+
         var _maxHrMinEntry = '12:00';
         var _warningHrsEntry = '08:00';
         var activityHrs = null;
@@ -1566,10 +1584,310 @@
                 return /^\d*$/.test(value) && value.toString().length <= 4;
             });
 
+
+
+
+            //Camera Functions//
+
+
+            //camera option for document upload//
+
+
+
+            videoSelect = document.querySelector('select#videoSource');
+            video = document.querySelector('#setup-camera-div video');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '')
+
+
+            screenshotButton = document.querySelector('#anchor-capture');
+
+         
+
+
+
+
+
+
+            screenshotButton.onclick = video.onclick = function () {
+
+                var $index=  $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                var $imageQuery='<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_'+$index+'">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                // Other browsers will fall back to image/png
+                console.log(canvas);
+                // img.src = canvas.toDataURL('image/png');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_'+$index+'').find('img').attr('src', canvas.toDataURL('image/png'));
+            };
+
+        
+
+            //new code//
+
+
+
+
+            videoSelect.addEventListener('change', function (event) {
+
+                getStream();
+            });
+
+            navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+            canvas = document.createElement('canvas');
+
+
+
+            
+            showCameraOption();
+
+
+
+
+
+            $('#uploadImageCamera').hide();
+
+            setIntervalUserMedia();
+
+
+            $('#uploadImageCamera').on('click',function(){
+            
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+                $('#modal-uploaddocument').modal('show');
+            });
+
+            //Camera Functions //
+
         });
 
 
 
+        //Camera Functions //
+
+
+        function handleSuccess(stream) {
+            screenshotButton.disabled = false;
+            video.srcObject = stream;
+        }
+
+        function stopMediaTracks(stream) {
+             
+            stream.getTracks().forEach(function (track) { track.stop(); })
+
+        }
+
+
+        
+        function stopMediaTracks(stream) {
+            stream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+        }
+
+        function gotDevices(mediaDevices) {
+
+            videoSelect.innerHTML = '';
+            // videoSelect.appendChild(document.createElement('option'));
+            var count = 1;
+            mediaDevices.forEach(function (mediaDevice) {
+                if (mediaDevice.kind === 'videoinput') {
+                    const option = document.createElement('option');
+                    option.value = mediaDevice.deviceId;
+                    const label = mediaDevice.label || 'Camera '+(count++)+'';
+                    const textNode = document.createTextNode(label);
+                    option.appendChild(textNode);
+                    videoSelect.appendChild(option);
+                }
+            });
+
+
+
+
+
+        }
+
+        function getStream() {
+            // alert('change event');
+            if (typeof currentStream !== 'undefined') {
+                stopMediaTracks(currentStream);
+            }
+            const videoConstraints = {};
+            if (videoSelect.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: videoSelect.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+              .getUserMedia(constraints)
+              .then(function (stream) {
+                  currentStream = stream;
+                  video.srcObject = stream;
+                  return navigator.mediaDevices.enumerateDevices();
+              })
+              .then(gotDevices)
+              .catch(function (error) {
+                  console.error(error);
+                  //alert(error);
+              });
+        }
+
+        function showCameraOption(ele) {
+
+            var videoInputAvailable = 0;
+            $('#uploadImageCamera').tooltip('hide');
+            $('#uploadImageCamera').hide();
+
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+
+                console.log(devices);
+                devices.forEach(function (device) {
+
+
+                    if (device.kind == 'videoinput') {
+                        videoInputAvailable++;
+                    }
+
+                });
+
+
+                if (videoInputAvailable == 0) {
+                    $('#uploadImageCamera').hide();
+                    $('#uploadImageCamera').tooltip('hide');
+
+                }
+                else {
+                    $('#uploadImageCamera').show();
+                    $('#uploadImageCamera').tooltip('show');
+                }
+
+                console.log(videoInputAvailable);
+
+            }).catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+
+
+            //if (videoSelect.options.length > 0) {
+            //    getStream();
+            //}
+
+
+
+
+        }
+
+        function showVideoStream()
+        {
+            if (videoSelect.options.length > 0) {
+                getStream();
+            }
+
+        }
+
+
+        function checkUserMedia()
+        {
+
+
+
+
+            navigator.getMedia = ( navigator.getUserMedia || // use the proper vendor prefix
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia);
+
+            navigator.getMedia({video: true}, function() {
+
+                if(!$('#uploadImageCamera').is(':visible'))
+                {
+
+                    $('#uploadImageCamera').show();
+                    $('#uploadImageCamera').tooltip('show');
+                }
+
+
+
+            }, function() {
+
+                $('#uploadImageCamera').hide();
+                $('#uploadImageCamera').tooltip('hide');
+
+
+            });
+
+
+        }
+
+        var userMediaInterval=null;
+
+        function setIntervalUserMedia(){
+
+            userMediaInterval=  setInterval(function(){
+
+                checkUserMedia();
+
+            },1000);
+
+
+
+        }
+
+        function stopIntervalUserMedia(){
+            clearInterval(userMediaInterval);
+        }
+
+        function getBase64Image(img) {
+            //debugger;
+            //var canvas = document.createElement("canvas");
+            //canvas.width = img.width;
+            //canvas.height = img.height;
+            //var ctx = canvas.getContext("2d");
+            //ctx.drawImage(img, 0, 0);
+            //var dataURL = ctx.toDataURL("image/png");
+            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+        }
+
+
+        function saveDocumentCamera(ele) {
+            var docImage = $('#modalScreenDoc').find('#capt-img');
+
+            if (docImage[0].src.replace('data:,', '') == '') {
+                customAlert('Please capture image using camera');
+                return false;
+            }
+            else {
+
+                saveScreeningDoc(docImage, 2);
+
+            }
+
+        }
+
+
+        //Camera Functions//
 
 
         function  fnChangePage(val) {
@@ -3738,7 +4056,8 @@
                                                 <div class="col-lg-8 sum_attachparticic">
                                                     <input type="file" class="form-control" name="InkindAttachmentsList[0].InkindAttachmentFile" />
                                                     <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreInkindAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                                   @* <img id="" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" data-original-title="Capture using Camera" style="margin-left: 10px;">*@
+                                                    <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
+
                                                 </div>
                                                 <div class="attachparticic_myactive">
 
@@ -3752,7 +4071,7 @@
                                         <div class="form-group">
                                             <div class="col-lg-6 text-left" id="parent-sig-div" style="display:none;">
                                               
-                                                  <label for="sig1" class="signature-margin-top">Signature of Parent / Representative</label>
+                                                  <label for="sig1" @if(hasSignatureCode){<text>class="signature-margin-top"</text>}>Signature of Parent / Representative</label>
                                                 <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
                                                 
                                                 <div id="sig1" class="form-control"></div>
@@ -3783,10 +4102,9 @@
                                                             </label>
                                                         </div>
                                                     </div>
-                                                }
-                                               
-                                                
-                                                <div class="col-xs-12 adddivspace" id="div-add-signature-code"  @if (hasSignatureCode) { <text>style = "display:none;"</text>}>
+
+
+                                                    <div class="col-xs-12 adddivspace" id="div-add-signature-code" style="display:none;">
 
 
 
@@ -3800,9 +4118,16 @@
 
                                                 </div>
 
-                                                <div class="col-xs-12 adddivspace no-padding-res" id="div-draw-Signature" style="display:none;">
-                                                    <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
-                                                    <div id="sig2" class="form-control" style="margin:auto;"></div>
+                                                }
+                                               
+                                                
+                                            
+
+                                                <div class="col-xs-12 adddivspace no-padding-res" id="div-draw-Signature"  @if (hasSignatureCode) {<text>style="display:none;"</text>} >
+
+<i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
+
+<div id="sig2" class="form-control" style="margin:auto;"></div>
                                                     <input type="hidden" id="imageSig2" />
                                                     <div class="add-useragform student-scroll full-border full-border-margin impo-censect">
                                                         <button class="btnPassword" type="button" id="clear2" onclick="return ClearSignature(2);" style="border-radius:50px;">Clear</button>
@@ -3843,6 +4168,11 @@
         <p><button type="button" class="btn btn-success">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger">No</button></p>
     </div>
 
+
+@{
+    Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+
+}
 }
 
 

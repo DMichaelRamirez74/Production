@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "ParentCheckIn";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    bool hasSignatureCode = Convert.ToBoolean(Session["HasSignatureCode"]);
 
 }
 
@@ -9,7 +10,7 @@
 
 
 @section Script{
-   
+
     <style>
         .kbw-signature {
             width: 400px;
@@ -17,10 +18,10 @@
         }
 
         .sec-radios span {
-    margin-right: 10px;
-    float: left;
-    color: #fff;
-}
+            margin-right: 10px;
+            float: left;
+            color: #fff;
+        }
 
         .sec-radios span input {
     margin-right: 5px;
@@ -30,50 +31,60 @@
     float: right;
 }
         .sec-radios span {
-    margin-right: 10px;
-    /*float: left;*/
-    color: #fff;
-}
-.check-space {
-    margin-top: 0px;
-    float: left;
-    margin-right: 4px;
-}
-    .hours-div label {
-    width: auto !important;
-    float: left;
-    margin-right: 14px;    font-weight: 300 !important;
-    color: #000 !important;
-}
-    .hours-div input[type="radio"] {
-    width: auto !important;
-    float: left;
-    margin-right: 3px;
-}
-    div#parent-check-inkind-div label {
-    color: #295b8f;
-    font-weight: 600;
-}#parent-check-inkind-div label span.activity_desc {
-    color: #000;
-    font-weight: 300;
-}
-    .table-main-sec {
-    margin-top: 20px;
-    width: 100%;
-    float: left;
-}
-   
-    @@media only screen and (min-width: 768px) and (max-width: 1200px){
-        label.witpart {
-    width: 100% !important;
-}
-        input#ActivityDate {
-    width: 100% !important;
-}
-         .parent-info.section .hours-div {
-    margin-top: 24px;
-}
-    }
+            margin-right: 10px;
+            /*float: left;*/
+            color: #fff;
+        }
+
+        .check-space {
+            margin-top: 0px;
+            float: left;
+            margin-right: 4px;
+        }
+
+        .hours-div label {
+            width: auto !important;
+            float: left;
+            margin-right: 14px;
+            font-weight: 300 !important;
+            color: #000 !important;
+        }
+
+        .hours-div input[type="radio"] {
+            width: auto !important;
+            float: left;
+            margin-right: 3px;
+        }
+
+        div#parent-check-inkind-div label {
+            color: #295b8f;
+            font-weight: 600;
+        }
+
+        #parent-check-inkind-div label span.activity_desc {
+            color: #000;
+            font-weight: 300;
+        }
+
+        .table-main-sec {
+            margin-top: 20px;
+            width: 100%;
+            float: left;
+        }
+
+        @@media only screen and (min-width: 768px) and (max-width: 1200px) {
+            label.witpart {
+                width: 100% !important;
+            }
+
+            input#ActivityDate {
+                width: 100% !important;
+            }
+
+            .parent-info.section .hours-div {
+                margin-top: 24px;
+            }
+        }
     </style>
 
 
@@ -198,6 +209,11 @@
 
         $(function () {
 
+            // Signature Code Validation Check //
+
+            $("input:text[name='SignatureCode']").inputFilter(function (value) {
+                return /^\d*$/.test(value) && value.toString().length <= 4;
+            });
 
 
 
@@ -354,12 +370,50 @@
 
                 //alert($("input[name=Parent1]:checked").val());
                 if ($("input[name=Teacher]:checked").val() == "00000") {
+
+                    $('#div-sig-code-section').hide();
+                    $('#div-sig-code-section').find('input:radio[name="signatureRadio"]').prop('checked',false);
+                    $('#div-sig-code-section').find('#div-sig-code').find('input[name="SignatureCode"]').val('');
+
+                    $('#div-sig-code-section').find('#div-sig-code').hide();
+
                     $('#othersTeacher').show();
+                    $('#div-draw-signature').show();
+
                     plainValidation('#OtherNotesTeacher');
 
                 } else {
+
+                    if( $('#div-sig-code-section').length>0)
+                    {
+                        $('#div-sig-code-section').find('input:radio[name="signatureRadio"]').prop('checked',false);
+                        $('#div-sig-code-section').find('#div-sig-code').find('input[name="SignatureCode"]').val('');
+                        $('#div-sig-code-section').show();
+                        $('#div-draw-signature').hide();
+                    }
+            
+
+
+
                     $('#othersTeacher').hide();
                 }
+            });
+
+            $('input:radio[name="signatureRadio"]').on('click',function(){
+
+                debugger;
+                if($(this).val()=='1')
+                {
+                    $('#div-sig-code-section').find('#div-sig-code').find('input[name="SignatureCode"]').val('');
+                    $('#div-sig-code').show();
+                    $('#div-draw-signature').hide();
+                }
+                else{
+                    $('#div-sig-code-section').find('#div-sig-code').find('input[name="SignatureCode"]').val('');
+                    $('#div-sig-code').hide();
+                    $('#div-draw-signature').show();
+                }
+
             });
 
             $('input[type=checkbox][name=ActivityCode]').click(function () {
@@ -496,21 +550,57 @@
                 return isValid;
             }
             function ValidateDataTeacher() {
+               
                 isValid = true;
                 if ($("input[name=Teacher]:checked").length == 0) {
                     customAlert("A Check In name is required. ");
                     plainValidation('#Teacher');
                     isValid = false;
                 }
-                if ($('#ConvertedImageTeacher').val() == 0) {
+
+                if(isValid && $('input[name="Teacher"]:checked').val()=='00000' && $('input:text[name="OtherNotesTeacher"]').val().trim()=="")
+                {
+                    customAlert("A Check In name is required. ");
+                    plainValidation($('input:text[name="OtherNotesTeacher"]'));
+                    isValid = false;
+                }
+
+
+
+                if($('#div-sig-code-section').length>0 && $('#div-sig-code-section').is(':visible'))
+                {
+                  
+                    if(isValid && $('#div-sig-code-section').find('input:radio[name="signatureRadio"]:checked').length==0)
+                        {
+                            customAlert("Please select signature type");
+                            isValid = false;
+                        }
+                        else if(isValid && $('#div-sig-code-section').find('input:radio[name="signatureRadio"]:checked').val()=='1')
+                        {
+                            if($('input:text[name="SignatureCode"]').val()=='')
+                            {
+                                plainValidation($('input:text[name="SignatureCode"]'));
+                                customAlert("Please enter signature code");
+                                isValid = false;
+                            }
+                            else if(isValid && !CheckStaffSignature($('input[name="SignatureCode"]')))
+                            {
+                                isValid=false;
+                            }
+                        }
+                   
+
+                }
+
+                if (isValid && $('#div-draw-signature').is(':visible') && $('#ConvertedImageTeacher').val() == 0) {
                     customAlert("Please sign and accept signature. ");
                     plainValidation('#imageSigTeacher');
                     isValid = false;
                 }
 
-                var parentsig = '@Html.Raw(Model.ParentSig))';
+                var parentsig = '@Html.Raw(Model.ParentSig)';
 
-                if (parentsig == '{"lines":[]})') {
+                if (isValid && (parentsig == '{"lines":[]})' || parentsig=='')) {
                     customAlert("This child must be signed in prior to the Daily Health Check. ");
                     plainValidation('#imageSig');
                     isValid = false;
@@ -896,8 +986,33 @@
 
                                             </div>
                                         </div>
+
+                                        @if (hasSignatureCode && Model.OtherNameTeacher == "")
+                                        {
+
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" id="div-sig-code-section" >
+
+                                                <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+                                                    <h4 class="text-black">Signature Type: </h4>
+                                                    <label>
+                                                        <input type="radio" name="signatureRadio" value="1">Use Signature Code
+                                                    </label>
+
+                                                    <label>
+                                                        <input type="radio" name="signatureRadio" value="2">Sign Manually
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-2 col-sm-12 col-xs-12 col-md-12" id="div-sig-code" style="display:none;">
+                                                    <h4 class="text-black">Signature Code: </h4>
+                                                    <input type="password" class="form-control" autocomplete="off" maxlength="4" name="SignatureCode" style="width:40%;" />
+                                                    </div>
+                                                </div>
+
+                                        }
+
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+                                            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12" id="div-draw-signature"   @if (hasSignatureCode && Model.OtherNameTeacher == "") { <text>style="display:none;"</text> }>
                                                 <div id="sig1"></div>
                                                 @Html.Hidden("imageSigTeacher", "")
                                                 <input type="hidden" id="ConvertedImageTeacher" value="0" />
@@ -913,20 +1028,24 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
-                                                    <div class="add-useragform student-scroll full-border full-border-margin">
+                                      
+                                            </div>
 
-                                                        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 text-center">
-                                                            <h4> </h4>
-                                                            <button class="btnPassword" id="post" onclick="return ValidateDataTeacher();">Submit</button>
-                                                            <button class="btnPassword" onclick="location.href='@Url.Action("ParentCheckIn_CheckOut", "Teacher", new { available = Model.Available })';return false;">
-                                                                Exit
-                                                            </button>
-                                                            <h4> </h4>
-                                                        </div>
+
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                                <div class="add-useragform student-scroll full-border full-border-margin">
+
+                                                    <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 text-center">
+                                                        <h4> </h4>
+                                                        <button class="btnPassword" id="post" onclick="return ValidateDataTeacher();">Submit</button>
+                                                        <button class="btnPassword" onclick="location.href='@Url.Action("ParentCheckIn_CheckOut", "Teacher", new { available = Model.Available })';return false;">
+                                                            Exit
+                                                        </button>
+                                                        <h4> </h4>
                                                     </div>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
