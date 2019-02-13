@@ -22,6 +22,26 @@
 @section Script{
     <script type="text/javascript">
 
+
+
+
+
+
+        /*** Video ************/
+
+
+        var videoSelect = null;
+        var screenshotButton = null;
+        var img = null;
+        var canvas = null;
+        var button = null;
+        var currentStream;
+        var video;
+        var constraints = {};
+        var front = true;
+
+        /****************/
+
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -62,19 +82,20 @@
                 $('#EMP0').attr("disabled", "disabled");
 
             }
-            $('#DegreeDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('input:text[name="StaffEducation.DegreeDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#TBDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#CDDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#MSDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#FBDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#BCIDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#NCDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-
             $('#Degree').val("");
-            if ('@Model.Institution' == "")
+
+
+            @*if ('@Model.Institution' == "")
                 $('#Institution').val("");
             if ('@Model.Major' == "")
-                $('#Major').val("");
+                $('#Major').val("");*@
 
             if ('@Model.TBResults' == "")
                 $('#TBResults').val("");
@@ -82,18 +103,19 @@
                 $('#CDResults').val("");
 
 
-            if ('@Model.Institution' != "") $('#EDUSummary').show();
-            if ('@Model.Institution2' != "") $('#EDU2').show();
-            if ('@Model.Institution3' != "") $('#EDU3').show();
+            // if ('@Model.Institution' != "") $('#EDUSummary').show();
+            @*if ('@Model.Institution2' != "") $('#EDU2').show();
+            if ('@Model.Institution3' != "") $('#EDU3').show();*@
             if ('@Model.CDDate' == '01/01/1900') $('#CDDate').val("");
             if ('@Model.TBDate' == '01/01/1900') $('#TBDate').val("");
             if ('@Model.MSDate' == '01/01/1900') $('#MSDate').val("");
             if ('@Model.FBDate' == '01-01-1900') $('#FBDate').val("");
             if ('@Model.BCIDate' == '01-01-1900') $('#BCIDate').val("");
             if ('@Model.NCDate' == '01-01-1900') $('#NCDate').val("");
-            if ('@Model.DegreeDate' == '01/01/1900') $('#DegreeDate').val("");
-            if ('@Model.DegreeDate2' == '01/01/1900') $('#DegreeDate2').val("");
-            if ('@Model.DegreeDate3' == '01/01/1900') $('#DegreeDate3').val("");
+            if ('@Model.StaffEducation.DegreeDate' == '01/01/1900') $('input:text[name="StaffEducation.DegreeDate"]').val("");
+
+            @*if ('@Model.DegreeDate2' == '01/01/1900') $('#DegreeDate2').val("");
+            if ('@Model.DegreeDate3' == '01/01/1900') $('#DegreeDate3').val("");*@
 
 
 
@@ -115,12 +137,229 @@
             $('#signature-img-preview').signature('draw', ('@Html.Raw(Model.StaffSignature.Signature)'));
 
             $('#signature-img-preview').signature('disable');
+
+
+
+
+
+         
+            /********************* Video Elements **********************/
+
+
+
+            videoSelect = document.querySelector('select#videoSource');
+            video = document.querySelector('#setup-camera-div video');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '')
+
+
+            screenshotButton = document.querySelector('#anchor-capture');
+
+
+
+            screenshotButton.onclick = video.onclick = function () {
+
+                var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                // Other browsers will fall back to image/png
+                console.log(canvas);
+                // img.src = canvas.toDataURL('image/png');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
+            };
+
+
+
+            videoSelect.addEventListener('change', function (event) {
+
+                getStream();
+            });
+
+            navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+            canvas = document.createElement('canvas');
+
+
+
+
+
+            showCameraOption();
+
+            $('#uploadImageCamera').hide();
+
+            setIntervalUserMedia();
+
+
+            $('#uploadImageCamera').on('click', function () {
+             
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+                $('#modal-uploaddocument').modal('show');
+            });
+
+
+
+            $('#modal-uploaddocument').on('shown.bs.modal', function (event) {
+                $('body').addClass('modal-open');
+
+                showVideoStream();
+
+                
+            }).on('hidden.bs.modal', function (event) {
+
+                stopIntervalUserMedia();
+                
+            });
+
+
+
+            $('#modal-uploaddocument').find('#btn-modal-doc-add').on('click', function () {
+
+
+                var $imageGallerylength = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                if ($imageGallerylength == 0) {
+                    customAlert('Please capture image using camera');
+                    return false;
+                }
+
+
+                $('#div-edit-modal-img-gallery').append($('#modal-uploaddocument').find('.div-image-snap-gallery').html());
+
+
+                var $fileIndex = $('#addEducation').find('input:file').length;
+
+
+                $.each($('#div-edit-modal-img-gallery').find('.setup_viewscreen'), function (index, div) {
+                    
+                    var $input = $.parseHTML( '<input type="hidden" class="camera-data-hidden" value="' + getBase64Image($(div).find('img')) + '"  name="StaffEducation.Certificates[' + $fileIndex + '].AttachmentJson"/>');
+
+                    $(div).prepend($input);
+                    $fileIndex++;
+                });
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+
+                $('#modal-uploaddocument').modal('hide');
+
+            });
+
+            $(document).on('click', '.delete-file-upload', function () {
+
+                $(this).closest('.setup_viewscreen').remove();
+
+                if($(this).closest('#div-edit-modal-img-gallery').length>0)
+                {
+                    var $fileIndex = $('#addEducation').find('input:file').length;
+
+
+                    $.each($('#div-edit-modal-img-gallery').find('.setup_viewscreen'), function (index, div) {
+
+                        $(div).find('.camera-data-hidden').attr('name', 'StaffEducation.Certificates[' + $fileIndex + '].AttachmentJson')
+                        $fileIndex++;
+                    });
+
+                }
+
+            });
+
+
+
+            $(document).on('click', '.view-file-upload', function () {
+
+               
+
+                var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+              
+
+
+
+                var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
+
+                setTimeout(function () {
+                    //FireFox seems to require a setTimeout for this to work.
+                    w.document.body.appendChild(w.document.createElement('img'))
+                        .src = imageAttr;
+                }, 0);
+
+            });
+
+            /********************* Video Elements **********************/
+
+
+
         });
 
 
     </script>
 
     <script>
+
+
+        function addEducationAttachments(ele) {
+            debugger;
+
+            var $fileIndex = $(ele).parent('div').parent('div').find('input:file').length;
+
+            var appendData = '<div class="row">\
+                                                        <input type="file" name="StaffEducation.Certificates['+$fileIndex+'].file" class="form-control" style="width:58%;" />\
+                                                        <a href="javascript:void(0);" onclick="removeEducationAttachements(this);" style="margin-left: 10px;top: 10px;position: relative;"><i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;' + _langList.Remove + '</a>\
+                                                    </div>';
+
+            $(ele).parent('div').parent('div').append(appendData);
+
+            $fileIndex = $fileIndex + 1;
+
+
+            $.each($('#div-edit-modal-img-gallery').find('.setup_viewscreen'), function (index, div) {
+
+                $(div).find('.camera-data-hidden').attr('name', 'StaffEducation.Certificates[' + $fileIndex + '].AttachmentJson')
+                $fileIndex++;
+            });
+
+        }
+
+        function removeEducationAttachements(ele) {
+
+            var $parentDiv = $(ele).parent('div').parent('div');
+
+            $(ele).parent('div').remove();
+
+            $.each($parentDiv.find('input:file'), function (i, file) {
+                $(file).attr('name', 'StaffEducation.Certificates[' + i + '].file');
+            });
+
+
+            var $fileIndex = $(ele).parent('div').parent('div').find('input:file').length;
+            
+
+            $.each($('#div-edit-modal-img-gallery').find('.setup_viewscreen'), function (index, div) {
+
+                $(div).find('.camera-data-hidden').attr('name', 'StaffEducation.Certificates[' + $fileIndex + '].AttachmentJson')
+                $fileIndex++;
+            });
+       
+
+
+            }
+
         function removeclasss() {
             $('#addEducation').removeClass("active");
             $('#addEducation').removeClass("in");
@@ -210,39 +449,39 @@
 
                 $('#profileindex').val("1");
                 isValid = true;
-                if ($('#Institution')[0].value.trim() == "") {
+                if ($('input:text[name="StaffEducation.Institution"]')[0].value.trim() == "") {
                     isValid = false;
                     customAlert("Institution is required. ");
-                    plainValidation('#Institution');
+                    plainValidation($('input:text[name="StaffEducation.Institution"]'));
                     return isValid;
                 }
 
 
-                if ($('#Major')[0].value.trim() == "") {
+                if ($('input:text[name="StaffEducation.Major"]')[0].value.trim() == "") {
                     isValid = false;
                     customAlert("Major is required. ");
-                    plainValidation('#Major');
+                    plainValidation($('input:text[name="StaffEducation.Major"]'));
                     return isValid;
                 }
-                if ($("#Degree").val() == "" || $("#Degree").val() == null) {
+                if ($('select[name="StaffEducation.Degree"]').val() == "" || $('select[name="StaffEducation.Degree"]').val() == null || $('select[name="StaffEducation.Degree"]').val() == "0") {
                     isValid = false;
                     customAlert("Degree is required. ");
-                    plainValidation('#Degree');
+                    plainValidation($('select[name="StaffEducation.Degree"]'));
                     return isValid;
                 }
 
 
-                if ($('#DegreeDate').val() != "") {
+                if ($('input:text[name="StaffEducation.DegreeDate"]').val() != "") {
                     var today = new Date();
-                    if (Date.parse($("#DegreeDate").val()) > today) {
+                    if (Date.parse($('input:text[name="StaffEducation.DegreeDate"]').val()) > today) {
                         isValid = false;
                         customAlert("Degree Date can't be greater than current date. ");
-                        plainValidation('#DegreeDate');
+                        plainValidation($('input:text[name="StaffEducation.DegreeDate"]'));
 
                         return isValid;
                     }
                 } else {
-                    $('#DegreeDate').val(" ");
+                    $('input:text[name="StaffEducation.DegreeDate"]').val(" ");
                 }
             }
             else {
@@ -412,8 +651,13 @@
         }
 
         function Private_Checked() {
-            $("#Enrolled").click(function () {
-                $('#DegreeDate').attr("disabled", $(this).is(':checked'));
+            //$("#Enrolled").click(function () {
+            //    $('#DegreeDate').attr("disabled", $(this).is(':checked'));
+            //});
+
+
+            $("input:checkbox[name='StaffEducation.IsCurrentlyEnrolled']").click(function () {
+                $('input:text[name="StaffEducation.DegreeDate"]').attr("disabled", $(this).is(':checked'));
             });
         }
 
@@ -630,18 +874,302 @@
         }
 
 
-        
+        /************************** Video Functions *********************************/
+
+
+
+        function handleSuccess(stream) {
+            screenshotButton.disabled = false;
+            video.srcObject = stream;
+        }
+
+        function stopMediaTracks(stream) {
+
+            stream.getTracks().forEach(function (track) { track.stop(); })
+
+        }
+
+
+        function stopMediaTracks(stream) {
+            stream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+        }
+
+        function gotDevices(mediaDevices) {
+
+            videoSelect.innerHTML = '';
+            // videoSelect.appendChild(document.createElement('option'));
+            var count = 1;
+            mediaDevices.forEach(function (mediaDevice) {
+                if (mediaDevice.kind === 'videoinput') {
+                    const option = document.createElement('option');
+                    option.value = mediaDevice.deviceId;
+                    const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                    const textNode = document.createTextNode(label);
+                    option.appendChild(textNode);
+                    videoSelect.appendChild(option);
+                }
+            });
+
+
+
+
+
+        }
+
+        function getStream() {
+            // alert('change event');
+            if (typeof currentStream !== 'undefined') {
+                stopMediaTracks(currentStream);
+            }
+            const videoConstraints = {};
+            if (videoSelect.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: videoSelect.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+              .getUserMedia(constraints)
+              .then(function (stream) {
+                  currentStream = stream;
+                  video.srcObject = stream;
+                  return navigator.mediaDevices.enumerateDevices();
+              })
+              .then(gotDevices)
+              .catch(function (error) {
+                  console.error(error);
+                  //alert(error);
+              });
+        }
+
+        function showCameraOption(ele) {
+
+            var videoInputAvailable = 0;
+            $('#uploadImageCamera').tooltip('hide');
+            $('#uploadImageCamera').hide();
+
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+
+                console.log(devices);
+                devices.forEach(function (device) {
+
+
+                    if (device.kind == 'videoinput') {
+                        videoInputAvailable++;
+                    }
+
+                });
+
+
+                if (videoInputAvailable == 0) {
+                    $('#uploadImageCamera').hide();
+                    $('#uploadImageCamera').tooltip('hide');
+
+                }
+                else {
+                    $('#uploadImageCamera').css('display','inline-block');
+                    $('#uploadImageCamera').tooltip('show');
+                }
+
+                console.log(videoInputAvailable);
+
+            }).catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+
+
+            //if (videoSelect.options.length > 0) {
+            //    getStream();
+            //}
+
+
+
+
+        }
+
+        function showVideoStream() {
+            if (videoSelect.options.length > 0) {
+                getStream();
+            }
+
+        }
+
+
+        function checkUserMedia() {
+
+
+
+
+            navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia);
+
+            navigator.getMedia({ video: true }, function () {
+
+                if (!$('#uploadImageCamera').is(':visible')) {
+
+                    $('#uploadImageCamera').css('display','inline-block');
+                    $('#uploadImageCamera').tooltip('show');
+                }
+
+
+
+            }, function () {
+
+                $('#uploadImageCamera').hide();
+                $('#uploadImageCamera').tooltip('hide');
+
+
+            });
+
+
+        }
+
+        var userMediaInterval = null;
+
+        function setIntervalUserMedia() {
+
+            userMediaInterval = setInterval(function () {
+
+                checkUserMedia();
+
+            }, 1000);
+
+
+
+        }
+
+        function stopIntervalUserMedia() {
+            clearInterval(userMediaInterval);
+        }
+
+        function getBase64Image(img) {
+            //debugger;
+            //var canvas = document.createElement("canvas");
+            //canvas.width = img.width;
+            //canvas.height = img.height;
+            //var ctx = canvas.getContext("2d");
+            //ctx.drawImage(img, 0, 0);
+            //var dataURL = ctx.toDataURL("image/png");
+            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+        }
+
+
+       
+
+
+        /************************** Video Functions *********************************/
+
+
     </script>
 
 }
 @section MainContentHolder{
 
     <style>
-         .kbw-signature {
-             width: 400px;
-             height: 200px;
-             background: #fff;
-         }
+
+
+/*Video CSS*/
+
+   #addEducation .setup_viewscreen {
+    width: 130px;
+    float: left;
+    display: inline-block;
+    background-color: #000;
+    height: 90px;
+    max-width: 100%;
+    padding: 0;
+    border-radius: 5px;
+    position: relative;
+    margin-right: 10px;
+}
+
+  #addEducation  .attach-icon-div-gallery .view-file-upload {
+    color: #fff;
+    background: #42af3c;
+    padding: 5px;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+    #addEducation .attach-icon-div-gallery .delete-file-upload {
+    color: #fff;
+    background: #ce635a;
+    padding: 5px;
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+    #addEducation  .setup_viewscreen-camera {
+    /* height: 350px; */
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+       #addEducation  .setup_viewscreen:hover .attach-icon-div-gallery{
+                 opacity:1;
+                 -webkit-transition:  all 0.5s linear;
+          -moz-transition: all 0.5s linear;
+          -o-transition: all 0.5s linear;
+          transition: all 0.5s linear;
+             }
+
+                #addEducation   .setup_viewscreen{
+                 -webkit-transition:  all 0.5s linear;
+          -moz-transition: all 0.5s linear;
+          -o-transition: all 0.5s linear;
+          transition: all 0.5s linear;
+             }
+
+
+               #addEducation    .attach-icon-div-gallery {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    width: 20px;
+    text-align: center;
+    padding: 0px 0;
+    /* background: #ffffff; */
+    border-left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    border-radius: 5px;
+    line-height: 90px;
+    z-index: 9;
+    opacity: 0;
+    -webkit-transition: all 0.5s linear;
+    -moz-transition: all 0.5s linear;
+    -o-transition: all 0.5s linear;
+    transition: all 0.5s linear;
+}
+
+/*Video CSS*/
+
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+            background: #fff;
+        }
 
          .icc_colspan_import {
              width: 48%;
@@ -772,7 +1300,11 @@
                                             <div class="form-group">
                                                 <label>@Fingerprints.LocalResource.Resources.Institution <sup>*</sup></label>
                                                 <div class="date custom-time">
-                                                    <input data-val="true" class="form-control" id="Institution" maxlength="100" name="Institution" type="text" value="" />
+
+
+                                                    @Html.TextBoxFor(m => m.StaffEducation.Institution, new { @class = "form-control", @maxlength = "100" })
+
+                                                    @*<input data-val="true" class="form-control" id="Institution" maxlength="100" name="Institution" type="text" value="" />*@
 
                                                 </div>
                                             </div>
@@ -781,7 +1313,10 @@
                                             <div class="form-group">
                                                 <label>@Fingerprints.LocalResource.Resources.Major <sup>*</sup></label>
                                                 <div class="date custom-time">
-                                                    <input data-val="true" class="form-control" id="Major" maxlength="100" name="Major" type="text" value="" />
+
+                                                    @Html.TextBoxFor(m => m.StaffEducation.Major, new { @class = "form-control", @maxlength = "100" })
+
+                                                    @* <input data-val="true" class="form-control" id="Major" maxlength="100" name="Major" type="text" value="" />*@
 
                                                 </div>
                                             </div>
@@ -789,21 +1324,65 @@
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
                                                 <label>@Fingerprints.LocalResource.Resources.Degree / @Fingerprints.LocalResource.Resources.Credential <sup>*</sup></label>
-                                                 
-                                                <select name="Degree" class="form-control" id="Degree">
 
-                                                    <option value="1">@Fingerprints.LocalResource.Resources.Associate_Degree</option>
-                                                    <option value="2">@Fingerprints.LocalResource.Resources.Baccalaureate_Degree</option>
-                                                    <option value="3">@Fingerprints.LocalResource.Resources.Advanced_Degree</option>
-                                                    <option value="4">@Fingerprints.LocalResource.Resources.CDA</option>
-                                                </select>
+                                                @{
+
+                                                    var degreeList = new List<SelectListItem>();
+
+                                                    degreeList.Add(
+
+                                                           new SelectListItem
+                                                           {
+                                                               Text = "--Select--",
+                                                               Value = "0"
+                                                           });
+
+
+                                                    degreeList.Add(
+                                                new SelectListItem
+                                                {
+                                                    Text = Fingerprints.LocalResource.Resources.Associate_Degree,
+                                                    Value = "1"
+                                                });
+
+                                                    degreeList.Add(
+                                                    new SelectListItem
+                                                    {
+                                                        Text = Fingerprints.LocalResource.Resources.Baccalaureate_Degree,
+                                                        Value = "2"
+                                                    });
+
+                                                    degreeList.Add(
+                                                                                    new SelectListItem
+                                                                                    {
+                                                                                        Text = Fingerprints.LocalResource.Resources.Advanced_Degree,
+                                                                                        Value = "3"
+                                                                                    });
+
+                                                    degreeList.Add(
+                                                    new SelectListItem
+                                                    {
+                                                        Text = Fingerprints.LocalResource.Resources.CDA,
+                                                        Value = "4"
+                                                    });
+
+
+
+                                                }
+
+
+                                                @Html.DropDownListFor(m => m.StaffEducation.Degree, new SelectList(degreeList, "Value", "Text"), new { @class = "form-control" })
+
+
                                             </div>
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
                                                 <label>@Fingerprints.LocalResource.Resources.Degree_Date </label>
                                                 <div class="date custom-time">
-                                                    <input class="form-control" id="DegreeDate" maxlength="50" name="DegreeDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="" />
+
+                                                    @Html.TextBoxFor(m => m.StaffEducation.DegreeDate, new { @class = "form-control", @maxlength = "50", @onblur = "return validatedate(this);", @placeholder = "MM/DD/YYYY" })
+
                                                 </div>
                                             </div>
                                         </div>
@@ -816,7 +1395,11 @@
                                                 <div class="cont-sz program_type" id="customChecklist">
                                                     <div>
                                                         <div class="centerinhorizontal1">
-                                                            <input name="Enrolled" id="Enrolled" onchange="Private_Checked();" type="checkbox" value="1">
+
+                                                            @Html.CheckBoxFor(m => m.StaffEducation.IsCurrentlyEnrolled, new { @onchange = "Private_Checked();" })
+
+
+                                                            @* <input name="Enrolled" id="Enrolled" onchange="Private_Checked();" type="checkbox" value="1">*@
 
                                                         </div>
 
@@ -830,16 +1413,22 @@
                                                 <label>@Fingerprints.LocalResource.Resources.Degree_Type </label>
                                                 <div class="cont-sz">
                                                     <div class="col-xs-6 col-sm-3">
-                                                        <input name="Type" id="DegreeTypeNA" type="radio" value="1" checked="checked">
-                                                        <span>N/A </span>
+                                                        @*<input name="Type" id="DegreeTypeNA" type="radio" value="1" checked="checked">*@
+
+                                                        @Html.RadioButtonFor(m => m.StaffEducation.DegreeType, (int)FingerprintsModel.DegreeTypeEnum.NotApplicable, new { @checked = "true" })
+                                                        <span>@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.DegreeTypeEnum.NotApplicable) </span>
                                                     </div>
                                                     <div class="col-xs-6 col-sm-3">
-                                                        <input name="Type" id="DegreeTypeECE" type="radio" value="2">
-                                                        <span>ECE</span>
+                                                        @*<input name="Type" id="DegreeTypeECE" type="radio" value="2">*@
+                                                        @Html.RadioButtonFor(m => m.StaffEducation.DegreeType, (int)FingerprintsModel.DegreeTypeEnum.ECE)
+                                                        <span>@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.DegreeTypeEnum.ECE)</span>
                                                     </div>
                                                     <div class="col-xs-6 col-sm-5">
-                                                        <input name="Type" id="DegreeTypeECEE" type="radio" value="3">
-                                                        <span>ECE Equiv. </span>
+                                                        @*<input name="Type" id="DegreeTypeECEE" type="radio" value="3">*@
+
+                                                        @Html.RadioButtonFor(m => m.StaffEducation.DegreeType, (int)FingerprintsModel.DegreeTypeEnum.ECEEquiv)
+                                                        <span>@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.DegreeTypeEnum.ECEEquiv)</span>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -849,10 +1438,32 @@
                                                 <label>@Fingerprints.LocalResource.Resources.Highest_Degree <sup>*</sup></label>
 
                                                 <div id="divO1" style="text-align: center;">
-                                                    <label>@Model.HighestDegree</label>
+                                                    <label>@Model.StaffEducation.HighestDegree</label>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label class="col-xs-4" style="padding-left:0;">@Fingerprints.LocalResource.Resources.UploadCertificates</label>
+                                                <div class="col-xs-7">
+                                                    <div class="row">
+                                                        <input type="file" name="StaffEducation.Certificates[0].file" class="form-control" style="width:58%;" />
+                                                        <a href="javascript:void(0);" onclick="addEducationAttachments(this);" style="margin-left: 10px;top: 10px;position: relative;display:inline-block;float:left;"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.Add</a>
+                                                        <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png"  style="display:none;float:left;" title="@Fingerprints.LocalResource.Resources.CaptureUsingCamera">
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-xs-12 adddivspace" id="div-edit-modal-img-gallery">
+
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+
                                     </div>
                                 </div>
                                 <div class="row">
@@ -871,7 +1482,7 @@
 
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                            <div class="table-responsive" id="EDUSummary" hidden>
+                                            <div class="table-responsive" id="EDUSummary" @if (Model.StaffEducation.EducationList.Count == 0) { <text> style="display:none;" </text>      }>
                                                 <table class="table table_size" id="gridViewOther">
                                                     <thead style="cursor: pointer;">
                                                         <tr style="text-align: center;">
@@ -885,36 +1496,30 @@
 
                                                     <tbody>
 
-                                                        <tr style="text-align: center;">
-                                                            <td>@Model.Institution </td>
-                                                            <td>@Model.Degree</td>
-                                                            <td>@Model.Major</td>
-                                                            <td>@Model.DegreeDate</td>
-                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 1, Userid = Model.UserID }, new { onclick = "return isValideduInfo(1,this);" })</td>
-                                                        </tr>
-                                                        <tr style="text-align: center;" id="EDU2" hidden>
-                                                            <td>@Model.Institution2 </td>
-                                                            <td>@Model.Degree2</td>
-                                                            <td>@Model.Major2</td>
-                                                            <td>@Model.DegreeDate2</td>
-                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfo(2,this);" })</td>
+
+                                                        @if (Model.StaffEducation != null && Model.StaffEducation.EducationList.Count > 0)
+                                                        {
+                                                            foreach (var education in Model.StaffEducation.EducationList)
+
+                                                            {
+                                                                <tr style="text-align: center;">
+                                                                    <td>@education.Institution </td>
+                                                                    <td>@education.Degree</td>
+                                                                    <td>@education.Major</td>
+                                                                    <td>@education.DegreeDate</td>
+                                                                    <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = education.EducationID, Userid = Model.UserID }, new { onclick = "return isValideduInfo(1,this);" })</td>
+                                                                </tr>
+                                                            }
+                                                        }
 
 
-
-                                                        </tr>
-                                                        <tr style="text-align: center;" id="EDU3" hidden>
-                                                            <td>@Model.Institution3 </td>
-                                                            <td>@Model.Degree3</td>
-                                                            <td>@Model.Major3</td>
-                                                            <td>@Model.DegreeDate3</td>
-                                                            <td>@Html.ActionLink(Fingerprints.LocalResource.Resources.Delete, "editEDU", "MyProfile", new { edu = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfo(3,this);" })</td>
 
                                                     </tbody>
                                                 </table>
 
-                                                <div id="divO1" style="text-align: center; margin-left: 36%;">
+                                                @*<div id="divO1" style="text-align: center; margin-left: 36%;">
                                                     <label>@Fingerprints.LocalResource.Resources.You_add_upto_three_degrees.</label>
-                                                </div>
+                                                </div>*@
                                             </div>
                                         </div>
                                     </div>
@@ -1070,8 +1675,9 @@
 
                                                 <div class="date custom-time">
 
-                                                    <label for="file">@Fingerprints.LocalResource.Resources.Upload_Non_Conviction_Statement_Image /label>
-                                                    <input type="file" name="NCfile" id="NCfile" /><br><br>
+                                                    <label for="file">
+                                                        @Fingerprints.LocalResource.Resources.Upload_Non_Conviction_Statement_Image /label>
+                                                        <input type="file" name="NCfile" id="NCfile" /><br><br>
 
                                                     <br><br>
 
@@ -1243,7 +1849,7 @@
                                             <div class="form-group">
 
                                                 <div class="col-xs-12 adddivspace canvas-inner-block">
-                                                    <label style="font-weight:bold;">Signature</label>
+                                                    <label style="font-weight:bold;">@Fingerprints.LocalResource.Resources.Signature</label>
 
                                                     <div class="signature-img-preview" id="signature-img-preview">
 
@@ -1251,7 +1857,7 @@
 
                                                     <div class="signature-code-preview adddivspace" style="margin-top:20px;">
 
-                                                        <label style="font-weight:bold;">Signature Code</label>
+                                                        <label style="font-weight:bold;">@Fingerprints.LocalResource.Resources.Signature_Code</label>
 
                                                         <div class="form-group">
                                                             <label id="lblSignatureCode">@Model.StaffSignature.SignatureCode</label>
@@ -1297,7 +1903,7 @@
                                                     @*<input class="form-control" id="SignatureCode" autocomplete="off" maxlength="4" name="StaffSignature.SignatureCode" type="text" value="" style="width: 12%;">*@
                                                 </div>
                                                 <div class="col-xs-12 adddivspace">
-                                                    <small style="color:red;">Only 4 - digits numeric (0 - 9) values</small>
+                                                    <small style="color:red;">@Fingerprints.LocalResource.Resources.OnlyFourDigitsNumerics</small>
                                                 </div>
                                             </div>
 
@@ -1332,10 +1938,21 @@
 
 
     </form>
+
+
+
+ <!----modal upload multiple document using camera--->
+
+
+@{
+    Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+
 }
 
 
+<!------>
 
+}
 
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,6 +64,8 @@ namespace FingerprintsModel
         public string FBFileUploaded { get; set; }
         public string BCIFileUploaded { get; set; }
         public string NCFileUploaded { get; set; }
+
+       public Education StaffEducation { get; set; }
        public List<PrimaryLanguages> LangList { get; set; }
 
 
@@ -70,6 +73,25 @@ namespace FingerprintsModel
         
 
     }
+
+
+    public class Education
+    {
+        public string Institution { get; set; }
+        public string Major { get; set; }
+        public string Degree { get; set; }
+        public string DegreeDate { get; set; }
+        public string Type { get; set; }
+        public string HighestDegree { get; set; }
+        public string EducationID { get; set; }
+        public bool IsCurrentlyEnrolled { get; set; }
+
+        public string DegreeType { get; set; }
+        public List<RosterNew.Attachment> Certificates { get; set; }
+
+        public List<Education> EducationList { get; set; }
+    }
+
     public class PrimaryLanguages
     {
         public int LanguageId { get; set; }
@@ -85,5 +107,15 @@ namespace FingerprintsModel
         public string  Signature { get; set; }
         public string SignatureCode { get; set; }
 
+    }
+
+    public enum DegreeTypeEnum
+    {
+        [Description("N/A")]
+        NotApplicable=1,
+        [Description("ECE")]
+        ECE=2,
+        [Description("ECE Equiv.")]
+        ECEEquiv =3
     }
 }

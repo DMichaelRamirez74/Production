@@ -59,13 +59,29 @@ namespace Fingerprints.Controllers
         public ActionResult editProfile(string id, FingerprintsModel.MyProfile _profile)
         {
             try
+
             {
+
+
+                if (_profile.StaffEducation != null && _profile.StaffEducation.Certificates != null && _profile.StaffEducation.Certificates.Count > 0)
+                {
+                    _profile.StaffEducation.Certificates.ForEach(x =>
+                    {
+                        x.AttachmentFileByte = !string.IsNullOrEmpty(x.AttachmentJson) ? Convert.FromBase64String(x.AttachmentJson) : x.AttachmentFileByte;
+                        x.AttachmentFileName = !string.IsNullOrEmpty(x.AttachmentJson) ? "EducationalAttachment" : x.AttachmentFileName;
+                        x.AttachmentFileExtension = !string.IsNullOrEmpty(x.AttachmentJson) ? ".png" : x.AttachmentFileExtension;
+                    });
+                }
+
                 if (new MyProfileData().SaveProfile(id, _profile) == "1")
                     TempData["message"] = "Record saved successfully.";
                 else
                     TempData["message"] = "Error occurred. Please try again.";
 
                 ViewBag.UserID = id;
+
+               
+
                 return View(_profile);
             }
             catch (Exception Ex)

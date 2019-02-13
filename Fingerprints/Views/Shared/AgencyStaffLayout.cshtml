@@ -1,6 +1,8 @@
 ﻿
 @{
     Layout = null;
+
+    var staff = FingerprintsModel.StaffDetails.GetInstance();
 }
 <!DOCTYPE html>
 <html>
@@ -264,7 +266,9 @@
                 e.preventDefault();
             });
 
-            if ('@Session["Roleid"].ToString()' == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || '@Session["Roleid"].ToString()' == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || '@Session["Roleid"].ToString()' == "c352f959-cfd5-4902-a529-71de1f4824cc") {
+            if ('@staff.RoleId.ToString().ToLowerInvariant()' == '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.CenterManager).ToString().ToLowerInvariant()' ||
+                '@staff.RoleId.ToString().ToLowerInvariant()' ==  '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FamilyServiceWorker).ToString().ToLowerInvariant()' ||
+                '@staff.RoleId.ToString().ToLowerInvariant()' == '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FamilyServiceWorker).ToString().ToLowerInvariant()') {
                 try {
                     $("#SearchFamily").autocomplete({
                         search: function (event, ui) {
@@ -310,7 +314,7 @@
                 }
             }
             //Home visitor
-            if ('@Session["Roleid"].ToString()' == "e4c80fc2-8b64-447a-99b4-95d1510b01e9") {
+            if ('@staff.RoleId.ToString().ToLowerInvariant()' == '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HomeVisitor).ToString().ToLowerInvariant()') {
 
                 try {
                     $("#SearchFamily").autocomplete({
@@ -365,7 +369,7 @@
 
 
             //Hr manager
-            if ('@Session["Roleid"].ToString()' == "2d9822cd-85a3-4269-9609-9aabb914d792") {
+            if ('@staff.RoleId.ToString().ToLowerInvariant()' == '@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HRManager).ToString().ToLowerInvariant()' ) {
 
 
                 try {
@@ -659,59 +663,59 @@
 
                     @*"~/content/img/ge_logo_banner_left2.png"*@
 
-                    @if (Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc")
+                    @if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FamilyServiceWorker).ToLowerInvariant() )
                     {
                          <!-- Navigation Family service worker-->
 
                         <a class="navbar-brand" href="~/Home/AgencystaffDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.Teacher).ToLowerInvariant())
                     {
                          <!-- Navigation Teacher-->
                         <a class="navbar-brand" href="~/Teacher/Roster"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
 
                     }
-                    else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.CenterManager).ToLowerInvariant())
                     {
                         <!-- Navigation Central manager-->
-                        <a class="navbar-brand" href="~/Home/CentralManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
+                        <a class="navbar-brand" href="~/Home/Dashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
 
                     }
-                    else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HealthManager).ToLowerInvariant())
                     {
                         <!-- Navigation Health manager-->
                         <a class="navbar-brand" href="~/Home/HealthManager"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
 
                     }
-                    else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HomeVisitor).ToLowerInvariant())
                     {
                         <!-- Navigation Home visitor-->
                         <a class="navbar-brand" href="~/Home/HomeVisitorDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
 
                     }
-                    else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HealthNurse).ToLowerInvariant())
                     {
                            <!-- Navigation Health Nurse-->
                         @*<a class="navbar-brand" href="~/Home/ApplicationApprovalDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>*@
                         <a class="navbar-brand" href="~/Home/CentralManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "2d9822cd-85a3-4269-9609-9aabb914d792")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.HRManager).ToLowerInvariant())
                     {
                         <!-- Navigation Hr Manager-->
                         <a class="navbar-brand" href="~/Home/AgencyHRDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.Executive).ToLowerInvariant() || staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.AreaManager).ToLowerInvariant())
                     {
                         <!-- Navigation Hr Manager-->
                         <a class="navbar-brand" href="~/Home/Dashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
 
-                    else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilitiesManager).ToLowerInvariant())
                     {
                         <!-- Navigation Disbility Manager-->
                         <a class="navbar-brand" href="~/Home/AgencyDisabilityManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "699168ac-ad2d-48ac-b9de-9855d5dc9af8")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.MentalHealthSpecialist).ToLowerInvariant())
                     {
                         <!-- Navigation Mental health specilist-->
                         @*<a class="navbar-brand" href="~/MentalHealthSpecialist/MentalHealthSpecialistDashboard">*@
@@ -720,28 +724,28 @@
                         </a>
                     }
 
-                    else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.DisabilityStaff).ToLowerInvariant())
                     {
-                        <!-- Navigation Hr Manager-->
+                        <!-- Disability Staff-->
                         <a class="navbar-brand" href="~/Home/DisabilityStaffDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString().ToUpper() == "B65759BA-4813-4906-9A69-E180156E42FC")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.ERSEAManager).ToLowerInvariant())
                     {
                         <!-- ERSEA Manager-->
                         <a class="navbar-brand" href="~/ERSEA/ERSEADashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
 
-                    else if (Session["Roleid"].ToString().ToUpper() == "825F6940-9973-42D2-B821-5B6C7C937BFE")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FacilitiesManager).ToLowerInvariant())
                     {
                         <!-- Facilities Manager-->
                         <a class="navbar-brand" href="~/Home/AgencyFacilitiesManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.FacilityWorker).ToLowerInvariant())
                     {
                         <!-- Facilities Worker-->
                         <a class="navbar-brand" href="~/Home/AgencyFacilitiesManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
                     }
-                    else if (Session["Roleid"].ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0")
+                    else if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.EducationManager).ToLowerInvariant())
                     {
                          <!-- Education Manager-->
                         <a class="navbar-brand" href="~/EducationManager/EducationManagerDashboard"><img class="img-responsive logo-side-image" src="~/Content/img/logo-new-transparent.png" style="max-width:250px" /></a>
@@ -800,10 +804,10 @@
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i> @Session["FullName"] <b class="caret"></b> </a>
                             <ul class="dropdown-menu dropdown-user">
-                                <li><a href="~/MyProfile/editProfile/@Session["UserID"]"><i class="fa fa-user fa-fw"></i> My Profile</a></li>
-                                <li><a id="changePassword" data-toggle="modal" data-target="#myModal" href="#"><i class="fa fa-gear fa-fw"></i> Change Password</a></li>
+                                <li><a href="~/MyProfile/editProfile/@Session["UserID"]"><i class="fa fa-user fa-fw"></i> @Fingerprints.LocalResource.Resources.MyProfile</a></li>
+                                <li><a id="changePassword" data-toggle="modal" data-target="#myModal" href="#"><i class="fa fa-gear fa-fw"></i> @Fingerprints.LocalResource.Resources.ChangePassword</a></li>
                                 <li class="li-relative">
-                                    <a href="#"><i class="fa fa-user fa-fw"></i> Roles</a>
+                                    <a href="#"><i class="fa fa-user fa-fw"></i> @Fingerprints.LocalResource.Resources.Roles</a>
                                     <ul class="roles-sub-menu">
                                         @if (Session["RoleList"] != null && ((List<FingerprintsModel.Role>)Session["RoleList"]).Count > 0)
                                         {
@@ -814,7 +818,7 @@
                                         }
                                     </ul>
                                 </li>
-                                <li><a href="~/Login/LogoutAgency"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                                <li><a href="~/Login/LogoutAgency"><i class="fa fa-sign-out fa-fw"></i>  @Fingerprints.LocalResource.Resources.Logout</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -823,31 +827,31 @@
             </div>
 
 
-            @if (Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc")
+            @if (Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" )
             {
                  <!-- Menu Family service worker-->
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            <li><a id="li1" onclick="GotoAgencyStaffDashBoard();" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-                            <li><a id="viewfamily" onclick="GotoAgencyUserViewfamilydetails();" href="#"><i class="fa fa-table fa-fw"></i> Family Intake </a></li>
-                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
-                            <li> <a id="Schedulesli" href="~/HomeVisitor/TCRScheduler"><i class="fa fa-dashboard fa-fw"></i>Schedules</a> </li>
-                            <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i>Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
-                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
-                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
+                            <li><a id="li1" onclick="GotoAgencyStaffDashBoard();" href="#"><i class="fa fa-dashboard fa-fw"></i> @Fingerprints.LocalResource.Resources.Dashboard</a> </li>
+                            <li><a id="viewfamily" onclick="GotoAgencyUserViewfamilydetails();" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.FamilyIntake </a></li>
+                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> @Fingerprints.LocalResource.Resources.Roster</a></li>
+                            <li> <a id="Schedulesli" href="~/HomeVisitor/TCRScheduler"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.Schedules</a> </li>
+                            <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i>@Fingerprints.LocalResource.Resources.Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
+                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
+                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> @Fingerprints.LocalResource.Resources.GroupCaseNotes</a></li>
 
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> @Fingerprints.LocalResource.Resources.Screening</a> </li>
                             }
 
 
 
 
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
+                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
                             <li>
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance">
                                     <div class="row">
@@ -855,7 +859,7 @@
                                             <i class="fa fa-dashboard fa-fw"></i>
                                         </div>
                                         <div class="col-lg-10 col-xs-10" style="padding:0">
-                                            Education Material Maintenance
+                                            @Fingerprints.LocalResource.Resources.EducationMaterialMaintenance
                                         </div>
                                     </div>
                                 </a>
@@ -864,7 +868,7 @@
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialGroupShare">
                                     <div class="row">
                                         <div class="col-lg-2 col-xs-2" style="width:35px;"><i class="fa fa-dashboard fa-fw"></i></div>
-                                        <div class="col-lg-10 col-xs-10" style="padding:0">Group Sharing of Education Material</div>
+                                        <div class="col-lg-10 col-xs-10" style="padding:0">@Fingerprints.LocalResource.Resources.GroupSharingofEducationMaterial</div>
                                     </div>
                                 </a>
 
@@ -873,25 +877,25 @@
 
                             @if (Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc")
                             {
-                                <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
+                                <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.MatrixSummary</a> </li>
 
                             }
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
                                         @foreach (var item in AccessList)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
@@ -916,24 +920,28 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            <li> <a id="li1" href="~/EducationManager/EducationManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Dashboard</a> </li>
+                            <li> <a id="li1" href="~/EducationManager/EducationManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>&nbsp;@Fingerprints.LocalResource.Resources.Dashboard</a> </li>
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.ApprovalDashboard</a> </li>
                             }
 
-                            @*<li> <a id="li1" href="~/EducationManager/StaffEventCreation"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Staff</a> </li>*@
+                           
+                             @*<li> <a id="li1" href="~/EducationManager/StaffEventCreation"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Staff</a> </li>*@
+                            
+                          
+                        
+                             
+                            <li><a id="Rosterli" href="~/Roster/Roster"><i class="fa fa-table fa-fw"></i> @Fingerprints.LocalResource.Resources.Roster</a></li>
 
-
-                            <li><a id="Rosterli" href="~/Roster/Roster"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> @Fingerprints.LocalResource.Resources.Screening</a> </li>
                             }
 
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
+                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
                             <li>
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance">
                                     <div class="row">
@@ -941,7 +949,7 @@
                                             <i class="fa fa-dashboard fa-fw"></i>
                                         </div>
                                         <div class="col-lg-10" style="padding:0">
-                                            Education Material Maintenance
+                                            @Fingerprints.LocalResource.Resources.EducationMaterialMaintenance
                                         </div>
                                     </div>
                                 </a>
@@ -1085,15 +1093,15 @@
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                                <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
-                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
-                                                    </ul>
-                                                </li>
+                                        <li class="">
+                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                            </ul>
+                                        </li>
                                             }
                                             else
                                             {
@@ -1119,22 +1127,26 @@
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.ApprovalDashboard</a> </li>
                             }
 
 
 
-                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
+                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i>@Fingerprints.LocalResource.Resources.GroupCaseNotes</a></li>
                             <li> <a id="litask" href="~/Home/DailySafetyCheckCenterSelection"><i class="fa fa-dashboard fa-fw"></i>Daily Safety Check</a> </li>
                             <li> <a id="lireport" href="~/Home/CenterClosure"><i class="fa fa-dashboard fa-fw"></i>Center Closure</a> </li>
+                            
+                            
+                         
 
 
-                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
+
+                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Roster</a></li>
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> @Fingerprints.LocalResource.Resources.Screening</a> </li>
                             }
 
 
@@ -1155,7 +1167,9 @@
 
 
                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a></li>
-                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
+                            <li><a id="optClassdays" href="@Url.Action("OptionalClassDays","AgencyUser")"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Optional Class Days</a></li>
+                            
+                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
                             <li class="">
                                 <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Workshops/Events <span class="fa arrow"></span></a>
                                 <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
@@ -1179,11 +1193,11 @@
                                         </a>
                                     </li>
 
-                                    <li> <a id="a1" href="~/Events/Events"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
+                                    <li> <a id="a1" href="~/Events/Events"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
 
 
                                     <li><a id="l11" href="~/Events/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                    <li><a id="l12" href="~/Events/EventsReport"><i class="fa fa-bar-chart" aria-hidden="true"></i> Events Report</a></li>
+                                    <li><a id="l12" href="~/Events/EventsReport"><i class="fa fa-bar-chart" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a></li>
 
                                 </ul>
                             </li>
@@ -1197,15 +1211,15 @@
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                                <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
-                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
-                                                    </ul>
-                                                </li>
+                                        <li class="">
+                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                            </ul>
+                                        </li>
                                             }
                                             else
                                             {
@@ -1213,8 +1227,8 @@
 
                                             }
                                         }
-                                    </ul>
-                                </li>
+                                </ul>
+                            </li>
                             }
                         </ul>
                     </div>
@@ -1226,21 +1240,27 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            <li><a id="li1" href="~/Home/HealthManager"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
+                            <li><a id="li1" href="~/Home/HealthManager"><i class="fa fa-dashboard fa-fw"></i> @Fingerprints.LocalResource.Resources.Dashboard</a> </li>
 
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
-                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                            <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.ApprovalDashboard</a> </li>
                             }
 
-                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
-                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
+
+
+
+                          
+
+
+                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Roster</a></li>
+                            <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> @Fingerprints.LocalResource.Resources.GroupCaseNotes</a></li>
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                            <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> @Fingerprints.LocalResource.Resources.Screening</a> </li>
                             }
 
 
@@ -1254,7 +1274,7 @@
                                             <i class="fa fa-dashboard fa-fw"></i>
                                         </div>
                                         <div class="col-lg-10" style="padding:0;">
-                                            Education Material Maintenance
+                                            @Fingerprints.LocalResource.Resources.EducationMaterialMaintenance
                                         </div>
                                     </div>
                                 </a>
@@ -1266,38 +1286,38 @@
                                             <i class="fa fa-dashboard fa-fw"></i>
                                         </div>
                                         <div class="col-lg-10" style="padding:0">
-                                            Group Sharing of Education Material
-                                        </div>
+                                            @Fingerprints.LocalResource.Resources.GroupSharingofEducationMaterial
+                                                                                </div>
                                     </div>
                                 </a>
                             </li>
                             @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
-                                    <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                            <li>
+                                <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu <span class="fa arrow"></span></a>
+                                <ul id="ul4" class="nav nav-second-level collapse">
+                                    @foreach (var item in AccessList)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                                <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
-                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
-                                                    </ul>
-                                                </li>
+                                        <li class="">
+                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                            </ul>
+                                        </li>
                                             }
                                             else
                                             {
-                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
-                                    </ul>
-                                </li>
+                                </ul>
+                            </li>
                             }
 
                         </ul>
@@ -1310,14 +1330,17 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            <li> <a id="DashboardHV" class="active" href="~/Home/AgencystaffDashboard"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>
+                            <li> <a id="DashboardHV" class="active" href="~/Home/AgencystaffDashboard"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.Dashboard</a> </li>
                             <li><a id="viewfamily" href="~/AgencyUser/viewfamilydetails"><i class="fa fa-table fa-fw"></i> Family Intake </a></li>
-                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
-                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt" aria-hidden="true"></i> Parent Contact Information</a> </li>
+                            
+                            
+                            
+                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> @Fingerprints.LocalResource.Resources.Roster</a></li>
+                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
 
-                            <li> <a id="Schedulesli" href="~/HomeVisitor/Scheduler"><i class="fa fa-dashboard fa-fw"></i>Schedules</a> </li>
+                            <li> <a id="Schedulesli" href="~/HomeVisitor/Scheduler"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.Schedules</a> </li>
 
-                            <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i> Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
+                            <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i> @Fingerprints.LocalResource.Resources.Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
                             <li id="li8">
                                 <a href="#"><i class="fa fa-cogs"></i> Utilities <span class="fa arrow"></span></a>
                                 <ul id="ul2" class="nav nav-second-level collapse">
@@ -1328,19 +1351,19 @@
                             <li><a id="Socializationli" href="~/HomeVisitor/HomeBasedSocialization"><i class="fa fa-android fa-fw"></i> Socialization and Field Trip</a></li>
 
 
-
+                    
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
                             {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> @Fingerprints.LocalResource.Resources.Screening</a> </li>
                             }
 
 
 
 
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
-                            <li> <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance"><i class="fa fa-dashboard fa-fw"></i>Education Material Maintenance</a> </li>
+                            <li> <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.EducationMaterialMaintenance</a> </li>
                             <li>
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialGroupShare">
                                     <div class="row">
@@ -1348,7 +1371,7 @@
                                             <i class="fa fa-dashboard fa-fw"></i>
                                         </div>
                                         <div class="col-lg-10" style="padding:0">
-                                            Group Sharing of Education Material
+                                            @Fingerprints.LocalResource.Resources.GroupSharingofEducationMaterial
                                         </div>
                                     </div>
                                 </a>
@@ -1356,10 +1379,10 @@
 
                             @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
-                                    <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                            <li>
+                                <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu <span class="fa arrow"></span></a>
+                                <ul id="ul4" class="nav nav-second-level collapse">
+                                    @foreach (var item in AccessList)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
@@ -2235,11 +2258,13 @@
             }
             else
             {
-                <!-- Menu Excutive-->
+                <!-- Menu Executive -->
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li><a id="li1" href="~/Home/Dashboard"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>
+
+                            
 
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
@@ -2256,6 +2281,59 @@
                             {
                                 <li><a href="~/HomeVisitor/TCRScheduler"> <i class="fa fa-dashboard fa-fw"></i> Schedules</a></li>
                             }
+
+
+
+                            @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
+                            {
+                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
+                            }
+
+
+
+
+                            <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> @Fingerprints.LocalResource.Resources.Roster</a></li>
+
+                            <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
+
+                            <li>
+                                <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance">
+                                    <div class="row">
+                                        <div class="col-lg-2 col-xs-2" style="width:35px;">
+                                            <i class="fa fa-dashboard fa-fw"></i>
+                                        </div>
+                                        <div class="col-lg-10 col-xs-10" style="padding:0">
+                                            @Fingerprints.LocalResource.Resources.EducationMaterialMaintenance
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a id="lireport" href="~/EducationMaterial/EducationMaterialGroupShare">
+                                    <div class="row">
+                                        <div class="col-lg-2 col-xs-2" style="width:35px;"><i class="fa fa-dashboard fa-fw"></i></div>
+                                        <div class="col-lg-10 col-xs-10" style="padding:0">@Fingerprints.LocalResource.Resources.GroupSharingofEducationMaterial</div>
+                                    </div>
+                                </a>
+
+                            </li>
+
+
+
+                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
+
+                            @if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.AreaManager).ToLowerInvariant() ||
+
+                                            staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant())
+                            {
+
+
+                                <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
+                                <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
+                            }
+
+
 
                             @if (AccessList != null && AccessList.Count > 0)
                             {
@@ -2287,21 +2365,7 @@
                             }
 
 
-                            @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
-                            {
-                                <li> <a onclick="GotoNurseClientList();" href="javascript:void(0);"><i class="fa fa-ambulance fa-fw"></i> Screening</a> </li>
-                            }
-
-
-
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
-
-                            @if (Session["Roleid"].ToString().ToUpper() == "2AF7205E-87B4-4CA7-8CA8-95827C08564C")
-                            {
-                                <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
-                                <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
-                            }
-
+       
 
 
 
@@ -2332,7 +2396,7 @@
     <div class="footer-one" style="position:relative;">
         <footer>
             @*<p class="text-center">Copyright © 2018 All Rights Reserved.<br />Application Link Inc.</p>*@
-            <p class="text-center">Copyright © @DateTime.Now.Year All Rights Reserved.<br />Application Link Inc.</p>
+            <p class="text-center">@Fingerprints.LocalResource.Resources.Copyright © @DateTime.Now.Year @Fingerprints.LocalResource.Resources.All_Rights_Reserved.<br />Application Link Inc.</p>
         </footer>
     </div>
     <div class="error-msg">
@@ -2525,6 +2589,8 @@
                             break;
 
                     }
+
+                    if (returnResult) sigCode.css('background-color', '#fff');
                 },
                 error: function (data) {
                     $('#spinner').hide();

@@ -22,14 +22,44 @@ namespace FingerprintsData
         public void GetProfile(DataSet _dataset, MyProfile _Profile)
         {
             PrimaryLanguages language = new PrimaryLanguages();
+            _Profile.StaffEducation = new Education();
+            _Profile.StaffEducation.EducationList = new List<Education>();
+
             _Profile.LangList = new List<PrimaryLanguages>();
             _Profile.StaffSignature = new StaffSignature();
             if (_dataset != null)
             {
+
+
                 if (_dataset.Tables[0].Rows.Count > 0)
                 {
 
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+
+                        _Profile.StaffEducation.EducationList.Add(new Education
+                        {
+                            Degree = dr["Degree"].ToString(),
+                            Institution = dr["Institution"].ToString(),
+                            Major = dr["Major"].ToString(),
+                            DegreeDate = dr["DegreeDate"].ToString(),
+                            HighestDegree = dr["HighestDegree"].ToString(),
+                            Type = dr["Type"].ToString(),
+                            EducationID=dr["StaffEducationID"].ToString()
+                        });
+
+                        
+
+                    }
+
+                    _Profile.StaffEducation.HighestDegree =(_Profile.StaffEducation.EducationList.Where(x => !string.IsNullOrEmpty(x.HighestDegree)).Any() ? _Profile.StaffEducation.EducationList.Where(x => !string.IsNullOrEmpty(x.HighestDegree)).Select(x => x.HighestDegree).First():string.Empty);
+
+                }
+
+                if (_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count > 0)
+                {
+
+                    foreach (DataRow dr in _dataset.Tables[1].Rows)
                     {
 
                         _Profile.TBDate = dr["TBDate"].ToString() != "" ? Convert.ToDateTime(dr["TBDate"]).ToString("MM/dd/yyyy") : "";
@@ -40,22 +70,6 @@ namespace FingerprintsData
                         _Profile.FBDate = dr["FBDate"].ToString() != "" ? Convert.ToDateTime(dr["FBDate"]).ToString("MM/dd/yyyy") : "";
                         _Profile.BCIDate = dr["BCIDate"].ToString() != "" ? Convert.ToDateTime(dr["BCIDate"]).ToString("MM/dd/yyyy") : "";
                         _Profile.NCDate = dr["NCDate"].ToString() != "" ? Convert.ToDateTime(dr["NCDate"]).ToString("MM/dd/yyyy") : "";
-                        _Profile.Degree = dr["Degree"].ToString();
-                        _Profile.Institution = dr["Institution"].ToString();
-                        _Profile.Major = dr["Major"].ToString();
-                        _Profile.DegreeDate = dr["DegreeDate"].ToString();
-                        _Profile.Degree2 = dr["Degree2"].ToString();
-                        _Profile.Institution2 = dr["Institution2"].ToString();
-                        _Profile.Major2 = dr["Major2"].ToString();
-                        _Profile.DegreeDate2 = dr["DegreeDate2"].ToString();
-                        _Profile.Degree3 = dr["Degree3"].ToString();
-                        _Profile.Institution3 = dr["Institution3"].ToString();
-                        _Profile.Major3 = dr["Major3"].ToString();
-                        _Profile.DegreeDate3 = dr["DegreeDate3"].ToString();
-                        _Profile.HighestDegree = dr["HighestDegree"].ToString();
-                        _Profile.Type = dr["Type"].ToString();
-                        _Profile.Type2 = dr["Type2"].ToString();
-                        _Profile.Type3 = dr["Type3"].ToString();
                         _Profile.MSIFileUploaded = dr["MSImageFileName"].ToString();
                         _Profile.FBFileUploaded = dr["FBImageFileName"].ToString();
                         _Profile.BCIFileUploaded = dr["BCIImageFileName"].ToString();
@@ -69,10 +83,10 @@ namespace FingerprintsData
 
                 }
 
-                if (_dataset.Tables[1].Rows.Count > 0)
+                if (_dataset.Tables.Count>2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count > 0)
                 {
 
-                    foreach (DataRow dr in _dataset.Tables[1].Rows)
+                    foreach (DataRow dr in _dataset.Tables[2].Rows)
                     {
                         language = new PrimaryLanguages();
                         language.LanguageId = Convert.ToInt32(dr["LanguageID"]);
@@ -118,7 +132,7 @@ namespace FingerprintsData
             Connection.Open();
             command.Connection = Connection;
             command.Parameters.Add(new SqlParameter("@UserID", _Profile.UserID));
-            command.Parameters.Add(new SqlParameter("@Edu", edu));
+            command.Parameters.Add(new SqlParameter("@StaffEducationID", edu));
             command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_deleteProfileEDU";
@@ -163,7 +177,7 @@ namespace FingerprintsData
             try
             {
 
-
+                StaffDetails staff = StaffDetails.GetInstance();
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
@@ -172,18 +186,56 @@ namespace FingerprintsData
                 if (savetype == "1")
                 {
                     _Profile.hidtab = "#addEducation";
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                     command.Parameters.Add(new SqlParameter("@UserID", ID));
-                    command.Parameters.Add(new SqlParameter("@Institution", _Profile.Institution));
-                    command.Parameters.Add(new SqlParameter("@Major", _Profile.Major));
-                    command.Parameters.Add(new SqlParameter("@Degree", _Profile.Degree));
-                    command.Parameters.Add(new SqlParameter("@Type", _Profile.Type));
-                    if (String.IsNullOrEmpty(_Profile.DegreeDate))
+                    command.Parameters.Add(new SqlParameter("@Institution", _Profile.StaffEducation.Institution));
+                    command.Parameters.Add(new SqlParameter("@Major", _Profile.StaffEducation.Major));
+                    command.Parameters.Add(new SqlParameter("@Degree", _Profile.StaffEducation.Degree));
+                    command.Parameters.Add(new SqlParameter("@Type", _Profile.StaffEducation.DegreeType));
+
+
+                    DataTable dt = new DataTable();
+                    dt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("IndexID",typeof(long)),
+                    new DataColumn("Attachment", typeof(byte[])),
+                      new DataColumn("AttachmentName",typeof(string)),
+                        new DataColumn("Attachmentextension",typeof(string)),
+                           new DataColumn("Status",typeof(bool))
+                    });
+
+
+                    //if(_Profile.StaffEducation.Certificates!=null && _Profile.StaffEducation.Certificates.Count>0)
+                    //{
+
+                    //}
+                    foreach (RosterNew.Attachment Attachment in _Profile.StaffEducation.Certificates)
+                    {
+                        if (Attachment != null && Attachment.file != null)
+                        {
+                            dt.Rows.Add(0,new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName),true);
+
+                        }
+
+                        else if (Attachment.AttachmentFileByte != null && Attachment.AttachmentFileByte.Length > 0)
+                        {
+                            dt.Rows.Add(0,Attachment.AttachmentFileByte, Attachment.AttachmentFileName, Attachment.AttachmentFileExtension,true);
+
+                        }
+                    }
+
+
+                    command.Parameters.Add(new SqlParameter("@Certificates", dt));
+
+
+                    if (String.IsNullOrEmpty(_Profile.StaffEducation.DegreeDate))
                     {
                         command.Parameters.Add(new SqlParameter("@DegreeDate", DBNull.Value));
                     }
                     else
                     {
-                        command.Parameters.Add(new SqlParameter("@DegreeDate", _Profile.DegreeDate));
+                        command.Parameters.Add(new SqlParameter("@DegreeDate", _Profile.StaffEducation.DegreeDate));
                     }
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_addProfileEDU";
@@ -397,7 +449,7 @@ namespace FingerprintsData
                 if (savetype == "5") //StaffSignature
                 {
 
-                    StaffDetails staff = StaffDetails.GetInstance();
+                  
                     _Profile.hidtab = "#addSignature";
 
                     command.Parameters.Clear();
