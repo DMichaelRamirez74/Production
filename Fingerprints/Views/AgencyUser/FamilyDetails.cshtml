@@ -25,6 +25,8 @@
         var popupname = null;
         var cloneimmunizationtable = null;
         var Refrenceid = [];
+        @*var _HouseModel = @Html.Raw(Json.Encode(Model));*@
+        var _hasSignCode = @(Convert.ToBoolean(Session["HasSignatureCode"]) == true ? "true": "false");
         function setDisability() {
 
             var IsProgramchecked = false;
@@ -3308,6 +3310,10 @@
             }
 
 
+
+            if(isValid){ // if form is valid insert all income documents to form 
+                appendIncomeDocuments();
+            }
 
 
         }
@@ -10203,9 +10209,60 @@
 
             }
         }
-        function Showpoverty() {
+
+        $('#txtSignatureCode').on('input', function () {
+
+
+            if ($(this).val().trim().length == 4) {
+                if (CheckStaffSignature($('#txtSignatureCode'))) {
+
+                }
+            }
+        });
+
+        var _signAccepted=false;
+        function SaveSignatureStaff(){
+            _signAccepted=true;
+        }
+
+        function Showpoverty(type) {
 
             if ($('#Amountqca1').val().trim() != "$") {
+
+                if($("#sigbtn-bar").css('display') == 'none'){  //if already signed Accept Signature is hidden
+                    _signAccepted=true;
+                }
+
+                var _signtype = $('[name="signatureRadio"]:checked').val();
+                var SignatureCode = "", Signature = "";
+                if (_signtype == "1") {
+
+                    SignatureCode = $("#txtSignatureCode").val();
+
+                    if (!SignatureCode) {
+                        customAlert(_langList.SigCodeOnly4digits);
+                        return false;
+                    }else if(SignatureCode.length > 4){
+                        customAlert(_langList.SigCodeOnly4digits);
+                        return false;
+                    }
+
+                } else {
+
+                    var Signature = $('#DocSignature').signature('toJSON');  // value of sign div
+                    if (!JSON.parse(Signature).lines.length) {
+
+                        customAlert(_langList.Please_Enter_Signature);
+                        return false;
+                    }
+                    if(!_signAccepted){
+                        customAlert("Please Accepted Signature");
+                        return false;
+                    }
+
+                }
+
+
                 $.ajax({
                     url: HostedDir + "/Agencyuser/SavePovertyCalculation",
                     type: "POST",
@@ -10220,7 +10277,10 @@
                         Amount2: $('#Amountqca2').val(),
                         ChildIncome: $('#Childincome').val(),
                         PovertyPercentage: $('#PovertyPercentage').val(),
-                        mode: 0
+                        mode: 0,
+                        SignatureCode: SignatureCode,
+                        Signature: Signature,
+                        SignatureType: _signtype
 
                     },
                     dataType: "json",
@@ -10260,8 +10320,284 @@
             }
 
 
+        };
+
+
+        function SaveSignatureOnly(client){
+
+            var _sign="",_signcode="",isValid=true;
+            var _signType = $('[name="signatureRadio"]:checked').val();
+            var _client = $(value).attr("accesskey");
+            var _hhId = $('#HouseholdId').val();
+
+            if(_signType=="1"){//if sign code
+                _signcode= $("#txtSignatureCode").val();
+
+                if(!_signcode){
+                    customAlert(_langList.Please_Enter_Signature_Code);
+                    isValid = false;
+                    return false;
+                }
+            }else{  //if sign manualy
+
+                _sign = $('#DocSignature').signature('toJSON');  // value of sign div
+                if (!JSON.parse(_sign).lines.length) {
+
+                    customAlert(_langList.Please_Enter_Signature);
+                    isValid = false;
+                    return false;
+                }
+
+            }
+
+
+
+            $.ajax({
+                url: HostedDir + "/Agencyuser/SavePovertyCalculation",
+                type: "POST",
+                data:JSON.stringify( {
+                    HouseHoldId:_hhId,
+                    clientid: _client,
+                    mode: 2,
+                    SignatureCode: _signcode,
+                    Signature: _sign,
+                    SignatureType: _signType
+                }),
+                dataType : "json",
+                contentType: "application/json; charset=utf-8",
+                //secureuri: false,
+               // async: false,
+                success: function (response) {
+
+                },
+                error:function(res){
+
+                },
+                complete:function(res){
+
+                }
+
+            });
+
+
+
+
+        };
+
+        $(document).on("change",'[name="signatureRadio"]', function (e) {
+            e.preventDefault();
+            var _val = $('[name="signatureRadio"]:checked').val();
+            if (_val == "1") {
+                //  $("#div-add-signature-code").css("display", "block");
+                $("#div-add-signature-code").slideDown();
+                $("#div-draw-Signature").css("display", "none");
+            } else {
+                // $("#div-draw-Signature").css("display", "block");
+                $("#div-draw-Signature").slideDown();
+                $("#div-add-signature-code").css("display", "none");
+            }
+
+        });
+
+        $("#SignatureCode").inputFilter(function (value) {
+            return /^\d*$/.test(value) && value.toString().length <= 4;
+        });
+
+        function saveStaffSignature() {
+            var _sign = $('#DocSignature').signature('toJSON');  // value of sign div
+            if (!JSON.parse(_sign).lines.length) {
+
+                customAlert(_langList.Please_Enter_Signature);
+                return false;
+            }
+            $('[name="Signature"]').val($('#sign').signature('toJSON'));
+
         }
-        function SetPoverty(item,mode) {
+        function clearsign(ele) {
+            // ele.signature('clear');
+            $('#DocSignature').signature('clear');
+            _signAccepted=false;
+        };
+
+        function renderParentIncome(){
+            var _p1div =  $("#parent1-div"), _p2div=$("#parent2-div");
+            _p1div.find('.panel-body').html('');
+            _p2div.find('.panel-body').html('');
+            if(_FirstParentIncome && _FirstParentIncome.length > 0){ //if first parent have income
+                //_p1div.find('.panel-title').text()
+
+
+                _FirstParentIncome.forEach(function(obj,i){
+                    var _str = "";
+                    _str+='<h4 style="font-weight:bold;">Source Name : '+obj.IncomeSource1+' </h4>';
+
+                    _str+='<table  class="table table-striped table-bordered"><thead><tr><td>Amount Type</td><td>Amount($)</td><td>Attachment Name</td><td>Download</td></tr></thead><tbody>';
+                  
+                    if(obj.AmountVocher1){
+                        _str+='<tr>'
+                   +'<td>Amount-1</td><td>'+obj.AmountVocher1+'</td><td>'+obj.SalaryAvatarFilename1+'</td>'
+                    +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/1,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename1+'"><i class="fa fa-download"></i></a></td>'
+                   +'</tr>';
+
+                    }
+
+                    if(obj.AmountVocher2){
+                        _str+='<tr>'
+                   +'<td>Amount-2</td><td>'+obj.AmountVocher2+'</td><td>'+obj.SalaryAvatarFilename2+'</td>'
+                    +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/2,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename2+'"><i class="fa fa-download"></i></a></td>'
+                   +'</tr>';
+
+                    }
+
+                    if(obj.AmountVocher3){
+                        _str+='<tr>'
+                   +'<td>Amount-3</td><td>'+obj.AmountVocher3+'</td><td>'+obj.SalaryAvatarFilename3+'</td>'
+                    +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/3,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename3+'"><i class="fa fa-download"></i></a></td>'
+                   +'</tr>';
+
+                    }
+                    if(obj.AmountVocher4){
+                        _str+='<tr>'
+                   +'<td>Amount-3</td><td>'+obj.AmountVocher4+'</td><td>'+obj.SalaryAvatarFilename4+'</td>'
+                    +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/4,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename4+'"><i class="fa fa-download"></i></a></td>'
+                   +'</tr>';
+
+                    }
+
+                    _str+="</tbody></table>";
+
+                    _str+='<div class="col-sm-12"> <div class="form-group" style="padding: 15px 0px 15px 0px;"> <label style="">Document Submitted:<label>';
+                    _str+= '<div style="float:left;"> <ol class="list-group-item-text" style="margin-left: 140px;">';
+
+                    if(!obj.Documents) obj.Documents =[];
+                    obj.Documents.forEach(function(oo,k){
+                        if(oo.DocumentId ==0){
+                            _str+= '<li>'+ oo.DocumentName +'</li>';
+                        }else{
+                            _str+= '<li>'+  getDocumentsName(oo.DocumentId) +'</li>';
+                        }
+                    });
+                    _str+='</ol></div> </div>';
+
+                    _p1div.find('.panel-body').append(_str);
+
+
+                });
+
+            }
+
+            if(_SecondParentIncome && _SecondParentIncome.length > 0){ //if first parent have income
+
+                _SecondParentIncome.forEach(function(obj,i){
+                    var _str = "";
+                    if(obj.IncomeID){
+                        _str+='<h4 style="font-weight:bold;">Source Name : '+obj.IncomeSource1+' </h4>';
+
+                        _str+='<table  class="table table-striped table-bordered"><thead><tr><td>Amount Type</td><td>Amount($)</td><td>Attachment Name</td><td>Download</td></tr></thead><tbody>';
+                        if(obj.AmountVocher1){
+                            _str+='<tr>'
+                       +'<td>Amount-1</td><td>'+obj.AmountVocher1+'</td><td>'+obj.SalaryAvatarFilename1+'</td>'
+                        +'<td> <a target="_blank"   href="@Url.Action("getpdfimage", "Agencyuser")/1,'+obj.IncomeID+'" title="'+obj.SalaryAvatarFilename1+'"><i class="fa fa-download"></i></a></td>'
+                       +'</tr>';
+
+                        }
+
+                        if(obj.AmountVocher2){
+                            _str+='<tr>'
+                       +'<td>Amount-2</td><td>'+obj.AmountVocher2+'</td><td>'+obj.SalaryAvatarFilename2+'</td>'
+                        +'<td> <a target="_blank"   href="@Url.Action("getpdfimage", "Agencyuser")/2,'+obj.IncomeID+'" title="'+obj.SalaryAvatarFilename2+'"><i class="fa fa-download"></i></a></td>'
+                       +'</tr>';
+
+                        }
+
+                        if(obj.AmountVocher3){
+                            _str+='<tr>'
+                       +'<td>Amount-3</td><td>'+obj.AmountVocher3+'</td><td>'+obj.SalaryAvatarFilename3+'</td>'
+                        +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/3,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename3+'"><i class="fa fa-download"></i></a></td>'
+                       +'</tr>';
+
+                        }
+                        if(obj.AmountVocher4){
+                            _str+='<tr>'
+                       +'<td>Amount-3</td><td>'+obj.AmountVocher4+'</td><td>'+obj.SalaryAvatarFilename4+'</td>'
+                        +'<td> <a target="_blank"  href="@Url.Action("getpdfimage", "Agencyuser")/4,'+obj.newincomeid+'" title="'+obj.SalaryAvatarFilename4+'"><i class="fa fa-download"></i></a></td>'
+                       +'</tr>';
+
+                        }
+
+
+                        _str+="</tbody></table>";
+
+                        _str+='<div class="col-sm-12"> <div class="form-group" style="padding: 15px 0px 15px 0px;"> <label style="">Document Submitted:<label>';
+                        _str+= '<div style="float:left;"> <ol class="list-group-item-text" style="margin-left: 140px;">';
+
+                        if(!obj.Documents) obj.Documents =[];
+                        obj.Documents.forEach(function(oo,k){
+                            if(oo.DocumentId ==0){
+                                _str+= '<li>'+ oo.DocumentName +'</li>';
+                            }else{
+                                _str+= '<li>'+  getDocumentsName(oo.DocumentId) +'</li>';
+                            }
+                        });
+                        _str+='</ol></div> </div>';
+
+                    }
+                    _p2div.find('.panel-body').append(_str);
+
+
+                });
+            }
+        };
+
+
+        function SetPoverty(item, mode) {
+
+            console.log(item, mode);
+            $("#signtype-div").show();
+            $("#signed-msg").hide();
+            $('#DocSignature').signature();
+            $('#DocSignature').signature('enable');
+            $('#DocSignature').signature('clear');
+            $("#txtSignatureCode").val('');
+            $('[name="signatureRadio"]').attr('disabled',false);
+            $("#sigbtn-bar").show();
+            $("#txtSignatureCode").attr('disabled',false);
+            //reset sign section
+            if(_hasSignCode){
+                $('[name="signatureRadio"][value="1"]')[0].checked=true;
+                $("#div-draw-Signature").hide();
+                $("#div-add-signature-code").show();
+            }else{
+                $('[name="signatureRadio"][value="2"]')[0].checked=true;
+                $("#div-draw-Signature").show();
+                $("#div-add-signature-code").hide();
+            }
+
+            $("#document-submitted-div").html('');
+            $("#DocSignature").signature()//init staff signature
+
+            //render parents income
+             renderParentIncome();
+
+            /*
+            var _list = "<ol class='list-group-item-text' style='margin-left: 15px;'>";
+            if (!_documentsSubmited || !_documentsSubmited.length) {
+
+                _documentsSubmited = [];
+              //  _list=  '<li>No documents Submitted</li>';
+            } else {
+
+                _documentsSubmited.forEach(function (oo, k) {
+                    //  if(oo.IncomeId == obj.newincomeid){
+                    _list += '<li>' + getDocumentsName(oo.DocumentId) + ' </li>'
+                    //}
+                });
+            }
+
+        _list+="</ol>";
+        $("#document-submitted-div").append(_list);
+        */
+
             value = item;
             $.ajax({
                 url: HostedDir + "/Agencyuser/SavePovertyCalculation",
@@ -10324,6 +10660,38 @@
                         $('#Amountqca2').val(response.PovertyCalculation.Amount2);
                         $('#PovertyPercentage').val(response.PovertyCalculation.PovertyCalculated);
                         $('#Childincome').val(response.PovertyCalculation.ChildIncome);
+
+
+                        if (response.PovertyCalculation.SignatureType) {
+                            //render existing income sign verfication
+                            $("#sigbtn-bar").hide();
+                            $('[name="signatureRadio"][value="' + response.PovertyCalculation.SignatureType + '"]')[0].checked = true;
+                            $('[name="signatureRadio"]').attr('disabled',true);
+                            $("#icomeSignatureOnly").hide();
+                            $("#signtype-div").hide();
+
+                            if (response.PovertyCalculation.SignatureType == 2) { //if manual sign
+                                $("#div-draw-Signature").show();
+                                $("#div-add-signature-code").hide();
+                                $("#DocSignature").signature('draw', (response.PovertyCalculation.Signature));
+                                $("#DocSignature").signature('disable');
+                                
+                                
+                            } else { //if sign code
+                                /*$("#div-draw-Signature").hide();
+                                $("#div-add-signature-code").show();
+                                $("#txtSignatureCode").attr('disabled',true);*/
+                                $("#div-draw-Signature").show();
+                                $("#div-add-signature-code").hide();
+                                $("#DocSignature").signature('draw', (response.PovertyCalculation.Signature));
+                                $("#DocSignature").signature('disable');
+                                $("#signed-msg").text('(Signed by Signature Code)').show();
+                            }
+                        }else{  //sign not yet
+
+                            $("#icomeSignatureOnly").show();
+                        }
+
                     }
                     else {
                         // changed by shambhu, set value of childincome to 0 incase guradian income is zero.
@@ -10331,14 +10699,17 @@
                     }
                     $('#percage1').blur();
                     $('#percage2').blur();
-                    if (mode == 1) {
+                    if (mode == 1) {  //if poverty calculation is already submitted
                         $('#percage1').prop('disabled', false);
                         $('#povertybtnSave').show();
+                        $("#icomeSignatureOnly").hide();  //sign not yet but, poverty also not submitted
                     }
                     else {
                         $('#percage1').prop('disabled', true);
 
                         $('#povertybtnSave').hide();
+                      //  $("#icomeSignatureOnly").show();
+
                     }
 
 
@@ -14780,6 +15151,9 @@
           min-height: initial;
           padding-bottom: 10px;
       }
+ .docsubmitted-panel {
+            margin-bottom: 0px;
+        }
 </style>
 
 
@@ -22896,7 +23270,7 @@
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align:right;"><a style="color:#3e4c5a;" href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align:right;"><a style="color:#3e4c5a;" href="javascript:void(0)"  accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                                 else
@@ -22908,7 +23282,7 @@
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align: right; "><a style="color: #3e4c5a; " href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align: right; "><a style="color: #3e4c5a; " href="javascript:void(0)"  accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                             }
@@ -22921,7 +23295,7 @@
                                                                 else
                                                                 {
 
-                                                                    <td style="text-align: right;"><a style="color: #3e4c5a;" href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">0 % <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align: right;"><a style="color: #3e4c5a;" href="javascript:void(0)"  accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">0 % <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
 
 
@@ -23089,7 +23463,7 @@
                                             <div class="modal-header">
                                                 <h3> Poverty Calculation<span class="extra-title muted"></span></h3>
                                             </div>
-                                            <div class="control-group">
+                                            <div class="control-group" style="max-height:600px;">
                                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                                     <div class="table-responsive">
                                                         <table class="table table_size" id="Qualifier">
@@ -23136,7 +23510,7 @@
                                                 </div>
                                                 <div class="add-useragform">
                                                     <div class="row qualifierdiv">
-                                                        <div class="col-sm-4">
+                                                        <div class="col-md-4">
                                                             <div class="form-group">
                                                                 <label for="email">Total people in Household </label>
                                                                 &nbsp;
@@ -23144,19 +23518,19 @@
                                                                 <input type="hidden" value="@Model.totalhousehold" id="totalhousehold">
                                                             </div>
                                                         </div>
-                                                        <div class="col-sm-4">
+                                                        <div class="col-md-4">
                                                             <div class="form-group">
                                                                 <label for="email">Child Income</label>
                                                                 &nbsp;
                                                                 <input type="text" id="Childincome" readonly="readonly" class="form-control" />
                                                             </div>
                                                         </div>
-                                                        <div class="col-sm-2">
-                                                            <label for="email">Calculated Poverty  </label>
+                                                        @*<div class="col-sm-2">
+                                                            <label for="email">Calculated Poverty  </label>*@
                                                             @*<button style="width:170px !important;" class="my-btn" onclick="CalculatePoverty();" type="button">Calculate Poverty</button>*@
-                                                        </div>
-                                                        <div class="col-sm-2">
-
+                                                        @*</div>*@
+                                                        <div class="col-md-4">
+                                                            <label for="email">Calculated Poverty  </label>
                                                             <input type="text" id="PovertyPercentage" readonly="readonly" class="form-control" />
                                                             <div style="margin-top:16px;">
                                                                 <span style="padding-left:5px;">%</span>
@@ -23166,13 +23540,111 @@
 
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12">
-                                                    <div class="btnwrp_subcal">
-                                                        <button onclick="Showpoverty();" class="my-btn" id="povertybtnSave" type="button">Save</button>
-                                                        <button class="my-btn" data-dismiss="modal" type="button">Exit</button>
+
+                                                <div class="col-sm-12" style="margin-top:20px;">
+                                                     <div class="@(Model.ParentID1 == 0 ? "col-sm-12" : "col-lg-6")">
+                                                    <div class="panel panel-default" id="parent1-div">
+                                                        <div class="panel-heading" style="color:#fff;background:#285B90;">
+                                                            <h3 class="panel-title">Income of @Model.Pfirstname @Model.Plastname</h3>
+                                                        </div>
+                                                        <div class="panel-body">
+                                                          
+
+
+                                                        </div>
+                                                    </div>
+                                                         </div>
+
+                                                    @if (Model.ParentID1 != 0)
+                                                    {
+                                                    <div class="col-lg-6">
+                                                        <div class="panel panel-default" id="parent2-div">
+                                                            <div class="panel-heading" style="color:#fff;background:#285B90;">
+                                                                <h3 class="panel-title">Income of @Model.P1firstname @Model.P1lastname</h3>
+                                                            </div>
+                                                            <div class="panel-body">
+                                                               
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                    }
+
+                                                    </div>
+                                                  
+
+
+                                                <div class="col-lg-6 text-right" id="staff-sig-div" style="">
+
+                              
+                                                   
+                                                    @{
+                                                        bool hasSignatureCode = Convert.ToBoolean(Session["HasSignatureCode"]);
+                                                    }
+                                                    <div class="co-xs-12 text-right adddivspace"
+                                                          style="margin-top: 20px;margin-bottom:20px;">
+                                                        <div class="form-group" style="min-height:26px;" id="signtype-div">
+                                                            <label class="col-sm-3 col-xs-12 col-form-label no-padding" style="padding:0px;">Signature Type :</label>
+                                                            <label class="radio-inline col-sm-4 col-xs-12" style="float:right;">
+                                                                <input type="radio" name="signatureRadio" value="2" @(hasSignatureCode == false  ? "checked":"")>Sign Manually
+                                                            </label>
+                                                            <label class="radio-inline col-sm-4 col-xs-12" style="float:right;">
+                                                                <input type="radio" name="signatureRadio" value="1" @(hasSignatureCode == true ? "checked":"")>Use Signature Code
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                  
+                                                    <div class=""  id="div-add-signature-code">
+                                                        <label class="col-sm-3" style="padding:0px;">Signature Code: </label>
+                                                        <div class="col-sm-8 col-sm-offset-1">
+                                                        <input type="password" class="form-control" style="width:30%;" autocomplete="off" id="txtSignatureCode" maxlength="4">
+                                                    </div></div>
+
+
+                                                    <div class="col-sm-offset-4 adddivspace no-padding-res" id="div-draw-Signature" style="display: none;">
+                                                        <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
+                                                        <i style="position:absolute;margin-top:209px;color:red;margin-left:5px;" id="signed-msg"></i>
+                                                        <div id="DocSignature" class="form-control kbw-signature" style="margin:auto;height:200px;width:400px;">
+                                                        @*<canvas width="292" height="186">Your browser doesn't support signing</canvas></div>
+                                                        <input type="hidden" id="imageSig2" value="">*@
+                                                     
+
+                                                    </div>
+                                                        <div class="student-scroll full-border full-border-margin text-center cent-section" style="margin-top:20px;" id="sigbtn-bar">
+                                                            <button class="btnPassword" type="button" id="clear2" onclick="clearsign(this)" style="border-radius:50px;">Clear</button>
+                                                            <button class="btnPassword" type="button" id="accept-sign" onclick="return SaveSignatureStaff();" style="border-radius:50px;">Accept Signature</button>
+                                                            <i style="display:block;margin-top:10px;font-size:12px;color:red;line-height:20px;">(Sign above and click on Accept Signature)</i>
+                                                        </div>
+
+                                                </div>
+
+
+                                                @*<div class="col-sm-12">
+                                                    <label>Signature :</label>
+                                                    <i style="position:absolute;margin-top:10px;color:gray;margin-left: 145px;">Sign here</i>
+                 <div  id="DocSignature" style="height:150px;width:400px;float:left;border:1px solid #a0a0a0;margin-left: 140px;"></div>
+                                       <div class="col-sm-12" style="float:left;margin-left: 140px;margin-top:15px;">
+                                           <button class="btnPassword" type="button" id="clear1" onclick="clearsign(this)" style="border-radius:50px;">Clear</button>
+                                           <button class="btnPassword" type="button" id="accept1" onclick="return saveStaffSignature(this);" style="border-radius:50px;">Accept Signature</button>
+                                           <i style="display:block;margin-top:10px;font-size:12px;">(Sign above and click on Accept Signature)</i>
+                                                    </div>
+                                                    </div>
+                                                <div class="col-sm-12">
+                                                    <label>Signature Code :</label>
+                                                    <input id="SignatureCode" type="text" style="width:100px;margin-left: 140px;" class="form-control" />
+                                                    </div>*@
+
+                                                    <div class="col-md-12">
+                                                        <div class="btnwrp_subcal">
+                          <button onclick="Showpoverty();" class="my-btn" id="povertybtnSave" type="button">Save</button>
+                          <button onclick="SaveSignatureOnly();" class="my-btn" id="icomeSignatureOnly" type="button" style="width:110px !important">Verify Income</button>
+                                                            
+
+
+                                                            <button class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
                                         </div>
                                     </div>
@@ -23548,6 +24020,8 @@
 
 
                         </div>
+
+                            </div>
                         <div class="tab-pane fade" id="EmergencyContacts">
                             <div class="add-useragform add-useragform2">
                                 <div class="row">
@@ -24703,6 +25177,51 @@
                     });
                 }
             }
+        
+            //comman for incomcalculator1 and incomecalculator2
+            function appendIncomeDocuments(){
+                var _str1="",_str2="";
+            var _docregex = /.Documents\[[0-9]\]/gi;
+
+            $("#Myincomecalculator").find('#DivFirst').children('.col-sm-12').each(function(i,e){
+
+
+                $(e).find('[name^="Income1"].rect_check:checked ').each(function(k,che){ 
+
+                    var _name = $(che).prop('name').replace(_docregex,'.Documents['+k+']');
+                    var _val = $(che).val()
+                    _str1 += '<input type="hidden" value="'+_val+'" name="'+_name+'"/>\n';
+                    if(_val == "0"){ //other Doc
+                        var _otherName = _name.replace('DocumentId','DocumentName');
+                        _str1 += '<input type="hidden" value="'+$(che).siblings('.otherdoc').val()+'" name="'+_otherName+'"/>\n';
+                    }
+
+                });
+            });
+
+            $("#Myincomecalculator1").find('#DivFirst1').children('.col-sm-12').each(function(i,e){
+
+                $(e).find('[name^="Income2"].rect_check:checked ').each(function(k,che){ 
+
+                    var _name = $(che).prop('name').replace(_docregex,'.Documents['+k+']');
+                    var _val = $(che).val()
+                    _str2 += '<input type="hidden" value="'+_val+'" name="'+_name+'"/>\n';
+                    if(_val == "0"){ //other Doc
+                        var _otherName = _name.replace('DocumentId','DocumentName');
+                        _str2 += '<input type="hidden" value="'+$(che).siblings('.otherdoc').val()+'" name="'+_otherName+'"/>\n';
+                    }
+
+                });
+            });
+
+
+            $("#Myincomecalculator").append(_str1);           
+            $("#Myincomecalculator1").append(_str2);
+            $(".docsubmitted-panel").remove(); //remove doc panel for duplicated.
+
+            };
+        
+        
         </script>
         <script type="text/javascript">
             $(document).ready(function () {
@@ -24813,4 +25332,66 @@
 
         </div>
     </div>
+<!-- template for eligibilty Document -->
+<script type="text/template" id="doc-template">
+    <div class="form-group col-md-12 mrBt15">
+        <div class="panel panel-primary docsubmitted-panel">
+            <div class="panel-heading">
+                <h3 class="panel-title">What Document was used to determine eligibility?</h3>
+            </div>
+
+
+            <div class="panel-body">
+
+
+
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="1">
+                        <label class="rect-check-label">Income Tax Form 1040</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="2">
+                        <label class="rect-check-label">Written Statements form employers</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="3">
+                        <label class="rect-check-label">W-2</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="4">
+                        <label class="rect-check-label">Foster care reimbursement</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="5">
+                        <label class="rect-check-label">TANF documentation </label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="6">
+                        <label class="rect-check-label">SSI Documentation</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="7">
+                        <label class="rect-check-label">Pay stub or pay enevelopes</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="8">
+                        <label class="rect-check-label">Unemployment</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="checkbox" class="rect_check othercheck" name="Income1[0].Documents[].DocumentId" value="0">
+                        <label class="rect-check-label">Other</label>
+                        <input type="text" class="form-control otherdoc" name="Income1[0].Documents[].DocumentName" style="margin:0px 0px 10px 15px;display:none;">
+                    </div>
+
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</script>
 }

@@ -1253,7 +1253,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Noemail", obj.Noemail1));
                     //
                     DataTable dt = new DataTable();
-                    dt.Columns.AddRange(new DataColumn[33] {
+                    dt.Columns.AddRange(new DataColumn[35] {
                     new DataColumn("IncomeID",typeof(string)),
                     new DataColumn("Income",typeof(string)),
                     new DataColumn("IncomeSource1",typeof(string)),
@@ -1286,10 +1286,12 @@ namespace FingerprintsData
                     new DataColumn("IncomePaper1",typeof(bool)),
                     new DataColumn("IncomePaper2",typeof(bool)),
                     new DataColumn("IncomePaper3",typeof(bool)),
-                    new DataColumn("IncomePaper4",typeof(bool))
+                    new DataColumn("IncomePaper4",typeof(bool)),
+                     new DataColumn("Documents",typeof(string)),
+                      new DataColumn("Documentname",typeof(string))
                     });
                     DataTable dt1 = new DataTable();
-                    dt1.Columns.AddRange(new DataColumn[33] {
+                    dt1.Columns.AddRange(new DataColumn[35] {
                     new DataColumn("IncomeID",typeof(string)),
                     new DataColumn("Income",typeof(string)),
                     new DataColumn("IncomeSource1",typeof(string)),
@@ -1322,12 +1324,27 @@ namespace FingerprintsData
                     new DataColumn("IncomePaper1",typeof(bool)),
                     new DataColumn("IncomePaper2",typeof(bool)),
                     new DataColumn("IncomePaper3",typeof(bool)),
-                    new DataColumn("IncomePaper4",typeof(bool))
+                    new DataColumn("IncomePaper4",typeof(bool)),
+                     new DataColumn("Documents",typeof(string)),
+                      new DataColumn("Documentname",typeof(string))
                     });
                     foreach (FamilyHousehold.calculateincome parentincome in Income)
                     {
                         if (parentincome != null && (!string.IsNullOrEmpty(parentincome.IncomeSource1) || parentincome.Income != 0))
                         {
+                              string documents = string.Empty;
+                            var docAr = new long[] { };
+                            if (parentincome.Documents != null && parentincome.Documents.Count > 0) {
+                                docAr = parentincome.Documents.Select(i => i.DocumentId).ToArray();
+                            }
+                            var docName = string.Empty;
+
+                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0) {
+                                docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                            }
+                         
+                            documents = string.Join(",", docAr);
+
                             dt.Rows.Add(parentincome.newincomeid, parentincome.Income, parentincome.IncomeSource1, parentincome.IncomeSource2, parentincome.IncomeSource3,
                                   parentincome.IncomeSource4, parentincome.AmountVocher1, parentincome.AmountVocher2, parentincome.AmountVocher3,
                                   parentincome.AmountVocher4, parentincome.Payfrequency, parentincome.Working, parentincome.IncomeCalculated,
@@ -1336,7 +1353,8 @@ namespace FingerprintsData
                                    parentincome.SalaryAvatarFilename3, parentincome.SalaryAvatarFilename4,
                                    parentincome.SalaryAvatarFileExtension1, parentincome.SalaryAvatarFileExtension2, parentincome.SalaryAvatarFileExtension3,
                                    parentincome.SalaryAvatarFileExtension4, parentincome.NoIncomeAvatarbytes, parentincome.NoIncomeFilename4, parentincome.NoIncomeFileExtension4,
-                                   parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4
+                                   parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4,
+                                   documents, docName
                                    );
                         }
                     }
@@ -1418,7 +1436,7 @@ namespace FingerprintsData
 
 
                     DataTable dt = new DataTable();
-                    dt.Columns.AddRange(new DataColumn[33] {
+                    dt.Columns.AddRange(new DataColumn[35] {
                  new DataColumn("IncomeID",typeof(string)),
                     new DataColumn("Income",typeof(string)),
                     new DataColumn("IncomeSource1",typeof(string)),
@@ -1451,12 +1469,27 @@ namespace FingerprintsData
                     new DataColumn("IncomePaper1",typeof(bool)),
                     new DataColumn("IncomePaper2",typeof(bool)),
                     new DataColumn("IncomePaper3",typeof(bool)),
-                    new DataColumn("IncomePaper4",typeof(bool))
+                    new DataColumn("IncomePaper4",typeof(bool)),
+                     new DataColumn("Documents",typeof(string)),
+                     new DataColumn("Documentname",typeof(string))
                     });
                     foreach (FamilyHousehold.calculateincome parentincome in Income)
                     {
                         if (parentincome != null && (!string.IsNullOrEmpty(parentincome.IncomeSource1) || parentincome.Income != 0))
                         {
+                            string documents = string.Empty;
+                            var docAr = new long[] { };
+                            if (parentincome.Documents != null && parentincome.Documents.Count > 0) {
+                                docAr = parentincome.Documents.Select(i => i.DocumentId).ToArray();
+                            }
+                            var docName = string.Empty;
+
+                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0) {
+                                docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                            }
+                         
+                            documents = string.Join(",", docAr);
+
                             dt.Rows.Add(parentincome.newincomeid, parentincome.Income, parentincome.IncomeSource1, parentincome.IncomeSource2, parentincome.IncomeSource3,
                                   parentincome.IncomeSource4, parentincome.AmountVocher1, parentincome.AmountVocher2, parentincome.AmountVocher3,
                                   parentincome.AmountVocher4, parentincome.Payfrequency, parentincome.Working, parentincome.IncomeCalculated,
@@ -1465,12 +1498,13 @@ namespace FingerprintsData
                                    parentincome.SalaryAvatarFilename3, parentincome.SalaryAvatarFilename4,
                                    parentincome.SalaryAvatarFileExtension1, parentincome.SalaryAvatarFileExtension2, parentincome.SalaryAvatarFileExtension3,
                                    parentincome.SalaryAvatarFileExtension4, parentincome.NoIncomeAvatarbytes, parentincome.NoIncomeFilename4, parentincome.NoIncomeFileExtension4,
-                                   parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4
+                                   parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4,
+                                    documents, docName
                                    );
                         }
                     }
                     DataTable dt1 = new DataTable();
-                    dt1.Columns.AddRange(new DataColumn[33] {
+                    dt1.Columns.AddRange(new DataColumn[35] {
                    new DataColumn("IncomeID",typeof(string)),
                     new DataColumn("Income",typeof(string)),
                     new DataColumn("IncomeSource1",typeof(string)),
@@ -1503,7 +1537,9 @@ namespace FingerprintsData
                     new DataColumn("IncomePaper1",typeof(bool)),
                     new DataColumn("IncomePaper2",typeof(bool)),
                     new DataColumn("IncomePaper3",typeof(bool)),
-                    new DataColumn("IncomePaper4",typeof(bool))
+                    new DataColumn("IncomePaper4",typeof(bool)),
+                     new DataColumn("Documents",typeof(string)),
+                      new DataColumn("Documentname",typeof(string))
                     });
                     if (Income1 != null)
                     {
@@ -1511,6 +1547,21 @@ namespace FingerprintsData
                         {
                             if (parentincome != null && (!string.IsNullOrEmpty(parentincome.IncomeSource1) || parentincome.Income != 0))
                             {
+                                string documents = string.Empty;
+                                var docAr = new long[] { };
+                                if (parentincome.Documents != null && parentincome.Documents.Count > 0)
+                                {
+                                    docAr = parentincome.Documents.Select(i => i.DocumentId).ToArray();
+                                }
+                                var docName = string.Empty;
+
+                                if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0)
+                                {
+                                    docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                                }
+
+                                documents = string.Join(",", docAr);
+
                                 dt1.Rows.Add(parentincome.IncomeID, parentincome.Income, parentincome.IncomeSource1, parentincome.IncomeSource2, parentincome.IncomeSource3,
                                       parentincome.IncomeSource4, parentincome.AmountVocher1, parentincome.AmountVocher2, parentincome.AmountVocher3,
                                       parentincome.AmountVocher4, parentincome.Payfrequency, parentincome.Working, parentincome.IncomeCalculated,
@@ -1519,7 +1570,8 @@ namespace FingerprintsData
                                        parentincome.SalaryAvatarFilename3, parentincome.SalaryAvatarFilename4,
                                        parentincome.SalaryAvatarFileExtension1, parentincome.SalaryAvatarFileExtension2, parentincome.SalaryAvatarFileExtension3,
                                        parentincome.SalaryAvatarFileExtension4, parentincome.NoIncomeAvatarbytes, parentincome.NoIncomeFilename4, parentincome.NoIncomeFileExtension4,
-                                       parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4
+                                       parentincome.noincomepaper, parentincome.incomePaper1, parentincome.incomePaper2, parentincome.incomePaper3, parentincome.incomePaper4,
+                                       documents, docName
                                        );
                             }
                         }
@@ -2739,6 +2791,70 @@ namespace FingerprintsData
                 }
 
 
+                if (_dataset.Tables[15] != null && _dataset.Tables[15].Rows.Count > 0) { //parent1 income documents
+
+                    var _docList = new List<FamilyHousehold.IncomeDocument>();
+                    //var _tempIncome1 = obj.Income1;
+                    foreach (DataRow dr in _dataset.Tables[15].Rows)
+                    {
+                        var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
+                        var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
+                        var _docName = dr["DocumentName"].ToString(); //for others only
+                        for (int i=0; i < obj.Income1.Count; i++)
+                        {
+                            if (_docIncomeId == obj.Income1[i].newincomeid)
+                            {
+                                if (obj.Income1[i].Documents == null) {
+                                    obj.Income1[i].Documents = new List<FamilyHousehold.IncomeDocument>();
+                                }
+                                obj.Income1[i].Documents.Add(new FamilyHousehold.IncomeDocument()
+                                {
+                                    DocumentId = _docid, DocumentName = _docName,
+                                  //  ParentName =obj.Pfirstname + ' '+ obj.Plastname
+                                });
+                            }
+
+
+                        }
+                    }
+
+                }
+
+
+
+
+                //parent2 income documents
+                if (_dataset.Tables[16] != null && _dataset.Tables[16].Rows.Count > 0)
+                {                           
+
+                    var _docList = new List<FamilyHousehold.IncomeDocument>();
+                    //var _tempIncome1 = obj.Income1;
+                    foreach (DataRow dr in _dataset.Tables[16].Rows)
+                    {
+                        var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
+                        var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
+                        var _docName = dr["DocumentName"].ToString(); //for others only
+                        for (int i = 0; i < obj.Income2.Count; i++)
+                        {
+                            if (_docIncomeId == obj.Income2[i].IncomeID)
+                            {
+                                if (obj.Income2[i].Documents == null)
+                                {
+                                    obj.Income2[i].Documents = new List<FamilyHousehold.IncomeDocument>();
+                                }
+                                obj.Income2[i].Documents.Add(new FamilyHousehold.IncomeDocument()
+                                {
+                                    DocumentId = _docid,
+                                    DocumentName = _docName,
+                                   // ParentName = obj.Pfirstname + ' ' + obj.Plastname
+                                });
+                            }
+
+
+                        }
+                    }
+
+                }
 
 
 
@@ -6323,7 +6439,10 @@ namespace FingerprintsData
             }
 
         }
-        public FamilyHousehold.Povertymodel SavePovertyCalculation(ref string result, string agencyid, string userid, string HouseHoldId, string Parentid1, string Parentid2, string Percentage1, string Percentage2, string Amount1, string Amount2, string ChildIncome, string PovertyPercentage, string mode, string clientid)
+        public FamilyHousehold.Povertymodel SavePovertyCalculation(ref string result, string agencyid, string userid,
+            string HouseHoldId, string Parentid1, string Parentid2, string Percentage1, string Percentage2, string Amount1,
+            string Amount2, string ChildIncome, string PovertyPercentage, string mode, string clientid,
+            string SignatureCode, string Signature, string SignatureType)
         {
             FamilyHousehold.Povertymodel Povertymodel = new FamilyHousehold.Povertymodel();
             try
@@ -6347,6 +6466,11 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 //command.Parameters.Add(new SqlParameter("@Totalhousehold", Totalhousehold));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+
+                command.Parameters.Add(new SqlParameter("@SignatureCode", SignatureCode));
+                command.Parameters.Add(new SqlParameter("@Signature", Signature));
+                command.Parameters.Add(new SqlParameter("@SignatureType", SignatureType));
+
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
@@ -6365,6 +6489,21 @@ namespace FingerprintsData
                         Povertymodel.PovertyCalculated = dr["PovertyCalculated"].ToString();
                         Povertymodel.Totalinhousehold = dr["Totalinhousehold"].ToString();
                     }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        {
+
+                            Povertymodel.Signature = dr["Signature"].ToString();
+                            Povertymodel.SignatureType = DBNull.Value == null ? 0 : Convert.ToInt32( dr["SignatureType"].ToString());
+                            Povertymodel.StaffName = dr["StaffName"].ToString();
+
+
+
+                        }
+                    }
+
                 }
                 result = command.Parameters["@result"].Value.ToString();
 

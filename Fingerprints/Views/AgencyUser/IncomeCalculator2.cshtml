@@ -1,5 +1,6 @@
 ﻿@model   List<FingerprintsModel.FamilyHousehold.calculateincome1>
 <script type="text/javascript">
+    var _SecondParentIncome = @Html.Raw(Json.Encode(@Model));
     var incomecount = 0;
     $(document).ready(function () {
         $('input').keypress(function () {
@@ -229,7 +230,74 @@
     }
 
 
+    //add resource to parent-2
     function AddIncomeDiv1() {
+        cleanValidation();
+        if ($('#Income').prop("checked")) {
+            if ($('#IncomeSourcecheck1').val().trim() == "") {
+                customAlert("Income source is required. ");
+                plainValidation('#IncomeSourcecheck');
+            } else {
+
+                //if ($("#incomedocuments").find("#submit-income1-doc")) {
+                //    $("#incomedocuments").find("#submit-income1-doc")[0].id = 'submit-income2-doc';
+                //}
+
+                // $("#incomedocuments").modal("show");
+                AddIncomeDiv11();
+            }
+        }
+
+    };
+
+
+    /*
+
+    $(document).on("click", "#submit-income2-doc", function (e) {
+        e.preventDefault();
+
+        if ($(".othercheck")[0].checked && !$("#otherdoc-input").val()) {
+            customAlert("Please enter other doucment name");
+            return false;
+        }
+
+        var _checkStr = "";
+        $.each($("#incomedocuments").find('input[type="checkbox"]:checked'), function (i, ele) {
+            var _Did = $(ele).val();
+            _checkStr += '<input type="hidden" value="' + _Did + '" name="Income2[' + incomecount + '].Documents[' + i + '].DocumentId"/>'
+
+            if (_Did == "0") { //for other only we sent document name
+                _checkStr += '<input type="hidden" value="' + $("#otherdoc-input").val() + '" name="Income2[' + incomecount + '].Documents[' + i + '].DocumentName" />';
+            }
+
+
+        });
+
+        if (!_checkStr) {
+            customAlert("Please select atleast one document");
+            return false;
+        }
+
+        $("#Myincomecalculator1").append(_checkStr);
+
+        $("#incomedocuments").modal("hide");
+
+        $.each($("#incomedocuments").find('input[type="checkbox"]:checked'), function (i, ele) {
+            ele.checked = false;
+        });
+        $("#otherdoc-input").val('');
+
+        AddIncomeDiv11();
+
+    });
+    */
+   
+    function Doc2Template(){
+    
+        return $("#doc-template").html().replace(/Income1/g,'Income2');
+    }
+    
+    function AddIncomeDiv11() {
         cleanValidation();
         if ($('#Income1').prop("checked")) {
             if ($('#IncomeSourcecheck1').val().trim() == "") {
@@ -239,30 +307,30 @@
             else {
                 if ('@Session["Docsstorage"]' == "0") {
                     var Incomebox = '<div class="col-sm-12"><div class="col-sm-12 income-box"><div class="income-close"><a onclick="DeleteIncomeSource1(this);" href="#"><i class="fa fa-times"></i></a></div><div class="col-md-12 bold_none"><div class="income-heading"><span class="incomespan">' + $('#IncomeSourcecheck1').val() + '</span> </div>' +
-                                   '<div><div class="form-group col-md-12 mrBt15"> <div class="col-md-2"><label for="exampleInputFile">Amount1($) </label>' +
-                                   '</div><div class="col-md-4"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher1" placeholder="0" maxlength="8" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"><input type="hidden"  value="' + $('#IncomeSourcecheck1').val() + '" name="Income2[' + incomecount + '].IncomeSource1" /> <input type="hidden" name="Income2[' + incomecount + '].IncomeID" /></div><div class="col-md-4">' +
+                                   '<div><div class="form-group col-lg-6 mrBt15 no-pad-res"> <div class="col-md-3 col-xs-12"><label for="exampleInputFile">Amount1($) </label>' +
+                                   '</div><div class="col-md-3 col-xs-12"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher1" placeholder="0" maxlength="8" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"><input type="hidden"  value="' + $('#IncomeSourcecheck1').val() + '" name="Income2[' + incomecount + '].IncomeSource1" /> <input type="hidden" name="Income2[' + incomecount + '].IncomeID" /></div><div class="col-md-5 col-sm-6 col-xs-10">' +
                                    '<input name="Income2[' + incomecount + '].SalaryAvatar1" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" type="file" onchange="ValidateFileinput4(this)"  class="form-control">' +
                                    '</div><div class="col-md-4  cont-sz" style="width: 105px;margin-top:5px;float: right;display:none;"> ' +
-                                   ' <input value="true" type="checkbox" name="Income2[' + incomecount + '].incomePaper1" class="minimal"> <label style="width:45px;">Paper</label></div></div><div class="form-group col-md-12 mrBt15"><div class="col-md-2"> <label for="exampleInputFile">Amount2($) </label>' +
-                                   '</div><div class="col-md-4"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher2" placeholder="0" maxlength="8"' +
-                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-4">' +
+                                   ' <input value="true" type="checkbox" name="Income2[' + incomecount + '].incomePaper1" class="minimal"> <label style="width:45px;">Paper</label></div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"><div class="col-md-3 col-xs-12"> <label for="exampleInputFile">Amount2($) </label>' +
+                                   '</div><div class="col-md-3 col-xs-12"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher2" placeholder="0" maxlength="8"' +
+                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-5 col-sm-6 col-xs-10">' +
                                    '<input name="Income2[' + incomecount + '].SalaryAvatar2" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera"   type="file" onchange="ValidateFileinput4(this)"  class="form-control">' +
-                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true"  name="Income2[' + incomecount + '].incomePaper2" type="checkbox" class="minimal" /><label style="width:45px;">Paper</label></div></div><div class="form-group col-md-12 mrBt15"> <div class="col-md-2"><label for="exampleInputFile">Amount3($) </label>' +
-                                   '</div><div class="col-md-4"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher3" placeholder="0" maxlength="8"  ' +
-                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-4">' +
+                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true"  name="Income2[' + incomecount + '].incomePaper2" type="checkbox" class="minimal" /><label style="width:45px;">Paper</label></div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"> <div class="col-md-3 col-xs-12"><label for="exampleInputFile">Amount3($) </label>' +
+                                   '</div><div class="col-md-3 col-xs-12"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher3" placeholder="0" maxlength="8"  ' +
+                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-5 col-sm-6 col-xs-10">' +
                                    '<input name="Income2[' + incomecount + '].SalaryAvatar3" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" type="file" onchange="ValidateFileinput4(this)"  class="form-control">' +
-                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true" name="Income2[' + incomecount + '].incomePaper3" type="checkbox" class="minimal" /><label style="width:45px;">Paper</label></div></div><div class="form-group col-md-12 mrBt15"><div class="col-md-2"><label for="exampleInputFile">Amount4($) </label></div>' +
-                                   '<div class="col-md-4"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher4" placeholder="0" maxlength="8" ' +
-                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-4">' +
+                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true" name="Income2[' + incomecount + '].incomePaper3" type="checkbox" class="minimal" /><label style="width:45px;">Paper</label></div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"><div class="col-md-3 col-xs-12"><label for="exampleInputFile">Amount4($) </label></div>' +
+                                   '<div class="col-md-3 col-xs-12"><input type="text" accesskey="1" name="Income2[' + incomecount + '].AmountVocher4" placeholder="0" maxlength="8" ' +
+                                   'class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);"></div><div class="col-md-5 col-sm-6 col-xs-10">' +
                                    '<input name="Income2[' + incomecount + '].SalaryAvatar4" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" type="file" onchange="ValidateFileinput4(this)"  class="form-control">' +
-                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true" type="checkbox" name="Income2[' + incomecount + '].incomePaper4" class="minimal" /><label style="width:45px;">Paper</label></div></div></div><div class="form-group col-md-12 mrBt15"><div class="col-md-2"><label for="exampleInputFile">Pay Frequency</label>' +
-                                   '</div><div class="col-md-4"><select onchange="Setworkingperiod1(this)" class="form-control" accesskey="2"  name="Income2[' + incomecount + '].Payfrequency">' +
+                                   '</div><div class="col-md-4  cont-sz" style="width: 105px; margin-top:5px; float: right;display:none;"><input value="true" type="checkbox" name="Income2[' + incomecount + '].incomePaper4" class="minimal" /><label style="width:45px;">Paper</label></div></div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"><div class="col-md-3"><label for="exampleInputFile">Pay Frequency</label>' +
+                                   '</div><div class="col-md-9"><select onchange="Setworkingperiod1(this)" class="form-control" accesskey="2"  name="Income2[' + incomecount + '].Payfrequency">' +
                                    '<option value="5">Annually</option><option value="1">Bi-Monthly</option><option value="2">Bi-Weekly</option><option value="3">Monthly</option><option value="4">Weekly</option>' +
-                                   '</select></div></div><div class="form-group col-sm-12 mrBt15"><div class="col-md-2"><label for="exampleInputFile">Working Period </label></div><div class="col-md-4">' +
+                                   '</select></div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"><div class="col-md-3"><label for="exampleInputFile">Working Period </label></div><div class="col-md-9">' +
                                    '<input name="Income2[' + incomecount + '].Working" accesskey="3" type="text" onblur="checkIfNumeric(this);"  class="form-control">' +
-                                   '</div></div><div class="form-group col-md-12 mrBt15"><div class="col-md-2"><label for="exampleInputFile">Calculated Income($) </label></div>' +
-                                   '<div class="col-md-4"><input name="Income2[' + incomecount + '].IncomeCalculated" accesskey="4" placeholder="0" maxlength="20" type="text" onblur="checkIfNumeric(this);" ' +
-                                   'readonly="true" class="form-control"><input type="hidden" name="Income2[' + incomecount + '].IncomeID" /></div></div></div></div></div>';
+                                   '</div></div><div class="form-group col-lg-6 mrBt15 no-pad-res"><div class="col-md-3"><label for="exampleInputFile">Calculated Income($) </label></div>' +
+                                   '<div class="col-md-9"><input name="Income2[' + incomecount + '].IncomeCalculated" accesskey="4" placeholder="0" maxlength="20" type="text" onblur="checkIfNumeric(this);" ' +
+                                   'readonly="true" class="form-control"><input type="hidden" name="Income2[' + incomecount + '].IncomeID" /></div></div>'+ Doc2Template()+'</div></div></div>';
                     $('#DivFirst1').prepend(Incomebox);
                 }
                 if ('@Session["Docsstorage"]' == "1") {
@@ -450,6 +518,12 @@
                          $(this).attr('name', "Income2[" + incomecount + "].IncomeCalculated");
                      int1 = int1 + 1;
                  });
+                //rename or change the index of the doc when add new 
+                $(this).find('input[type=checkbox].rect_check').each(function(i){
+                        
+                    $(this).attr('name',"Income2[" + incomecount + "].Documents["+i+"].DocumentId");
+                });
+
                 incomecount = incomecount + 1;
                 int1 = 0;
             }
@@ -1258,6 +1332,44 @@
                 }
             }
         }
+
+/*
+        var _str="";
+        var _docregex = /.Documents\[[0-9]\]/gi;
+
+        $('[name^="Income1"].rect_check:checked ').each(function(i,e){  //for income 1 
+
+            //  if(e.checked){
+            var _name = $(e).prop('name').replace(_docregex,'.Documents['+i+']');
+            var _val = $(e).val()
+            _str += '<input type="hidden" value="'+_val+'" name="'+_name+'"/>';
+            if(_val == "0"){ //other Doc
+                var _otherName = _name.replace('DocumentId','DocumentName');
+                _str += '<input type="hidden" value="'+$(e).siblings('.otherdoc').val()+'" name="'+_otherName+'"/>';
+            }
+
+            //  }
+        });
+
+        $('[name^="Income2"].rect_check:checked ').each(function(i,e){ //for income 2
+
+            //  if(e.checked){
+            var _name = $(e).prop('name').replace(_docregex,'.Documents['+i+']');
+            var _val = $(e).val()
+            _str += '<input type="hidden" value="'+_val+'" name="'+_name+'"/>';
+            if(_val == "0"){ //other Doc
+                var _otherName = _name.replace('DocumentId','DocumentName');
+                _str += '<input type="hidden" value="'+$(e).siblings('.otherdoc').val()+'" name="'+_otherName+'"/>';
+            }
+
+            //  }
+        });
+
+       
+        $("#form1").append(_str);
+        $(".docsubmitted-panel").remove(); //remove doc panel for duplicated.
+         */
+        appendIncomeDocuments(); //insert all selected docuemnts to form1
         var myform = document.getElementById("form1");
         var fd = new FormData(myform);
         $('#form1 input:file').each(function (a, b) {
@@ -1277,8 +1389,10 @@
             success: function (Data) {
                 if (Data.message == 2) {
                     customAlert("Record saved successfully.");
-                    Drawincome1(Data);
-                    
+                    $('#Myincomecalculator1').modal('hide');
+                    setTimeout(function(){
+                        Drawincome1(Data);
+                    },2000);
                 }
                 else {
 
@@ -1298,13 +1412,18 @@
     }
     function Drawincome1(Data) {
         if (Data.list != "") {
-            $('#Myincomecalculator').empty();
-            $('#Myincomecalculator').append(Data.list);
+           // $('#Myincomecalculator').empty();
+            // $('#Myincomecalculator').append(Data.list);
+           
+            $('#Myincomecalculator').remove()
+            $("#form1").append(Data.list);
             Validateincome();
         }
         if (Data.list1 != "") {
-            $('#Myincomecalculator1').empty();
-            $('#Myincomecalculator1').append(Data.list1);
+           // $('#Myincomecalculator1').empty();
+            // $('#Myincomecalculator1').append(Data.list1);
+            $('#Myincomecalculator1').remove();
+            $("#form1").append(Data.list1);
             Validateincome1();
         }
     }
@@ -1332,14 +1451,17 @@
 
     }
 </script>
-<div class="modal fade scroll-modal" id="Myincomecalculator1" role="dialog">
-    <div class="modal-dialog income-popup">
+
+
+<div class="modal fade scroll-modal" id="Myincomecalculator1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog income-popup width-auto">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h3>Income Calculator Guardian 2<span class="extra-title muted"></span></h3>
             </div>
-            <div class="control-group">
+            <div class="control-group" style="max-height:600px;">
                 <div>
                     <div class="col-md-3" style="margin-bottom:1%;">
                      
@@ -1465,18 +1587,18 @@
                                     <div class="col-md-12 bold_none">
                                         <div class="income-heading"><span class="incomespan">@item.IncomeSource1</span></div>
                                         <div>
-                                            <div class="form-group col-md-12 mrBt15">
-                                                <div class="col-md-2">
+                                            <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                                <div class="col-md-3 col-xs-12">
                                                     <label for="exampleInputFile">Amount1($) </label>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3 col-xs-12">
                                                     <input type="text" name="Income2[@i].AmountVocher1" placeholder="0" maxlength="8" value="@item.AmountVocher1" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);">
                                                     <input type="hidden" value="@item.IncomeSource1" name="Income2[@i].IncomeSource1" />
                                                     <input type="hidden" value="@item.IncomeID" name="Income2[@i].IncomeID" />
                                                 </div>
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10">
                                                         <input name="Income2[@i].SalaryAvatar1" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar1" class="form-control">
                                                     </div>
                                                 }
@@ -1517,7 +1639,7 @@
                                                 }
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-1 attachmentmargintop">
+                                                    <div class="col-xs-1 attachmentmargintop">
                                                         @if (!string.IsNullOrEmpty(@item.SalaryAvatarFilename1))
                                                         {
                                                             <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage/1,@item.IncomeID"><i class="fa fa-download"></i></a>
@@ -1525,22 +1647,22 @@
                                                     </div>
                                                 }
                                             </div>
-                                            <div class="form-group col-md-12 mrBt15">
-                                                <div class="col-md-2">
+                                            <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                                <div class="col-md-3 col-xs-12">
                                                     <label for="exampleInputFile">Amount2($) </label>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3 col-sm-4 col-xs-12">
                                                     <input type="text" name="Income2[@i].AmountVocher2" accesskey="1" placeholder="0" maxlength="8" value="@item.AmountVocher2" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);">
                                                 </div>
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10">
                                                         <input name="Income2[@i].SalaryAvatar2" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar2" class="form-control">
                                                     </div>
                                                 }
                                                 else
                                                 {
-                                                    <div class="col-md-4" style="display:none;">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10" style="display:none;">
                                                         <input name="Income2[@i].SalaryAvatar2" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar2" class="form-control">
                                                     </div>
                                                 }
@@ -1574,7 +1696,7 @@
                                                 }
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-1 attachmentmargintop">
+                                                    <div class="col-xs-1 attachmentmargintop">
                                                         @if (!string.IsNullOrEmpty(@item.SalaryAvatarFilename2))
                                                         {
                                                             <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage/2,@item.IncomeID"><i class="fa fa-download"></i></a>
@@ -1582,22 +1704,22 @@
                                                     </div>
                                                 }
                                             </div>
-                                            <div class="form-group col-md-12 mrBt15">
-                                                <div class="col-md-2">
+                                            <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                                <div class="col-md-3 col-xs-12">
                                                     <label for="exampleInputFile">Amount3($) </label>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3 col-sm-4">
                                                     <input type="text" name="Income2[@i].AmountVocher3" accesskey="1" placeholder="0" maxlength="8" value="@item.AmountVocher3" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);">
                                                 </div>
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0")
                                                 {
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10">
                                                         <input name="Income2[@i].SalaryAvatar3" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar3" class="form-control">
                                                     </div>
                                                 }
                                                 else
                                                 {
-                                                    <div class="col-md-4" style="display:none;">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10" style="display:none;">
                                                         <input name="Income2[@i].SalaryAvatar3" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar3" class="form-control">
                                                     </div>
                                                 }
@@ -1631,7 +1753,7 @@
                                                 }
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-1 attachmentmargintop">
+                                                    <div class="col-xs-1 attachmentmargintop">
                                                         @if (!string.IsNullOrEmpty(@item.SalaryAvatarFilename3))
                                                         {
                                                             <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage/3,@item.IncomeID"><i class="fa fa-download"></i></a>
@@ -1639,22 +1761,22 @@
                                                     </div>
                                                 }
                                             </div>
-                                            <div class="form-group col-md-12 mrBt15">
-                                                <div class="col-md-2">
+                                            <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                                <div class="col-md-3 col-xs-12">
                                                     <label for="exampleInputFile">Amount4($) </label>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3 col-sm-4">
                                                     <input type="text" name="Income2[@i].AmountVocher4" accesskey="1" placeholder="0" maxlength="8" value="@item.AmountVocher4" class="form-control" onkeyup="checkDec(this);" onblur="checkDecimal(this);">
                                                 </div>
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10">
                                                         <input name="Income2[@i].SalaryAvatar4" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar4" class="form-control">
                                                     </div>
                                                 }
                                                 else
                                                 {
-                                                    <div class="col-md-4" style="display:none;">
+                                                    <div class="col-md-5 col-sm-6 col-xs-10" style="display:none;">
                                                         <input name="Income2[@i].SalaryAvatar4" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*"  capture="camera" accesskey="1" type="file" onchange="ValidateFileinput4(this)" value="@item.SalaryAvatar4" class="form-control">
                                                     </div>
                                                 }
@@ -1688,7 +1810,7 @@
                                                 }
                                                 @if (Session["Docsstorage"] != null && Session["Docsstorage"].ToString() == "0" )
                                                 {
-                                                    <div class="col-md-1 attachmentmargintop">
+                                                    <div class="col-xs-1 attachmentmargintop">
                                                         @if (!string.IsNullOrEmpty(@item.SalaryAvatarFilename4))
                                                         {
                                                             <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage/4,@item.IncomeID"><i class="fa fa-download"></i></a>
@@ -1697,11 +1819,11 @@
                                                 }
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-12 mrBt15">
-                                            <div class="col-md-2">
+                                        <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                            <div class="col-md-3">
                                                 <label for="exampleInputFile">Pay Frequency</label>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-9">
                                                 <select class="form-control" onchange="Setworkingperiod1(this)" accesskey="2" name="Income2[@i].Payfrequency">
                                                     @if (@item.Payfrequency == 5)
                                                     {
@@ -1746,11 +1868,11 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-sm-12 mrbt15">
-                                            <div class="col-md-2">
+                                        <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                            <div class="col-md-3">
                                                 <label for="exampleInputFile">Working Period </label>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-9">
                                                 @if(@item.Payfrequency==5)
                                                 {
                                                 <input name="Income2[@i].Working" readonly="readonly" type="text" accesskey="3" onblur="checkIfNumeric(this);" value="@item.Working" class="form-control">
@@ -1761,14 +1883,82 @@
                                                 }
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-12 mrBt15">
-                                            <div class="col-md-2">
+                                        <div class="form-group col-lg-6 mrBt15 no-pad-res">
+                                            <div class="col-md-3">
                                                 <label for="exampleInputFile">Calculated Income($) </label>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-9">
                                                 <input name="Income2[@i].IncomeCalculated" accesskey="4" placeholder="0" maxlength="20" type="text" onblur="checkIfNumeric(this);" readonly="true" value="@item.IncomeCalculated" class="form-control">
                                             </div>
                                         </div>
+
+
+
+                                        <div class="form-group">
+
+                                            <div class="panel panel-primary docsubmitted-panel" data-incomeid="@item.IncomeID">
+                                                <div class="panel-heading">
+                                                    <h3 class="panel-title">What Document was used to determine eligibility?</h3>
+                                                </div>
+
+
+                                                <div class="panel-body">
+
+                                                    @if (item.Documents == null)
+                                                    {
+
+                                                        item.Documents = new List<FingerprintsModel.FamilyHousehold.IncomeDocument>();
+
+                                                    }
+
+
+                                                    <div class="col-sm-12">
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[0].DocumentId" value="1" @(item.Documents.Any(x => x.DocumentId == 1) ? "checked" : "") />
+                                                            <label class="rect-check-label">Income Tax Form 1040</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[1].DocumentId" value="2" @(item.Documents.Any(x => x.DocumentId == 2) ? "checked" : "") />
+                                                            <label class="rect-check-label">Written Statements form employers</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[2].DocumentId" value="3" @(item.Documents.Any(x => x.DocumentId == 3) ? "checked" : "") />
+                                                            <label class="rect-check-label">W-2</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[3].DocumentId" value="4" @(item.Documents.Any(x => x.DocumentId == 4) ? "checked" : "") />
+                                                            <label class="rect-check-label">Foster care reimbursement</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[4].DocumentId" value="5" @(item.Documents.Any(x => x.DocumentId == 5) ? "checked" : "") />
+                                                            <label class="rect-check-label">TANF documentation </label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[5].DocumentId" value="6" @(item.Documents.Any(x => x.DocumentId == 6) ? "checked" : "") />
+                                                            <label class="rect-check-label">SSI Documentation</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[6].DocumentId" value="7" @(item.Documents.Any(x => x.DocumentId == 7) ? "checked" : "") />
+                                                            <label class="rect-check-label">Pay stub or pay enevelopes</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check" name="Income2[@i].Documents[7].DocumentId" value="8" @(item.Documents.Any(x => x.DocumentId == 8) ? "checked" : "") />
+                                                            <label class="rect-check-label">Unemployment</label>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" class="rect_check othercheck" name="Income2[@i].Documents[8].DocumentId" value="0" @(item.Documents.Any(x => x.DocumentId == 0) ? "checked" : "") />
+                                                            <label class="rect-check-label">Other</label>
+                                                            <input type="text" class="form-control otherdoc" style="margin:0px 0px 10px 15px;display:@(item.Documents.Any(x=>x.DocumentId == 0) ? "block":"none");" value="@(item.Documents.Any(x=>x.DocumentId == 0) ? @item.Documents.Where(x=>x.DocumentId == 0).FirstOrDefault().DocumentName : "")" />
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+
                                     </div>
                                 </div>
                             </div>

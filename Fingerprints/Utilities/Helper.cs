@@ -640,5 +640,42 @@ namespace Fingerprints.Utilities
             }
             return result;
         }
+
+        public static string GetDocumentName(long id,string str = "")
+        {
+            //string str = "Other";
+            switch (id)
+            {
+                case 1:
+                    str = "Income Tax Form 1040";
+                    break;
+                case 2:
+                    str = "Written Statements form employers";
+                    break;
+                case 3:
+                    str = "W-2";
+                    break;
+                case 4:
+                    str = "Foster care reimbursement";
+                    break;
+                case 5:
+                    str = "TANF documentation";
+                    break;
+                case 6:
+                    str = "SSI Documentation";
+                    break;
+                case 7:
+                    str = "Pay stub or pay enevelopes";
+                    break;
+                case 8:
+                    str = "Unemployment";
+                    break;
+            }
+
+            return str;
+        }
+
+
+
     }
 }

@@ -614,6 +614,8 @@ namespace FingerprintsModel
             public bool noincomepaper { get; set; }
             public int docsstorage { get; set; }
 
+            public List<IncomeDocument> Documents { get; set; }
+
         }
         public class calculateincome1
         {
@@ -661,7 +663,19 @@ namespace FingerprintsModel
             public bool incomePaper4 { get; set; }
             public bool noincomepaper { get; set; }
             public int docsstorage { get; set; }
+
+            public List<IncomeDocument> Documents { get; set; }
         }
+
+
+        public class IncomeDocument
+        {
+            public long DocumentId { get; set; }
+            public string DocumentName { get; set; }
+        //    public string ParentName { get; set; }
+
+        }
+
         public class Programdetail
         {
             public int Id { get; set; }
@@ -742,6 +756,10 @@ namespace FingerprintsModel
             public string ChildIncome { get; set; }
             public string PovertyCalculated { get; set; }
             public string Totalinhousehold { get; set; }
+
+            public string Signature { get; set; }
+            public string StaffName { get; set; }
+            public int SignatureType { get; set; }
         }
         //Ehs Program
         public string EhsChildBirthWt { get; set; }

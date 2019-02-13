@@ -2962,13 +2962,13 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public JsonResult SavePovertyCalculation(string clientid, string HouseHoldId, string Parentid1, string Parentid2 = "", string Percentage1 = "",
         string Percentage2 = "", string Amount1 = "", string Amount2 = "",
-        string ChildIncome = "", string PovertyPercentage = "", string mode = "")
+        string ChildIncome = "", string PovertyPercentage = "", string mode = "",string SignatureCode="", string Signature="",string SignatureType="")
         {
             try
             {
                 string result = "0";
                 var PovertyCalculation = familyData.SavePovertyCalculation(ref result, Session["AgencyID"].ToString(), Session["UserID"].ToString(), HouseHoldId, Parentid1,
-                 Parentid2, Percentage1, Percentage2, Amount1, Amount2, ChildIncome, PovertyPercentage, mode, clientid);
+                 Parentid2, Percentage1, Percentage2, Amount1, Amount2, ChildIncome, PovertyPercentage, mode, clientid,SignatureCode,Signature,SignatureType);
                 return Json(new { PovertyCalculation, result });
             }
             catch (Exception Ex)
@@ -5154,10 +5154,12 @@ namespace Fingerprints.Controllers
 
                 var list = "";
                 if (info.Income1 != null && info.Income1.Count > 0)
-                    list = RenderRazorViewToString("~/Views/Partialviews/ParentIncome1.cshtml", info.Income1);
+                    //list = RenderRazorViewToString("~/Views/Partialviews/ParentIncome1.cshtml", info.Income1);
+                     list = RenderRazorViewToString("~/Views/AgencyUser/IncomeCalculator.cshtml", info.Income1);
                 var list1 = "";
                 if (info.Income2 != null && info.Income2.Count > 0)
-                    list1 = RenderRazorViewToString("~/Views/Partialviews/ParentIncom2.cshtml", info.Income2);
+                    //list1 = RenderRazorViewToString("~/Views/Partialviews/ParentIncom2.cshtml", info.Income2);
+                    list1 = RenderRazorViewToString("~/Views/AgencyUser/IncomeCalculator2.cshtml", info.Income2);
                 return Json(new { message, list, list1 });
 
             }
