@@ -608,6 +608,11 @@
                 $('#inkind-info-form').trigger('reset');
                 $('.inkind-entry-div').hide();
 
+               
+                $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
+
+                $('#inkind-info-form').find('.attach-div').find('input:file').val('');
+                $('#inkind-info-form').find('#div-edit-modal-img-gallery').html('');
             });
 
             //Triggers the Search Button Click option on click of Enter key on focus of Search Text//
@@ -1391,6 +1396,25 @@
                 fileData.append('modelString', JSON.stringify(model1));
 
 
+                
+                var $cameraDocuments=$('#inkind-info-form').find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+                var cameraDocumentsArray=[];
+
+                if($cameraDocuments.length>0)
+                {
+
+                    $.each($cameraDocuments,function(j,doc){
+
+                        var $doc=$(doc).find('img');
+                        cameraDocumentsArray.push({'Text':'InkindDocument','Value':self.getBase64Image($doc)});
+
+                    });
+                }
+
+                fileData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+
                 $.ajax({
 
                     url: HostedDir + '/InKind/InsertInkindTransactions',
@@ -1481,6 +1505,13 @@
                 $('#sig2').signature('clear');
                 $('#staff-sig-div').hide();
                 $('.inkind-hours-div,.inkind-miles-div,.amount-div').hide();
+
+
+                $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
+
+                $('#inkind-info-form').find('.attach-div').find('input:file').val('');
+                $('#inkind-info-form').find('#div-edit-modal-img-gallery').html('');
+
                 _allowExceedingWarninghrs = false;
             });
 
@@ -1673,6 +1704,79 @@
                 $('#modal-uploaddocument').modal('show');
             });
 
+
+            
+            $('#modal-uploaddocument').on('shown.bs.modal', function (event) {
+                $('body').addClass('modal-open');
+
+                showVideoStream();
+
+
+
+
+
+                //$selfElements.modalEditInkind.modal('hide');
+            }).on('hidden.bs.modal',function(event){
+
+                stopIntervalUserMedia();
+
+                $('html, body').animate({ scrollTop: $('#inkind-info-form').offset().top - 50 }, 1000);
+            });
+
+            $(document).on('click','.delete-file-upload',function(){
+
+                $(this).closest('.setup_viewscreen').remove();
+
+            });
+
+
+            $(document).on('click','.view-file-upload',function(){
+
+                //  window.open($(this)., 'newwindow','width=500,height=500');
+
+                var imageAttr=  $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+                //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
+                console.log(imageAttr);
+
+                //imageAttr='<embed src='+imageAttr+'></embed>';
+                //window.open(imageAttr, 'newwindow','width=500,height=500');
+
+
+
+                var w = window.open('about:blank','newwindow','width=500,height=500');
+
+                setTimeout(function(){ //FireFox seems to require a setTimeout for this to work.
+                    w.document.body.appendChild(w.document.createElement('img'))
+                        .src = imageAttr;
+                }, 0);
+
+            });
+
+
+            $('#btn-modal-doc-add').on('click',function(){
+
+
+                var $imageGallerylength= $('#modal-uploaddocument').find('.setup_viewscreen').length;
+
+                if($imageGallerylength==0)
+                {
+                    customAlert('Please capture image using camera');
+                    return false;
+                }
+
+
+                $('#div-edit-modal-img-gallery').append($('#modal-uploaddocument').find('.div-image-snap-gallery').html());
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+
+                $('#modal-uploaddocument').modal('hide');
+
+            });
+
+            $('#uploadImageCamera').tooltip();
+
+
+
             //Camera Functions //
 
         });
@@ -1747,7 +1851,7 @@
               })
               .then(gotDevices)
               .catch(function (error) {
-                  console.error(error);
+                  console.log(error);
                   //alert(error);
               });
         }
@@ -1755,7 +1859,7 @@
         function showCameraOption(ele) {
 
             var videoInputAvailable = 0;
-            $('#uploadImageCamera').tooltip('hide');
+           // $('#uploadImageCamera').tooltip('hide');
             $('#uploadImageCamera').hide();
 
             navigator.mediaDevices.enumerateDevices().then(function (devices) {
@@ -1773,12 +1877,12 @@
 
                 if (videoInputAvailable == 0) {
                     $('#uploadImageCamera').hide();
-                    $('#uploadImageCamera').tooltip('hide');
+                   // $('#uploadImageCamera').tooltip('hide');
 
                 }
                 else {
                     $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
+                  //  $('#uploadImageCamera').tooltip('show');
                 }
 
                 console.log(videoInputAvailable);
@@ -1823,7 +1927,7 @@
                 {
 
                     $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
+                   // $('#uploadImageCamera').tooltip('show');
                 }
 
 
@@ -1831,7 +1935,7 @@
             }, function() {
 
                 $('#uploadImageCamera').hide();
-                $('#uploadImageCamera').tooltip('hide');
+               // $('#uploadImageCamera').tooltip('hide');
 
 
             });
@@ -2507,6 +2611,16 @@
                                 $('#contact-info-form').trigger('reset');
                                 $('#no-more-tables8').hide();
                                 $('.contact-entry-div').show();
+
+                                $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
+
+                                $('#inkind-info-form').find('.attach-div').find('input:file').val('');
+                                $('#inkind-info-form').find('#div-edit-modal-img-gallery').html('');
+
+                                $('#inkind-info-form').trigger('reset');
+
+                                $('.inkind-entry-div').hide();
+
                             }
                         }
                         else {
@@ -2898,6 +3012,11 @@
             //$('#scrolldiv').trigger('click');
             // $('#inkind-info-form').trigger('reset');
 
+
+            $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
+
+            $('#inkind-info-form').find('.attach-div').find('input:file').val('');
+            $('#inkind-info-form').find('#div-edit-modal-img-gallery').html('');
 
 
             $('html, body').animate({ scrollTop: $('#inkind_Entry_scroll').offset().top - 50 }, 1000);
@@ -4061,8 +4180,13 @@
                                                 </div>
                                                 <div class="attachparticic_myactive">
 
-                            </div>
-                        </div>
+                                                </div>
+
+
+                                                <div class="col-lg-8 adddivspace pull-right" id="div-edit-modal-img-gallery">
+
+                                                </div>
+                                            </div>
 
 
 
