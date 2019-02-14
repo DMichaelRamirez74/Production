@@ -6191,13 +6191,13 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.AreaManager, RoleEnum.Executive, RoleEnum.SocialServiceManager)]
         public ActionResult MatrixSummary()
         {
             return View();
         }
 
-        [CustAuthFilter("c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter(RoleEnum.AreaManager, RoleEnum.Executive, RoleEnum.SocialServiceManager)]
         public JsonResult GetMatrixReport(string Year)
         {
             List<MasterMatrixSummary> summarylist = new List<MasterMatrixSummary>();

@@ -13610,6 +13610,8 @@ namespace FingerprintsData
                         obj1 = new FamilyHousehold.Programdetail();
                         obj1.Id = Convert.ToInt32(dr["ProgramTypeID"]);
                         obj1.ReferenceId = dr["ReferenceId"].ToString();
+                        obj1.IsShow = Convert.ToBoolean(dr["IsShowProgramType"]);
+                        obj1.IsSelected = Convert.ToBoolean(dr["IsSelected"]);
                         ProgramdetailRecords.Add(obj1);
                     }
                     obj.AvailableProgram = ProgramdetailRecords;
