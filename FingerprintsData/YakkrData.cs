@@ -374,6 +374,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", UserId));
                 command.Parameters.Add(new SqlParameter("@Status", Status));
                 command.Parameters.Add(new SqlParameter("@Command", "YakkrCount"));
+                command.Parameters.Add(new SqlParameter("@YakkrDescription", string.Empty)).Direction = ParameterDirection.Output;
                 Object objCount = command.ExecuteScalar();
                 Connection.Close();
                 if (objCount != null)
@@ -406,6 +407,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", UserId));
                 command.Parameters.Add(new SqlParameter("@Status", Status));
                 command.Parameters.Add(new SqlParameter("@Command", "YakkrDetail"));
+                command.Parameters.Add(new SqlParameter("@YakkrDescription", string.Empty)).Direction = ParameterDirection.Output;
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -438,11 +440,13 @@ namespace FingerprintsData
         }
 
 
-        public List<YakkrClientDetail> GetYakkrListByCode(string YakkrCode, string Status)
+        public List<YakkrClientDetail> GetYakkrListByCode(out string yakkrDescription,string YakkrCode, string Status)
         {
             List<YakkrClientDetail> listDetail = new List<YakkrClientDetail>();
+            yakkrDescription = string.Empty;
             try
             {
+               
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
@@ -457,12 +461,18 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@YakkrCode", YakkrCode));
                 command.Parameters.Add(new SqlParameter("@Status", Status));
                 command.Parameters.Add(new SqlParameter("@Command", "YakkrDetailByCode"));
+                //command.Parameters.Add(new SqlParameter("@YakkrDescription", yakkrDescription)).Direction = ParameterDirection.Output;
+                command.Parameters.Add(new SqlParameter("@YakkrDescription", "")).Direction=ParameterDirection.Output;
+
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+
+                yakkrDescription = command.Parameters["@YakkrDescription"].Value.ToString();
+
                 if (_dataset!=null && _dataset.Tables.Count>0 && _dataset.Tables[0] != null)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode != "750" && YakkrCode !="455")
+                    if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode != "750" && YakkrCode !="455" && YakkrCode!="904")
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
@@ -523,6 +533,11 @@ namespace FingerprintsData
                             });
                         }
                     }
+                }
+
+                if(_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                {
+                    yakkrDescription = _dataset.Tables[1].Rows[0]["YakkrDescription"].ToString();
                 }
             }
             catch (Exception ex)

@@ -1115,7 +1115,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-
+        [HttpPost]
         public JsonResult GetClassRoomsByCenterHistorical(string centerId)
         {
             TeacherModel model = new TeacherModel();
@@ -1126,7 +1126,8 @@ namespace Fingerprints.Controllers
                 model.CenterID = Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
-                model = new TeacherData().GetClassRoomsByCenterHistorical(model);
+                model.RoleId = Session["RoleID"].ToString();
+             model=   new TeacherData().GetClassRoomsByCenterHistorical(model);
             }
             catch (Exception ex)
             {

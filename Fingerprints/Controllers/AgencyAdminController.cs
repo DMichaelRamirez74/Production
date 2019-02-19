@@ -196,7 +196,10 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+
+
+      //  [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+      [CustAuthFilter()]
         public JsonResult AutoCompleteAgencystaff(string term, string Active = "0")
         {
             try
