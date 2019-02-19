@@ -594,8 +594,8 @@ namespace Fingerprints.Controllers
 
 
                     ExecutiveDashBoard executive = new ExecutiveDashBoard();
-                executive = new ExecutiveData().GetExecutiveDetails(staffDetails, Session["Roleid"].ToString());
-                TempData["CaseNote"] = executive.listCaseNote;
+               executive = new ExecutiveData().GetExecutiveDetails(staffDetails, Session["Roleid"].ToString());
+               
 
                 return View(executive);
             }
@@ -662,13 +662,17 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                List<ExecutiveDashBoard.CaseNote> listCaseNote = TempData["CaseNote"] as List<ExecutiveDashBoard.CaseNote>;
+
+                List<ExecutiveDashBoard.CaseNote> listCaseNote = new ExecutiveData().CaseNoteChartData(staffDetails);
+                    
+
+             
                 if (listCaseNote != null && listCaseNote.Count == 3)
                 {
                     var data = new[] {new { Name = listCaseNote.ElementAt(0).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(0).Percentage) },
                               new { Name = listCaseNote.ElementAt(1).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(1).Percentage) },
                               new { Name = listCaseNote.ElementAt(2).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(2).Percentage)}};
-                    TempData.Remove("CaseNote");
+                   
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
                 else
