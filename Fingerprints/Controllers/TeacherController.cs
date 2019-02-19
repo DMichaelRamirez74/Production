@@ -312,8 +312,6 @@ namespace Fingerprints.Controllers
             try
             {
                 string result = "";
-
-                //return View();
                 return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
             }
             catch (Exception Ex)
@@ -1117,7 +1115,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        [HttpPost]
+
         public JsonResult GetClassRoomsByCenterHistorical(string centerId)
         {
             TeacherModel model = new TeacherModel();
@@ -1128,8 +1126,7 @@ namespace Fingerprints.Controllers
                 model.CenterID = Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
-                model.RoleId = Session["RoleID"].ToString();
-             model=   new TeacherData().GetClassRoomsByCenterHistorical(model);
+                model = new TeacherData().GetClassRoomsByCenterHistorical(model);
             }
             catch (Exception ex)
             {

@@ -203,13 +203,11 @@ namespace Fingerprints.Controllers
             try
             {
 
-                string yakkrDescription;
-
                 ViewBag.YakkrCode = YakkrCode;
                 string Status = "1";
 
-                listYakkr = new YakkrData().GetYakkrListByCode(out yakkrDescription,YakkrCode.ToString(), Status);
-                ViewBag.YakkrDescription = yakkrDescription;
+                listYakkr = new YakkrData().GetYakkrListByCode(YakkrCode.ToString(), Status);
+
                 if (listYakkr.Count() == 0)
                 {
                     return RedirectToAction("YakkrDetails");

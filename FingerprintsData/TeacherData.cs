@@ -3000,7 +3000,6 @@ namespace FingerprintsData
 
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@AgencyId", model.AgencyId));
-                command.Parameters.Add(new SqlParameter("@RoleID", model.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", model.UserId));
                 command.Parameters.Add(new SqlParameter("@CenterId", model.CenterID));
                 command.Connection = Connection;

@@ -142,16 +142,28 @@ namespace FingerprintsData
                     {
                         foreach (DataRow dr in _dataset.Tables[8].Rows)
                         {
+                            executive.listCaseNote.Add(new ExecutiveDashBoard.CaseNote
+                            {
+                                Month = dr["Month"].ToString(),
+                                Percentage = dr["Percentage"].ToString()
+                            });
+                        }
+                    }
+                    //Total Hours and Dollers
+                    if (_dataset.Tables[9].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[9].Rows)
+                        {
                             executive.TotalHours = dr["Hours"].ToString();
                             executive.TotalDollars = dr["Budget"].ToString();
                         }
                     }
 
+                    /// shows demographic menu for Access roles if the returns 1.
 
-                    //Get Center Based and Home Based Enrollment
-                    if (_dataset.Tables.Count>9 && _dataset.Tables[9].Rows.Count>0)
+                    if(_dataset.Tables.Count>10 && _dataset.Tables[10].Rows.Count>0)
                     {
-                        executive.EnrollmentTypeList = (from DataRow dr10 in _dataset.Tables[9].Rows
+                        executive.EnrollmentTypeList = (from DataRow dr10 in _dataset.Tables[10].Rows
                                                         select new ExecutiveDashBoard.EnrolledByCenterType
                                                         {
                                                             Total = Convert.ToString(dr10["EnrollmentCount"]),
@@ -162,16 +174,16 @@ namespace FingerprintsData
 
                     /// shows demographic menu for Access roles if the returns 1.
 
-                    if(_dataset.Tables.Count>10 && _dataset.Tables[10].Rows.Count>0)
+                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
                     {
-                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[10].Rows[0]["ShowDemographic"].ToString())) ? false :
-                            Convert.ToString(_dataset.Tables[10].Rows[0]["ShowDemographic"]) == "1" ? true : false;
+                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[11].Rows[0]["ShowDemographic"].ToString())) ? false :
+                            Convert.ToString(_dataset.Tables[11].Rows[0]["ShowDemographic"]) == "1" ? true : false;
                     }
 
                     /// gets the Program Year Start Date for the Executive Dashboard///
-                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
+                    if(_dataset.Tables.Count>12 && _dataset.Tables[12].Rows.Count>0)
                     {
-                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[11].Rows[0]["ProgramYearStartDate"]);
+                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[12].Rows[0]["ProgramYearStartDate"]);
                     }
 
                 }
@@ -188,59 +200,6 @@ namespace FingerprintsData
             return executive;
         }
 
-
-        public List<ExecutiveDashBoard.CaseNote> CaseNoteChartData(StaffDetails staff)
-        {
-
-            List<ExecutiveDashBoard.CaseNote> caseNoteList = new List<ExecutiveDashBoard.CaseNote>();
-
-            try
-            {
-                using (Connection = connection.returnConnection())
-                {
-
-                    command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
-                    command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
-                    command.Parameters.Add(new SqlParameter("@Command", staff.RoleId));
-                    command.Connection = Connection;
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "USP_GetCaseNoteReport";
-                    command.CommandTimeout = 120;
-                    Connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        if(reader.HasRows)
-                        {
-                            while(reader.Read())
-                            {
-                                caseNoteList.Add(new ExecutiveDashBoard.CaseNote
-                                {
-                                    Month = Convert.ToString(reader["Month"]),
-                                    Percentage = Convert.ToString(reader["Percentage"])
-
-                                });
-                            }
-                        }
-                    }
-
-                    
-
-
-                }
-            }
-            catch(Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            finally
-            {
-                Connection.Dispose();
-                command.Dispose();
-            }
-
-            return caseNoteList;
-        }
         public string GetClassSession(string Session)
         {
             string ClassRoomType = string.Empty;
