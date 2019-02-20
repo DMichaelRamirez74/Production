@@ -4367,7 +4367,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ScreeningQnTable", dtScr));
                     command.Parameters.Add(new SqlParameter("@ScreeningDocTable", dtDocument));
                     command.Parameters.Add(new SqlParameter("@ClientID", _scr.ClientID));
-                    command.Parameters.Add(new SqlParameter("@ScreeningPeriod", _scr.ScreeningPeriodIndex)).Direction=ParameterDirection.InputOutput;
+                    command.Parameters.Add(new SqlParameter("@ScreeningPeriod", int.Parse(_scr.ScreeningPeriodIndex))).Direction = ParameterDirection.InputOutput;
                     command.Parameters.Add(new SqlParameter("@CustomScreeningPeriod", _scr.CustomScreeningPeriod));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_SaveScreeningByScreeningPeriod";
