@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Data;
 using System.Web;
+using static FingerprintsModel.FamilyHousehold;
+
 namespace FingerprintsModel
 {
     public class Agency
@@ -317,6 +319,30 @@ namespace FingerprintsModel
     {
         public string id { get; set; }
         public string text { get; set; }
+    }
+
+
+    public class EligibilityDetail
+    {
+        public long  ClientId { get; set; }
+        public string Name { get; set; }
+        public string  DOB { get; set; }
+        //  public 
+        public List<IncomeDocument> EligibilityDocuments { get; set; }
+        public string AgencyLogoName { get; set; }
+        public byte[] AgencyLogo { get; set; }
+
+        public string Signature { get; set; }
+        public string StaffName { get; set; }
+
+        public long ReasonforAcceptance { get; set; }
+
+        // public int NoOfSource { get; set; }
+        public string NoIncomeParentName { get; set; }
+
+        public string DateofVerification { get; set; }
+
+
     }
 
 

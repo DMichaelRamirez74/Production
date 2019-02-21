@@ -6586,5 +6586,133 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
         }
 
 
+
+        public EligibilityDetail GetEligibilityFormByClient(string ClientId,int mode) {
+
+
+            EligibilityDetail _ElD = new EligibilityDetail();
+            _ElD.EligibilityDocuments = new List<FamilyHousehold.IncomeDocument>();
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@Mode", mode));
+                    command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetEligibilityFormDetails";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if (_dataset != null && _dataset.Tables.Count > 1)
+                    {
+
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
+
+                            foreach (DataRow dr in _dataset.Tables[0].Rows)
+                            {
+                                _ElD.Name = dr["Name"].ToString();
+                                _ElD.DOB = dr["DOB"].ToString();
+                               // _ElD.ClientId = dr["DOB"].ToString();
+                                //var tagrow = new CaseNoteTag()
+                                //{
+
+                                //    TagId = Convert.ToInt64(dr["TagKey"].ToString()),
+                                //    TagName = dr["TagName"].ToString(),
+                                //    Count = Convert.ToInt64(dr["Counter"].ToString())
+                                //};
+
+                                //TagReport.TagReport.Add(tagrow);
+
+                            }
+                        }
+
+                        if (_dataset.Tables[1].Rows.Count > 0)
+                        {
+                            foreach (DataRow dr in _dataset.Tables[1].Rows) {
+
+                                var _singDoc = new FamilyHousehold.IncomeDocument(){
+
+                                    DocumentId = Int64.Parse(dr["DocumentId"].ToString()),
+                                    DocumentName = DBNull.Value == dr["DocumentName"] ? "" : dr["DocumentName"].ToString()
+
+                            };
+
+                                _ElD.EligibilityDocuments.Add(_singDoc);
+                            }
+
+                            }
+                        if (_dataset.Tables[2].Rows.Count > 0)
+                        {
+                            var _t3 = _dataset.Tables[2];
+
+                             _ElD.AgencyLogo = Encoding.ASCII.GetBytes(DBNull.Value == _t3.Rows[0]["AgencyLogo"] ? "" : _t3.Rows[0]["AgencyLogo"].ToString());
+                            _ElD.AgencyLogoName = DBNull.Value == _t3.Rows[0]["LogoName"] ? "" : _t3.Rows[0]["LogoName"].ToString();
+
+                        }
+
+                        if (_dataset.Tables[3].Rows.Count > 0)
+                        {
+                            var _t4 = _dataset.Tables[3];
+
+                             _ElD.Signature = Helpers.GetBase64Png( DBNull.Value == _t4.Rows[0]["Signature"] ? "" : _t4.Rows[0]["Signature"].ToString(), 400,200);
+                         //  _ElD.Signature = Encoding.ASCII.GetBytes(_t4.Rows[0]["Signature"].ToString());
+                                _ElD.StaffName = DBNull.Value == _t4.Rows[0]["StaffName"] ? "" : _t4.Rows[0]["StaffName"].ToString();
+
+                            _ElD.DateofVerification = DBNull.Value == _t4.Rows[0]["DateofVerification"] ? "" : _t4.Rows[0]["DateofVerification"].ToString(); 
+
+                        }
+
+                        if (_dataset.Tables[4].Rows.Count > 0)
+                        {
+                            var _t5 = _dataset.Tables[4].Rows[0];
+
+                            _ElD.ReasonforAcceptance = DBNull.Value == _t5["ReasonforAcceptance"] ? 0 : Convert.ToInt64(_t5["ReasonforAcceptance"].ToString());
+
+                        }
+
+                        if (_dataset.Tables[5].Rows.Count > 0)
+                        {
+                            var _t6 = _dataset.Tables[5].Rows[0];
+
+                            _ElD.NoIncomeParentName = DBNull.Value == _t6["NoIncomeParentName"] ? "" : _t6["NoIncomeParentName"].ToString();
+
+                        }
+
+                    }
+
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+
+
+
+
+            return _ElD;
+        }
+
+
     }
 }
