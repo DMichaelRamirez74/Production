@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Data;
 using System.Web;
-using static FingerprintsModel.FamilyHousehold;
+//using static FingerprintsModel.FamilyHousehold;
 
 namespace FingerprintsModel
 {
@@ -322,13 +322,21 @@ namespace FingerprintsModel
     }
 
 
+    //public class IncomeDocument
+    //{
+    //    public long DocumentId { get; set; }
+    //    public string DocumentName { get; set; }
+    //    //    public string ParentName { get; set; }
+
+    //}
+
     public class EligibilityDetail
     {
         public long  ClientId { get; set; }
         public string Name { get; set; }
         public string  DOB { get; set; }
         //  public 
-        public List<IncomeDocument> EligibilityDocuments { get; set; }
+        public List<FamilyHousehold.IncomeDocument> EligibilityDocuments { get; set; }
         public string AgencyLogoName { get; set; }
         public byte[] AgencyLogo { get; set; }
 
