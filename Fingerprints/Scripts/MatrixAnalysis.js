@@ -17,7 +17,14 @@ var isUpdate = false;
 var singleParent = false;
 var goalFor = 0;
 var round = 1;
+var maxMatrixValue = 0;
 
+
+//$(window).on('load',function () {
+
+
+//  //  $('.bar-green').css({ 'transition': 'height 5s ease-in 2s' });
+//});
 
 //check-parent
 $(document).ready(function () {
@@ -27,16 +34,15 @@ $(document).ready(function () {
 
     $("#matrix_recommendations").on("hide.bs.modal", function () {
         // put your default event here
-     
+
     });
-   
+
     $('#recommClosBtn').on('click', function () {
         var browsernames = getBrowserName();
-        if (browsernames.IsSafari)
-        {
+        if (browsernames.IsSafari) {
             location.reload();
         }
-        
+
     });
 
     $.ajax({
@@ -275,11 +281,10 @@ function SetChartDetails(e) {
             $('.mat-score').html('-');
             $('.mat-score').attr('data-score', 0);
             $('.mat-score').attr('testvalue', 0);
-           // alert(data.groupType);
+            // alert(data.groupType);
             savetype = data.groupType;
 
-            switch(savetype)
-            {
+            switch (savetype) {
                 case 1:
                    
                     $('#Ass1').removeAttr('disabled');
@@ -309,6 +314,15 @@ function SetChartDetails(e) {
             if (data.chardetailsList != null) {
                 if (data.chardetailsList.length > 0) {
                     chardetails = true;
+
+                    $.each(data.chardetailsList, function (k, chart) {
+
+                        if (chart.MaximumMatrixValue > 0 && maxMatrixValue == 0) {
+                            maxMatrixValue = chart.MaximumMatrixValue;
+                        }
+
+                    });
+
                     for (var s = 0; s < data.chardetailsList.length; s++) {
 
                         var assessmentNumber = data.chardetailsList[s].AssessmentNumber;
@@ -325,7 +339,7 @@ function SetChartDetails(e) {
                             var label_Height = getLabelHeight2(height);
                          
                             $('.labelAs' + assessmentNumber + '_' + catId).css('height', label_Height + '%');
-                            $('.labelAs' + assessmentNumber + '_' + catId).children('p').html(percentage);
+                            $('.labelAs' + assessmentNumber + '_' + catId).children('p').html(parseInt(percentage)==percentage?parseInt(percentage):percentage);
                         }
                         if (assessmentNumber === 1) {
                             assessment_1_total = parseFloat(assessment_1_total) + parseFloat(percentage);
@@ -514,11 +528,17 @@ function SetChartDetails(e) {
         var as1_as2diff = Math.abs(as1Percentage - as2Percentage).toFixed(2);
         var as1_as3diff = Math.abs(as1Percentage - as3Percentage).toFixed(2);
         var totalGroupCount = $('#TotalgroupCount').val().trim();
-        var converteddenom = (totalGroupCount / catcount);
-        var convertedratio = (100 / converteddenom);
+        //var converteddenom = (totalGroupCount / catcount);
+        //var convertedratio = (100 / converteddenom);
+
+
+
         if (as1Percentage > 0) {
 
-            var height1 = (as1Percentage * convertedratio);
+            //var height1 = (as1Percentage * convertedratio);
+
+            var height1 = (maxMatrixValue==0)?0: ((as1Percentage / maxMatrixValue) * 100);
+
             if (height1 === 100) {
                 $('.bar-green1').css('bottom', '-1px');
             }
@@ -530,7 +550,7 @@ function SetChartDetails(e) {
 
             }
             $('.bar-green1').height(height1 + '%');
-            $('.master-bar1').children('.bar-label2').children('.avg-p').html(as1Percentage + '<sub>Avg</sub>');
+            $('.master-bar1').children('.bar-label2').children('.avg-p').html( parseInt(as1Percentage)==as1Percentage?parseInt(as1Percentage):as1Percentage + '<sub>Avg</sub>');
             $('.master-bar1').children('.bar-label1').children('p').html(assessment1score);
         }
         var height2 = 0;
@@ -538,7 +558,10 @@ function SetChartDetails(e) {
         if (assessmentType === 2) {
 
             if (as2Percentage > 0) {
-                height2 = (as2Percentage * convertedratio);
+
+
+                //height2 = (as2Percentage * convertedratio);
+                height2 = (maxMatrixValue == 0) ? 0 : ((as2Percentage / maxMatrixValue) * 100);
 
                 if (height2 === 0) {
                     $('.bar-green2').addClass('hidden');
@@ -549,7 +572,7 @@ function SetChartDetails(e) {
                 }
                 $('.bar-green2').height(height2 + '%');
 
-                $('.master-bar2').children('.bar-label2').children('.avg-p').html(as2Percentage + '<sub>Avg</sub>');
+                $('.master-bar2').children('.bar-label2').children('.avg-p').html(parseInt(as2Percentage)==as2Percentage?parseInt(as2Percentage):as2Percentage + '<sub>Avg</sub>');
                 $('.master-bar2').children('.bar-label1').children('p').html(assessment2score);
 
             }
@@ -558,7 +581,12 @@ function SetChartDetails(e) {
         if (assessmentType === 3) {
 
             if (as2Percentage > 0) {
-                height2 = (as2Percentage * convertedratio);
+
+
+                //  height2 = (as2Percentage * convertedratio);
+
+                height2 = (maxMatrixValue == 0) ? 0 : ((as2Percentage / maxMatrixValue) * 100);
+
                 if (height2 === 100) {
                     $('.bar-green2').css('bottom', '-1px');
 
@@ -572,14 +600,16 @@ function SetChartDetails(e) {
                 }
                 $('.bar-green2').height(height2 + '%');
 
-                $('.master-bar2').children('.bar-label2').children('.avg-p').html(as2Percentage + '<sub>Avg</sub>');
+                $('.master-bar2').children('.bar-label2').children('.avg-p').html(parseInt(as2Percentage) == as2Percentage ? parseInt(as2Percentage) : as2Percentage + '<sub>Avg</sub>');
                 $('.master-bar2').children('.bar-label1').children('p').html(assessment2score);
 
 
             }
             if (as3Percentage > 0) {
 
-                var height3 = (as3Percentage * convertedratio);
+                // var height3 = (as3Percentage * convertedratio);
+
+                height3 = (maxMatrixValue == 0) ? 0 : ((as3Percentage / maxMatrixValue) * 100);
 
                 if (height3 === 100) {
                     $('.bar-green3').css('bottom', '-1px');
@@ -592,9 +622,13 @@ function SetChartDetails(e) {
 
                 }
 
-                $('.bar-green3').height(height3 + '%');
+                //   $('.bar-green3').height(height3 + '%');
 
-                $('.master-bar3').children('.bar-label2').children('.avg-p').html(as3Percentage + '<sub>Avg</sub>');
+                $('.bar-green3').css({ 'height': height3 + '%' });
+
+                //$('.bar-green3').css({ 'transition': 'height 1s ease-in 0s' });
+
+                $('.master-bar3').children('.bar-label2').children('.avg-p').html(parseInt(as3Percentage)==as3Percentage?parseInt(as3Percentage):as3Percentage + '<sub>Avg</sub>');
                 $('.master-bar3').children('.bar-label1').children('p').html(assessment3score);
 
             }
@@ -669,8 +703,7 @@ function getLabelHeight(lblHeight) {
     return heightLbl;
 }
 
-function getLabelHeight2(Height2)
-{
+function getLabelHeight2(Height2) {
     var heightArray = {
         1: 18,
         2: 18,
@@ -714,20 +747,18 @@ function getLabelHeight2(Height2)
 
 //On Click over the assessment group to show the description popup//
 $('.assessment-group').click(function () {
-   
-        if ($('.CheckClient').is(':checked') == false)
-        {
-            
-            customAlert("Please select any one parents.");
-            return false;
-        }
-        if ($('#yearSelect').val() == null)
-        {
-            customAlert("Please select any one parents.");
-            return false;
-        }
-    
-    
+
+    if ($('.CheckClient').is(':checked') == false) {
+
+        customAlert("Please select any one parents.");
+        return false;
+    }
+    if ($('#yearSelect').val() == null) {
+        customAlert("Please select any one parents.");
+        return false;
+    }
+
+
     var dropdownYear = $('#yearSelect').val();
     var parsedYear = parseInt(dropdownYear.substr(dropdownYear.length - 2));
     var currentYear = parseInt(activeYear.substr(activeYear.length - 2));
@@ -3469,8 +3500,7 @@ function setGoalfor(val) {
 
 }
 
-function getBrowserName()
-{
+function getBrowserName() {
     // Opera 8.0+
     var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 

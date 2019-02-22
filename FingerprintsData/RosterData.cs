@@ -3990,6 +3990,7 @@ namespace FingerprintsData
                         chartdetails.ResultPercentage = Convert.ToDouble(dr["Percentage"]);
                         chartdetails.GroupIdCount = Convert.ToInt64(dr["GroupCount"]);
                         chartdetails.ChartHeight = (dr["ChartHeight"].ToString() == "") ? 0 : Convert.ToDouble(dr["ChartHeight"]);
+                        chartdetails.MaximumMatrixValue = Convert.ToInt64(dr["MaxMatrix"]);
                         chartdetailslist.Add(chartdetails);
                     }
                     chartlist = chartdetailslist;

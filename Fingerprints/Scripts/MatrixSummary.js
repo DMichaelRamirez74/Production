@@ -198,9 +198,9 @@
                                     
                                     
 
-                                    chartbinddiv.find('.bar-label_1').children('p').html(ratio1);
-                                    chartbinddiv.find('.bar-label_2').children('p').html(ratio2);
-                                    chartbinddiv.find('.bar-label_3').children('p').html(ratio3);
+                                    chartbinddiv.find('.bar-label_1').children('p').html( parseInt(ratio1)==ratio1?parseInt(ratio1):ratio1);
+                                    chartbinddiv.find('.bar-label_2').children('p').html(parseInt(ratio2)==ratio2?parseInt(ratio2):ratio2);
+                                    chartbinddiv.find('.bar-label_3').children('p').html(parseInt(ratio3)==ratio3?parseInt(ratio3):ratio3);
                                   
                                  
                                    
@@ -287,7 +287,7 @@
                             var percentageFam = element4.PercentFamilyEntered;
                             var masterRatio = 0;
                            
-                            $('.as' + assmentNo + '-per').html('(' + percentageFam + '%)');
+                            $('.as' + assmentNo + '-per').html('(' + parseInt(percentageFam)==percentageFam?parseInt(percentageFam):percentageFam + '%)');
                             $('.barlable_as' + assmentNo).each(function () {
                                 masterRatio += parseFloat($(this).children('p').html());
                             });
@@ -314,7 +314,7 @@
 
                                 }
                                 $('.mastbar-green' + assmentNo).height(height1 + '%');
-                                $('.as' + assmentNo + '-avg').html(as1Percentage + '<sub>Avg</sub>')
+                                $('.as' + assmentNo + '-avg').html(parseInt(as1Percentage)==as1Percentage?parseInt(as1Percentage):as1Percentage + '<sub>Avg</sub>')
                                
                             }   
                             else

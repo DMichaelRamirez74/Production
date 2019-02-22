@@ -2200,7 +2200,7 @@ namespace FingerprintsData
 
                             resultSet++;
 
-                        } while (dr.NextResult());
+                        } while (dr.NextResult() && dr.HasRows);
                     }
 
                 }

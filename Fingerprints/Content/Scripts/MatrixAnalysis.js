@@ -2,6 +2,7 @@
 var assessmentType = parseInt($('#assessmentType').val().trim());
 var houseHoldId = $('#houseHoldId').val().trim();
 var activeYear = $('#activeYear').val().trim();
+var maxMatrixValue = 0;
 
 $(document).ready(function () {
 
@@ -11,7 +12,7 @@ $(document).ready(function () {
         async: false,
         data: { HouseHoldID: houseHoldId },
         success: function (data) {
-         
+
             var imagesrc = data.ProfilePic === "" ? ("/Images/prof-image.png") : ("data:image/jpg;base64," + data.ProfilePic);
             $('#profileImage').attr('src', imagesrc);
             $("#profileImage").css("display", "block");
@@ -58,9 +59,9 @@ $(document).ready(function () {
         if (selfheight > textheight) {
             $(this).find('.change-div').css('height', selfheight + 'px');
             value = $(this).attr('cat-id');
-           
-             green_bar = parseInt(selfheight - 40);
-             $('.change-bar-div_' + value).css('height', green_bar + 'px');
+
+            green_bar = parseInt(selfheight - 40);
+            $('.change-bar-div_' + value).css('height', green_bar + 'px');
 
         }
         else {
@@ -81,19 +82,19 @@ function GetStaffName(prog_year) {
         async: false,
         data: { HouseHoldId: houseHoldId, ActiveYear: prog_year },
         success: function (staffNameList) {
-            
+
             $('.staff-name').html('');
             $('.completed-date').html('');
             $('.date-para').addClass('hidden');
-                if (staffNameList.length > 0) {
-                    for (var i = 0; i < staffNameList.length; i++) {
-                     
-                        $('#staff' + staffNameList[i].AssessmentNumber).html(staffNameList[i].StaffName);
-                        $('#date' + staffNameList[i].AssessmentNumber).html(staffNameList[i].Date);
-                        $('.para-' + staffNameList[i].AssessmentNumber).removeClass('hidden');
-                    }
+            if (staffNameList.length > 0) {
+                for (var i = 0; i < staffNameList.length; i++) {
+
+                    $('#staff' + staffNameList[i].AssessmentNumber).html(staffNameList[i].StaffName);
+                    $('#date' + staffNameList[i].AssessmentNumber).html(staffNameList[i].Date);
+                    $('.para-' + staffNameList[i].AssessmentNumber).removeClass('hidden');
                 }
-          
+            }
+
             else {
                 $('.staff-name').html('');
                 $('.date-para').addClass('hidden');
@@ -151,10 +152,19 @@ function SetChartDetails(e) {
             }
             if (data.chardetailsList != null) {
                 if (data.chardetailsList.length > 0) {
-                  //  debugger;
+                    //  debugger;
                     chardetails = true;
+
+                    $.each(data.chardetailsList, function (k, chart) {
+
+                        if (chart.MaximumMatrixValue > 0) {
+                            maxMatrixValue = maxMatrixValue;
+                        }
+
+                    });
+
                     for (var s = 0; s < data.chardetailsList.length; s++) {
-                      
+
                         var assessmentNumber = data.chardetailsList[s].AssessmentNumber;
                         var catId = data.chardetailsList[s].AssessementCategoryId;
                         var height = (data.chardetailsList[s].ChartHeight);
@@ -170,14 +180,14 @@ function SetChartDetails(e) {
                             $('.labelAs' + assessmentNumber + '_' + catId).children('p').html(percentage);
                         }
                         if (assessmentNumber === 1) {
-                            assessment_1_total = parseFloat(assessment_1_total) +parseFloat( percentage);
+                            assessment_1_total = parseFloat(assessment_1_total) + parseFloat(percentage);
                         }
 
                         if (assessmentNumber === 2) {
                             assessment_2_total = parseFloat(assessment_2_total) + parseFloat(percentage);
                         }
                         if (assessmentNumber === 3) {
-                            assessment_3_total =parseFloat( assessment_3_total) +parseFloat( percentage);
+                            assessment_3_total = parseFloat(assessment_3_total) + parseFloat(percentage);
                         }
 
 
@@ -199,8 +209,7 @@ function SetChartDetails(e) {
                 $('.mat-score').attr('testvalue', 0);
             }
 
-            if (data.chardetailsList != null)
-            {
+            if (data.chardetailsList != null) {
                 if (data.arraylist.length > 0) {
                     for (var i = 0; i < data.arraylist.length; i++) {
                         if (data.arraylist[i].length > 0) {
@@ -349,7 +358,7 @@ function SetChartDetails(e) {
     });
 
     if (chardetails) {
-     //   debugger;
+        //   debugger;
         catcount = $('#categoryIdCount').val().trim();
         var as1Percentage = (assessment_1_total / catcount).toFixed(2);
         var as2Percentage = (assessment_2_total / catcount).toFixed(2);
@@ -358,11 +367,17 @@ function SetChartDetails(e) {
         var as1_as2diff = Math.abs(as1Percentage - as2Percentage).toFixed(2);
         var as1_as3diff = Math.abs(as1Percentage - as3Percentage).toFixed(2);
         var totalGroupCount = $('#TotalgroupCount').val().trim();
-        var converteddenom = (totalGroupCount / catcount);
-        var convertedratio = (100 / converteddenom);
+        //var converteddenom = (totalGroupCount / catcount);
+        //var convertedratio = (100 / converteddenom);
+
+        
+
         if (as1Percentage > 0) {
 
-            var height1 = (as1Percentage * convertedratio);
+            //var height1 = (as1Percentage * convertedratio);
+
+            var height1=((as1Percentage/maxMatrixValue)*100);
+
             if (height1 === 100) {
                 $('.bar-green1').css('bottom', '-1px');
             }
@@ -382,7 +397,10 @@ function SetChartDetails(e) {
         if (assessmentType === 2) {
 
             if (as2Percentage > 0) {
-                height2 = (as2Percentage * convertedratio);
+
+
+                //height2 = (as2Percentage * convertedratio);
+                height2=((as2Percentage/maxMatrixValue)*100);
 
                 if (height2 === 0) {
                     $('.bar-green2').addClass('hidden');
@@ -402,7 +420,12 @@ function SetChartDetails(e) {
         if (assessmentType === 3) {
 
             if (as2Percentage > 0) {
-                height2 = (as2Percentage * convertedratio);
+
+
+              //  height2 = (as2Percentage * convertedratio);
+
+                height2 = ((as2Percentage / maxMatrixValue) * 100);
+
                 if (height2 === 100) {
                     $('.bar-green2').css('bottom', '-1px');
 
@@ -423,7 +446,9 @@ function SetChartDetails(e) {
             }
             if (as3Percentage > 0) {
 
-                var height3 = (as3Percentage * convertedratio);
+               // var height3 = (as3Percentage * convertedratio);
+
+                height3 = ((as3Percentage / maxMatrixValue) * 100);
 
                 if (height3 === 100) {
                     $('.bar-green3').css('bottom', '-1px');
@@ -458,14 +483,13 @@ function SetChartDetails(e) {
 
 //On Click over the assessment group to show the description popup//
 $('.assessment-group').click(function () {
-   // debugger;
+    // debugger;
     var dropdownYear = $('#yearSelect').val();
     var parsedYear = parseInt(dropdownYear.substr(dropdownYear.length - 2));
     var currentYear = parseInt(activeYear.substr(activeYear.length - 2));
     var expireYear = false;
     var isFirst = parseInt($(this).attr('isfirst'));
-    if (parsedYear > currentYear || parsedYear < currentYear)
-    {
+    if (parsedYear > currentYear || parsedYear < currentYear) {
         expireYear = true;
     }
     if ((savetype == 0) || (expireYear == true)) {
@@ -509,15 +533,14 @@ $('.assessment-group').click(function () {
                 $('.div-group-' + count).css('display', 'block');
                 $('.popup-div').css('display', 'block');
 
-            
+
                 var heightarray = '';
-                var  divheight2 = '';
-                if (isFirst ===1)
-                {
-                   
+                var divheight2 = '';
+                if (isFirst === 1) {
+
                     var divHeight = -16;
-                     heightarray = ['-16px', '50px', '116px', '182px', '248px', '311px', '377px', '443px'];
-                     divheight2 = heightarray[pos - 1];
+                    heightarray = ['-16px', '50px', '116px', '182px', '248px', '311px', '377px', '443px'];
+                    divheight2 = heightarray[pos - 1];
                     $('.popup-div').css('top', divheight2);
                 }
                 else {
@@ -525,7 +548,7 @@ $('.assessment-group').click(function () {
                     divheight2 = heightarray[pos - 1];
                     $('.popup-div').css('top', divheight2);
                 }
-              
+
 
             }
         }
@@ -654,7 +677,7 @@ $('.question-image').click(function () {
 $(document).on('change', '#yearSelect', function () {
 
     var year = $(this).val();
-   
+
     SetChartDetails(year);
     GetStaffName(year);
 });

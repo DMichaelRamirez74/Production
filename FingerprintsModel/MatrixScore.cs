@@ -61,6 +61,9 @@ namespace FingerprintsModel
         public long AssessmentNumber { get; set; }
         public long GroupIdCount { get; set; }
         public double ChartHeight { get; set; }
+
+        public long MaximumMatrixValue { get; set; }
+
     }
 
     public class MatrixRecommendations
