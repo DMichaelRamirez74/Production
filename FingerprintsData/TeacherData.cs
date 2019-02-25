@@ -2216,15 +2216,11 @@ namespace FingerprintsData
                            .Union(droppedList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
                            .Union(withdrawnList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
                            .OrderBy(x => x.Item2).ThenBy(x => x.Item4).ToList();
-                         if (finalEnrolledList.Select(x => x.Item1).Last() == 1)
+
+
+
+                         if (finalEnrolledList!=null && finalEnrolledList.Count>0 && finalEnrolledList.Select(x => x.Item1).Last() == 1)
                          {
-                             //var alldayslist = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
-                             //.Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
-
-                             //var alldayslist = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
-                             //.Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
-
-
                              var allDays = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
                .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset))
                .Intersect(inputDates).ToList();
@@ -2232,7 +2228,7 @@ namespace FingerprintsData
                                  allDays
                                  );
 
-                             // dateList.AddRange(dateList,dateL);
+                           
                          }
 
 
