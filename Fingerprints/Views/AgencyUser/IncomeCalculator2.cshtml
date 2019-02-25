@@ -1,4 +1,11 @@
 ﻿@model   List<FingerprintsModel.FamilyHousehold.calculateincome1>
+
+
+@*@if (ViewBag.PartialLoad == null || ViewBag.PartialLoad == false)
+    {*@
+
+
+
 <script type="text/javascript">
     var _SecondParentIncome = @Html.Raw(Json.Encode(@Model));
     var incomecount = 0;
@@ -233,7 +240,7 @@
     //add resource to parent-2
     function AddIncomeDiv1() {
         cleanValidation();
-        if ($('#Income').prop("checked")) {
+        if ($('#Income1').prop("checked")) {
             if ($('#IncomeSourcecheck1').val().trim() == "") {
                 customAlert("Income source is required. ");
                 plainValidation('#IncomeSourcecheck');
@@ -1245,7 +1252,8 @@
         }
         var isincomevalid = true;
 
-        if (!CalculateIncome1()) {
+        // if (!CalculateIncome1()) {
+        if (!CalculateIncome1() && !$('#NoIncome1').prop('checked')) {
             isincomevalid = false;
             $('#spinner').hide();
             return isincomevalid;
@@ -1414,16 +1422,20 @@
         if (Data.list != "") {
            // $('#Myincomecalculator').empty();
             // $('#Myincomecalculator').append(Data.list);
-           
-            $('#Myincomecalculator').remove()
+
+           $('#Myincomecalculator').remove()
             $("#form1").append(Data.list);
+          //  $('#Myincomecalculator .mbody').html('');
+           // $('#Myincomecalculator .mbody').append(Data.list1);
             Validateincome();
         }
         if (Data.list1 != "") {
            // $('#Myincomecalculator1').empty();
             // $('#Myincomecalculator1').append(Data.list1);
-            $('#Myincomecalculator1').remove();
+           $('#Myincomecalculator1').remove();
             $("#form1").append(Data.list1);
+           // $('#Myincomecalculator1 .mbody').html('');
+          //  $('#Myincomecalculator1 .mbody').append(Data.list1);
             Validateincome1();
         }
     }
@@ -1453,9 +1465,13 @@
 </script>
 
 
+
+@*}*@
+
+
+
 <div class="modal fade scroll-modal" id="Myincomecalculator1" role="dialog" data-backdrop="static">
     <div class="modal-dialog income-popup width-auto">
-        <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -1896,10 +1912,10 @@
 
                                         <div class="form-group">
 
-                                            <div class="panel panel-primary docsubmitted-panel" data-incomeid="@item.IncomeID">
-                                                <div class="panel-heading">
-                                                    <h3 class="panel-title">What Document was used to determine eligibility?</h3>
-                                                </div>
+                                    <div class="panel panel-primary docsubmitted-panel" data-incomeid="@item.IncomeID">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">What Document was used to determine eligibility?<span style="color:red;">*</span></h3>
+                                        </div>
 
 
                                                 <div class="panel-body">
@@ -1995,6 +2011,5 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+
+            </div></div></div>
