@@ -660,6 +660,7 @@ new DataColumn("Status",typeof(bool))
                     foreach (var item in inkindTransList)
                     {
                         item.IsActive = true;
+                        item.StaffSignature = item.StaffSignature ?? new StaffSignature();
                         returnResult = new InKindData().InsertInkindTransactions(item);
                     }
                 }

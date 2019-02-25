@@ -253,10 +253,10 @@ namespace FingerprintsData
                     ClassRoomType = "Afternoon";
                     break;
                 case "2":
-                    ClassRoomType = "FullDay>6hours";
+                    ClassRoomType = "FullDay > 6 hours";
                     break;
                 case "3":
-                    ClassRoomType = "FullDay>10 hours";
+                    ClassRoomType = "FullDay > 10 hours";
                     break;
                 case "4":
                     ClassRoomType = "Home Based";

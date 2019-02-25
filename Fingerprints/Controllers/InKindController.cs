@@ -402,6 +402,7 @@ namespace Fingerprints.Controllers
                             item.CenterID = (item.CenterID > 0) ? item.CenterID : !string.IsNullOrEmpty(item.Enc_CenterID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_CenterID)) : item.CenterID;
                             item.ClassroomID = (item.ClassroomID > 0) ? item.ClassroomID : !string.IsNullOrEmpty(item.Enc_ClassroomID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_ClassroomID)) : item.ClassroomID;
                             item.IsActive = true;
+                            item.StaffSignature = item.StaffSignature ?? new StaffSignature();
                             returnResult = new InKindData().InsertInkindTransactions(item);
                         }
 
@@ -419,6 +420,7 @@ namespace Fingerprints.Controllers
                         item.ClassroomID = (item.ClassroomID > 0) ? item.ClassroomID : !string.IsNullOrEmpty(item.Enc_ClassroomID) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.Enc_ClassroomID)) : item.ClassroomID;
 
                         item.IsActive = true;
+                        item.StaffSignature = item.StaffSignature ?? new StaffSignature();
                         returnResult = new InKindData().InsertInkindTransactions(item);
                     }
                 }
@@ -737,7 +739,7 @@ namespace Fingerprints.Controllers
                 inkindTransactions.IsActive = false;
                 inkindTransactions.InkindTransactionID = Convert.ToInt32(EncryptDecrypt.Decrypt64(inkindTransactionId));
 
-
+                inkindTransactions.StaffSignature = inkindTransactions.StaffSignature ?? new StaffSignature();
 
                 isResult = new InKindData().InsertInkindTransactions(inkindTransactions) > 0;
             }
