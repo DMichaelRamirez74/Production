@@ -279,14 +279,15 @@ namespace FingerprintsData
             SqlDataAdapter DataAdapter = null;
             DataSet _dataset = null;
 
-          
-            command.Connection = Connection;
-            command.Parameters.Clear();
-            command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-            command.Parameters.Add(new SqlParameter("@ClientID", "1"));
-            command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
-            command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = "SP_GetTeacherList";
+
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@ClientID", "1"));
+                command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = 120;
+                command.CommandText = "SP_GetTeacherList";
                 Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
             _dataset = new DataSet();
@@ -818,7 +819,8 @@ namespace FingerprintsData
                                                    ActivityNotes = activitynotes,
                                                    ClientID = clientID,
                                                    IsActive = true,
-                                                   DonorSignature = string.IsNullOrEmpty(imgSig) ? "" : imgSig
+                                                   DonorSignature = string.IsNullOrEmpty(imgSig) ? "" : imgSig,
+                                                   StaffSignature = new StaffSignature()
                                                }
 
                                              ).Distinct().ToList();
