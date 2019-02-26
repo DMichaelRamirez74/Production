@@ -268,6 +268,10 @@ namespace FingerprintsData
         public TeacherModel GetChildList(bool notChecked = false)
         {
             TeacherModel _TeacherM = new TeacherModel();
+            _TeacherM.ClosedDetails = new ClosedInfo();
+            _TeacherM.AttendanceTypeList = new List<SelectListItem>();
+            _TeacherM.AbsenceReasonList = new List<SelectListItem>();
+
             _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
 
             try
@@ -337,26 +341,26 @@ namespace FingerprintsData
             }
                 chList.ForEach(x => x.PercentAbsent = (x.PercentAbsent == 0 || x.PercentAbsent >= 100) ? Math.Round(x.PercentAbsent) : x.PercentAbsent);
 
-            _TeacherM.AbsenceReasonList = new List<SelectListItem>();
+           
 
-            if (_dataset.Tables[1] != null)
-            {
-                if (_dataset.Tables[1].Rows.Count > 0)
+                if (_dataset.Tables[1] != null)
                 {
-                    _TeacherM.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[1].Rows
-                                                   select new SelectListItem
-                                                   {
-                                                       Text = dr5["absenseReason"].ToString(),
-                                                       Value = dr5["reasonid"].ToString()
-                                                   }).ToList();
-                    _TeacherM.AbsenceReasonList.Add(
-                         new SelectListItem { Text = "Others", Value = "-1" }
-                        );
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+                        _TeacherM.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[1].Rows
+                                                       select new SelectListItem
+                                                       {
+                                                           Text = dr5["absenseReason"].ToString(),
+                                                           Value = dr5["reasonid"].ToString()
+                                                       }).ToList();
+                        _TeacherM.AbsenceReasonList.Add(
+                             new SelectListItem { Text = "Others", Value = "-1" }
+                            );
 
+                    }
                 }
-            }
 
-            _TeacherM.ClosedDetails = new ClosedInfo();
+        
 
             if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
             {
@@ -371,18 +375,18 @@ namespace FingerprintsData
                 };
             }
 
-            _TeacherM.AttendanceTypeList = new List<SelectListItem>();
 
-            if (_dataset.Tables[3] != null)
-            {
-                if (_dataset.Tables[3].Rows.Count > 0)
+
+                if (_dataset.Tables[3] != null)
                 {
-                    _TeacherM.AttendanceTypeList = (from DataRow dr5 in _dataset.Tables[3].Rows
-                                                    select new SelectListItem
-                                                    {
-                                                        Text = dr5["Description"].ToString(),
-                                                        Value = dr5["AttendanceTypeId"].ToString()
-                                                    }).ToList();
+                    if (_dataset.Tables[3].Rows.Count > 0)
+                    {
+                        _TeacherM.AttendanceTypeList = (from DataRow dr5 in _dataset.Tables[3].Rows
+                                                        select new SelectListItem
+                                                        {
+                                                            Text = dr5["Description"].ToString(),
+                                                            Value = dr5["AttendanceTypeId"].ToString()
+                                                        }).ToList();
 
 
                 }
