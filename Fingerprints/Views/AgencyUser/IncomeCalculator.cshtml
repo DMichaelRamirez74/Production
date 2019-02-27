@@ -1793,6 +1793,7 @@
             type: "POST",
             data: fd,
             dataType: "json",
+            beforeSend:function(){  $('#spinner').show(); },
             secureuri: false,
             processData: false,
             contentType: false,
@@ -1800,13 +1801,13 @@
             success: function (Data) {
                 if (Data.message == 2)
                 {
-
                     customAlert("Record saved successfully.");
                     $('#Myincomecalculator').modal('hide');
 
 
                     setTimeout(function(){
                         Drawincome(Data);
+                        $('#spinner').hide();
                     },2000);
                 
 
@@ -1815,7 +1816,7 @@
                 {
 
                     customAlert("Error occured please try again later.");
-
+                   $('#spinner').hide();
                 }
 
 
@@ -1826,16 +1827,20 @@
                    //setTimeout(function () {
                    //    window.location.href = HostedDir + '/login/Loginagency';
                    //}, 2000);
+                   //$('#spinner').hide();
+               },
+               complete:function(res){
+                 
                }
         });
-        $('#spinner').hide();
+        
     }
     function Drawincome(Data)
     {
         if(Data.list!="")
         {
             //$('#Myincomecalculator').empty();
-           
+
             $('#Myincomecalculator').remove()
             $("#form1").append(Data.list);
             // $('#Myincomecalculator').append(Data.list);
@@ -1853,6 +1858,7 @@
             Validateincome1();
 
         }
+        //$('#spinner').hide();
     }
 
 
@@ -2014,7 +2020,11 @@
                     }
                     else {
 
-                        totalincome = totalincome + parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        //  totalincome = totalincome + parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        var _tempIn = parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        if(!isNaN(_tempIn)){ //if not NaN
+                            totalincome += _tempIn;
+                        }
                     }
                 }
                 count = count + 1;

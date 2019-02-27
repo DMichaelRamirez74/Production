@@ -30,7 +30,11 @@
                     }
                     else {
 
-                        totalincome = totalincome + parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        // totalincome = totalincome + parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        var _tempIn = parseFloat($('[name="Income2[' + count + '].IncomeCalculated"]').val());
+                        if(!isNaN(_tempIn)){ //if not NaN
+                            totalincome += _tempIn;
+                        }
                     }
                 }
                 count = count + 1;
@@ -675,7 +679,11 @@
                             }
                             else {
 
-                                totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                //  totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                var _tempIn = parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                if(!isNaN(_tempIn)){ //if not NaN
+                                    totalincome1 += _tempIn;
+                                }
                             }
                         }
                         count1 = count1 + 1;
@@ -791,7 +799,11 @@
                             }
                             else {
 
-                                totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                //  totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                _tempIn =parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                if(!isNaN(_tempIn)){ //if not NaN
+                                    totalincome1 += _tempIn;
+                                }
                             }
                         }
                         count1 = count1 + 1;
@@ -937,7 +949,11 @@
                             }
                             else {
 
-                                totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                //  totalincome1 = totalincome1 + parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                var _tempIn = parseFloat($('[name="Income2[' + count1 + '].IncomeCalculated"]').val());
+                                if(!isNaN(_tempIn)){ //if not NaN
+                                    totalincome1 += _tempIn;
+                                }
                             }
                         }
                         count1 = count1 + 1;
@@ -1390,6 +1406,7 @@
             type: "POST",
             data: fd,
             dataType: "json",
+            beforeSend:function(){ $('#spinner').show(); },
             secureuri: false,
             processData: false,
             contentType: false,
@@ -1400,12 +1417,13 @@
                     $('#Myincomecalculator1').modal('hide');
                     setTimeout(function(){
                         Drawincome1(Data);
+                        $('#spinner').hide();
                     },2000);
                 }
                 else {
 
                     customAlert("Error occured please try again later.");
-
+                    $('#spinner').hide();
                 }
 
             }
@@ -1414,9 +1432,12 @@
                    setTimeout(function () {
                        window.location.href = HostedDir + '/login/Loginagency';
                    }, 2000);
+               },
+               complete:function(res){
+                  
                }
         });
-        $('#spinner').hide();
+       // $('#spinner').hide();
     }
     function Drawincome1(Data) {
         if (Data.list != "") {
