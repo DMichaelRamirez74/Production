@@ -67,6 +67,7 @@ namespace FingerprintsModel
         public string Areabreakdown { get; set; }
         public string DivisionBreakDown { get; set; }
         public string AllowCaseNoteTeacher { get; set; }
+        public int OverIncomeAcceptance { get; set; }
         public HttpPostedFileBase logo { get; set; }
         public string logoFileName { get; set; }
         public string logoFileExtension { get; set; }

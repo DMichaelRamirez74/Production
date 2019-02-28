@@ -28,6 +28,8 @@ namespace FingerprintsModel
         public string FromUserID { get; set; }
         public string _EncCenterId { get; set; }
 
+        public string ClassroomName { get; set; }
+
         public bool IsFutureApplication { get; set; }
     }
 }

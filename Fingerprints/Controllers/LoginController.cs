@@ -226,7 +226,7 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/HealthManager";
 
                 else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
-                    newLocation = "~/Home/Executive";
+                    newLocation = "~/Home/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
                     newLocation = "~/Home/AgencyDisabilityManagerDashboard";

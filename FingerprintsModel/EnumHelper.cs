@@ -50,6 +50,31 @@ namespace FingerprintsModel
             return (T)Enum.Parse(typeof(T), value, true);
         }
 
+
+
+        /// <summary>
+        /// Extension method to convert Enumeration enum to JSON array 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        public static string ConvertToJson(Type e)
+        {
+
+            var ret = "{";
+
+            foreach (var val in Enum.GetValues(e))
+            {
+
+                var name = Enum.GetName(e, val);
+
+                ret += name + ":" + ((int)val).ToString() + ",";
+
+            }
+            ret += "}";
+            return ret;
+
+        }
+
     }
 
 }

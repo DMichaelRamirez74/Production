@@ -159,7 +159,7 @@
                 SaveNotes();
             },
             error: function (er) {
-                alert(er);
+                //alert(er);
             }
         });
     }

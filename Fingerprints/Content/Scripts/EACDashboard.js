@@ -1,4 +1,158 @@
 ﻿var prgYearMinDate = null;
+var anchorCurrentEnrollment = null;
+var anchorEnrolledByProgram = null;
+var anchorMissingScreening = null;
+var anchorClassroomType = null;
+var anchorCaseNote = null;
+var anchorInkind = null;
+var anchorDisabilities = null;
+var anchorOverIncome = null;
+var anchorWaitingList = null;
+
+
+
+function makeCaseNoteChart(chartData) {
+    var chart = AmCharts.makeChart("chartdiv", {
+        "hideCredits": true,
+        "type": "serial",
+        "theme": "light",
+        //"dataProvider": [{
+        //    "country": "USA",
+        //    "visits": 2025
+        //}],
+        "dataProvider": chartData,
+        "graphs": [{
+            "fillAlphas": 1,
+            // "fillColor":"#296EED",
+            "lineAlpha": 0,
+            "lineColor": "#fff",
+            "type": "column",
+            "valueField": "Percentage",
+            "fillColors": "#296EED",
+            "columnWidth": 0.6,
+            "balloonFunction": function (item, content) {
+                var html = "<p>" + item.dataContext.Month + "</p></p>Percentage : " + item.dataContext.Percentage + "</p>";
+                // console.log(item, content);
+                return html;
+            }
+
+        }],
+        "categoryField": "Month",
+        "categoryAxis": {
+            "color": "#ffffff",
+            "axisColor": "#ffffff",
+            "axisAlpha": 1,
+            "gridColor": "#ffffff",
+            "gridAlpha": 0,
+        },
+        "valueAxes": [{
+            "position": "bottom",
+            // "offset": -200,
+            "minimum": 0,
+            "color": "#ffffff",
+            "axisColor": "#ffffff",
+            "axisAlpha": 1,
+            "gridColor": "#ffffff",
+            "gridAlpha": 1,
+            "maximum": 100,
+            "labelFunction": function (valueText, date, valueAxis) {
+                //console.log(valueText, date, valueAxis);
+                return valueText + "%";
+            }
+        },
+
+        /*{
+            "position": "left",
+            "offset": -200,
+            "minimum": 0,
+            "maximum": 100
+        }
+        */
+        ],
+
+        "startDuration": 1,
+        "chartCursor": {
+            "fullWidth": true,
+            "cursorAlpha": 0.1,
+            "enabled": false,
+            "cursorColor": "#000000",
+            "valueBalloonsEnabled": false,
+            "zoomable": false,
+            "listeners": [{
+                "event": "changed",
+                "method": function (ev) {
+                    // Log last cursor position
+                    ev.chart.lastCursorPosition = ev.index;
+                }
+            }]
+        },
+        "listeners": [{
+            "event": "init",
+            "method": function (ev) {
+                // Set a jQuery click event on chart area
+                jQuery(ev.chart.chartDiv).on("click", function (e) {
+                    // Check if last cursor position is present
+                    if (!isNaN(ev.chart.lastCursorPosition)) {
+                        console.log("clicked on " + ev.chart.dataProvider[ev.chart.lastCursorPosition].country);
+                    }
+                })
+            }
+        }]
+    });
+}
+
+
+
+function jilioThermExecutiveDashboard()
+{
+
+    var hours = parseFloat($('#txtThermHours').val()).toFixed(0);
+    var _txtDollars = $('#txtThermDollars').val();
+    var _flotDollars = _txtDollars;
+    // _txtDollars = 
+
+    for (var i = 0; i < hours.length; i++) {
+        hours = hours.replace(hours.charAt(i), '0');
+    }
+    var totHours = 0;
+    if ($('#txtTotalHours').val() != "")
+        totHours = parseInt($('#txtTotalHours').val());
+    else
+        totHours = parseFloat("1" + hours);
+
+    var oTherm1 = new jlionThermometer(0, totHours, false, false);
+    oTherm1.RefreshByID('txtThermHours');
+
+    var Dollars = parseFloat(_flotDollars).toFixed(0);
+    for (var i = 0; i < Dollars.length; i++) {
+        Dollars = Dollars.replace(Dollars.charAt(i), '0');
+    }
+    var totalDOllers = 0;
+    if ($('#txtTotalDollars').val() != "")
+        totalDOllers = parseInt($('#txtTotalDollars').val());
+    else
+        totalDOllers = parseFloat("1" + Dollars);
+    var oTherm = new jlionThermometerDollars(0, totalDOllers, true, false);
+
+
+
+    $('#txtThermDollars').val(parseFloat(_flotDollars));
+
+
+    oTherm.RefreshByID('txtThermDollars');
+
+    $('#bar').removeClass('barDollarThermo').addClass('barHoursThermo');
+    var height = $('.barHoursThermo').height() + 9;
+    $('.barHoursThermo').css('height', height + 'px');
+    $('#thermometer .Title').text('');
+
+
+    $('#thermometer .CurrentValue').text(formatCurrency($('#txtThermHours').val()) + ' Hours');
+
+    $('#thermometer-hours .Title').text('');
+
+    $('#thermometer-hours .CurrentValue').text("$ " + formatCurrency($('#txtThermDollars').val()));
+}
 
 function getADASeatsDaily() {
 
@@ -50,9 +204,234 @@ function formatCurrency(val) {
 
 
 
+function refreshDashboardBySection(ele, sectionType, callback) {
 
 
-$(function () {
+    $(ele).children('.fa-refresh').addClass('fa-spin');
+
+    $.ajax({
+
+
+        url: HostedDir + '/Home/RefreshExecutiveDashboardBySection',
+        type: 'GET',
+        datatype: 'JSON',
+        data: { sectionType: sectionType },
+        async: true,
+        beforeSend: function () { $('#spinner').hide() },
+        success: function (data) {
+            callback(data);
+
+        },
+        error: function (data) {
+
+        },
+        complete: function (data) {
+            $('#spinner').hide();
+
+            $(ele).children('.fa-refresh').removeClass('fa-spin');
+        }
+
+
+    });
+}
+
+function bindCurrentEnrollment(data) {
+
+    if (data != null && data.EnrollmentTypeList != null && data.EnrollmentTypeList.length > 0) {
+        var eduSection = $('#table-current-enroll');
+
+        var appendData = '<tr>\
+                        <th>Enrollment Type</th>\
+                            <th>Total</th>\
+                        </tr>';
+
+        $.each(data.EnrollmentTypeList, function (i, enrollment) {
+
+            appendData += '<tr>\
+                            <td>'+ enrollment.CenterType + '</td>\
+                                    <td class="number-center">'+ enrollment.Total + '</td>\
+                         </tr>';
+
+        });
+
+        eduSection.html(appendData);
+
+    }
+
+}
+
+function bindEnrolledByProgram(data) {
+
+    
+    if (data != null && data.EnrolledProgramList != null && data.EnrolledProgramList.length > 0) {
+
+        var eduProgram = $('#table-enroll-program');
+
+        var appendProgram = '<tr>\
+                                                        <th>Program</th>\
+                                                        <th>Funded</th>\
+                                                        <th>Actual</th>\
+                                                    </tr>';
+
+        $.each(data.EnrolledProgramList, function (i, program) {
+            appendProgram += '<tr>\
+                            <td>' + program.ProgramType + '</td>\
+                            <td class="number-center">' + program.Total + '</td>\
+                            <td class="number-center">' + program.Available + '</td>\
+                            </tr>';
+        });
+
+        eduProgram.html(appendProgram);
+    }
+}
+
+function bindMissingScreening(data) {
+
+    
+    if(data!=null && data.MissingScreenList.length>0)
+    {
+        var tableBind = $('#table-missing-scr');
+
+        var appendData = '<tr>\
+                            <th>Screen Name</th>\
+                            <th>Count</th>\
+                           </tr>';
+
+        $.each(data.MissingScreenList, function (i, screening) {
+
+            appendData+='<tr>\
+                            <td>'+screening.Name+'</td>\
+                            <td class="number-center">' + screening.Screen + '</td>\
+                        </tr>'
+        });
+
+
+        tableBind.html(appendData);
+    }
+
+}
+
+function bindClasroomType(data) {
+
+
+    if (data != null && data.ClassRoomTypeList != null && data.ClassRoomTypeList.length > 0) {
+        var classroomTypetbl = $('#table-classroomtype');
+
+        var appendData = '<tr>\
+                        <th>Room Type</th>\
+                        <th>Total</th>\
+                        <th>Actual</th>\
+                        </tr>';
+
+        $.each(data.ClassRoomTypeList, function (i, classroomType) {
+
+            appendData += '<tr>\
+                        <td data-title="Room Type">' + classroomType.ClassSession + '</td>\
+                        <td data-titlte="Total" class="number-center">' + classroomType.Total + '</td>\
+                        <td data-title="Actual" class="number-center">' + classroomType.Available + '</td>\
+                        <tr>';
+        });
+
+
+        classroomTypetbl.html(appendData);
+    }
+}
+
+function bindCaseNoteExecutive(data) {
+
+
+    if (data != null && data.listCaseNote != null && data.listCaseNote.length > 0) {
+        //var caseNoteArray = [];
+
+
+        //$.each(data.listCaseNote, function (i, caseNote) {
+
+        //    caseNoteArray.push({
+        //        "Name": caseNote.Month, "Value": parseInt(caseNote.Percentage) == caseNote.Percentage ? parseInt(caseNote.Percentage) : caseNote.Percentage
+        //    });
+
+        //});
+
+        makeCaseNoteChart(data.listCaseNote);
+
+    }
+
+  
+}
+
+function bindInkindExecutive(data) {
+    if (data != null) {
+        $('#txtThermHours').val(data.ThermHours);
+        $('#txtThermDollars').val(data.ThermDollars);
+        $('#txtTotalHours').val(data.TotalHours);
+        $('#txtTotalDollars').val(data.TotalDollars);
+        jilioThermExecutiveDashboard();
+    }
+}
+
+function bindDisabilitiesExecutive(data) {
+   
+
+    if(data!=null)
+    {
+        $('#dis-p').html(data.DisabilityPercentage + ' %');
+    }
+}
+
+
+function bindOverIncomeExecutive(data) {
+
+   
+    if (data != null) {
+        $('#ov-p').html(data.FamilyOverIncome + ' %');
+    }
+}
+
+
+function bindWaitingListExecutive(data) {
+  
+
+    if(data!=null)
+    {
+        $('#wait-p').html(data.WaitingList + ' %');
+        $('#wait-count').html(data.WaitingListCount);
+    }
+}
+
+
+
+$(document).ready(function () {
+
+
+
+
+
+    // GoogleChart();
+    //  CaseNoteAmChart();
+
+
+
+
+    anchorCurrentEnrollment = $('#anchorCurrentEnrollment');
+    anchorEnrolledByProgram = $('#anchorEnrolledByProgram');
+    anchorMissingScreening = $('#anchorMissingScreening');
+    anchorClassroomType = $('#anchorClassroomType');
+    anchorCaseNote = $('#anchorCaseNote');
+    anchorInkind = $('#anchorInkind');
+    anchorDisabilities = $('#anchorDisabilities');
+    anchorOverIncome = $('#anchorOverIncome');
+    anchorWaitingList = $('#anchorWaitingList');
+
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+
+    $('[data-toggle="tooltip"]').on('click', function () {
+
+
+        $(this).tooltip('hide');
+    });
+
 
     prgYearMinDate = new Date($('#ProgramYearStartDate').val());
 
@@ -92,6 +471,72 @@ $(function () {
         $('#seatsDatetimePicker').datetimepicker('show');
     });
 
+
+
+
+    anchorCurrentEnrollment.on('click', function () {
+
+        
+        refreshDashboardBySection(this, dashboardSectionType.CurrentEnrollment, bindCurrentEnrollment);
+    });
+
+
+    anchorEnrolledByProgram.on('click', function () {
+
+        refreshDashboardBySection(this, dashboardSectionType.EnrolledByProgram, bindEnrolledByProgram);
+
+
+    });
+
+
+    anchorMissingScreening.on('click', function () {
+
+        refreshDashboardBySection(this, dashboardSectionType.MissingScreening, bindMissingScreening);
+
+    });
+
+
+    anchorClassroomType.on('click', function () {
+
+        refreshDashboardBySection(this, dashboardSectionType.ClassroomType, bindClasroomType);
+
+
+    });
+
+    anchorCaseNote.on('click', function () {
+
+
+
+        refreshDashboardBySection(this, dashboardSectionType.CaseNoteAnalysis, bindCaseNoteExecutive);
+
+    });
+
+    anchorInkind.on('click', function () {
+        refreshDashboardBySection(this, dashboardSectionType.InKindHoursDollars, bindInkindExecutive);
+
+
+    });
+
+    anchorDisabilities.on('click', function () {
+
+        refreshDashboardBySection(this, dashboardSectionType.Disabilities, bindDisabilitiesExecutive);
+    });
+
+    anchorOverIncome.on('click', function () {
+
+        refreshDashboardBySection(this, dashboardSectionType.OverIncome, bindOverIncomeExecutive);
+
+    });
+
+    anchorWaitingList.on('click', function () {
+
+
+        refreshDashboardBySection(this, dashboardSectionType.WaitingList, bindWaitingListExecutive);
+    });
+
+
+
+    getADASeatsDaily();
 
 
 
@@ -364,57 +809,20 @@ $(function () {
     ///3000
     ///300000
     //120000
+
+
+    if (caseNoteJson != null && caseNoteJson.length > 0) {
+        makeCaseNoteChart(caseNoteJson);
+    }
+
+
 });
 
 
 $(window).load(function () {
 
-    GoogleChart();
-    var hours = parseFloat($('#txtThermHours').val()).toFixed(0);
-    var _txtDollars = $('#txtThermDollars').val();
-    var _flotDollars =_txtDollars;
-   // _txtDollars = 
-
-    for (var i = 0; i < hours.length; i++) {
-        hours = hours.replace(hours.charAt(i), '0');
-    }
-    var totHours = 0;
-    if ($('#txtTotalHours').val() != "")
-        totHours = parseInt($('#txtTotalHours').val());
-    else
-        totHours = parseFloat("1" + hours);
-
-    var oTherm1 = new jlionThermometer(0, totHours, false, false);
-    oTherm1.RefreshByID('txtThermHours');
-
-    var Dollars = parseFloat(_flotDollars).toFixed(0);
-    for (var i = 0; i < Dollars.length; i++) {
-        Dollars = Dollars.replace(Dollars.charAt(i), '0');
-    }
-    var totalDOllers = 0;
-    if ($('#txtTotalDollars').val() != "")
-        totalDOllers = parseInt($('#txtTotalDollars').val());
-    else
-        totalDOllers = parseFloat("1" + Dollars);
-    var oTherm = new jlionThermometerDollars(0, totalDOllers, true, false);
+    jilioThermExecutiveDashboard();
 
    
-
-    $('#txtThermDollars').val(parseFloat(_flotDollars));
-
-  
-    oTherm.RefreshByID('txtThermDollars');
-
-    $('#bar').removeClass('barDollarThermo').addClass('barHoursThermo');
-    var height = $('.barHoursThermo').height() + 9;
-    $('.barHoursThermo').css('height', height + 'px');
-    $('#thermometer .Title').text('');
-
-
-    $('#thermometer .CurrentValue').text(formatCurrency($('#txtThermHours').val()) + ' Hours');
-
-    $('#thermometer-hours .Title').text('');
-
-    $('#thermometer-hours .CurrentValue').text("$ " + formatCurrency($('#txtThermDollars').val()));
 
 });

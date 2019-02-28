@@ -32,6 +32,7 @@ using iTextSharp.tool.xml.pipeline.end;
 using iTextSharp.tool.xml.pipeline.css;
 using iTextSharp.tool.xml.parser;
 using Fingerprints.Utilities;
+using System.Threading.Tasks;
 
 namespace Fingerprints.Controllers
 {
@@ -1350,6 +1351,8 @@ namespace Fingerprints.Controllers
                     TempData["AvailableDiagnosedDisease"] = _familyinfo.AvailableDiagnosedDisease;
                     TempData["AvailableDental"] = _familyinfo.AvailableDental;
                     //End
+
+                    _familyinfo.NewAddressHousehold = new FamilyHousehold();
                     return View(_familyinfo);
                 }
                 else
@@ -1465,6 +1468,9 @@ namespace Fingerprints.Controllers
                         ViewBag.tabpage = "3";
                         ViewBag.message = " Parent/Guardian deleted successfully.";
                     }
+
+                    obj.NewAddressHousehold = new FamilyHousehold();
+
                     return View(obj);
                 }
             }

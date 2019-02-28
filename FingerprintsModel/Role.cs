@@ -244,6 +244,7 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
         public bool isAllowIncome { get; set; }
         public string ActiveProgramYear { get; set; }
+        public string UserId { get; set; }
     }
 
 

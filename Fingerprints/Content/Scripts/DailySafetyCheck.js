@@ -397,7 +397,7 @@ $(function () {
 
             },
             error: function (er) {
-                alert(er);
+                //alert(er);
             }
         });
 

@@ -85,6 +85,23 @@ namespace FingerprintsModel
             HomeBased =1
 
         }
+
+        /// <summary>
+        /// Enumeration for different sections in the Executive Dashboard
+        /// </summary>
+        public enum DashboardSectionType
+        {
+            CurrentEnrollment=1,
+            EnrolledByProgram=2,
+            MissingScreening=3,
+            ClassroomType=4,
+            CaseNoteAnalysis=5,
+            InKindHoursDollars=6,
+            Disabilities=7,
+            OverIncome=8,
+            WaitingList=9
+        }
+
         //public static string GetDescription<T>(this T e) where T : IConvertible
         //{
         //    if (e is Enum)

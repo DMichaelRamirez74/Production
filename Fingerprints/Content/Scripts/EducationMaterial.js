@@ -204,7 +204,7 @@ $(function () {
                 SaveMaterial();
             },
             error: function (er) {
-                alert(er);
+                //alert(er);
             }
         });
 

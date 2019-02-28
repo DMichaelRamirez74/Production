@@ -8,84 +8,101 @@
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
 
-@section Script{
 
+@section Style
+{
+    <link href="~/Content/css/EACDashboard.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+    <link href="~/Content/css/jliontherm.css" rel="stylesheet" />
+    <link href="~/Content/Select2-3.5.3/select2.css" rel="stylesheet" />
+    <style>
+            .sp-slots-per {
+                color: #3498db !important;
+            }
+
+            .lbl-slots-per {
+                font-size: 1.3em;
+            }
+
+            .edu-table-enroll-center h2 {
+                margin: 0;
+                padding: 25px 10px;
+                color: #fff;
+                font-size: 24px;
+                text-align: center;
+                font-weight: bold;
+                background: #b225de;
+                padding-top: 35px;
+            }
+            /*.edu-tbl-all-violet{
+                background:#b225de !important;
+        }*/
+
+            .edu-tbl-all-violet {
+                background: #c770e2 !important;
+            }
+
+
+            .edu-title-violet h2 {
+                background: #b225de !important;
+            }
+
+            .edu-table-enroll-center tr th {
+                color: #c770e2 !important;
+                background: #fff;
+            }
+
+
+
+            .select2-container {
+                width: 300px;
+            }
+
+            .select2-choice {
+                height: 35px !important;
+            }
+
+
+            .edu-tbl-title h2 {
+                font-size: 22px !important;
+            }
+
+            .clients-served-div {
+                color: #b225de;
+            }
+
+            .modal-open {
+                overflow: auto !important;
+                padding-right: 0 !important;
+            }
+    </style>
 }
 
 @section maincontentholder
         {
 
-    <link href="~/Content/css/EACDashboard.css" rel="stylesheet" />
-    @*<script src="http://www.jlion.com/js/jquery-1.6.1.js"></script>*@
+
+
+    <script>
+
+        var caseNoteJson=@(Model!=null ? Html.Raw(Json.Encode(Model.listCaseNote)) : null);
+
+        var dashboardSectionType=@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.ExecutiveDashBoard.DashboardSectionType)));
+
+    </script>
+
+
     <script src="~/Content/Scripts/jliontherm.js"></script>
     <script src="~/Content/Scripts/jliontherm-hours.js"></script>
-    <link href="~/Content/css/jliontherm.css" rel="stylesheet" />
-    <link href="~/Content/css/style.css" rel="stylesheet" />
     <script src="~/Scripts/amcharts.js"></script>
     <script src="~/Scripts/serial.js"></script>
     <script src="~/Scripts/light.js"></script>
-    <link href="~/Content/Select2-3.5.3/select2.css" rel="stylesheet" />
-
-    <style>
-        .sp-slots-per
-        {
-            color:#3498db !important
-        }
-        .lbl-slots-per
-        {
-            font-size: 1.3em;
-        }
-        .edu-table-enroll-center h2 {
-            margin: 0;
-            padding: 25px 10px;
-            color: #fff;
-            font-size: 24px;
-            text-align: center;
-            font-weight: bold;
-            background: #b225de;
-            padding-top: 35px;
-        }
-        /*.edu-tbl-all-violet{
-                background:#b225de !important;
-        }*/
-
-           .edu-tbl-all-violet {
-    background: #c770e2!important;
-  
-}
+    <script src="~/Content/Scripts/EACDashboard.js"></script>
+    <script src="~/Content/Select2-3.5.3/select2.js"></script>
 
 
-        .edu-title-violet h2{
-            background:#b225de!important;
-        }
-        .edu-table-enroll-center tr th {
-               color: #c770e2 !important;
-               background: #fff;
-        }
-
-   
-
-        .select2-container {
-            width:300px;
-
-        }
-        .select2-choice {
-         height:35px !important;
-        }
 
 
-         .edu-tbl-title h2 {
-            font-size: 22px !important;
-        }
-
-        .clients-served-div{
-          color:  #b225de;
-        }
-          .modal-open {
-    overflow: auto!important;padding-right:0!important;
-}
-       
-    </style>
     <div class="container-fluid">
         <div class="col-xs-12 no-padding">
             <div class="right-side-container-ch">
@@ -98,7 +115,7 @@
                     </div>
                 </div>
 
-                @Html.HiddenFor(m=>m.ProgramYearStartDate)
+                @Html.HiddenFor(m => m.ProgramYearStartDate)
 
                 <div class="edu-block-all" style="position:relative;">
                     <div class="row">
@@ -125,34 +142,35 @@
                                                 <li role="presentation" class=""><a href="/AgencyUser/DemographicPercentage" aria-controls="Demo" role="tab" class="tab-pad">Demographic</a></li>
                                             }
                                             @*else
-                                            {
-                                                <li role="presentation" class=""><a href="#" aria-controls="Demo" role="tab" class="tab-pad">Demographic</a></li>
+                                                {
+                                                    <li role="presentation" class=""><a href="#" aria-controls="Demo" role="tab" class="tab-pad">Demographic</a></li>
 
-                                            }*@
-                                           
-                                             @{ 
+                                                }*@
+
+                                            @{
                                                 var timelineRoles = new string[] {
                                                    EnumHelper.GetEnumDescription(RoleEnum.Executive).ToLowerInvariant(),
                                                     EnumHelper.GetEnumDescription(RoleEnum.AreaManager).ToLowerInvariant(),
                                                     EnumHelper.GetEnumDescription(RoleEnum.CenterManager).ToLowerInvariant()
                                                 };
                                             }
-@if ( timelineRoles.Contains( Session["RoleId"].ToString()) )
-{
+                                            @if (timelineRoles.Contains(Session["RoleId"].ToString()))
+                                            {
 
-    var RandomChild = new FingerprintsData.RosterData().GetChildofTheDay();
+                                                var RandomChild = new FingerprintsData.RosterData().GetChildofTheDay();
 
-                   <li role="presentation" class=""><a  href="@Url.Action("Timeline", "Roster")?clientid=@RandomChild" aria-controls="Demo" role="tab" class="tab-pad">Child of the day</a></li>
-}
+                                                <li role="presentation" class=""><a href="@Url.Action("Timeline", "Roster")?clientid=@RandomChild" aria-controls="Demo" role="tab" class="tab-pad">Child of the day</a></li>
+                                            }
 
-<li role="presentation" class=""><a href="@Url.Action("AgencystaffDashboard", "Home")" aria-controls="Demo" role="tab" class="tab-pad">Center Overview</a></li>
+                                            <li role="presentation" class=""><a href="@Url.Action("AgencystaffDashboard", "Home")" aria-controls="Demo" role="tab" class="tab-pad">Center Overview</a></li>
 
-
+                                            @*   <li role="presentation" class=""><a href="@Url.Action("AgencystaffDashboard", "Home")" aria-controls="Demo" role="tab" class="tab-pad">Staff Schedule</a></li>*@
                                         </ul>
                                         <!-- Tab panes -->
                                         <div class="tab-content tb-bd col-xs-12">
-                                            @if (Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.Executive).ToLowerInvariant()
-                                                || Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant())                                        {
+                                            @if (Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.Executive).ToLowerInvariant()
+        || Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant())
+                                            {
                                                 <div role="tabpanel" class="tab-pane fade  ma-tab active in" id="Agency">
                                                     <div class="col-md-3 col-sm-6 col-xs-12 tab-img-al">
                                                         <div class="tab-img">
@@ -229,23 +247,30 @@
 
                                 @*@Html.Partial("~/Views/Partialviews/_AbsenceReport.cshtml")*@
 
-                     
-                                   
 
-                                   	
-                                </div>
+
+
+
+                            </div>
 
                             <div class="col-xs-12 table-block-res">
                                 <div class="row">
 
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all  edu-tbl-all-violet">
-                                            <div class="edu-tbl-title edu-title-violet">
+                                            <div class="edu-tbl-title edu-title-violet press-btn-relative">
+                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Current Enrollment">
+                                                    <div class="press-but">
+                                                        <a class="butt" href="javacript:void(0);" id="anchorCurrentEnrollment">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
                                                 <h2>Current Enrollment</h2>
                                                 <div class="pin"><img src="~/Images/pin.png"></div>
                                             </div>
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
-                                                <table class="edu-table-block  edu-table-enroll-center col-xs-12 no-padding">
+                                                <table class="edu-table-block edu-table-enroll-center col-xs-12 no-padding" id="table-current-enroll">
 
                                                     <tr>
                                                         <th>Enrollment Type</th>
@@ -274,12 +299,19 @@
 
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all">
-                                            <div class="edu-tbl-title">
+                                            <div class="edu-tbl-title press-btn-relative">
+                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Enrolled By Program">
+                                                    <div class="press-but">
+                                                        <a class="butt" href="javascript:void(0);" id="anchorEnrolledByProgram">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
                                                 <h2>Enrolled By Program</h2>
                                                 <div class="pin"><img src="~/Images/pin.png"></div>
                                             </div>
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
-                                                <table class="edu-table-block  edu-table-enroll col-xs-12 no-padding">
+                                                <table class="edu-table-block edu-table-enroll col-xs-12 no-padding" id="table-enroll-program">
 
                                                     <tr>
                                                         <th>Program</th>
@@ -307,12 +339,19 @@
                                     </div>
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-blue">
-                                            <div class="edu-tbl-title edu-title-blue">
+                                            <div class="edu-tbl-title edu-title-blue press-btn-relative">
+                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Missing Screening">
+                                                    <div class="press-but">
+                                                        <a class="butt" href="javascript:void(0);" id="anchorMissingScreening">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
                                                 <h2>Missing Screening</h2>
                                                 <div class="pin"><img src="~/Images/pin.png"></div>
                                             </div>
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
-                                                <table class="edu-table-block edu-table-missing col-xs-12 no-padding">
+                                                <table class="edu-table-block edu-table-missing col-xs-12 no-padding" id="table-missing-scr">
                                                     <tr>
                                                         <th>Screen Name</th>
                                                         <th>Count</th>
@@ -333,12 +372,19 @@
                                     </div>
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-red">
-                                            <div class="edu-tbl-title edu-title-red">
+                                            <div class="edu-tbl-title edu-title-red press-btn-relative">
+                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Classroom Type">
+                                                    <div class="press-but">
+                                                        <a class="butt" href="javascript:void(0);" id="anchorClassroomType">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
                                                 <h2>Classroom Type</h2>
                                                 <div class="pin"><img src="~/Images/pin.png"></div>
                                             </div>
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
-                                                <table class="edu-table-block edu-table-class col-xs-12 no-padding">
+                                                <table class="edu-table-block edu-table-class col-xs-12 no-padding" id="table-classroomtype">
                                                     <tr>
                                                         <th>Room Type</th>
                                                         <th>Total</th>
@@ -357,10 +403,10 @@
 
 
                                                         @*<tr style="background:#164a7b;color:#fff;">
-                                                            <td>Total</td>
-                                                            <td class="number-center" style="color:#fff;">@Model.ClassRoomTypeList.Sum(x=>Convert.ToInt64(x.Total))</td>
-                                                            <td class="number-center"  style="color:#fff;">@Model.ClassRoomTypeList.Sum(x => Convert.ToInt64(x.Available))</td>
-                                                        </tr>*@
+                                                                <td>Total</td>
+                                                                <td class="number-center" style="color:#fff;">@Model.ClassRoomTypeList.Sum(x=>Convert.ToInt64(x.Total))</td>
+                                                                <td class="number-center"  style="color:#fff;">@Model.ClassRoomTypeList.Sum(x => Convert.ToInt64(x.Available))</td>
+                                                            </tr>*@
 
                                                     }
                                                 </table>
@@ -368,191 +414,228 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-black">
+                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-black press-btn-relative">
+                                            <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Case Note Analysis">
+                                                <div class="press-but">
+                                                    <a class="butt" href="javascript:void(0);" id="anchorCaseNote">
+                                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
                                             <div class="edu-tbl-title edu-title-black">
                                                 <h2>Case Note Analysis</h2>
                                             </div>
                                             <div class="graph-img1">
-                                                <div id="chartdiv" style="height: 350px;margin-left: -26px;margin-top: -25px;">
+                                                <div id="chartdiv" style="height: 325px;margin-left: -26px;margin-top: -25px;">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                            <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-graph">
-                                                <div class="graph-img">
-                                                    <div id="thermometer"></div>
-                                                    <div id="thermometer-hours"></div>
-
-                                                    <div id="value">
-                                                        <input type="text" size="10" id="txtThermHours" value="@Model.ThermHours" style="display:none;" />
-                                                        <input type="text" size="10" id="txtThermDollars" value="@Model.ThermDollars" style="display:none;" />
-                                                        <input type="text" size="10" id="txtTotalHours" value="@Model.TotalHours" style="display:none;" />
-                                                        <input type="text" size="10" id="txtTotalDollars" value="@Model.TotalDollars" style="display:none;" />
-
-                                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-graph press-btn-relative">
+                                            <div class="press-but-block" style="top: -35px;right:160px;" data-toggle="tooltip" title="Re-Calculate In-Kind Hours/Dollars">
+                                                <div class="press-but">
+                                                    <a class="butt" href="javascript:void(0);" id="anchorInkind">
+                                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                            <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-orange">
-                                                <div class="edu-tbl-title edu-title-orange">
-                                                    <h2>Employee Birthday</h2>
-                                                    <div class="pin"><img src="~/Images/pin.png"></div>
-                                                </div>
-                                                <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
+                                            <div class="graph-img">
+                                                <div id="thermometer"></div>
+                                                <div id="thermometer-hours"></div>
 
-                                                    <table class="edu-table-block edu-table-birthday col-xs-12 no-padding">
-                                                        <tr>
-                                                            <th>Name</th>
-                                                            <th>Date</th>
-                                                        </tr>
-                                                        @if (Model.EmployeeBirthdayList != null && Model.EmployeeBirthdayList.Count() > 0)
-                                                        {
-                                                            foreach (FingerprintsModel.ExecutiveDashBoard.EmployeeBirthday empBirthday in Model.EmployeeBirthdayList)
-                                                            {
-                                                                <tr>
-                                                                    <td>@empBirthday.Staff</td>
-                                                                    <td>@empBirthday.DateOfBirth</td>
-                                                                </tr>
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            <tr><td colspan="2">No Birthday Found.</td></tr>
-                                                        }
-                                                    </table>
+                                                <div id="value">
+                                                    <input type="text" size="10" id="txtThermHours" value="@Model.ThermHours" style="display:none;" />
+                                                    <input type="text" size="10" id="txtThermDollars" value="@Model.ThermDollars" style="display:none;" />
+                                                    <input type="text" size="10" id="txtTotalHours" value="@Model.TotalHours" style="display:none;" />
+                                                    <input type="text" size="10" id="txtTotalDollars" value="@Model.TotalDollars" style="display:none;" />
 
                                                 </div>
                                             </div>
                                         </div>
-
-
-
-                                    @*<div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                        <div class="col-xs-12 no-padding edu-tbl-all" style="background:#1b9e9b;">
-                                            <div class="edu-tbl-title edu-title-orange" style="background:#68d6d2 !important;">
-                                                <h2 style="background:#226d6a !important;">Child of the Day</h2>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-orange">
+                                            <div class="edu-tbl-title edu-title-orange">
+                                                <h2>Employee Birthday</h2>
                                                 <div class="pin"><img src="~/Images/pin.png"></div>
                                             </div>
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
 
-                                                <h3 class="text-center" style="margin-top:100px;">
-                                                <a style="color:#fff;text-decoration:underline;"
-                                                    href="@Url.Action("TimeLine","Roster")?clientId=" target="_blank" >James Clear</a></h3>
+                                                <table class="edu-table-block edu-table-birthday col-xs-12 no-padding">
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                    @if (Model.EmployeeBirthdayList != null && Model.EmployeeBirthdayList.Count() > 0)
+                                                    {
+                                                        foreach (FingerprintsModel.ExecutiveDashBoard.EmployeeBirthday empBirthday in Model.EmployeeBirthdayList)
+                                                        {
+                                                            <tr>
+                                                                <td>@empBirthday.Staff</td>
+                                                                <td>@empBirthday.DateOfBirth</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr><td colspan="2">No Birthday Found.</td></tr>
+                                                    }
+                                                </table>
 
-                                          
-
-                                            </div>
-                                        </div>
-                                    </div>*@
-
-
-                                </div>
-                            </div>
-                                <div class="col-xs-12 content-block">
-
-                                    <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
-                                        <div class="tab-img">
-                                            <img src="~/Images/tab-img.png">
-                                            <div class="tab-desc">
-                                                <h3>Disabilities</h3>
-                                                <p>@Model.DisabilityPercentage %</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
-                                        <div class="tab-img">
-                                            <img src="~/Images/tab-img.png">
-                                            <div class="tab-desc">
-                                                <h3>Over Income</h3>
-                                                <p class="blue-colour">@Model.FamilyOverIncome %</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
-                                        <div class="tab-img">
-                                            <img src="~/Images/tab-img.png">
-                                            <div class="tab-desc">
-                                                <h3 style="padding-top:0;">Waiting List</h3>
-                                                <p class="orange-colour" style="font-size:30px;">@Model.WaitingList %</p>
-                                                <p class="orange-colour" style="font-size:24px;color: #2ecc71!important;"><span></span> @Model.WaitingListCount</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-
-                        </div>
-
-                    </div>
-                    <div class="footer-bg-img-al">
-                        <div class="footer-bg-img">
-                            <img src="~/Images/footer-img1.png" class="footer-im1">
-                            <img src="~/Images/footer-img2.png" class="footer-im2">
-                        </div>
-                    </div>
-                </div>
 
 
 
+                                    @*<div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                                            <div class="col-xs-12 no-padding edu-tbl-all" style="background:#1b9e9b;">
+                                                <div class="edu-tbl-title edu-title-orange" style="background:#68d6d2 !important;">
+                                                    <h2 style="background:#226d6a !important;">Child of the Day</h2>
+                                                    <div class="pin"><img src="~/Images/pin.png"></div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
+
+                                                    <h3 class="text-center" style="margin-top:100px;">
+                                                    <a style="color:#fff;text-decoration:underline;"
+                                                        href="@Url.Action("TimeLine","Roster")?clientId=" target="_blank" >James Clear</a></h3>
 
 
-                <div class="modal fade" id="myModalSlots" role="dialog" style="display: none;" data-keyboard="false" data-backdrop="static">
-                    <div class="modal-dialog">
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <input type="hidden" name="childid" id="childid" value="">
-                                <input type="hidden" name="childname" id="childname" value="">
-                                <label class="alert-dismissible" for="current_password">Slots</label>
-                            </div>
-                            <div class="form-group-al">
-                                <div class="form-group input-container">
 
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-4">
-                                            <label class="control-label" for="current_password">Date:</label>
-                                        </div>
-                                        <div class='col-xs-12 col-sm-4'>
-                                            <div class="form-group">
-                                                <div class='input-group date'>
-                                                    <input type='text' class="form-control txtslotdate txt-date txt-mandatory" maxlength="12" placeholder="MM/DD/YYYY" id='slotsDatetimePicker' />
-                                                    <span class="input-group-addon datepicker-icon slots-icon" style="cursor:pointer;">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-4">
-                                            @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
-                                            <button class="btn-slot-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
-                                        </div>
+                                        </div>*@
 
-                                    </div>
 
-                                    <div class="err-container" style="height:15px;">
-                                        <label class="control-label" for="current_password"></label>
-                                        <span class="error-message slots-message-empty error-message-empty" style="margin-top:10px;display:inline-block;">Date is mandatory</span>
-                                        <span class="error-message slots-invalid-date error-invalid-date" style="margin-top:10px;display:inline-block;">Invalid Date</span>
-                                        <span class="error-message slots-future-date error-future-date" style="margin-top:10px;display:inline-block;">Future date is not allowed</span>
+                                </div>
+                            </div>
+
+
+                            <div class="col-xs-12 content-block">
+
+                                <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
+                                    <div class="tab-img">
+                                        <div class="press-but-block press-but-block-ch" data-toggle="tooltip" title="Re-Calculate Disabilities">
+                                            <div class="press-but">
+                                                <a class="butt" href="javascript:void(0);" id="anchorDisabilities">
+                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <img src="~/Images/tab-img.png">
+                                        <div class="tab-desc">
+                                            <h3>Disabilities</h3>
+                                            <p id="dis-p">@Model.DisabilityPercentage %</p>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
+                                    <div class="tab-img">
+                                        <div class="press-but-block press-but-block-ch" data-toggle="tooltip" title="Re-Calculate Over Income">
+                                            <div class="press-but">
+                                                <a class="butt" href="javascript:void(0);" id="anchorOverIncome">
+                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <img src="~/Images/tab-img.png">
+                                        <div class="tab-desc">
+                                            <h3>Over Income</h3>
+                                            <p class="blue-colour" id="ov-p">@Model.FamilyOverIncome %</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-6 col-xs-12 tab-img-al">
+                                    <div class="tab-img">
+                                        <div class="press-but-block press-but-block-ch" data-toggle="tooltip" title="Re-Calculate Waiting List">
+                                            <div class="press-but">
+                                                <a class="butt" href="javascript:void(0);" id="anchorWaitingList">
+                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <img src="~/Images/tab-img.png">
+                                        <div class="tab-desc">
+                                            <h3 style="padding-top:0;">Waiting List</h3>
+                                            <p class="orange-colour" style="font-size:30px;" id="wait-p">@Model.WaitingList %</p>
+                                            <p class="orange-colour" style="font-size:24px;color: #2ecc71!important;"><span id="wait-count">@Model.WaitingListCount</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
+
+                </div>
+                <div class="footer-bg-img-al">
+                    <div class="footer-bg-img">
+                        <img src="~/Images/footer-img1.png" class="footer-im1">
+                        <img src="~/Images/footer-img2.png" class="footer-im2">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            <div class="modal fade" id="myModalSlots" role="dialog" style="display: none;" data-keyboard="false" data-backdrop="static">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <input type="hidden" name="childid" id="childid" value="">
+                            <input type="hidden" name="childname" id="childname" value="">
+                            <label class="alert-dismissible" for="current_password">Slots</label>
+                        </div>
+                        <div class="form-group-al">
+                            <div class="form-group input-container">
+
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4">
+                                        <label class="control-label" for="current_password">Date:</label>
+                                    </div>
+                                    <div class='col-xs-12 col-sm-4'>
+                                        <div class="form-group">
+                                            <div class='input-group date'>
+                                                <input type='text' class="form-control txtslotdate txt-date txt-mandatory" maxlength="12" placeholder="MM/DD/YYYY" id='slotsDatetimePicker' />
+                                                <span class="input-group-addon datepicker-icon slots-icon" style="cursor:pointer;">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4">
+                                        @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
+                                        <button class="btn-slot-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
+                                    </div>
+
+                                </div>
+
+                                <div class="err-container" style="height:15px;">
+                                    <label class="control-label" for="current_password"></label>
+                                    <span class="error-message slots-message-empty error-message-empty" style="margin-top:10px;display:inline-block;">Date is mandatory</span>
+                                    <span class="error-message slots-invalid-date error-invalid-date" style="margin-top:10px;display:inline-block;">Invalid Date</span>
+                                    <span class="error-message slots-future-date error-future-date" style="margin-top:10px;display:inline-block;">Future date is not allowed</span>
+                                </div>
+                            </div>
 
 
                             <div class="row">
                                 <div class="form-group text-center">
                                     <label class="lbl-slots-per">Percentage Daily &nbsp;&nbsp; <span class="sp-slots-per">0 %</span></label>
-                                  
+
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-4" >Active Slots</label>
+                                    <label class="control-label col-xs-4">Active Slots</label>
                                     <div style="width:auto;display:inline-block;margin-top:10px;width:auto;margin-left: 15px;" class="col-xs-pull-8">
                                         <span class="sp-slots-count">0</span>
                                     </div>
@@ -560,7 +643,7 @@
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-4" >Expiring Slots</label>
+                                    <label class="control-label col-xs-4">Expiring Slots</label>
                                     <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-xs-8">
                                         <span class="sp-expiringslots-count">0</span>
                                     </div>
@@ -568,7 +651,7 @@
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-4" >Empty Slots</label>
+                                    <label class="control-label col-xs-4">Empty Slots</label>
                                     <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-xs-8">
                                         <span class="sp-emptyslots-count">0</span>
                                     </div>
@@ -603,37 +686,37 @@
                         <div class="form-group-al">
                             <div class="form-group input-container">
 
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-4">
-                                            <label class="control-label" for="current_password">Date:</label>
-                                        </div>
-                                        <div class='col-xs-12 col-sm-4'>
-                                            <div class="form-group">
-                                                <div class='input-group date'>
-                                                    <input type='text' class="form-control txtseatdate txt-date txt-mandatory" maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker' />
-                                                    <span class="input-group-addon datepicker-icon seats-icon" style="cursor:pointer;">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
-                                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4">
+                                        <label class="control-label" for="current_password">Date:</label>
+                                    </div>
+                                    <div class='col-xs-12 col-sm-4'>
+                                        <div class="form-group">
+                                            <div class='input-group date'>
+                                                <input type='text' class="form-control txtseatdate txt-date txt-mandatory" maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker' />
+                                                <span class="input-group-addon datepicker-icon seats-icon" style="cursor:pointer;">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
                                             </div>
                                         </div>
-                                        <div class="col-xs-12 col-sm-4">
-                                            @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
-                                            <button class="btn-seat-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
-                                        </div>
-
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4">
+                                        @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
+                                        <button class="btn-seat-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
                                     </div>
 
-                                    @*<label class="control-label" for="current_password" style="width:180px;">Date:</label>
-                                <input name="CNotes" style="width: 30%;display:inline-block" class="form-control txtseatdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">
-                                <button class="btn-seat-submit address-btn btn btn-primary" style="width:auto;display:inline-block;">Submit</button>*@
-                                    <div class="err-container" style="height:15px;">
-                                        <label class="control-label" for="current_password" style="width:180px;"></label>
-                                        <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:inline-block;">Date is mandatory</span>
-                                        <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:inline-block;">Invalid Date</span>
-                                        <span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:inline-block;">Future date is not allowed</span>
-                                    </div>
                                 </div>
+
+                                @*<label class="control-label" for="current_password" style="width:180px;">Date:</label>
+                                    <input name="CNotes" style="width: 30%;display:inline-block" class="form-control txtseatdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">
+                                    <button class="btn-seat-submit address-btn btn btn-primary" style="width:auto;display:inline-block;">Submit</button>*@
+                                <div class="err-container" style="height:15px;">
+                                    <label class="control-label" for="current_password" style="width:180px;"></label>
+                                    <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:inline-block;">Date is mandatory</span>
+                                    <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:inline-block;">Invalid Date</span>
+                                    <span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:inline-block;">Future date is not allowed</span>
+                                </div>
+                            </div>
 
                             <div class="form-group" style="margin-top:10px;">
                                 <div class="col-xs-12" style="border: 1px solid #9B58B4; width: 80%;left: 10%; right: 10%;background:#9B58B4;">
@@ -682,15 +765,71 @@
             </div>
         </div>
     </div>
- 
 
 
 
 
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+
     <script type="text/javascript" language="javascript">
-        google.load("visualization", "1", { packages: ["corechart"] });
+
+
+        //$(function () {
+
+        //    var chart;
+
+        //    var chartData = [
+        //        // Data set #1
+        //        [
+        //            { month: "DEC", percentage: 32 },
+        //            { month: "JAN", percentage: 36 },
+        //            { month: "FEB", percentage: 7 },
+
+        //        ]
+        //    ]
+        //    AmCharts.ready(function () {
+        //        // RADAR CHART
+        //        chart = new AmCharts.AmSerialChart();
+        //        chart.dataProvider = chartData[0];
+        //        chart.categoryField = "month";
+        //        chart.startDuration = 1;
+        //        chart.sequencedAnimation = false;
+
+        //        // VALUE AXIS
+        //        var valueAxis = new AmCharts.ValueAxis();
+        //        valueAxis.axisAlpha = 0.15;
+        //        valueAxis.minimum = 0;
+        //        valueAxis.dashLength = 2;
+        //        chart.addValueAxis(valueAxis);
+
+        //        // GRAPH
+        //        var graph = new AmCharts.AmGraph();
+        //        graph.type = "column";
+        //        graph.valueField = "percentage";
+        //        graph.fillAlphas = 0.6;
+        //        graph.balloonText = "Dec percentage: [[value]]";
+        //        chart.addGraph(graph);
+
+        //        // WRITE
+        //        chart.write("chartdiv");
+        //    });
+
+        //    function selectDataset(d) {
+        //        chart.dataProvider = chartData[d];
+        //        chart.validateData();
+        //        chart.animateAgain();
+        //    }
+        //});
+
+
+
+
+
+
+
+
+
+        @*google.load("visualization", "1", { packages: ["corechart"] });
         function GoogleChart() {
             //PageLoad
             $.ajax({
@@ -752,18 +891,55 @@
                 }
             });
 
-        }
+        }*@
+
+
+
+
+
+        function CaseNoteAmChart() {
+
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                url: '@Url.Action("Barchart")',
+                data: '{}',
+                success: function (chartsdata) {
+
+                    if (chartsdata == "Error") {
+                        alert("Unable to load case not analysis!");
+                    }
+                    else {
+                        //var data = new google.visualization.DataTable();
+                        //data.addColumn('string', 'Month');
+                        //data.addColumn('number', 'Percentage');
+
+                        //for (var i = 0; i < chartsdata.length; i++) {
+
+                        //    data.addRow([chartsdata[i].Name, chartsdata[i].Value]);
+                        //}
+
+                        console.log(chartsdata);
+
+
+                        //    makeCaseNoteChart(chartsdata);
+
+
+                    }
+                },
+                error: function () {
+                    alert("Error loading data! Please try again.");
+                }
+            });
+
+        };
+
     </script>
 
-    @*<script type="text/javascript">
 
-        window.AbsenceReportData =  @Html.Raw(Json.Encode(Model.AbsenceReport));
-        window.AgencyAverage = @Html.Raw(Json.Encode(Model.AttendanceIssuePercentage));;
-    </script>*@
-    <script src="~/Content/Scripts/bootstrap.js"></script>
-    <script src="~/Scripts/Samplescript/jquery.datetimepicker.min.js"></script>
-    <script src="~/Content/Scripts/EACDashboard.js"></script>
-    <script src="~/Content/Select2-3.5.3/select2.js"></script>
+
 
 
 }

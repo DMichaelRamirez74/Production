@@ -36,142 +36,202 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Command", Command));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_GetEACDashboardDetails";
+                //   command.CommandText = "SP_GetEACDashboardDetails";
+                command.CommandText = "USP_GetExecutiveDashboard";
                 command.CommandTimeout = 120;
                 Connection.Open();
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
-                if (_dataset != null && _dataset.Tables.Count > 0)
+
+
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    //SeatsandSlots
-                    if (_dataset.Tables[0].Rows.Count > 0)
+                    //Seats and Slots
+                    if (reader.HasRows)
                     {
-                        executive.AvailablePercentage = _dataset.Tables[0].Rows[0]["AvailablePercentage"].ToString();
-                        executive.AvailableSeat = _dataset.Tables[0].Rows[0]["AvailableSeat"].ToString();
-                        executive.YesterDayAttendance = _dataset.Tables[0].Rows[0]["YesterDayAttendance"].ToString();
-                        executive.ADA = _dataset.Tables[0].Rows[0]["ADA"].ToString();
-                        executive.WaitingList =double.TryParse(_dataset.Tables[0].Rows[0]["WaitingListPercentage"].ToString(),out doubCheck) ? Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListPercentage"].ToString()), 1).ToString("N1"): 0.ToString("N1");
-                        executive.WaitingListCount = double.TryParse(_dataset.Tables[0].Rows[0]["WaitingListCount"].ToString(),out doubCheck) ?  Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListCount"].ToString()), 1).ToString():0.ToString("N1");
-                    }
-                    //EmployeeBirhday
-                    if (_dataset != null && _dataset.Tables[1].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        while (reader.Read())
                         {
-                            if (dr["Staff"] != null && dr["Staff"].ToString() != "")
+                            executive.AvailablePercentage = reader["AvailablePercentage"].ToString();
+                            executive.AvailableSeat = "0";
+                            executive.YesterDayAttendance = reader["YesterDayAttendance"].ToString();
+                            executive.ADA = "0";
+                            // executive.WaitingList = double.TryParse(reader["WaitingListPercentage"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListPercentage"].ToString()), 1).ToString("N1") : 0.ToString("N1");
+                            // executive.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
+                        }
+                    }
+
+                    //Waiting List 
+                    if (reader.NextResult() && reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            executive.WaitingList = double.TryParse(reader["WaitingListPercentage"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListPercentage"].ToString()), 1).ToString("N1") : 0.ToString("N1");
+                            executive.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
+
+                        }
+                    }
+
+                    //Employee Birthday
+                    if (reader.NextResult() && reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["Staff"] != null && reader["Staff"].ToString() != "")
                             {
                                 executive.EmployeeBirthdayList.Add(new ExecutiveDashBoard.EmployeeBirthday
                                 {
-                                    Staff = dr["Staff"].ToString(),
-                                    DateOfBirth = Convert.ToDateTime(dr["DOB"].ToString()).ToString("MMM-dd")
+                                    Staff = reader["Staff"].ToString(),
+                                    DateOfBirth = Convert.ToDateTime(reader["DOB"].ToString()).ToString("MMM-dd")
                                 });
                             }
                         }
                     }
-                    //EnrolledByProgram
-                    if (_dataset.Tables[2].Rows.Count > 0)
+
+
+                    //Enrolled By Program
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
+                        while (reader.Read())
                         {
                             executive.EnrolledProgramList.Add(new ExecutiveDashBoard.EnrolledProgram
                             {
-                                ProgramType = dr["ProgramType"].ToString(),
-                                Total = dr["Total"].ToString(),
-                                Available = dr["Available"].ToString()
+                                ProgramType = reader["ProgramType"].ToString(),
+                                Total = reader["Total"].ToString(),
+                                Available = reader["Available"].ToString()
                             });
                         }
+
                     }
+
                     //ClassRoomType
-                    if (_dataset.Tables[3].Rows.Count > 0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
+
+                        while (reader.Read())
                         {
                             executive.ClassRoomTypeList.Add(new ExecutiveDashBoard.ClassRoomType
                             {
-                                ClassSession = GetClassSession(dr["ClassSession"].ToString()),
-                                Total = dr["Total"].ToString(),
-                                Available = dr["Available"].ToString()
+                                ClassSession = GetClassSession(reader["ClassSession"].ToString()),
+                                Total = reader["Total"].ToString(),
+                                Available = reader["Available"].ToString()
                             });
                         }
                     }
+
                     //MissingScreen
-                    if (_dataset != null && _dataset.Tables[4].Rows.Count > 0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        foreach (DataRow dr in _dataset.Tables[4].Rows)
+                        while (reader.Read())
                         {
                             executive.MissingScreenList.Add(new ExecutiveDashBoard.MissingScreen
                             {
-                                Name = dr["Name"].ToString(),
-                                Screen = dr["MissingScreen"].ToString()
+                                Name = reader["Name"].ToString(),
+                                Screen = reader["MissingScreen"].ToString()
                             });
                         }
                     }
 
                     //FamilyOverIncome
-                    if (_dataset.Tables[5].Rows.Count > 0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        decimal IncomePercentage = !string.IsNullOrEmpty(_dataset.Tables[5].Rows[0][0].ToString()) ? Convert.ToDecimal(_dataset.Tables[5].Rows[0][0].ToString()) : 0;
-                        executive.FamilyOverIncome = Math.Round(IncomePercentage, 1).ToString();
+                        while (reader.Read())
+                        {
+                            decimal IncomePercentage = !string.IsNullOrEmpty(reader[0].ToString()) ? Convert.ToDecimal(reader[0].ToString()) : 0;
+                            executive.FamilyOverIncome = Math.Round(IncomePercentage, 1).ToString();
+                        }
+
                     }
+
+
                     if (string.IsNullOrEmpty(executive.FamilyOverIncome))
                         executive.FamilyOverIncome = "0";
 
                     //Disability
-                    if (_dataset.Tables[6].Rows.Count > 0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        executive.DisabilityPercentage = _dataset.Tables[6].Rows[0]["DisabilityPercentage"].ToString();
+                        while (reader.Read())
+                        {
+                            executive.DisabilityPercentage = reader["DisabilityPercentage"].ToString();
+                        }
                     }
+
                     if (string.IsNullOrEmpty(executive.DisabilityPercentage))
                         executive.DisabilityPercentage = "0";
 
                     //ThermHoursAndDollars
-                    if (_dataset.Tables[7].Rows.Count > 0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        decimal Count = _dataset.Tables[7].Rows.Count;
-                        executive.ThermHours = _dataset.Tables[7].Rows[0]["TotalHours"].ToString();
-                        executive.ThermDollars = Convert.ToDouble(_dataset.Tables[7].Rows[0]["Dollars"]).ToString();
-                            //ToString("N", CultureInfo.InvariantCulture);
-
+                        while (reader.Read())
+                        {
+                            executive.ThermHours = reader["TotalHours"].ToString();
+                            executive.ThermDollars = Convert.ToDouble(reader["Dollars"]).ToString();
+                        }
 
                     }
 
-                    //CaseNote
-                    if (_dataset.Tables[8].Rows.Count > 0)
+
+
+
+
+                    //Total Hours and Dollers
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        foreach (DataRow dr in _dataset.Tables[8].Rows)
+                        while (reader.Read())
                         {
-                            executive.TotalHours = dr["Hours"].ToString();
-                            executive.TotalDollars = dr["Budget"].ToString();
+                            executive.TotalHours = reader["Hours"].ToString();
+                            executive.TotalDollars = reader["Budget"].ToString();
                         }
                     }
 
 
                     //Get Center Based and Home Based Enrollment
-                    if (_dataset.Tables.Count>9 && _dataset.Tables[9].Rows.Count>0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        executive.EnrollmentTypeList = (from DataRow dr10 in _dataset.Tables[9].Rows
-                                                        select new ExecutiveDashBoard.EnrolledByCenterType
-                                                        {
-                                                            Total = Convert.ToString(dr10["EnrollmentCount"]),
-                                                            CenterType = ExecutiveDashBoard.GetDescription((ExecutiveDashBoard.CenterTypeEnum)Convert.ToInt32(dr10["HomeBased"]))
-                                                      }
-                                                      ).OrderBy(x => x.CenterType).ToList();
+                        while (reader.Read())
+                        {
+                            executive.EnrollmentTypeList.Add(new ExecutiveDashBoard.EnrolledByCenterType
+                            {
+                                Total = Convert.ToString(reader["EnrollmentCount"]),
+                                CenterType = ExecutiveDashBoard.GetDescription((ExecutiveDashBoard.CenterTypeEnum)Convert.ToInt32(reader["HomeBased"]))
+                            });
+                        }
+
                     }
+
+
+                    executive.EnrollmentTypeList = executive.EnrollmentTypeList.OrderBy(x => x.CenterType).ToList();
+
+
+
+                    if (reader.NextResult() && reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            executive.listCaseNote.Add(new ExecutiveDashBoard.CaseNote
+                            {
+                                Percentage = Convert.ToDecimal(reader["Percentage"]) == Convert.ToInt32(reader["Percentage"]) ? Convert.ToInt32(reader["Percentage"]).ToString() : Convert.ToString(reader["Percentage"]),
+                                Month = Convert.ToString(reader["Month"])
+                            });
+                        }
+                    }
+
 
                     /// shows demographic menu for Access roles if the returns 1.
 
-                    if(_dataset.Tables.Count>10 && _dataset.Tables[10].Rows.Count>0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[10].Rows[0]["ShowDemographic"].ToString())) ? false :
-                            Convert.ToString(_dataset.Tables[10].Rows[0]["ShowDemographic"]) == "1" ? true : false;
+                        while (reader.Read())
+                        {
+                            HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(reader["ShowDemographic"].ToString())) ? false :
+                            Convert.ToString(reader["ShowDemographic"]) == "1" ? true : false;
+                        }
                     }
 
                     /// gets the Program Year Start Date for the Executive Dashboard///
-                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[11].Rows[0]["ProgramYearStartDate"]);
+                        while (reader.Read())
+                        {
+                            executive.ProgramYearStartDate = Convert.ToString(reader["ProgramYearStartDate"]);
+                        }
                     }
 
                 }
@@ -442,7 +502,8 @@ namespace FingerprintsData
 
 
 
-        public ExecutiveDashBoard GetAbsenceReport(int? centerid,int? classid,int? clientid, string search="" ) {
+        public ExecutiveDashBoard GetAbsenceReport(int? centerid, int? classid, int? clientid, string search = "")
+        {
 
 
             ExecutiveDashBoard executive = new ExecutiveDashBoard();
@@ -500,7 +561,8 @@ namespace FingerprintsData
 
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
 
             }
@@ -564,7 +626,8 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 clsError.WriteException(ex);
             }
@@ -618,6 +681,524 @@ namespace FingerprintsData
             }
 
         }
+        #endregion
+
+
+
+
+
+
+
+
+        #region Refresh Executive Dashboard Section
+
+
+        public bool RefershExecutiveDashboardBySection(int sectionType, StaffDetails staff)
+        {
+
+            bool isRowsAffected = false;
+           // var dbManager = new DBManager(connection.ConnectionString);
+            try
+            {
+
+
+                //using (Connection = connection.returnConnection())
+                //{
+                // var rowsAffected=   Connection.Execute("USP_RefreshExecutiveDashboard", new { AgencyID = staff.AgencyId, UserID = staff.UserId, RoleID = staff.RoleId, SectionType = sectionType }, commandType: CommandType.StoredProcedure);
+                //    isRowsAffected = (rowsAffected > 0);
+                //}
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@SectionType", sectionType));
+                    command.Connection = Connection;
+                    command.CommandText = "USP_RefreshExecutiveDashboard";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    isRowsAffected = command.ExecuteNonQuery() > 0;
+
+                }
+
+
+
+                    //var parameters = new IDbDataParameter[] {
+
+                    //    dbManager.CreateParameter("@AgencyID", staff.AgencyId,DbType.Guid),
+                    //    dbManager.CreateParameter("@UserID", staff.UserId, DbType.Guid),
+                    //    dbManager.CreateParameter("@RoleID", staff.RoleId, DbType.Guid),
+                    //    dbManager.CreateParameter("@SectionType", sectionType, DbType.Int32)
+                    //    };
+
+                    //isRowsAffected = Convert.ToBoolean(dbManager.Insert("USP_RefreshExecutiveDashboard", CommandType.StoredProcedure, parameters));
+
+                }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
+
+
+        #endregion
+
+
+        #region Get the Executive Dashboard by Section
+
+        /// <summary>
+        /// method to get the executive dashboard by section
+        /// </summary>
+        /// <param name="sectionType"></param>
+        /// <param name="staff"></param>
+        /// <returns></returns>
+        public ExecutiveDashBoard GetExecuteDashboardBySection(int sectionType, StaffDetails staff)
+        {
+
+            ExecutiveDashBoard dashboard = new ExecutiveDashBoard();
+            double doubCheck = 0;
+           // IDbConnection dBconnection = null;
+          //  var dBManager = new DBManager(connection.ConnectionString);
+            //  IDataReader reader = null;
+            try
+            {
+
+
+
+                //using (Connection = connection.returnConnection())
+                //{
+                //    var result = Connection.QueryMultiple("USP_GetExecutiveDashboardBySection", new { AgencyID = staff.AgencyId, RoleID = staff.RoleId, UserID = staff.UserId,SectionType=sectionType}, commandType: CommandType.StoredProcedure);
+                //    result.ReadFirst();
+                //}
+
+
+                //   var parameters = new IDbDataParameter[]
+                //   {
+                //   dBManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                //   dBManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                //   dBManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                //   dBManager.CreateParameter("@SectionType",sectionType,DbType.Int32)
+
+
+                //   };
+
+                //reader = dBManager.GetDataReader("USP_GetExecutiveDashboardBySection", CommandType.StoredProcedure, parameters, out dBconnection);
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@SectionType", sectionType));
+                    command.Connection = Connection;
+                    command.CommandText = "USP_GetExecutiveDashboardBySection";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        switch (EnumHelper.GetEnumByStringValue<ExecutiveDashBoard.DashboardSectionType>(sectionType.ToString()))
+                        {
+                            case ExecutiveDashBoard.DashboardSectionType.CurrentEnrollment:
+
+                                if (reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.EnrollmentTypeList.Add(new ExecutiveDashBoard.EnrolledByCenterType
+                                        {
+                                            Total = Convert.ToString(reader["EnrollmentCount"]),
+                                            CenterType = ExecutiveDashBoard.GetDescription((ExecutiveDashBoard.CenterTypeEnum)Convert.ToInt32(reader["HomeBased"]))
+                                        });
+                                    }
+
+                                }
+
+
+
+                                dashboard.EnrollmentTypeList = dashboard.EnrollmentTypeList.OrderBy(x => x.CenterType).ToList();
+
+
+
+
+                                break;
+
+
+                            //Enrolled By Program
+                            case ExecutiveDashBoard.DashboardSectionType.EnrolledByProgram:
+
+
+                                if(reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.EnrolledProgramList.Add(new ExecutiveDashBoard.EnrolledProgram
+                                        {
+                                            ProgramType = reader["ProgramType"].ToString(),
+                                            Total = reader["Total"].ToString(),
+                                            Available = reader["Available"].ToString()
+                                        });
+                                    }
+                                }
+                              
+
+
+                                break;
+
+                            //MissingScreen
+                            case ExecutiveDashBoard.DashboardSectionType.MissingScreening:
+
+
+                                if(reader.HasRows)
+                                {
+
+                                    while (reader.Read())
+                                    {
+                                        dashboard.MissingScreenList.Add(new ExecutiveDashBoard.MissingScreen
+                                        {
+                                            Name = reader["Name"].ToString(),
+                                            Screen = reader["MissingScreen"].ToString()
+                                        });
+                                    }
+                                }
+
+
+
+                                break;
+
+                            //ClassRoomType
+
+                            case ExecutiveDashBoard.DashboardSectionType.ClassroomType:
+
+
+                                if(reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.ClassRoomTypeList.Add(new ExecutiveDashBoard.ClassRoomType
+                                        {
+                                            ClassSession = GetClassSession(reader["ClassSession"].ToString()),
+                                            Total = reader["Total"].ToString(),
+                                            Available = reader["Available"].ToString()
+                                        });
+                                    }
+                                }
+
+                                break;
+
+                            // Case Note Analysis //
+
+                            case ExecutiveDashBoard.DashboardSectionType.CaseNoteAnalysis:
+
+
+
+                                while (reader.Read())
+                                {
+                                    dashboard.listCaseNote.Add(new ExecutiveDashBoard.CaseNote
+                                    {
+                                        Month = Convert.ToString(reader["Month"]),
+                                        Percentage = Convert.ToDecimal(reader["Percentage"]) == Convert.ToInt32(reader["Percentage"]) ? Convert.ToInt32(reader["Percentage"]).ToString() : Convert.ToString(reader["Percentage"]),
+
+
+                                    });
+                                }
+
+
+                                break;
+
+                            // In-Kind Hours and Dollars //
+
+                            case ExecutiveDashBoard.DashboardSectionType.InKindHoursDollars:
+
+
+                                while (reader.Read())
+                                {
+                                    dashboard.ThermHours = reader["TotalHours"].ToString();
+                                    dashboard.ThermDollars = Convert.ToDouble(reader["Dollars"]).ToString();
+                                }
+
+
+
+
+                                //Total Hours and Dollars//
+
+                                if (reader.NextResult())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.TotalHours = reader["Hours"].ToString();
+                                        dashboard.TotalDollars = reader["Budget"].ToString();
+                                    }
+                                }
+
+                                break;
+
+                            // Disability
+                            case ExecutiveDashBoard.DashboardSectionType.Disabilities:
+
+
+                                while (reader.Read())
+                                {
+                                    dashboard.DisabilityPercentage = reader["DisabilityPercentage"].ToString();
+                                }
+
+
+                                if (string.IsNullOrEmpty(dashboard.DisabilityPercentage))
+                                    dashboard.DisabilityPercentage = "0";
+
+                                break;
+
+                            // Family Over Income
+
+                            case ExecutiveDashBoard.DashboardSectionType.OverIncome:
+
+
+
+
+                                while (reader.Read())
+                                {
+                                    decimal IncomePercentage = !string.IsNullOrEmpty(reader[0].ToString()) ? Convert.ToDecimal(reader[0].ToString()) : 0;
+                                    dashboard.FamilyOverIncome = Math.Round(IncomePercentage, 1).ToString();
+                                }
+
+
+
+
+                                if (string.IsNullOrEmpty(dashboard.FamilyOverIncome))
+                                    dashboard.FamilyOverIncome = "0";
+
+
+                                break;
+
+                            // Waiting List //
+
+                            case ExecutiveDashBoard.DashboardSectionType.WaitingList:
+
+
+                                while (reader.Read())
+                                {
+                                    dashboard.WaitingList = double.TryParse(reader["WaitingListPercentage"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListPercentage"].ToString()), 1).ToString("N1") : 0.ToString("N1");
+                                    dashboard.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
+
+                                }
+
+
+                                break;
+
+                        }
+                    }
+                }
+
+
+                //switch (EnumHelper.GetEnumByStringValue<ExecutiveDashBoard.DashboardSectionType>(sectionType.ToString()))
+                //{
+                //    case ExecutiveDashBoard.DashboardSectionType.CurrentEnrollment:
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.EnrollmentTypeList.Add(new ExecutiveDashBoard.EnrolledByCenterType
+                //            {
+                //                Total = Convert.ToString(reader["EnrollmentCount"]),
+                //                CenterType = ExecutiveDashBoard.GetDescription((ExecutiveDashBoard.CenterTypeEnum)Convert.ToInt32(reader["HomeBased"]))
+                //            });
+                //        }
+
+
+                //        dashboard.EnrollmentTypeList = dashboard.EnrollmentTypeList.OrderBy(x => x.CenterType).ToList();
+
+
+
+
+                //        break;
+
+
+                //    //Enrolled By Program
+                //    case ExecutiveDashBoard.DashboardSectionType.EnrolledByProgram:
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.EnrolledProgramList.Add(new ExecutiveDashBoard.EnrolledProgram
+                //            {
+                //                ProgramType = reader["ProgramType"].ToString(),
+                //                Total = reader["Total"].ToString(),
+                //                Available = reader["Available"].ToString()
+                //            });
+                //        }
+
+
+                //        break;
+
+                //    //MissingScreen
+                //    case ExecutiveDashBoard.DashboardSectionType.MissingScreening:
+
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.MissingScreenList.Add(new ExecutiveDashBoard.MissingScreen
+                //            {
+                //                Name = reader["Name"].ToString(),
+                //                Screen = reader["MissingScreen"].ToString()
+                //            });
+                //        }
+
+
+                //        break;
+
+                //    //ClassRoomType
+
+                //    case ExecutiveDashBoard.DashboardSectionType.ClassroomType:
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.ClassRoomTypeList.Add(new ExecutiveDashBoard.ClassRoomType
+                //            {
+                //                ClassSession = GetClassSession(reader["ClassSession"].ToString()),
+                //                Total = reader["Total"].ToString(),
+                //                Available = reader["Available"].ToString()
+                //            });
+                //        }
+
+
+                //        break;
+
+                //    // Case Note Analysis //
+
+                //    case ExecutiveDashBoard.DashboardSectionType.CaseNoteAnalysis:
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.listCaseNote.Add(new ExecutiveDashBoard.CaseNote
+                //            {
+                //                Month = Convert.ToString(reader["Month"]),
+                //                Percentage = Convert.ToDecimal(reader["Percentage"]) == Convert.ToInt32(reader["Percentage"]) ? Convert.ToInt32(reader["Percentage"]).ToString() : Convert.ToString(reader["Percentage"]),
+
+
+                //            });
+                //        }
+
+
+                //        break;
+
+                //    // In-Kind Hours and Dollars //
+
+                //    case ExecutiveDashBoard.DashboardSectionType.InKindHoursDollars:
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.ThermHours = reader["TotalHours"].ToString();
+                //            dashboard.ThermDollars = Convert.ToDouble(reader["Dollars"]).ToString();
+                //        }
+
+
+
+
+                //        //Total Hours and Dollars//
+
+                //        if (reader.NextResult())
+                //        {
+                //            while (reader.Read())
+                //            {
+                //                dashboard.TotalHours = reader["Hours"].ToString();
+                //                dashboard.TotalDollars = reader["Budget"].ToString();
+                //            }
+                //        }
+
+                //        break;
+
+                //    // Disability
+                //    case ExecutiveDashBoard.DashboardSectionType.Disabilities:
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.DisabilityPercentage = reader["DisabilityPercentage"].ToString();
+                //        }
+
+
+                //        if (string.IsNullOrEmpty(dashboard.DisabilityPercentage))
+                //            dashboard.DisabilityPercentage = "0";
+
+                //        break;
+
+                //    // Family Over Income
+
+                //    case ExecutiveDashBoard.DashboardSectionType.OverIncome:
+
+
+
+
+                //        while (reader.Read())
+                //        {
+                //            decimal IncomePercentage = !string.IsNullOrEmpty(reader[0].ToString()) ? Convert.ToDecimal(reader[0].ToString()) : 0;
+                //            dashboard.FamilyOverIncome = Math.Round(IncomePercentage, 1).ToString();
+                //        }
+
+
+
+
+                //        if (string.IsNullOrEmpty(dashboard.FamilyOverIncome))
+                //            dashboard.FamilyOverIncome = "0";
+
+
+                //        break;
+
+                //    // Waiting List //
+
+                //    case ExecutiveDashBoard.DashboardSectionType.WaitingList:
+
+
+                //        while (reader.Read())
+                //        {
+                //            dashboard.WaitingList = double.TryParse(reader["WaitingListPercentage"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListPercentage"].ToString()), 1).ToString("N1") : 0.ToString("N1");
+                //            dashboard.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
+
+                //        }
+
+
+                //        break;
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+           {
+                //    dBManager.CloseConnection(dBconnection);
+
+                //    if (reader != null)
+                //        reader.Close();
+
+                Connection.Dispose();
+                command.Dispose();
+            
+            }
+
+            return dashboard;
+        }
+
         #endregion
 
     }

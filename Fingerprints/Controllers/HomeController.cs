@@ -568,9 +568,6 @@ namespace Fingerprints.Controllers
 
                 if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.CenterManager).ToLowerInvariant())
                 {
-                    details.AgencyId = new Guid(Session["AgencyID"].ToString());
-                    details.RoleId = new Guid(Session["RoleID"].ToString());
-                    details.UserId = new Guid(Session["UserID"].ToString());
 
                     hasHomeBased = new TeacherData().CheckUserHasHomeBased(details);
 
@@ -592,10 +589,9 @@ namespace Fingerprints.Controllers
                     ViewBag.RoleName = "Social Service Manager"; ViewBag.ViewType = "Agency";
                 }
 
+                //ExecutiveDashBoard executive = new ExecutiveDashBoard();
+              ExecutiveDashBoard executive = new ExecutiveData().GetExecutiveDetails(staffDetails,staffDetails.RoleId.ToString());
 
-                    ExecutiveDashBoard executive = new ExecutiveDashBoard();
-               executive = new ExecutiveData().GetExecutiveDetails(staffDetails, Session["Roleid"].ToString());
-               
 
                 return View(executive);
             }
@@ -669,9 +665,9 @@ namespace Fingerprints.Controllers
              
                 if (listCaseNote != null && listCaseNote.Count == 3)
                 {
-                    var data = new[] {new { Name = listCaseNote.ElementAt(0).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(0).Percentage) },
-                              new { Name = listCaseNote.ElementAt(1).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(1).Percentage) },
-                              new { Name = listCaseNote.ElementAt(2).Month, Value = Convert.ToInt32(listCaseNote.ElementAt(2).Percentage)}};
+                    var data = new[] {new { Name = listCaseNote.ElementAt(0).Month, Value = Convert.ToDouble(listCaseNote.ElementAt(0).Percentage) },
+                              new { Name = listCaseNote.ElementAt(1).Month, Value = Convert.ToDouble(listCaseNote.ElementAt(1).Percentage) },
+                              new { Name = listCaseNote.ElementAt(2).Month, Value = Convert.ToDouble(listCaseNote.ElementAt(2).Percentage)}};
                    
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
@@ -1735,6 +1731,33 @@ namespace Fingerprints.Controllers
             ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,EncryptDecrypt.Decrypt64(encCenterId));
 
             return Json(new { childInfo, parentNameList }, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        /// <summary>
+        /// Inserts the existing data to the table and gets the dashboard by section
+        /// </summary>
+        /// <param name="sectionType"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [CustAuthFilter()]
+        public JsonResult RefreshExecutiveDashboardBySection(int sectionType)
+        {
+              new ExecutiveData().RefershExecutiveDashboardBySection(sectionType, staffDetails);
+
+            return Json(new ExecutiveData().GetExecuteDashboardBySection(sectionType, staffDetails), JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public JsonResult GetExecutiveDashboardBySection(int sectionType)
+        {
+            return Json(new ExecutiveData().GetExecuteDashboardBySection(sectionType, staffDetails), JsonRequestBehavior.AllowGet);
         }
 
 
