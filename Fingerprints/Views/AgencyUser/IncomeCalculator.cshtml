@@ -7,17 +7,15 @@
 
 <script type="text/javascript">
     @using FingerprintsData;
+    @using System.Web.Script.Serialization;
     
-    var _FirstParentIncome = @Html.Raw(Json.Encode(@Model[0].Income));
-   
-    @*@{ 
-        var _ag = new agencyData();
-        var _ids = string.Join(",", Model.Select(k => k.newincomeid).ToArray());
-    }
 
-    var _documentsSubmited =JSON.parse(@Html.Raw(Json.Encode(@_ag.GetDocuments(_ids))));*@
-        
-        @*@Html.Action("GetDocuments", "AgencyUser");*@
+    @{ 
+        var serializedModel1 = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+       
+    }
+    var _FirstParentIncome = @Html.Raw(serializedModel1.Serialize(Model));
+
     var incomecount = 0;
     $(document).ready(function () {
         $('input').keypress(function () {
@@ -27,7 +25,7 @@
             }
         });
         if ('@Model[0].Income' == '2') {
-          
+
             var count1 = 0;
             var totalincome1 = 0;
             var mode = true;
@@ -315,7 +313,7 @@
             _str+="<h4 style='font-weight:bold;'>Source Name : "+obj.IncomeSource1+" </h5>"
 
             _str+='<table class="table table-striped table-bordered"><thead><tr>'
-                +'<td style="width:100px;">Amount Type</td><td style="width:75px;">Amount($)</td><td>Attachment Name</td><td>Download</td> </tr></thead><tbody>' 
+                +'<td style="width:100px;">Amount Type</td><td style="width:75px;">Amount($)</td><td>Attachment Name</td><td>Download</td> </tr></thead><tbody>'
                 +'<tr>'
                 +'<td>Amount-1</td><td>'+obj.AmountVocher1+'</td><td>'+obj.SalaryAvatarFilename1+'</td>'
                  +'<td> <a target="_blank"  href="#" title="'+obj.SalaryAvatarFilename1+'"><i class="fa fa-download"></i></a></td>'
@@ -326,7 +324,7 @@
                  +'<td> <a target="_blank"  href="#" ><i class="fa fa-download"></i></a></td>';
             }
 
-           
+
 
             _str+='</tbody> </table>';
 
@@ -346,8 +344,8 @@
             _str+='<div class="col-sm-12"> <div class="form-group" style="padding: 15px 0px 15px 0px;"> <label style="width:130px;float:left;">Signature Code:</label> <div style="float:left;width:57%;"> <input type="text" class="form-control" /></div> </div> </div>'
 
 
-            
-          
+
+
 
             $("#verifyincome-modal #income-verifybody").append(_str);
 
@@ -386,7 +384,7 @@
         }
 
         if(_data.hasOwnProperty('Documents') && _data.Documents.length){
-        
+
             _data.Documents.forEach(function(item){
 
                 //console.log(item.DocumentId);
@@ -420,7 +418,7 @@
                 AddIncomeDiv22();
             }
         }
-        
+
     };
 
 
@@ -436,16 +434,16 @@
         var _type = $(this).data("type"), _index=$(this).data("indexid");
 
 
-        var _checkStr = ""; 
+        var _checkStr = "";
         var _indexid = _type == "edit" ? _index : incomecount;
         $.each($("#incomedocuments").find('input[type="checkbox"]:checked'), function (i, ele) {
             var _Did = $(ele).val();
             _checkStr += '<input type="hidden" value="' +_Did  + '" name="Income1[' + _index + '].Documents[' + i + '].DocumentId"/>'
-           
+
             if(_Did == "0"){ //for other only we sent document name
                 _checkStr += '<input type="hidden" value="'+$("#otherdoc-input").val()+'" name="Income1[' + _index + '].Documents[' + i + '].DocumentName" />';
             }
-            
+
 
         });
 
@@ -467,7 +465,7 @@
         if( $("#submit-income1-doc").data("type") == "edit"){
             //  updateDocuments();
             // var _docList =  $('.docsubmitted-panel[data-incomeid="'+'"] ol').html('')
-           
+
 
         }else{
             AddIncomeDiv22();
@@ -646,10 +644,10 @@
                         console.log(  $(this).find('input[type=checkbox].rect_check'));
 
                         $(this).find('input[type=checkbox].rect_check').each(function(i){
-                        
+
                             $(this).attr('name',"Income1[" + incomecount + "].Documents["+i+"].DocumentId");
                         });
-                        
+
                         incomecount = incomecount + 1;
                         int1 = 0;
                     }
@@ -726,9 +724,9 @@
                                              int1 = int1 + 1;
                                          });
 
-                                        
+
                                         $(this).find('input[type=checkbox].rect_check').each(function(i){
-                        
+
                                             $(this).attr('name',"Income1[" + incomecount + "].Documents["+i+"].DocumentId");
                                         });
                                         incomecount = incomecount + 1;
@@ -802,9 +800,9 @@
                                  int1 = int1 + 1;
                              });
 
-                             
+
                             $(this).find('input[type=checkbox].rect_check').each(function(i){
-                        
+
                                 $(this).attr('name',"Income1[" + incomecount + "].Documents["+i+"].DocumentId");
                             });
 
@@ -1382,7 +1380,7 @@
     }
 
     function AddIncome() {
-       
+
         $('#spinner').show();
         cleanValidation();
         $('#ApplicationStatusChild').val(0);
@@ -1736,7 +1734,7 @@
             }
             else {
                 totalincomeclaculated();
-             
+
             }
         }
         if ($('#FamilyType1').prop("checked")) {
@@ -1790,7 +1788,7 @@
             fd.append($(fileInput).attr("name"), fileInput);
         });
 
-       
+
         $.ajax({
             url: HostedDir + "/AgencyUser/SaveIncomeall",
             type: "POST",
@@ -1812,7 +1810,7 @@
                         Drawincome(Data);
                         $('#spinner').hide();
                     },2000);
-                
+
 
                 }
                 else
@@ -1833,10 +1831,10 @@
                    //$('#spinner').hide();
                },
                complete:function(res){
-                 
+
                }
         });
-        
+
     }
     function Drawincome(Data)
     {

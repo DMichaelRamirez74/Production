@@ -7,7 +7,15 @@
 
 
 <script type="text/javascript">
-    var _SecondParentIncome = @Html.Raw(Json.Encode(@Model[0].Income));
+    @using System.Web.Script.Serialization;
+    @*var _SecondParentIncome = @Html.Raw(Json.Encode(@Model));*@
+
+   @{
+       var serializedModel2 = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+
+    }
+    var _SecondParentIncome = @Html.Raw(serializedModel2.Serialize(Model));
+
     var incomecount = 0;
     $(document).ready(function () {
         $('input').keypress(function () {
@@ -2033,4 +2041,6 @@
                 </div>
             </div>
 
-            </div></div></div>
+        </div>
+    </div>
+</div>
