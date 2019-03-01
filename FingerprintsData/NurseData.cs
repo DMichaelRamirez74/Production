@@ -1352,6 +1352,73 @@ namespace FingerprintsData
                                     ).ToList();
                 }
 
+                if (_dataset.Tables.Count > 21 && _dataset.Tables[21] != null && _dataset.Tables[21].Rows.Count > 0)
+                {   //parent1 income documents
+
+                    var _docList = new List<FamilyHousehold.IncomeDocument>();
+                    //var _tempIncome1 = obj.Income1;
+                    foreach (DataRow dr in _dataset.Tables[21].Rows)
+                    {
+                        var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
+                        var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
+                        var _docName = dr["DocumentName"].ToString(); //for others only
+                        for (int i = 0; i < obj.FamilyHousehold.Income1.Count; i++)
+                        {
+                            if (_docIncomeId == obj.FamilyHousehold.Income1[i].newincomeid)
+                            {
+                                if (obj.FamilyHousehold.Income1[i].Documents == null)
+                                {
+                                    obj.FamilyHousehold.Income1[i].Documents = new List<FamilyHousehold.IncomeDocument>();
+                                }
+                                obj.FamilyHousehold.Income1[i].Documents.Add(new FamilyHousehold.IncomeDocument()
+                                {
+                                    DocumentId = _docid,
+                                    DocumentName = _docName,
+                                    //  ParentName =obj.Pfirstname + ' '+ obj.Plastname
+                                });
+                            }
+
+
+                        }
+                    }
+                }
+
+
+
+                //parent2 income documents
+                if (_dataset.Tables[22] != null && _dataset.Tables[22].Rows.Count > 0)
+                {
+
+                    var _docList = new List<FamilyHousehold.IncomeDocument>();
+                    //var _tempIncome1 = obj.Income1;
+                    foreach (DataRow dr in _dataset.Tables[22].Rows)
+                    {
+                        var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
+                        var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
+                        var _docName = dr["DocumentName"].ToString(); //for others only
+                        for (int i = 0; i < obj.FamilyHousehold.Income2.Count; i++)
+                        {
+                            if (_docIncomeId == obj.Income2[i].IncomeID)
+                            {
+                                if (obj.FamilyHousehold.Income2[i].Documents == null)
+                                {
+                                    obj.FamilyHousehold.Income2[i].Documents = new List<FamilyHousehold.IncomeDocument>();
+                                }
+                                obj.FamilyHousehold.Income2[i].Documents.Add(new FamilyHousehold.IncomeDocument()
+                                {
+                                    DocumentId = _docid,
+                                    DocumentName = _docName,
+                                    // ParentName = obj.Pfirstname + ' ' + obj.Plastname
+                                });
+                            }
+
+
+                        }
+                    }
+
+                }
+
+
 
             }
             return obj;
