@@ -154,6 +154,8 @@ function jlionThermometerDollars(MIN, MAX, IS_CURRENCY, INCLUDE_DECIMAL) {
         var iThermWidth = $("#thermometer-hours").width();
         var vIDTitle = 'Title';
 
+
+        
         jQuery('<div/>', {
             id: vIDTitle
         }).appendTo('#thermometer-hours');
@@ -168,12 +170,19 @@ function jlionThermometerDollars(MIN, MAX, IS_CURRENCY, INCLUDE_DECIMAL) {
     }
 
     function _ShowCurrentValue(sValue) {
+        debugger;
         var iTherheight = $("#thermometer-hours").height();
         var vIDValue = 'CValue';
 
-        jQuery('<div/>', {
-            id: vIDValue
-        }).appendTo('#thermometer-hours');
+
+        if ($('#thermometer-hours').find('#' + vIDValue).length == 0)
+        {
+            jQuery('<div/>', {
+                id: vIDValue
+            }).appendTo('#thermometer-hours');
+        }
+
+      
 
         $('#thermometer-hours #' + vIDValue).addClass('CurrentValue');
         $('#thermometer-hours #' + vIDValue).css('height', iTherheight);

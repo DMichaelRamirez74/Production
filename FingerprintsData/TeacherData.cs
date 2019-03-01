@@ -435,6 +435,7 @@ namespace FingerprintsData
             command.Connection = Connection;
             command.Parameters.Add(new SqlParameter("@UserID", UserID));
             command.Parameters.Add(new SqlParameter("@ClientID", clientID));
+            command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_GetTeacherList1";
             DataAdapter = new SqlDataAdapter(command);
@@ -2206,7 +2207,7 @@ namespace FingerprintsData
 
                             resultSet++;
 
-                        } while (dr.NextResult() && dr.HasRows);
+                        } while (dr.NextResult());
                     }
 
                 }
@@ -2587,10 +2588,10 @@ namespace FingerprintsData
 
                 foreach (var item in offlineAttendance)
                 {
-                    inTime = (item.TimeIn == "") ? "" : DateTime.ParseExact(item.TimeIn,
-                                    "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay.ToString();
-                    outTime = (item.TimeOut == "") ? "" : DateTime.ParseExact(item.TimeOut,
-                                    "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay.ToString();
+                    inTime = (string.IsNullOrEmpty(item.TimeIn.Trim())) ?null : DateTime.ParseExact(item.TimeIn,
+                                    "hh:mm tt", CultureInfo.InvariantCulture).TimeOfDay.ToString();
+                    outTime = (string.IsNullOrEmpty(item.TimeOut.Trim()) ? null : DateTime.ParseExact(item.TimeOut,
+                                    "hh:mm tt", CultureInfo.InvariantCulture).TimeOfDay.ToString());
 
                     dt.Rows.Add(
                        Convert.ToInt64(item.ClientID),

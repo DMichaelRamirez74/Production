@@ -228,7 +228,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.SocialServiceManager)]
         public JsonResult DeletePendingClient(string Id, string centerid, string Clientid, string householdid, string Programid)
         {
             try

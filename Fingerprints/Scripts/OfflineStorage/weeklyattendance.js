@@ -1222,9 +1222,12 @@ function loadWeeklyDailyAttendance() {
 
             else {
 
-                $('#push-to-server').hide();
-                working_days_div.hide();
-                offline_child_info_body.html(childString);
+                    //offine Push to Server hide //
+
+                    // $('#push-to-server').hide();
+
+                    working_days_div.hide();
+                    offline_child_info_body.html(childString);
 
                 //Bind Child Attendance Info//
                 offlineAttendance_div.find('.day-table').each(function (j, daytab) {
@@ -1490,29 +1493,43 @@ function checkValidation() {
 
             $(table).find('.att-tr').each(function (j, row) {
 
-                $(row).find('input[type=radio][value=1]:checked').each(function (k, radio) {
+                    //      $(row).find('input[type=radio][value=1]:checked').each(function (k, radio) {
 
-                    if ($(radio).attr('value') == '1') {
-                        var timeTd = $(radio).parent().parent().parent('.time-td');
-                        var parentSign = timeTd.children('.sig-parent-hidden');
-                        var teacherSign = timeTd.children('.sig-teacher-hidden');
-                        if (parentSign.val() == '') {
-                            //var textId = time_text.attr('id');
-                            //plainValidation('#' + textId + '');
-                            timeTd.find('.parent-sig-btn').removeClass('normal-sig-btn,added-sig-btn').addClass('err-sig-btn');
-                            error = true;
+                    $(row).find('input[type=radio]:checked').each(function (k, radio) {
+
+                        if ($(radio).attr('value') == '1') {
+                            var timeTd = $(radio).parent().parent().parent('.time-td');
+                            var parentSign = timeTd.children('.sig-parent-hidden');
+                            var teacherSign = timeTd.children('.sig-teacher-hidden');
+                            if (parentSign.val() == '') {
+                                //var textId = time_text.attr('id');
+                                //plainValidation('#' + textId + '');
+                                timeTd.find('.parent-sig-btn').removeClass('normal-sig-btn,added-sig-btn').addClass('err-sig-btn');
+                                error = true;
+                            }
+                            if (teacherSign.val() == '') {
+                                timeTd.find('.teacher-sig-btn').removeClass('normal-sig-btn,added-sig-btn').addClass('err-sig-btn');
+                                error = true;
+                            }
                         }
-                        if (teacherSign.val() == '') {
-                            timeTd.find('.teacher-sig-btn').removeClass('normal-sig-btn,added-sig-btn').addClass('err-sig-btn');
-                            error = true;
+
+                        else if($(radio).attr('value')=='2')
+                        {
+                            var buttonReason = $(radio).parent().parent().parent('.time-td').children('.btn-reason');
+                            var hasSuccess = buttonReason.hasClass('btn-reason-success');
+                            if (!hasSuccess) {
+                                var reasonAttrId = buttonReason.attr('id');
+
+                                plainValidation('#' + reasonAttrId + '');
+                                error = true;
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
+        }
+        return error;
     }
-    return error;
-}
 
 
 function checkAnotherRadio(selfRadio) {
@@ -2241,21 +2258,23 @@ function insertOnMealsCallback(data, _mealsArray) {
     }
 }
 
-function getDatabaseIndex(index, attend_date) {
-        
-    if (weeklyAttendance.isHistorical()) {
-
+    function getDatabaseIndex(index, attend_date) {
+  
         var classId = class_para.find('option:selected', 'select').attr('value');
             
         var clientId = weekAttendance_div.find('.att-tr[row-index=' + index + ']').attr('clientid');
-         
-        index = 'his' + index + "_" + attend_date.split('/')[0] + attend_date.split('/')[1] + attend_date.split('/')[2] + classId + clientId;
+
+        if (weeklyAttendance.isHistorical()) {
+            var clientId = weekAttendance_div.find('.att-tr[row-index=' + index + ']').attr('clientid');
+            index = 'his' + index + "_" + attend_date.split('/')[0] + attend_date.split('/')[1] + attend_date.split('/')[2] + classId + clientId;
+        }
+        else {
+
+            var clientId = offlineAttendance_div.find('.att-tr[row-index=' + index + ']').attr('clientid');
+            index = 'off' + index + "_" + attend_date.split('/')[0] + attend_date.split('/')[1] + attend_date.split('/')[2] + classId + clientId;
+        }
+        return index;
     }
-    else {
-        index = 'off' + index + attend_date.split('/')[0] + attend_date.split('/')[1] + attend_date.split('/')[2];
-    }
-    return index;
-}
 
 
 function getDailyMealsIndex(index, _attendDate) {
@@ -2782,14 +2801,16 @@ $('#push-to-server').on('click', function () {
 
     //}
 
-    cleanValidation();
-    if (checkValidation()) {
-        if (weeklyAttendance.isHistorical()) {
-            customAlert('Some fields are required');
-        }
-        else {
-            customAlert('Please add parent or teacher signature');
-        }
+        cleanValidation();
+        if (checkValidation()) {
+            if (weeklyAttendance.isHistorical()) {
+                customAlert('Some fields are required');
+            }
+            else {
+                // customAlert('Please add parent or teacher signature');
+
+                customAlert('Some fields are required');
+            }
 
         weeklyAttendance.ShowBusy(false);
 
@@ -3475,9 +3496,35 @@ window.addEventListener("online", function (e) {
 
 }, true);
 
-window.addEventListener("offline", function (e) {
-    reportOnlineStatus();
-}, true);
+    window.addEventListener("offline", function (e) {
+        reportOnlineStatus();
+    }, true);
+
+
+    window.addEventListener('beforeunload', function (e) {
+      
+        if (!isOnLine())
+        {
+            e.preventDefault();
+
+            e.returnValue = "You are viewing in off-line mode";
+          
+        }
+
+        
+    });
+
+
+    window.addEventListener('load', function (e) {
+      
+        if (!isOnLine()) {
+            e.preventDefault();
+            e.returnValue = "You are viewing in off-line mode";
+           
+        }
+
+
+    });
 
 $(document).on("keydown", disableF5);
 
@@ -3701,19 +3748,21 @@ $('#addReasonModal').find('#acceptReason').on('click', function () {
         row_index = $(row).attr('row-index');
         day = $(row).attr('day');
 
-        if (weeklyAttendance.isHistorical()) {
-            //$('#' + reasonId + '').attr('reason-id', absenceReasonId);
-            $('#' + reasonId + '').css('background-color', '');
-            //  $('#' + reasonId + '').addClass('btn-reason-success');
-            weekAttendance_div.find('#' + reasonId + '').attr('reason-id', absenceReasonId).removeClass('btn-reason-normal').addClass('btn-reason-success').html('Show Reason');
-            date = weekAttendance_div.find('#day-heading-row').find('td[day=' + day + ']').attr('date');
-            attendanceDate = weeklyAttendance.getAttendanceDate(day);
-        }
-        else {
-            offlineAttendance_div.find('#' + reasonId + '').attr('reason-id', absenceReasonId).removeClass('btn-reason-normal').addClass('btn-reason-success').html('Show Reason');
-            date = offlineAttendance_div.find('#day-heading-row').find('td[day=' + day + ']').attr('date');
-            attendanceDate = weeklyAttendance.getAttendanceDate(date);
-        }
+            if (weeklyAttendance.isHistorical()) {
+                //$('#' + reasonId + '').attr('reason-id', absenceReasonId);
+                $('#' + reasonId + '').css('background-color', '');
+                //  $('#' + reasonId + '').addClass('btn-reason-success');
+                weekAttendance_div.find('#' + reasonId + '').attr('reason-id', absenceReasonId).removeClass('btn-reason-normal').addClass('btn-reason-success').html('Show Reason');
+                date = weekAttendance_div.find('#day-heading-row').find('td[day=' + day + ']').attr('date');
+                attendanceDate = weeklyAttendance.getAttendanceDate(day);
+            }
+            else {
+
+                offlineAttendance_div.find('#' + reasonId + '').css('background-color', '');
+                offlineAttendance_div.find('#' + reasonId + '').attr('reason-id', absenceReasonId).removeClass('btn-reason-normal').addClass('btn-reason-success').html('Show Reason');
+                date = offlineAttendance_div.find('#day-heading-row').find('td[day=' + day + ']').attr('date');
+                attendanceDate = weeklyAttendance.getAttendanceDate(date);
+            }
 
         var userId = getDatabaseIndex(row_index, attendanceDate);
         var clientId = $(row).attr('clientid');
@@ -3885,11 +3934,12 @@ function updateOfflineSignatureCallback(data, ClientData) {
 
 function checkForToshowPushBtn() {
 
-    var validcount = 0
-    var isValid = false;
-    var dayTable = offlineAttendance_div.find('table[day=0]');
-    dayTable.find('.att-tr').each(function (i, dayrow) {
-        // var radio = $(dayrow).children('.in-time-td').find('input[type=radio]');
+        var validcount = 0;
+        var validOutCount = 0;
+        var isValid = false;
+        var dayTable = offlineAttendance_div.find('table[day=0]');
+        dayTable.find('.att-tr').each(function (i, dayrow) {
+            // var radio = $(dayrow).children('.in-time-td').find('input[type=radio]');
 
         //  if ($(radio ).is(':checked')) {
         if ($(dayrow).children('.in-time-td').find('input[type=radio]:checked').length > 0) {
@@ -3912,33 +3962,33 @@ function checkForToshowPushBtn() {
                 //    validcount++;
                 //}
 
-                if ((out_time_td.children('.sig-parent-hidden').val() == "")) {
-                    //isValid = false;
-                    validcount++;
+                    if ((out_time_td.children('.sig-parent-hidden').val() == "")) {
+                        //isValid = false;
+                        validOutCount++;
+                    }
+                    else {
+                        isValid = true;
+                    }
                 }
-                else {
-                    isValid = true;
-                }
-            }
-            else if ($(radio).attr('value') == '2') {
+                else if ($(radio).attr('value') == '2') {
 
-                var reason_id = $(radio).parent('div').siblings('.btn-reason').attr('reason-id');
-                if (reason_id == '0' || reason_id == '') {
-                    validcount++;
+                    var reason_id = $(radio).parent('div').parent('div').siblings('.btn-reason').attr('reason-id');
+                    if (reason_id == '0' || reason_id == '') {
+                        validcount++;
+                    }
+                    else {
+                        isValid = true;
+                    }
                 }
                 else {
                     isValid = true;
                 }
             }
             else {
-                isValid = true;
+                //isValid = false;
+                validcount++;
             }
-        }
-        else {
-            //isValid = false;
-            validcount++;
-        }
-    });
+        });
 
     if (validcount > 0) {
         isValid = false;
@@ -3950,14 +4000,14 @@ function checkForToshowPushBtn() {
     return isValid;
 }
 
-function showPushToServerBtnByData() {
-    if (checkForToshowPushBtn()) {
-        $('#push-to-server').show();
+    function showPushToServerBtnByData() {
+        if (checkForToshowPushBtn()) {
+     //       $('#push-to-server').show();
+        }
+        else {
+        //    $('#push-to-server').hide();
+        }
     }
-    else {
-        $('#push-to-server').hide();
-    }
-}
 
 function disableF5(e) {
 

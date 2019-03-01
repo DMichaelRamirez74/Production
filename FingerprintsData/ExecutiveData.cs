@@ -79,7 +79,7 @@ namespace FingerprintsData
                                 executive.EmployeeBirthdayList.Add(new ExecutiveDashBoard.EmployeeBirthday
                                 {
                                     Staff = reader["Staff"].ToString(),
-                                    DateOfBirth = Convert.ToDateTime(reader["DOB"].ToString()).ToString("MMM-dd")
+                                    DateOfBirth = Convert.ToString(reader["DOB"])
                                 });
                             }
                         }

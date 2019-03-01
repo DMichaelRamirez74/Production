@@ -170,9 +170,14 @@ way to fit your requirements.
         var iTherheight = $("#thermometer").height();
         var vIDValue = 'CValue';
 
-        jQuery('<div/>', {
-            id: vIDValue
-        }).appendTo('#thermometer');
+        if (jQuery('#thermometer').find('#Cvalue').length == 0)
+        {
+            jQuery('<div/>', {
+                id: vIDValue
+            }).appendTo('#thermometer');
+        }
+
+     
 
         $('#thermometer #' + vIDValue).addClass('CurrentValue');
         $('#thermometer #' + vIDValue).css('height', iTherheight);
