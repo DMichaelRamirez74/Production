@@ -2403,14 +2403,15 @@ namespace Fingerprints.Controllers
 
         [JsonMaxLengthAttribute]
         [HttpPost]
-        public JsonResult GetChildrenImage(string enc_clientId)
+        public JsonResult GetChildrenImage(string enc_clientId, int mode=1)
         {
             SelectListItem childImage = new SelectListItem();
             try
             {
-                long clientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(enc_clientId));
 
-                childImage = new RosterData().GetChildrenImageData(clientId);
+                long clientId = 0;
+                clientId=  long.TryParse(enc_clientId,out clientId)?clientId: Convert.ToInt64(EncryptDecrypt.Decrypt64(enc_clientId));
+                childImage = new RosterData().GetChildrenImageData(clientId,mode);
             }
             catch (Exception ex)
             {

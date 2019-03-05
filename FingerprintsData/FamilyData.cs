@@ -2630,7 +2630,7 @@ namespace FingerprintsData
                             familyinfo.CDentalhome = Convert.ToInt32(_dataset.Tables[7].Rows[i]["DentalHome"]);
                         familyinfo.ChildId = Convert.ToInt32(_dataset.Tables[7].Rows[i]["ID"]);
                         familyinfo.CreatedOn = Convert.ToString(_dataset.Tables[7].Rows[i]["DateEntered"]);
-                        familyinfo.Imagejson = _dataset.Tables[7].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[7].Rows[i]["ProfilePic"]);
+                     //  familyinfo.Imagejson = _dataset.Tables[7].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[7].Rows[i]["ProfilePic"]);
                         if ((Convert.ToString(_dataset.Tables[7].Rows[i]["Gender"]) == "1"))
                         {
                             familyinfo.CGender = "Male";
@@ -2659,7 +2659,7 @@ namespace FingerprintsData
                         familyinfo.Efirstname = Convert.ToString(_dataset.Tables[8].Rows[i]["Name"]);
                         familyinfo.EDOB = Convert.ToString(_dataset.Tables[8].Rows[i]["DOB"]);
                         familyinfo.ERelationwithchild = Convert.ToString(_dataset.Tables[8].Rows[i]["RelationName"]);
-                        familyinfo.EImagejson = _dataset.Tables[8].Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[8].Rows[i]["DocumentFile"]);
+                    //   familyinfo.EImagejson = _dataset.Tables[8].Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[8].Rows[i]["DocumentFile"]);
                         familyinfo.ClientID = Convert.ToInt32(_dataset.Tables[8].Rows[i]["OthersClientID"]);
                         _Elist.Add(familyinfo);
                     }
@@ -2677,7 +2677,7 @@ namespace FingerprintsData
                         familyinfo.Rfirstname = Convert.ToString(_dataset.Tables[9].Rows[i]["Firstname"]);
                         familyinfo.Rlastname = Convert.ToString(_dataset.Tables[9].Rows[i]["Lastname"]);
                         familyinfo.RDescription = Convert.ToString(_dataset.Tables[9].Rows[i]["Notes"]);
-                        familyinfo.RImagejson = _dataset.Tables[9].Rows[i]["FileAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[9].Rows[i]["FileAttachment"]);
+                      //  familyinfo.RImagejson = _dataset.Tables[9].Rows[i]["FileAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[9].Rows[i]["FileAttachment"]);
                         _Rlist.Add(familyinfo);
                     }
                     obj._Rlist = _Rlist;
@@ -2695,7 +2695,7 @@ namespace FingerprintsData
                         familyinfo.ODOB = Convert.ToString(_dataset.Tables[10].Rows[i]["DOB"]);
                         familyinfo.OthersId = Convert.ToInt32(_dataset.Tables[10].Rows[i]["ID"]);
                         familyinfo.CSSN = _dataset.Tables[10].Rows[i]["ssn"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(_dataset.Tables[10].Rows[i]["ssn"].ToString());
-                        familyinfo.HouseHoldImagejson = _dataset.Tables[10].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[10].Rows[i]["ProfilePic"]);
+                      //  familyinfo.HouseHoldImagejson = _dataset.Tables[10].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[10].Rows[i]["ProfilePic"]);
                         familyinfo.OIncomeSupported = Convert.ToInt32(_dataset.Tables[10].Rows[i]["IncomeSupported"]);
 
                         if ((Convert.ToString(_dataset.Tables[10].Rows[i]["Gender"]) == "1"))
@@ -2944,7 +2944,7 @@ namespace FingerprintsData
                         familyinfo.Efirstname = Convert.ToString(familydataTable.Rows[i]["Name"]);
                         familyinfo.EDOB = familydataTable.Rows[i]["DOB"].ToString() == "" ? "" : Convert.ToString(familydataTable.Rows[i]["DOB"]);
                         familyinfo.ERelationwithchild = Convert.ToString(familydataTable.Rows[i]["RelationName"]);
-                        familyinfo.EImagejson = familydataTable.Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["DocumentFile"]);
+                       // familyinfo.EImagejson = familydataTable.Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["DocumentFile"]);
 
                         _familyinfo.Add(familyinfo);
                     }
@@ -2987,7 +2987,7 @@ namespace FingerprintsData
                         familyinfo.Rfirstname = Convert.ToString(familydataTable.Rows[i]["Firstname"]);
                         familyinfo.Rlastname = Convert.ToString(familydataTable.Rows[i]["Lastname"]);
                         familyinfo.RDescription = Convert.ToString(familydataTable.Rows[i]["Notes"]);
-                        familyinfo.RImagejson = familydataTable.Rows[i]["FileAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["FileAttachment"]);
+                       // familyinfo.RImagejson = familydataTable.Rows[i]["FileAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["FileAttachment"]);
                         _familyinfo.Add(familyinfo);
                     }
                     //totalrecord = command.Parameters["@totalRecord"].Value.ToString();
@@ -5576,7 +5576,7 @@ namespace FingerprintsData
                         familyinfo.Omiddlename = Convert.ToString(familydataTable.Rows[i]["Middlename"]);
                         familyinfo.ODOB = Convert.ToDateTime(familydataTable.Rows[i]["DOB"]).ToString("MM/dd/yyyy");
                         familyinfo.OthersId = Convert.ToInt32(familydataTable.Rows[i]["ID"]);
-                        familyinfo.HouseHoldImagejson = familydataTable.Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["ProfilePic"]);
+                       // familyinfo.HouseHoldImagejson = familydataTable.Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["ProfilePic"]);
 
                         familyinfo.CSSN = familydataTable.Rows[i]["SSN"].ToString() != "" ? EncryptDecrypt.Decrypt(familydataTable.Rows[i]["SSN"].ToString()) : "";
                         if ((Convert.ToString(familydataTable.Rows[i]["Gender"]) == "1"))
@@ -5591,7 +5591,6 @@ namespace FingerprintsData
                         {
                             familyinfo.OGender = "Other";
                         }
-                        familyinfo.HouseHoldImagejson = familydataTable.Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["ProfilePic"]);
                         _familyinfo.Add(familyinfo);
                     }
                 }
@@ -13141,8 +13140,8 @@ namespace FingerprintsData
                     obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
                     obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
                     obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
-                    if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
-                        obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+                    //if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
+                    //    obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
                     obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
                     try
                     {

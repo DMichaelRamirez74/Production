@@ -4426,7 +4426,7 @@ namespace FingerprintsData
         }
 
 
-        public SelectListItem GetChildrenImageData(long ClientId)
+        public SelectListItem GetChildrenImageData(long ClientId,int mode=1)
         {
             SelectListItem child = new SelectListItem();
             try
@@ -4436,6 +4436,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetChildrenImage";
                 command.Parameters.AddWithValue("@ClientId", ClientId);
+                command.Parameters.AddWithValue("@Mode", mode);
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);

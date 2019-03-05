@@ -93,6 +93,49 @@
 
 
         }
+
+
+        function showImage(ele,mode) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id,mode:mode },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    //$(pic).parent('td').find('.roundimage').zoomify();
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
+
         function IEPorIFSP_Checked() {
             if ($('#IsIEP')[0].checked || $('#IsIFSP')[0].checked) {
                 $('#forexpire').show();
@@ -7941,11 +7984,15 @@
                     var tr = "";
                     tr += "<tr><style='text-align:center;'>";
                     tr += "<td height='70'><a href='#' onclick='Getemergencycontact(this);' accesskey=" + dataEmergencyContact.listEmergencyContact[i].EmegencyId + ">" + dataEmergencyContact.listEmergencyContact[i].Efirstname + "</td>";
-                    if (dataEmergencyContact.listEmergencyContact[i].EImagejson != "" && dataEmergencyContact.listEmergencyContact[i].EImagejson != null)
-                        tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' width='50' class='roundimage' alt='Image not available' width='100' src='data:image/png;base64," + dataEmergencyContact.listEmergencyContact[i].EImagejson + "' /></td>";
-                    else
-                        tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' width='50' class='roundimage' alt='Image not available'  src='" + HostedDir + "/Content/img/download.jpg' /></td>";
+                    
+                    //if (dataEmergencyContact.listEmergencyContact[i].EImagejson != "" && dataEmergencyContact.listEmergencyContact[i].EImagejson != null)
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' width='50' class='roundimage' alt='Image not available' width='100' src='data:image/png;base64," + dataEmergencyContact.listEmergencyContact[i].EImagejson + "' /></td>";
+                    //else
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' width='50' class='roundimage' alt='Image not available'  src='" + HostedDir + "/Content/img/download.jpg' /></td>";
 
+                   tr += '<td height="70" style="text-align:center;"><a href="javascript:void(0)" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,2);" eclientid='+ dataEmergencyContact.listEmergencyContact[i].EmegencyId+'>View</a></td>';
+                   
+                    
                     tr += "<td height='70' style='text-align:center;'>" + ((typeof (dataEmergencyContact.listEmergencyContact[i].EDOB) != 'undefined') && (dataEmergencyContact.listEmergencyContact[i].EDOB != null) ? dataEmergencyContact.listEmergencyContact[i].EDOB : '') + "</td>";
                     tr += "<td height='70' style='text-align:center;'>" + ((typeof (dataEmergencyContact.listEmergencyContact[i].ERelationwithchild) != 'undefined') && (dataEmergencyContact.listEmergencyContact[i].ERelationwithchild != null) ? dataEmergencyContact.listEmergencyContact[i].ERelationwithchild : '') + "</td>";
                     tr += "<td height='70' ><a href='#' onclick='deleteEmergencycontact(this);' accesskey=" + dataEmergencyContact.listEmergencyContact[i].EmegencyId + ">Delete</td>";
@@ -8286,10 +8333,16 @@
                     tr += "<tr><style='text-align:center;'>";
                     tr += "<td height='70'><a href='#' onclick='GetRestricted(this);' accesskey=" + dataRestrictedDetail.listRestricted[i].RestrictedId + ">" + ((typeof (dataRestrictedDetail.listRestricted[i].Rfirstname) != 'undefined') && (dataRestrictedDetail.listRestricted[i].Rfirstname != null) ? dataRestrictedDetail.listRestricted[i].Rfirstname + ' ' + dataRestrictedDetail.listRestricted[i].Rlastname : '') + "</td>";
 
-                    if (dataRestrictedDetail.listRestricted[i].RImagejson != "" && dataRestrictedDetail.listRestricted[i].RImagejson != null)
-                        tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage'  data-action='zoom'  alt='Image not available' width='50' src='data:image/png;base64," + dataRestrictedDetail.listRestricted[i].RImagejson + "' /></td>";
-                    else
-                        tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' class='roundimage' width='50' alt='Image not available'  src='" + HostedDir + "/Content/img/download.jpg' /></td>";
+                  
+                    //if (dataRestrictedDetail.listRestricted[i].RImagejson != "" && dataRestrictedDetail.listRestricted[i].RImagejson != null)
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage'  data-action='zoom'  alt='Image not available' width='50' src='data:image/png;base64," + dataRestrictedDetail.listRestricted[i].RImagejson + "' /></td>";
+                    //else
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' data-action='zoom' class='roundimage' width='50' alt='Image not available'  src='" + HostedDir + "/Content/img/download.jpg' /></td>";
+                   
+                    tr+='<td height="70" style="text-align:center;">\
+                                                                            <a href="javascript:void(0);" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,2);" eclientid='+dataRestrictedDetail.listRestricted[i].RestrictedId+'>View</a>\
+                                                                    </td>';
+                    
                     //  tr += "<td height='70'><img height='100' width='100' src='data:image/png;base64," + dataRestrictedDetail.listRestricted[i].RImagejson + "' /></td>";
                     tr += "<td height='70' style='text-align:center;'>" + ((typeof (dataRestrictedDetail.listRestricted[i].RDescription) != 'undefined') && (dataRestrictedDetail.listRestricted[i].RDescription != null) ? dataRestrictedDetail.listRestricted[i].RDescription : '') + "</td>";
                     tr += "<td height='70'><a href='#' onclick='deleteRestricted(this);' accesskey=" + dataRestrictedDetail.listRestricted[i].RestrictedId + ">Delete</td>";
@@ -8994,13 +9047,16 @@
                     tr += "<tr><style='text-align:center;'>";
                     tr += "<td style='text-align:center;'><a href='#' onclick='GetOther(this);' accesskey=" + dataOther.listOther[i].OthersId + ">" + ((typeof (dataOther.listOther[i].Ofirstname) != 'undefined') && (dataOther.listOther[i].Ofirstname != null) ? dataOther.listOther[i].Ofirstname + ' ' + dataOther.listOther[i].Omiddlename + ' ' + dataOther.listOther[i].Olastname : '') + "</td>";
 
-                    if (dataOther.listOther[i].HouseHoldImagejson == "") {
-                        tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage ZoomImage' width='50' src='/Content/img/download.jpg'></td>";
-                    }
-                    else {
-                        tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage ZoomImage' width='50' src='data:image/jpg;base64," + dataOther.listOther[i].HouseHoldImagejson + "'></td>";
+                    //if (dataOther.listOther[i].HouseHoldImagejson == "") {
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage ZoomImage' width='50' src='/Content/img/download.jpg'></td>";
+                    //}
+                    //else {
+                    //    tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage ZoomImage' width='50' src='data:image/jpg;base64," + dataOther.listOther[i].HouseHoldImagejson + "'></td>";
 
-                    }
+                    //}
+
+                   tr += '<td height="70" style="text-align:center;"><a href="javascript:void(0);" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,1);" eclientid='+ dataOther.listOther[i].OthersId+'>View</a></td>';
+
 
                     //  tr += "<td height='70' style='text-align:center;'><img height='50' class='roundimage ZoomImage' width='50' src='" + dataOther.listOther[i].HouseHoldImageJson + "'></td>";
                     tr += "<td style='text-align:center;'>" + ((typeof (dataOther.listOther[i].OGender) != 'undefined') && (dataOther.listOther[i].OGender != null) ? dataOther.listOther[i].OGender : '') + "</td>";
@@ -9011,6 +9067,8 @@
                     $('#gridViewOther > tbody').append(tr);
 
                 }
+
+            //    $('#gridViewOther > tbody img').zoomify();
             }
         }
 
@@ -23047,14 +23105,18 @@
                                                             <tr>
                                                                 <td height="70"><a onclick="Getchild(this);" style="cursor:pointer;" accesskey="@childitem.ChildId">@childitem.Cfirstname  @childitem.Cmiddlename  @childitem.Clastname </a> </td>
                                                                 <td height="70" style="text-align:center;">
-                                                                    @if (@childitem.Imagejson == "")
+                                                                   @* @if (@childitem.Imagejson == "")
                                                                     {
                                                                         <img height='50' class="roundimage ZoomImage" width='50' src="~/Content/img/download.jpg" />
                                                                     }
                                                                     else
                                                                     {
-                                                                        <img height='50' class="roundimage ZoomImage" width='50' src="data:image/jpg;base64,@childitem.Imagejson" />
-                                                                    }
+                                                                       <img height='50' class="roundimage ZoomImage" width='50' src="data:image/jpg;base64,@childitem.Imagejson" />
+
+                                                                      
+                                                                    }*@
+
+                                                                    <a href="javascript:void(0)" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,1);" EClientId='@(FingerprintsModel.EncryptDecrypt.Encrypt64(childitem.ChildId.ToString()))'>View</a>
                                                                 </td>
                                                                 <td height="70" style="text-align:center;">@childitem.CDOB</td>
                                                                 <td height="70" style="text-align:center;">@childitem.CGender</td>
@@ -23256,14 +23318,19 @@
                                                                 <tr>
                                                                     <td style="text-align:center;"><a href="#" onclick='GetOther(this);' accesskey="@otheritem.OthersId">@otheritem.Ofirstname</a></td>
                                                                     <td height="70" style="text-align:center;">
-                                                                        @if (@otheritem.HouseHoldImagejson == "")
+                                                                        @*@if (@otheritem.HouseHoldImagejson == "")
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="~/Content/img/download.jpg" />
                                                                         }
                                                                         else
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="data:image/jpg;base64,@otheritem.HouseHoldImagejson" />
-                                                                        }
+
+
+                                                                        }*@
+
+                                                                        <a href="javascript:void(0)" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,1);" EClientId='@(FingerprintsModel.EncryptDecrypt.Encrypt64(otheritem.OthersId.ToString()))'>View</a>
+
                                                                     </td>
                                                                     <td style="text-align:center;">@otheritem.OGender</td>
                                                                     <td style="text-align:center;">@otheritem.ODOB</td>
@@ -24272,14 +24339,17 @@
                                                                         <a href="#" onclick="Getemergencycontact(this);" accesskey="@Eitem.EmegencyId">@Eitem.Efirstname</a>
                                                                     </td>
                                                                     <td height="70" style="text-align:center;">
-                                                                        @if (@Eitem.EImagejson == "")
+                                                                        @*@if (@Eitem.EImagejson == "")
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="~/Content/img/download.jpg" />
                                                                         }
                                                                         else
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="data:image/jpg;base64,@Eitem.EImagejson" />
-                                                                        }
+                                                                        }*@
+
+                                                                        <a href="javascript:void(0)" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,2);" EClientId='@(FingerprintsModel.EncryptDecrypt.Encrypt64(Eitem.EmegencyId.ToString()))'>View</a>
+
                                                                     </td>
                                                                     <td height="70" style="text-align:center;">@Eitem.EDOB</td>
                                                                     <td height="70" style="text-align:center;">@Eitem.ERelationwithchild</td>
@@ -24377,14 +24447,18 @@
                                                                 <tr>
                                                                     <td height="70"><a onclick="GetRestricted(this);" style="cursor:pointer;" accesskey="@ritem.RestrictedId">@ritem.Rfirstname  @ritem.Rlastname</a> </td>
                                                                     <td height="70" style="text-align:center;">
-                                                                        @if (@ritem.RImagejson == "")
+                                                                        @*@if (@ritem.RImagejson == "")
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="~/Content/img/download.jpg" />
                                                                         }
                                                                         else
                                                                         {
                                                                             <img height='50' class="roundimage ZoomImage" width='50' src="data:image/jpg;base64,@ritem.RImagejson" />
-                                                                        }
+
+                                                                        }*@
+
+                                                                        <a href="javascript:void(0)" data-toggle="tooltip" title="Click to view profile picture" onclick="showImage(this,2);" EClientId='@(FingerprintsModel.EncryptDecrypt.Encrypt64(ritem.RestrictedId.ToString()))'>View</a>
+
                                                                     </td>
                                                                     <td height="70" style="text-align:center;">@ritem.RDescription</td>
                                                                     <td height="70" style="text-align:center;"><a href='#' onclick="deleteRestricted(this);" accesskey="@ritem.RestrictedId">Delete</a></td>
