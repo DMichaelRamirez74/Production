@@ -3094,6 +3094,9 @@ namespace Fingerprints.Controllers
             }
         }
 
+
+        #region EligibilityFormPDF
+
         [AllowAnonymous]
         public ActionResult EligibilityFormPdfView(string id = "0")
         {
@@ -3104,8 +3107,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
+        public FileResult GetEligibilityForm(string id = "0")
         //public ActionResult GetEligibilityForm(string id = "0")
-       public FileResult GetEligibilityForm(string id = "0")
         {
             string[] name = id.Split(',');
 
@@ -3175,6 +3178,8 @@ namespace Fingerprints.Controllers
             return sb.ToString();
         }
 
+
+        #endregion EligibilityFormPDF
 
         [JsonMaxLengthAttribute]
         public JsonResult getagencyid(string Agencyid = "0", string roleid = "",string programYear="")

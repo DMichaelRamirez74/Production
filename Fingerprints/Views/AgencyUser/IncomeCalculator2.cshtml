@@ -1397,10 +1397,38 @@
             //  }
         });
 
-       
-        $("#form1").append(_str);
-        $(".docsubmitted-panel").remove(); //remove doc panel for duplicated.
-         */
+
+                $("#form1").append(_str);
+                $(".docsubmitted-panel").remove(); //remove doc panel for duplicated.
+                 */
+
+
+
+        var _docValid=true;
+        $('#DivFirst1').children().each(function(i) {
+            if ($(this).children().length > 0) {
+
+                var _othChecked = $(this).find('.rect_check.othercheck')[0].checked;
+                var _srcName = $(this).find('.income-heading').text();
+                if(_othChecked && !$(this).find('.otherdoc').val()){
+                    _docValid=false;
+                    customAlert("Other Document Name is Required for "+_srcName+"");
+                    $(this).find('.otherdoc').css("background-color",'pink');
+                    $(this).find('.otherdoc').focus();
+                }else{
+                    $(this).find('.rect_check.othercheck').css("background-color",'#fff');
+                    
+                }
+
+            }
+
+        });
+
+        if(!_docValid){
+            $('#spinner').hide();
+            return false;
+        }
+
         appendIncomeDocuments(); //insert all selected docuemnts to form1
         var myform = document.getElementById("form1");
         var fd = new FormData(myform);
@@ -1574,26 +1602,27 @@
                             </div>
                         }
                     </div>
-                        <div class="col-md-12" style="margin-bottom:3%;">
-                            @if (Model[0].Income == 2)
-                            {
-                                <input type="radio" value="2" name="Income2[0].Income" checked="checked" id="Income1" onchange="EnableIncome1();">
-                            }
-                            else
-                            {
-                                <input type="radio" value="2" name="Income2[0].Income" id="Income1" onchange="EnableIncome1();">
-                            }
-                            <span class="incomespan">Income Source </span>
+                    <div class="col-md-12" style="margin-bottom:3%;">
+                        @if (Model[0].Income == 2)
+                        {
+                            <input type="radio" value="2" name="Income2[0].Income" checked="checked" id="Income1" onchange="EnableIncome1();">
+                        }
+                        else
+                        {
+                            <input type="radio" value="2" name="Income2[0].Income" id="Income1" onchange="EnableIncome1();">
+                        }
+                        <span class="incomespan">Income Source </span>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div style="margin:0 0 35px;display:none;" id="divisource1">
+                        <div class="col-xs-5">
+                          
+                            <span class="incomespan">Income Source Name</span>
+                            <input type="text" maxlength="50" class="form-control" autocorrect="off" id="IncomeSourcecheck1" disabled="disabled" style="width:80%; float:left; margin-top:4%;" placeholder="Enter Source Name">
+                            <span style="float: left; margin: 21px 0 0 10px;">
+                                <a id="a12" href="javascript:void(0)" onclick="AddIncomeDiv1();"><i class="fa fa-arrow-up"></i></a>
+                            </span>
                         </div>
-                        <div class="clearfix"></div>
-                        <div style="margin:0 0 35px;display:none;" id="divisource1">
-                            <div class="col-xs-5">
-                                <span class="incomespan">Income Source Name</span>
-                                <input type="text" maxlength="50" class="form-control" id="IncomeSourcecheck1" disabled="disabled" style="width:80%; float:left; margin-top:4%;">
-                                <span style="float: left; margin: 21px 0 0 10px;">
-                                    <a id="a12" href="javascript:void(0)" onclick="AddIncomeDiv1();"><i class="fa fa-arrow-up"></i></a>
-                                </span>
-                            </div>
 
 
                             @if (string.IsNullOrEmpty(@Model[0].IncomeSource1))
@@ -1984,7 +2013,7 @@
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <input type="checkbox" class="rect_check" name="Income2[@i].Documents[6].DocumentId" value="7" @(item.Documents.Any(x => x.DocumentId == 7) ? "checked" : "") />
-                                                            <label class="rect-check-label">Pay stub or pay enevelopes</label>
+                                                            <label class="rect-check-label">Pay stub or pay envelopes</label>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <input type="checkbox" class="rect_check" name="Income2[@i].Documents[7].DocumentId" value="8" @(item.Documents.Any(x => x.DocumentId == 8) ? "checked" : "") />

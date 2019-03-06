@@ -274,8 +274,9 @@
                 str="SSI Documentation";
                 break;
             case 7:
-                str="Pay stub or pay enevelopes";
-                break;
+              // str="Pay stub or pay enevelopes";
+                str="Pay stub or pay  envelopes"; 
+               break;
             case 8:
                 str="Unemployment";
                 break;
@@ -827,6 +828,29 @@
             }
         });
     }
+
+
+
+    
+
+    $(document).on("change",".rect_check",function(e){
+        var _curVal = $(this).val();
+        var _parent = $(this).parents('.docsubmitted-panel')
+        var allCheck = _parent.find('.rect_check');
+        
+        $.each(allCheck,function(i,e){
+          //  console.log(e.value,i)
+            if(_curVal != e.value){
+                $(e)[0].checked=false;
+                if(e.value == "0"){
+                    _parent.find('.otherdoc').val('').slideUp();
+
+                }
+            }
+        })
+
+    });
+
     function CalculateIncome() {
         NoofVoucher = 0;
         totalincome = 0;
@@ -1635,6 +1659,32 @@
 
           //  }
         });*/
+
+        var _docValid=true;
+        $('#DivFirst').children().each(function(i) {
+            if ($(this).children().length > 0) {
+
+                var _othChecked = $(this).find('.rect_check.othercheck')[0].checked;
+                var _srcName = $(this).find('.income-heading').text();
+                if(_othChecked && !$(this).find('.otherdoc').val()){
+                    _docValid=false;
+                    customAlert("Other Document Name is Required for "+_srcName+"");
+                    $(this).find('.otherdoc').css("background-color",'pink');
+                    $(this).find('.otherdoc').focus();
+                }else{
+                    $(this).find('.rect_check.othercheck').css("background-color",'#fff');
+                    
+                }
+
+            }
+
+        });
+
+        if(!_docValid){
+            $('#spinner').hide();
+            return false;
+        }
+
         appendIncomeDocuments(); //insert all selected docuemnts to form1
 
 /*
@@ -1712,7 +1762,7 @@
         if(Data.list1!="")
         {
             $('#Myincomecalculator1').remove();
-            $('#Myincomecalculator1').append(Data.list1);
+            $('#form1').append(Data.list1);
            // $('#Myincomecalculator1 .mbody').html('');
           //  $('#Myincomecalculator1 .mbody').append(Data.list1);
             //$("#form1").append(Data.list1);
@@ -1751,7 +1801,7 @@
         if (mode) {
             $('#Span1').text('$' + commaSeparateNumber(Math.round(totalincome1)));
             $('#Span1').css("color", "#333");
-            $('#Myincomecalculator').modal('toggle');
+          //  $('#Myincomecalculator').modal('toggle'); march-6-19
             $('#incomeq1').text(commaSeparateNumber(Math.round(totalincome1)));
         }
 
@@ -2091,25 +2141,25 @@ accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpo
                                 <input type="radio" name="Income1[0].Income" id="Income" value="2" onchange="EnableIncome(this);">
                             }
 
-                            <span class="incomespan">Income Source </span>
+                        <span class="incomespan">Income Source </span>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div style="margin:0 0 35px;display:none;" id="divisource">
+                        <div class="col-xs-5">
+                            <span class="incomespan">Income Source Name</span>
+                            <input type="text" maxlength="50" class="form-control" autocomplete="off" id="IncomeSourcecheck" disabled="disabled" style="width:80%; float:left; margin-top:4%;">
+                            <span style="float: left; margin: 21px 0 0 10px;">
+                                <a id="a1" href="javascript:void(0)" onclick="AddIncomeDiv();"><i class="fa fa-arrow-up"></i></a>
+                            </span>
                         </div>
-                        <div class="clearfix"></div>
-                        <div style="margin:0 0 35px;display:none;" id="divisource">
-                            <div class="col-xs-5">
-                                <span class="incomespan">Income Source Name</span>
-                                <input type="text" maxlength="50" class="form-control" id="IncomeSourcecheck" disabled="disabled" style="width:80%; float:left; margin-top:4%;">
-                                <span style="float: left; margin: 21px 0 0 10px;">
-                                    <a id="a1" href="javascript:void(0)" onclick="AddIncomeDiv();"><i class="fa fa-arrow-up"></i></a>
-                                </span>
-                            </div>
-                            @if (string.IsNullOrEmpty(@Model[0].IncomeSource1))
-                            {
-                                <div class="col-sm-3">
-                                    <input type="text" id="C1" style="display:none; margin-top:6%;" class="form-control" readonly="readonly" placeholder="Calculated Income" />
-                                </div>
-                                <div class="col-xs-3 " style="margin-top: 1%;display:none;" id="Divcalculateshow1">
-                                    <button id="btnSubmitDentist" onclick="CalculateIncome();" class="my-btn" type="button" style="width:100% !important;">Calculate Income</button>
-                                </div>
+                        @if (string.IsNullOrEmpty(@Model[0].IncomeSource1))
+            {
+            <div class="col-sm-3">
+                <input type="text" id="C1" style="display:none; margin-top:6%;" class="form-control" readonly="readonly" placeholder="Calculated Income" />
+            </div>
+            <div class="col-xs-3 " style="margin-top: 1%;display:none;" id="Divcalculateshow1">
+                <button id="btnSubmitDentist" onclick="CalculateIncome();" class="my-btn" type="button" style="width:100% !important;">Calculate Income</button>
+            </div>
 
                             }
                             else
@@ -2507,44 +2557,44 @@ text/plain, application/pdf, image/*" capture="camera" accesskey="1" type="file"
 
 }
 
-                                        <div class="col-sm-12">
-                                            <div class="col-sm-6">
-                                              <input type="checkbox" class="rect_check" name="Income1[@i].Documents[0].DocumentId" value="1" @(item.Documents.Any(x=>x.DocumentId == 1) ? "checked" : "") />
-            <label class="rect-check-label" >Income Tax Form 1040</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[1].DocumentId" value="2" @(item.Documents.Any(x=>x.DocumentId == 2) ? "checked" : "")/>
-                                                <label class="rect-check-label">Written Statements form employers</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[2].DocumentId" value="3" @(item.Documents.Any(x=>x.DocumentId == 3) ? "checked" : "") />
-                                                <label class="rect-check-label">W-2</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[3].DocumentId" value="4" @(item.Documents.Any(x=>x.DocumentId == 4) ? "checked" : "") />
-                                                <label class="rect-check-label">Foster care reimbursement</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[4].DocumentId" value="5"  @(item.Documents.Any(x=>x.DocumentId == 5) ? "checked" : "") />
-                                                <label class="rect-check-label">TANF documentation </label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[5].DocumentId" value="6" @(item.Documents.Any(x=>x.DocumentId == 6) ? "checked" : "") />
-                                                <label class="rect-check-label">SSI Documentation</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[6].DocumentId" value="7" @(item.Documents.Any(x=>x.DocumentId == 7) ? "checked" : "")/>
-                                                <label class="rect-check-label">Pay stub or pay enevelopes</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check"  name="Income1[@i].Documents[7].DocumentId" value="8" @(item.Documents.Any(x=>x.DocumentId == 8) ? "checked" : "") />
-                                                <label class="rect-check-label">Unemployment</label>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <input type="checkbox" class="rect_check othercheck"  name="Income1[@i].Documents[8].DocumentId" value="0" @(item.Documents.Any(x=>x.DocumentId == 0) ? "checked" : "") />
-                                                <label class="rect-check-label">Other</label>
-                                                <input type="text"  class="form-control otherdoc" style="margin:0px 0px 10px 15px;display:@(item.Documents.Any(x=>x.DocumentId == 0) ? "block":"none");" value="@(item.Documents.Any(x=>x.DocumentId == 0) ? @item.Documents.Where(x=>x.DocumentId == 0).FirstOrDefault().DocumentName : "")" />
-                                            </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[0].DocumentId" value="1" @(item.Documents.Any(x => x.DocumentId == 1) ? "checked" : "") />
+                                        <label class="rect-check-label">Income Tax Form 1040</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[1].DocumentId" value="2" @(item.Documents.Any(x => x.DocumentId == 2) ? "checked" : "") />
+                                        <label class="rect-check-label">Written Statements form employers</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[2].DocumentId" value="3" @(item.Documents.Any(x => x.DocumentId == 3) ? "checked" : "") />
+                                        <label class="rect-check-label">W-2</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[3].DocumentId" value="4" @(item.Documents.Any(x => x.DocumentId == 4) ? "checked" : "") />
+                                        <label class="rect-check-label">Foster care reimbursement</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[4].DocumentId" value="5" @(item.Documents.Any(x => x.DocumentId == 5) ? "checked" : "") />
+                                        <label class="rect-check-label">TANF documentation </label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[5].DocumentId" value="6" @(item.Documents.Any(x => x.DocumentId == 6) ? "checked" : "") />
+                                        <label class="rect-check-label">SSI Documentation</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[6].DocumentId" value="7" @(item.Documents.Any(x => x.DocumentId == 7) ? "checked" : "") />
+                                        <label class="rect-check-label">Pay stub or pay envelopes</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check" name="Income1[@i].Documents[7].DocumentId" value="8" @(item.Documents.Any(x => x.DocumentId == 8) ? "checked" : "") />
+                                        <label class="rect-check-label">Unemployment</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="checkbox" class="rect_check othercheck" name="Income1[@i].Documents[8].DocumentId" value="0" @(item.Documents.Any(x => x.DocumentId == 0) ? "checked" : "") />
+                                        <label class="rect-check-label">Other</label>
+                                        <input type="text" class="form-control otherdoc" style="margin:0px 0px 10px 15px;display:@(item.Documents.Any(x=>x.DocumentId == 0) ? "block":"none");" value="@(item.Documents.Any(x=>x.DocumentId == 0) ? @item.Documents.Where(x=>x.DocumentId == 0).FirstOrDefault().DocumentName : "")" />
+                                    </div>
 
                                         </div>
 
@@ -2654,7 +2704,7 @@ text/plain, application/pdf, image/*" capture="camera" accesskey="1" type="file"
                     </div>
                     <div class="col-sm-6">
                         <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="7">
-                        <label class="rect-check-label">Pay stub or pay enevelopes</label>
+                        <label class="rect-check-label">Pay stub or pay envelopes</label>
                     </div>
                     <div class="col-sm-6">
                         <input type="checkbox" class="rect_check" name="Income1[0].Documents[].DocumentId" value="8">
