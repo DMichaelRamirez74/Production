@@ -1339,9 +1339,28 @@ namespace FingerprintsData
                             }
                             var docName = string.Empty;
 
-                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0) {
-                                docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                            //if (parentincome.Documents != null) {
+
+                            //    var Ids = parentincome.Documents.Where(k => k.DocumentId == 0).ToList();
+
+                            //}
+
+                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0) != null &&
+                               parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0 && 
+                               parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName) != null &&
+                               parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).ToList().Count > 0 )
+                            {
+
+
+
+                                docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault();
+                               
                             }
+
+                          //var docname1 = parentincome.Documents.Select(k => k.DocumentName).FirstOrDefault();
+                          //  if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0 && !string.IsNullOrEmpty(docname1)) {
+                          //      docname1 = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                          //  }
                          
                             documents = string.Join(",", docAr);
 
@@ -1483,11 +1502,20 @@ namespace FingerprintsData
                                 docAr = parentincome.Documents.Select(i => i.DocumentId).ToArray();
                             }
                             var docName = string.Empty;
+                            //var docname2 = parentincome.Documents.Select(k => k.DocumentName).FirstOrDefault();
+                            //if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0 && !string.IsNullOrEmpty(docname2)) {
+                            //    docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                            //}
 
-                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0) {
-                                docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+                            if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0) != null &&
+   parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0 &&
+   parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).ToList().Count > 0)
+                            {
+
+                                 docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault();
+
                             }
-                         
+
                             documents = string.Join(",", docAr);
 
                             dt.Rows.Add(parentincome.newincomeid, parentincome.Income, parentincome.IncomeSource1, parentincome.IncomeSource2, parentincome.IncomeSource3,
@@ -1554,10 +1582,13 @@ namespace FingerprintsData
                                     docAr = parentincome.Documents.Select(i => i.DocumentId).ToArray();
                                 }
                                 var docName = string.Empty;
-
-                                if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0)
+                                if (parentincome.Documents != null && parentincome.Documents.Where(k => k.DocumentId == 0) != null &&
+   parentincome.Documents.Where(k => k.DocumentId == 0).Count() > 0 &&
+   parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).ToList().Count > 0)
                                 {
-                                    docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault().ToString();
+
+                                     docName = parentincome.Documents.Where(k => k.DocumentId == 0).Select(i => i.DocumentName).FirstOrDefault();
+
                                 }
 
                                 documents = string.Join(",", docAr);
