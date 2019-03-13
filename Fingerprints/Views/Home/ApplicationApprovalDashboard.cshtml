@@ -27,7 +27,10 @@
         width: calc(100% - 0px);
         display: table;
     }
-
+    #ulPaging li{display:inherit;}
+     #ulPaging li a{
+    line-height: 20px !important;
+}
     .table-headfix tbody {
         height: 235px;
         overflow-y: scroll;
@@ -635,32 +638,66 @@ td.centered-td {
                 tr = "";
                 tr += "<tr>";
                 for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
-                    tr += "<td style='border-left: 1px solid white !important;border-right: 1px solid white !important;'></td>";
+
+                    var headingData = data[0];
+
+                    var index = (headingData.length - $('#DivclientmissingList > thead >tr > th').length) + i;
+
+                    if (i > 1)
+                    {
+                        tr += "<td style='text-align: center;background: #285b90;color: #fff;'>" + headingData[index] + "</td>";
+
+                    }
+                    else {
+                        tr += "<td style='border-left: 1px solid white !important;border-right: 1px solid white !important;'></td>";
+
+                    }
+
                 }
                 tr += "</tr>";
                 $('#DivclientmissingList > tbody').append(tr);
                 tr = "";
-                for (var j = 0; j < 4; j++) {
-                    tr += "<tr>";
-                    for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
-                        if (i == 0) {
+
+                var theadLength = $('#DivclientmissingList > thead >tr > th').length;
+                for (var j = 0; j < 4; j++) {  //total summary rows count =4 //
+                    tr += "<tr style='background-color: #e8e8e8;'>";
+                    for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) { // total number of columns //
+
+                        if (i == 0) { // first column will be filled with summary titles //
                             if (j == 0)
-                                tr += "<td>Up-to-date</td>";
+                                tr += "<td colspan=2><strong>Up-to-date</strong></td>";
                             if (j == 1)
-                                tr += "<td style='color:#295b8f;'>Missing</td>";
+                                tr += "<td colspan=2 style='color:#295b8f;'><strong>Missing</strong></td>";
                             if (j == 2)
-                                tr += "<td style='color:#FF0000;'>Expired</td>";
+                                tr += "<td colspan=2 style='color:#FF0000;'><strong>Expired</strong></td>";
                             if (j == 3)
-                                tr += "<td style='color:#FFA500;'>Expiring</td>";
+                                tr += "<td colspan=2 style='color:#FFA500;'><strong>Expiring</strong></td>";
                         }
-                        else {
+
+                        else if(i==1) // second column will be filled with empty string, since this is the program type field //
+                        {
+                           // tr += "<td></td>";
+                        }
+                        else { // updation  starts from the index 2 //
                             var count = 0;
                             if (j == 0) {
 
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
-                                    if (Rowi[i+1].indexOf("ScreeningDate") > -1)
+
+                                   // var datalength = Rowi.length - (theadLength - 2) + (i - 2);
+
+                                    var datalength = (Rowi.length - theadLength) + i;
+                              
+
+                                    if (Rowi[datalength].indexOf('ScreeningDate') > -1)
                                         count = count + 1;
+
+                                    //if (Rowi.filter(function (e) { return e.indexOf('ScreeningDate')>-1 }).length > 0)
+                                    //    count = count + 1;
+
+                                    //if (Rowi[i + 1].indexOf("ScreeningDate") > -1)
+                                    //    count = count + 1;
                                 }
                                 tr += "<td>"+count+"</td>";
                             }
@@ -669,8 +706,17 @@ td.centered-td {
                                 var count = 0;
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
-                                    if (Rowi[i + 1] == "M")
+                                    
+                                    var datalength = (Rowi.length - theadLength) + i;
+
+                                    if (Rowi[datalength] == "M")
                                         count = count + 1;
+
+                                    //if (Rowi.indexOf('M')>-1)
+                                    //    count = count + 1;
+
+                                    //if (Rowi[i + 1] == "M")
+                                    //    count = count + 1;
                                 }
                                 tr += "<td>" + count + "</td>";
                             }
@@ -679,8 +725,17 @@ td.centered-td {
                                 var count = 0;
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
-                                    if (Rowi[i + 1].indexOf("ExpiredDate") > -1)
+
+                                    var datalength = (Rowi.length - theadLength) + i;
+
+                                    if (Rowi[datalength].indexOf("ExpiredDate") > -1)
                                         count = count + 1;
+
+                                    //if (Rowi.filter(function (e) { return e.indexOf('ExpiredDate') > -1 }).length > 0)
+                                    //    count = count + 1;
+
+                                    //if (Rowi[i + 1].indexOf("ExpiredDate") > -1)
+                                    //    count = count + 1;
                                 }
                                 tr += "<td>" + count + "</td>";
                             }
@@ -689,8 +744,17 @@ td.centered-td {
                                 var count = 0;
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
-                                    if (Rowi[i + 1].indexOf("ExpiringDate") > -1)
+
+                                    var datalength = (Rowi.length - theadLength) + i;
+                                    if (Rowi[datalength].indexOf("ExpiringDate") > -1)
                                         count = count + 1;
+
+                                    //if (Rowi.filter(function (e) { return e.indexOf('ExpiringDate') > -1 }).length > 0)
+                                    //    count = count + 1;
+
+
+                                    //if (Rowi[i + 1].indexOf("ExpiringDate") > -1)
+                                    //    count = count + 1;
 
                                 }
                                 tr += "<td>" + count + "</td>";
@@ -1205,58 +1269,120 @@ td.centered-td {
 
     @*Pop up client screening missing*@
 
-    <div class="row qualifierdiv">
-        <div class="modal fade scroll-modal" id="Modalclientscreeningmissing" role="dialog">
-            <div class="modal-dialog income-popup width-auto">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 id="CenterName3" class="text-center">Missing Screnning<span class="extra-title muted"></span></h3>
-                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
-                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
-                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
-                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
-                                <div class="clear"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <div>
-                            <div class="row qualifierdiv">
-                                <div class="row" style="margin-bottom:3%;">
-                                    <div class="col-sm-12">
-                                        <div class="col-lg-3">
-                                            <div class="form-group">
-                                                <label for="RaceId" style="font-weight: normal;">Classrooms</label>
-                                                <select id="Classroommatrix" style="height:38px !important;" class="form-control"></select>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-3" style="padding-top: 2%;">
-                                            <button id="btnsearch" class="my-btn" onclick="searchchildmissingscreening();">Search</button>
-                                            <button id="btnclear" class="my-btn" onclick="Loadchildmissingscreeningclear();">Clear</button>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                            <div class="table-responsive">
-                                                <table class="table table_size table-headfix" id="DivclientmissingList">
-                                                    <thead style="cursor:pointer;">
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                                <div id="div3" style="text-align:center;display:none;">
-                                                    <label>No result found.</label>
+                                <div class="row qualifierdiv">
+                                    <div class="modal fade" id="Modalclientscreeningmissing" role="dialog">
+                                        <div class="modal-dialog income-popup width-auto">
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 id="CenterName3" class="text-center">Missing Screnning<span class="extra-title muted"></span></h3>
+                                                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                                                        <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                                            <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                                            <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                                            <div class="clear"></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="col-sm-6">
-                                            <h4 style="color: #295b8f;">    <span id="MissingRecord">Total missing or expired records :</span></h4>
-                                            <h4 style="color: #295b8f;">    <span id="Completedscreening">Total up-to-date screening :</span></h4>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <h4 class="pull-right">    <a onclick="DownLoadExcelFile();" style="text-decoration: underline; cursor: pointer; color: #295b8f;">Click here to print </a></h4>
-                                        </div>
-                                    </div>
+                                                <div class="control-group">
+                                                    <div>
+                                                        <div class="row qualifierdiv">
+                                                            <div class="row" style="margin-bottom:3%;">
+                                                                <div class="col-sm-12">
+                                                                    <div class="col-lg-3">
+                                                                        <div class="form-group">
+                                                                            <label for="RaceId" style="font-weight: normal;">Classrooms</label>
+                                                                            <select id="Classroommatrix" style="height:38px !important;" class="form-control"></select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-3" style="padding-top: 2%;">
+                                                                        <button id="btnsearch" class="my-btn" onclick="searchchildmissingscreening();">Search</button>
+                                                                        <button id="btnclear" class="my-btn" onclick="Loadchildmissingscreeningclear();">Clear</button>
+                                                                    </div>
+                                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                                        <div class="table-responsive">
+                                                                            <table class="table table_size" id="DivclientmissingList">
+                                                                                <thead style="cursor:pointer;">
+                                                                                </thead>
+                                                                                <tbody></tbody>
+                                                                            </table>
+                                                                            <div id="div3" style="text-align:center;display:none;">
+                                                                                <label>No result found.</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                @*<div class="col-xs-12">
+                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                                                        <div class="pages_display">
+                                                                            <ul>
+                                                                                <li style="color:#333;">Display</li>
+                                                                                <li>
+                                                                                    <select id="ddlpagetodisplay">
+                                                                                        <option value="10" selected="selected">10</option>
+                                                                                        <option value="20">20</option>
+                                                                                        <option value="30">30</option>
+                                                                                        <option value="50">50</option>
+                                                                                        <option value="100">100</option>
+                                                                                    </select>
+                                                                                </li>
+                                                                                <li style="color:#333;">Records Per Page</li>
+                                                                            </ul>
+                                                                            <div class="clear"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                                        <div id="divPaging" class="pagination_wrp">
+                                                                            <ul id="ulPaging" class="pagination">
+                                                                                <li>
+
+
+
+                                                                                    <a href="javascript:void(0);" id="First" disabled="">
+                                                                                        <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                    </a>
+
+                                                                                </li>
+                                                                                <li title="Back">
+
+
+                                                                                    <a href="javascript:void(0);" id="Back" disabled="">
+                                                                                        <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                    </a>
+
+                                                                                </li>
+                                                                                <li title="Select">
+                                                                                    <select class="select_cl" id="ddlpaging" style="margin-left: 0px;"></select>
+                                                                                </li>
+                                                                                <li title="Next">
+
+                                                                                    <a href="javascript:void(0);" id="Next" disabled="" style="">
+                                                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li title="Last">
+
+                                                                                    <a href="javascript:void(0);" id="Last" disabled="">
+                                                                                        <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>*@
+
+
+                                                                <div class="col-sm-12">
+                                                                    <div class="col-sm-6">
+                                                                        <h4 style="color: #295b8f;">    <span id="MissingRecord">Total missing or expired records :</span></h4>
+                                                                        <h4 style="color: #295b8f;">    <span id="Completedscreening">Total up-to-date screening :</span></h4>
+                                                                    </div>
+                                                                    <div class="col-sm-6">
+                                                                        <h4 class="pull-right">    <a onclick="DownLoadExcelFile();" style="text-decoration: underline; cursor: pointer; color: #295b8f;">Click here to print </a></h4>
+                                                                    </div>
+                                                                </div>
 
 
 
