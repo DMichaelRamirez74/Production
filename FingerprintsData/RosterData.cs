@@ -6399,8 +6399,8 @@ group by PD.ProgramType, ED.ProgramID
 
         #region Case notes for attendance issue
 
-     
-        public CaseNoteByClientID GetDevelopmentalMembersByClientID(string clientId, StaffDetails staffDetails,int yakkrcode=0)
+
+        public CaseNoteByClientID GetDevelopmentalMembersByClientID(long clientId, StaffDetails staffDetails, int yakkrcode = 0)
         {
 
             CaseNoteByClientID clientCaseNote = new CaseNoteByClientID();
@@ -6463,7 +6463,7 @@ group by PD.ProgramType, ED.ProgramID
                     if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
                     {
                         clientCaseNote.Clientlist = (from DataRow dr2 in _dataset.Tables[2].Rows
-                                                     where dr2["ClientID"].ToString() == clientId
+                                                     //where dr2["ClientID"].ToString() == Convert.ToString(clientId)
                                                      select new RosterNew.User
                                                      {
                                                          Id = Convert.ToString(dr2["clientID"]),

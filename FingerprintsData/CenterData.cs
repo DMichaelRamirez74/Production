@@ -1679,7 +1679,7 @@ namespace FingerprintsData
             return model;
         }
 
-        public List<Tuple<bool, string, string, string, long, string, string>> GetParentAndManagementEmail(Guid UserId, string RecordType, bool isStaff, long centerId, long classRoomId)
+        public List<Tuple<bool, string, string, string, long, string, string>> GetParentAndManagementEmail(StaffDetails staff, int RecordType, bool isStaff, long centerId, long classRoomId)
         {
             Dictionary<String, String> dictEmail = new Dictionary<string, string>();
             List<Tuple<bool, string, string, string, long, string, string>> list = new List<Tuple<bool, string, string, string, long, string, string>>();
@@ -1693,7 +1693,8 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetParentsAndManagementEmail";
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@CenterId", centerId));
                 command.Parameters.Add(new SqlParameter("@ClassRoomId", classRoomId));
                 command.Parameters.Add(new SqlParameter("@RecordType", RecordType));
@@ -1716,7 +1717,7 @@ namespace FingerprintsData
 
                     }
 
-                    if (_dataset.Tables[1].Rows.Count > 0 && isStaff == false && RecordType != "3")
+                    if (_dataset.Tables[1].Rows.Count > 0 && isStaff == false && RecordType != 3)
                     {
                         int i = 0;
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
@@ -1981,6 +1982,572 @@ namespace FingerprintsData
             return result;
 
         }
+
+
+
+        #region check un-scheduled school days exists
+
+
+        public List<SelectListItem> CheckUnscheduledSchoolDay(StaffDetails staff, UnscheduledSchoolDay unscheduledSchoolDay)
+        {
+
+            List<SelectListItem> classList = new List<SelectListItem>();
+            try
+            {
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@CenterID", EncryptDecrypt.Decrypt64(unscheduledSchoolDay.CenterID)));
+                    command.Parameters.Add(new SqlParameter("@Classrooms", string.Join(",", unscheduledSchoolDay.ClassroomID)));
+                    command.Parameters.Add(new SqlParameter("@ClassDate", unscheduledSchoolDay.ClassDate));
+                    //  command.Parameters.Add(new SqlParameter("@ReasonID", optionaClassDays.UnscheduledSchoolDayReasonID));
+                    //  command.Parameters.Add(new SqlParameter("@ReasonText", optionaClassDays.UnscheduledSchoolDayReason));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_CheckUnscheduledSchoolDayExists";
+                    Connection.Open();
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                classList.Add(new SelectListItem
+                                {
+                                    Text = Convert.ToString(reader["ClassroomName"])
+                                });
+                            }
+                        }
+                    }
+
+
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+
+            }
+            return classList;
+        }
+
+        #endregion
+
+        #region Add UN Scheduled School Days
+        public bool AddunScheduledSchoolDay(out IEnumerable<UnscheduledSchoolDay> unscheduledSchoolDayList, StaffDetails staff, UnscheduledSchoolDay optionaClassDays, int mode)
+        {
+
+            bool isRowsAffected = false;
+            unscheduledSchoolDayList = null;
+            try
+            {
+                long centerId = 0;
+
+
+
+                centerId = long.TryParse(optionaClassDays.CenterID, out centerId) ? centerId : Convert.ToInt64(EncryptDecrypt.Decrypt64(optionaClassDays.CenterID));
+
+                var dBManager = new FingerprintsDataAccessHandler.DBManager(connection.ConnectionString);
+
+                IDbDataParameter[] parameterArray =
+                {
+
+                dBManager.CreateParameter("@AgencyID", staff.AgencyId, DbType.Guid),
+                dBManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                dBManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                dBManager.CreateParameter("@CenterID",centerId,DbType.Int64),
+                dBManager.CreateParameter("@classrooms",string.Join(",", optionaClassDays.ClassroomID),DbType.AnsiString),
+                dBManager.CreateParameter("@ClassDate",optionaClassDays.ClassDate, DbType.String),
+                dBManager.CreateParameter("@ReasonID",optionaClassDays.UnscheduledSchoolDayReasonID,DbType.Int64),
+                dBManager.CreateParameter("@ReasonText",optionaClassDays.UnscheduledSchoolDayReason,DbType.AnsiString),
+                dBManager.CreateParameter("@UnscheduledSchoolDayID",optionaClassDays.UnscheduledSchoolDayID,DbType.Int64),
+                dBManager.CreateParameter("@Mode",mode,DbType.Int32),
+                dBManager.CreateParameter("@Result",int.MaxValue,0,DbType.Int32, System.Data.ParameterDirection.Output)
+
+
+            };
+
+
+                _dataTable = dBManager.GetDataTable("USP_AddUnscheduledSchoolDays", CommandType.StoredProcedure, parameterArray);
+
+
+                isRowsAffected = Convert.ToInt32(parameterArray.
+                                                    Where(x => x.Direction == ParameterDirection.Output && x.ParameterName == "@Result").First().Value) > 0;
+
+
+
+
+
+                if (_dataTable.Rows.Count > 0)
+                {
+                    unscheduledSchoolDayList = _dataTable.AsEnumerable().Select(x => new UnscheduledSchoolDay
+                    {
+
+                        UnscheduledSchoolDayID = x.Field<Int64>("UnscheduledSchoolDayID"),
+                        CenterID = Convert.ToString(x.Field<long>("CenterID")),
+                        ClassroomID = new string[] { x.Field<long>("ClassroomID").ToString() }
+
+                    });
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return isRowsAffected;
+        }
+
+        #endregion
+
+
+        #region Gets the Unscheduled School Days List
+
+        public  Task<UnscheduledSchoolDayModal> GetUnScheduledSchoolDays(UnscheduledSchoolDayModal classDaysModel, StaffDetails staff)
+        {
+
+
+            try
+            {
+
+                classDaysModel.UnscheduledSchoolDayList = new List<UnscheduledSchoolDay>();
+                classDaysModel.ReasonList = new List<SelectListItem>();
+
+
+
+                var dbManager = new FingerprintsDataAccessHandler.DBManager(connection.ConnectionString);
+
+
+
+
+                var parameters = new IDbDataParameter[]
+                  {
+                   dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                   dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                   dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                   dbManager.CreateParameter("@Skip",classDaysModel.SkipRows,DbType.Int32),
+                   dbManager.CreateParameter("@Take",classDaysModel.PageSize,DbType.Int32),
+                   dbManager.CreateParameter("@SortOrder",classDaysModel.SortOrder,DbType.AnsiString),
+                   dbManager.CreateParameter("@SortColumn",classDaysModel.SortColumn,DbType.AnsiString),
+                   dbManager.CreateParameter("@TotalRecord",int.MaxValue, classDaysModel.TotalRecord,DbType.Int32,ParameterDirection.Output)
+
+              };
+
+
+                IDbConnection dbConnection;
+                IDataReader reader;
+                reader =  dbManager.GetDataReader("USP_GetUnscheduledSchoolDays", CommandType.StoredProcedure, parameters, out dbConnection);
+
+                try
+                {
+
+
+                    while (reader.Read())
+                    {
+                        classDaysModel.UnscheduledSchoolDayList.Add(new UnscheduledSchoolDay
+                        {
+                            CenterName = Convert.ToString(reader["CenterName"]),
+                            ClassroomName = Convert.ToString(reader["ClassroomName"]),
+                            UnscheduledSchoolDayReason = Convert.ToString(reader["UnscheduledSchoolDayReason"]),
+                            ClassDate = Convert.ToString(reader["ClassDate"]),
+                            UnscheduledSchoolDayID = Convert.ToInt64(reader["UnscheduledSchoolDayID"])
+                        });
+                    }
+
+
+
+
+                    if (reader.NextResult())
+                    {
+                        while (reader.Read())
+                        {
+                            classDaysModel.ReasonList.Add(new SelectListItem
+                            {
+                                Text = Convert.ToString(reader["UnscheduledSchoolDayReason"]),
+                                Value = Convert.ToString(reader["UnscheduledSchoolDayReasonID"])
+                            });
+                        }
+                    }
+
+                    classDaysModel.ReasonList.Add(new SelectListItem
+                    {
+                        Text= "Other",
+                        Value= "Other"
+                    });
+
+                    classDaysModel.ReasonList.Insert(0, new SelectListItem
+                    {
+                        Text = "--Select--",
+                        Value = "0"
+                    });
+
+
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    clsError.WriteException(ex);
+                }
+                finally
+                {
+                    reader.Close();
+                    dbManager.CloseConnection(dbConnection);
+                }
+
+                classDaysModel.TotalRecord = Convert.ToInt32(parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).First().Value);
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+            }
+
+            return Task.FromResult( classDaysModel);
+        }
+
+        #endregion
+
+
+        #region Gets the Email Report for based on selected Unscheduled School Day
+
+        public async Task<Dictionary<int, object>> GetClientEmailReportBy(Email.ClientEmailReport emailReport)
+        {
+
+            Dictionary<int, object> dictionary = new Dictionary<int, object>();
+
+            dictionary.Add((int)Email.EmailStatusEnum.SentEmails, new List<ParentInfo>());
+            dictionary.Add((int)Email.EmailStatusEnum.BouncedEmails, new List<ParentInfo>());
+            dictionary.Add((int)Email.EmailStatusEnum.NoEmails, new List<ParentInfo>());
+            dictionary.Add(4, new List<UnscheduledSchoolDay>());
+
+
+
+            List<ParentInfo> ChildList = new List<ParentInfo>();
+            List<ParentInfo> parentList = new List<ParentInfo>();
+            List<ParentInfo> PhoneTypeList = new List<ParentInfo>();
+            List<SelectListItem> clientEmailReport = new List<SelectListItem>();
+
+
+            try
+            {
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", emailReport.staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", emailReport.staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", emailReport.staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@ReferenceID", emailReport.ReferenceID));
+                    command.Parameters.Add(new SqlParameter("@EmailType", (int)Email.EmailTypeEnum.UnscheduledSchoolDay));
+                    command.Connection = Connection;
+                    command.CommandText = "USP_GetClientEmailReport";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+
+
+
+                        if (reader.HasRows)
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                ChildList.Add(new ParentInfo
+                                {
+                                    ClientId = Convert.ToInt64(reader["ClientID"]),
+                                    ChildName = Convert.ToString(reader["ChildName"]),
+                                    HouseholdId = Convert.ToInt64(reader["HouseholdID"])
+                                });
+                            }
+
+                        }
+
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                parentList.Add(new ParentInfo
+                                {
+                                    ParentId = Convert.ToInt64(reader["ClientID"]),
+                                    NoEmail = DBNull.Value == reader["NoEmail"] ? false : Convert.ToBoolean(reader["NoEmail"]),
+                                    EmailId = DBNull.Value == reader["EmailID"] ? string.Empty : Convert.ToString(reader["EmailId"]),
+                                    ParentName = Convert.ToString(reader["ParentName"]),
+                                    HouseholdId = Convert.ToInt64(reader["HouseholdID"])
+                                });
+                            }
+                        }
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                PhoneTypeList.Add(new ParentInfo
+                                {
+                                    ParentId = Convert.ToInt64(reader["ParentID"]),
+                                    PhoneNo = DBNull.Value == reader["phoneNo"] ? string.Empty : Convert.ToString(reader["phoneNo"]),
+                                    PhoneType = DBNull.Value == reader["PhoneType"] ? 0 : Convert.ToInt32(reader["PhoneType"]),
+                                });
+                            }
+                        }
+
+
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                clientEmailReport.Add(new SelectListItem
+                                {
+                                    Text = Convert.ToString(reader["ParentID"]),
+
+                                    Value = Convert.ToString(reader["EmailStatus"])
+                                });
+                            }
+                        }
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                dictionary[4] = new UnscheduledSchoolDay
+                                {
+                                    CenterID = Convert.ToString(reader["CenterID"]),
+                                    ClassroomID = new string[] { Convert.ToString(reader["ClassroomID"]) },
+                                    ClassDate = Convert.ToString(reader["ClassDate"]),
+                                    CenterName = Convert.ToString(reader["CenterName"]),
+                                    ClassroomName = Convert.ToString(reader["ClassroomName"])
+
+                                };
+                            }
+                        }
+
+
+
+
+
+
+
+
+
+
+                        var totalList = ChildList.GroupJoin(parentList, c => c.HouseholdId, p => p.HouseholdId, (c, p) => new { c, p })
+      .SelectMany(c => c.p.DefaultIfEmpty(), (c, p) => new
+      {
+          c.c.ClientId,
+          c.c.ChildName,
+          ParentId = Convert.ToString(p.ParentId)
+                                                                  ,
+          p.ParentName
+
+                                            ,
+          p.EmailId
+                                                                  ,
+          p.NoEmail
+      })
+    .GroupJoin(clientEmailReport, cpoo => cpoo.ParentId, ce => ce.Text, (cpoo, ce) => new { cpoo, ce })
+                                                                  .SelectMany(cpooc => cpooc.ce.DefaultIfEmpty(), (cpooc, ce) => new
+                                                                  {
+                                                                      cpooc.cpoo.ClientId,
+                                                                      cpooc.cpoo.ChildName,
+                                                                      cpooc.cpoo.ParentId,
+                                                                      cpooc.cpoo.ParentName,
+                                                                      cpooc.cpoo.NoEmail,
+                                                                      cpooc.cpoo.EmailId,
+                                                                      HomePhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 1 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
+                                                                      MobilePhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 2 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
+                                                                      WorkPhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 3 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
+                                                                      EmailStatus = cpooc.cpoo.NoEmail ? (int)Email.EmailStatusEnum.NoEmails : ce != null ? Convert.ToInt32(ce.Value) : (int)Email.EmailStatusEnum.BouncedEmails
+
+                                                                  }).Distinct().ToList();
+
+
+
+
+
+
+
+
+                        dictionary[(int)Email.EmailStatusEnum.SentEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.SentEmails).Select(y => new ParentInfo
+                        {
+                            ClientId = y.ClientId,
+                            ParentId = Convert.ToInt64(y.ParentId),
+                            ChildName = y.ChildName,
+                            ParentName = y.ParentName,
+                            EmailId = y.EmailId,
+                            HomePhone = y.HomePhone,
+                            MobilePhone = y.MobilePhone,
+                            WorkPhone = y.WorkPhone
+
+
+                        }).Distinct().ToList();
+
+
+
+                        dictionary[(int)Email.EmailStatusEnum.BouncedEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.BouncedEmails).Select(y => new ParentInfo
+                        {
+                            ClientId = y.ClientId,
+                            ParentId = Convert.ToInt64(y.ParentId),
+                            ChildName = y.ChildName,
+                            ParentName = y.ParentName,
+                            EmailId = y.EmailId,
+                            HomePhone = y.HomePhone,
+                            MobilePhone = y.MobilePhone,
+                            WorkPhone = y.WorkPhone
+                        }).Distinct().ToList();
+
+
+                        dictionary[(int)Email.EmailStatusEnum.NoEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.NoEmails).Select(y => new ParentInfo
+                        {
+                            ClientId = y.ClientId,
+                            ParentId = Convert.ToInt64(y.ParentId),
+                            ChildName = y.ChildName,
+                            ParentName = y.ParentName,
+                            EmailId = y.EmailId,
+                            HomePhone = y.HomePhone,
+                            MobilePhone = y.MobilePhone,
+                            WorkPhone = y.WorkPhone
+                        }).Distinct().ToList();
+
+
+
+
+
+
+
+
+                    }
+                }
+
+
+
+
+
+
+
+
+            }
+
+
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return await Task.FromResult(dictionary);
+
+
+        }
+
+        #endregion
+
+        #region Method to change parent's email address from the email report
+        public Task<int> ChangeParentEmail(StaffDetails staff, string parentId, string emailId)
+        {
+
+            int referId = 0;
+            try
+            {
+
+                var dBManager = new FingerprintsDataAccessHandler.DBManager(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                   dBManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                   dBManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                   dBManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                   dBManager.CreateParameter("@ParentID",parentId,DbType.Int64),
+                   dBManager.CreateParameter("@EmailID",emailId,DbType.String)
+
+                };
+
+                referId = dBManager.ExecuteWithScalar<int>("USP_ChangeEmailAddress", CommandType.StoredProcedure, parameters);
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            finally
+            {
+
+            }
+
+            return Task.FromResult(referId);
+
+
+        }
+
+        #endregion
+
+
+        #region Method to check the existence of unsent email parents based one email type
+
+
+
+        public bool CheckForUnsentEmailClients(Email.ClientEmailReport emailReport)
+        {
+            bool isAvailable = true;
+
+            try
+            {
+                var dbManager = new FingerprintsDataAccessHandler.DBManager(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+             {
+                   dbManager.CreateParameter("@AgencyID",emailReport.staffDetails.AgencyId,DbType.Guid),
+                   dbManager.CreateParameter("@RoleID",emailReport.staffDetails.RoleId,DbType.Guid),
+                   dbManager.CreateParameter("@UserID",emailReport.staffDetails.UserId,DbType.Guid),
+                   dbManager.CreateParameter("@EmailType",(int)emailReport.EmailType ,DbType.Int32),
+                   dbManager.CreateParameter("@ReferenceId",emailReport.ReferenceID,DbType.String)
+
+             };
+
+              isAvailable=  dbManager.ExecuteWithScalar<bool>("USP_CheckUnsentEmailParentExists", CommandType.StoredProcedure, parameters);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return isAvailable;
+        }
+
+        #endregion
 
     }
 }

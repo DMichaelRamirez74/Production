@@ -220,7 +220,7 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Teacher/Roster";
 
                 else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
-                    newLocation = "~/Home/CentralManagerDashboard";
+                    newLocation = "~/Home/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
                     newLocation = "~/Home/HealthManager";

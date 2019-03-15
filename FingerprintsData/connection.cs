@@ -16,5 +16,8 @@ namespace FingerprintsData
            return connection;
 
        }
+
+        public const string ConnectionString = "StaffRegistration";
+
     }
 }

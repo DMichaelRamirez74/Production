@@ -36,17 +36,25 @@ namespace FingerprintsModel
             public string HouseHoldId { get; set; }
             public string CaseNoteid { get; set; }
             public string ProgramId { get; set; }
+
+            [Required(ErrorMessage = "At least one client should be selected")]
             public string ClientIds { get; set; }
             public string StaffIds { get; set; }
 
             [Display(Name ="Date")]
+            [Required(ErrorMessage = "Case note date is required")]
+            [DataType(DataType.Date)]
             public string CaseNoteDate { get; set; }
 
+            [Required(ErrorMessage = "Title is required")]
             [Display(Name ="Title")]
             public string CaseNotetitle { get; set; }
 
+            [Required(ErrorMessage = "Tags are required")]
             [Display(Name ="Tags")]
             public string CaseNotetags { get; set; }
+
+            [Required(ErrorMessage ="Note is required")]
             [Display(Name = "Note")]
             public string Note { get; set; }
 

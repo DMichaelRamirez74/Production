@@ -519,6 +519,31 @@ namespace FingerprintsData
                     }
                     #endregion
 
+
+                    #region Unscheduled School Day 
+
+                    else if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode == "904")
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            listDetail.Add(new YakkrClientDetail
+                            {
+                                YakkrCode = !string.IsNullOrEmpty(dr["YakkrCode"].ToString()) ? dr["YakkrCode"].ToString() : "",
+                                CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "",
+                                FromUser = !string.IsNullOrEmpty(dr["FromUser"].ToString()) ? dr["FromUser"].ToString() : "",
+                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToString(dr["Date"]) : "N/A",
+                                YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
+                                Description = Convert.ToString(dr["Description"]),
+                                ClassroomName=Convert.ToString(dr["ClassroomName"])
+
+
+                            });
+                        }
+
+                    }
+
+                    #endregion
+
                     else if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)

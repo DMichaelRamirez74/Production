@@ -11,6 +11,8 @@ using System.Web.Mvc;
 using System.Web;
 using System.IO;
 using System.Globalization;
+using FingerprintsDataAccessHandler;
+
 
 namespace FingerprintsData
 {
@@ -79,7 +81,7 @@ namespace FingerprintsData
                                 executive.EmployeeBirthdayList.Add(new ExecutiveDashBoard.EmployeeBirthday
                                 {
                                     Staff = reader["Staff"].ToString(),
-                                    DateOfBirth = Convert.ToString(reader["DOB"])
+                                    DateOfBirth = Convert.ToDateTime(reader["DOB"].ToString()).ToString("MMM-dd")
                                 });
                             }
                         }
@@ -697,7 +699,7 @@ namespace FingerprintsData
         {
 
             bool isRowsAffected = false;
-           // var dbManager = new DBManager(connection.ConnectionString);
+            var dbManager = new DBManager(connection.ConnectionString);
             try
             {
 
@@ -766,7 +768,7 @@ namespace FingerprintsData
             ExecutiveDashBoard dashboard = new ExecutiveDashBoard();
             double doubCheck = 0;
            // IDbConnection dBconnection = null;
-          //  var dBManager = new DBManager(connection.ConnectionString);
+            var dBManager = new DBManager(connection.ConnectionString);
             //  IDataReader reader = null;
             try
             {

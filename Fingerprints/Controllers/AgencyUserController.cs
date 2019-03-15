@@ -33,6 +33,7 @@ using iTextSharp.tool.xml.pipeline.css;
 using iTextSharp.tool.xml.parser;
 using Fingerprints.Utilities;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Fingerprints.Controllers
 {
@@ -3207,7 +3208,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
         public JsonResult SaveMultipleAcceptanceprocess(List<String> ClientList, string Usernurseid, string householdid, string centerid, string Programid)
         {
             try
@@ -3221,8 +3222,8 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult SaveAcceptanceprocess(string Clientid, string UserFSWId, string householdid, string centerid, string Programid)
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        public JsonResult SaveAcceptanceprocess(string Clientid, string UserFSWId, string householdid, string centerid, string Programid, string acceptanceType)
         {
             try
             {
@@ -3239,8 +3240,8 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult Getallcenter(string mode,bool homebased)
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
+        public JsonResult Getallcenter(string mode, bool homebased)
         {
             try
             {
@@ -3252,7 +3253,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.SocialServiceManager, RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor)]
         [JsonMaxLengthAttribute]
         public JsonResult SaveWaitingclient(List<Waitinginfo> waitinglist)
         {
@@ -4804,7 +4805,8 @@ namespace Fingerprints.Controllers
         //    // return View();
         //}
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
         [HttpPost]
         [JsonMaxLengthAttribute]
         public JsonResult SaveIncomeall(FamilyHousehold info, List<FamilyHousehold.calculateincome> Income1,
@@ -7875,5 +7877,324 @@ namespace Fingerprints.Controllers
 
             return Json(new { result=isResult, imageString=Convert.ToBase64String(attachment.AttachmentFileByte) }, JsonRequestBehavior.AllowGet);
         }
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public async Task<ActionResult> UnscheduledSchoolDay()
+        {
+
+            UnscheduledSchoolDayModal model = new UnscheduledSchoolDayModal();
+            model.PageSize = 10;
+            model.SkipRows = 0;
+            model.SortOrder = null;
+            model.SortColumn = null;
+            model = await Task.FromResult(await this.GetUnscheduledClassDay(model));
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+
+        public PartialViewResult GetUnscheduledClassDayPartial(UnscheduledSchoolDayModal modal)
+        {
+
+            modal.SkipRows = modal.GetSkipRows();
+
+            return PartialView(Url.Content("~/Views/Partialviews/_UnscheduledSchoolDayList.cshtml"), this.GetUnscheduledClassDay(modal).Result);
+        }
+
+
+        public async Task<UnscheduledSchoolDayModal> GetUnscheduledClassDay(UnscheduledSchoolDayModal modal)
+        {
+
+
+
+
+            return await new CenterData().GetUnScheduledSchoolDays(modal, staff);
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public List<SelectListItem> CheckUnscheduledSchoolDayExists(UnscheduledSchoolDay unscheduledSchoolDay)
+        {
+            return new CenterData().CheckUnscheduledSchoolDay(staff, unscheduledSchoolDay);
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public Task<JsonResult> SaveUnscheduledClassDay(UnscheduledSchoolDay optionalClassDays,string connectionId)
+        {
+
+
+            
+            var resultType = 0;
+
+            IEnumerable<UnscheduledSchoolDay> unscheduledSchoolDays;
+            dynamic result = this.CheckUnscheduledSchoolDayExists(optionalClassDays);
+
+            if (result.Count > 0)
+            {
+                resultType = 2;
+            }
+            else
+            {
+                result = new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, optionalClassDays, (int)UnscheduledSchoolDayEnumMode.Insert);
+                resultType = 1;
+
+
+                if (result)
+                {
+
+
+                    if (unscheduledSchoolDays!=null && unscheduledSchoolDays.Count() > 0)
+                    {
+
+                        Email.conque  = new ConcurrentQueue<int>();
+                      //Session["ConnectionId"] = connectionId;
+
+                        foreach (var item in unscheduledSchoolDays)
+                        {
+                            var sr = new StreamReader(Server.MapPath("~/MailTemplate/ClassroomClosed.html"));
+
+                           
+
+                            Task.Factory.StartNew(() =>
+
+                            Task.FromResult(
+
+                                new EmailData().SendEmailParentsStaffs(staff, Email.EmailTypeEnum.UnscheduledSchoolDay, false, Convert.ToInt64(item.CenterID), Convert.ToInt64(item.ClassroomID.First()), item.UnscheduledSchoolDayID, Email.EmailStatusEnum.All, sr)
+                                                        ).ContinueWith(x=> {
+                                                            //int i = 0;
+                                                            //Email.conque.TryDequeue(out i);
+
+
+                                                            //Hubs.FingerprintsHub.ProgressData(Session["ConnectionId"].ToString(), "Processing Data", ++i, Email.TotalEmails);
+
+                                                        }));
+
+
+
+                          
+
+                        }
+                    }
+
+                }
+
+            }
+
+
+            return Task.FromResult(Json(new { resultType = resultType, result = result }, JsonRequestBehavior.AllowGet));
+        }
+
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult DeleteUnscheduledSchoolDay(UnscheduledSchoolDay unscheduledSchoolDay)
+        {
+
+            IEnumerable<UnscheduledSchoolDay> unscheduledSchoolDays;
+
+
+            return Json(new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, unscheduledSchoolDay, (int)UnscheduledSchoolDayEnumMode.Delete), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public async Task<JsonResult> GetClientEmailReport(string referenceId)
+        {
+
+            Email.ClientEmailReport emailReport = new Email.ClientEmailReport();
+
+            emailReport.staffDetails = staff;
+            emailReport.ReferenceID = Convert.ToInt64(referenceId);
+            emailReport.EmailType = Email.EmailTypeEnum.UnscheduledSchoolDay;
+
+
+
+            var result = await Task.Factory.StartNew(() => new CenterData().GetClientEmailReportBy(emailReport));
+
+
+
+
+            return Json(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented), JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        [HttpPost]
+        [ValidateInput(false)]
+        public async Task<JsonResult> ChangeParentEmail(RosterNew.CaseNote caseNote, string parentId, string email, string cameraUploads = "")
+        {
+
+
+            try
+            {
+
+
+                //if(!SendMail.CheckEmailExistsMailServer(staff.EmailID,email)) // Email not exists in mail server//
+                //{
+                //    return Json(new { resultType = 5 }, JsonRequestBehavior.AllowGet);
+                //}
+
+
+                bool emailSent = SendMail.SendEmailWithTask(staff.EmailID, email, "This is an automated testing email", "Verification mail for Email Address Add/Change");
+
+                if (!emailSent) // email test failed //
+                {
+                    return Json(new { resultType = 1 }, JsonRequestBehavior.AllowGet);
+                }
+
+
+                int isResult = await new CenterData().ChangeParentEmail(staff, parentId, email);
+
+
+                if (isResult == 1)
+                {
+                    var lists = ModelState.Values;
+                    var isd = ModelState.IsValid;
+
+
+                    var files = Request.Files;
+                    var keys = files.AllKeys;
+                    caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        RosterNew.Attachment aatt = new RosterNew.Attachment();
+                        aatt.file = files[i];
+                        caseNote.CaseNoteAttachmentList.Add(aatt);
+                    }
+
+                    caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? "0" : caseNote.CaseNoteid;
+                    caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
+                    caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
+                    caseNote.CenterId = caseNote.CenterId != null && caseNote.CenterId != "" && caseNote.CenterId != "0" ? EncryptDecrypt.Decrypt64(caseNote.CenterId) : "0";
+                    caseNote.Classroomid = caseNote.Classroomid != null && caseNote.Classroomid != "" && caseNote.Classroomid != "0" ? EncryptDecrypt.Decrypt64(caseNote.Classroomid) : "0";
+                    caseNote.HouseHoldId = caseNote.HouseHoldId != null && caseNote.HouseHoldId != "" && caseNote.HouseHoldId != "0" ? EncryptDecrypt.Decrypt64(caseNote.HouseHoldId) : "0";
+
+                    caseNote.CaseNotetags = caseNote.CaseNotetags.Trim(',');
+
+
+
+                    if (!string.IsNullOrEmpty(cameraUploads))
+                    {
+
+                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+                        List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+
+                        foreach (var item in cameraUplodList)
+                        {
+                            caseNote.CaseNoteAttachmentList.Add(new RosterNew.Attachment
+                            {
+                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
+                                AttachmentFileName = item.Text,
+                                AttachmentFileExtension = ".png",
+                                AttachmentFileByte = Convert.FromBase64String(item.Value)
+                            });
+                        }
+                    }
+
+
+                    string name = "";
+                    List<CaseNote> caseNotes = new List<CaseNote>();
+                    RosterNew.Users users = new RosterNew.Users();
+                    name = new RosterData().SaveCaseNotes(ref name, ref caseNotes, ref users, caseNote, caseNote.CaseNoteAttachmentList, staff.AgencyId.ToString(), staff.RoleId.ToString(), staff.UserId.ToString(), 0);
+
+                    if (name == "1") //email verified and sent, then case note saved //
+                    {
+                        return Json(new { resultType = 2 }, JsonRequestBehavior.AllowGet);
+                    }
+                    else // email verified and sent, but failed to save case note //
+                    {
+                        return Json(new { resultType = 3 }, JsonRequestBehavior.AllowGet);
+
+                    }
+
+                }
+                else if (isResult == 2)
+                {
+                    //Email address already exists//
+                    return Json(new { resultType = 4 }, JsonRequestBehavior.AllowGet);
+
+                }
+                //Error occurred while saving email address//
+                return Json(new { resultType = 6 }, JsonRequestBehavior.AllowGet);
+
+
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex); // Error occurred //
+                return Json(new { resultType = 7 }, JsonRequestBehavior.AllowGet);
+            }
+
+
+
+
+
+
+
+
+
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public async Task<JsonResult> SendEmailtoUnsentParents(string referenceId)
+        {
+
+
+            int resultType = 0;
+            Email.ClientEmailReport emailReport = new Email.ClientEmailReport();
+
+            emailReport.staffDetails = staff;
+            emailReport.ReferenceID = Convert.ToInt64(referenceId);
+            emailReport.EmailType = Email.EmailTypeEnum.UnscheduledSchoolDay;
+
+            bool isExists = new CenterData().CheckForUnsentEmailClients(emailReport);
+
+
+            if (isExists)
+            {
+                var sr = new StreamReader(Server.MapPath("~/MailTemplate/ClassroomClosed.html"));
+
+                await Task.Factory.StartNew(() => new EmailData().SendEmailParentsStaffs(staff, Email.EmailTypeEnum.UnscheduledSchoolDay, false, 0, 0, emailReport.ReferenceID, Email.EmailStatusEnum.BouncedEmails, sr));
+                resultType = 1;
+
+            }
+            else
+            {
+                resultType = 2;
+            }
+
+
+            return Json(resultType, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public ActionResult AssignSubstituteTeacher()
+        {
+            return View();
+        }
+
+
+
+
+
+
+
     }
 }

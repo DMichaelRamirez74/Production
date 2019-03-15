@@ -1,0 +1,134 @@
+﻿@model FingerprintsModel.CaseNoteByClientID
+
+
+@if (Model != null && Model.CaseNoteList!=null && Model.CaseNoteList.Count > 0)
+{
+    foreach (var item in Model.CaseNoteList)
+    {
+        <tr casenoteid="@item.CaseNoteid">
+            <td data-title="Date">
+                <div class="addn-content-desc" style="position: relative;">
+                    <p>@item.Date</p>
+                </div>
+            </td>
+         
+
+
+            @if (item.IsAllowSecurityCN)
+            {
+                <td data-title="Title">
+
+
+
+                    <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                        <p data-editable="@(item.IsEditable ? "true":"false")" style="text-decoration: underline;" onclick="Getcasenote($('#divCaseNoteSection'), @item.CaseNoteid,'@item.clientid',this)">@item.Title</p>
+
+                    </div>
+
+                </td>
+            }
+            else if (item.WrittenBy == FingerprintsModel.StaffDetails.GetInstance().UserId.ToString() && item.SecurityLevel)
+            {
+                <td data-title="Title">
+
+
+
+
+                    <div data-editable="@(item.IsEditable ? "true":"false")" class="addn-content-desc" style="position: relative;cursor: pointer;">
+                        <p style="text-decoration: underline;" onclick="Getcasenote($('#divCaseNoteSection'),@item.CaseNoteid,'@item.clientid',this)">@item.Title</p>
+                    </div>
+
+
+                </td>
+            }
+            else
+            {
+                <td data-title="Title">
+                    <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                        <p style="text-decoration: underline;" onclick="ShowSecurityAlert()">Secured case note</p>
+                    </div>
+                </td>
+            }
+
+
+            <td data-title="By">
+                <div class="addn-content-desc" style="position: relative;">
+                    <p>@item.BY</p>
+                </div>
+            </td>
+            <td data-title="Attachments">
+                <div class="addn-content-desc">
+                    <p>@item.Attachment</p>
+                </div>
+            </td>
+            <td data-title="References">
+                <div class="addn-content-desc">
+                    <p>@item.References</p>
+                </div>
+            </td>
+
+            <td data-title="Actions">
+                <div class="addn-content-desc">
+                    @if (item.IsAllowSecurityCN)
+                    {
+                        <p style="padding: 5px;width:157px;display:inline-block;">
+                            <span class="Status-title-addn">
+
+                                <a href="javascript:void(0);" class="add-new" style="margin-top: 0;padding-left: 15px;">
+                                    <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
+                                    Append Case Note
+                                </a>
+
+
+                            </span>
+                        </p>
+                    }
+                    else if (item.WrittenBy == FingerprintsModel.StaffDetails.GetInstance().UserId.ToString() && item.SecurityLevel)
+                    {
+                        <p>
+                            <span class="Status-title-addn">
+
+                                <a href="javascript:void(0);" class="add-new" style="margin-top: 0;padding-left: 15px;">
+                                    <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
+                                    Append Case Note
+                                </a>
+
+
+                            </span>
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+
+                        </p>
+                    }
+                    @if (FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.RoleEnum.AgencyAdmin].ToLowerInvariant() == FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()
+                          || FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.RoleEnum.GenesisEarthAdministrator].ToLowerInvariant() == FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString())
+                    {
+                        <button type="button" class="btn delete-casenote" style="border-radius: 0px;color: #fff;margin-left: 8px;background: #e43838;" data-id="@item.CaseNoteid">Delete</button>
+                    }
+                </div>
+            </td>
+
+
+
+        </tr>
+    }
+}
+
+else
+{
+
+
+    <tr><td colspan="6">No Records Found</td></tr>
+}
+
+
+
+<script>
+
+
+    $('#spnTotalRecord').html('@Model.TotalRecord');
+
+</script>

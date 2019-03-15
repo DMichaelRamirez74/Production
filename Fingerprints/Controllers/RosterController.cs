@@ -3054,22 +3054,50 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter()]
         [HttpPost]
-        public JsonResult GetDevelopmentalTeamByClient(string clientID)
+        public JsonResult GetDevelopmentalTeamByClient(string clientID,int yakrkcode)
         {
 
             CaseNoteByClientID caseNoteClient = new CaseNoteByClientID();
             try
             {
-                clientID = EncryptDecrypt.Decrypt64(clientID);
+                long _clientId = 0;
+                _clientId =long.TryParse(clientID,out _clientId)?_clientId:Convert.ToInt64(EncryptDecrypt.Decrypt64(clientID));
                 StaffDetails staff = StaffDetails.GetInstance();
 
-                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(clientID, staff,601);
+                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(_clientId, staff, yakrkcode);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             return Json(caseNoteClient, JsonRequestBehavior.AllowGet);
+        }
+
+
+        /// <summary>
+        /// Gets the Developmental Team, Household members and default case notes for Attendance issue popup
+        /// </summary>
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public ActionResult GetDevelopmentalTeamPartial(string clientID)
+        {
+
+            CaseNoteByClientID caseNoteClient = new CaseNoteByClientID();
+            try
+            {
+                long _clientId = 0;
+                _clientId = long.TryParse(clientID, out _clientId) ? _clientId : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientID));
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(_clientId, staff);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            // return Json(caseNoteClient, JsonRequestBehavior.AllowGet);
+            return PartialView("~/Views/partialviews/_CaseNote.cshtml", caseNoteClient);
         }
 
 

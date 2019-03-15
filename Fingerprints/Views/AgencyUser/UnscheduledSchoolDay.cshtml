@@ -1,0 +1,3072 @@
+﻿@model FingerprintsModel.UnscheduledSchoolDayModal
+
+
+@{
+    ViewBag.Title = Fingerprints.LocalResource.Resources.MakeupSchoolDays;
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+
+@section Title
+{
+    @Fingerprints.LocalResource.Resources.MakeupSchoolDays
+}
+
+@section Style
+{
+    <link href="~/Content/multiselect.css" rel="stylesheet" />
+
+    <style type="text/css">
+        .badge-warning, .badge-warning:hover {
+            color: #212529 !important;
+            background-color: #ffc107 !important;
+            font-size: 12px !important;
+        }
+
+        .nav-tabs li a:hover .badge-warning {
+            color: #212529 !important;
+            background-color: #ffc107 !important;
+            font-size: 12px !important;
+        }
+
+        .badge-success, .badge-success:hover {
+            color: #fff !important;
+            background-color: #28a745 !important;
+            font-size: 12px !important;
+        }
+
+        .nav-tabs li a:hover .badge-success {
+            color: #fff !important;
+            background-color: #28a745 !important;
+            font-size: 12px !important;
+        }
+
+        .badge-danger, .badge-danger:hover {
+            color: #fff !important;
+            background-color: #dc3545 !important;
+            font-size: 12px !important;
+        }
+
+        .nav-tabs li a:hover .badge-danger {
+            color: #fff !important;
+            background-color: #dc3545 !important;
+            font-size: 12px !important;
+        }
+
+        #ulPaging a[disabled="disabled"] {
+            pointer-events: none;
+        }
+
+        .total-details-table {
+            width: auto;
+            float: right;
+            margin-left: auto;
+        }
+
+            .total-details-table tr, .total-details-table td {
+                padding: 0 10px;
+                line-height: 25px;
+            }
+
+                .total-details-table tr td label {
+                    color: #1d5381;
+                }
+
+        .container-fluid {
+            padding: 0;
+        }
+
+        .multiselect-native-select ul.multiselect-container.dropdown-menu {
+            z-index: 9999999 !important;
+        }
+
+        .multiselect-clear-filter .glyphicon-remove-circle {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        .glossy-table-body tr td p {
+            width: 100%;
+        }
+
+        @@media (max-width: 767px) {
+            .custom-modal .modal-dialog-ch {
+                width: 98%;
+                margin: 30px 0;
+            }
+
+            .img-camera {
+                margin-left: 15px;
+            }
+
+            .case-float {
+                float: left;
+            }
+            /* Force table to not be like tables anymore */
+            #no-more-tables6 table,
+            #no-more-tables6 thead,
+            #no-more-tables6 tbody,
+            #no-more-tables6 th,
+            #no-more-tables6 td,
+            #no-more-tables6 tr {
+                display: block;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+                /* Hide table headers (but not display: none;, for accessibility) */
+                #no-more-tables6 thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+
+            #no-more-tables6 tr { /* border: 1px solid #ccc; */
+            }
+
+            #no-more-tables6 td {
+                /* Behave  like a "row" */
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 46%;
+                white-space: normal;
+                text-align: left;
+            }
+
+                #no-more-tables6 td:before {
+                    /* Now like a table header */
+                    position: absolute;
+                    /* Top/left values mimic padding */
+                    top: 6px;
+                    left: 6px;
+                    width: 45%;
+                    padding-right: 10px;
+                    white-space: nowrap;
+                    text-align: left;
+                    font-weight: bold;
+                }
+
+                /*
+        Label the data
+        */
+                #no-more-tables6 td:before {
+                    content: attr(data-title);
+                }
+
+            .table-scroll-div {
+                overflow-x: auto;
+            }
+        }
+    </style>
+
+}
+
+@section Script
+{
+<script src="~/Scripts/jquery.signalR-2.0.2.min.js"></script>
+<script src="/signalr/hubs"></script>
+
+    <script src="~/Scripts/multiselect.js"></script>
+
+
+    <script type="text/javascript">
+
+
+        var connectionId;
+        var progress;
+
+        var self = null;
+        var optionalClassDays = {
+            classroomsJson: null,
+            saveUrl: HostedDir + '/AgencyUser/SaveUnscheduledClassDay',
+            bindPartialUrl: HostedDir + '/AgencyUser/GetUnscheduledClassDayPartial',
+            deleteUrl: HostedDir + '/AgencyUser/DeleteUnscheduledSchoolDay',
+            getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
+            getEmailReportUrl: HostedDir + '/AgencyUser/GetClientEmailReport',
+            updateEmailUrl: HostedDir + '/AgencyUser/ChangeParentEmail',
+            getCaseNotePartial: HostedDir + '/Roster/GetDevelopmentalTeamPartial',
+            sendEmailUnsentParentsUrl:HostedDir+'/AgencyUser/SendEmailtoUnsentParents',
+            requestedPage: 1,
+            pageSize: 10,
+            firstIndex: 0,
+            startIndex: 0,
+            lastIndex: 0,
+            pageLoadedFirst: false,
+            totalRecords: 0,
+            numOfPages: 0,
+            sortOrder: null,
+            sortColumn: null,
+            documentExtensionArray: [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"],
+            referenceId: 0,
+         
+
+
+
+            init: function () {
+
+                self = this;
+
+                self.initializeElements();
+
+                self.initializeEvents();
+
+                self.resetElements();
+
+                if (self.elements.dropdownCenter.find('option').length == 1) {
+                    self.getClassrooms(self.elements.dropdownCenter.val());
+                }
+
+
+
+
+
+
+
+
+
+            },
+            elements: {
+                'dropdownCenter': null,
+                'dropdownClassroom': null,
+                'divClassroomDropdown': null,
+                'inputClassDate': null,
+                'buttonSaveOptionalDays': null,
+                'dropdownoptionalClassDayReason': null,
+                'inputoptionalClassDayReason': null,
+                'table': null,
+                'tbody': null,
+                'dropdownRecordsPerpage': null,
+                'buttonPagingFirst': null,
+                'buttonPagingBack': null,
+                'buttonPagingNext': null,
+                'buttonPagingLast': null,
+                'dropdownPageNumber': null,
+                'spanTotalRecord': null,
+                'divTableResponsive': null,
+                'modalEmailReport': null,
+                'tbodyEmailSent': null,
+                'tbodyBouncedEmails': null,
+                'tbodyNoEmails': null,
+
+                'txtParentEmail': null,
+                'divCaseNoteSection': null,
+                'txtCaseNoteDate': null,
+                'txtCaseNoteTitle': null,
+                'txtCaseNoteBody': null,
+                'txtCaseNoteTags': null,
+                'divCaseNoteHouseholds': null,
+                'divDevelopmentalTeam': null,
+                'checkboxSecuritylevel': null,
+                'divFileAttachment': null,
+                'modalUploadMultipleDocument': null,
+                'modal_buttonAdd_uploadDocument': null,
+                'modlDivImageGallery': null,
+                'modal_div_uploadDocument_image_gallery': null,
+                'modallblCenter': null,
+                'modallblClassroom': null,
+                'modallblClassDate':null
+
+            },
+
+            ajaxOptions: {
+                url: null,
+                type: null,
+                datatype: null,
+                data: null,
+                async: true,
+                //  contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                contentType: "application/json; charset=utf-8",
+                processData: true
+            },
+            dataParameters: {
+                CenterID: null,
+                ClassroomID: [],
+                ClassDate: null,
+                UnscheduledSchoolDayReasonID: null,
+                UnscheduledSchoolDayReason: null,
+                SortOrder: null,
+                SortColumn: null,
+                PageSize: null,
+                RequestedPage: null,
+                UnscheduledSchoolDayID: null
+            },
+
+            initializeElements: function () {
+
+
+                self.elements.dropdownCenter = $('#selectCenter');
+                self.elements.dropdownClassroom = $('#selectClassroom');
+                self.elements.divClassroomDropdown = self.elements.dropdownClassroom.closest('.form-group');
+                self.elements.inputClassDate = $('#classDatePicker');
+                self.elements.buttonSaveOptionalDays = $('#btnSaveOptionalDays');
+                self.elements.dropdownoptionalClassDayReason = $('#dropdownReason');
+                self.elements.inputoptionalClassDayReason = $('#optionalClassDayreasonTxt');
+                self.elements.divTableResponsive = $('#div-table-responsive');
+                self.elements.table = self.elements.divTableResponsive.find('#schedule-school-table')
+                self.elements.tbody = self.elements.table.find('tbody');
+                self.elements.dropdownRecordsPerpage = $('#ddlpagetodisplay');
+                self.elements.buttonPagingFirst = $('#ulPaging').find('#First');
+                self.elements.buttonPagingBack = $('#ulPaging').find('#Back');
+                self.elements.buttonPagingNext = $('#ulPaging').find('#Next');
+                self.elements.buttonPagingLast = $('#ulPaging').find('#Last');
+                self.elements.dropdownPageNumber = $('#ddlpaging');
+                self.elements.spanTotalRecord = self.elements.divTableResponsive.find('#totalCountSpan');
+                self.elements.modalEmailReport = $('#modal-email-report');
+                self.elements.tbodyEmailSent = self.elements.modalEmailReport.find('#tbody-emailsent');
+                self.elements.tbodyBouncedEmails = self.elements.modalEmailReport.find('#tbody-bounce-email');
+                self.elements.tbodyNoEmails = self.elements.modalEmailReport.find('#tbody-noemails');
+
+                self.elements.modalUploadMultipleDocument = $('#modal-uploaddocument');
+                self.elements.modal_buttonAdd_uploadDocument = self.elements.modalUploadMultipleDocument.find('#btn-modal-doc-add');
+                self.elements.modal_div_uploadDocument_image_gallery = self.elements.modalUploadMultipleDocument.find('.div-image-snap-gallery');
+                self.elements.modallblCenter = self.elements.modalEmailReport.find('#lbl-popup-center');
+                self.elements.modallblClassroom = self.elements.modalEmailReport.find('#lbl-popup-classroom');
+                self.elements.modallblClassDate = self.elements.modalEmailReport.find('#lbl-popup-classdate');
+            },
+            initializeEvents: function () {
+
+
+
+                $(document).on("click", ".popover .close-popover", function () {
+                    $(this).parents(".popover").popover('hide');
+                });
+
+
+                $(document).on('click', '.anchor-view', function (event) {
+                    debugger;
+                    var $unscheduledID = $(this).data('accesskey');
+
+
+                    event.preventDefault();
+              
+                    self.getEmailReport($unscheduledID);
+
+                });
+
+
+            
+
+                $(document).on('focusout', '#modal-email-report .txt-parent-email', function () {
+                    debugger;
+                    cleanValidation();
+                    var $email = $(this);
+
+                    if ($email.val().trim() != null && $email.val().trim() != '' && !self.validateEmail($email.val().trim())) {
+                        customAlert('Please enter valid email address');
+                        plainValidation($email);
+                        return false;
+                    }
+                    else {
+
+                        var $index = $email.closest('tr').prev('tr').data('row');
+
+                        var oldEmail = $email.closest('tr').prev('tr').find('td:eq(1)').children('p').children('a').html();
+                        var noteSection = '';
+
+                        if ($(this).closest('.tab-pane').attr('id') == 'Noemails') {
+                            noteSection = '<div>\
+                            <h3><ins><strong>'+_langList.AddEmailAddress+'</strong></ins></h3>\
+                            <div>\
+                            <div>\
+                        <strong>Existing Email Address: <pre>Not Available</pre></strong>\
+                        </div>\
+                         <div>\
+                        <strong>New Email Address: <pre>' + $email.val() + '</pre></strong>\
+                        </div>';
+
+                        }
+                        else {
+                            noteSection = '<div>\
+                            <h3><ins><strong>'+_langList.Changeemailaddress+'</strong></ins></h3>\
+                            <div>\
+                            <div>\
+                        <strong>Existing Email Address: <pre>' + oldEmail + '</pre></strong>\
+                        </div>\
+                         <div>\
+                        <strong>New Email Address: <pre>' + $email.val() + '</pre></strong>\
+                        </div>';
+                        }
+
+
+
+                        if ($email.val() != null && $email.val() != '') {
+                            $email.closest('td').find('#txtareaCaseNote_' + $index + '').val(noteSection);
+
+
+                            if (CKEDITOR.instances['txtareaCaseNote_' + $index + '']) {
+                                CKEDITOR.instances['txtareaCaseNote_' + $index + ''].destroy(true);
+
+                            }
+
+                            CKEDITOR.replace('txtareaCaseNote_' + $index + '', {
+                                language: 'en-gb',
+                                uiColor: '#295b8f',
+                                disableNativeSpellChecker: false
+                            });
+                        }
+                    }
+
+                    return true;
+
+
+
+                });
+
+                $(document).on('click', '#modal-email-report .save-casenote', function () {
+
+                    self.saveParentEmailWithCaseNote(this);
+
+                });
+
+
+
+                $(document).on('click', '#modal-email-report #uploadImageCamera', function () {
+                    self.elements.modalEmailReport.modal('hide');
+                    self.elements.modal_div_uploadDocument_image_gallery.html('');
+                    self.elements.modal_buttonAdd_uploadDocument.attr('data-index', $(this).closest('.casenote-div').closest('tr').prev('tr').data('row'));
+                    self.elements.modalUploadMultipleDocument.modal('show');
+                });
+
+
+
+
+                $(document).on('click', '.delete-file-upload', function () {
+
+                    $(this).closest('.setup_viewscreen').remove();
+
+                });
+
+
+
+                $(document).on('click', '.view-file-upload', function () {
+
+                    //  window.open($(this)., 'newwindow','width=500,height=500');
+
+                    var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+                    //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
+                    console.log(imageAttr);
+
+                    //imageAttr='<embed src='+imageAttr+'></embed>';
+                    //window.open(imageAttr, 'newwindow','width=500,height=500');
+
+
+
+                    var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
+
+                    setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+                        w.document.body.appendChild(w.document.createElement('img'))
+                            .src = imageAttr;
+                    }, 0);
+
+                });
+
+
+
+                $(document).on('click', '.cancel-casenote', function () {
+                    debugger;
+
+                    self.elements.txtParentEmail = null;
+                    self.elements.divCaseNoteSection = null;
+                    self.elements.txtCaseNoteDate = null;
+                    self.elements.txtCaseNoteTitle = null;
+                    self.elements.txtCaseNoteBody = null;
+                    self.elements.divCaseNoteHouseholds = null;
+                    self.elements.divDevelopmentalTeam = null;
+                    self.elements.txtCaseNoteTags = null;
+                    self.elements.checkboxSecuritylevel = null;
+                    self.elements.divFileAttachment = null;
+
+
+                    $(this).closest('.new-casenote').closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').trigger('click');
+
+
+
+
+                });
+
+
+
+
+                $(document).on('click', '[data-dismiss="popover"]', function () {
+
+
+                    $(this).siblings('[data-dismiss="emailpopover"]').popover('hide');
+                });
+
+
+
+                self.elements.modalEmailReport.on('show.bs.modal', function (e) {
+                    //    e.preventDefault();
+
+
+
+
+                });
+
+
+
+                self.elements.modalUploadMultipleDocument.on('shown.bs.modal', function (event) {
+                    $('body').addClass('modal-open');
+
+                    showVideoStream();
+
+
+
+
+
+                    //$selfElements.modalEditInkind.modal('hide');
+                }).on('hidden.bs.modal', function (event) {
+
+                    stopIntervalUserMedia();
+                    self.elements.modalEmailReport.modal('show');
+                });
+
+
+                self.elements.dropdownCenter.on('change', function (event) {
+                    debugger;
+                    var $centerId = self.elements.dropdownCenter.val();
+
+                    if ($centerId != '0') {
+                        self.getClassrooms($centerId);
+
+                    }
+                    else {
+                        self.elements.dropdownClassroom.closest('.form-group').hide('slow');
+                    }
+                });
+
+                self.elements.dropdownoptionalClassDayReason.on('change', function () {
+
+
+                    if ($(this).val() == 'Other') {
+                        self.elements.inputoptionalClassDayReason.parent('div').show('slow');
+                    }
+                    else if (self.elements.inputoptionalClassDayReason.parent('div').is(':visible')) {
+
+                        self.elements.inputoptionalClassDayReason.parent('div').hide('slow');
+                    }
+
+
+                });
+
+
+
+                self.elements.modal_buttonAdd_uploadDocument.on('click', function () {
+
+
+                    var $imageGallerylength = self.elements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
+
+                    if ($imageGallerylength == 0) {
+                        customAlert('Please capture image using camera');
+                        return false;
+                    }
+
+
+                    $('.div-edit-modal-img-gallery_' + $(this).data('index') + '').append(self.elements.modal_div_uploadDocument_image_gallery.html());
+
+                    self.elements.modal_div_uploadDocument_image_gallery.html('');
+
+                    self.elements.modalUploadMultipleDocument.modal('hide');
+
+
+                });
+
+
+                self.elements.inputClassDate.next('.datepicker-icon').on('click', function (e) {
+                    e.preventDefault();
+                    self.elements.inputClassDate.datetimepicker('show');
+
+                });
+
+                self.elements.buttonSaveOptionalDays.on('click', function () {
+
+                    self.saveOptionalDays();
+
+                });
+
+
+
+                self.elements.dropdownRecordsPerpage.on('change', function () {
+
+                    self.lastIndex = 0;
+
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+                    self.getUnscheduledClassDaysList();
+
+                    self.elements.buttonPagingFirst.attr('disabled', true);
+                    self.elements.buttonPagingBack.attr('disabled', true);
+                });
+
+                self.elements.buttonPagingFirst.on('click', function () {
+
+                    var $thisValue = 'First';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.buttonPagingBack.on('click', function () {
+
+                    var $thisValue = 'Back';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.dropdownPageNumber.on('change', function () {
+
+
+                    self.getListafterupdation();
+                });
+
+                self.elements.buttonPagingNext.on('click', function () {
+
+                    var $thisValue = 'Next';
+                    debugger;
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.buttonPagingLast.on('click', function () {
+
+                    var $thisValue = 'Last';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+
+                self.getTotalRecord(self.elements.spanTotalRecord.html());
+
+
+
+                self.elements.table.find('thead th').on('click', function () {
+
+                    debugger;
+
+                    if ($(this).find('i').length > 0) {
+                        self.sortColumn = 'th' + ($(this).index() + 1);
+
+                        if ($(this).find('i').is(':visible')) {
+                            if ($(this).find('.i-asc').is(':visible')) {
+                                self.sortOrder = "DESC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                            else if ($(this).find('.i-desc').is(':visible')) {
+                                self.sortOrder = "ASC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                        }
+                        else {
+                            self.sortOrder = 'ASC';
+                            $(this).find('.i-asc').show();
+                        }
+
+
+                        self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                        self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+
+                        self.getUnscheduledClassDaysList();
+                    }
+                    else {
+                        return false;
+                    }
+
+
+
+                });
+
+
+
+                self.elements.tbody.find('.btn-delete-trans').on('click', function () {
+
+
+                    // var selfEle = self.elements.tbody.find('.btn-delete-trans');
+                    var selfEle = $(this);
+
+                    var $transId = selfEle.siblings('#item_UnscheduledSchoolDayID').val();
+
+                    var $classroom = selfEle.closest('td').parent('tr').children('td:eq(1)').find('p').html();
+                    var $classDate = selfEle.closest('td').parent('tr').children('td:eq(3)').find('p').html();
+
+                    BootstrapDialog.show({
+                        title: 'Confirmation',
+                        message: "<p><i class='fa fa-warning' aria-hidden='true' style='font-weight:bold;color:red;'></i>&nbsp;You are about to delete the Makeup school day of <strong>" + $classroom + "</strong> for the date " + $classDate + " .</p><p style='margin-left:18px;'>Click <strong>OK</strong> to proceed.</p>",
+                        closable: true,
+                        closeByBackdrop: false,
+                        closeByKeyboard: false,
+
+                        buttons: [{
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> '+_langList.Cancel+'',
+                            cssClass: 'glossy-button-button button-green button-red',
+                            action: function (dialogItself) {
+                                dialogItself.close();
+                            }
+                        }, {
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span>OK',
+                            cssClass: 'glossy-button-button button-green',
+                            autospin: true,
+                            action: function (dialogItself) {
+
+                                self.delteUnscheduledClassDay($transId, dialogItself);
+
+                                //window.setTimeout(function () {
+
+                                //    dialogItself.close();
+
+                                //}, 1000);
+                            }
+                        }]
+                    });
+
+                });
+
+
+                self.elements.tbody.find('.btn-send-email').on('click', function () {
+
+                    var selfEle = $(this);
+
+                    var $transId = selfEle.siblings('#item_UnscheduledSchoolDayID').val();
+
+                    self.resendEmailToUnsentParents($transId);
+
+
+                });
+
+
+            },
+
+            resendEmailToUnsentParents:function(refId)
+            {
+                self.ajaxOptions.url = self.sendEmailUnsentParentsUrl;
+                self.ajaxOptions.datatype = 'JSON',
+                self.ajaxOptions.type = 'POST',
+                self.ajaxOptions.data = JSON.stringify({ referenceId: refId });
+                self.ajaxOptions.async = true;
+                self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+                self.ajaxCall(self.callbackResendEmailParents);
+            },
+
+            callbackResendEmailParents(data)
+            {
+
+                if (data==1) {
+
+                    customAlert('Email sent successfully');
+                }
+                else if (data == 2)
+                {
+                    customAlert('No pending emails to send');
+                }
+                    
+                    console.log(data);
+            },
+
+            resetElements: function () {
+
+                self.elements.inputClassDate.datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    validateOnBlur: false,
+                    mask: true,
+                    minDate: new Date(),
+                }).on('blur', function () {
+                    self.validateInputDate($(this));
+
+                }).on('select', function () {
+
+                });
+
+
+            },
+
+            validateInputDate: function (ele) {
+                debugger;
+                var $thisDate = ele.val()
+                if ($thisDate != '__/__/____' && $thisDate != '' && self.elements.dropdownCenter.val() != '0'
+                    && self.elements.dropdownClassroom.is(':visible')
+                    && self.elements.dropdownClassroom.val() != null) {
+
+                    var $thisDay = moment(new Date($thisDate)).format('dddd');
+
+
+                    var $conflictDays = self.classroomsJson.filter(function (json) {
+                        return json[$thisDay] == true
+                        //        && self.elements.dropdownClassroom.val().filter(function (classroom) {
+
+                        //        return self.elements.dropdownClassroom.val().indexOf(json.ClassroomID) > -1;
+                        //});
+                    });
+
+                    var $conflictClassrooms = $conflictDays.filter(function (classroom) {
+
+                        if (self.elements.dropdownClassroom.val().indexOf(classroom.ClassroomID.toString()) > -1) {
+                            return classroom;
+
+                        }
+
+                    });
+
+
+
+                    if ($conflictClassrooms.length > 0) {
+                        //self.elements.inputClassDate.popover('destroy');
+
+
+                        var $classDiv = '';
+                        $classDiv += '<ol>'
+                        $.each($conflictClassrooms, function (i, classroom) {
+
+                            $classDiv += '<li>' + classroom.ClassName + '</li>';
+                        });
+
+                        $classDiv += '</ol>';
+
+
+
+
+
+                        var $message = ' <div class="col-xs-12">' + $classDiv + '</div>\
+    <p>' + _langList.Uncheckaboveclassrooms + '</p>'
+
+                        self.elements.inputClassDate.attr({ 'title': ''+_langList.Datefallsinactualclassdays+' <i style="float:right; cursor:pointer;" class="fa fa-times close-popover" aria-hidden="true"></i>', 'data-content': $message });
+
+                        self.elements.inputClassDate.popover({
+                            html: true,
+                            placement: 'auto'
+                        });
+
+
+                        self.elements.inputClassDate.popover('show');
+
+                        return false;
+
+                    }
+                    else {
+                        self.elements.inputClassDate.popover('hide');
+                        return true;
+                    }
+                }
+                return false;
+            },
+            getClassrooms: function (cId) {
+                debugger;
+                self.ajaxOptions.url = self.getClassroomsUrl;
+                self.ajaxOptions.datatype = 'JSON';
+                self.ajaxOptions.type = 'POST',
+                self.ajaxOptions.data = $.parseJSON(JSON.stringify({ 'centerId': cId }));
+                self.ajaxOptions.async = true;
+
+                $.ajax({
+                    url: self.getClassroomsUrl,
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function () {
+                        self.showBusy(true);
+                    },
+                    async: true,
+                    data: { 'centerId': cId },
+                    // traditional: true,
+                    //  contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        debugger;
+                        self.callbackGetClassrooms(data);
+
+                    },
+                    error: function (data) {
+                        debugger;
+                        console.log(data);
+                    },
+                    complete: function (data) {
+                        console.log(data);
+                        debugger;
+                        self.showBusy(false);
+                    }
+
+                })
+
+
+
+
+                //   self.ajaxCall(self.callbackGetClassrooms);
+
+
+            },
+            validateInputs: function () {
+
+                var isValid = true;
+                debugger;
+
+                if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val() == '' || self.elements.dropdownCenter.val() == '0') {
+                    customAlertforlongtime(_langList.Centerisrequired);
+                    plainValidation(self.elements.dropdownCenter);
+                    isValid = false;
+                }
+
+                else if (self.elements.dropdownClassroom.val() == null || self.elements.dropdownClassroom.val() == '' || self.elements.dropdownClassroom.val() == '0') {
+                    customAlertforlongtime(_langList.Classroomisrequired);
+                    plainValidation(self.elements.dropdownClassroom);
+                    isValid = false;
+                }
+
+                else if (self.elements.inputClassDate.val() == '' || self.elements.inputClassDate.val() == '__/__/____') {
+
+                    customAlertforlongtime('Please select or enter class date');
+                    plainValidation(self.elements.dropdownClassroom);
+                    isValid = false;
+
+                }
+                else if (new Date(self.elements.inputClassDate.val()).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
+                    customAlertforlongtime('Entered class date should be greater or equal to today\'s date');
+                    plainValidation(self.elements.inputClassDate);
+                    isValid = false;
+                }
+                else if (!self.validateInputDate(self.elements.inputClassDate)) {
+                    customAlertforlongtime(_langList.Datefallsinactualclassdays);
+                    plainValidation(self.elements.inputClassDate);
+                    isValid = false;
+                }
+
+                else if (self.elements.dropdownoptionalClassDayReason.is(':visible')
+                        && (self.elements.dropdownoptionalClassDayReason.val() == '0' || self.elements.dropdownoptionalClassDayReason.val() == '')) {
+                    customAlertforlongtime(_langList.Reasonisrequired);
+                    plainValidation(self.elements.dropdownoptionalClassDayReason);
+                    isValid = false;
+                }
+                else if (
+                    (self.elements.inputoptionalClassDayReason.is(':visible')
+
+                    && (self.elements.inputoptionalClassDayReason.val() == null
+                    || self.elements.inputoptionalClassDayReason.val() == ''))
+
+                    || (self.elements.inputoptionalClassDayReason.is(':visible')
+                    && self.elements.dropdownoptionalClassDayReason.val() == 'Other'
+
+                    && (self.elements.inputoptionalClassDayReason.val() == null
+                    || self.elements.inputoptionalClassDayReason.val() == ''))
+
+                    ) {
+                    customAlertforlongtime('Please enter reason');
+                    plainValidation(self.elements.inputoptionalClassDayReason);
+                    isValid = false;
+                }
+
+
+
+                return isValid;
+            },
+
+            saveOptionalDays: function () {
+                if (self.validateInputs()) {
+                    self.bindAjaxParameters();
+
+
+                    debugger;
+                  
+                  
+
+
+
+                    self.ajaxOptions.url = self.saveUrl;
+                    self.ajaxOptions.datatype = 'JSON',
+                    self.ajaxOptions.type = 'POST',
+                    self.ajaxOptions.data = JSON.stringify({ optionalClassDays: self.dataParameters, connectionId: connectionId });
+                    self.ajaxOptions.async = true;
+                    self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+                    console.log(self.ajaxOptions);
+                    self.ajaxCall(self.callbackSaveOptionalClassDays);
+
+                    //self.showBusy(false);
+                    ///* Connection HUB */
+                    progress = $.connection.fingerprintsHub;
+                    // Create a function that the hub can call back to display messages.
+                    progress.client.AddProgress = function (message, percentage) {
+
+                        console.log(percentage + ' ' + message);
+                        ProgressBarModal("show", message + " " + percentage);
+                        $('#ProgressMessage').width(percentage);
+                        
+                        if (percentage == "100%") {
+                            ProgressBarModal();
+                        }
+                    };
+
+                    $.connection.hub.start().done(function () {
+                        connectionId = $.connection.hub.id;
+                    });
+
+
+                   
+
+                    /* Connection HUB*/
+                }
+            },
+
+            bindAjaxParameters: function () {
+                debugger;
+                self.dataParameters.CenterID = self.elements.dropdownCenter.val();
+                self.dataParameters.ClassroomID = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val() : ['0'];
+                self.dataParameters.ClassDate = self.elements.inputClassDate.val() == '__/__/____' ? '' : self.elements.inputClassDate.val();
+                self.dataParameters.UnscheduledSchoolDayReasonID = self.elements.dropdownoptionalClassDayReason.is(':visible')
+                                                                && self.elements.dropdownoptionalClassDayReason.val() != 'Other' ? self.elements.dropdownoptionalClassDayReason.val() : '0';
+
+                self.dataParameters.UnscheduledSchoolDayReason = self.elements.inputoptionalClassDayReason.is(':visible') ? self.elements.inputoptionalClassDayReason.val() : '';
+
+                //self.dataParameters.RequestedPage = self.elements.dropdownPageNumber.val() ==null?self.requestedPage: self.elements.dropdownPageNumber.val();
+                //self.dataParameters.PageSize = self.elements.dropdownRecordsPerpage.val() == null ? self.pageSize : self.elements.dropdownRecordsPerpage.val();
+
+
+                self.dataParameters.RequestedPage = self.requestedPage;
+                self.dataParameters.PageSize = self.pageSize;
+
+                self.dataParameters.SortOrder = self.sortOrder;
+                self.dataParameters.SortColumn = self.sortColumn;
+
+
+            },
+
+            ajaxCall: function (callback) {
+
+                console.log(self.ajaxOptions);
+                $.ajax({
+                    url: self.ajaxOptions.url,
+                    type: self.ajaxOptions.type,
+                    dataType: self.ajaxOptions.datatype,
+                    beforeSend: function () {
+                        self.showBusy(true);
+                    },
+                    async: self.ajaxOptions.async,
+                    data: self.ajaxOptions.data,
+                    traditional: true,
+                    processData: self.ajaxOptions.processData,
+                    // contentType: "application/json; charset=utf-8",
+                    contentType: self.ajaxOptions.contentType,
+                    success: function (data) {
+                        debugger;
+                        callback(data);
+
+                    },
+                    error: function (data) {
+                        debugger;
+                        console.log(data);
+                    },
+                    complete: function (data) {
+                        console.log(data);
+                        debugger;
+                        self.showBusy(false);
+                    }
+
+                })
+            },
+
+
+
+            getEmailReport: function (refID) {
+                self.ajaxOptions.url = self.getEmailReportUrl;
+                self.ajaxOptions.type = "POST";
+                self.ajaxOptions.datatype = "JSON";
+                self.ajaxOptions.data = JSON.stringify({ referenceId: refID });
+                self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+                self.referenceId = refID;
+
+                self.ajaxCall(self.callbackGetEmailReport);
+
+            },
+
+            callbackGetEmailReport: function (data) {
+                debugger;
+
+                console.log(data);
+                $('.sent-badge,.bounced-badge,.no-email-badge').html('0');
+
+
+                
+
+                if (data != null || data != '') {
+                    var result = JSON.parse(data);
+
+                    console.log(result);
+                    if (result.Result != null && result.Result != '') {
+                        var sentEmailBody = '';
+                        var bouncedEmailBody = '';
+                        var noEmailBody = '';
+
+                        var indexEmail = 0;
+
+                        if (result.Result[1].length > 0) {
+                            $('.sent-badge').html(result.Result[1].length);
+                            $.each(result.Result[1], function (i, sentEmail) {
+
+
+
+                                var HomeNo = (sentEmail.HomePhone != null && sentEmail.HomePhone != '') ? sentEmail.HomePhone : 'N/A';
+                                var MobileNo = (sentEmail.MobilePhone != null && sentEmail.MobilePhone != '') ? sentEmail.MobilePhone : 'N/A';
+                                var WorkNo = (sentEmail.WorkPhone != null && sentEmail.WorkPhone != '') ? sentEmail.WorkPhone : 'N/A';
+
+                                var Email = (sentEmail.EmailId == '') ? '' : sentEmail.EmailId;
+                                //   var isEmail = (sentEmail.EmailId == '') ? 'No' : 'Yes';
+
+                                sentEmailBody += '<tr data-row=' + indexEmail + ' role="row" id="package' + i + '"  >\
+                                                            <td role="gridcell" data-title='+_langList.Client+'><p data-accesskey='+ sentEmail.ClientId + '>' + sentEmail.ChildName + '</p></td>\
+                                                            <td role="gridcell" data-title='+_langList.ParentName+' old-email=' + sentEmail.EmailId + '><p>' + sentEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="'+_langList.Changeemailaddress+'" accesskey=' + sentEmail.ParentId + '>' + sentEmail.EmailId + '</a>)</p></td>\
+                                                            <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                                                <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
+                                                                    <tbody>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(63, 81, 181); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_home_'+ i + '">H</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="home_' + indexEmail + '">' + HomeNo + '</td>\
+                                                                        </tr>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(0, 150, 136); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_mobile_'+ i + '">M</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="mobile_' + indexEmail + '">' + MobileNo + '</td>\
+                                                                        </tr>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(121, 85, 72); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_work_'+ i + '">W</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="work_' + indexEmail + '">' + WorkNo + '</td>\
+                                                                        </tr>\
+                                                                    </tbody>\
+                                                                </table>\
+                                                            </td>\
+                                                        </tr>';
+
+                                sentEmailBody += '<tr>\
+                <td colspan="4" class="accordion-body collapse packageDetails1 fade out">\
+   '+ $('#emaiDivSection').html() + '\
+     <div id="caseNoteDiv_' + indexEmail + '" class="casenote-div" ></div>\
+    </tr>';
+
+                                indexEmail++;
+                            });
+                        }
+
+
+
+                                             if (result.Result[2].length > 0) {
+                                                 $('.bounced-badge').html(result.Result[2].length);
+
+                                                 $.each(result.Result[2], function (i, bounceEmail) {
+
+
+                                                     var HomeNo = (bounceEmail.HomePhone != null && bounceEmail.HomePhone != '') ? bounceEmail.HomePhone : 'N/A';
+                                                     var MobileNo = (bounceEmail.MobilePhone != null && bounceEmail.MobilePhone != '') ? bounceEmail.MobilePhone : 'N/A';
+                                                     var WorkNo = (bounceEmail.WorkPhone != null && bounceEmail.WorkPhone != '') ? bounceEmail.WorkPhone : 'N/A';
+
+                                                     var Email = (bounceEmail.EmailId == '') ? '' : bounceEmail.EmailId;
+
+                                                     bouncedEmailBody += '<tr role="row"  data-row=' + indexEmail + ' id="package' + indexEmail + '"  >\
+                                                                                 <td role="gridcell" data-title='+_langList.Client+'><p  data-accesskey=' + bounceEmail.ClientId + '>' + bounceEmail.ChildName + '</p></td>\
+                                                                                 <td role="gridcell" data-title='+_langList.ParentName+' old-email=' + bounceEmail.EmailId + ' ><p>' + bounceEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Update Email Address" accesskey="' + bounceEmail.ParentId + '">' + bounceEmail.EmailId + '</a>)</p></td>\
+                                                                                 <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                                                                     <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
+                                                                                         <tbody>\
+                                                                                             <tr style="line-height:normal;">\
+                                                                                                 <td style="color: rgb(63, 81, 181); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_home_' + indexEmail + '">H</td>\
+                                                                                                 <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="home_' + indexEmail + '">' + HomeNo + '</td>\
+                                                                                             </tr>\
+                                                                                             <tr style="line-height:normal;">\
+                                                                                                 <td style="color: rgb(0, 150, 136); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_mobile_' + indexEmail + '">M</td>\
+                                                                                                 <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="mobile_' + indexEmail + '">' + MobileNo + '</td>\
+                                                                                             </tr>\
+                                                                                             <tr style="line-height:normal;">\
+                                                                                                 <td style="color: rgb(121, 85, 72); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_work_' + indexEmail + '">W</td>\
+                                                                                                 <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="work_' + indexEmail + '">' + WorkNo + '</td>\
+                                                                                             </tr>\
+                                                                                         </tbody>\
+                                                                                     </table>\
+                                                                                 </td>\
+                                                                             </tr>';
+
+                                                     bouncedEmailBody += '<tr>\
+                                     <td colspan="4" class="accordion-body collapse packageDetails1 fade out">\
+                        '+ $('#emaiDivSection').html() + '\
+                          <div id="caseNoteDiv_' + indexEmail + '" class="casenote-div" ></div>\
+                         </tr>';
+
+
+                                                     indexEmail++;
+
+                                                 });
+
+
+                                             }
+
+
+                        if (result.Result[3].length > 0) {
+                            $('.no-email-badge').html(result.Result[3].length);
+
+                            $.each(result.Result[3], function (i, noEmail) {
+                                debugger;
+
+                                var HomeNo = (noEmail.HomePhone != null && noEmail.HomePhone != '') ? noEmail.HomePhone : 'N/A';
+                                var MobileNo = (noEmail.MobilePhone != null && noEmail.MobilePhone != '') ? noEmail.MobilePhone : 'N/A';
+                                var WorkNo = (noEmail.WorkPhone != null && noEmail.WorkPhone != '') ? noEmail.WorkPhone : 'N/A';
+
+                                var Email = (noEmail.EmailId == '') ? '' : noEmail.EmailId;
+
+                                noEmailBody += '<tr role="row"  data-row=' + indexEmail + '  id="package' + indexEmail + '"  >\
+                                                            <td role="gridcell" data-title='+_langList.Client+'><p data-accesskey=' + noEmail.ClientId + '>' + noEmail.ChildName + '</p></td>\
+                                                            <td role="gridcell" data-title='+_langList.ParentName+'  old-email=' + noEmail.EmailId + ' ><p>' + noEmail.ParentName + ' <a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Add Email Address" accesskey=' + noEmail.ParentId + '>&nbsp;Add Email Address </a></p></td>\
+                                                            <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                                                <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
+                                                                    <tbody>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(63, 81, 181); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_home_'+ i + '">H</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="home_' + indexEmail + '">' + HomeNo + '</td>\
+                                                                        </tr>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(0, 150, 136); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_mobile_'+ i + '">M</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="mobile_' + indexEmail + '">' + MobileNo + '</td>\
+                                                                        </tr>\
+                                                                        <tr style="line-height:normal;">\
+                                                                            <td style="color: rgb(121, 85, 72); font-weight: bold; font-size: 12px; width: 15%; height: 24px;text-align:center;" class="lbl_work_'+ i + '">W</td>\
+                                                                            <td style="font-size: 12px;font-weight: bold;padding:5px 10px;" class="work_' + indexEmail + '">' + WorkNo + '</td>\
+                                                                        </tr>\
+                                                                    </tbody>\
+                                                                </table>\
+                                                            </td>\
+                                                        </tr>';
+                                noEmailBody += '<tr>\
+                <td colspan="4" class="accordion-body collapse packageDetails1 fade out">\
+   '+ $('#emaiDivSection').html() + '\
+     <div id="caseNoteDiv_' + indexEmail + '" class="casenote-div" ></div>\
+    </tr>';
+
+                                indexEmail++;
+                            });
+
+
+                        }
+
+
+                        self.elements.modallblCenter.html( result.Result[4].CenterName);
+                        self.elements.modallblClassroom.html(result.Result[4].ClassroomName);
+                        self.elements.modallblClassDate.html(result.Result[4].ClassDate);
+                    }
+                }
+
+
+                self.elements.tbodyEmailSent.html(sentEmailBody);
+
+
+
+                self.elements.tbodyBouncedEmails.html(bouncedEmailBody);
+                self.elements.tbodyNoEmails.html(noEmailBody);
+
+                self.elements.modalEmailReport.find('#myTab li').removeClass('active');
+                self.elements.modalEmailReport.find('#myTab li:eq(0)').addClass('active');
+
+                self.elements.modalEmailReport.find('.tab-pane').removeClass('active in');
+                self.elements.modalEmailReport.find('#Emailsent').addClass('active in');
+
+                self.elements.modalEmailReport.modal('show');
+
+                self.elements.modalEmailReport.find('[data-toggle="tooltip"]').tooltip();
+
+
+                self.elements.modalEmailReport.find('.email-casenote').map(function () {
+
+                    var $parentId = $(this).attr('accesskey');
+                    var $changeEmail = $(this);
+
+
+
+                    //$(this).popover({
+                    //    placement: 'auto',
+                    //    title: 'Change Email <span style="float:right;" class="fa fa-times pull-right" aria-hidden="true" onclick="function(){ $('+this+').popover("hide")});" }"></span>' ,
+                    //    html: true,
+                    //    content: $('#myEmailForm').html()
+                    //}).on('click', function () {
+                    //    $changeEmail.next('tr').show('slow');
+                    //    $changeEmail.closest('tr').attr('data-toggle', "collapse");
+                    //    $changeEmail.closest('tr').trigger('click');
+                    //    // had to put it within the on click action so it grabs the correct info on submit
+                    //    $('.btnSave').click(function () {
+                    //        self.saveParentEmail($changeEmail, $(this).siblings('#email'), $parentId,this);
+                    //    });
+                    //});
+
+
+
+                    $changeEmail.on('click', function () {
+
+
+
+
+                        var $clientId = $changeEmail.closest('tr').find('td:eq(0)').find('p').data('accesskey');
+
+                        var $parentId = $changeEmail.closest('tr').find('td:eq(1)').find('p').children('a').attr('accesskey');
+
+
+                        $changeEmail.closest('tr').next('tr').children('td').find('#txtParentEmail').val('');
+
+
+                        if ($changeEmail.closest('tr').next('tr').children('td').hasClass('out')) {
+
+                            $.ajax({
+
+                                url: self.getCaseNotePartial,
+                                type: 'post',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({ clientID: $clientId }),
+                                beforeSend: function () { $('#spinner').show() },
+                                success: function (data) {
+
+                                    debugger;
+
+                                    console.log(data);
+                                    var index = $changeEmail.closest('tr').data('row');
+
+
+                                    var $caseNoteDiv = $changeEmail.closest('tr').next('tr').find('#caseNoteDiv_' + index + '');
+                                    $caseNoteDiv.html(data);
+
+                                    $caseNoteDiv.find('#div-edit-modal-img-gallery').addClass('div-edit-modal-img-gallery_' + index + '').css('margin-top', '50px');
+
+                                    $caseNoteDiv.find('#txtCaseNoteDate').attr('onblur', 'self.validateCaseNoteDate(this);');
+                                    $caseNoteDiv.find('#txtCaseNoteDate').mask('99/99/9999');
+                                    $caseNoteDiv.find('#txtareaCaseNote').attr('id', 'txtareaCaseNote_' + index + '');
+
+                                    if ($changeEmail.closest('.tab-pane').attr('id') == 'Emailsent') {
+                                        $caseNoteDiv.find('#txtCaseNoteTitle').val('Change Email Address');
+
+                                    }
+                                    else {
+                                        $caseNoteDiv.find('#txtCaseNoteTitle').val('Add Email Address');
+
+                                    }
+
+                                    //$caseNoteDiv.find('#divCaseNoteClients').find('input:checkbox[value=' + $clientId + ']').prop('checked', true);
+                                    $caseNoteDiv.find('#divCaseNoteClients').find('input:checkbox[value=' + $parentId + ']').prop('checked', true).prop('disabled', true);
+                                    $caseNoteDiv.find('.save-casenote').removeAttr('onclick');
+                                    $caseNoteDiv.find('.cancel-casenote').removeAttr('data-dismiss');
+
+                                    $caseNoteDiv.find('#divCaseNoteClients').find('input:checkbox').each(function () {
+
+                                        //if ($(this).val() != $clientId && $(this).val() != $parentId) {
+                                        //    $(this).parent('div').hide();
+                                        //}
+
+                                        if ($(this).val() != $parentId) {
+                                            $(this).parent('div').hide();
+                                        }
+
+                                    });
+
+                                    self.elements.txtCaseNoteDate = $caseNoteDiv.find('#txtCaseNoteDate');
+
+                                    $caseNoteDiv.find('#Attachmectstag').attr('onclick', 'self.addCaseNoteAttachment(this);');
+
+                                    $caseNoteDiv.find('#FirstFile[type="file"]').attr('onchange', 'self.ValidateSingleInputDocument(this,null);');
+
+
+                                    CKEDITOR.replace('txtareaCaseNote_' + index + '', {
+                                        language: 'en-gb',
+                                        uiColor: '#295b8f',
+                                        disableNativeSpellChecker: false
+                                    });
+
+
+                                    $changeEmail.closest('tr').next('tr').find('#caseNoteDiv_' + index + '').find('input:text[name="txtCaseNoteTags"]').tagsInput({
+                                        width: 'auto',
+                                        height: 'auto',
+                                        delimiter: [',', ';'],
+                                        autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',//code0643
+                                        autocomplete: {
+                                            //'source': tags_array[0].split(/,\s*/)
+                                            //'source': getTagsOnInputnREF(),
+                                            'appendTo': '#caseNoteDiv_' + index + ''
+                                        },
+                                        // autocomplete_url: '',
+                                        //autocomplete_url: '',
+                                    });
+
+
+                                    if ($changeEmail.closest('.tab-pane').attr('id') == 'Emailsent') {
+                                        $changeEmail.closest('tr').next('tr').find('#caseNoteDiv_' + index + '').find('input:text[name="txtCaseNoteTags"]').importTags('Email Address Change,,;');
+
+                                    }
+                                    else {
+                                        $changeEmail.closest('tr').next('tr').find('#caseNoteDiv_' + index + '').find('input:text[name="txtCaseNoteTags"]').importTags('Email Address Added,,;');
+
+                                    }
+
+
+                                    $changeEmail.closest('tr').next('tr').find('#caseNoteDiv_' + index + '').find('input:text[name="txtCaseNoteTags"]').next('.tagsinput').children('span:eq(0)').find('a[title="Removing tag"]').remove();
+
+
+
+
+
+                                    showCameraOption();
+                                    self.elements.modalEmailReport.find('.img-camera').hide();
+                                    setIntervalUserMedia();
+
+                                },
+                                error: function (data) {
+
+                                },
+                                complete: function (data) {
+                                    $('#spinner').hide();
+                                    $changeEmail.closest('tr').next('tr').children('td').fadeToggle(100);
+
+                                    $changeEmail.closest('tr').next('tr').children('td').removeClass('out');
+                                    $changeEmail.closest('tr').next('tr').children('td').addClass('in');
+                                }
+
+
+                            });
+
+                        }
+
+                        else if ($changeEmail.closest('tr').next('tr').children('td').hasClass('in')) {
+                            $changeEmail.closest('tr').next('tr').children('td').fadeToggle(100);
+
+                            $changeEmail.closest('tr').next('tr').children('td').removeClass('in');
+                            $changeEmail.closest('tr').next('tr').children('td').addClass('out');
+                        }
+
+
+
+
+
+
+
+                        //if ($changeEmail.closest('tr').next('tr').children('td').hasClass('in')) {
+                        //    $changeEmail.closest('tr').next('tr').children('td').removeClass('in');
+                        //    $changeEmail.closest('tr').next('tr').children('td').addClass('out');
+
+                        //}
+
+                        //else if ($changeEmail.closest('tr').next('tr').children('td').hasClass('out')) {
+                        //    $changeEmail.closest('tr').next('tr').children('td').removeClass('out');
+                        //    $changeEmail.closest('tr').next('tr').children('td').addClass('in');
+
+                        //}
+
+
+
+
+
+                        //if ($changeEmail.closest('tr').next('tr').children('td').hasClass('in')) {
+                        //    $changeEmail.closest('tr').next('tr').children('td').removeClass('in');
+                        //    $changeEmail.closest('tr').next('tr').children('td').addClass('out');
+
+                        //}
+
+                        //else if ($changeEmail.closest('tr').next('tr').children('td').hasClass('out')) {
+                        //    $changeEmail.closest('tr').next('tr').children('td').removeClass('out');
+                        //    $changeEmail.closest('tr').next('tr').children('td').addClass('in');
+
+                        //}
+
+                        //$changeEmail.closest('tr').next('tr').children('td').addClass('in');
+
+                    });
+
+
+                });
+
+
+
+
+            },
+
+
+
+
+
+            ValidateSingleInputDocument: function (oInput, callback) {
+
+                if (oInput.type == "file") {
+                    var sFileName = oInput.value;
+                    if (sFileName.length > 0) {
+                        var blnValid = false;
+                        var valid_size = 3 * 1000 * 1000;
+                        var v = oInput.files[0].size;
+                        if (v <= valid_size) {
+                            for (var j = 0; j < self.documentExtensionArray.length; j++) {
+                                var sCurExtension = self.documentExtensionArray[j];
+                                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+
+                                    blnValid = true;
+                                    break;
+                                }
+                            }
+                            if (!blnValid) {
+                                oInput.value = "";
+                                return false;
+                            }
+                        }
+                        else {
+                            oInput.value = "";
+                            customAlertforlongtime("File size should not be greater than 3 MB. ");
+                            return false;
+
+                        }
+
+                    }
+                }
+
+                if (callback != null) {
+                    var imagetype = 1;
+                    var $scrId = $(oInput).closest('.modal').attr('id');
+
+                    callback(oInput, imagetype, $scrId);
+
+                    var targId = $(oInput).attr('data-target-id');
+                    $('#' + targId).modal('hide');
+
+                }
+
+                return true;
+            },
+
+
+            validateCaseNoteDate: function (value) {
+
+
+
+                isValid = true;
+                if (!$(value).attr("readonly")) {
+
+                    if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                        var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                        var regex = new RegExp(dateformat);
+                        if (!regex.test($(value).val())) {
+                            customAlert("Invalid date format. ");
+                            $(value).val('');
+                            return false;
+                        }
+                        else {
+                            var text = $(value).val();
+                            var comp = text.split('/');
+                            var m = parseInt(comp[0], 10);
+                            var d = parseInt(comp[1], 10);
+                            var y = parseInt(comp[2], 10);
+                            var date = new Date(y, m - 1, d);
+                            if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                            } else {
+                                customAlert("Invalid date. ");
+                                $(value).val('');
+                                return false;
+                            }
+
+
+
+                        }
+                    }
+                    var txtdate = $(value).val();
+                    var selectedTimestampequal = new Date();
+                    var year = selectedTimestampequal.getFullYear();
+                    var month = selectedTimestampequal.getMonth() + 1;
+                    var day = selectedTimestampequal.getDate();
+                    today1 = month + '/' + day + '/' + year;
+                    var newinput = today1.split("/");
+                    var newday = newinput[1];
+                    var str = newday.substr(0, 1);
+                    var newdaynew = ('0' + newday).slice(-2);
+                    var newmonth = newinput[0];
+                    var str1 = newmonth.substr(0, 1);
+                    var newmonthnew = ('0' + newmonth).slice(-2);
+                    today = newmonthnew + '/' + newdaynew + '/' + year;
+                    if (today == txtdate) {
+                        return true;
+                    }
+                    var testdatelocalinput = new Date(txtdate);
+                    var selectedTimestamp = new Date().getTime();
+                    var testdatelocalinputTS = testdatelocalinput.getTime();
+                    var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+                    if (testdatelocalinputTS > selectedTimestamp) {
+                        customAlert("Case Note date must be less than or equal to today's date.");
+                        $(value).val('');
+                        return false;
+                    }
+                    else if (timestamp > testdatelocalinputTS) {
+                        customAlert("Case Note date cannot be less than 30 days from today's date.");
+                        $(value).val('');
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            addCaseNoteAttachment: function (ele) {
+                var index = $(ele).closest('#caseNoteAttachmentsDiv').find('input:file').length;
+
+
+
+                var appendDiv = '<div class="col-xs-12 additional-attach-div adddivspace" style="padding: 0;">\
+                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">\
+                            <div class="enroll-sec" style="padding-left: 0;">\
+                                <div class="transition-content-desc" style="position: relative;">\
+                                    <p style="background: none;border: none;"></p>\
+                                </div>\
+                            </div>\
+                        </div>\
+                       <div class="col-lg-9 col-sm-7">\
+                            <div class="col-lg-9 col-sm-12 no-padding">\
+                                <div class="col-sm-7 col-lg-8 no-padding">\
+                                    <input type="file"  name="Attachments[' + index + '].file" onchange="self.ValidateSingleInputDocument(this,null);"  class="form-control">\
+                                </div>\
+                                <div class="col-sm-3 col-lg-3 adddivspace">\
+                                    <a href="javascript:void(0)" title="Remove Attachment" onclick="self.removecaseNoteAttachment(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </div>';
+
+                $(ele).closest('#caseNoteAttachmentsDiv').siblings("#addAttachmentDiv").append(appendDiv);
+            },
+            removecaseNoteAttachment: function (ele) {
+                $(ele).closest('.additional-attach-div').remove();
+
+                $.each($(ele).closest('#caseNoteAttachmentsDiv').find('input:file'), function (i, attach) {
+                    $(attach).attr('name', 'Attachments[' + i + '].file');
+                });
+
+            },
+
+            saveParentEmailWithCaseNote: function (ele) {
+                debugger;
+                var $td = $(ele).closest('td');
+                var $rowIndex = $td.closest('tr').prev('tr').data('row');
+                self.elements.txtParentEmail = $td.find('#txtParentEmail');
+                self.elements.divCaseNoteSection = $td.find('#divCaseNoteSection');
+                self.elements.txtCaseNoteDate = self.elements.divCaseNoteSection.find('#txtCaseNoteDate');
+                self.elements.txtCaseNoteTitle = self.elements.divCaseNoteSection.find('#txtCaseNoteTitle');
+                self.elements.txtCaseNoteBody = self.elements.divCaseNoteSection.find('#txtareaCaseNote_' + $rowIndex + '');
+                self.elements.divCaseNoteHouseholds = self.elements.divCaseNoteSection.find('#divCaseNoteClients');
+                self.elements.divDevelopmentalTeam = self.elements.divCaseNoteSection.find('#caseNoteStaffDiv');
+                self.elements.txtCaseNoteTags = self.elements.divCaseNoteSection.find('input:text[name="txtCaseNoteTags"]');
+                self.elements.checkboxSecuritylevel = self.elements.divCaseNoteSection.find('#checkboxSecureNote');
+                self.elements.divFileAttachment = self.elements.divCaseNoteSection.find('#caseNoteAttachmentsDiv');
+
+                var $clientId = self.elements.txtParentEmail.closest('tr').prev('tr').find('td:eq(0)').find('p').data('accesskey');
+                var $parentId = self.elements.txtParentEmail.closest('tr').prev('tr').find('td:eq(1)').find('p').children('a').attr('accesskey');
+
+                if (self.validateCaseNoteSection(ele)) {
+
+                    var fd = new FormData();
+
+                    var staffIDs = new Array();
+
+                    self.elements.divDevelopmentalTeam.find('input:checkbox:checked').map(function () {
+
+                        staffIDs.push($(this).val());
+                    });
+
+                    var clientIDs = new Array();
+
+                    self.elements.divCaseNoteHouseholds.find('input:checkbox:checked').map(function () {
+                        clientIDs.push($(this).val());
+
+                    });
+
+
+                    var fileInput = null;
+
+
+
+                    fd.append('CaseNoteid', 0);
+                    fd.append('ClientId', self.elements.divCaseNoteSection.find('#hidden_clientId').val());
+                    fd.append('parentId', $parentId);
+                    fd.append('email', self.elements.txtParentEmail.val().trim())
+                    fd.append('ProgramId', self.elements.divCaseNoteSection.find('#hidden_programId').val());
+                    fd.append('HouseHoldId', self.elements.divCaseNoteSection.find('#hidden_householdId').val());
+                    fd.append('CenterId', self.elements.divCaseNoteSection.find('#hidden_centerId').val());
+                    fd.append('Classroomid', self.elements.divCaseNoteSection.find('#hidden_classroomId').val());
+                    fd.append('CaseNoteDate', self.elements.txtCaseNoteDate.val().trim());
+                    fd.append('CaseNotetitle', self.elements.txtCaseNoteTitle.val().trim());
+                    fd.append('Note', self.elements.txtCaseNoteBody.val().trim());
+                    fd.append('CaseNotetags', self.elements.txtCaseNoteTags.val().trim());
+                    fd.append('ClientIds', clientIDs.join(","));
+                    fd.append('StaffIds', staffIDs.join(","));
+                    fd.append('CaseNoteSecurity', self.elements.checkboxSecuritylevel.is(':checked'));
+
+                    self.elements.divFileAttachment.find('input:file').each(function () {
+
+                        fd.append('fileInput', $(this)[0].files[0]);
+
+                    });
+
+                    self.elements.divFileAttachment.next('#addAttachmentDiv').find('input:file').each(function () {
+
+                        fd.append('fileInput', $(this)[0].files[0]);
+
+                    });
+
+
+
+                    var $cameraDocuments = self.elements.modalEmailReport.find('.div-edit-modal-img-gallery_' + $rowIndex + '').find('.setup_viewscreen');
+
+                    var cameraDocumentsArray = [];
+
+                    if ($cameraDocuments.length > 0) {
+
+                        $.each($cameraDocuments, function (j, doc) {
+
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ 'Text': 'CaseNoteDocument', 'Value': self.getBase64Image($doc) });
+
+                        });
+                    }
+
+                    fd.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+                    self.ajaxOptions.url = self.updateEmailUrl;
+                    self.ajaxOptions.type = "POST";
+                    self.ajaxOptions.datatype = "JSON";
+                    self.ajaxOptions.data = fd;
+                    self.ajaxOptions.processData = false;
+                    self.ajaxOptions.contentType = false;
+                    self.ajaxCall(self.callbackSaveParentEmailCaseNote);
+
+                }
+            },
+
+            callbackSaveParentEmailCaseNote: function (data) {
+                console.log(data);
+                debugger;
+                if (data != null) {
+                    switch (data.resultType) {
+                        case 1:  // email test failed //
+                            customAlertforlongtime('Attempt to send test email was failed. Please verify entered email address.');
+                            plainValidation(self.elements.txtParentEmail);
+                            break;
+
+                        case 2: //email verified and sent, then case note saved //
+                            customAlertforlongtime('Email address verified and saved successfully <br><br> Case note saved successfully');
+                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').html(self.elements.txtParentEmail.val());
+                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').trigger('click');
+
+
+                            if (self.elements.txtParentEmail.closest('.tab-pane').attr('id')=='Noemails')
+                            {
+                                self.getEmailReport(self.referenceId);
+                            }
+
+                            break;
+
+                        case 3: // email verified and sent, but failed to save case note //
+                            customAlertforlongtime('Email address saved successfully, but failed to save the case note. Please, try again.');
+                            plainValidation(self.elements.txtParentEmail);
+                            break;
+
+
+
+                        case 4:    //Error occurred while saving email address//
+                            customAlertforlongtime('Email address already exists');
+                            plainValidation(self.elements.txtParentEmail);
+                            break;
+
+                            //case 5:
+                            //    customAlertforlongtime('Couldn\'t find your email account in mail server');
+                            //    plainValidation(self.elements.txtParentEmail);
+                            //    break;
+
+                        case 6:    //Error occurred while saving email address//
+                            customAlertforlongtime('Error occurred while saving email address. Please, try again later.');
+                            break;
+
+
+
+                        case 7: // error occurred//
+                            customAlertforlongtime('Error occurred. Please, try again later');
+                            break;
+                    }
+                }
+            },
+
+            validateCaseNoteSection: function (element) {
+                debugger;
+                var Tags = '';
+                var oldEmail = self.elements.txtParentEmail.closest('tr').prev('tr').find('td:eq(1)').attr('old-email');
+                self.elements.txtCaseNoteTags.siblings('#' + self.elements.txtCaseNoteTags.attr('id') + '_tagsinput').find('.tag span').each(function () {
+                    Tags = Tags + $(this).text().trim() + ',';
+                });
+
+                self.elements.txtCaseNoteTags.val(Tags);
+                Tags = '';
+
+
+                self.elements.txtCaseNoteBody.val(CKEDITOR.instances['' + self.elements.txtCaseNoteBody.attr('id') + ''].getData());
+
+                if (self.elements.txtParentEmail.val() == null || self.elements.txtParentEmail.val() == '') {
+                    customAlert(_langList.Emailaddressisrequired);
+                    plainValidation(self.elements.txtParentEmail);
+                    return false;
+                }
+
+                else if (!self.validateEmail(self.elements.txtParentEmail.val())) {
+                    customAlert(_langList.Emailaddressinvalid);
+                    plainValidation(self.elements.txtParentEmail);
+                    return false;
+                }
+
+                else if (self.elements.txtParentEmail.val().trim().toLowerCase() == oldEmail.trim().toLowerCase()) {
+                    customAlert('Entered email address and existing email address should not be same');
+                    plainValidation(self.elements.txtParentEmail);
+                    return false;
+                }
+
+                else if (self.elements.txtCaseNoteDate.val() == null || self.elements.txtCaseNoteDate.val() == '') {
+                    customAlert(_langList.CaseNoteDateisRequired);
+                    plainValidation(self.elements.txtCaseNoteDate);
+                    return false;
+                }
+                else if (!self.validateCaseNoteDate(self.elements.txtCaseNoteDate)) {
+                    return false;
+                }
+
+                else if (self.elements.txtCaseNoteTitle.val() == null || self.elements.txtCaseNoteTitle.val() == '') {
+                    customAlert(_langList.Casenotetitleisrequired);
+                    plainValidation(self.elements.txtCaseNoteTitle);
+                    return false;
+                }
+                else if (self.elements.txtCaseNoteBody.val().trim() == '') {
+                    customAlert(_langList.Noteisrequired);
+                    plainValidation(self.elements.txtCaseNoteBody);
+                    return false;
+                }
+                else if (self.elements.divCaseNoteHouseholds.find('input:checkbox:checked').length == 0) {
+                    customAlert('At least one client should be selected');
+                    plainValidation(self.elements.divCaseNoteHouseholds);
+                    return false;
+                }
+
+
+                else if (self.elements.txtCaseNoteTags.val().trim() == "") {
+                    isValid = false;
+                    customAlert("Tags are required");
+                    plainValidation(self.elements.txtCaseNoteTags);
+                    return false;
+                }
+
+                else if (self.elements.divDevelopmentalTeam.find('input:checkbox:checked').length == 0) {
+                    isValid = false;
+                    customAlert(_langList.Atleastonedevelopmentalstaff);
+                    plainValidation(self.elements.divDevelopmentalTeam);
+                    return false;
+
+                }
+
+                return true;
+
+
+
+
+            },
+
+            saveParentEmail: function (sourceEle, email, parentId, ele) {
+                debugger;
+                if (email.val() == null || email.val() == '') {
+                    customAlert(_langList.Emailaddressisrequired);
+                    plainValidation(email);
+                    return false;
+
+                }
+                else if (!self.validateEmail(email.val())) {
+                    customAlert(_langList.Emailaddressinvalid);
+                    plainValidation(email);
+                    return false;
+                }
+                else {
+                    self.ajaxOptions.url = self.updateEmailUrl;
+                    self.ajaxOptions.type = "POST";
+                    self.ajaxOptions.datatype = "JSON";
+                    self.ajaxOptions.data = JSON.stringify({ parentID: parentId, email: email.val() });
+                    // self.ajaxCall(function(){self.callbackSaveParentEmail(sourceEle, email.val())});
+
+
+                    $.ajax({
+                        url: self.ajaxOptions.url,
+                        type: self.ajaxOptions.type,
+                        datatype: self.ajaxOptions.datatype,
+                        data: self.ajaxOptions.data,
+                        traditional: true,
+                        //contentType: "application/json; charset=utf-8",
+                        contentType: false,
+                        async: false,
+                        success: function (data) {
+                            if (data) {
+                                customAlert('Email changed successfully');
+                                sourceEle.html(email.val());
+                                sourceEle.popover('hide');
+                            }
+                            else {
+                                customAlert('Error occurred. Please, try again later.');
+                            }
+                        },
+                        error: function (data) {
+
+                        },
+                        complete: function (Data) {
+                            self.showBusy(false);
+                        }
+
+                    })
+
+                }
+
+            },
+
+
+
+            validateEmail: function (sEmail) {
+                var filter = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                if (filter.test(sEmail)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            },
+
+            callbackGetClassrooms: function (data) {
+
+                debugger;
+                var bindData = '';
+                if (data != null && data.CenterList != null && data.CenterList.length > 0 && data.CenterList[0].Classroom != null && data.CenterList[0].Classroom.length > 0) {
+
+                    self.classroomsJson = data.CenterList[0].Classroom;
+                    $.each(data.CenterList[0].Classroom, function (i, classroom) {
+
+                        bindData += '<option value=' + classroom.ClassroomID + '>' + classroom.ClassName + '</option>';
+                    });
+                }
+
+                debugger;
+
+
+                self.elements.dropdownClassroom.multiselect('destroy');
+
+                self.elements.dropdownClassroom.html(bindData);
+
+                self.elements.dropdownClassroom.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: 'Search Classroom',
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1
+
+                });
+                self.elements.divClassroomDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divClassroomDropdown.find('.btn-group').css({ 'width': '100%' });
+
+                self.elements.dropdownClassroom.closest('.form-group').show('slow');
+
+
+
+
+            },
+            callbackSaveOptionalClassDays: function (data) {
+                console.log(1);
+                debugger;
+                if (data != null) {
+                    switch (data.resultType) {
+                        case 1:
+                            if (data.result == true) {
+                                self.resetInputFields();
+                                customAlertforlongtime('Record saved successfully');
+                                self.getUnscheduledClassDaysList();
+                            }
+                            else {
+                                customAlertforlongtime('Error occurred. Please try again later');
+
+                            }
+                            break;
+                        case 2:
+
+
+                            var $appendList = '';
+
+
+                            if (data.result.length > 0) {
+
+                                $appendList += '<ol>'
+                                $.each(data.result, function (i, classroom) {
+
+                                    $appendList += '<li>' + classroom.Text + '</li>';
+
+                                });
+                                $appendList += '</ol>';
+                            }
+
+                            var $message = ' <div class="col-xs-12">' + $appendList + '</div>\
+    <p>'+_langList.Uncheckaboveclassrooms+'</p>'
+
+
+                            // $('.dropdown-toggle').popover('destroy');
+
+
+                            self.elements.dropdownClassroom.closest('.form-group').find('.dropdown-toggle').attr({ 'title': 'Already School Scheduled <i style="float:right;cursor:pointer;" class="fa fa-times close-popover"></i>', 'data-content': $message });
+
+
+                            //$('.dropdown-toggle').popover({
+
+                            //    templete:$message
+
+                            //});
+                            self.elements.dropdownClassroom.closest('.form-group').find('.dropdown-toggle').popover({ placement: 'auto', html: true });
+
+                            self.elements.dropdownClassroom.closest('.form-group').find('.dropdown-toggle').popover('show');
+
+                            //BootstrapDialog.show({
+                            //    message: 'Hi Apple!',
+                            //    message: 'You can not close this dialog by clicking outside and pressing ESC key.',
+                            //    closable: true,
+                            //    closeByBackdrop: false,
+                            //    closeByKeyboard: false,
+                            //    buttons: [{
+                            //        label: 'Close the dialog',
+                            //        action: function (dialogRef) {
+                            //            dialogRef.close();
+                            //        }
+                            //    }]
+                            //});
+
+                            break;
+                    }
+
+
+                }
+
+                else {
+                    customAlertforlongtime('Error occurred. Please try again later');
+
+                }
+
+
+
+
+            },
+            resetInputFields: function () {
+                self.elements.dropdownCenter.val('0');
+                self.elements.dropdownClassroom.find('option').remove();
+                self.elements.dropdownClassroom.multiselect('destroy');
+
+                self.elements.dropdownClassroom.closest('.form-group').hide();
+                //self.elements.dropdownClassroom.multiselect({
+
+                //    maxHeight: 200,
+                //    includeSelectAllOption: true,
+                //    enableFiltering: true,
+                //    filterPlaceholder: 'Search Classroom',
+                //    enableCaseInsensitiveFiltering: true,
+                //    numberDisplayed: 1
+
+                //});
+                //self.elements.divClassroomDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                //self.elements.divClassroomDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+                self.elements.inputClassDate.val('');
+                if (self.elements.dropdownoptionalClassDayReason.is(':visible')) {
+                    self.elements.dropdownoptionalClassDayReason.val(0);
+                    self.elements.inputoptionalClassDayReason.val('');
+                    self.elements.inputoptionalClassDayReason.parent('div').hide();
+                }
+                else {
+                    self.elements.inputoptionalClassDayReason.val('');
+                }
+
+            },
+
+            showBusy: function (status) {
+                if (status) {
+                    $('#spinner').show();
+                }
+                else {
+                    $('#spinner').hide();
+                }
+            },
+            fnChangePage: function (val) {
+                debugger;
+
+                if (self.elements.tbody.find('tr').find('td[data-title="Action"]').length === 0) {
+
+                    return false;
+                }
+
+
+
+                debugger;
+
+                window.setTimeout(function () {
+
+                    var $selfElements = self.elements;
+
+                    self.pageLoadedFirst = false;
+
+                    self.pageSize = $selfElements.dropdownRecordsPerpage.val();
+
+                    if (val == 'First') {
+                        self.startIndex = 0;
+
+                        self.lastIndex = parseInt(self.pageSize) + parseInt(self.lastIndex * self.requestedPage);
+
+                        self.requestedPage = ((self.startIndex / 10) + 1);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        $selfElements.buttonPagingFirst.attr('disabled', true);
+                        $selfElements.buttonPagingBack.attr('disabled', true);
+                        $selfElements.buttonPagingNext.attr('disabled', false);
+                        $selfElements.buttonPagingLast.attr('disabled', false);
+
+                        self.lastIndex = 0;
+                    }
+                    else if (val == 'Last') {
+
+                        self.startIndex = parseInt((self.totalRecords - 1) / self.pageSize) * self.pageSize;
+
+                        self.lastIndex = self.totalRecords;
+
+                        self.requestedPage = self.numOfPages;
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+
+                        $selfElements.buttonPagingFirst.attr('disabled', false);
+                        $selfElements.buttonPagingBack.attr('disabled', false);
+                        $selfElements.buttonPagingNext.attr('disabled', true);
+                        $selfElements.buttonPagingLast.attr('disabled', true);
+
+                    }
+                    else if (val == 'Next') {
+
+                        debugger;
+                        self.lastIndex = parseInt(self.pageSize) + parseInt(self.lastIndex);
+
+                        self.requestedPage = (parseInt(self.lastIndex / self.pageSize) + 1);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        $selfElements.buttonPagingFirst.attr('disabled', false);
+                        $selfElements.buttonPagingBack.attr('disabled', false);
+
+                        if (parseInt(self.lastIndex) + parseInt(self.pageSize) >= self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', true);
+                            $selfElements.buttonPagingLast.attr('disabled', true);
+                        }
+                        else if (parseInt(self.lastIndex) - parseInt(self.pageSize) < self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', false);
+                            $selfElements.buttonPagingLast.attr('disabled', false);
+                        }
+                    }
+                    else if (val == 'Back') {
+
+
+                        self.requestedPage = self.requestedPage - 1;
+
+                        self.lastIndex = parseInt(self.lastIndex) - parseInt(self.pageSize);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        if (parseInt(self.lastIndex) + parseInt(self.pageSize) > self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', true);
+                            $selfElements.buttonPagingLast.attr('disabled', true);
+
+                        }
+                        else if (parseInt(self.lastIndex) - parseInt(self.pageSize) < self.totalRecords) {
+                            $selfElements.buttonPagingNext.attr('disabled', false);
+                            $selfElements.buttonPagingLast.attr('disabled', false);
+
+                        }
+                        if (self.requestedPage == 1) {
+                            $selfElements.buttonPagingFirst.attr('disabled', true);
+                            $selfElements.buttonPagingBack.attr('disabled', true);
+                        }
+                    }
+                    else {
+                    }
+
+                }, 10)
+            },
+            gotoNextPage: function (reqPage, pageSize) {
+
+
+                self.getUnscheduledClassDaysList();
+
+            },
+
+            getTotalRecord: function (data) {
+                debugger;
+                self = this;
+
+                var $selfElements = self.elements;
+
+                $selfElements.buttonPagingFirst.attr('disabled', false);
+                $selfElements.buttonPagingBack.attr('disabled', false);
+                $selfElements.buttonPagingNext.attr('disabled', false);
+                $selfElements.buttonPagingLast.attr('disabled', false);
+
+                self.pageSize = $selfElements.dropdownRecordsPerpage.val();
+
+                if (data > 0) {
+
+                    self.totalRecords = parseInt(data);
+
+                    if (self.totalRecords <= parseInt(self.pageSize)) {
+
+
+                        $selfElements.buttonPagingFirst.attr('disabled', true);
+                        $selfElements.buttonPagingBack.attr('disabled', true);
+                        $selfElements.buttonPagingNext.attr('disabled', true);
+                        $selfElements.buttonPagingLast.attr('disabled', true);
+
+                    }
+
+                    self.numOfPages = parseInt(self.totalRecords / self.pageSize) + ((self.totalRecords % self.pageSize == 0) ? 0 : 1);
+
+                    $selfElements.dropdownPageNumber.empty();
+
+                    for (i = 1; i <= self.numOfPages; i++) {
+
+                        var newOption = "<option value='" + i + "'>" + i + "</option>";
+                        $selfElements.dropdownPageNumber.append(newOption);
+                    }
+
+                    $selfElements.dropdownPageNumber.val(self.requestedPage);
+                }
+                else {
+                    $selfElements.buttonPagingFirst.attr('disabled', true);
+                    $selfElements.buttonPagingBack.attr('disabled', true);
+                    $selfElements.buttonPagingNext.attr('disabled', true);
+                    $selfElements.buttonPagingLast.attr('disabled', true);
+                }
+            },
+
+            getListafterupdation: function () {
+                self = this;
+
+                self.pageSize = self.elements.dropdownRecordsPerpage.val();
+                self.requestedPage = self.elements.dropdownPageNumber.val();
+
+                self.startIndex = (self.pageSize * (self.requestedPage - 1)) + 1;
+                self.lastIndex = parseInt(self.pageSize * self.requestedPage) - parseInt(self.pageSize);
+
+
+                var $selfElements = self.elements;
+
+
+
+                self.getUnscheduledClassDaysList();
+
+                if (self.requestedPage == 1) {
+                    $selfElements.buttonPagingFirst.attr('disabled', true);
+                    $selfElements.buttonPagingBack.attr('disabled', true);
+                    $selfElements.buttonPagingNext.attr('disabled', false);
+                    $selfElements.buttonPagingLast.attr('disabled', false);
+                }
+                else if (self.requestedPage == self.numOfPages) {
+
+                    $selfElements.buttonPagingFirst.attr('disabled', false);
+                    $selfElements.buttonPagingBack.attr('disabled', false);
+                    $selfElements.buttonPagingNext.attr('disabled', true);
+                    $selfElements.buttonPagingLast.attr('disabled', true);
+                }
+                else {
+
+
+
+                    $selfElements.buttonPagingFirst.attr('disabled', false);
+                    $selfElements.buttonPagingBack.attr('disabled', false);
+                    $selfElements.buttonPagingNext.attr('disabled', false);
+                    $selfElements.buttonPagingLast.attr('disabled', false);
+
+                }
+
+
+
+
+            },
+
+            getUnscheduledClassDaysList: function () {
+                debugger;
+
+                self.bindAjaxParameters();
+                self.ajaxOptions.url = self.bindPartialUrl;
+                self.ajaxOptions.datatype = 'html',
+                self.ajaxOptions.type = 'POST',
+                self.ajaxOptions.data = JSON.stringify({ modal: self.dataParameters });
+                self.ajaxOptions.async = false;
+                self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+
+                console.log(self.ajaxOptions);
+
+                self.ajaxCall(self.bindUnscheduledClassDays);
+
+            },
+            bindUnscheduledClassDays(data) {
+
+                debugger;
+
+                console.log(data);
+
+                //  self.elements.divTableResponsive.html('');
+
+                self.elements.divTableResponsive.html(data);
+
+                self.initializeElements();
+
+                self.getTotalRecord(parseInt(self.elements.spanTotalRecord.html()));
+
+                self.elements.tbody.find('[data-toggle="tooltip"]').tooltip();
+
+                self.elements.tbody.find('.btn-delete-trans').on('click', function () {
+
+                    console.log(event);
+                    // var selfEle = self.elements.tbody.find('.btn-delete-trans');
+                    var selfEle = $(this);
+
+                    var $transId = selfEle.siblings('#item_UnscheduledSchoolDayID').val();
+
+                    var $classroom = selfEle.closest('td').parent('tr').children('td:eq(1)').find('p').html();
+                    var $classDate = selfEle.closest('td').parent('tr').children('td:eq(3)').find('p').html();
+
+                    BootstrapDialog.show({
+                        title: 'Confirmation',
+                        message: "<p><i class='fa fa-warning' aria-hidden='true' style='font-weight:bold;color:red;'></i>&nbsp;You are about to delete the Unscheduled School Day of <strong>" + $classroom + "</strong> for the date " + $classDate + " .</p><p style='margin-left:18px;'>Click <strong>OK</strong> to proceed.</p>",
+                        closable: true,
+                        closeByBackdrop: false,
+                        closeByKeyboard: false,
+
+                        buttons: [{
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> Cancel',
+                            cssClass: 'glossy-button-button button-green button-red',
+                            action: function (dialogItself) {
+                                dialogItself.close();
+                            }
+                        }, {
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> OK',
+                            cssClass: 'glossy-button-button button-green',
+                            autospin: true,
+                            action: function (dialogItself) {
+
+
+
+                                self.delteUnscheduledClassDay($transId, dialogItself);
+
+                                //window.setTimeout(function () {
+
+                                //    dialogItself.close();
+
+                                //}, 100);
+                            }
+                        }]
+                    });
+
+                });
+
+                self.elements.table.find('thead th').on('click', function () {
+
+                    debugger;
+
+                    if ($(this).find('i').length > 0) {
+                        self.sortColumn = 'th' + ($(this).index() + 1);
+
+                        if ($(this).find('i').is(':visible')) {
+                            if ($(this).find('.i-asc').is(':visible')) {
+                                self.sortOrder = "DESC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                            else if ($(this).find('.i-desc').is(':visible')) {
+                                self.sortOrder = "ASC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                        }
+                        else {
+                            self.sortOrder = 'ASC';
+                            $(this).find('.i-asc').show();
+                        }
+
+
+                        self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                        self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+                        self.getUnscheduledClassDaysList();
+                    }
+                    else {
+                        return false;
+                    }
+
+
+
+                });
+
+                self.elements.tbody.find('.btn-send-email').on('click', function () {
+
+                    var selfEle = $(this);
+
+                    var $transId = selfEle.siblings('#item_UnscheduledSchoolDayID').val();
+
+                    self.resendEmailToUnsentParents($transId);
+
+
+                });
+
+
+            },
+
+            delteUnscheduledClassDay: function (schoolDayID, modal) {
+                self.bindAjaxParameters();
+                self.ajaxOptions.url = self.deleteUrl;
+                self.ajaxOptions.datatype = 'json',
+                self.ajaxOptions.type = 'POST',
+                self.dataParameters.UnscheduledSchoolDayID = schoolDayID;
+                self.ajaxOptions.data = JSON.stringify({ unscheduledSchoolDay: self.dataParameters });
+                self.ajaxOptions.async = true;
+                self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+                console.log(self.ajaxOptions);
+
+                modal.close();
+                self.ajaxCall(self.callbackDeleteSchoolDay);
+
+
+            },
+            callbackDeleteSchoolDay(data) {
+                if (data) {
+                    customAlertforlongtime('Record deleted successfully');
+                    self.getUnscheduledClassDaysList();
+                }
+                else {
+                    customAlertforlongtime('Error occurred. Please, try again later');
+
+                }
+            },
+            getBase64Image: function (img) {
+                //debugger;
+                //var canvas = document.createElement("canvas");
+                //canvas.width = img.width;
+                //canvas.height = img.height;
+                //var ctx = canvas.getContext("2d");
+                //ctx.drawImage(img, 0, 0);
+                //var dataURL = ctx.toDataURL("image/png");
+                //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+                return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+            }
+
+
+        }
+
+
+        $(function () {
+
+           
+            ///// Progress script ////
+
+            debugger;
+                // Reference the auto-generated proxy for the hub.
+             progress = $.connection.fingerprintsHub;
+              
+
+            optionalClassDays.init();
+
+
+
+            //camera option for document upload//
+
+
+
+            videoSelect = document.querySelector('select#videoSource');
+            video = document.querySelector('#setup-camera-div video');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '')
+
+
+            screenshotButton = document.querySelector('#anchor-capture');
+
+
+
+
+
+
+
+
+            screenshotButton.onclick = video.onclick = function () {
+
+                var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                // Other browsers will fall back to image/png
+                console.log(canvas);
+                // img.src = canvas.toDataURL('image/png');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
+            };
+
+            function handleSuccess(stream) {
+                screenshotButton.disabled = false;
+                video.srcObject = stream;
+            }
+
+            function stopMediaTracks(stream) {
+
+                stream.getTracks().forEach(function (track) { track.stop(); })
+
+            }
+
+
+            //new code//
+
+
+
+
+            videoSelect.addEventListener('change', function (event) {
+
+                getStream();
+            });
+
+            navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+            canvas = document.createElement('canvas');
+
+
+
+        });
+
+
+
+        function ProgressBarModal(showHide) {
+
+            if (showHide === 'show') {
+                $('#mod-progress').modal('show');
+                if (arguments.length >= 2) {
+                    $('#progressBarParagraph').text(arguments[1]);
+                } else {
+                    $('#progressBarParagraph').text('U tijeku...');
+                }
+
+                window.progressBarActive = true;
+
+            } else {
+                $('#mod-progress').modal('hide');
+                window.progressBarActive = false;
+            }
+        }
+
+        function stopMediaTracks(stream) {
+            stream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+        }
+
+        function gotDevices(mediaDevices) {
+
+            videoSelect.innerHTML = '';
+            // videoSelect.appendChild(document.createElement('option'));
+            var count = 1;
+            mediaDevices.forEach(function (mediaDevice) {
+                if (mediaDevice.kind === 'videoinput') {
+                    const option = document.createElement('option');
+                    option.value = mediaDevice.deviceId;
+                    const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                    const textNode = document.createTextNode(label);
+                    option.appendChild(textNode);
+                    videoSelect.appendChild(option);
+                }
+            });
+
+
+
+
+
+        }
+
+        function getStream() {
+            // alert('change event');
+            if (typeof currentStream !== 'undefined') {
+                stopMediaTracks(currentStream);
+            }
+            const videoConstraints = {};
+            if (videoSelect.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: videoSelect.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+              .getUserMedia(constraints)
+              .then(function (stream) {
+                  currentStream = stream;
+                  video.srcObject = stream;
+                  return navigator.mediaDevices.enumerateDevices();
+              })
+              .then(gotDevices)
+              .catch(function (error) {
+                  console.error(error);
+                  //alert(error);
+              });
+        }
+
+        function showCameraOption(ele) {
+
+            var videoInputAvailable = 0;
+            $('.img-camera').tooltip('hide');
+            $('.img-camera').hide();
+
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+
+                console.log(devices);
+                devices.forEach(function (device) {
+
+
+                    if (device.kind == 'videoinput') {
+                        videoInputAvailable++;
+                    }
+
+                });
+
+
+                if (videoInputAvailable == 0) {
+                    $('.img-camera').hide();
+                    $('.img-camera').tooltip('hide');
+
+                }
+                else {
+                    $('.img-camera').show();
+                    $('.img-camera').tooltip('show');
+                }
+
+                console.log(videoInputAvailable);
+
+            }).catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+
+
+            //if (videoSelect.options.length > 0) {
+            //    getStream();
+            //}
+
+
+
+
+        }
+
+        function showVideoStream() {
+            if (videoSelect.options.length > 0) {
+                getStream();
+            }
+
+        }
+
+
+        function checkUserMedia() {
+
+
+
+
+            navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia);
+
+            navigator.getMedia({ video: true }, function () {
+
+                if (!$('.img-camera').is(':visible')) {
+
+                    $('.img-camera').show();
+                    $('.img-camera').tooltip('show');
+                }
+
+
+
+            }, function () {
+
+                $('.img-camera').hide();
+                $('.img-camera').tooltip('hide');
+
+
+            });
+
+
+        }
+
+        var userMediaInterval = null;
+
+        function setIntervalUserMedia() {
+
+            userMediaInterval = setInterval(function () {
+
+                checkUserMedia();
+
+            }, 1000);
+
+
+
+        }
+
+        function stopIntervalUserMedia() {
+            clearInterval(userMediaInterval);
+        }
+
+
+
+
+        //function saveDocumentCamera(ele) {
+        //    var docImage = $('#modalScreenDoc').find('#capt-img');
+
+        //    if (docImage[0].src.replace('data:,', '') == '') {
+        //        customAlert('Please capture image using camera');
+        //        return false;
+        //    }
+        //    else {
+
+        //        saveScreeningDoc(docImage, 2);
+
+        //    }
+
+        //}
+
+    </script>
+
+
+}
+
+
+@section MainContentHolder
+{
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid" style="padding-top:15px;">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-calendar-check-o" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.MakeupSchoolDays
+
+                                        <span class="view-btn backto_listspan">
+
+                                            @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12">
+
+
+
+                                <!--Filter Section----->
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12">
+                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center <sup>*</sup></label>
+                                        @{
+                                            var staffDetails = FingerprintsModel.StaffDetails.GetInstance();
+
+                                            var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString(), isCenterBasedOnly: true);
+                                            if (centerList.Count == 2)
+                                            {
+                                                centerList = centerList.Where(x => x.Value != "0").ToList();
+                                            }
+                                            centerList.ForEach(x =>
+                                            {
+                                                x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                            });
+
+                                        }
+
+                                        @Html.DropDownList("selectCenter", new SelectList(centerList, "Value", "Text"), new { @class = "glossy-select" })
+
+
+                                    </div>
+
+
+                                    <!---------Classroom drop down section----------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
+                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
+
+                                        <select class="glossy-select" id="selectClassroom" multiple="multiple"></select>
+
+                                    </div>
+
+                                    <!-----Class date section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12">
+                                        <label for="classDatePicker" class="lbl-text">@Fingerprints.LocalResource.Resources.ClassDate<sup style="color:red;">*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="classDatePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-----Class Days Open Reason Dropdown / Input --->
+
+
+
+
+
+
+
+
+
+                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 0 && Model.ReasonList.Count == 2) { <text> style="display:none;" </text>             }>
+
+                                        <label for="dropdownReason" class="lbl-text">@Fingerprints.LocalResource.Resources.Reason <sup>*</sup></label>
+                                        @Html.DropDownList("dropdownReason", new SelectList(Model.ReasonList, "Value", "Text"), new { @class = "glossy-select" })
+
+                                    </div>
+
+                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 2) { <text> style="display:none;" </text>             }>
+
+                                        <label for="dropdownReason" class="lbl-text">
+                                            @if (Model.ReasonList.Count > 0)
+                                            {<text>@Fingerprints.LocalResource.Resources.OtherReason</text>}
+                                            else
+                                            {<text>@Fingerprints.LocalResource.Resources.Reason</text> } <sup>*</sup>
+                                        </label>
+                                        <input type="text" class="form-control glossy-input" placeholder="Enter Reason" id="optionalClassDayreasonTxt" />
+
+
+                                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    <!-----Save Class Days section-->
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                        <label for="exampleInputPassword1" style="visibility:hidden;">Submit</label>
+                                        <button type="button" class="glossy-button-button button-green" id="btnSaveOptionalDays">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            @Fingerprints.LocalResource.Resources.Submit
+                                        </button>
+                                    </div>
+
+
+
+
+                                </div>
+
+
+
+                            </form>
+
+                            <!-------Optional Days  table section------->
+
+                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+                                <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                                    @{
+                                        Html.RenderPartial(Url.Content("~/Views/Partialviews/_UnscheduledSchoolDayList.cshtml"), Model);
+                                    }
+
+                                </div>
+
+
+
+
+
+                            </div>
+
+                            <!---Pagination Section-->
+                            <div class="col-xs-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                    <div class="pages_display">
+                                        <ul>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.Display</li>
+                                            <li>
+                                                <select id="ddlpagetodisplay">
+                                                    <option value="10" selected="selected">10</option>
+                                                    <option value="20">20</option>
+                                                    <option value="30">30</option>
+                                                    <option value="50">50</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </li>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                        </ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div id="divPaging" class="pagination_wrp">
+                                        <ul id="ulPaging" class="pagination">
+                                            <li>
+
+                                                @*<input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" disabled />*@
+
+                                                <a href="javascript:void(0);" id="First" disabled>
+                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Back">
+
+                                                @*<input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Back" disabled>
+                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Select">
+                                                <select class="select_cl" id="ddlpaging"></select>
+                                            </li>
+                                            <li title="Next">
+                                                @*<input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Next" disabled>
+                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                            <li title="Last">
+                                                @* <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Last" disabled>
+                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+
+
+ @{ 
+     Html.RenderPartial("~/Views/Partialviews/_EmailReport.cshtml");
+ }
+
+
+   
+
+
+    <div id="emaiDivSection" style="display:none;">
+
+        <div class="col-xs-12 col-sm-12 adddivspace" style="margin-bottom:10px;margin-top:20px;">
+            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                <div class="enroll-sec" style="padding-left: 0;">
+                    <div class="transition-content-desc" style="position: relative;">
+                        <p style="background: none;border: none;">@Fingerprints.LocalResource.Resources.EmailAddress<span class="error-notify">*</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-sm-7">
+                <input type="text" class="form-control txt-parent-email" id="txtParentEmail" placeholder='@Fingerprints.LocalResource.Resources.EmailAddress' >
+            </div>
+        </div>
+    </div>
+
+
+    @{
+        Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+    }
+
+
+@*PROGRESS BAR MODAL*@
+<div class="modal fade in progress-overlay" id="mod-progress" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal-dialog progress-div">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="i-circle warning"><i class="fa fa-info-circle" style="font-size:20px;color:#00aed0;"></i></div>
+                    <div id="result" style="font-size: 1.1em; padding-bottom: 5px">
+                        <p id="progressBarParagraph"></p>
+                    </div>
+                    <div style="width: 30%; margin: 0 auto; display:none;">
+                        <div id="progressbar" style="width: 300px; height: 15px"></div>
+                        <br />
+                    </div>
+                    <div id="ProgressStripe" class="progress progress-striped active" style="position:relative; top:10px; width:100%;">
+                        <div id="ProgressMessage" class="progress-bar progress-bar-info" style="width: 100%; border:none;"></div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+}
+

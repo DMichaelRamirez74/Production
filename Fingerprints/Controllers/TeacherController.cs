@@ -668,7 +668,8 @@ namespace Fingerprints.Controllers
 
                 model = new CenterData().InsertDaysOff(daysOff);
 
-                tupleEmail = new CenterData().GetParentAndManagementEmail(new Guid(Session["UserID"].ToString()), "2", isStaff, Convert.ToInt64(CenterId), 0);
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails, (int)Email.EmailTypeEnum.CenterClosure, isStaff, Convert.ToInt64(CenterId), 0);
 
                 if (tupleEmail.Count() > 0)
                 {
@@ -878,7 +879,9 @@ namespace Fingerprints.Controllers
 
                 }
 
-                List<Tuple<bool, string, string, string, long, string, string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string, string>>();
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+                List<Tuple<bool, string, string, string, long, string,string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string,string>>();
 
                 if (yakkrList.Count() > 0)
                 {
@@ -887,7 +890,7 @@ namespace Fingerprints.Controllers
                         if (item2.Selected)
                         {
 
-                            tupleEmail = new CenterData().GetParentAndManagementEmail(new Guid(Session["UserID"].ToString()), "3", isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
+                            tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails,(int)Email.EmailTypeEnum.ClassroomClosure , isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
 
                             if (tupleEmail.Count() > 0)
                             {

@@ -640,10 +640,58 @@
 
 
 
-                </div>
-                                                    }
-                                                    else
-                                                    {
+                    </div>
+                                        }
+
+                                        //Unscheduled School Day
+                                        else if (ViewBag.YakkrCode == "904")
+                                        {
+                                            <div class="table-responsive">
+                                                
+                                         
+                                           
+
+                                                <table class="table table_size" id="Gridclient">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            
+                                                            <th id="thMN">Center <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                            <th id="thMN">Classroom <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                            <th id="thMN">Reason<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                            <th id="thMN">Class Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                            <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+
+                                                            <th id="thMN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody>
+
+                                                        @foreach(var item in Model.ToList())
+                                                        {
+                                                            <tr role="row">
+                                                                <td role="gridcell" title="Center">@item.CenterName</td>
+                                                                <td role="gridcell" title="Classroom">@item.ClassroomName</td>
+                                                                <td role="gridcell" title="Reason">@item.Description</td>
+                                                                <td role="gridcell" title="Class Date">@item.Date</td>
+                                                                <td role="gridcell" title="From">@item.FromUser</td>
+                                                                <td role="gridcell" title="Action"><a href="javascrip:void(0);" onclick="removeUnscheduledDay(this, '@item.YakkrID');">Remove</a></td>
+                                                            </tr>
+                                                        }
+
+
+                                                    </tbody>
+
+                                                </table>
+
+                                                    <div id="div1" style="text-align:center;display:none;">
+                                                        <label>No result found.</label>
+                                                    </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
 
                 <div class="table-responsive">
                     <table class="table table_size" id="Gridclient">
@@ -935,7 +983,8 @@
                                                                                     <td>@detail.Date</td>
                                                                                 </tr>
                                                                             }
-                                                                            else if (ViewBag.YakkrCode == "100")
+                                                                            //  else if (ViewBag.YakkrCode == "100")
+                                                                            else if (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "106")
                                                                             {
                                                                                 <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }">
                                                                                     <td class="ClientName">
@@ -954,28 +1003,28 @@
                                                                                 <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)"> Select </a></td><td> @detail.ClientName </td><td> @detail.DOB </td><td> @detail.CenterName </td><td> @detail.FromUser </td><td> @detail.Date </td></tr>
                                                                                 @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
 
-                                        }
-                                        else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
-                                        {
-                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
-                                        }
-                                        else if (ViewBag.YakkrCode == "704")
-                                        {
-                                            <tr>
-                                                <td class="ClientName">
-                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
-                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                    <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
-                                                </td>
-                                                <td>@detail.ClientName</td>
-                                                <td>@detail.DOB</td>
-                                                <td>@detail.CenterName</td>
-                                                <td>@detail.FromUser</td>
-                                                <td>@detail.Date</td>
-                                            </tr>
-                                        }
+                                                                            }
+                                                                            else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
+                                                                            {
+                                                                                <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                                                            }
+                                                                            else if (ViewBag.YakkrCode == "704")
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="ClientName">
+                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                        <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
+                                                                                    </td>
+                                                                                    <td>@detail.ClientName</td>
+                                                                                    <td>@detail.DOB</td>
+                                                                                    <td>@detail.CenterName</td>
+                                                                                    <td>@detail.FromUser</td>
+                                                                                    <td>@detail.Date</td>
+                                                                                </tr>
+                                                                            }
 
                                         else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303" ||ViewBag.YarkkrCode=="304")
                                         {
@@ -2849,7 +2898,61 @@
 
 
 
-                        //yakkr453  Functions
+        function removeUnscheduledDay(ele,yakkrID)
+        {
+
+            BootstrapDialog.show({
+               title: "Confirmation",
+                message: 'You are about to remove this record. Click OK to Proceed.',
+                closable: true,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                buttons: [{
+                    label: 'Cancel',
+                    action: function(dialogRef){
+                        dialogRef.close();
+                    }
+                },
+                {
+                    label: 'OK',
+                    action: function(dialogRef){
+
+                        
+                        $.ajax({
+                            url: HostedDir+ '/Yakkr/DeleteYakkrByYakkrId',
+                            type: 'post',
+                            datatype: 'json',
+                            data: { clientId: 0, yakkrId: parseInt(yakkrID) },
+                            success: function (data) {
+                                if (data) {
+                                    customAlert("Record deleted successfully.");
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 1000);
+
+                                }
+                                else {
+                                    customAlert("Some error occured.Please,try again later.");
+                                }
+                            },
+                            error: function (data) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+
+                        });
+                       // dialogRef.close();
+                    }
+                }
+                
+                
+                ]
+            });
+
+
+        }
+
+
+        //yakkr453  Functions
 
                         function show453Details(yakkrid, clientname, date) {
 

@@ -17,6 +17,8 @@ namespace FingerprintsModel
     {
 
         public long ClientId { get; set; }
+
+        public long ParentId { get; set; }
         public string ChildName { get; set; }
         public string ParentName { get; set; }
 
@@ -51,6 +53,7 @@ namespace FingerprintsModel
         public Guid UserId { get; set; }
         public Guid RoleId { get; set; }
 
+        public long HouseholdId { get; set; }
 
     }
 }

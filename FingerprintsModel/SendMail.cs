@@ -570,6 +570,68 @@ namespace FingerprintsModel
             }
         }
 
+
+
+        public static bool SendEmailWithTask(string fromEmail,string toEmail,string message,string subject )
+        {
+
+            try {
+
+
+                MailMessage mailMessage = new MailMessage(fromEmail, toEmail);
+                mailMessage.Body = message;
+                mailMessage.Subject = subject;
+                mailMessage.IsBodyHtml = true;
+               
+                SmtpClient Client = new SmtpClient();
+            
+
+                Client.Host = Convert.ToString(ConfigurationManager.AppSettings["MailServer"]);
+                Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+
+                   NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
+
+              //  NetworkCredential basicCredential = new NetworkCredential("fingerprintsdeveloper@gmail.com", "FingerPrints123");
+
+                Client.UseDefaultCredentials = true;
+                Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+                Client.Credentials = basicCredential;
+                Client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                try
+                {
+
+                    mailMessage.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure | DeliveryNotificationOptions.OnSuccess;
+
+                     Client.Send(mailMessage);
+                    return  true;
+
+                    
+                }
+                catch(SmtpFailedRecipientsException ex)
+                {
+                    clsError.WriteException(ex);
+                    return false;
+                }
+
+                catch (Exception ex)
+                {
+                    clsError.WriteException(ex);
+                    return false;
+                   
+                }
+
+              
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+                return false;
+            }
+
+          
+        }
+
         public static bool SendBillingEmail(string emailId, string message, string userEmail, string Attachments,string cc)
         {
             try
@@ -777,5 +839,57 @@ namespace FingerprintsModel
             }
         }
 
+
+
+        public static bool CheckEmailExistsMailServer(string frommail,string tomail)
+        {
+
+            bool isExists = false;
+            try
+            {
+                System.Net.Sockets.TcpClient tClient = new System.Net.Sockets.TcpClient("gmail-smtp-in.l.google.com", 25);
+                string CRLF = "\r\n";
+                byte[] dataBuffer;
+                string ResponseString;
+                System.Net.Sockets.NetworkStream netStream = tClient.GetStream();
+                System.IO.StreamReader reader = new System.IO.StreamReader(netStream);
+                ResponseString = reader.ReadLine();
+
+                /* Perform HELO to SMTP Server and get Response */
+                dataBuffer = Encoding.ASCII.GetBytes("HELO Test" + CRLF);
+                netStream.Write(dataBuffer, 0, dataBuffer.Length);
+                ResponseString = reader.ReadLine();
+                dataBuffer = Encoding.ASCII.GetBytes("MAIL FROM:<" + frommail + ">" + CRLF);
+                netStream.Write(dataBuffer, 0, dataBuffer.Length);
+                ResponseString = reader.ReadLine();
+                /* Read Response of the RCPT TO Message to know from google if it exist or not */
+                dataBuffer = Encoding.ASCII.GetBytes("RCPT TO:<" + tomail + ">" + CRLF);
+                netStream.Write(dataBuffer, 0, dataBuffer.Length);
+                ResponseString = reader.ReadLine();
+                if (int.Parse(ResponseString.Substring(0, 3)) == 550)
+                {
+                    isExists = false;
+                    // Response.Write("Mai Address Does not Exist !<br/><br/>");
+                    // Response.Write("<B><font color='red'>Original Error from Smtp Server :</font></b>" + ResponseString);
+                }
+                else
+                {
+                    isExists = true;
+                }
+                /* QUITE CONNECTION */
+                dataBuffer = Encoding.ASCII.GetBytes("QUITE" + CRLF);
+                netStream.Write(dataBuffer, 0, dataBuffer.Length);
+                tClient.Close();
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            return isExists;
+
+          
+        }
     }
 }
