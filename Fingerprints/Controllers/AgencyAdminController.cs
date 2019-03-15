@@ -586,12 +586,21 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
 
-        public ActionResult SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, string isEndOfYear="0")
+        public ActionResult SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, string OIFinaUser, string isEndOfYear = "0")
         {
-            bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+            var result = false;
+            try
+            {
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                result = agencyData.SaveAcceptancePrirorityRoles(Roles, isEndYear, OIFinaUser);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
 
-            agencyData.SaveAcceptancePrirorityRoles(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Roles, isEndYear);
-            return Json("");
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult PendingApprovalRequest(string id = "0")

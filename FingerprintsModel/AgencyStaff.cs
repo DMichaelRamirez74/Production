@@ -159,6 +159,8 @@ namespace FingerprintsModel
         public string Routecode100 { get; set; }
         public string Routecode101 { get; set; }
         public string Routecode102 { get; set; }
+        public string Routecode106 { get; set; }
+        public string Routecode107 { get; set; }
         public string TotalWaitingList { get; set; }
         public string Attendance { get; set; }
         public bool Homebased { get; set; }
@@ -618,6 +620,20 @@ namespace FingerprintsModel
         }
     }
 
+
+    public  class GridParams : Pagination
+    {
+        public GridParams() {
+            Search = "";
+            SortOrder = "";
+            SortColumn = "";
+            RequestedPage = 1;
+            PageSize = 10;
+        }
+
+        public string Search { get; set; }
+       
+    }
 
 
 

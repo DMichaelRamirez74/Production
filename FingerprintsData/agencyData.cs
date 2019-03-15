@@ -11,6 +11,9 @@ using System.Web.Mvc;
 using System.Globalization;
 using System.Web;
 using System.IO;
+using Newtonsoft.Json;
+using System.Dynamic;
+
 namespace FingerprintsData
 {
     public class agencyData
@@ -171,11 +174,17 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssueStartDay", agencyDetails.AttendanceIssueStartDay));
                 command.Parameters.Add(new SqlParameter("@AllowCaseNoteTeacher", agencyDetails.AllowCaseNoteTeacher));
+                command.Parameters.Add(new SqlParameter("@OverIncomeAcceptance", agencyDetails.OverIncomeAcceptance));
 
-
-                command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", agencyDetails.InkindPeriods.StartDate));
-                command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", agencyDetails.InkindPeriods.EndDate));
-
+                if (agencyDetails.InkindPeriods != null)
+                {
+                    command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", agencyDetails.InkindPeriods.StartDate));
+                    command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", agencyDetails.InkindPeriods.EndDate));
+                }
+                else {
+                    command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", ""));
+                    command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", ""));
+                }
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
                 string fileextension = null;
@@ -583,7 +592,7 @@ namespace FingerprintsData
                         agency.AttendanceIssueStartDay = (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]))) ? Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssueCheckDays"]) : "";
 
                         agency.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
-
+                        agency.OverIncomeAcceptance = Convert.ToInt32(_dataset.Tables[0].Rows[0]["OverIncomeAcceptance"]);
                         agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
 
                         agency.InkindPeriods.StartDate = Convert.ToString(_dataset.Tables[0].Rows[0]["InKindStartDate"]);
@@ -3414,6 +3423,8 @@ namespace FingerprintsData
         public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId, bool isEndOfYear = false)
         {
             List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
+
+            var stf = StaffDetails.GetInstance();
             try
             {
                 command.Parameters.Clear();
@@ -3438,6 +3449,23 @@ namespace FingerprintsData
                             obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
                             obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
                             obj.ActiveProgramYear = Convert.ToString(dr["ActiveProgramYear"]);
+                            obj.UserId = dr["UserId"] == DBNull.Value ? "" : dr["UserId"].ToString();
+                            //insert userlist to final review user
+                            if (!string.IsNullOrEmpty(obj.UserId)) {
+                                var users = new HomevisitorData().GetUsersByRoleId(obj.RoleID.ToString(), stf.RoleId.ToString(), stf.UserId.ToString(), stf.AgencyId.ToString());
+                                if (users.Count > 0)
+                                {
+                                    foreach (var item in users)
+                                    {
+
+                                        obj.RoleList.Add(new Role() { RoleId = item.Value, RoleName = item.Text });
+                                    }
+                                }
+                                else {
+                                    obj.RoleList = new List<Role>();
+                                }
+                                
+                            }
                             _AcceptanceProcessList.Add(obj);
                         }
                     }
@@ -3453,6 +3481,41 @@ namespace FingerprintsData
                     Connection.Close();
             }
             return _AcceptanceProcessList;
+        }
+
+        public bool GetOverIncomeReview() {
+            bool result = false;
+
+            try
+            {
+                var stf =  StaffDetails.GetInstance();
+                command.Connection = Connection;
+                command.CommandType = CommandType.Text;
+                command.CommandText = @"select top 1 isnull(OverIncomeAcceptance,0) as OverIncomeAcceptance from AgencyInfo where 
+                                        AgencyId = '" + stf.AgencyId.ToString()+"' and Status = 1";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        result = _dataset.Tables[0].Rows[0]["OverIncomeAcceptance"].ToString() == "False" ? false : true;
+                    }
+                }
+
+                    }catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+
+
+            return result;
         }
         public List<CoreTeam> SaveCoreTeam(ref string message, List<CoreTeam> CoreTeams, string AgencyId, string UserId)
         {
@@ -4129,9 +4192,11 @@ namespace FingerprintsData
 
         }
 
-        public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles, bool isEndOfYear = false)
+        //  public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles, bool isEndOfYear = false)
+        public bool SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, bool isEndOfYear = false, string OIFinaUser="")
         {
             AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
+            var stf = StaffDetails.GetInstance();
             bool result = false;
             try
             {
@@ -4167,17 +4232,22 @@ namespace FingerprintsData
 
 
                 }
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@result", ""));
+                command.Parameters.Add(new SqlParameter("@UserId",stf.UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", stf.AgencyId));
+                //  command.Parameters.Add(new SqlParameter("@result", ""));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
+                command.Parameters.Add(new SqlParameter("@OverIncomeFinalUser", OIFinaUser));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveAcceptanceRole";
                 int isrowaffected = command.ExecuteNonQuery();
-                if (isrowaffected > 0)
-                    result = true;
+                result = command.Parameters["@result"].Value.ToString() == "1" ? true : false;
+                // if (isrowaffected > 0)
+                //    result = true;
+
+
 
 
             }
@@ -6648,7 +6718,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
                                 var _singDoc = new FamilyHousehold.IncomeDocument(){
 
-                                    DocumentId = Int64.Parse(dr["DocumentId"].ToString()),
+                                    DocumentId = DBNull.Value == dr["DocumentId"] ? 0 :  Int64.Parse(dr["DocumentId"].ToString()),
                                     DocumentName = DBNull.Value == dr["DocumentName"] ? "" : dr["DocumentName"].ToString()
 
                             };

@@ -40,6 +40,11 @@
         var Acceptwaitingobject = null;
         var PYStartDate = "@ViewBag.PYStartDate";
         var reloadPage = false;
+        var globeParam = {}; //grid parameter for all client status (pendin,OI-Pending,Accepted,Returned,OI-Returned)
+        var sort = {
+            column: "name",
+            dir: "asc"
+        };
 
         $(document).ready(function () {
             BindDropdownDisable();
@@ -433,8 +438,7 @@
 
                             var gender = (roster.Gender == '1') ? 'Male' : (roster.Gender == "2") ? 'Female' : 'Other';
 
-                            if (roster.IsWithdrawn == 1)
-                            {
+                            if (roster.IsWithdrawn == 1) {
                                 appendData += '<tr style="color:red;">';
                                 appendData += '<td><a href="javascript:void(0);" clientid="' + roster.Eclientid + '"  onclick="LoadNotes(this);" style="text-decoration:underline;cursor:pointer;color:red;">' + roster.Name + '</a></td>';
 
@@ -479,8 +483,7 @@
             });
         }
 
-        function loadOverIncome(ele)
-        {
+        function loadOverIncome(ele) {
             var $centerId = $(ele).closest('tr').find('td:eq(0)').find('a').attr('accesskey')
 
             var $centerName = $(ele).closest('tr').find('td:eq(0)').find('a').html();
@@ -493,9 +496,8 @@
                 success: function (data) {
 
                     var overIncomeAppend = '';
-                 
-                    if (data != null && data.childInfo != null && data.childInfo.OverIncomeChildrenList != null && data.childInfo.OverIncomeChildrenList.length > 0)
-                    {
+
+                    if (data != null && data.childInfo != null && data.childInfo.OverIncomeChildrenList != null && data.childInfo.OverIncomeChildrenList.length > 0) {
                         $.each(data.childInfo.OverIncomeChildrenList, function (i, child) {
 
                             var Gender = (child.Gender == '1') ? 'Male' : (child.Gender == '2') ? 'Female' : 'Other';
@@ -567,8 +569,7 @@
         //}
 
 
-        function hideDisabilityDiv(ele)
-        {
+        function hideDisabilityDiv(ele) {
 
             $(ele).closest('#divChangeStatus').find('.checkbox-inline').html('');
             $(ele).closest('#divChangeStatus').hide();
@@ -1008,7 +1009,27 @@
 
             multipleArr = [];
         }
-        function loadclientPendinglist(Object, Centerid) {
+
+
+
+
+        $(document).on("click","#btnSearchauto",function(e){
+            e.preventDefault();
+            var _type = $(this).data("type");;
+            var svale = $("#searchclient-input").val();
+            var cid = $(this).data("Centerid");
+
+            ClientPendinListwithPagination(_type,1,svale,cid);
+        });
+
+
+        function loadclientPendinglist(Object, Centerid, type) {
+
+             sort = {  //reset sorting
+                column: "name",
+                dir: "asc"
+            };
+
             WaitObject = Object;
             $('#PendingWaiting').hide();
             $("#DivWaitinglist > tbody >tr").each(function () {
@@ -1016,47 +1037,301 @@
                 $(this).find('input[type = checkbox]').prop("checked", false);
             });
             $('#CenterNameclient').text($(Object).closest("tr").find("td:first a").text());
+
+            $("#loadclientPendinglist").data("type",type);
+            ClientPendinListwithPagination(type,1,"",Centerid);
+            $("#btnSearchauto").data("type",type);   $("#btnSearchauto").data("Centerid",Centerid);
+        };
+
+
+
+        function ClientPendinListwithPagination(type, RequestedPage, search, Centerid) {
+            //declare globe parameter for get datagrid
+            globeParam.type = type, globeParam.RequestedPage = RequestedPage,
+            globeParam.search = search, globeParam.Centerid = Centerid;
+
+            //  var pno = $("#ddlpaging").val();
             $.ajax({
                 url: HostedDir + "/Home/LoadClientPendinglist",
                 type: "POST",
-                data: {
+                beforeSend: function () { $("#spinner").show(); },
+                data: JSON.stringify({
                     Centerid: Centerid,
-                    Type: 1
-                },
+                    //Type: 1
+                    Type: type,
+                    Gparam: {
+                        // PageSize:$("#ddlpagetodisplay").val(),
+                        PageSize: $("#ddlpagetodisplay").val(),
+                        //  RequestedPage:pno,
+                        RequestedPage: RequestedPage,
+                     //   SortOrder: 'asc',
+                        // SortColumn: 'name',
+                        SortColumn:sort.column,
+                        SortOrder: sort.dir,
+                        Search: search
+                    },
+
+                }),
+                //data: JSON.stringify({
+                //    Centerid: Centerid,
+                //    //Type: 1
+                //    Type: type
+
+                //}),
                 dataType: "json",
-                secureuri: false,
-                async: false,
+                contentType: "application/json;",
+                // secureuri: false,
+                // async: false,
                 success: function (Data) {
-                    BindClientPendinglist(Data);
+                    BindClientPendinglist(Data.data, type, Data.TotalRecords, RequestedPage);
                 }
-			   , error: function (Data) {
-			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-			   }
+       , error: function (Data) {
+           customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+       },
+                complete: function (res) {
+
+                    $("#spinner").hide();
+                }
             });
+
+
+
+
         }
-        function BindClientPendinglist(Data) {
+
+        /*
+                function loadclientPendinglist(Object, Centerid,type) {
+                    WaitObject = Object;
+                    $('#PendingWaiting').hide();
+                    $("#DivWaitinglist > tbody >tr").each(function () {
+                        $(this).find('input:text,select').val("");
+                        $(this).find('input[type = checkbox]').prop("checked", false);
+                    });
+                    $('#CenterNameclient').text($(Object).closest("tr").find("td:first a").text());
+
+                    $("#loadclientPendinglist").data("type",type);
+
+                    $.ajax({
+                        url: HostedDir + "/Home/LoadClientPendinglist",
+                        type: "POST",
+                        data:  JSON.stringify( {
+                            Centerid: Centerid,
+                            //Type: 1
+                            Type: type,
+                            page: {
+                                PageSize:10,
+                                RequestedPage:1,
+                                SortOrder:'asc',
+                            SortColumn:'name'
+                            }
+                        }),
+                        //data: JSON.stringify({
+                        //    Centerid: Centerid,
+                        //    //Type: 1
+                        //    Type: type
+
+                        //}),
+                        dataType: "json",
+                        contentType: "application/json;",
+                       // secureuri: false,
+                       // async: false,
+                        success: function (Data) {
+                            BindClientPendinglist(Data,type);
+                        }
+                       , error: function (Data) {
+                           customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                       }
+                    });
+                }
+
+
+
+                */
+
+
+
+
+
+        $(document).on("click", "#First,#Back,#Next,#Last", function (e) {
+            e.preventDefault();
+
+            var _modalType = $(this).parents('div.modal').attr('id');
+            var _type = $(this).prop('id');
+            var _curentPg = parseInt($("#ddlpaging").val());
+            var _lastpg = parseInt($("#ddlpaging option:last").val());
+
+            if (_modalType == "Modalrejected") { //returned modal
+
+                _curentPg = parseInt($("#ddlpaging-rej").val());
+                _lastpg = parseInt($("#ddlpaging-rej option:last").val());
+
+            } else if (_modalType == "ModalAcceptanceList") {//accepted Modal
+
+                _curentPg = parseInt($("#ddlpaging_accept").val());
+                _lastpg = parseInt($("#ddlpaging_accept option:last").val());
+            }
+
+            switch (_type) {
+                case "First":
+                    _curentPg = 1;
+                    break;
+                case "Back":
+                    _curentPg--;
+                    break;
+                case "Next":
+                    _curentPg++;
+                    break;
+                case "Last":
+                    _curentPg = _lastpg;
+                    break;
+
+            };
+
+            if (_modalType == "Modalrejected") {
+
+                $("#ddlpaging-rej").val(_curentPg);
+                ClientRejectedListwithPagination(globeParam.type, _curentPg, globeParam.search, globeParam.Centerid);
+            } else if (_modalType == "ModalAcceptanceList") {
+
+
+                $("#ddlpaging_accept").val(_curentPg);
+                ClientAcceptanceListwithPagination(gparamAccept.Option, _curentPg, gparamAccept.search, gparamAccept.Centerid);
+
+            } else {
+                $("#ddlpaging").val(_curentPg);
+                ClientPendinListwithPagination(globeParam.type, _curentPg, globeParam.search, globeParam.Centerid);
+            }
+
+            if (_curentPg == 1) {
+                $("#Back").prop("disabled", true);
+            } else {
+                $("#Back").prop("disabled", false);
+            }
+
+            if (_lastpg == _curentPg) {
+                $("#Next").prop("disabled", true);
+            } else {
+                $("#Next").prop("disabled", false);
+            }
+
+
+        });
+
+        
+
+
+        $(document).on("click", '[data-sort="true"]', function (e) {
+            e.preventDefault();
+            var _clmnName = $(this).data("name");
+            var _modalType = $(this).parents('div.modal').attr('id');
+
+            // console.log(_clmnName);
+            if (sort.column == _clmnName) {
+                if (sort.dir == "asc") {
+                    sort.dir = "desc";
+                } else {
+                    sort.dir = "asc";
+                }
+            } else {
+                sort.column = _clmnName; sort.dir = "asc";
+            }
+
+            console.log(sort);
+
+            $('[data-sort="true"] span').removeClass('fa-sort-amount-asc fa-sort-amount-desc');
+            $('[data-name="' + sort.column + '"] span').addClass('fa-sort-amount-' + sort.dir);
+            //refreshTagReport(1, $("#page-length-drop").val());
+            var _curentPg = 1;
+            if (_modalType == "Modalrejected") {
+
+                _curentPg = $("#ddlpaging-rej").val();
+                ClientRejectedListwithPagination(globeParam.type, _curentPg, globeParam.search, globeParam.Centerid);
+            } else if (_modalType == "ModalAcceptanceList") {
+
+
+                _curentPg= $("#ddlpaging_accept").val();
+                ClientAcceptanceListwithPagination(gparamAccept.Option, _curentPg, gparamAccept.search, gparamAccept.Centerid);
+
+            } else {
+                _curentPg= $("#ddlpaging").val();
+                ClientPendinListwithPagination(globeParam.type, _curentPg, globeParam.search, globeParam.Centerid);
+            }
+
+
+        });
+
+
+        $(document).on("change", "#ddlpagetodisplay", function (e) {
+
+            //  var _type = $("#btnSearchauto").data("type");;
+            // var svale = $("#searchclient-input").val();
+            // var cid =  $("#btnSearchauto").data("Centerid");
+
+            //  ClientPendinListwithPagination(_type,1,svale,cid);
+
+            var _type = $(this).prop('id');
+            ClientPendinListwithPagination(globeParam.type, 1, globeParam.search, globeParam.Centerid);
+        })
+
+        $(document).on("change", "#ddlpaging", function (e) {
+            e.preventDefault();
+            var _nxtPg = $(this).val();
+
+            ClientPendinListwithPagination(globeParam.type, _nxtPg, globeParam.search, globeParam.Centerid);
+
+
+        });
+
+        function drawPagedropdown(TotalRecord, pagno) {
+
+            var _psize = parseInt($("#ddlpagetodisplay").val());
+            var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+
+            $("#ddlpaging").html('');
+            for (var i = 1; i <= _pcount; i++) {
+
+                $("#ddlpaging").append('<option value="' + i + '">' + i + '</option>')
+            }
+
+            $("#ddlpaging").val(pagno);
+
+
+        };
+
+        function BindClientPendinglist(Data, type, totalrec, pno) {
+
+            $("#trecord").text(Data.length);
+            if (totalrec > 0) {
+                drawPagedropdown(totalrec, pno)
+            }
+
             if (Data != null && Data.length > 0) {
+                // ;
                 $('#div2').hide();
                 var tbody = "";
                 var option = "";
                 $('#DivPendingclientlist > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
-                    tbody = tbody + '<tr><td>' + Data[i].Name + '</td>';
+                    tbody = tbody + '<tr data-index="' + i + '"><td  class="name-clmn"> <span class="name-clmn" style="text-overflow: ellipsis; overflow: hidden;display: inline-block;border:none;white-space:nowrap;">' + Data[i].Name + '</span></td>';
                     if (Data[i].IsReviewed != 0)
-                        tbody = tbody + ' <td><a href="#DivPendingStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="1"  style="text-decoration:underline;">Reviewed</a></td>';
+                        //  tbody = tbody + ' <td><a data-index="' + i + '" data-type="' + type + '" href="#DivPendingStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="1"  style="text-decoration:underline;">Reviewed</a></td>';
+                        tbody = tbody + ' <td><a data-index="' + i + '" data-type="' + type + '" href="javascript:void(0)" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="1"  style="text-decoration:underline;">Reviewed</a></td>';
                     else
                         tbody = tbody + ' <td>Not Reviewed</td>';
 
 
 
-                    tbody = tbody + '  <td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
-                  ' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td>';
+                    tbody = tbody + '  <td class="pt-clmn">' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+                  ' </td><td class="prg-clmn">' + Data[i].ProgramType + '</td><td class="prg-clmn">' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td>';
 
 
                     if ('@fswHV' == '1') {
-                        tbody = tbody + '<td><a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>';
+                        // tbody = tbody + '<td><a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>';
+                        //   tbody = tbody + '<td class="remv-clmn"><a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="font-size: 18px;" class="fa fa-trash"></a> </td>';
+
+                        tbody = tbody + '<td class="remv-clmn"><a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '">Remove</a> </td>';
                     }
-                    tbody = tbody + '</tr>';
+                    tbody = tbody + '</tr><tr class="status-row" style="display:none;"><td colspan="8" ></td></tr>';
 
                 }
 
@@ -1070,7 +1345,40 @@
                 $('#div2').show();
             }
         }
+
+
+
+
         function AcceptanceStatus(Object) {
+
+            var type = $(Object).data('type'); //1-> Pending(Y100), 3-> IO-Pending(Y106), all-OI-returned
+
+            // var parentTr = $(Object).parents('tr');
+
+            var index = $(Object).data('index');
+            var popupType = $(Object).attr("popupfrom");
+            if (type == "all" && popupType == "3") {
+
+                var _cid = $(Object).attr("clientid");
+                var _hid = $(Object).attr("householdid");
+
+                window.location.href = "@Url.Action("DisableYakkr", "Home")?cid=" + _cid + "&hid="+_hid+"";
+                
+            }else{
+
+            //hide div when click on already opened
+            //  var stRow = $('#DivPendingclientlist tr[data-index="'+index+'"]').next('.status-row');
+            var stRow = $(Object).parents('tr[data-index="' + index + '"]').next('.status-row');
+            if (stRow && stRow.css("display") != "none") {
+                stRow.slideUp();
+                return false;
+            }
+
+
+            //  index += 1;
+            // console.info(parentTr);
+
+            //   parentTr.after('<tr> <td colspan="8"> Status Div </td></tr>');
 
             //  $('#ASClientName').text("Acceptance Status for "+$(Object).closest("tr").find("td:first a").text());
             $('#DivPendingStatusTrack').find('.lblClient').text("Acceptance Status for " + $(Object).closest("tr").find("td:first ").text());
@@ -1078,6 +1386,7 @@
 
             $('#DivRejectedStatusTrack').find('.lblClient').text("Rejected Status for " + $(Object).closest("tr").find("td:first ").text());
 
+            var _cname = $(Object).closest("tr").find("td:first ").text();
 
             $.ajax({
                 url: HostedDir + "/AgencyUser/GetAcceptanceStatus",
@@ -1091,7 +1400,7 @@
                 success: function (response) {
 
                     console.log(response);
-                    BindAcceptanceStatus(response, $(Object).attr('ClientId'), $(Object).attr('PopupFrom'));
+                    BindAcceptanceStatus(response, $(Object).attr('ClientId'), $(Object).attr('PopupFrom'), type, index, _cname);
 
 
 
@@ -1101,23 +1410,42 @@
           }
             });
 
+
         }
-        function BindAcceptanceStatus(Data, clientid, popuptype) {
+
+        }
+        function BindAcceptanceStatus(Data, clientid, popuptype, type, index, childname) {
+
+
 
             $('#PendingWaiting').hide();
 
             $('#AcceptanceDivAppend').html("");
             $('#AcceptedListDivAppend').html("");
             $('#RejectedDivAppend').html("");
+            var _status = popuptype == ""
+            var _Tempstr = '<h2 class="panel-sec-title lblClient" >Acceptance Status for ' + childname + '</h2>';
             if (Data != null && Data.length > 0) {
-
                 var DivContent = "", tabContent = "", tabRow = "";;
 
+                //  var _ovincome = Data.find(x=>x.PriorityLevel == 10);
+                var _ovincome = Data.filter(x=>x.PriorityLevel > 9);
+
+                if (type == 3) {            //IO - Pending(Y106)
+                    renderOverincomeStatus(_ovincome, popuptype, index, _Tempstr);
+                    return false;
+                }
+
                 for (var i = 1; i < Data.length; i++) {
+                    if (Data[i].PriorityLevel > 9) continue;
+
                     DivContent = "", tabContent = "", tabRow = "";;
                     DivContent = $('#GetAppendDiv').html();
-                    DivContent = DivContent.replace('#collapse13', "#collapse" + (i + 1))
-                    DivContent = DivContent.replace('collapse13', "collapse" + (i + 1))
+                    //DivContent = DivContent.replace('#collapse13', "#collapse" + (i + 1))
+                    //DivContent = DivContent.replace('collapse13', "collapse" + (i + 1))
+                    DivContent = DivContent.replace('#collapse13', "#collapse-" + type + "-" + (i + 1))
+                    DivContent = DivContent.replace('collapse13', "collapse-" + type + "-" + (i + 1))
+                    DivContent = DivContent.replace('#accordion13', "#accordion-" + type + "-" + (i + 1));
                     DivContent = DivContent.replace('HeadingRoleName', Data[i].RoleName);
                     DivContent = DivContent.replace('CurrentStatus', Data[i].IsAccepted);
                     DivContent = DivContent.replace('ReviewerLevel', Data[i].PriorityLevel);
@@ -1167,26 +1495,30 @@
                         tr += "</tr>";
                         DivContent = DivContent.replace("<tbody>", tr);
                     }
-                    switch (popuptype) {
-                        case "1":
-                            $('#AcceptanceDivAppend').append(DivContent);
-                            break;
-                        case "2":
-                            $('#AcceptedListDivAppend').append(DivContent);
-                            break;
-                        case "3":
-                            $('#RejectedDivAppend').append(DivContent);
-                            break;
+                    /*  switch (popuptype) {
+                          case "1":
+                              $('#AcceptanceDivAppend').append(DivContent);
+                              break;
+                          case "2":
+                              $('#AcceptedListDivAppend').append(DivContent);
+                              break;
+                          case "3":
+                              $('#RejectedDivAppend').append(DivContent);
+                              break;
 
-                    }
+                      }
+                      */
+                    _Tempstr += DivContent;
                 }
+
 
 
                 DivContent = "", tabContent = "", tabRow = "";;
 
                 DivContent = $('#GetAppendDiv').html();
                 DivContent = DivContent.replace('#collapse13', "#collapse" + (1))
-                DivContent = DivContent.replace('collapse13', "collapse" + (1))
+                DivContent = DivContent.replace('collapse13', "collapse" + (1));
+                DivContent = DivContent.replace('#accordion13', "#accordion-" + type + "-" + (i + 1));
                 DivContent = DivContent.replace('HeadingRoleName', Data[0].RoleName);
                 DivContent = DivContent.replace('CurrentStatus', Data[0].IsAccepted);
                 DivContent = DivContent.replace('ReviewerLevel', Data[0].PriorityLevel);
@@ -1235,10 +1567,14 @@
                     tr += "</tr>";
                     DivContent = DivContent.replace("<tbody>", tr);
                 }
-                switch (popuptype) {
+
+
+                /*
+                   switch (popuptype) {
                     case "1":
-                        $('#AcceptanceDivAppend').append(DivContent);
-                        $('#DivPendingStatusTrack').show();
+                       $('#AcceptanceDivAppend').append(DivContent);
+                         $('#DivPendingStatusTrack').show();
+                        //showStatus(1)
                         break;
                     case "2":
                         $('#AcceptedListDivAppend').append(DivContent);
@@ -1251,13 +1587,274 @@
                         break;
 
                 }
+                */
+
+                _Tempstr += DivContent;
 
 
+                /* if (_ovincome) {
+                    // renderOverincomeStatus([_ovincome], popuptype);
+                     renderOverincomeStatus(_ovincome, popuptype);
+                 }*/
+
+
+                if (type == 'all' && _ovincome && _ovincome.length) { //
+                    renderOverincomeStatus(_ovincome, popuptype, index, _Tempstr);
+                    return false;
+                }
+
+
+
+
+                /*
+
+                function showStatus(popuptype) {
+
+
+                    $(".status-row").slideUp();
+                    //  setTimeout(function () {
+                    console.log(index);
+                    //   var _str = '<tr></td colspan="8">';
+                    //  var _str = $("#DivPendingStatusTrack").html();
+
+                    //  $("#DivPendingStatusTrack").html('');
+                    //  _str += "</td></tr>";
+                    $("tr.status-row td").html(''); //reset all html of status
+                    var stsRow = $('tr[data-index="' + index + '"]').next('.status-row');
+
+                    stsRow.find('td').empty();
+                    stsRow.find('td').append(DivContent);
+                    stsRow.slideDown();
+
+                }
+                */
+
+            }
+            /*
+                $(".status-row").slideUp();
+              //  setTimeout(function () {
+                console.log(index);
+                 //   var _str = '<tr></td colspan="8">';
+                var _str = $("#DivPendingStatusTrack").html();
+
+               // $("#DivPendingStatusTrack").html('');
+                  //  _str += "</td></tr>";
+                   var stsRow = $('tr[data-index="' + index + '"]').next('.status-row');
+
+                   stsRow.find('td').empty();
+                   stsRow.find('td').append(_str);
+                 stsRow.slideDown();
+                // $("#DivPendingStatusTrack").empty();
+              //  }, 1000)
+                 */
+
+            //_Tempstr += DivContent;
+            //$('#DivPendingStatusTrack').find('.lblClient').text("Acceptance Status for "
+            //var _str = $("#DivPendingStatusTrack").html();
+
+
+            /*
+
+            $(".status-row").slideUp();
+            $("tr.status-row td").html('')//reset
+            var stsRow = $('tr[data-index="' + index + '"]').next('.status-row');
+            console.log(_Tempstr, stsRow, stsRow.find('td'));
+           // stsRow.find('td').html('');
+            stsRow.find('td').append(_Tempstr);
+            stsRow.slideDown();
+
+            */
+
+            renderDynamicStatus(_Tempstr, index);
+            // $("#DivPendingStatusTrack").html()
+        }
+
+
+
+
+        function renderOverincomeStatus(Data, popuptype, index, _Tempstr) {
+
+
+
+            for (var i = 0; i < Data.length; i++) {
+                //  if (Data[i].PriorityLevel == 10 && Data[i].PriorityLevel == 11) continue;
+
+                var _rLevel = Data[i].PriorityLevel == "10" ? "Over Income Reviewer" : "Over Income Final Reviewer";
+
+                DivContent = "", tabContent = "", tabRow = "";;
+                DivContent = $('#GetAppendDiv').html();
+                DivContent = DivContent.replace('#collapse13', "#collapse" + (i + 11))
+                DivContent = DivContent.replace('collapse13', "collapse" + (i + 11));
+                DivContent = DivContent.replace('#accordion13', "#accordion-" + popuptype + "-" + (i + 1));
+                if (Data[i].PriorityLevel == "10") {
+                    var _tempR = Data[i].RoleName.split(",");
+                    _tempR.pop();
+                    DivContent = DivContent.replace('HeadingRoleName', _tempR.join(', ') + ' (Over Income Reviewer)');
+                } else {
+                    DivContent = DivContent.replace('HeadingRoleName', Data[i].RoleName + ' (Over Income Final Reviewer)');
+                }
+
+                DivContent = DivContent.replace('CurrentStatus', Data[i].IsAccepted);
+                DivContent = DivContent.replace('ReviewerLevel', _rLevel);
+                var Hstatus = '';
+
+                if (Data[i].IsAccepted == 'Accepted') {
+                    Hstatus = ' <span style="background: #4CAF50;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                }
+                else if (Data[i].IsAccepted == 'Rejected') {
+                    Hstatus = ' <span style="background: #e04412;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                }
+                else if ((Data[i].IsAccepted == 'Pending')) {
+                    Hstatus = ' <span style="background: #dca709;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                }
+                DivContent = DivContent.replace('HeadingStatus', Hstatus);
+                DivContent = DivContent.replace('RequestDate', Data[i].AcceptanceStartDate);
+                DivContent = DivContent.replace('UserReason', Data[i].Reason);
+                DivContent = DivContent.replace('ReviewId', 'ReviewId' + (i + 11));
+                if (Data[i].IsAccepted == "Rejected" && Data[i].IsReviewAgain != 1 && popuptype === "1")
+                    DivContent = DivContent.replace('ReviewAgain', '<a href="#" onclick="ReviewAgainClient(this)" data-id="' + (i + 11) + '" data-ClientId="' + clientid + '" data-RoleId="' + Data[i].RoleId + '" >Click here to Review Again</a>');
+                else if (Data[i].IsReviewAgain == 1 && popuptype === "1")
+                    DivContent = DivContent.replace('ReviewAgain', '<span style="color:#a52677;"> Requested to review again</span>');
+
+                else
+                    DivContent = DivContent.replace('ReviewAgain', '--');
+
+                if (Data[i].AppNotes != null && Data[i].AppNotes.length > 0) {
+                    var tr = "<tbody>";
+                    for (var j = 0; j < Data[i].AppNotes.length; j++) {
+
+                        tr += "<tr>";
+                        tr += '<td>' + Data[i].AppNotes[j].notes + '</td>';
+                        tr += '<td>' + Data[i].AppNotes[j].Name + '</td>';
+                        tr += '<td>' + Data[i].AppNotes[j].CreatedOn + '</td>';
+                        tr += '<td>' + Data[i].AppNotes[j].AppStatus + '</td>';
+                        tr += "</tr>";
+                    }
+                    DivContent = DivContent.replace("<tbody>", tr);
+                }
+                else {
+                    var tr = "";
+                    tr += "<tbody><tr>";
+                    tr += "<td colspan='4' style=' text-align: center; color: #db4437;'>No record found</td>";
+                    tr += "</tr>";
+                    DivContent = DivContent.replace("<tbody>", tr);
+                }
+                switch (popuptype) {
+                    case "1":
+                        $('#AcceptanceDivAppend').append(DivContent);
+                        $('#DivPendingStatusTrack').show();
+                        break;
+                    case "2":
+                        $('#AcceptedListDivAppend').append(DivContent);
+                        break;
+                    case "3":
+                        $('#RejectedDivAppend').append(DivContent);
+                        break;
+
+                }
+
+                _Tempstr += DivContent;
+            }
+
+            renderDynamicStatus(_Tempstr, index);
+
+
+           /* 
+
+            for (var i = 0; i < Data.length; i++) {
+
+            DivContent = "", tabContent = "", tabRow = "";;
+
+            DivContent = $('#GetAppendDiv').html();
+            DivContent = DivContent.replace('#collapse13', "#collapse" + (1))
+            DivContent = DivContent.replace('collapse13', "collapse" + (1))
+            DivContent = DivContent.replace('HeadingRoleName', Data[i].RoleName + ' (Over Income)');
+            DivContent = DivContent.replace('CurrentStatus', Data[i].IsAccepted);
+            DivContent = DivContent.replace('ReviewerLevel', Data[i].PriorityLevel);
+            // DivContent = DivContent.replace('HeadingStatus', Data[0].IsAccepted);
+            if (Data[i].IsAccepted == 'Accepted') {
+                Hstatus = ' <span style="background: #4CAF50;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+            }
+            else if (Data[i].IsAccepted == 'Rejected') {
+                Hstatus = ' <span style="background: #e04412;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+            }
+            else if ((Data[i].IsAccepted == 'Pending')) {
+                Hstatus = ' <span style="background: #dca709;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+            }
+            DivContent = DivContent.replace('HeadingStatus', Hstatus);
+            DivContent = DivContent.replace('RequestDate', Data[i].AcceptanceStartDate);
+            DivContent = DivContent.replace('UserReason', Data[i].Reason);
+            DivContent = DivContent.replace('ReviewId', 'ReviewId' + (1));
+            if (Data[i].IsAccepted == "Rejected" && Data[1].IsReviewAgain != 1 && popuptype === "1")
+                DivContent = DivContent.replace('ReviewAgain', '<a href="#" onclick="ReviewAgainClient(this)" data-id="' + (11) + '" data-ClientId="' + clientid + '" data-RoleId="' + Data[0].RoleId + '" >Click here to Review Again</a>');
+            else if (Data[0].IsReviewAgain == 1 && popuptype === "1")
+                DivContent = DivContent.replace('ReviewAgain', '<span style="color:#a52677;"> Requested to review again</span>');
+
+            else
+                DivContent = DivContent.replace('ReviewAgain', '--');
+
+            if (Data[0].AppNotes != null && Data[0].AppNotes.length > 0) {
+                var tr = "<tbody>";
+                for (var j = 0; j < Data[0].AppNotes.length; j++) {
+
+                    tr += "<tr>";
+                    tr += '<td>' + Data[0].AppNotes[j].notes + '</td>';
+                    tr += '<td>' + Data[0].AppNotes[j].Name + '</td>';
+                    tr += '<td>' + Data[0].AppNotes[j].CreatedOn + '</td>';
+                    tr += '<td>' + Data[0].AppNotes[j].AppStatus + '</td>';
+                    tr += "</tr>";
+                }
+                DivContent = DivContent.replace("<tbody>", tr);
             }
             else {
+                var tr = "";
+                tr += "<tbody><tr>";
+                tr += "<td colspan='4' style=' text-align: center; color: #db4437;'>No record found</td>";
+                tr += "</tr>";
+                DivContent = DivContent.replace("<tbody>", tr);
+            }
+            switch (popuptype) {
+                case "1":
+                    $('#AcceptanceDivAppend').append(DivContent);
+                    $('#DivPendingStatusTrack').show();
+                    break;
+                case "2":
+                    $('#AcceptedListDivAppend').append(DivContent);
+                    $('#DivAcceptedListStatusTrack').show();
+                    $('#AcceptancedivClient').hide();
+                    break;
+                case "3":
+                    $('#RejectedDivAppend').append(DivContent);
+                    $('#DivRejectedStatusTrack').show();
+                    break;
 
             }
+
+
         }
+            
+            */
+
+        };
+
+        function renderDynamicStatus(_Tempstr, index) {
+
+            $(".status-row").slideUp();
+            $("tr.status-row td").html('')//reset
+            var stsRow = $('tr[data-index="' + index + '"]').next('.status-row');
+            console.log(_Tempstr, stsRow, stsRow.find('td'));
+            // stsRow.find('td').html('');
+            stsRow.find('td').append(_Tempstr);
+            stsRow.slideDown();
+        };
+
+
         function ReviewAgainClient(arg) {
 
             var spanid = '#ReviewId' + $(arg).attr('data-id');
@@ -1909,6 +2506,8 @@
             $('#HVAcceptancedivClient').hide();
             $('#DivAcceptedListStatusTrack').hide();
         }
+
+        var gparamAccept = {};
         function loadclientinfo(Object, Centerid, Option) {
 
             AcceptObject = Object;
@@ -1922,27 +2521,129 @@
 
             if (Option == 101)
                 $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + '101');
+
+            ClientAcceptanceListwithPagination(Option, 1, "", _centerid);
+
+            //$.ajax({
+            //    url: HostedDir + "/Home/GetclientAcceptedList",
+            //    type: "POST",
+            //    data: {
+            //        Centerid: Centerid,
+            //        Option: Option,
+            //    },
+            //    dataType: "json",
+            //    secureuri: false,
+            //    async: false,
+            //    success: function (data) {
+            //        console.clear();
+            //        console.log(data);
+            //        //  BindClientAcceptlist(data);
+            //        // BindClientAcceptlist(data.Data, data.TotalRecord);
+            //        BindClientAcceptlist(Data, totalrec,1)
+            //    }
+            //   , error: function (data) {
+            //       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+            //   }
+            //});
+        }
+
+        function ClientAcceptanceListwithPagination(Option, RequestedPage, search, Centerid) {
+
+
+            gparamAccept.RequestedPage = RequestedPage, gparamAccept.Option = Option;
+            gparamAccept.search = search, gparamAccept.Centerid = Centerid;
+           // gparamAccept.pno = 
+
             $.ajax({
                 url: HostedDir + "/Home/GetclientAcceptedList",
                 type: "POST",
-                data: {
+                beforeSend: function () { $("#spinner").show(); },
+                data: JSON.stringify({
                     Centerid: Centerid,
                     Option: Option,
-                },
+                    Gparam: {
+                        // PageSize:$("#ddlpagetodisplay").val(),
+                        PageSize: $("#ddlpagetodisplay_accept").val(),
+                        //  RequestedPage:pno,
+                        RequestedPage: RequestedPage,
+                       // SortOrder: 'asc',
+                        // SortColumn: 'name',
+                        SortOrder: sort.dir,
+                        SortColumn:sort.column,
+                        Search: search
+                    },
+
+                }),
                 dataType: "json",
-                secureuri: false,
-                async: false,
+                //secureuri: false,
+                //async: false,
+                contentType: "application/json;",
                 success: function (data) {
                     console.clear();
                     console.log(data);
-                    BindClientAcceptlist(data);
+                    //  BindClientAcceptlist(data);
+                    // BindClientAcceptlist(data.Data, data.TotalRecord);
+                    BindClientAcceptlist(data.Data, data.TotalRecord, gparamAccept.RequestedPage);
                 }
-			   , error: function (data) {
-			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-			   }
+   , error: function (data) {
+       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+   },
+                complete: function (res) {
+                    $("#spinner").hide();
+                }
             });
-        }
-        function BindClientAcceptlist(data) {
+
+
+        };
+
+
+        $(document).on("change", "#ddlpaging_accept", function (e) {
+            e.preventDefault();
+            var _nxtPg = $(this).val();
+
+            // ClientPendinListwithPagination(globeParam.type, _nxtPg, globeParam.search, globeParam.Centerid);
+            ClientAcceptanceListwithPagination(gparamAccept.Option, _nxtPg, gparamAccept.search, gparamAccept.Centerid);
+
+
+        });
+
+        function drawAcceptPagedropdown(TotalRecord, pagno) {
+
+
+            var _psize = parseInt($("#ddlpagetodisplay_accept").val());
+            var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+
+            $("#ddlpaging_accept").html('');
+            for (var i = 1; i <= _pcount; i++) {
+
+                $("#ddlpaging_accept").append('<option value="' + i + '">' + i + '</option>')
+            }
+
+            $("#ddlpaging_accept").val(pagno);
+
+        };
+
+        $(document).on("click", "#btnSearchauto-accept", function (e) {
+            e.preventDefault();
+            //var _type = $(this).data("type");;
+            var svale = $("#search-accept-client-input").val();
+            //  var cid = $(this).data("Centerid");
+
+            //  ClientPendinListwithPagination(_type, 1, svale, cid);
+            ClientAcceptanceListwithPagination(gparamAccept.Option, 1, svale, gparamAccept.Centerid);
+        });
+
+        $(document).on("change", "#ddlpagetodisplay_accept", function (e) {
+            // var _type = $(this).prop('id');
+            ClientAcceptanceListwithPagination(gparamAccept.Option, 1, gparamAccept.search, gparamAccept.Centerid);
+        });
+
+        function BindClientAcceptlist(data, totalrec, pno) {
+
+            if (totalrec > 0) {
+                drawAcceptPagedropdown(totalrec, pno)
+            }
+            //(type, RequestedPage, search, Centerid)
             var option = "";
 
             $('#DivAcceptanceListPopup > tbody > tr').remove();
@@ -1954,22 +2655,24 @@
                 var tbody = $('#DivAcceptanceListPopup > tbody');
                 for (var i = 0; i < data.length; i++) {
                     var tr = "";
-                    tr += "<tr>";
+                    tr += "<tr data-index='" + i + "'>";
 
-                    tr += '<td><a href="#DivAcceptedListStatusTrack" onclick="AcceptanceStatus(this);" Id="' + data[i].Id + '"  ClientId="' + data[i].ClientId + '" HouseHoldId="' + data[i].HouseholdId + '" ProgramID="' + data[i].ProgramType + '"  CenterID="' + data[i].CenterId + '"  PopupFrom="2"  style="text-decoration:underline;">' + data[i].Name + '</a></td>';
+                    tr += '<td class="name-clmn"><a data-index="' + i + '"  data-type="all" onclick="AcceptanceStatus(this);" Id="' + data[i].Id + '"  ClientId="' + data[i].ClientId + '" HouseHoldId="' + data[i].HouseholdId + '" ProgramID="' + data[i].ProgramType + '"  CenterID="' + data[i].CenterId + '"  PopupFrom="2"  style="text-decoration:underline;">' + data[i].Name + '</a></td>';
 
                     // tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
 
-                    tr += "<td>" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
-                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
-                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += "<td >" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
+                    tr += "<td class=\"prg-clmn\">" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td class=\"prg-clmn\">" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
 
 
                     if ('@fswHV' == '1') {
-                        tr += '<td><a href="#" onclick="showdiv(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" IsIEP="' + data[i].IsIEP + '" IsIFSP="' + data[i].IsIFSP + '" IsExpired="' + data[i].IsExpired + '" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Assign Classroom</td>';//Disability="' + Data[i].Programid + '"
+                        tr += '<td class=\"name-clmn\"><a href="#" onclick="showdiv(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" IsIEP="' + data[i].IsIEP + '" IsIFSP="' + data[i].IsIFSP + '" IsExpired="' + data[i].IsExpired + '" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Assign Classroom</td>';//Disability="' + Data[i].Programid + '"
                     }
 
-                    tr += "</tr>";
+                    // tr += "</tr>";
+                    tr += '</tr><tr class="status-row" style="display:none;"><td colspan="8" ></td></tr>';
+
                     $('#DivAcceptanceListPopup > tbody').append(tr);
                 }
 
@@ -2529,28 +3232,136 @@
                 }
             }
         }
-        function loadRejectedList(Object, Centerid) {
+
+
+
+        $(document).on("change", "#ddlpagetodisplay-rej", function (e) {
+
+            ClientRejectedListwithPagination(globeParam.type, 1, globeParam.search, globeParam.Centerid);
+        });
+
+        $(document).on("change", "#ddlpaging-rej", function (e) {
+            e.preventDefault();
+            var _nxtPg = $(this).val();
+
+            ClientRejectedListwithPagination(globeParam.type, _nxtPg, globeParam.search, globeParam.Centerid);
+
+
+        });
+
+        function drawrejectPagedropdown(TotalRecord, pagno) {
+
+            var _psize = parseInt($("#ddlpagetodisplay-rej").val());
+            var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+
+            $("#ddlpaging-rej").html('');
+            for (var i = 1; i <= _pcount; i++) {
+
+                $("#ddlpaging-rej").append('<option value="' + i + '">' + i + '</option>')
+            }
+
+            $("#ddlpaging-rej").val(pagno);
+
+
+        };
+
+        $(document).on("click", "#btnSearchauto-rej", function (e) {
+            e.preventDefault();
+           // var _type = $(this).data("type");;
+            var svale = $("#search-rej-client-input").val();
+           // var cid = $(this).data("Centerid");
+
+            // ClientPendinListwithPagination(_type, 1, svale, cid);
+            ClientRejectedListwithPagination(globeParam.type, 1, svale, globeParam.Centerid);
+        });
+
+        function loadRejectedList(Object, Centerid, type, RequestedPage, search) {  //type=2 => returned , 4 => over income Returned
             WaitObject = Object;
+            type = type ? type : 2;
+            RequestedPage = RequestedPage ? RequestedPage : 1;
+
+            globeParam.type = type, globeParam.RequestedPage = RequestedPage,
+           globeParam.search = search, globeParam.Centerid = Centerid;
+
             $('#CenterNameRejected').text($(Object).closest("tr").find("td:first a").text());
+            ClientRejectedListwithPagination(type, 1, "", Centerid);
+            /*
+
             $.ajax({
                 url: HostedDir + "/Home/LoadClientPendinglist",
                 type: "POST",
-                data: {
+                data: JSON.stringify( {
                     Centerid: Centerid,
-                    Type: 2
-                },
+                    Type: type,
+                    Gparam:  {
+                        PageSize: $("#ddlpagetodisplay").val(),
+                        RequestedPage: RequestedPage,
+                        SortOrder: 'asc',
+                        SortColumn: 'name',
+                        Search: search
+                    }
+
+                }),
                 dataType: "json",
-                secureuri: false,
-                async: false,
+                contentType: "application/json;",
+                //secureuri: false,
+               // async: false,
                 success: function (Data) {
-                    BindRejectelist(Data);
+                    //  BindRejectelist(Data,type);
+                    BindRejectelist(Data.data, type, Data.TotalRecords, RequestedPage)
                 }
 			   , error: function (Data) {
 			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
 			   }
             });
+
+            */
         }
-        function BindRejectelist(Data) {
+
+        //  function ClientRejectedListwithPagination()
+        function ClientRejectedListwithPagination(type, RequestedPage, search, Centerid) {
+            globeParam.type = type, globeParam.RequestedPage = RequestedPage,
+         globeParam.search = search, globeParam.Centerid = Centerid;
+
+            $.ajax({
+                url: HostedDir + "/Home/LoadClientPendinglist",
+                type: "POST",
+                data: JSON.stringify({
+                    Centerid: Centerid,
+                    Type: type,
+                    Gparam: {
+                        //PageSize: $("#ddlpagetodisplay").val(),
+                        PageSize: $("#ddlpagetodisplay-rej").val(),
+                        RequestedPage: RequestedPage,
+                        SortOrder: sort.dir,
+                        SortColumn:sort.column,
+                        Search: search
+                    }
+
+                }),
+                dataType: "json",
+                contentType: "application/json;",
+                //secureuri: false,
+                // async: false,
+                success: function (Data) {
+                    //  BindRejectelist(Data,type);
+                    BindRejectelist(Data.data, type, Data.TotalRecords, RequestedPage)
+                }
+      , error: function (Data) {
+          customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+      }
+            });
+        }
+
+        // function BindRejectelist(Data, type) {
+        function BindRejectelist(Data, type, totalrec, pno) {
+
+            type = type = 4 ? "all" : type;
+
+            if (totalrec > 0) {
+                drawrejectPagedropdown(totalrec, pno)
+            }
+
             if (Data != null && Data.length > 0) {
                 $('#div5').hide();
                 var tbody = "";
@@ -2558,14 +3369,15 @@
                 $('#DivRejectedList > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
                     //tbody = tbody + '<tr><td><a style="text-decoration: underline;" href="' + HostedDir + '/AgencyUser/FamilyDetails?id=' + Data[i].HouseholdIdencrypted + '&returned=1">'+Data[i].Name+'</a></td><td>' + Data[i].DateOnList +
-                    tbody = tbody + '<tr><td><a href="#DivRejectedStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="3"  style="text-decoration:underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList + '</td>';
+                    tbody = tbody + '<tr data-index="' + i + '"><td><a data-index="' + i + '" data-type="' + type + '" href="#DivRejectedStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="3"  style="text-decoration:underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList + '</td>';
 
                     if ('@fswHV' == '1') {
                         tbody = tbody + '<td>' + Data[i].Notes + '</td><td><a href="#" style="cursor:pointer;text-decoration: underline;" aria-hidden="true" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '">Remove</a></td>';
 
                     }
 
-                    tbody = tbody + '</tr>';
+                    // tbody = tbody + '</tr>';
+                    tbody = tbody + '</tr><tr class="status-row" style="display:none;"><td colspan="8" ></td></tr>';
                 }
                 $('#DivRejectedList > tbody').append(tbody);
                 if (!$('#Modalrejected').hasClass('in'))
@@ -3281,10 +4093,9 @@
 
 
 
-        #ModalPending .scroll-thead
-        {
-            width:100%;
-        }
+              #ModalPending .scroll-thead {
+                  width: 100%;
+              }
 
 
 
@@ -3313,8 +4124,9 @@
             background-color: #cf4a12;
         }
         #gridViewAgency > thead > tr > th:nth-child(10) {
-               background-color: #716cd2;
-            background-image: linear-gradient(to right, #716cd2, #5852c4);
+          /* background-color: #716cd2;
+            background-image: linear-gradient(to right, #716cd2, #5852c4);*/
+            background-color: #cf4a12;
         }
         #gridViewAgency > thead > tr > th:nth-child(11) {
                background-color: #554fc3;
@@ -3418,11 +4230,58 @@
             color: #ffffff !important;
         }*/
 
-     /*   #chartdivYearly {
-         width: 100%;
-  height: 100%;
-        
-        }*/
+              /*   #chartdivYearly {
+               width: 100%;
+        height: 100%;
+
+              }*/
+              .table-responsive {
+                  float: left;
+                  width: 100%;
+              }
+
+              .glossy-search-block.search-sec {
+                  margin-bottom: 5px;
+              }
+
+              #ModalClientPendingList .pending-table {
+                  background: transparent;
+              }
+
+                  #ModalClientPendingList .pending-table label {
+                      color: #1d5381;
+                      padding-right: 60px;
+                  }
+
+              #ModalClientPendingList .input-right {
+                  width: auto;
+                  float: right;
+              }
+
+              tr.status-row {
+                  background: #34495e;
+              }
+
+              .panel-sec {
+                  background: #34495e;
+              }
+
+              .no-padding {
+                  padding-left: 0px !important;
+                  padding-right: 0px !important;
+              }
+
+              .pending-text .close {
+                  opacity: 1 !important;
+                  position: absolute;
+                  right: -44px;
+                  top: -32px;
+              }
+
+              .pg-select {
+                  height: 42px;
+                  top: 0px;
+              }
     </style>
 
     <div class="row">
@@ -3487,8 +4346,10 @@
                             <th role="columnheader">T-@Fingerprints.LocalResource.Resources.Waiting</th>
                             <th role="columnheader">F-@Fingerprints.LocalResource.Resources.Waiting</th>
                             <th role="columnheader" title="100">@Fingerprints.LocalResource.Resources.Pending</th>
+                            <th role="columnheader" title="106">OI-@Fingerprints.LocalResource.Resources.Pending</th>
                             <th role="columnheader" title="101">@Fingerprints.LocalResource.Resources.Accepted</th>
                             <th role="columnheader" title="102">@Fingerprints.LocalResource.Resources.Returned</th>
+                            <th role="columnheader" title="107">OI-@Fingerprints.LocalResource.Resources.Returned</th>
                         </tr>
                     </thead>
                     <tbody role="rowgroup">
@@ -3568,12 +4429,21 @@
 
                                     @if (center.Routecode100 != "0")
                                     {
-                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Pending" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Pending" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId',1);" href="#">@center.Routecode100</a></td>
                                     }
                                     else
                                     {
                                         <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Pending" class="centered-td"><a href="#">@center.Routecode100</a></td>
                                     }
+
+@if (center.Routecode106 != "0")
+{
+    <td role="gridcell" data-title="OI-Pending" class="centered-td"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId',3);" href="#">@center.Routecode106</a></td>
+}
+else
+{
+    <td role="gridcell" data-title="OI-Pending" class="centered-td"><a href="#">@center.Routecode106</a></td>
+}
 
                                     @if (center.Routecode101 != "0")
                                     {
@@ -3594,12 +4464,24 @@
                                     }
                                     @if (center.Routecode102 != "0")
                                     {
-                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId');" href="#">@center.Routecode102</a></td>
+                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId',2);" href="#">@center.Routecode102</a></td>
                                     }
                                     else
                                     {
                                         <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a href="#">@center.Routecode102</a></td>
                                     }
+
+                                    @if (center.Routecode107 != "0")
+                                    {
+                                        <td role="gridcell" data-title="IO-@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId',4);" href="#">@center.Routecode107</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td role="gridcell" data-title="IO-@Fingerprints.LocalResource.Resources.Returned" class="centered-td"><a href="#">@center.Routecode107</a></td>
+                                    }
+
+
+
                                 </tr>
                             }
                         }
@@ -3879,33 +4761,69 @@
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
+                        <div class="pending-letter col-md-12">
+                            <div class="pending-text col-md-11">
                         <h3 id="CenterNameclient" class="text-center"><span class="extra-title muted"></span></h3>
-                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        </div>
+                            <div class="pending-text col-md-1">
+                                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                                </div>
+                            </div>
+                        @*<div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
                             <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
                                 <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
                                 <div class="clear"></div>
                             </div>
-                        </div>
+                        </div>*@
                     </div>
-                    <div class="control-group">
-                        <div class="row qualifierdiv" style="margin-bottom: 3%;">
+                    <div class="control-group" style="max-height:800px;">
+                        <div class="row qualifierdiv glossy-panel-div" style="margin-bottom: 3%;">
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="glossy-search-block search-sec col-md-12 no-padding">
+                                    <div class="input-field col-md-7 no-padding">
+                                        <input type="text" placeholder="Search..." id="searchclient-input" class="form-control ui-autocomplete-input" value="" autocomplete="off">
+                                        <div class="glossy-search-btn-div">
+                                            <button id="btnSearchauto" data-search-item="">Search</button>
+                                        </div>
+                                    </div>
+                                    <div class="input-right col-md-5">
+                                        <table class="total-details-table pending-table col-md-12">
+
+                                            <tbody>
+                                              @*  <tr>
+                                                    <td><label>Total Record</label></td>
+                                                    <td id="trecord">51</td>
+                                                </tr>*@
+                                               @* <tr>
+                                                    <td><label>Filtered Records</label></td>
+                                                    <td>699</td>
+                                                </tr>*@
+                                              
+                                            </tbody>
+                                        </table>
+                                        </div>
+                                    </div>
                                 <div class="table-responsive">
-                                    <table class="table table_size" id="DivPendingclientlist">
+                                    <table class="table table_size glossy-table" id="DivPendingclientlist">
                                         <thead style="cursor: pointer;">
                                             <tr>
-                                                <th>Name</th>
-                                                <th>Review Status</th>
-                                                <th>Selection Points</th>
-                                                <th>Date on List</th>
-                                                <th>Program Type</th>
-                                                <th>Gender</th>
-                                                <th>DOB</th>
+                                                <th data-sort="true" data-name="name" class="name-clmn">
+                                                @*<i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="padding-right: 10px;color: #f9c751;display:inline-block;"></i><i class=" fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="display:none!important;color: #f9c751;display:inline-block;"></i>*@
+                                                <span class="fa fa-sort-amount-asc"></span>
+                                                
+                                                Name</th>
+                                                <th data-sort="true" data-name="IsReviewed"> <span class="fa"></span>Review Status</th>
+                                                <th data-sort="true" data-name="Selectionpoint" title="Selection Points" class="pt-clmn"> <span class="fa"></span>Points</th>
+                                                <th data-sort="true" data-name="dateentered"><span class="fa"></span>Date on List</th>
+                                                @*<th>Program Type</th>*@
+                                                <th data-sort="true" data-name="programtype" title="Program Type" class="prg-clmn" ><span class="fa"></span>Prg Type</th>
+                                                <th data-sort="true" data-name="gender" class="prg-clmn"><span class="fa"></span>Gender</th>
+                                                <th><span class="fa"></span>DOB</th>
 
                                                 @if (fswHV == 1)
                                                 {
-                                                <th>Remove</th>
+                                                    <th class="remv-clmn">Remove</th>
 
                                                 }
 
@@ -3918,7 +4836,64 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-xs-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                    <div class="pages_display">
+                                        <ul>
+                                            <li style="">Display</li>
+                                            <li>
+                                                <select id="ddlpagetodisplay">
+                                                    <option value="10" selected="selected">10</option>
+                                                    <option value="25">25</option>
+                                                    <option value="50">50</option>
+                                                    <option value="75">75</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </li>
+                                            <li style="">Records Per Page</li>
+                                        </ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div id="divPaging" class="pagination_wrp">
+                                        <ul id="ulPaging" class="pagination">
+                                            <li>
 
+
+
+                                                <a href="javascript:void(0);" id="First" disabled="disabled">
+                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Back">
+
+
+                                                <a href="javascript:void(0);" id="Back" disabled="disabled">
+                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li style="float:left;width:auto;" title="Select">
+                                                <select class="select_cl pg-select" id="ddlpaging"><option value="1">1</option></select>
+                                            </li>
+                                            <li title="Next">
+
+                                                <a href="javascript:void(0);" id="Next" disabled="disabled">
+                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                            <li title="Last">
+
+                                                <a href="javascript:void(0);" id="Last" disabled="disabled">
+                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-sm-12" id="PendingWaiting" style="display: none;">
                             <fieldset style="border: 1px solid #295b8f; margin-bottom: 1%;background:#fff;">
@@ -4027,28 +5002,33 @@
 
                             </fieldset>
                         </div>
-                        <div class="col-xs-12" id="DivPendingStatusTrack" style="display:none;">
-                            <h2 class="panel-sec-title lblClient"></h2>
-                            <div class="col-xs-12 panel-sec">
-                                <div class="panel-group" id="accordion">
-                                    <div id="AcceptanceDivAppend">
+
+                        @*<div class="col-xs-12" id="DivPendingStatusTrack">
+                                <h2 class="panel-sec-title lblClient"></h2>
+                                <div class="col-xs-12 panel-sec">
+                                    <div class="panel-group" id="accordion">
+                                        <div id="AcceptanceDivAppend">
 
 
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </div>*@
+
                     </div>
 
                 </div>
             </div>
         </div>
     </div>
+
+
     <div id="GetAppendDiv" style="display:none;">
         <div class="panel panel-default">
             <div class="panel-heading" style="padding:0;">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse13" style="display:block;padding: 10px 15px;">Role Name: HeadingRoleName<span style="float:right;margin: 0;font-weight:bold">Status: HeadingStatus</span></a>
+                    @*<a data-toggle="collapse" data-parent="#accordion" href="#collapse13" style="display:block;padding: 10px 15px;">Role Name:*@
+                    <a data-toggle="collapse" data-parent="#accordion13" href="#collapse13" style="display:block;padding: 10px 15px;">Role Name: HeadingRoleName<span style="float:right;margin: 0;font-weight:bold">Status: HeadingStatus</span></a>
                 </h4>
             </div>
             <div id="collapse13" class="panel-collapse collapse ">
@@ -4104,23 +5084,42 @@
                             </div>
                         </div>
                     </div>
-                    <div class="control-group">
+                    <div class="control-group" style="max-height:800px;">
                         <div class="add-useragform">
-                            <div class="row qualifierdiv">
+                            <div class="row qualifierdiv glossy-panel-div">
                                 <div class="row" style="margin-bottom: 3%;">
                                     <div class="col-sm-12">
+
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+
+                                            <div class="glossy-search-block search-sec col-md-12 no-padding">
+                                                <div class="input-field col-md-7 no-padding">
+                                                    <input type="text" placeholder="Search..." id="search-accept-client-input" class="form-control ui-autocomplete-input" value="" autocomplete="off">
+                                                    <div class="glossy-search-btn-div">
+                                                        <button id="btnSearchauto-accept" data-search-item="">Search</button>
+                                                    </div>
+                                                </div>
+                                                <div class="input-right col-md-5">
+                                                    <table class="total-details-table pending-table col-md-12">
+
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+
                                             <div class="table-responsive">
-                                                <table class="table table_size" id="DivAcceptanceListPopup">
+                                                <table class="table table_size glossy-table" id="DivAcceptanceListPopup">
                                                     <thead style="cursor: pointer;">
                                                         <tr>
-                                                            <th style="text-align: left !important;">Name</th>
+                                                            <th class="name-clmn" data-sort="true" data-name="name"  style="text-align: left !important;"><span class="fa"></span> Name</th>
                                                             <th style="text-align: left !important;">Date on List</th>
-                                                            <th style="text-align: left !important;">Gender</th>
-                                                            <th style="text-align: left !important;">DOB</th>
+                                                            <th data-sort="true" data-name="gender"  class="prg-clmn" style="text-align: left !important;"><span class="fa"></span>Gender</th>
+                                                            <th class="prg-clmn" style="text-align: left !important;"><span class="fa"></span>DOB</th>
                                                             @if (fswHV == 1)
                                                             {
-                                                            <th style="text-align: left !important;">Assign Classroom</th>
+                                                            <th class="name-clmn" style="text-align: left !important;"><span class="fa"></span>Assign Classroom / Waiting List</th>
 
                                                             }
                                                         </tr>
@@ -4132,6 +5131,67 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="col-xs-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                                <div class="pages_display">
+                                                    <ul>
+                                                        <li style="">Display</li>
+                                                        <li>
+                                                            <select id="ddlpagetodisplay_accept" style="width:60px;">
+                                                                <option value="10" selected="selected">10</option>
+                                                                <option value="25">25</option>
+                                                                <option value="50">50</option>
+                                                                <option value="75">75</option>
+                                                                <option value="100">100</option>
+                                                            </select>
+                                                        </li>
+                                                        <li style="">Records Per Page</li>
+                                                    </ul>
+                                                    <div class="clear"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                <div id="divPaging" class="pagination_wrp">
+                                                    <ul id="ulPaging" class="pagination">
+                                                        <li>
+
+
+
+                                                            <a href="javascript:void(0);" id="First" disabled="disabled">
+                                                                <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <li title="Back">
+
+
+                                                            <a href="javascript:void(0);" id="Back" disabled="disabled">
+                                                                <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <li style="float:left;width:auto;" title="Select">
+                                                            <select class="select_cl pg-select" id="ddlpaging_accept" style="width:60px;"></select>
+                                                        </li>
+                                                        <li title="Next">
+
+                                                            <a href="javascript:void(0);" id="Next" disabled="disabled">
+                                                                <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li title="Last">
+
+                                                            <a href="javascript:void(0);" id="Last" disabled="disabled">
+                                                                <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                     </div>
                                     <div class="col-sm-12" id="AcceptancedivClient" style="display: none;">
                                         <div class="col-sm-12">
@@ -4416,17 +5476,36 @@
                     </div>
                     <div class="control-group">
                         <div>
-                            <div class="row qualifierdiv">
+                            <div class="glossy-panel-div qualifierdiv row">
+
+
+
                                 <div class="row" style="margin-bottom: 3%;">
                                     <div class="col-sm-12">
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+                                            <div class="glossy-search-block search-sec col-md-12 no-padding">
+                                                <div class="input-field col-md-7 no-padding">
+                                                    <input type="text" placeholder="Search..." id="search-rej-client-input" class="form-control ui-autocomplete-input" value="" autocomplete="off">
+                                                    <div class="glossy-search-btn-div">
+                                                        <button id="btnSearchauto-rej" data-search-item="">Search</button>
+                                                    </div>
+                                                </div>
+                                                <div class="input-right col-md-5">
+                                                    <table class="total-details-table pending-table col-md-12">
+
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
                                             <div class="table-responsive">
-                                                <table class="table table_size" id="DivRejectedList">
+                                                <table class="glossy-table table table_size" id="DivRejectedList">
                                                     <thead style="cursor: pointer;">
                                                         <tr>
-                                                            <th width="23%">Name</th>
-                                                            <th width="10%">Date on List</th>
-                                                            <th>Notes</th>
+                                                            <th data-sort="true" data-name="name" class="name-clmn" width="23%"> <span class="fa"></span> Name</th>
+                                                            <th class="prg-clmn" width="10%">Date on List</th>
+                                                            <th  class="name-clmn" >Notes</th>
                                                             <th width="10%"></th>
                                                         </tr>
                                                     </thead>
@@ -4450,6 +5529,66 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="col-xs-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                        <div class="pages_display">
+                                            <ul>
+                                                <li style="">Display</li>
+                                                <li>
+                                                    <select id="ddlpagetodisplay-rej">
+                                                        <option value="10" selected="selected">10</option>
+                                                        <option value="25">25</option>
+                                                        <option value="50">50</option>
+                                                        <option value="75">75</option>
+                                                        <option value="100">100</option>
+                                                    </select>
+                                                </li>
+                                                <li style="">Records Per Page</li>
+                                            </ul>
+                                            <div class="clear"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div id="divPaging" class="pagination_wrp">
+                                            <ul id="ulPaging" class="pagination">
+                                                <li>
+
+
+
+                                                    <a href="javascript:void(0);" id="First" disabled="disabled">
+                                                        <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                    </a>
+
+                                                </li>
+                                                <li title="Back">
+
+
+                                                    <a href="javascript:void(0);" id="Back" disabled="disabled">
+                                                        <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                    </a>
+
+                                                </li>
+                                                <li style="float:left;width:auto;" title="Select">
+                                                    <select class="select_cl pg-select" id="ddlpaging-rej"><option value="1">1</option></select>
+                                                </li>
+                                                <li title="Next">
+
+                                                    <a href="javascript:void(0);" id="Next" disabled="disabled">
+                                                        <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                    </a>
+                                                </li>
+                                                <li title="Last">
+
+                                                    <a href="javascript:void(0);" id="Last" disabled="disabled">
+                                                        <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>

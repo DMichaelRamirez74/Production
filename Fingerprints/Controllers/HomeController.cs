@@ -216,11 +216,16 @@ namespace Fingerprints.Controllers
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
 
-        public JsonResult LoadClientPendinglist(string Centerid, string Type)
+        public JsonResult LoadClientPendinglist(string Centerid, string Type, GridParams Gparam)
         {
             try
             {
-                return Json(_family.LoadClientPendinglist(Centerid, Type, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
+                //Pagination page = new Pagination;
+                long TotalCount = 0;
+                var result = _family.LoadClientPendinglist(Centerid, Type, Convert.ToString(staffDetails.AgencyId),
+                    Convert.ToString(staffDetails.UserId), Gparam, ref  TotalCount );
+
+                return new JsonResult { Data = new { data = result, TotalRecords = TotalCount } };
             }
             catch (Exception Ex)
             {
@@ -244,11 +249,15 @@ namespace Fingerprints.Controllers
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
 
         [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.Executive, RoleEnum.SocialServiceManager, RoleEnum.AreaManager, RoleEnum.CenterManager)]
-        public JsonResult GetclientAcceptedList(string Centerid, string Option)
+        public JsonResult GetclientAcceptedList(string Centerid, string Option,GridParams Gparam)
         {
             try
             {
-                return Json(_family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
+                long total = 0;
+                //return Json(_family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
+                var result = _family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId),ref total,Gparam);
+
+                return new JsonResult { Data=new { Data=result, TotalRecord=total }};
             }
             catch (Exception Ex)
             {
@@ -281,9 +290,25 @@ namespace Fingerprints.Controllers
         //    catch (Exception Ex)
         //    {
         //        clsError.WriteException(Ex);
-        //        return Json("Error occured please try again.");
+        //        return Json("Error occurred please try again.");
         //    }
         //}
+
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        public ActionResult DisableYakkr(string cid,string hid)
+        {
+
+
+            var result = _family.DeleteRejectedRecord("", cid, hid, Convert.ToString(staffDetails.UserId), Convert.ToString(staffDetails.AgencyId));
+
+            var houseidencrypt = EncryptDecrypt.Encrypt64(hid);
+
+            return RedirectToAction("FamilyDetails", "AgencyUser", new { id = houseidencrypt });
+
+
+           }
+
+
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult DeleteRejectedRecord(string Id, string ClientId, string HouseholdId)
         {

@@ -1752,6 +1752,22 @@ namespace Fingerprints.Controllers
         #endregion Staff-Mang Mapping
 
 
+        [HttpPost]
+        public JsonResult GetUsersListByRoleId(string id)
+        {
+            try
+            {
+                var stf = new StaffDetails();
+                var result = new HomevisitorData().GetUsersByRoleId(id, stf.RoleId.ToString(), stf.UserId.ToString(), stf.AgencyId.ToString());
+
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
-  
+
 }

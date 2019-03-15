@@ -7109,6 +7109,8 @@ namespace FingerprintsData
                             info.Routecode100 = dr["100"].ToString();
                             info.Routecode101 = dr["101"].ToString();
                             info.Routecode102 = dr["102"].ToString();
+                            info.Routecode106 = dr["106"].ToString();
+                            info.Routecode107 = dr["107"].ToString();
                             info.Attendance = Convert.ToDecimal(dr["Attendance"]) == Convert.ToInt32(dr["Attendance"]) ? Convert.ToInt32(dr["Attendance"]).ToString() : dr["Attendance"].ToString();
                             info.TotalWaitingList = dr["TotalWaitinglist"].ToString();
                             info.HomeVisitAppointment= Convert.ToInt32(dr["appointment"]);
@@ -8361,7 +8363,7 @@ namespace FingerprintsData
             }
             return ClientList;
         }
-        public List<ClientWaitingList> LoadClientPendinglist(string CenterId, string Type, string AgencyId, string UserId)
+        public List<ClientWaitingList> LoadClientPendinglist(string CenterId, string Type, string AgencyId, string UserId, GridParams gridParams,ref long total)
         {
             List<ClientWaitingList> ClientList = new List<ClientWaitingList>();
             List<UserInfo> _userlist = new List<UserInfo>();
@@ -8373,6 +8375,12 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
                 command.Parameters.Add(new SqlParameter("@Type", Type));
                 command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64(CenterId)));
+                command.Parameters.Add(new SqlParameter("@PageNo", gridParams.RequestedPage));
+                command.Parameters.Add(new SqlParameter("@PageSize", gridParams.PageSize));
+                command.Parameters.Add(new SqlParameter("@Search", gridParams.Search == null ? "" : gridParams.Search));
+                command.Parameters.Add(new SqlParameter("@Sortclmn", gridParams.SortColumn));
+                command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
+
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetClientPendinglist";
@@ -8406,6 +8414,14 @@ namespace FingerprintsData
                     }
 
                 }
+
+                if (_dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
+                {
+                    var tt = _dataset.Tables[1].Rows[0]["TotalRecord"];
+                   total = tt == DBNull.Value ? 0 : Convert.ToInt64(tt);
+                }
+
+
                 DataAdapter.Dispose();
                 command.Dispose();
             }
@@ -8509,7 +8525,7 @@ namespace FingerprintsData
         }
 
         //Changes
-        public List<ClientAcceptList> GetclientAcceptList(string CenterId, string Option, string AgencyId, string UserId)
+        public List<ClientAcceptList> GetclientAcceptList(string CenterId, string Option, string AgencyId, string UserId, ref long total,GridParams gridparams)
         {
             List<ClientAcceptList> ClientList = new List<ClientAcceptList>();
             List<ClassRoom> _userlist = new List<ClassRoom>();
@@ -8519,6 +8535,11 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
                 command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64(CenterId)));
+                command.Parameters.Add(new SqlParameter("@PageNo", gridparams.RequestedPage));
+                command.Parameters.Add(new SqlParameter("@PageSize", gridparams.PageSize));
+                command.Parameters.Add(new SqlParameter("@Search", gridparams.Search == null ? "" : gridparams.Search));
+                command.Parameters.Add(new SqlParameter("@Sortclmn", gridparams.SortColumn));
+                command.Parameters.Add(new SqlParameter("@Sortdir", gridparams.SortOrder));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetClientAcceptedList";
@@ -8596,6 +8617,14 @@ namespace FingerprintsData
                     //    }                 
                     //}
                 }
+
+                if(_dataset != null && _dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0){ //Total Record dataset
+
+                    //var count  = 
+                    var tt = _dataset.Tables[2].Rows[0]["TotalRecord"];
+                    total = tt == DBNull.Value ? 0 : Convert.ToInt64(tt);
+                }
+
                 DataAdapter.Dispose();
                 command.Dispose();
             }
@@ -14314,7 +14343,23 @@ namespace FingerprintsData
                     }
 
 
-                    return acceptList;
+                    if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    {
+
+                        foreach (DataRow item in _dataset.Tables[2].Rows) {
+
+                            if (item["PriorityLevel"].ToString() == "11")
+                            {
+                                acceptList.Find(x => x.PriorityLevel == "10").RoleName += item["RoleName"].ToString()+",";
+                            }
+                            else {
+                                acceptList.Find(x => x.PriorityLevel == "11").RoleName += item["RoleName"].ToString();
+                            }
+                        }
+
+                    }
+
+                        return acceptList;
                 }
 
 

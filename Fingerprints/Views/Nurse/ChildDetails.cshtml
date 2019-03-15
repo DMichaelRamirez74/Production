@@ -4663,37 +4663,37 @@
             }
         }
 
-    }
-    function IsValidRejectInfo() {
-        isValid = true;
-        cleanValidation();
-        if (!$("input:radio[name='AcceptApplicant']").is(":checked")) {
-            isValid = false;
-            customAlert("Acceptance is required. ");
-            return isValid;
         }
-        else if ($("#AcceptApplicant1").is(':checked')===true) {
-           
-            if(@(Model.IsFinalReviwer)==1)
-            {
-                if (!$("input:radio[name='AcceptReason']").is(":checked")) {
-                    isValid = false;
-                    customAlert("Acceptance Reason is required. ");
-                    return isValid;
-                }
+        function IsValidRejectInfo() {
+            isValid = true;
+            cleanValidation();
+            if (!$("input:radio[name='AcceptApplicant']").is(":checked")) {
+                isValid = false;
+                customAlert("Acceptance is required. ");
+                return isValid;
             }
-            //else
-            //{
-            //    if($('#AcceptDesc').val()==null || $('#AcceptDesc').val()=="")
-            //    {
-            //        isValid = false;
-            //        customAlert("Acceptance Reason is required. ");
-            //        plainValidation('#AcceptDesc');
-            //        return isValid;
-            //    }
-            //}
-        }
-        else if ($("#AcceptApplicant2").is(':checked')===true) {
+            else if ($("#AcceptApplicant1").is(':checked')===true) {
+
+                if(@(Model.IsFinalReviwer == null ? "0" : Model.IsFinalReviwer ) ==1 )
+                {
+                    if (!$("input:radio[name='AcceptReason']").is(":checked")) {
+                        isValid = false;
+                        customAlert("Acceptance Reason is required. ");
+                        return isValid;
+                    }
+                }
+                //else
+                //{
+                //    if($('#AcceptDesc').val()==null || $('#AcceptDesc').val()=="")
+                //    {
+                //        isValid = false;
+                //        customAlert("Acceptance Reason is required. ");
+                //        plainValidation('#AcceptDesc');
+                //        return isValid;
+                //    }
+                //}
+            }
+            else if ($("#AcceptApplicant2").is(':checked')===true) {
 
             if($('#RejectDesc').val()==null || $('#RejectDesc').val()=="")
                 {
@@ -8224,14 +8224,15 @@
     }
     function divrejecthide() {
 
-        $('#RejectDesc').val("");
-        $('#DeclineReason').hide();
-        $('#TextAreaAcceptReason').hide();
-        $('#AcceptReason').hide();
-        if(@(Model.IsFinalReviwer)==1)
-        {
+            $('#RejectDesc').val("");
+            $('#DeclineReason').hide();
             $('#TextAreaAcceptReason').hide();
-            $('#AcceptReason').show();
+            $('#AcceptReason').hide();
+            console.log(@Model.IsFinalReviwer);
+            if(@(String.IsNullOrEmpty(Model.IsFinalReviwer) ? "0" : Model.IsFinalReviwer)==1)
+            {
+                $('#TextAreaAcceptReason').hide();
+                $('#AcceptReason').show();
                 //if(@(Model.IsFutureIntake)=='1')
                 if('@(String.IsNullOrEmpty(Model.IsFutureIntake) ? "" : Model.IsFutureIntake)'=='1')
             {
