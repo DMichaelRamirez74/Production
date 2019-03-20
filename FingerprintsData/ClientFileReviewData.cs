@@ -517,7 +517,8 @@ namespace FingerprintsData
                         clientProfile.TransportationProvided = dr["TransportationProvided"].ToString();
                         // Clientprofile.PregnantMother = (string.IsNullOrEmpty(dr["PregnantMother"].ToString())) ? dr["PregnantMother"].ToString() : "";
                         // members.IsHomeBased = Convert.ToBoolean(dr["HomeBased"]);
-                        clientProfile.ParentDOB = Convert.ToDateTime(dr["ParentDob"]).ToString("MM/dd/yyyy");
+                        //  clientProfile.ParentDOB = Convert.ToDateTime(dr["ParentDob"]).ToString("MM/dd/yyyy");
+                        clientProfile.ParentDOB = dr["ParentDob"] == DBNull.Value ? "" : Convert.ToDateTime(dr["ParentDob"]).ToString("MM/dd/yyyy");
                         clientProfile.Mother = dr["ParentName"].ToString();
                         clientProfile.Language = dr["Language"].ToString();
                         int iep = 0;
