@@ -3229,7 +3229,7 @@ namespace Fingerprints.Controllers
             {
 
                 // return Json(familyData.SaveAcceptanceprocess(Clientid, Usernurseid, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid));
-                return Json(familyData.SaveHirarchyAcceptanceprocess(Clientid, UserFSWId, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid));
+                return Json(familyData.SaveHirarchyAcceptanceprocess(Clientid, UserFSWId, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid, acceptanceType));
 
             }
             catch (Exception Ex)
@@ -6945,7 +6945,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter()]
 
         public JsonResult DeleteFromWaiting(ClientAcceptList clientAccepted)
         {
@@ -6953,7 +6953,12 @@ namespace Fingerprints.Controllers
             bool isResult = false;
             try
             {
-                isResult = new FamilyData().DeleteFromWaiting(clientAccepted);
+
+                long _clientId = 0;
+
+                clientAccepted.ClientId = long.TryParse(clientAccepted.ClientId, out _clientId) ? clientAccepted.ClientId : EncryptDecrypt.Decrypt64(clientAccepted.ClientId);
+
+                isResult = new FamilyData().DeleteFromWaiting(clientAccepted,staff);
             }
             catch(Exception ex)
             {
@@ -6971,7 +6976,7 @@ namespace Fingerprints.Controllers
             int appointment = 0;
             string PYSDate = "";
             List<HrCenterInfo> hrCenter = new List<HrCenterInfo>();
-            hrCenter = new FamilyData().Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString());
+            hrCenter = new FamilyData().Getcenters(out PYSDate, ref yakkrcount, ref appointment, staff);
             Session["Yakkrcount"] = yakkrcount;
             Session["Appointment"] = appointment;
 
@@ -7568,6 +7573,9 @@ namespace Fingerprints.Controllers
             try
             {
                 classroomId = EncryptDecrypt.Decrypt64(classroomId);
+                long _centerId = 0;
+
+                centerid = long.TryParse(centerid, out _centerId) ? centerid : EncryptDecrypt.Decrypt64(centerid);
 
                 new CenterData().GetSeatsCountByCenter(ref dictionarySeats, centerid, classroomId, true);
             }
@@ -7579,14 +7587,14 @@ namespace Fingerprints.Controllers
         }
 
 
-        public JsonResult GetAcceptedFutureClients(string centerid, string age)
+        public JsonResult GetAcceptedFutureClients(string centerid, string age, int futureClientType=2,string option="0")
         {
             List<ClientWaitingList> acceptedClients = new List<ClientWaitingList>();
             List<ClassRoom> classRoomList = new List<ClassRoom>();
             Dictionary<string, int> seatsCountDictionary = new Dictionary<string, int>();
             try
             {
-                acceptedClients = new FamilyData().GetAcceptedFutureClients(ref classRoomList, ref seatsCountDictionary,centerid, age);
+                acceptedClients = new FamilyData().GetAcceptedFutureClients(ref classRoomList, ref seatsCountDictionary, centerid, age,futureClientType,option);
             }
             catch(Exception ex)
             {
@@ -7605,9 +7613,11 @@ namespace Fingerprints.Controllers
             Dictionary<string, Int32> dictionraySeats = new Dictionary<string, int>();
             try
             {
+                long _centerId = 0;
                 clientIds = string.Join(",", clientIds.Split(',').ToArray().Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
                 classroomId = EncryptDecrypt.Decrypt64(classroomId);
-                result = new CenterData().AssignClassroomFutureClients(ref dictionraySeats,clientIds, classroomId,centerId, clsStartDate);
+                centerId = Int64.TryParse(centerId, out _centerId) ? centerId : EncryptDecrypt.Decrypt64(centerId);
+                result = new CenterData().AssignClassroomFutureClients(ref dictionraySeats, clientIds, classroomId, centerId, clsStartDate);
             }
             catch(Exception ex)
             {
@@ -7621,9 +7631,12 @@ namespace Fingerprints.Controllers
             string result = "0";
             try
             {
+                long _centerId = 0;
                 clientIds = string.Join(",", clientIds.Split(',').ToArray().Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
-                classroomId =(classroomId=="0" || classroomId=="")?"0": EncryptDecrypt.Decrypt64(classroomId);
-                result = new CenterData().AcceptClassroomAssignmentClients(clientIds, centerId,classroomId);
+                classroomId = (classroomId == "0" || classroomId == "") ? "0" : EncryptDecrypt.Decrypt64(classroomId);
+                centerId = long.TryParse(centerId, out _centerId) ? centerId : EncryptDecrypt.Decrypt64(centerId);
+
+                result = new CenterData().AcceptClassroomAssignmentClients(clientIds, centerId, classroomId);
             }
             catch (Exception ex)
             {

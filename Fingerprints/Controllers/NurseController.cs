@@ -558,7 +558,7 @@ namespace Fingerprints.Controllers
                         info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter);
                     }
 
-                    message = _nurse.addAcceptInfo(out pendingcount, info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
+                    message = _nurse.addAcceptInfo(out pendingcount, info, 0, staffDetails);
                 }
                 else
                 {
@@ -567,7 +567,7 @@ namespace Fingerprints.Controllers
                         info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter); 
                     }
 
-                    message = _nurse.addAcceptInfo(out pendingcount, info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
+                    message = _nurse.addAcceptInfo(out pendingcount, info, 1, staffDetails);
                 }
                 _familyinfo = info;
 

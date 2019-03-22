@@ -10924,8 +10924,13 @@
 
         var AcceptProcessobject = null;
         var familyAdvocate = "";
-        function AcceptProcess(value) {
+        var acceptanceType=0;
+
+        function AcceptProcess(value,mode) {
+
             AcceptProcessobject = value;
+            acceptanceType=mode;
+
             $('#ddlnurse').find('option').remove()
             $("#DivCenterlist > tbody >tr").each(function () {
                 $(this).find('input:radio').prop("checked", false);
@@ -10967,6 +10972,18 @@
                                 $('#AcceptanceProcess').find('#DivCenterlist').find('tr[ackey=False]').show();
 
                             }
+
+
+                            if(acceptanceType==2)
+                            {
+                                $('#AcceptanceProcess').find('#spanTitle').html('Immediate Enrollment');
+
+                            }
+                            else if(acceptanceType==1){
+                                $('#AcceptanceProcess').find('#spanTitle').html('Place on Waiting List');
+                            }
+
+
                             $('#AcceptanceProcess').modal('show');
                         }
 
@@ -11008,7 +11025,10 @@
                     else
                         fswid = $('#selAssignHV').val();
 
-                    BootstrapDialog.confirm('Click OK to move client to acceptance process', function (result) {
+
+                    var message= acceptanceType==1?'Click OK to place this client on waiting list':'Click OK to move client to immediate enrollment';
+
+                    BootstrapDialog.confirm(message, function (result) {
                         if (result) {
                             $.ajax({
                                 url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
@@ -11018,7 +11038,8 @@
                                     UserFSWId: fswid,
                                     householdid: $('#HouseholdId').val(),
                                     centerid: centerid,
-                                    Programid: $(AcceptProcessobject).attr("Programid")
+                                    Programid: $(AcceptProcessobject).attr("Programid"),
+                                    acceptanceType:acceptanceType
                                 },
                                 dataType: "json",
                                 secureuri: false,
@@ -11037,9 +11058,11 @@
                                         $(AcceptProcessobject).removeAttr("onclick");
                                         $(AcceptProcessobject).removeAttr("style");
                                         $(AcceptProcessobject).attr("style", "color:#AAAFB4;text-decoration:none;cursor:default;");
-                                        $(AcceptProcessobject).prev('a').removeAttr("onclick");
-                                        $(AcceptProcessobject).prev('a').removeAttr("style");
-                                        $(AcceptProcessobject).prev('a').attr("style", "color:#AAAFB4;text-decoration:none;cursor:default;");
+
+                                        $(AcceptProcessobject).siblings('a').removeAttr("onclick");
+                                        $(AcceptProcessobject).siblings('a').removeAttr("style");
+                                        $(AcceptProcessobject).siblings('a').attr("style", "color:#AAAFB4;text-decoration:none;cursor:default;");
+                                        
                                         $(AcceptProcessobject).closest('tr').find("td:eq(2)").find('a').removeAttr("style");
                                         $(AcceptProcessobject).closest('tr').find("td:eq(2)").find('a').attr("style", "color:#AAAFB4;text-decoration:none;cursor:default;");
                                         $(AcceptProcessobject).closest('tr').find("td:eq(3)").find('a').removeAttr("style");
@@ -13661,7 +13684,8 @@
                 if ($("input:radio[name='MedicalService']").is(":checked") &&
                     $("input:radio[name='MedicalService']:checked").val() == '1' &&
 
-                    $('#customChecklist').find('input:checkbox[name="PostedPostedPrograms.ProgramID"]:checked').attr('accesskey')=='2'
+                    $('#customChecklist').find('input:checkbox[name="PostedPostedPrograms.ProgramID"]:checked').length>0
+                 //   $('#customChecklist').find('input:checkbox[name="PostedPostedPrograms.ProgramID"]:checked').attr('accesskey')=='2'
 
 
                     ) {
@@ -13669,9 +13693,11 @@
 
                     var allowScreening = $appScreening.find('#AllowScreening');
 
-                    allowScreening.find('.table-main').children('div').each(function (i, scr) {
-                        debugger;
-                        if ($(scr).attr('id') != 'ConsolidateHeading') {
+
+                    if($("#ApplicationScreening #AllowScreening").length>0){
+                        allowScreening.find('.table-main').children('div').each(function (i, scr) {
+                            debugger;
+                            if ($(scr).attr('id') != 'ConsolidateHeading') {
 
                             if ($(scr).attr('id') == 'ScreenAcc' && (($(scr).find('input[type=file]').val() == '' && $(scr).find('#ScreeningAcceptance').css('display') == 'none') || $(scr).find('#ScreeningAcceptance').length == 0 || $(scr).find('#ScreeningAcceptance').css('display') == 'none')) {
                                 isValid = false;
@@ -13700,7 +13726,14 @@
 
                         }
 
-                    });
+                        });
+
+                    }
+                    else
+                    {
+                        $('#getScreening').trigger('click');
+                    }
+
 
                 }
 
@@ -15211,9 +15244,32 @@
           min-height: initial;
           padding-bottom: 10px;
       }
- .docsubmitted-panel {
+      .addapplicant {
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 2px solid #295b8f;
+    color: #295b8f;
+    padding: 15px 0;
+    margin: 0 15px;margin-bottom:20px;
+}
+      .ic_case_note input {
+    width: 62% !important;
+    padding: 6px 12px;
+    margin-left: 10px;
+}
+
+      .lbl-required:after {
+    margin-left: 2px;
+    content: "*";
+    color: red;
+}
+
+        .docsubmitted-panel {
             margin-bottom: 0px;
         }
+        /*.add-useragform input {
+    width: 56% !important;
+}*/
 </style>
 
 
@@ -23487,7 +23543,7 @@
 
                                                                         if (!item.Iswaiting && !item.IsAccepted)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" onclick="Acceptwaitinglist(this);" href="javascript:void(0)">Waiting List <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" @*onclick="Acceptwaitinglist(this);"*@  onclick="AcceptProcess(this,1);" href="javascript:void(0)">Waiting List <i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
@@ -23498,7 +23554,7 @@
                                                                     {
                                                                         if (!item.Iswaiting && !item.IsAccepted)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)" onclick="Acceptwaitinglist(this);">Waiting List <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)" @*onclick="Acceptwaitinglist(this);"*@   onclick="AcceptProcess(this,1);">Waiting List <i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
@@ -23528,7 +23584,7 @@
 
                                                                         if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " onclick="AcceptProcess(this);" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " onclick="AcceptProcess(this,2);" href="javascript:void(0)">Immediate Enrollment<i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
@@ -23542,11 +23598,11 @@
 
                                                                         if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " href="javascript:void(0)">Immediate Enrollment<i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
-                                                                            <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Immediate Enrollment<i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                     }
                                                                 }
@@ -23554,11 +23610,11 @@
                                                                 {
                                                                     if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                     {
-                                                                        <a style="text-decoration:underline;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                        <a style="text-decoration:underline;" href="javascript:void(0)">Immediate Enrollment <i class="fa fa-arrow-up"></i></a>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                        <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Immediate Enrollment <i class="fa fa-arrow-up"></i></a>
                                                                         @*<a style="text-decoration:underline;" href="javascript:void(0)">Acceptance Hirarchy  <i class="fa fa-arrow-up"></i></a>*@
 
                                                                     }
@@ -23780,7 +23836,7 @@
                                         <!-- Modal content-->
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h3>Acceptance Process<span class="extra-title muted"></span></h3>
+                                                <h3><span id="spanTitle">Immediate Enrollment</span><span class="extra-title muted"></span></h3>
                                             </div>
                                             <div class="control-group">
 
@@ -25364,6 +25420,23 @@
             #timepreference, #timepreference2, #timepreference1 {
                 width: 15px;
                 height: 15px;
+            }
+            @@media (min-width: 992px) and (max-width: 1199px) {
+                     .title-fixed {position: relative;top: 31px;left: 0;padding-left: 0;margin: 0!important;}
+                      .title-margin{margin-top: 25px!important;}
+            }
+            @@media (min-width: 768px) and (max-width: 991px) {
+                     .title-fixed {position: relative;top: 31px;left: 0;padding-left: 0;margin: 0!important;}
+                      .title-margin{margin-top: 25px!important;}
+            }
+            @@media (max-width: 767px) {
+                .title-fixed {position: relative;top: 31px;left: 0;padding-left: 0;margin: 0!important;}
+                .title-margin{margin-top: 25px!important;}
+                .no-padding-res{padding:0!important;}
+                .custom-file-upload {margin-left: 0!important;width: 100%!important;}
+                .ic_case_note input {width: 100% !important;}
+                .case-note{width: 100% !important;line-height:20px!important;}
+                .tag{line-height:20px!important;}
             }
         </style>
 

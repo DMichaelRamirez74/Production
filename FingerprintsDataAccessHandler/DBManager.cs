@@ -17,6 +17,8 @@ namespace FingerprintsDataAccessHandler
             providerName = dbFactory.GetProviderName();
         }
 
+        
+
 
         public IDbConnection GetDatabasecOnnection()
         {

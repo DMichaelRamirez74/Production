@@ -12,6 +12,33 @@ namespace FingerprintsModel
     /// </summary>
     public class StaffDetails
     {
+
+
+        private static readonly object padlock = new object();
+
+        private static StaffDetails instance = null;
+
+
+
+        private static StaffDetails Instance
+        {
+
+            get
+            {
+                if(instance==null)
+                {
+                    lock(padlock)
+                    {
+                        if(instance==null)
+                        {
+                            instance = new StaffDetails();
+                        }
+
+                    }
+                }
+                return instance;
+            }
+        }
         /// <summary>
         /// Static method to create an instance of the StaffDetails class.
         /// </summary>

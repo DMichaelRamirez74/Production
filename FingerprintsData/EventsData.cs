@@ -1930,6 +1930,7 @@ namespace FingerprintsData
         public SelectListItem GetChildrenImageData(long ClientId)
         {
             SelectListItem child = new SelectListItem();
+            int mode = 1;
             try
             {
                 command.Parameters.Clear();
@@ -1937,6 +1938,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetChildrenImage";
                 command.Parameters.AddWithValue("@ClientId", ClientId);
+                command.Parameters.AddWithValue("@Mode", mode);
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
