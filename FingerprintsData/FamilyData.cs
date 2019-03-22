@@ -16104,7 +16104,7 @@ namespace FingerprintsData
 
 
 
-         public ChildrenInfoClass GetOverIncomeChildrenData(out List<SelectListItem> parentNameList, string centerId, GridParams gridParams)
+         public ChildrenInfoClass GetOverIncomeChildrenData(out List<SelectListItem> parentNameList, string centerId, GridParams gridParams, ref long TotalCount )
         {
             List<ChildrenInfo> overIncomChildList = new List<ChildrenInfo>();
 
@@ -16181,8 +16181,11 @@ namespace FingerprintsData
                         }
                     }
 
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        TotalCount = Convert.ToInt64(_dataset.Tables[2].Rows[0]["TotalCount"]);
+                            }
 
-                  
                 }
 
             }

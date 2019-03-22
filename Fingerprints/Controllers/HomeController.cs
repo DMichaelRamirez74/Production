@@ -1770,11 +1770,12 @@ namespace Fingerprints.Controllers
         // public JsonResult GetOverIncomeClient(string encCenterId)
         public JsonResult GetOverIncomeClient(string encCenterId, GridParams gparam)
         {
+            long  TotalCount = 0;
             List<SelectListItem> parentNameList = new List<SelectListItem>();
             ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,
-                EncryptDecrypt.Decrypt64(encCenterId), gparam);
+                EncryptDecrypt.Decrypt64(encCenterId), gparam, ref TotalCount);
 
-            return Json(new { childInfo, parentNameList }, JsonRequestBehavior.AllowGet);
+            return Json(new { childInfo, parentNameList,TotalCount }, JsonRequestBehavior.AllowGet);
         }
 
 
