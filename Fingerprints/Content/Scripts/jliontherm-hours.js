@@ -154,8 +154,6 @@ function jlionThermometerDollars(MIN, MAX, IS_CURRENCY, INCLUDE_DECIMAL) {
         var iThermWidth = $("#thermometer-hours").width();
         var vIDTitle = 'Title';
 
-
-        
         jQuery('<div/>', {
             id: vIDTitle
         }).appendTo('#thermometer-hours');
@@ -170,7 +168,6 @@ function jlionThermometerDollars(MIN, MAX, IS_CURRENCY, INCLUDE_DECIMAL) {
     }
 
     function _ShowCurrentValue(sValue) {
-        debugger;
         var iTherheight = $("#thermometer-hours").height();
         var vIDValue = 'CValue';
 

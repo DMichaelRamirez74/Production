@@ -484,7 +484,7 @@ namespace FingerprintsData
                                 CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "",
                                 FromUser = !string.IsNullOrEmpty(dr["FromUser"].ToString()) ? dr["FromUser"].ToString() : "",
                                 Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToString(dr["Date"]) : "N/A",
-                                HouseHoldId = !string.IsNullOrEmpty(dr["HouseHoldId"].ToString()) ? dr["HouseHoldId"].ToString() : "",
+                                HouseholdId = !string.IsNullOrEmpty(dr["HouseHoldId"].ToString()) ? dr["HouseHoldId"].ToString() : "",
                                 ClientId = !string.IsNullOrEmpty(dr["ClientId"].ToString()) ? dr["ClientId"].ToString() : "",
                                 FromUserID = !string.IsNullOrEmpty(dr["FromUserID"].ToString()) ? dr["FromUserID"].ToString() : "",
                                 YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",

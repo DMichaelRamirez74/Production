@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.Web;
 using System.IO;
 using System.Globalization;
+using FingerprintsDataAccessHandler;
 
 namespace FingerprintsData
 {
@@ -1316,48 +1317,45 @@ namespace FingerprintsData
 
                 }
 
-                if(_dataset.Tables.Count > 19 && _dataset.Tables[19]!=null && _dataset.Tables[19].Rows.Count>0)
-                {
-                    obj.DictionarySlotsSeats.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[19].Rows[0]["SlotPurchased"]));
-                    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningAgency"]));
-                    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningCenter"]));
-                    obj.DictionarySlotsSeats.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["AvailableSeats"]));
-                    obj.DictionarySlotsSeats.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["OpenSeats"]));
-                    obj.DictionarySlotsSeats.Add("CenterID", Convert.ToInt32(_dataset.Tables[19].Rows[0]["CenterID"]));
+                //if (_dataset.Tables.Count > 19 && _dataset.Tables[19] != null && _dataset.Tables[19].Rows.Count > 0)
+                //{
+                //    obj.DictionarySlotsSeats.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[19].Rows[0]["SlotPurchased"]));
+                //    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningAgency"]));
+                //    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningCenter"]));
+                //    obj.DictionarySlotsSeats.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["AvailableSeats"]));
+                //    obj.DictionarySlotsSeats.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["OpenSeats"]));
+                //    obj.DictionarySlotsSeats.Add("CenterID", Convert.ToInt32(_dataset.Tables[19].Rows[0]["CenterID"]));
+                //}
+                //else
+                //{
 
-                   
-                }
-                else
-                {
+                //    obj.DictionarySlotsSeats.Add("TotalSlots", 0);
+                //    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", 0);
+                //    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", 0);
+                //    obj.DictionarySlotsSeats.Add("AvailableSeats", 0);
+                //    obj.DictionarySlotsSeats.Add("OpenSeats", 0);
+                //    obj.DictionarySlotsSeats.Add("CenterID", 0);
+                //}
+                //obj.CenterList = new List<Center>();
+                //if (_dataset.Tables.Count > 20 && _dataset.Tables[20] != null && _dataset.Tables[20].Rows.Count > 0)
+                //{
+                //    obj.CenterList = (from DataRow dr in _dataset.Tables[20].Rows
+                //                      select new Center
+                //                      {
+                //                          CenterId = Convert.ToInt32(dr["CenterID"]),
+                //                          CenterName = Convert.ToString(dr["CenterName"])
+                //                      }
+                //                    ).ToList();
+                //}
 
-                    obj.DictionarySlotsSeats.Add("TotalSlots", 0);
-                    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", 0);
-                    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", 0);
-                    obj.DictionarySlotsSeats.Add("AvailableSeats",0);
-                    obj.DictionarySlotsSeats.Add("OpenSeats",0);
-                    obj.DictionarySlotsSeats.Add("CenterID", 0);
 
-                }
 
-                obj.CenterList = new List<Center>(); 
-
-                if(_dataset.Tables.Count > 20 && _dataset.Tables[20]!=null && _dataset.Tables[20].Rows.Count>0)
-                {
-                    obj.CenterList = (from DataRow dr in _dataset.Tables[20].Rows
-                                      select new Center
-                                      {
-                                          CenterId = Convert.ToInt32(dr["CenterID"]),
-                                          CenterName = Convert.ToString(dr["CenterName"])
-                                      }
-                                    ).ToList();
-                }
-
-                if (_dataset.Tables.Count > 21 && _dataset.Tables[21] != null && _dataset.Tables[21].Rows.Count > 0)
+                if (_dataset.Tables.Count > 19 && _dataset.Tables[19] != null && _dataset.Tables[19].Rows.Count > 0)
                 {   //parent1 income documents
 
                     var _docList = new List<FamilyHousehold.IncomeDocument>();
                     //var _tempIncome1 = obj.Income1;
-                    foreach (DataRow dr in _dataset.Tables[21].Rows)
+                    foreach (DataRow dr in _dataset.Tables[19].Rows)
                     {
                         var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
                         var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
@@ -1386,12 +1384,12 @@ namespace FingerprintsData
 
 
                 //parent2 income documents
-                if (_dataset.Tables[22] != null && _dataset.Tables[22].Rows.Count > 0)
+                if (_dataset.Tables.Count > 20 && _dataset.Tables[20] != null && _dataset.Tables[20].Rows.Count > 0)
                 {
 
                     var _docList = new List<FamilyHousehold.IncomeDocument>();
                     //var _tempIncome1 = obj.Income1;
-                    foreach (DataRow dr in _dataset.Tables[22].Rows)
+                    foreach (DataRow dr in _dataset.Tables[20].Rows)
                     {
                         var _docIncomeId = dr["IncomeId"] != DBNull.Value ? Convert.ToInt32(dr["IncomeId"].ToString()) : 0;
                         var _docid = dr["DocumentId"] != DBNull.Value ? Convert.ToInt32(dr["DocumentId"].ToString()) : 0;
@@ -2034,7 +2032,7 @@ namespace FingerprintsData
             }
             return isInserted;
         }
-        public string addAcceptInfo(out int pendingcount, Nurse obj, int mode, Guid ID, string agencyid,string RoleID)
+        public string addAcceptInfo(out int pendingcount, Nurse obj, int mode, StaffDetails staffDetails)
         {
             string result = string.Empty;
             pendingcount = 0;
@@ -2042,30 +2040,67 @@ namespace FingerprintsData
             {
                 string center = EncryptDecrypt.Decrypt64(obj.CenterID);
                 string HouseholdId = string.Empty;
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@HouseholdId", obj.HouseholdId));
-                command.Parameters.Add(new SqlParameter("@ClientID", obj.ClientID));
-                command.Parameters.Add(new SqlParameter("@YakkrID", obj.Yakkrid));
-                command.Parameters.Add(new SqlParameter("@CenterID", EncryptDecrypt.Decrypt64(obj.CenterID)));
-                command.Parameters.Add(new SqlParameter("@AcceptApplicant", obj.AcceptApplicant));
-                command.Parameters.Add(new SqlParameter("@RejectDesc", obj.RejectDesc));
-                command.Parameters.Add(new SqlParameter("@AcceptDesc", obj.AcceptDesc));
-                command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleID));
-                command.Parameters.Add(new SqlParameter("@Reason", obj.AcceptReason));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));               
-                command.Parameters.Add(new SqlParameter("@result", string.Empty));
-                command.Parameters["@result"].Direction = ParameterDirection.Output;
-                command.Parameters.Add(new SqlParameter("@pendingcount", 0)).Direction = ParameterDirection.Output;
-                command.Parameters["@pendingcount"].Size = 10;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_addYakkrAcceptInfo";
-                command.ExecuteNonQuery();
-                result = command.Parameters["@result"].Value.ToString();
-                pendingcount = Convert.ToInt32(command.Parameters["@pendingcount"].Value);
+
+
+
+
+
+                var dbManager = new DBManager(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@HouseholdId",obj.HouseholdId,DbType.Int64),
+                    dbManager.CreateParameter("@ClientID",obj.ClientID,DbType.Int64),
+                    dbManager.CreateParameter("@YakkrID",obj.Yakkrid,DbType.Int64),
+                    dbManager.CreateParameter("@CenterID", EncryptDecrypt.Decrypt64(obj.CenterID),DbType.Int64),
+                    dbManager.CreateParameter("@AcceptApplicant",obj.AcceptApplicant,DbType.String),
+                    dbManager.CreateParameter("@RejectDesc",obj.RejectDesc,DbType.AnsiString),
+                    dbManager.CreateParameter("@AcceptDesc",obj.AcceptDesc,DbType.AnsiString),
+                    dbManager.CreateParameter("@CreatedBy",staffDetails.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleId",staffDetails.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@Reason",obj.AcceptReason,DbType.AnsiString),
+                    dbManager.CreateParameter("@AgencyID",staffDetails.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@result",2, string.Empty,DbType.String,ParameterDirection.Output),
+                    dbManager.CreateParameter("@pendingcount",10,0,DbType.Int32,ParameterDirection.Output)
+
+
+
+
+                };
+
+
+                dbManager.ExecuteWithNonQuery<bool>("SP_addYakkrAcceptInfo", CommandType.StoredProcedure, parameters);
+
+
+                result = parameters.Where(x => x.ParameterName == "@result" && x.Direction == ParameterDirection.Output).Select(x => x.Value).First().ToString();
+                pendingcount = Convert.ToInt32(parameters.Where(x => x.ParameterName == "@pendingcount" && x.Direction == ParameterDirection.Output).Select(x => x.Value).First());
+
+
+
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
+                //Connection.Open();
+                //command.Connection = Connection;
+                //command.Parameters.Add(new SqlParameter("@HouseholdId", obj.HouseholdId));
+                //command.Parameters.Add(new SqlParameter("@ClientID", obj.ClientID));
+                //command.Parameters.Add(new SqlParameter("@YakkrID", obj.Yakkrid));
+                //command.Parameters.Add(new SqlParameter("@CenterID", EncryptDecrypt.Decrypt64(obj.CenterID)));
+                //command.Parameters.Add(new SqlParameter("@AcceptApplicant", obj.AcceptApplicant));
+                //command.Parameters.Add(new SqlParameter("@RejectDesc", obj.RejectDesc));
+                //command.Parameters.Add(new SqlParameter("@AcceptDesc", obj.AcceptDesc));
+                //command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
+                //command.Parameters.Add(new SqlParameter("@RoleId", RoleID));
+                //command.Parameters.Add(new SqlParameter("@Reason", obj.AcceptReason));
+                //command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                //command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                //command.Parameters["@result"].Direction = ParameterDirection.Output;
+                //command.Parameters.Add(new SqlParameter("@pendingcount", 0)).Direction = ParameterDirection.Output;
+                //command.Parameters["@pendingcount"].Size = 10;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.CommandText = "SP_addYakkrAcceptInfo";
+                //command.ExecuteNonQuery();
+                //result = command.Parameters["@result"].Value.ToString();
+                //pendingcount = Convert.ToInt32(command.Parameters["@pendingcount"].Value);
 
 
             }
@@ -2076,8 +2111,8 @@ namespace FingerprintsData
             }
             finally
             {
-                Connection.Close();
-                command.Dispose();
+                //Connection.Close();
+                //command.Dispose();
             }
             return result;
 

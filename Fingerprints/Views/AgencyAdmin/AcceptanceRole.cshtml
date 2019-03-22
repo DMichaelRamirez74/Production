@@ -3,10 +3,23 @@
     ViewBag.Title = "ParentMatrixAnalysis";
     Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
 }
-<style>
 
-</style>
+
+
+
 @section Script{
+
+<script src="~/Scripts/multiselect.js"></script>
+    
+    <script type="text/javascript">
+
+        var Urls={
+            getuserlistbyrole:"@Url.Action("GetUsersListByRoleId", "Agency")",
+
+        };
+
+    </script>
+
     <script type="text/javascript">
         var centercount = 0;
 
@@ -25,8 +38,122 @@
                     e.preventDefault();
                 }
             });
+
+
+            $(".overinlevel").multiselect({
+                maxHeight: 200,
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                // filterPlaceholder: 'Search Contribution Activity',
+                enableCaseInsensitiveFiltering: true,
+                numberDisplayed: 1,
+                inheritClass: true,
+                buttonWidth: '280px'
+
+            });
+
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $(document).on("click", "#editfinal-review",function(e){
+                  e.preventDefault();
+
+                  $("#finalreview-modal").modal('show');
         });
-      
+
+            $(document).on("change", ".overin-final", function (e) {
+                e.preventDefault();
+
+                var _role = $(this).val();
+                
+                if (_role) {
+                    $("#overin-final-user-div").slideDown();
+                    loadUserListByRole(_role);
+                } else {
+                    $("#overin-final-user-div").slideUp();
+                }
+            });
+
+            // $(document).on("change", "#overin-final-user", function (e) {
+            $(document).on("click", "#savefinal-review", function (e) {
+               
+                e.preventDefault();
+                //var _usr = $(this).val();
+                var roleid = $(".overin-final").val();
+                var userid = $("#overin-final-user").val();
+                var _finalName = $("#overin-final-user option[value='" + userid + "']").text();
+
+
+                if (!roleid) {
+                    customAlert(" over income final reviewer role is required")
+                    return false;
+                }
+
+                if (!userid) {
+                    customAlert(" over income final reviewer is required")
+                    return false;
+                }
+
+                $("#finalover-review-div").empty().append('<div class="review-txt">' + _finalName + '</div>');
+                $("#finalreview-modal").modal('hide');
+                $("#editfinal-review").slideDown();
+
+                //if (_usr) {
+                //    $(".overin-final").slideUp();
+                //} else {
+                //    $(".overin-final").slideDown();
+                //}
+
+            });
+            
+            
+           // $(".overinlevel").tooltip()
+
+        });
+
+        function loadUserListByRole(roleid) {
+
+            $.ajax({
+                url:Urls.getuserlistbyrole.concat("?id=",roleid),
+                method: "POST",
+                dateType: 'json',
+                beforeSend:function(){ $("#spinner").show() },
+                //data: JSON.stringify( {Roles:listRoles,isEndOfYear: isEndOfYear} ),
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    //console.log(res);
+                    $("#overin-final-user").html('');
+                    if (res && res.length) {
+                       
+                        $("#overin-final-user").append('<option value="">--Select User--</option>');
+                        res.forEach(function (obj, i) {
+
+                            //  console.log(e, i);
+                            var _str = '<option value="' + obj.Value + '">' + obj.Text + '</option>';
+                            $("#overin-final-user").append(_str);
+
+                        });
+
+                       
+                    } else {
+                        customAlert("No users on this role")
+                    }
+
+                },
+                error: function (res) {
+
+
+                },
+                complete: function () {
+
+                    $("#spinner").hide();
+                }
+
+
+            })
+
+        };
+
         function RedirectToDashboard() {
 
             location.href = '/Home/AgencyAdminDashboard';
@@ -152,7 +279,36 @@
                     });
                     i++;
                 });
+
+                var _ovin = $("select.overinlevel").val();
+                 if(!_ovin) {
+                     customAlert("Over income reviewer is required.");
+                     isValid = false;
+                }
+
             }
+
+
+
+            if ($("#overincomefinal-div").css("display") == "block")
+            {
+                if (!$(".overin-final").val()) {
+                  customAlert("Over Income Final Reviewer is required")
+                  isValid = false;
+                  return isValid;
+                }
+
+                if (!$("#overin-final-user").val()) {
+
+                    customAlert("Please select over income final review user");
+                    isValid = false;
+                    return isValid;
+                }
+
+            }
+
+
+
             if (isValid) {
                 var listRoles = [];
                 var role = {};
@@ -179,6 +335,20 @@
                     }
                 });
 
+                if (_ovin) {
+                  
+                    $("select.overinlevel").val().forEach(function (e) {
+                        //role = {};
+                        //console.log(e);
+
+                        listRoles.push({ Priority: 11, isAllowIncome: $("#checkbox-overincome")[0].checked, RoleId: e });
+                    })
+                }
+
+                var _finalUser = "";
+                if ($("#overin-final-user").length) {
+                    _finalUser = $("#overin-final-user").val();
+                }
 
                 $.ajax({
                     url: HostedDir + "/AgencyAdmin/SaveAcceptancePrirorityRoles",
@@ -186,32 +356,35 @@
                     dateType: 'json',
                     secureuri: false,
                     async: false,
-                    data: '{Roles: ' + JSON.stringify(listRoles) + ',isEndOfYear:'+isEndOfYear+'}',
+                    //data: '{Roles: ' + JSON.stringify(listRoles) + ',isEndOfYear:'+isEndOfYear+'}',
+                    data: JSON.stringify( {Roles:listRoles,isEndOfYear: isEndOfYear, OIFinaUser:_finalUser} ),
                     contentType: "application/json; charset=utf-8",
                     success: function (response) {
 
+                        if (response) {
+                            if (isEndOfYear == '0') {
+                                $('#btnSubmit').css('background', '#90ca93');
+                                $('#btnSubmit').css('cursor', 'default');
+                                $('#btnload').css('background', '#90ca93');
+                                $('#btnload').css('cursor', 'default');
+                                $('#btnSubmit').prop('disabled', true);
+                                $('#btnload').prop('disabled', true);
+                            }
 
-                        if (isEndOfYear == '0')
-                        {
-                            $('#btnSubmit').css('background', '#90ca93');
-                            $('#btnSubmit').css('cursor', 'default');
-                            $('#btnload').css('background', '#90ca93');
-                            $('#btnload').css('cursor', 'default');
-                            $('#btnSubmit').prop('disabled', true);
-                            $('#btnload').prop('disabled', true);
+                            else if (isEndOfYear == '1') {
+                                $('#btnSubmit').css('background', '');
+                                $('#btnSubmit').css('cursor', '');
+                                $('#btnload').css('background', '');
+                                $('#btnload').css('cursor', '');
+                                $('#btnSubmit').prop('disabled', false);
+                                $('#btnload').prop('disabled', false);
+                            }
+
+                            customAlert("Roles added successfully");
+                        } else {
+                            customAlert("Something went wrong");
                         }
 
-                        else if (isEndOfYear == '1')
-                        {
-                            $('#btnSubmit').css('background', '');
-                            $('#btnSubmit').css('cursor', '');
-                            $('#btnload').css('background', '');
-                            $('#btnload').css('cursor', '');
-                            $('#btnSubmit').prop('disabled', false);
-                            $('#btnload').prop('disabled', false);
-                        }
-                   
-                        customAlert("Roles added successfully");
                     }
                 });
             }
@@ -230,10 +403,15 @@
                     if (response != null && response.length > 0) {
                         console.log(response);
                         var rolecount = response.length;
-
+                        var _ovincome = response.filter(x=>x.Priority == 11);
+                        var _ovincomeFinal = response.find(x=>x.Priority == 12);
                         $('#DivForRoles1').empty();
-                        $('#NumOfRoles').val(parseInt(rolecount) - 1);
 
+                        if (_ovincome.length) {
+                            $('#NumOfRoles').val(parseInt(rolecount) - 3);
+                        } else {
+                            $('#NumOfRoles').val(parseInt(rolecount) - 1);
+                        }
                       
 
                         if (isEndOfYear == '0') {
@@ -257,8 +435,57 @@
 
 
                         $('.FinalLevel').val(response[0].RoleID);
+                        
+                       
+
+                        if (_ovincome.length) {
+                            // $('.overinlevel').val(_ovincome.RoleID);
+                            var _valAr = $.map(_ovincome, function (a) {
+                                return a.RoleID;
+                            });
+                            $(".overinlevel").val(_valAr);
+
+                            if (_ovincome[0].isAllowIncome) {
+                                $("#checkbox-overincome")[0].checked = true;
+                            } else {
+                                $("#checkbox-overincome")[0].checked = false;
+                            } 
+
+                        }
+
+                        //set over income final reviewer
+                        if (_ovincomeFinal && _ovincomeFinal.hasOwnProperty("RoleID") && _ovincomeFinal.hasOwnProperty("UserId")) {
+
+
+                           $("#overin-final-user").html('');
+                            if (_ovincomeFinal.hasOwnProperty('RoleList') && _ovincomeFinal.RoleList.length) {
+
+                                _ovincomeFinal.RoleList.forEach(function (obj, i) {
+
+                                    var _str = '<option value="' + obj.RoleId + '">' + obj.RoleName + '</option>';
+                                    $("#overin-final-user").append(_str);
+                                });
+                            }
+                            $(".overin-final").val(_ovincomeFinal.RoleID);
+                            $("#overin-final-user").val(_ovincomeFinal.UserId);
+                            $("#checkbox-overincomeFR")[0].checked = _ovincomeFinal.isAllowIncome;
+                            $("#overin-final-user-div").css("display", "block");
+
+                            var roleid = $("#overin-final-user").val();
+                            var _finalrName=$("#overin-final-user option[value='" + roleid + "']").text()
+                            $("#finalover-review-div").append('<div class="review-txt">' + _finalrName + '</div>');
+                            $("#editfinal-review").slideDown();
+
+                        } else {
+
+                            $("#finalover-review-div").append('<button type="button" class="btn btn-block btn-default review-txt" data-toggle="modal" data-target="#finalreview-modal" style="margin-left: 10px;">Add Over Income Final  Reviewer</button>');
+                            $("#editfinal-review").slideUp();
+                        }
 
                         for (var i = 1; i < rolecount; i++) {
+
+                            if (response[i].Priority == 11 || response[i].Priority == 12) continue;  //if over income reviewer
+
                             var divhtmlcontent = $('#appendRole').html();
                         
                             divhtmlcontent = divhtmlcontent.replace('replace_level', (parseInt(i)+1 ));
@@ -289,6 +516,7 @@
   
 }
 @section MainContentHolder{
+<link href="~/Content/multiselect.css" rel="stylesheet" />
     <link href="~/Content/css/style.css" rel="stylesheet" />
    
     <style>
@@ -676,7 +904,205 @@
                 padding-top: 0px !important;
                 margin: 0px !important;
             }
+
+        .multiselect  {
+        margin-left:-5px !important;
+        width:280px;
+        }
+
+        .dropdown-menu > .active > a label {
+         color:#fff;
+        }
+
+        #finalover-review-div {
+      width: 280px;
+    float: none;
+    display: inline-block;
+}
+        
+        
     </style>
+
+
+
+<style type="text/css">
+    .darkblue-modal .form-group {
+        min-height: 35px;
+    }
+
+    .darkblue-modal .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        color: #ffffff;
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+        padding-top: 10px;
+    }
+
+    .darkblue-modal .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
+
+    .darkblue-modal h2 {
+        margin-top: 10px;
+        float: left;
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .darkblue-modal .form-group-al {
+        background: #f1f5f8 none repeat scroll 0 0;
+        border: 3px solid #ffffff;
+        float: left;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        color: #333;
+        padding-top: 25px;
+    }
+
+    .darkblue-modal .prop-label {
+        color: #1d5990;
+    }
+
+    .radio-div {
+        display: inline-block;
+        padding: 0 20px;
+    }
+
+        .radio-div input {
+            display: none;
+        }
+
+        .radio-div label {
+            position: relative;
+            cursor: pointer;
+        }
+
+            .radio-div label:before {
+                display: inline-block;
+                position: absolute;
+                content: " ";
+                width: 8px;
+                height: 8px;
+                left: 4px;
+                top: 5px;
+                background: transparent;
+                margin-left: -20px;
+                border-radius: 50%;
+                border: 4px solid transparent;
+            }
+
+            .radio-div label:after {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                left: 0;
+                margin-left: -20px;
+                border: 1px solid #163b69;
+                border-radius: 50%;
+                background-color: transparent;
+                top: 1px;
+            }
+
+        .radio-div input:checked ~ label::before {
+            border-color: #34495e;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-red"]::before,
+        .radio-div label[for="agclr-red"]:after,
+        .radio-div label[for="agclr-red"] {
+            border-color: #e81111;
+            color: #e81111;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-yellow"]::before,
+        .radio-div label[for="agclr-yellow"]:after,
+        .radio-div label[for="agclr-yellow"] {
+            border-color: #c3c317;
+            color: #c3c317;
+        }
+
+        .radio-div input:checked ~ label[for="agclr-green"]::before,
+        .radio-div label[for="agclr-green"]:after,
+        .radio-div label[for="agclr-green"] {
+            border-color: #0fd215;
+            color: #0fd215;
+        }
+
+    .darkblue-modal .form-group-al {
+    
+        background: #f1f5f8 none repeat scroll 0 0;
+    border: 3px solid #ffffff;
+    float: left;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #333;
+    padding-top: 25px;
+    }
+    .overcome-multiselect{
+            background-color: #4CAF50 !important;
+    border-color: #4CAF50 #47b34b #118e16 !important;
+    /* border-radius: 4px !important; */
+    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    text-align: left;
+    }
+     .overcome-multiselect .caret
+    {
+            position: absolute;
+    right: 8px;
+    top: 15px;
+    }
+     #finalover-review-div {
+    width: 280px;
+    float: none;
+    display: inline-block;
+    /* height: 30px; */
+    display: inline-block;
+    padding: 0;
+    padding-top: -1px;
+    position: relative;
+}
+        #finalover-review-div .review-txt
+     {
+             line-height: 30px!important;
+    text-align: left;
+    border-radius:0;
+    padding: 0;
+    text-shadow: 0 1px #7e50b7 !important;
+    background-color: #2196F3 !important;
+    background-clip: padding-box;
+    border: 1px solid !important;
+    border-color: #2196F3 #4e85b1 #1479ca !important;
+    /* border-radius: 4px !important; */
+    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    padding: 0 20px;
+    color: #fff;
+     }
+</style>
+
 
 
 
@@ -762,7 +1188,7 @@
                             <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
                                 <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
                                     <label class="text-label" style="padding-left:16px;">Final Reviewer</label>
-                                    @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control FinalLevel sel-level val-level", tabIndex = "14", @data_level = "1" })
+                                    @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control FinalLevel sel-level val-level glossy-select", tabIndex = "14", @data_level = "1" })
                                 </div>
                                 <div class="col-xs-4" style="padding: 10px;">
                                     <div class="col-xs-12 chk-box-ch">
@@ -773,7 +1199,82 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                      
+
+                            @{ 
+
+                                var isOverIncomeAllow = new FingerprintsData.agencyData().GetOverIncomeReview();
+
+                            }
+
+                            @if (isOverIncomeAllow)
+                            {
+
+                            <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
+                                <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
+                                    <label class="text-label" style="margin-left: -33px;">Over Income Reviewer</label>
+                                    @*@Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control overinlevel glossy-select", tabIndex = "15", @data_level = "11", @multiple = "multiple"})*@
+                                    @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), new { @class = "form-control overinlevel glossy-select overcome-multiselect", tabIndex = "15", @data_level = "11", @multiple = "multiple" })
+                                </div>
+                                <div class="col-xs-4" style="padding: 10px;">
+                                    <div class="col-xs-12 chk-box-ch">
+
+                                        <div class="fa-checkbox">
+                                            <input type="checkbox" id="checkbox-overincome" name="checkbox-type" value="Mark Late Arrival" style="display:none;" class="check1" >
+                                            <label for="checkbox-overincome" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div id="overincomefinal-div" class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
+                                <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
+                                    <label class="text-label" style="margin-left: -100px;">Over Income Final Reviewer
+                                        <i class="fa fa-edit" id="editfinal-review" style="cursor:pointer;" data-toggle="tooltip" title="Edit over income final reviewer"></i>
+                                    </label>
+                                    
+                                  <div id="finalover-review-div">
+
+                                     
+
+                                  </div>
+@*
+                                      @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control overin-final glossy-select levelClass", tabIndex = "15", @data_level = "12"})
+                                   
+                                    <div class="" id="overin-final-user-div" style="display:none;margin-left: 137px;margin-top:15px;">
+
+                                        <select class="form-control glossy-select" id="overin-final-user"></select>
+
+                                    </div>
+                                    *@
+
+                                </div>
+                                <div class="col-xs-4" style="padding: 10px;">
+                                    <div class="col-xs-12 chk-box-ch">
+
+                                        <div class="fa-checkbox">
+                                            <input type="checkbox" id="checkbox-overincomeFR" name="checkbox-type" value="Mark Late Arrival" style="display:none;" class="check12">
+                                            <label for="checkbox-overincomeFR" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                
+
+                            </div>
+
+
+
+                            
+
+
+                            }
+
+
+                        </div>
                     </div>
                     <div class="col-xs-12">
                         <div class="transition-analysis-btn" style="text-align: center;">
@@ -794,28 +1295,71 @@
         </div>
     </div>
 
-<div style="display:none;">
-    <div id="appendRole">
-        <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
-            <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
-                <label class="text-label ">Levels</label>
-                @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control validate level sel-level val-level", tabIndex = "14", @data_level = "replace_level" })
-            </div>
-            <div class="col-xs-4" style="padding: 10px;">
-                <div class="col-xs-12 chk-box-ch">
-                    <div class="fa-checkbox">
-                        <input type="checkbox" id="checkbox12" name="checkbox-type" style="display:none;" class="check-class"  checked/>
-                        <label for="checkbox12" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+    <div style="display:none;">
+        <div id="appendRole">
+            <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
+                <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
+                    <label class="text-label ">Levels</label>
+                    @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control validate level sel-level val-level glossy-select", tabIndex = "14", @data_level = "replace_level" })
+                </div>
+                <div class="col-xs-4" style="padding: 10px;">
+                    <div class="col-xs-12 chk-box-ch">
+                        <div class="fa-checkbox">
+                            <input type="checkbox" id="checkbox12" name="checkbox-type" style="display:none;" class="check-class" checked />
+                            <label for="checkbox12" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <!--Draw Signature Modal-->
 
 
 
+
+        <!--  Modal-->
+<div class="modal fade darkblue-modal" id="finalreview-modal" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2> Over Income Final Reviewer</h2>
+                <div class="modal-body-ajax">
+                    <div class="form-group-al">
+
+                        <div class="row">
+                            <label class="col-sm-4 label" style="color:#333;font-size: 15px;text-align: right;">Select Role :</label>
+                            <div class="col-sm-7">
+                                @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control overin-final glossy-select levelClass", tabIndex = "15", @data_level = "12" })
+                            </div>
+                            </div>
+
+                            <div class="row" id="overin-final-user-div" style="display:none;margin-top:15px;">
+
+                                <label class="col-sm-4 label" style="color:#333;font-size: 15px;text-align: right;">Select User :</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control glossy-select" id="overin-final-user"></select>
+                                    </div>
+                                </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 text-center" style="margin-top:15px;">
+                            <button type="button" class="glossy-button-button button-green" style="margin-left:30px;" id="savefinal-review">Save</button>
+                                </div>
+                        </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 }

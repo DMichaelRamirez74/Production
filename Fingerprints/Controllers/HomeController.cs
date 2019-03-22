@@ -118,7 +118,7 @@ namespace Fingerprints.Controllers
                 int yakkrcount = 0;
                 int appointment = 0;
                 string PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.RoleId), Convert.ToString(staffDetails.UserId));
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, staffDetails);
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 ViewBag.PYStartDate = PYSDate;
@@ -163,13 +163,13 @@ namespace Fingerprints.Controllers
             {
                 List<ClientWaitingList> _clientWaitingList = new List<ClientWaitingList>();
                 Dictionary<string, Int32> slotsDictionary = new Dictionary<string, int>();
-                _clientWaitingList = _family.GetclientWaitingList(ref slotsDictionary, Centerid, Option, Programtype, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
+                _clientWaitingList = _family.GetclientWaitingList(ref slotsDictionary,staffDetails, Centerid, Option, Programtype);
                 return Json(new { _clientWaitingList, slotsDictionary }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occurred please try again.");
+                return Json("Error occurred. Please try again.");
             }
         }
 
@@ -201,8 +201,8 @@ namespace Fingerprints.Controllers
             {
                 int yakkrcount = 0;
                 int appointment = 0;
-                string  PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.RoleId), Convert.ToString(staffDetails.UserId));
+                string PYSDate = "";
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, staffDetails);
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();
@@ -255,7 +255,7 @@ namespace Fingerprints.Controllers
             {
                 long total = 0;
                 //return Json(_family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
-                var result = _family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId),ref total,Gparam);
+                var result = _family.GetclientAcceptList(Centerid, Option,staffDetails,ref total,Gparam);
 
                 return new JsonResult { Data=new { Data=result, TotalRecord=total }};
             }
@@ -266,7 +266,10 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.SocialServiceManager)]
         public JsonResult GetFSWOrHVList(string ClientId, string Centerid, int ListType)
         {
             try
@@ -294,12 +297,13 @@ namespace Fingerprints.Controllers
         //    }
         //}
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.SocialServiceManager)]
         public ActionResult DisableYakkr(string cid,string hid)
         {
 
 
-            var result = _family.DeleteRejectedRecord("", cid, hid, Convert.ToString(staffDetails.UserId), Convert.ToString(staffDetails.AgencyId));
+            var result = _family.DeleteClientYakkr("", cid, hid,staffDetails);
 
             var houseidencrypt = EncryptDecrypt.Encrypt64(hid);
 
@@ -309,13 +313,14 @@ namespace Fingerprints.Controllers
            }
 
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor,RoleEnum.SocialServiceManager)]
         public JsonResult DeleteRejectedRecord(string Id, string ClientId, string HouseholdId)
         {
             try
             {
 
-                return Json(_family.DeleteRejectedRecord(Id, ClientId, HouseholdId,Convert.ToString(staffDetails.UserId), Convert.ToString(staffDetails.AgencyId)));
+                return Json(_family.DeleteClientYakkr(Id, ClientId, HouseholdId,staffDetails),JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
@@ -323,6 +328,18 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
+        [HttpPost]
+
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.HomeVisitor, RoleEnum.SocialServiceManager)]
+
+        public JsonResult DeletePendingRecord(string Id,string Clientid,string HouseholdId)
+        {
+            return Json(_family.DeleteClientYakkr(Id, Clientid, HouseholdId,staffDetails),JsonRequestBehavior.AllowGet);
+
+        }
+
         //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
        [CustAuthFilter(RoleEnum.Teacher)]
         public async Task<ActionResult> TeacherDashBoard()
@@ -1750,12 +1767,15 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public JsonResult GetOverIncomeClient(string encCenterId)
+        // public JsonResult GetOverIncomeClient(string encCenterId)
+        public JsonResult GetOverIncomeClient(string encCenterId, GridParams gparam)
         {
+            long  TotalCount = 0;
             List<SelectListItem> parentNameList = new List<SelectListItem>();
-            ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,EncryptDecrypt.Decrypt64(encCenterId));
+            ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,
+                EncryptDecrypt.Decrypt64(encCenterId), gparam, ref TotalCount);
 
-            return Json(new { childInfo, parentNameList }, JsonRequestBehavior.AllowGet);
+            return Json(new { childInfo, parentNameList,TotalCount }, JsonRequestBehavior.AllowGet);
         }
 
 

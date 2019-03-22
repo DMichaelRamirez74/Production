@@ -488,44 +488,46 @@ namespace FingerprintsModel
 
 
 
-    public class ClientWaitingList
+    public class ClientWaitingList:ClientAcceptList
     {
         public string Id { get; set; }
         public bool IsHomeBased { get; set; }
-        public string ClientId { get; set; }
-        public string HouseholdId { get; set; }
+        //public string ClientId { get; set; }
+        //public string HouseholdId { get; set; }
         public string HouseholdIdencrypted { get; set; }
         public string Programid { get; set; }
-        public string CenterId { get; set; }
-        public string Name { get; set; }
-        public string Choice { get; set; }
+        //public string CenterId { get; set; }
+        //public string Name { get; set; }
+        //public string Choice { get; set; }
         public string SelectionPoints { get; set; }
-        public string DateOnList { get; set; }
-        public string ProgramType { get; set; }
-        public string Gender { get; set; }
-        public string DOB { get; set; }
-        public string TotalChoice { get; set; }
+        //public string DateOnList { get; set; }
+        //public string ProgramType { get; set; }
+        //public string Gender { get; set; }
+        //public string DOB { get; set; }
+        //public string TotalChoice { get; set; }
         public string Option { get; set; }
         public string Notes { get; set; }
         public string IsReviewed { get; set; }
         public string Age { get; set; }
-        public List<UserInfo> UserList { get; set; }
-        public string ClassroomName { get; set; }
-        public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
+        //public List<UserInfo> UserList { get; set; }
+        //public string ClassroomName { get; set; }
+        //public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
 
         public bool ClassroomConfirmed { get; set; }
 
-        public string IsFutureApplication { get; set; }
+        //public string IsFutureApplication { get; set; }
+
+        //public int AcceptanceType { get; set; }
 
 
-        
+
     }
     //Changes 19Aug2016
     public class ClientAcceptList :YakkrClientDetail
     {
-    
-        public string HouseholdId { get; set; }
-     
+
+      
+
         public string Name { get; set; }
         public string Choice { get; set; }
       
@@ -559,6 +561,10 @@ namespace FingerprintsModel
         public List<UserInfo> UserList { get; set; }
         public List<UserInfo> FSWList { get; set; }
         public List<UserInfo> UserListNutrition { get; set; }
+
+        public int AcceptanceType { get; set; }
+
+        public bool IsFutureApplication { get; set; }
 
     }
     public class ClassRoom
@@ -633,6 +639,20 @@ namespace FingerprintsModel
 
         public string Search { get; set; }
        
+    }
+
+    public enum ClientAcceptanceType
+    {
+        WaitingList=1,
+        ImmediateEnrollment=2
+
+    }
+
+
+    public enum FutureClientType
+    {
+        WaitingList=1,
+        Accepted=2
     }
 
 

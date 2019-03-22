@@ -24,12 +24,16 @@ namespace FingerprintsModel
         public string CenterName { get; set; }
         public string FromUser { get; set; }
         public string Date { get; set; }
-        public string HouseHoldId { get; set; }
+        public string HouseholdId { get; set; }
+
+       
+
         public string FromUserID { get; set; }
         public string _EncCenterId { get; set; }
 
         public string ClassroomName { get; set; }
 
         public bool IsFutureApplication { get; set; }
+        public string ProgramID { get; set; }
     }
 }
