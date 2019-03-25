@@ -4238,7 +4238,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
-                command.Parameters.Add(new SqlParameter("@OverIncomeFinalUser", OIFinaUser));
+                command.Parameters.Add(new SqlParameter("@OverIncomeFinalUser", string.IsNullOrEmpty( OIFinaUser) ? null : OIFinaUser));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveAcceptanceRole";
