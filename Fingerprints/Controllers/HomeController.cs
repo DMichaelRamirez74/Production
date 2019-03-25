@@ -1232,7 +1232,7 @@ namespace Fingerprints.Controllers
             return Json(new { availCount, result }, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+         [CustAuthFilter()]
         public ActionResult ParentContactInformation()
         {
 
@@ -1258,7 +1258,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter()]
 
         public JsonResult GetParentInfoBySearch(long centerId, long classRoomId, long filterType, string searchText = "")
         {
@@ -1770,11 +1770,12 @@ namespace Fingerprints.Controllers
         // public JsonResult GetOverIncomeClient(string encCenterId)
         public JsonResult GetOverIncomeClient(string encCenterId, GridParams gparam)
         {
+            long  TotalCount = 0;
             List<SelectListItem> parentNameList = new List<SelectListItem>();
             ChildrenInfoClass childInfo= new FamilyData().GetOverIncomeChildrenData(out parentNameList,
-                EncryptDecrypt.Decrypt64(encCenterId), gparam);
+                EncryptDecrypt.Decrypt64(encCenterId), gparam, ref TotalCount);
 
-            return Json(new { childInfo, parentNameList }, JsonRequestBehavior.AllowGet);
+            return Json(new { childInfo, parentNameList,TotalCount }, JsonRequestBehavior.AllowGet);
         }
 
 

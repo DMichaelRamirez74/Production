@@ -339,7 +339,7 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
-                command.CommandType = CommandType.StoredProcedure;
+               
                 if(evt.EventType==1)
                 command.CommandText = "SP_SaveStaffEventDetails";
                 else if(evt.EventType == 2)
@@ -361,6 +361,9 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@EventId", evt.Eventid);
                 command.Parameters.AddWithValue("@isCancelled", evt.IsEventCancelled);
                 command.Parameters.AddWithValue("@CancellReason", evt.CancelReason);
+
+                command.CommandType = CommandType.StoredProcedure;
+
                 DataTable dt = new DataTable();
                 dt.Columns.AddRange(new DataColumn[1] {
                     new DataColumn("RoleId", typeof(string)),
