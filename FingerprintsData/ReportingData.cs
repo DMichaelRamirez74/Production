@@ -506,5 +506,255 @@ namespace FingerprintsData
                 GC.Collect();
             }
         }
+
+
+        #region CLASReview
+
+        public bool AddCLASReview(CLASReview data, int mode)
+        {
+
+            var success = false;
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_UpdateCLASReview";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", mode));
+
+                command.Parameters.Add(new SqlParameter("@Center", data.Center));
+                command.Parameters.Add(new SqlParameter("@ClassRoom", data.ClassRoom));
+                command.Parameters.Add(new SqlParameter("@CommentNote", data.CommentNote));
+                command.Parameters.Add(new SqlParameter("@DateofReview", data.DateofReview));
+                command.Parameters.Add(new SqlParameter("@Score", data.Score));
+                command.Parameters.Add(new SqlParameter("@TimeofReview", data.TimeofReview));
+
+
+                DataTable attachmentdt = new DataTable();
+
+                attachmentdt.Columns.AddRange(new DataColumn[5] {
+
+new DataColumn("IndexID",typeof(long)),
+new DataColumn("Attachment",typeof(byte[])),
+new DataColumn("AttachmentName",typeof(string)),
+new DataColumn("AttachmentExtension",typeof(string)),
+new DataColumn("Status",typeof(bool))
+
+                });
+
+
+                if (data.CLASReviewAttachment != null && data.CLASReviewAttachment.Count > 0)
+                {
+                    int i = 0;
+                    foreach (var item in data.CLASReviewAttachment)
+                    {
+                        attachmentdt.Rows.Add(0,
+                                                  item.AttachmentFileByte,
+                                                  item.AttachmentFileName,
+                                                  item.AttachmentFileExtension,
+                                                 item.AttachmentStatus
+                                                  );
+                        i++;
+                    }
+
+                }
+
+                command.Parameters.Add(new SqlParameter("@Attachments", attachmentdt));
+
+                var re = command.ExecuteNonQuery();
+
+                if (re > 0)
+                {
+                    success = true;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+            }
+
+
+            return success;
+        }
+
+
+        public List<CLASReview> getCLASReviews(GridParams gridParams, int mode, long centerid, long month,ref long TotalCount)
+        {
+
+            var listResult = new List<CLASReview>();
+          
+
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_CLASReviewDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", mode));
+
+                command.Parameters.Add(new SqlParameter("@PageNo", gridParams.RequestedPage));
+                command.Parameters.Add(new SqlParameter("@PageSize", gridParams.PageSize));
+                command.Parameters.Add(new SqlParameter("@Search", gridParams.Search == null ? "" : gridParams.Search));
+                command.Parameters.Add(new SqlParameter("@Sortclmn", gridParams.SortColumn));
+                command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
+
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
+                command.Parameters.Add(new SqlParameter("@MonthId", month));
+
+
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0] != null)
+                    {
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
+
+                            listResult = Helpers.DataTableToList<CLASReview>(_dataset.Tables[0], new List<string>());
+
+                        }
+                    }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+
+
+                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        {
+                            var _attach = new Attachments()
+                            {
+                                MainTableId = Convert.ToInt64(dr["ReviewId"]),
+                                AttachmentFileName = dr["AttachmentName"].ToString(),
+                                AttachmentID = Convert.ToInt64(dr["AttachmentID"]),
+                                 AttachmentFileExtension = dr["AttachmentExtension"].ToString()
+
+                            };
+
+                            var j = 0;
+                            foreach (var item in listResult)
+                            {
+                                if(item.ReviewId == _attach.MainTableId)
+                                {
+                                    if (listResult[j].CLASReviewAttachment == null) {
+                                        listResult[j].CLASReviewAttachment = new List<Attachments>();
+                                    }
+
+                                    listResult[j].CLASReviewAttachment.Add(_attach);
+                                }
+                                j++;
+                            }
+
+                        }
+
+                        
+
+                    }
+
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        TotalCount = DBNull.Value == _dataset.Tables[2].Rows[0]["TotalCount"] ? 0 : Convert.ToInt64(_dataset.Tables[2].Rows[0]["TotalCount"]);
+                    }
+
+                    } 
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return listResult;
+        }
+
+
+        public SelectListItem GetCLASAttachmentById(long AttachmentId) {
+            var imageData = new SelectListItem();
+
+            GridParams gridParams = new GridParams();
+            int mode = 2; long centerid = 0; long month = 0;
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_CLASReviewDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", mode));
+
+                command.Parameters.Add(new SqlParameter("@PageNo", gridParams.RequestedPage));
+                command.Parameters.Add(new SqlParameter("@PageSize", gridParams.PageSize));
+                command.Parameters.Add(new SqlParameter("@Search", gridParams.Search == null ? "" : gridParams.Search));
+                command.Parameters.Add(new SqlParameter("@Sortclmn", gridParams.SortColumn));
+                command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
+
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
+                command.Parameters.Add(new SqlParameter("@MonthId", month));
+                command.Parameters.Add(new SqlParameter("@AttachmentId", AttachmentId));
+
+
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            imageData.Text = string.IsNullOrEmpty(dr["Attachment"].ToString()) ? "" : Convert.ToBase64String((byte[])dr["Attachment"]);
+                            imageData.Value = dr["AttachmentName"].ToString();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
+
+
+
+                return imageData;
+
+        }
+
+        #endregion CLASReview
+
     }
 } 

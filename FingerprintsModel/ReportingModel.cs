@@ -55,4 +55,36 @@ namespace FingerprintsModel
         
             
     }
+
+
+    public class CLASReview {
+
+        public long ReviewId { get; set; }
+        public long Center { get; set; }
+        public string CenterName { get; set; }
+        public long ClassRoom { get; set; }
+        public string ClassRoomName { get; set; }
+        public string CommentNote { get; set; }
+        public string DateofReview { get; set; }
+        public string TimeofReview { get; set; }
+        public long Score { get; set; }
+        public string EnterByName { get; set; }
+
+        public List<Attachments> CLASReviewAttachment { get; set; }
+    }
+
+    public class Attachments
+    {
+        public long MainTableId { get; set; }
+        public long AttachmentID { get; set; }
+        public HttpPostedFileBase AttachmentFile { get; set; }
+        public string AttachmentJson { get; set; }
+        public string AttachmentFileName { get; set; }
+        public string AttachmentFileExtension { get; set; }
+        public string AttachmentFileUrl { get; set; }
+        public byte[] AttachmentFileByte { get; set; }
+       // public long TransactionID { get; set; }
+        public bool AttachmentStatus { get; set; }
+    }
+
 }
