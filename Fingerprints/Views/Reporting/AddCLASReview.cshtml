@@ -1,0 +1,948 @@
+﻿@using FingerprintsModel
+
+@{
+    // ViewBag.Title = "CLASReview";
+    //Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    
+}
+
+@section Title
+{
+   New CLAS Review 
+}
+
+    
+
+@section style{
+
+<style type="text/css">
+
+        .page-wrapper-change {
+            background-image: url(../../Images/body-bg.jpg);
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+         #main-div label,
+        #maincontent-div p {
+            color: #1d5381;
+        }
+
+
+
+ .text-bg{
+    text-shadow: 0 1px #7e50b7;
+    background-color: #5f477d;
+    background-clip: padding-box;
+    border: 1px solid !important;
+    border-color: #7e50b7 #684494 #5d3e84 !important;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    border-right: 1px solid #87759e !important;
+    color: #fff;
+    width: 70%;
+    display: inline-block!important;
+    float: left;
+}
+  .sum_attachparticic{padding:0;}
+ .sum_attachparticic a {
+     padding-top: 10px;
+    float: left;
+    padding-left: 20px;
+}
+
+    .attach-div-each {
+      margin-bottom:20px;
+    }
+    .attach-add, 
+    .attach-remove {
+    margin-left: 10px;
+    
+    }
+
+            .anchor_yellow {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #9b59b6;
+            border-color: #9b59b6 #9b59b6 #9b59b6;
+        }
+
+        .glossy_btn button, .backto_listspan .anchor_yellow {
+            width: auto;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+            .backto_listspan .anchor_yellow:hover {
+                text-shadow: 0 1px #0d4d09;
+                background-color: #21945a;
+                border-color: #2bc577 #2bc577 #2bc577;
+                color: #fff;
+                text-shadow: 0 1px #154c86;
+                text-decoration: none;
+            }
+
+        .anchor_yellow:hover {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #21945a;
+            border-color: #2bc577 #2bc577 #2bc577;
+            color: #fff;
+            text-shadow: 0 1px #154c86;
+            text-decoration: none;
+        }
+
+        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+            width: 120%;
+            background-color: rgba(255,255,255,0);
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+    </style>
+
+}
+
+
+@section MainContentHolder{
+
+
+
+<div class="row" style="padding-top:25px;">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+            <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;New CLAS Review</span>
+            
+            @*<a href="@Url.Action("CLASReview","Reporting")" class="btn pull-right" style="color:#fff;background:#9b59b6;text-transform:none;">Back to CLAS Review</a>*@
+
+            <a href="@Url.Action("CLASReview","Reporting")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;">
+                Go to CLAS Report
+
+                <span class="glossy-button-before"></span>
+                <span class="glossy-button-after"></span>
+
+            </a>
+
+
+        </h2>
+    </div>
+</div>
+
+
+<div id="main-div" >
+
+    <form method="post" autocomplete="off" id="CLASR-form">
+
+        <div class="row content-bg-main" style="margin:0px;">
+
+
+            <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                <div class="col-md-6">
+                    <label>Center <sup style="color:red;" title="field is required">*</sup></label>
+                    @Html.DropDownList("Center", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input", @data_name="Center Name", @data_required="true" })
+                </div>
+                <div class="col-md-6">
+                    <label>Classroom<sup style="color:red;" title="field is required">*</sup></label>
+                    <select data-name="Classroom" data-required="true" id="Classroom" name="Classroom" style="" class="form-control glossy-input"></select>
+                </div>
+            </div>
+
+            <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                <div class="col-md-6">
+                    <label>Date<sup style="color:red;" title="field is required">*</sup></label>
+                    <input data-name="Date" data-required="true" type="text" id="DateofReview" name="DateofReview" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>Time<sup style="color:red;" title="field is required">*</sup></label>
+                    <input data-name="Time of Review" data-required="true" type="text" id="TimeofReview" name="TimeofReview" class="form-control" />
+                </div>
+            </div>
+
+
+            <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                <div class="col-md-6">
+                    <label>Notes</label>
+                    <textarea data-name="Command Note" data-required="false" type="text"  id="CommentNote" name="CommentNote" class="form-control"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label>Score<sup style="color:red;" title="field is required">*</sup></label>
+                    <input data-name="Score" data-required="true" type="number"  id="Score" name="Score"  class="form-control" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="col-md-12" style="color:#fff;margin-bottom:0px;padding:0px;">
+                <div class="form-group col-xs-6" id="add-inkind-attachments-div">
+                    <label for="inkind-attachments-div" class="col-md-4 col-lg-4 col-xs-12" style="color:#295b8f;padding: 0;">Add Attachment(s)</label>
+                    <div class="col-xs-12" id="attachment-div">
+
+                    </div>
+
+
+
+
+                </div>
+
+                <div class="col-md-6" id="div-edit-modal-img-gallery">
+
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-12  text-center" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                <button class="glossy-button-button button-green" type="button" id="btn-submit">
+                    <span class="glossy-button-after"></span>
+                    <span class="glossy-button-before"></span>
+                    Save
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+
+<script type="text/template" id="attchment-temp">
+
+    
+    <div class="col-xs-12 row attach-div-each" style="padding:0;">
+       <input type="file" class="form-control text-bg clas-attachment" onchange="self.ValidateSingleInputpdf(this);" name="attch-file">
+              <a href="javascript:void(0)" class="attach-add" style="display:add-display;" title="Add Attachment"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+              <a href="javascript:void(0)" class="attach-remove" style="display:rmove-display;" title="Remove Attachment"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>
+
+             <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" style="display:cam-display;" data-original-title="Capture using Camera">
+        
+    </div>
+
+
+
+</script>
+
+
+@{
+    Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+
+}
+
+
+
+
+
+
+    }
+
+
+@section Script{
+
+
+
+
+    <script type="text/javascript">
+
+
+
+        var Urls = {
+           
+          
+            getClassRoom: '@Url.Action("Getclassrooms", "Roster")?Centerid=',
+            submitCLASReview:'@Url.Action("AddCLASReview", "Reporting")',
+         
+        };
+
+
+        var GAnalysis = {
+            CenterId: 0,
+            AttachIndex:0,
+            init: function () {
+                var self = this;
+                self.initEvents();
+                self.renderAttachments(self.AttachIndex);
+            },
+            renderAttachments: function (index) {
+                var _tempStr = $("#attchment-temp").html();
+
+                var _removeOpt, _cameraOpt, _addOpt;
+                _removeOpt  = index == 0 ? "none" : "inline-block";
+                _addOpt = _cameraOpt = index == 0 ? "inline-block" : "none";
+                _tempStr = _tempStr.replace("rmove-display", _removeOpt);
+                _tempStr = _tempStr.replace("add-display", _addOpt);
+                _tempStr = _tempStr.replace("cam-display", _cameraOpt);
+                $("#attachment-div").append(_tempStr);
+
+            },
+            initEvents: function () {
+                var self = this;
+
+
+
+
+                $(document).on('click', '.view-file-upload', function () {
+
+
+                    var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+
+                    var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
+
+                    setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+                        w.document.body.appendChild(w.document.createElement('img'))
+                            .src = imageAttr;
+                    }, 0);
+
+                });
+
+
+                $(document).on('click', '.delete-file-upload', function () {
+
+                    $(this).closest('.setup_viewscreen').remove();
+
+                });
+
+                $("#modal-uploaddocument").on('shown.bs.modal', function (event) {
+                   // $('body').addClass('modal-open');
+
+                    showVideoStream();
+
+
+
+
+
+                    //$selfElements.modalEditInkind.modal('hide');
+                }).on('hidden.bs.modal', function (event) {
+
+                    stopIntervalUserMedia();
+                 //   $selfElements.modalEditInkind.modal('show');
+                });
+
+
+                $(document).on('click', "#btn-modal-doc-add", function (e) {
+
+                    debugger;
+                    //  var $imageGallerylength = $selfElements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
+                    var $imageGallerylength = $(".div-image-snap-gallery").find('.setup_viewscreen').length;
+
+                    if ($imageGallerylength == 0) {
+                        customAlert('Please capture image using camera');
+                        return false;
+                    }
+
+
+                    $('#div-edit-modal-img-gallery').append($(".div-image-snap-gallery").html());
+
+                    $(".div-image-snap-gallery").html('');
+
+                    $("#modal-uploaddocument").modal('hide');
+
+                });
+
+
+                $(document).on('click', '#uploadImageCamera', function () {
+                  //  $selfElements.modalEditInkind.modal('hide');
+                    //$('body').addClass('modal-open');
+
+                   // $selfElements.modalUploadDocument.find('.div-image-snap-gallery').html('');
+                    $("#modal-uploaddocument").modal('show');
+                });
+
+                $(document).on("click", ".attach-remove", function (e) {
+                    e.preventDefault();
+                    $(this).parents(".attach-div-each").remove();
+
+                });
+
+                $(document).on("click", ".attach-add", function (e) {
+                    self.AttachIndex++;
+
+                    self.renderAttachments(self.AttachIndex);
+                });
+
+                $(document).on('change', '#Center', function (e) {
+                    e.preventDefault();
+                    self.CenterId = $(this).val();
+                    $("#Classroom").html('');
+                    self.clsId = 0;
+                    //  self.renderTable([]);
+                    self.renderClassRoom();
+
+                });
+
+
+
+                $('#DateofReview').datetimepicker({
+                    // minDate: 0,
+                    maxDate: '+1d',
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    validateOnBlur: false
+                });
+
+                $('#TimeofReview').timepicker({ 'timeFormat': 'h:i A', 'minTime': '08:00 AM', 'maxTime': '05:00 PM' });
+
+
+                $(document).on("click", "#btn-submit", function (e) {
+                    e.preventDefault();
+
+                    var _parmsData = $("#CLASR-form").serialize();
+
+                    var parsedData = _jsform.deparam(_parmsData);
+                    console.log(parsedData);
+
+                    if (!self.validateForm(parsedData)) return false; //not consider attachment and camera
+
+                    var _docmentValid = false;
+
+                    var _files = $(".clas-attachment");
+
+                    var _formData = new FormData();
+                    _files.each(function (a, b) {
+
+                        var fileInput = $(this);
+                        if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                            var fileUpload = fileInput.get(0);
+                            var files = fileUpload.files;
+
+                            for (var i = 0; i < files.length; i++) {
+                                _docmentValid = true;
+                                _formData.append(files[i].name, files[i]);
+                            }
+                        }
+                    });
+
+                    _formData.append('modelString', JSON.stringify(parsedData));
+
+                    console.log(_formData);
+
+                    var $cameraDocuments = $("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+                    var cameraDocumentsArray = [];
+
+                    if ($cameraDocuments.length > 0) {
+
+                        $.each($cameraDocuments, function (j, doc) {
+                            _docmentValid = true;
+                            var _docindex = j + 1;
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ 'Text': 'CLAS Review Attachment' + _docindex, 'Value': self.getBase64Image($doc) });
+
+                        });
+                    }
+
+                    _formData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+                    if (!_docmentValid) {
+
+                        customAlert("Please add or capture attachments. Review need atleast one attachment")
+                        return false;
+                         
+                    }
+
+                    self.submitReview(_formData);
+                });
+
+
+            },
+            validateForm:function(data){
+                var _valid = true;
+                console.log(data);
+
+                Object.keys(data).forEach(function (key, i) {
+
+                    var val = data[key]; 
+                    if ((!val || val =="0") && _valid) {
+                        var _field = $('[name="' + key + '"]');
+                        if (_field.data("required")) {
+                            customAlert(_field.data("name") + " is required");
+                            _valid = false;
+                        }
+                    }
+                    //$('[name="'+e+'"]').
+                });
+
+
+                //custom validation attachements and camaera files
+
+                if (_valid) {
+
+                }
+
+
+                return _valid;
+            },
+            submitReview: function (data)
+            {
+                var self = this;
+
+                $.ajax({
+
+                    url: Urls.submitCLASReview,
+                    datatype: 'json',
+                    type: 'post',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                   /* data:JSON.stringify(data),
+                    contentType: 'application/json',
+                    dataType: 'json',*/
+                    beforeSend:function(){$("#spinner").show(); },
+                    success: function (data) {
+
+                        if (data) {
+
+                            customAlert("Review added successfully");
+                            setTimeout(function(){
+                                window.location.href ="@Url.Action("CLASReview","Reporting")";
+                            },2000);
+                        }
+                    },
+                    error:function(res){
+                
+                    },
+                    complete: function () {
+                        $("#spinner").hide()
+                    }
+
+            });
+
+
+
+
+            },
+            renderClassRoom: function () {
+                var self = this;
+
+                $.ajax({
+                    type: 'POST',
+                    url: Urls.getClassRoom.concat(self.CenterId),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    beforeSend: function () { $("#spinner").show(); },
+                    success: function (data) {
+
+                        if (data && data.length) {
+                            var _opt = "";
+                            _opt += '<option value="0"> -Select Classroom- </option>';
+                            data.forEach(function (obj, i) {
+
+                                _opt += '<option value="' + obj.ClassroomID + '">' + obj.ClassName + '</option>'
+                            });
+                            $("#Classroom").append(_opt);
+
+                        } else {
+                            customAlert("No classroom found");
+                        }
+                    },
+                    error: function (res) {
+                        customAlert("Something went wrong. Please try again")
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+                })
+
+            },
+            getBase64Image: function (img) {
+
+
+                return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+            }
+        };
+
+
+
+
+        var videoSelect = null;
+        var screenshotButton = null;
+        var img = null;
+        var canvas = null;
+        var button = null;
+        var currentStream;
+        var video;
+        var constraints = {};
+        var front = true;
+
+            $(document).ready(function () {
+                GAnalysis.init();
+
+
+
+                //camera option for document upload//
+
+                videoSelect = document.querySelector('select#videoSource');
+                video = document.querySelector('#setup-camera-div video');
+                video.setAttribute('autoplay', '');
+                video.setAttribute('muted', '');
+                video.setAttribute('playsinline', '')
+
+
+                screenshotButton = document.querySelector('#anchor-capture');
+
+
+                screenshotButton.onclick = video.onclick = function () {
+
+                    var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                    var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    // Other browsers will fall back to image/png
+                    console.log(canvas);
+                    // img.src = canvas.toDataURL('image/png');
+
+                    $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+
+
+                    $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
+                };
+
+                function handleSuccess(stream) {
+                    screenshotButton.disabled = false;
+                    video.srcObject = stream;
+                }
+
+                function stopMediaTracks(stream) {
+
+                    stream.getTracks().forEach(function (track) { track.stop(); })
+
+                }
+
+
+                //new code//
+
+
+
+
+                videoSelect.addEventListener('change', function (event) {
+
+                    getStream();
+                });
+
+                navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+                canvas = document.createElement('canvas');
+
+
+
+
+
+
+
+            });
+
+
+
+
+
+            function stopMediaTracks(stream) {
+                stream.getTracks().forEach(function (track) {
+                    track.stop();
+                });
+            }
+
+            function gotDevices(mediaDevices) {
+
+                videoSelect.innerHTML = '';
+                // videoSelect.appendChild(document.createElement('option'));
+                var count = 1;
+                mediaDevices.forEach(function (mediaDevice) {
+                    if (mediaDevice.kind === 'videoinput') {
+                        const option = document.createElement('option');
+                        option.value = mediaDevice.deviceId;
+                        const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                        const textNode = document.createTextNode(label);
+                        option.appendChild(textNode);
+                        videoSelect.appendChild(option);
+                    }
+                });
+
+
+
+
+
+            }
+
+            function getStream() {
+                // alert('change event');
+                if (typeof currentStream !== 'undefined') {
+                    stopMediaTracks(currentStream);
+                }
+                const videoConstraints = {};
+                if (videoSelect.value === '') {
+                    videoConstraints.facingMode = 'environment';
+                } else {
+                    videoConstraints.deviceId = { exact: videoSelect.value };
+                }
+                const constraints = {
+                    video: videoConstraints,
+                    audio: false
+                };
+                navigator.mediaDevices
+                  .getUserMedia(constraints)
+                  .then(function (stream) {
+                      currentStream = stream;
+                      video.srcObject = stream;
+                      return navigator.mediaDevices.enumerateDevices();
+                  })
+                  .then(gotDevices)
+                  .catch(function (error) {
+                      console.error(error);
+                      //alert(error);
+                  });
+            }
+
+            function showCameraOption(ele) {
+
+                var videoInputAvailable = 0;
+                $('#uploadImageCamera').tooltip('hide');
+                $('#uploadImageCamera').hide();
+
+                navigator.mediaDevices.enumerateDevices().then(function (devices) {
+
+                    console.log(devices);
+                    devices.forEach(function (device) {
+
+
+                        if (device.kind == 'videoinput') {
+                            videoInputAvailable++;
+                        }
+
+                    });
+
+
+                    if (videoInputAvailable == 0) {
+                        $('#uploadImageCamera').hide();
+                        $('#uploadImageCamera').tooltip('hide');
+
+                    }
+                    else {
+                        $('#uploadImageCamera').show();
+                        $('#uploadImageCamera').tooltip('show');
+                    }
+
+                    console.log(videoInputAvailable);
+
+                }).catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                });
+
+
+                //if (videoSelect.options.length > 0) {
+                //    getStream();
+                //}
+
+
+
+
+            }
+
+            function showVideoStream() {
+                if (videoSelect.options.length > 0) {
+                    getStream();
+                }
+
+            }
+
+
+            function checkUserMedia() {
+
+
+
+
+                navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
+                      navigator.webkitGetUserMedia ||
+                      navigator.mozGetUserMedia ||
+                      navigator.msGetUserMedia);
+
+                navigator.getMedia({ video: true }, function () {
+
+                    if (!$('#uploadImageCamera').is(':visible')) {
+
+                        $('#uploadImageCamera').show();
+                        $('#uploadImageCamera').tooltip('show');
+                    }
+
+
+
+                }, function () {
+
+                    $('#uploadImageCamera').hide();
+                    $('#uploadImageCamera').tooltip('hide');
+
+
+                });
+
+
+            }
+
+            var userMediaInterval = null;
+
+            function setIntervalUserMedia() {
+
+                userMediaInterval = setInterval(function () {
+
+                    checkUserMedia();
+
+                }, 1000);
+
+
+
+            }
+
+            function stopIntervalUserMedia() {
+                clearInterval(userMediaInterval);
+            }
+
+            function getBase64Image(img) {
+                //debugger;
+                //var canvas = document.createElement("canvas");
+                //canvas.width = img.width;
+                //canvas.height = img.height;
+                //var ctx = canvas.getContext("2d");
+                //ctx.drawImage(img, 0, 0);
+                //var dataURL = ctx.toDataURL("image/png");
+                //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+                return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+            }
+
+
+            function saveDocumentCamera(ele) {
+                var docImage = $('#modalScreenDoc').find('#capt-img');
+
+                if (docImage[0].src.replace('data:,', '') == '') {
+                    customAlert('Please capture image using camera');
+                    return false;
+                }
+                else {
+
+                    saveScreeningDoc(docImage, 2);
+
+                }
+
+            }
+
+            showCameraOption();
+
+        </script>
+
+       
+    
+    <script type="text/javascript">
+
+        /*
+Plugin is modified from https://github.com/canjs/can-deparam
+
+*/
+
+
+        var _jsform = (function () {
+
+            var digitTest = /^\d+$/,
+                keyBreaker = /([^\[\]]+)|(\[\])/g,
+                paramTest = /([^?#]*)(#.*)?$/,
+                entityRegex = /%([^0-9a-f][0-9a-f]|[0-9a-f][^0-9a-f]|[^0-9a-f][^0-9a-f])/i,
+                prep = function (str) {
+                    str = str.replace(/\+/g, ' ');
+
+                    try {
+                        return decodeURIComponent(str);
+                    }
+                    catch (e) {
+                        return decodeURIComponent(str.replace(entityRegex, function (match, hex) {
+                            return '%25' + hex;
+                        }));
+                    }
+                };
+
+            function isArrayLikeName(name) {
+                return digitTest.test(name) || name === '[]';
+            }
+
+
+            function idenity(value) { return value; }
+
+
+            var deparam = function (params, valueDeserializer) {
+                valueDeserializer = valueDeserializer || idenity;
+                var data = {}, pairs, lastPart;
+                if (params && paramTest.test(params)) {
+                    pairs = params.split('&');
+                    pairs.forEach(function (pair) {
+                        var parts = pair.split('='),
+                            key = prep(parts.shift()),
+                            value = prep(parts.join('=')),
+                            current = data;
+                        if (key) {
+                            parts = key.match(keyBreaker);
+                            for (var j = 0, l = parts.length - 1; j < l; j++) {
+                                var currentName = parts[j],
+                                    nextName = parts[j + 1],
+                                    currentIsArray = isArrayLikeName(currentName) && current instanceof Array;
+                                if (!current[currentName]) {
+                                    if (currentIsArray) {
+                                        current.push(isArrayLikeName(nextName) ? [] : {});
+                                    } else {
+                                        // If what we are pointing to looks like an `array`
+                                        current[currentName] = isArrayLikeName(nextName) ? [] : {};
+                                    }
+
+                                }
+                                if (currentIsArray) {
+                                    current = current[current.length - 1];
+                                } else {
+                                    current = current[currentName];
+                                }
+
+                            }
+                            lastPart = parts.pop();
+                            if (isArrayLikeName(lastPart)) {
+                                current.push(valueDeserializer(value));
+                            } else {
+                                current[lastPart] = valueDeserializer(value);
+                            }
+                        }
+                    });
+                }
+                return data;
+            };
+
+            return {
+
+                deparam: deparam
+            };
+
+        }());
+
+    </script>
+    
+    
+     }

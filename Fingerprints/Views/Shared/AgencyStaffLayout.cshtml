@@ -72,6 +72,9 @@
     <link href="~/Content/defaultTheme.css" rel="stylesheet" media="screen" />
     <script src="~/Scripts/sketch.js"></script>
     <script src="~/Scripts/jquery.touchsupport.js"></script>
+
+    <script src="~/Scripts/ApplinkPlugin/Pagination.js"></script>
+  
     @RenderSection(name: "Style", required: false)
 
     <style type="text/css">
@@ -882,6 +885,9 @@
                                 <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>@Fingerprints.LocalResource.Resources.MatrixSummary</a> </li>
 
                             }
+                            @{
+                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                            }
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
@@ -901,11 +907,57 @@
                                                     </ul>
                                                 </li>
                                             }
+                                            else if (item.Item3 == 24 || item.Item3 == 26) //clas report or clas review
+                                            {
+                                                _clasReportMenus.Add(item);
+
+                                            }
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
+                                        }
+
+
+                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                        {
+                                            <li class="">
+
+                      <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
+                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                  
+                        @if (_clasReportMenus.Any(x => x.Item3 == 26))
+                        { //if have review the can view
+
+                            <li>
+                                <a id="li9" href="/Reporting/CLASReview">
+                                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                                    CLAS Report
+                                </a>
+                            </li>
+                            <li>
+                                <a id="li9" href="/Reporting/AddCLASReview">
+                                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                                    CLAS Review
+                                </a>
+                            </li>
+                                                   
+
+
+                        }
+                        else
+                        {
+                            <li>
+                                <a id="li9" href="/Reporting/CLASReview">
+                                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                                    CLAS Report
+                                </a>
+                            </li>
+                        }
+
+                                                
+                                                </ul></li>
                                         }
                                     </ul>
                                 </li>
@@ -1086,6 +1138,9 @@
 
                                 </a>
                             </li>
+                            @{
+                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                            }
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
@@ -1104,15 +1159,61 @@
                                                 <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                             </ul>
                                         </li>
-                                            }
-                                            else
-                                            {
-                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                        else if (item.Item3 == 24 || item.Item3 == 26) //clas report or clas review
+                                        {
+                                            _clasReportMenus.Add(item);
+
+                                        }
+                                        else
+                                        {
+                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
-                                    </ul>
-                                </li>
+                                    @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                    {
+                                        <li class="">
+
+                                            <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
+                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                                @if (_clasReportMenus.Any(x => x.Item3 == 26))
+                                                { //if have review the can view
+
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/AddCLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Review
+                                                        </a>
+                                                    </li>
+
+
+
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+                                                }
+
+
+                                            </ul>
+                                        </li>
+                                    }
+                                   
+                                </ul>
+                            </li>
                             }
                         </ul>
                     </div>
@@ -1204,6 +1305,9 @@
                                 </ul>
                             </li>
                             <li> <a id="lireport" href="~/Home/VolunteerBudget"><i class="fa fa-dashboard fa-fw" aria-hidden="true"></i>Inkind Budget</a> </li>
+                            @{
+                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                            }
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
@@ -1222,13 +1326,59 @@
                                                 <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                             </ul>
                                         </li>
-                                            }
-                                            else
-                                            {
-                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                        else if (item.Item3 == 24 || item.Item3 == 26) //clas report or clas review
+                                        {
+                                            _clasReportMenus.Add(item);
+
+                                        }
+                                        else
+                                        {
+                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+
+                                    @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                    {
+                                        <li class="">
+
+                                            <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
+                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                                @if (_clasReportMenus.Any(x => x.Item3 == 26))
+                                                { //if have review the can view
+
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/AddCLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Review
+                                                        </a>
+                                                    </li>
+
+
+
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+                                                }
+
+
+                                            </ul>
+                                        </li>
+                                    }
                                 </ul>
                             </li>
                             }
@@ -1639,6 +1789,14 @@
                             }
 
 
+                           
+
+                           
+
+                            @{
+                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                            }
+                            
                             @if (AccessList != null && AccessList.Count > 0)
                             {
                                 <li>
@@ -1658,11 +1816,58 @@
                                                     </ul>
                                                 </li>
                                             }
+                                            else if (item.Item3 == 24 || item.Item3 == 26) //clas report or clas review
+                                            {
+                                                _clasReportMenus.Add(item);
+
+                                            }
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
+
+                                        
+                                        }
+                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                        {
+                                            <li class="">
+
+                                                <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
+                                                <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                                    @if (_clasReportMenus.Any(x => x.Item3 == 26))
+                                                    { //if have review the can view
+
+                                                        <li>
+                                                            <a id="li9" href="/Reporting/CLASReview">
+                                                                <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                                CLAS Report
+                                                            </a>
+                                                        </li>
+                                                            <li>
+                                                                <a id="li9" href="/Reporting/AddCLASReview">
+                                                                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                                    CLAS Review
+                                                                </a>
+                                                            </li>
+
+
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>
+                                                            <a id="li9" href="/Reporting/CLASReview">
+                                                                <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                                CLAS Report
+                                                            </a>
+                                                        </li>
+                                                    }
+
+
+                                                </ul>
+                                            </li>
                                         }
                                     </ul>
                                 </li>
@@ -2335,7 +2540,9 @@
                                 <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
                             }
 
-
+                            @{
+                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                            }
 
                             @if (AccessList != null && AccessList.Count > 0)
                             {
@@ -2356,12 +2563,71 @@
                                                     </ul>
                                                 </li>
                                             }
+                                            else if (item.Item3 == 24 || item.Item3 == 26) //clas report or clas review
+                                            {
+                                                _clasReportMenus.Add(item);
+
+                                            }
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+
+                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                        {
+                                            <li class="">
+
+                                                <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
+                                                <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                 @if (_clasReportMenus.Any(x => x.Item3 == 26))
+                                                 { //if have review the can view
+
+
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/AddCLASReview">
+                                                            <i class="fa  "fa-bolt" aria-hidden="true"></i>
+                                                          CLAS Review
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+
+
+                                                 }
+                                                 else
+                                                 {
+                                                    <li>
+                                                        <a id="li9" href="/Reporting/CLASReview">
+                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                            CLAS Report
+                                                        </a>
+                                                    </li>
+                                                 }
+
+                                                @*
+                                                        @foreach (var item in _clasReportMenus)
+                                                    {
+
+                                                        <li>
+                                                            <a id="li9" href="@item.Item2">
+                                                                <i class="fa @(item.Item3 == 24 ? "fa-list-alt" : "fa-bolt")" aria-hidden="true"></i>
+                                                                @item.Item1
+                                                            </a>
+                                                        </li>
+
+                                                    }
+
+                                                    *@
+                                                </ul>
+                                            </li>
+                                        }
+
                                     </ul>
                                 </li>
                             }
