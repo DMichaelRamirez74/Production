@@ -117,15 +117,5 @@ namespace FingerprintsModel
 
     }
 
-    public enum StaffEventListType
-    {
-
-        Initial=1,
-        ByEventId=2,
-        UpcomingEvents=3,
-        CancelledEvents=4,
-        CompletedEvents=5,
-        OpenEvents = 6 //today event not inculded
-
-    }
+   
 }

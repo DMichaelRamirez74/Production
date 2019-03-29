@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using Fingerprints.Filters;
 using System.Web.Script.Serialization;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

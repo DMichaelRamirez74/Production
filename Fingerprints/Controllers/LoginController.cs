@@ -7,6 +7,8 @@ using FingerprintsData;
 using FingerprintsModel;
 using Fingerprints.Filters;
 using Fingerprints.ViewModel;
+using FingerprintsModel.Enums;
+
 namespace Fingerprints.Controllers
 {
     public class LoginController : Controller
@@ -223,7 +225,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
-                    newLocation = "~/Home/HealthManager";
+                    // newLocation = "~/Home/HealthManager";
+                    newLocation = "~/HealthManager/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
                     newLocation = "~/Home/Dashboard";
@@ -237,7 +240,7 @@ namespace Fingerprints.Controllers
                 else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
                     newLocation = "~/Home/DisabilityStaffDashboard";
 
-                else if (staff.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.SocialServiceManager).ToLowerInvariant())
+                else if (staff.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.SocialServiceManager).ToLowerInvariant())
                     newLocation = "~/Home/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba")
@@ -407,7 +410,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Teacher/Roster";
 
                 else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
-                    newLocation = "~/Home/HealthManager";
+                    // newLocation = "~/Home/HealthManager";
+                    newLocation = "~/HealthManager/Dashboard";
 
                 else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
                     newLocation = "~/Home/Dashboard";

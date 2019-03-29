@@ -67,6 +67,9 @@ namespace FingerprintsModel
         }
 
 
+        public List<ScreeningMatrix> ScreeningMatrixList = new List<ScreeningMatrix>();
+
+
         public List<EnrolledByCenterType> EnrollmentTypeList = new List<EnrolledByCenterType>();
 
         public class EnrolledByCenterType
@@ -77,30 +80,9 @@ namespace FingerprintsModel
         }
 
 
-        public enum CenterTypeEnum
-        {
-            [Description("Center Based")]
-            CenterBased=0,
-            [Description("Home Based")]
-            HomeBased =1
+       
 
-        }
-
-        /// <summary>
-        /// Enumeration for different sections in the Executive Dashboard
-        /// </summary>
-        public enum DashboardSectionType
-        {
-            CurrentEnrollment=1,
-            EnrolledByProgram=2,
-            MissingScreening=3,
-            ClassroomType=4,
-            CaseNoteAnalysis=5,
-            InKindHoursDollars=6,
-            Disabilities=7,
-            OverIncome=8,
-            WaitingList=9
-        }
+       
 
         //public static string GetDescription<T>(this T e) where T : IConvertible
         //{
@@ -129,7 +111,7 @@ namespace FingerprintsModel
         //    return null; // could also return string.Empty
         //}
 
-        public static string GetDescription(ExecutiveDashBoard.CenterTypeEnum Band)
+        public static string GetDescription(FingerprintsModel.Enums.CenterType Band)
         {
             System.Reflection.FieldInfo oFieldInfo = Band.GetType().GetField(Band.ToString());
             DescriptionAttribute[] attributes = (DescriptionAttribute[])oFieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);

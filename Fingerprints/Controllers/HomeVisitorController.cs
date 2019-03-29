@@ -18,6 +18,7 @@ using iTextSharp.text.pdf;
 using System.Text;
 using System.Data;
 using System.Web.Script.Serialization;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

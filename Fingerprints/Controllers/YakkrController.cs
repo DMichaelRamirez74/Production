@@ -8,6 +8,7 @@ using FingerprintsModel;
 using Fingerprints.ViewModel;
 using Fingerprints.Filters;
 using System.Text;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

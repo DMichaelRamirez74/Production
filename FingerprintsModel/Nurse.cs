@@ -1355,11 +1355,25 @@ namespace FingerprintsModel
     }
 
 
-    public class ScreeningMatrix
+    public class ScreeningMatrix:ScreeningNew
     {
         public List<List<string>> Screenings { get; set; }
+
+        public string CenterName { get; set; }
+
+        public string CenterID { get; set; }
         public List<ClassRoom> Classroom { get; set; }
         public List<Roster> ClientsClassroom { get; set; }
+
+        public string ClassroomID { get; set; }
+        public string ClassroomName { get; set; }
+
+        public long UptoDate { get; set; }
+        public long Missing { get;set;}
+        public long Expiring{get;set;}
+
+        public long Expired { get; set; }
+        public long Refused { get; set; }
     }
 
 

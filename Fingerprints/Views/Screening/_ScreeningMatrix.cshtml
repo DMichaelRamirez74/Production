@@ -1,0 +1,542 @@
+﻿
+@model FingerprintsModel.ScreeningMatrixReport
+
+
+<style type="text/css">
+
+     .table-back-shadow{
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+   
+    }
+    #screeningMatrix-table tbody tr > td:first-child p, #screeningMatrix-table .td-screeningname > p {
+        width: 225px !important;
+    }
+
+
+    /*#screeningMatrix-table .td-screeningname> p {
+        width: 280px!important;
+    }*/
+
+
+    .total-details-table {
+        width: auto;
+        float: right;
+    }
+
+        .total-details-table tr, .total-details-table td {
+            padding: 0 10px;
+            line-height: 25px;
+        }
+
+            .total-details-table tr td label {
+                color: #1d5381;
+            }
+
+
+    .search-block, .glossy-search-block {
+        width: auto;
+        display: inline-block;
+        float: left;
+        margin-right: auto;
+        /*margin-top: 70px;*/
+    }
+
+
+
+        .search-block button {
+            font-size: 18px;
+            text-transform: capitalize;
+            text-align: center;
+            display: inline-block;
+            border-radius: 0 !important;
+            font-size: 14px;
+            background: #215785;
+            color: #fff;
+            border: none;
+            margin: 0;
+            border-radius: 4px;
+            width: auto;
+            padding: 7px 14px;
+            margin: auto;
+            font-weight: bold;
+            line-height: 20px;
+            border-top-right-radius: 5px !important;
+            border-bottom-right-radius: 5px !important;
+        }
+
+        .search-block input {
+            float: left;
+            color: #333;
+            font-size: 14px;
+            margin-right: 0;
+            width: 335px;
+            line-height: 32px;
+            height: 32px;
+            padding: 7px 10px;
+            border-top-left-radius: 5px !important;
+            border-bottom-left-radius: 5px !important;
+        }
+
+
+
+
+    @@media (min-width: 400px) and (max-width: 748px) {
+        .search-block input, .glossy-search-block input {
+            width: 225px;
+        }
+
+        span.multiselect-native-select .dropdown-toggle {
+            z-index: unset !important;
+        }
+
+        .multiselect-native-select ul.multiselect-container.dropdown-menu {
+            z-index: 9999999 !important;
+        }
+    }
+
+
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .search-block input, .glossy-search-block int {
+            width: 81% !important;
+        }
+    }
+
+    .search-block-main {
+        margin-bottom: 10px;
+        display: flex;
+        padding: 0;
+    }
+
+
+    span.multiselect-native-select .dropdown-toggle {
+        z-index: unset !important;
+    }
+
+    .multiselect-native-select ul.multiselect-container.dropdown-menu {
+        z-index: 9999999 !important;
+    }
+
+    .input-group.date .datepicker-icon {
+        cursor: pointer;
+        border-color: #7e50b7 #684494 #5d3e84 !important;
+        -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        text-shadow: 0 1px #7e50b7;
+        background-color: #5f477d;
+    }
+
+        .input-group.date .datepicker-icon span {
+            color: #fff;
+        }
+
+
+    /*table#screeningMatrix-table> tbody> tr> td :first-child p {
+            width: 340px!important;
+        }*/
+</style>
+
+
+<div class="col-xs-12 search-block-main">
+    <div class="glossy-search-block col-md-12">
+        <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly,readonly');"  readonly placeholder="@Fingerprints.LocalResource.Resources.Search..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+        <div class="glossy-search-btn-div">
+        <button id="btnSearchauto" @*data-search-item="@(Model.SearchTermType!=null && Model.SearchTermType.Contains("ser")?Model.SearchTermType.Replace("ser","").Trim():Model.SearchTermType)"*@>@Fingerprints.LocalResource.Resources.Search</button>
+        </div>
+        </div>
+
+        <table class="col-md-12 table-striped total-details-table table-back-shadow">
+        <tr>
+        <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+        <td id="totalCountSpan">@Model.TotalRecord</td>
+        </tr>
+        </table>
+
+        </div>
+
+
+
+
+
+        <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="screeningMatrix-table">
+            <thead class="table-hd scroll-thead">
+                <tr>
+                    <th>
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "center")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                            }
+                        }
+                        else if (string.IsNullOrEmpty(Model.SortColumn))
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+                        else
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+
+
+
+
+                       <span data-column="Center"> @Fingerprints.LocalResource.Resources.Center</span>
+                    </th>
+
+
+
+                    <th>
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "classroom")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                            }
+                        }
+                     
+                        else
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+
+
+
+
+                       <span data-column="Classroom">@Fingerprints.LocalResource.Resources.Classroom</span> 
+                    </th>
+
+
+                    @*@foreach(var screeningName in Model.ScreeningMatrix.Select(x=>x.ScreeningName).Distinct().ToList())
+                    {
+                        <th>@screeningName</th>
+                    }*@
+
+                    <th>
+
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "screening type")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                            }
+
+                        }
+
+                        else
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+
+
+                        <span data-column="Screening Type">@Fingerprints.LocalResource.Resources.ScreeningType</span>
+                    </th>
+
+                    <th>
+
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "up-to-date")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            }
+                        }
+                        else
+                        {
+                            <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+
+
+
+                        <span  data-column="Up-to-Date">@Fingerprints.LocalResource.Resources.UptoDate</span>
+                    </th>
+
+
+
+                    <th>
+
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "missing")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+
+
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+
+
+
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            }
+                        }
+                        else
+                        {
+
+
+                            <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+
+
+                        <span data-column="Missing">@Fingerprints.LocalResource.Resources.Missing</span>
+                    </th>
+
+                    <th>
+
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "expired")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            }
+                        }
+                        else
+                        {
+                            <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                        }
+
+                        <span data-column="Expired">@Fingerprints.LocalResource.Resources.Expired</span>
+                    </th>
+                    <th>
+
+                        @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "expiring")
+                        {
+                            if (Model.SortOrder.ToLowerInvariant() == "asc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            }
+                            else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                            {
+                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            }
+                        }
+                        else
+                        {
+                            <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                        }
+
+
+                       <span data-column="Expiring">@Fingerprints.LocalResource.Resources.Expiring</span>
+                    </th>
+
+
+
+                </tr>
+            </thead>
+            <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="screening-tbody">
+
+
+    @try
+    {
+
+
+
+        if (Model != null && Model.ScreeningMatrix != null && Model.ScreeningMatrix.Count() > 0)
+        {
+
+
+
+
+            @*var centerList = Model.ScreeningMatrix.Select(x => x.CenterID).Distinct().ToList();
+
+                for (int i = 0; i < centerList.Count; i++)
+                {
+                    var screeningWithCenterList = Model.ScreeningMatrix.Where(x => x.CenterID == centerList[i]).ToList();
+
+                    var classroomList = screeningWithCenterList.Select(x => x.ClassroomID).Distinct().ToList();
+
+
+
+
+                    for (int j = 0; j < classroomList.Count; j++)
+                    {
+                        var screeningList = screeningWithCenterList.Where(x => x.ClassroomID == classroomList[j]).ToList();
+
+
+
+                        for (int k = 0; k < screeningList.Count; k++)
+
+                        {
+
+                            <tr role="row">
+
+                                @if (j == 0 && k==0)
+                                {
+                                    <td role="gridcell" rowspan="@(classroomList.Count()*screeningList.Count())" data-title="Center"><p title="@screeningList[k].CenterName" data-toggle="tooltip">@screeningList[k].CenterName</p></td>
+
+                                }
+                                else
+                                {
+                                    <td role="gridcell"  rowspan="@(classroomList.Count()*screeningList.Count())" class="hidden-lg"  data-title="Center">
+                                        <p title="@screeningList[k].CenterName" data-toggle="tooltip">@screeningList[k].CenterName</p>
+                                    </td>
+
+
+
+                                }
+                                @if (k == 0)
+
+
+                                {
+                                    <td role="gridcell" rowspan="@screeningList.Count()" data-title="Classroom">
+                                        <p title="@screeningList[k]. ClassroomName" data-toggle="tooltip">@screeningList[k].ClassroomName</p>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td role="gridcell" rowspan="@screeningList.Count()" class="hidden-lg" data-title="Classroom">
+                                        <p title="@screeningList[k]. ClassroomName" data-toggle="tooltip">@screeningList[k].ClassroomName</p>
+                                    </td>
+                                }
+
+
+                                <td role="gridcell" data-title="Screening" class="td-screeningname"><p title="@screeningList[k].ScreeningName" data-toggle="tooltip">@screeningList[k].ScreeningName</p></td>
+                                <td role="gridcell" data-title="Up-toDate"><p>@screeningList[k].UptoDate</p></td>
+                                <td role="gridcell" data-title="Missing"><p>@screeningList[k].Missing</p></td>
+
+                                <td role="gridcell" data-title="Expired"><p>@screeningList[k].Expired</p></td>
+
+                                <td role="gridcell" data-title="Expiring"><p>@screeningList[k].Expiring</p></td>
+
+                            </tr>
+
+                        }
+
+
+
+                    }
+
+
+
+                }*@
+
+
+    for (int i = 0; i < Model.ScreeningMatrix.Count; i++)
+    {
+
+        <tr>
+
+
+            <td role="gridcell"  data-title="@Fingerprints.LocalResource.Resources.Center"><p title="@Model.ScreeningMatrix[i].CenterName" data-toggle="tooltip">@Model.ScreeningMatrix[i].CenterName</p></td>
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Classroom"><p title="@Model.ScreeningMatrix[i].ClassroomName" data-toggle="tooltip">@Model.ScreeningMatrix[i].ClassroomName</p></td>
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Screening" class="td-screeningname"><p title="@Model.ScreeningMatrix[i].ScreeningName" data-toggle="tooltip">@Model.ScreeningMatrix[i].ScreeningName</p></td>
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.UptoDate"><p>@Model.ScreeningMatrix[i].UptoDate</p></td>
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Missing"><p>@Model.ScreeningMatrix[i].Missing</p></td>
+
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Expired"><p>@Model.ScreeningMatrix[i].Expired</p></td>
+
+            <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Expiring"><p>@Model.ScreeningMatrix[i].Expiring</p></td>
+
+        </tr>
+        }
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    else
+    {
+        <tr style="width:98.3%">
+            <td colspan="9" style="padding: 25px;text-align:center;font-weight:bold;">@if (Model.SortColumn == null)
+            { <text>@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red">*</sup></text> }
+            else
+            { <text>@Fingerprints.LocalResource.Resources.Recordsnotfound</text>}</td>
+
+
+
+
+        </tr>
+
+    }
+
+
+}
+catch (Exception ex)
+{
+    FingerprintsModel.clsError.WriteException(ex);
+}
+
+
+
+            </tbody>
+
+
+
+        </table>
+
+
+
+
+
+        <script  type="text/javascript">
+
+
+            $('[data-toggle="tooltip"]').tooltip();
+        </script>

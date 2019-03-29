@@ -641,19 +641,9 @@ namespace FingerprintsModel
        
     }
 
-    public enum ClientAcceptanceType
-    {
-        WaitingList=1,
-        ImmediateEnrollment=2
-
-    }
+  
 
 
-    public enum FutureClientType
-    {
-        WaitingList=1,
-        Accepted=2
-    }
 
 
 

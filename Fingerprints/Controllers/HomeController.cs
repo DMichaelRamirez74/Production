@@ -28,6 +28,7 @@ using Newtonsoft.Json.Linq;
 using System.Resources;
 using System.Globalization;
 using System.Collections;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -118,7 +119,33 @@ namespace Fingerprints.Controllers
                 int yakkrcount = 0;
                 int appointment = 0;
                 string PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, staffDetails);
+             
+
+
+
+                Parallel.Invoke(() =>
+                {
+                    ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, staffDetails);
+
+                }
+                //,
+                //() =>
+                //{
+                //    var report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<ScreeningMatrixReport>();
+                //    report.CenterID = "0";
+                //    report.RequestedPage = 1;
+                //    report.PageSize = 10;
+                //    report.SkipRows = report.GetSkipRows();
+                //    report.SortOrder = "ASC";
+                //    report.SortColumn = "Center Name";
+
+                //    ViewBag.ScreeningMatrixReport = Common.FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningMatrixReport(report, staffDetails);
+                //}
+
+
+                );
+
+
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 ViewBag.PYStartDate = PYSDate;
@@ -1727,7 +1754,8 @@ namespace Fingerprints.Controllers
         #endregion
 
 
-        public ActionResult SetLanguage(string id="en", string returnurl = "") {
+        public ActionResult SetLanguage(string id = "en", string returnurl = "")
+        {
             Session["CurrentCluture"] = id;
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(id);
 

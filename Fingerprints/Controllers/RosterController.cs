@@ -20,6 +20,7 @@ using System.Web.Script.Serialization;
 using System.Globalization;
 using System.Xml.Linq;
 using System.Xml;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -3161,7 +3162,7 @@ namespace Fingerprints.Controllers
             List<CaseNote> CaseNoteList = new List<CaseNote>();
             RosterNew.Users Userlist = new RosterNew.Users();
 
-           string message= RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(),(int)Mode.Others);
+           string message= RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(),(int)FingerprintsModel.Enums.TransitionMode.Others);
 
             return Json(message,JsonRequestBehavior.AllowGet);
         }

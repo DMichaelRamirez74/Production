@@ -15,6 +15,7 @@ using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
 using System.Dynamic;
 using Newtonsoft.Json;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -669,7 +670,7 @@ namespace Fingerprints.Controllers
                 model = new CenterData().InsertDaysOff(daysOff);
 
                 StaffDetails staffDetails = StaffDetails.GetInstance();
-                tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails, (int)Email.EmailTypeEnum.CenterClosure, isStaff, Convert.ToInt64(CenterId), 0);
+                tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails, (int)FingerprintsModel.Enums.EmailType.CenterClosure, isStaff, Convert.ToInt64(CenterId), 0);
 
                 if (tupleEmail.Count() > 0)
                 {
@@ -890,7 +891,7 @@ namespace Fingerprints.Controllers
                         if (item2.Selected)
                         {
 
-                            tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails,(int)Email.EmailTypeEnum.ClassroomClosure , isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
+                            tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails,(int)FingerprintsModel.Enums.EmailType.ClassroomClosure , isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
 
                             if (tupleEmail.Count() > 0)
                             {
@@ -1125,8 +1126,9 @@ namespace Fingerprints.Controllers
 
             try
             {
-                model.Enc_CenterId = centerId;
-                model.CenterID = Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
+                long _centerId = 0;
+                model.Enc_CenterId =long.TryParse(centerId,out _centerId)?EncryptDecrypt.Decrypt(centerId):centerId;
+                model.CenterID = long.TryParse(centerId, out _centerId)?centerId: Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
                 model.RoleId = Session["RoleID"].ToString();

@@ -20,7 +20,7 @@ namespace Fingerprints.Filters
             
         //}
 
-        public CustAuthFilter(params FingerprintsModel.RoleEnum[] allowedRoles)
+        public CustAuthFilter(params FingerprintsModel.Enums.RoleEnum[] allowedRoles)
         {
 
             // Usertype = allowedRoles.Select(x => FingerprintsModel.Role.RolesDictionary[(int)x].ToLowerInvariant()).ToArray();

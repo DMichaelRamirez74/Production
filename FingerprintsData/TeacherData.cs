@@ -13,6 +13,7 @@ using System.IO;
 using System.Reflection;
 using System.Globalization;
 using System.Dynamic;
+using Fingerprints.Common;
 //using System.Web.Script.Serialization;
 
 namespace FingerprintsData
@@ -3227,7 +3228,7 @@ namespace FingerprintsData
                 var _GrowthTable = new List<string>()
                 { "ClientID","AssessmentDate","Height","Weight","BMI","HeadCirc","InputType" };
                 var _decrypted = new List<string>() { "ClientID" };
-                DataTable dt = Helpers.ToUserDefinedDataTable(data, _GrowthTable,_decrypted);
+                DataTable dt = Fingerprints.Common.DbHelper.ToUserDefinedDataTable(data, _GrowthTable,_decrypted);
                 command.Parameters.AddWithValue("@data", dt);
 
                 int res = command.ExecuteNonQuery();

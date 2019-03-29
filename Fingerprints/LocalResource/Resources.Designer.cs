@@ -1051,6 +1051,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please enter any term to search.
+        /// </summary>
+        public static string EnterTermToSearch {
+            get {
+                return ResourceManager.GetString("EnterTermToSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error occurred. Please, try again later.
         /// </summary>
         public static string ErrrorOccurred {
@@ -1101,6 +1110,33 @@ namespace Fingerprints.LocalResource {
         public static string Expected_Arrival_Time {
             get {
                 return ResourceManager.GetString("Expected_Arrival_Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expired.
+        /// </summary>
+        public static string Expired {
+            get {
+                return ResourceManager.GetString("Expired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expiring.
+        /// </summary>
+        public static string Expiring {
+            get {
+                return ResourceManager.GetString("Expiring", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
             }
         }
         
@@ -1447,6 +1483,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Load.
+        /// </summary>
+        public static string Load {
+            get {
+                return ResourceManager.GetString("Load", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
         public static string Logout {
@@ -1560,6 +1605,15 @@ namespace Fingerprints.LocalResource {
         public static string Minutes {
             get {
                 return ResourceManager.GetString("Minutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing.
+        /// </summary>
+        public static string Missing {
+            get {
+                return ResourceManager.GetString("Missing", resourceCulture);
             }
         }
         
@@ -2077,11 +2131,74 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Screening Matrix.
+        /// </summary>
+        public static string ScreeningMatrix {
+            get {
+                return ResourceManager.GetString("ScreeningMatrix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Screening Statistics.
         /// </summary>
         public static string ScreeningStatistics {
             get {
                 return ResourceManager.GetString("ScreeningStatistics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Screening Type.
+        /// </summary>
+        public static string ScreeningType {
+            get {
+                return ResourceManager.GetString("ScreeningType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Screening type is required.
+        /// </summary>
+        public static string Screeningtypeisrequired {
+            get {
+                return ResourceManager.GetString("Screeningtypeisrequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search by Filter.
+        /// </summary>
+        public static string SearchByFilter {
+            get {
+                return ResourceManager.GetString("SearchByFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search center.
+        /// </summary>
+        public static string SearchCenter {
+            get {
+                return ResourceManager.GetString("SearchCenter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search screening type.
+        /// </summary>
+        public static string SearchScreeningType {
+            get {
+                return ResourceManager.GetString("SearchScreeningType", resourceCulture);
             }
         }
         
@@ -2388,6 +2505,15 @@ namespace Fingerprints.LocalResource {
         public static string UploadCertificates {
             get {
                 return ResourceManager.GetString("UploadCertificates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Up-to-Date.
+        /// </summary>
+        public static string UptoDate {
+            get {
+                return ResourceManager.GetString("UptoDate", resourceCulture);
             }
         }
         

@@ -109,13 +109,5 @@ namespace FingerprintsModel
 
     }
 
-    public enum DegreeTypeEnum
-    {
-        [Description("N/A")]
-        NotApplicable=1,
-        [Description("ECE")]
-        ECE=2,
-        [Description("ECE Equiv.")]
-        ECEEquiv =3
-    }
+    
 }

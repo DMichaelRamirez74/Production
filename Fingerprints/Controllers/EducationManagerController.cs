@@ -42,7 +42,7 @@ namespace Fingerprints.Controllers
             StaffEventCreation events = new StaffEventCreation();
             try
             {
-                events = Eventid == "" ? EduData.GetStaffEventCreation((int)StaffEventListType.Initial, Eventid) : EduData.GetStaffEventCreation((int)StaffEventListType.ByEventId, Eventid);
+                events = Eventid == "" ? EduData.GetStaffEventCreation((int)FingerprintsModel.Enums.StaffEventListType.Initial, Eventid) : EduData.GetStaffEventCreation((int)FingerprintsModel.Enums.StaffEventListType.ByEventId, Eventid);
                 events.Heading = Eventid == "" ? "Event Creation" : "Edit Event Details";
                 events.IsEditMode = Eventid == "" ? false : true;
             }
@@ -132,7 +132,7 @@ namespace Fingerprints.Controllers
 
             try
             {
-                evt.events = EduData.GetStaffEventList((int)StaffEventListType.UpcomingEvents);
+                evt.events = EduData.GetStaffEventList((int)FingerprintsModel.Enums.StaffEventListType.UpcomingEvents);
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace Fingerprints.Controllers
             ViewBag.EventType = "cancel";
             try
             {
-                evt.events = EduData.GetStaffEventList((int)StaffEventListType.CancelledEvents);
+                evt.events = EduData.GetStaffEventList((int)FingerprintsModel.Enums.StaffEventListType.CancelledEvents);
             }
             catch (Exception ex)
             {
@@ -173,7 +173,7 @@ namespace Fingerprints.Controllers
             ViewBag.EventType = "completed";
             try
             {
-                evt.events = EduData.GetStaffEventList((int)StaffEventListType.CompletedEvents);
+                evt.events = EduData.GetStaffEventList((int)FingerprintsModel.Enums.StaffEventListType.CompletedEvents);
             }
             catch (Exception ex)
             {
@@ -226,7 +226,7 @@ namespace Fingerprints.Controllers
             StaffEventCreation evt = new StaffEventCreation();
             try
             {
-                evt.events = EventType =="1"?EduData.GetStaffEventList((int)StaffEventListType.OpenEvents): EduData.GetStaffEventList((int)StaffEventListType.CompletedEvents);
+                evt.events = EventType =="1"?EduData.GetStaffEventList((int)FingerprintsModel.Enums.StaffEventListType.OpenEvents): EduData.GetStaffEventList((int)FingerprintsModel.Enums.StaffEventListType.CompletedEvents);
             }
             catch (Exception ex)
             {

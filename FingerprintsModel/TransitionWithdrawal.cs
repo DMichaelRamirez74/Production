@@ -49,7 +49,7 @@ namespace FingerprintsModel
         public bool IsWithdrawal { get; set; }
         public int TotalRecord { get; set; }
 
-        public Mode ProcessMode;
+        public Enums.TransitionMode ProcessMode;
 
         public List<SelectListItem> ProgramYears { get; set; }
 
@@ -191,12 +191,12 @@ namespace FingerprintsModel
     }
 
 
-    public enum Mode
-    {
-        Withdrawal = 1,
-        Transition = 2,
-        Others=3
-    }
+    //public enum Mode
+    //{
+    //    Withdrawal = 1,
+    //    Transition = 2,
+    //    Others=3
+    //}
 
 
 }

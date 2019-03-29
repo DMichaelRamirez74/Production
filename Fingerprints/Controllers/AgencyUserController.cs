@@ -34,6 +34,7 @@ using iTextSharp.tool.xml.parser;
 using Fingerprints.Utilities;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -6701,7 +6702,7 @@ namespace Fingerprints.Controllers
                 homeless.FamilyHousehold.HImageByte = homeless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(homeless.FamilyHousehold.HFileInString);
             }
 
-            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FamilyHouseholdEnum.UpdateHousehold);
+            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.UpdateHousehold);
             if (message == "1")
             {
 
@@ -6832,7 +6833,7 @@ namespace Fingerprints.Controllers
                 }
 
 
-                message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FamilyHouseholdEnum.HomeFound);
+                message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.HomeFound);
                 if (message == "1")
                 {
                   
@@ -7267,7 +7268,7 @@ namespace Fingerprints.Controllers
             TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
             try
             {
-                transwithdrawal.ProcessMode = Mode.Withdrawal;
+                transwithdrawal.ProcessMode = FingerprintsModel.Enums.TransitionMode.Withdrawal;
 
                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode);
                 transwithdrawal.IsWithdrawal = true;
@@ -7293,7 +7294,7 @@ namespace Fingerprints.Controllers
                 _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
                 _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
 
-                transwithdrawal.ProcessMode = Mode.Withdrawal;
+                transwithdrawal.ProcessMode = FingerprintsModel.Enums.TransitionMode.Withdrawal;
 
                 transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, programYear, reqPage, pgSize);
                 transwithdrawal.IsWithdrawal = true;
@@ -7320,7 +7321,7 @@ namespace Fingerprints.Controllers
                 _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
                 _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
 
-                transwithdrawal.ProcessMode = Mode.Transition;
+                transwithdrawal.ProcessMode = FingerprintsModel.Enums.TransitionMode.Transition;
 
                 transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText,programYear, reqPage, pgSize);
 
@@ -7344,7 +7345,7 @@ namespace Fingerprints.Controllers
             TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
             try
             {
-                transwithdrawal.ProcessMode = Mode.Transition;
+                transwithdrawal.ProcessMode = FingerprintsModel.Enums.TransitionMode.Transition;
                 transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode);
                 transwithdrawal.IsWithdrawal = false;
             }
@@ -7384,7 +7385,7 @@ namespace Fingerprints.Controllers
             try
             {
                 clientId = EncryptDecrypt.Decrypt64(clientId);
-                withdrawntr.ProcessMode = Mode.Withdrawal;
+                withdrawntr.ProcessMode = FingerprintsModel.Enums.TransitionMode.Withdrawal;
                 withdrawntr = new agencyData().GetTransitionWithDrawalClients((int)withdrawntr.ProcessMode);
                 withdrawntr.IsWithdrawal = true;
             }
@@ -7954,7 +7955,7 @@ namespace Fingerprints.Controllers
             }
             else
             {
-                result = new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, optionalClassDays, (int)UnscheduledSchoolDayEnumMode.Insert);
+                result = new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, optionalClassDays, (int)FingerprintsModel.Enums.MakeupSchoolDaySaveMode.Insert);
                 resultType = 1;
 
 
@@ -7978,7 +7979,7 @@ namespace Fingerprints.Controllers
 
                             Task.FromResult(
 
-                                new EmailData().SendEmailParentsStaffs(staff, Email.EmailTypeEnum.UnscheduledSchoolDay, false, Convert.ToInt64(item.CenterID), Convert.ToInt64(item.ClassroomID.First()), item.UnscheduledSchoolDayID, Email.EmailStatusEnum.All, sr)
+                                new EmailData().SendEmailParentsStaffs(staff, FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay, false, Convert.ToInt64(item.CenterID), Convert.ToInt64(item.ClassroomID.First()), item.UnscheduledSchoolDayID, FingerprintsModel.Enums.EmailStatus.All, sr)
                                                         ).ContinueWith(x=> {
                                                             //int i = 0;
                                                             //Email.conque.TryDequeue(out i);
@@ -8013,7 +8014,7 @@ namespace Fingerprints.Controllers
             IEnumerable<UnscheduledSchoolDay> unscheduledSchoolDays;
 
 
-            return Json(new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, unscheduledSchoolDay, (int)UnscheduledSchoolDayEnumMode.Delete), JsonRequestBehavior.AllowGet);
+            return Json(new CenterData().AddunScheduledSchoolDay(out unscheduledSchoolDays, staff, unscheduledSchoolDay, (int)FingerprintsModel.Enums.MakeupSchoolDaySaveMode.Delete), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -8026,7 +8027,7 @@ namespace Fingerprints.Controllers
 
             emailReport.staffDetails = staff;
             emailReport.ReferenceID = Convert.ToInt64(referenceId);
-            emailReport.EmailType = Email.EmailTypeEnum.UnscheduledSchoolDay;
+            emailReport.EmailType = FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay;
 
 
 
@@ -8172,7 +8173,7 @@ namespace Fingerprints.Controllers
 
             emailReport.staffDetails = staff;
             emailReport.ReferenceID = Convert.ToInt64(referenceId);
-            emailReport.EmailType = Email.EmailTypeEnum.UnscheduledSchoolDay;
+            emailReport.EmailType = FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay;
 
             bool isExists = new CenterData().CheckForUnsentEmailClients(emailReport);
 
@@ -8181,7 +8182,7 @@ namespace Fingerprints.Controllers
             {
                 var sr = new StreamReader(Server.MapPath("~/MailTemplate/ClassroomClosed.html"));
 
-                await Task.Factory.StartNew(() => new EmailData().SendEmailParentsStaffs(staff, Email.EmailTypeEnum.UnscheduledSchoolDay, false, 0, 0, emailReport.ReferenceID, Email.EmailStatusEnum.BouncedEmails, sr));
+                await Task.Factory.StartNew(() => new EmailData().SendEmailParentsStaffs(staff, FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay, false, 0, 0, emailReport.ReferenceID, FingerprintsModel.Enums.EmailStatus.BouncedEmails, sr));
                 resultType = 1;
 
             }

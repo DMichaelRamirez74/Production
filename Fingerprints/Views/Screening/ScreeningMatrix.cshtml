@@ -1,0 +1,1130 @@
+﻿@model FingerprintsModel.ScreeningMatrixReport
+
+
+@{
+    ViewBag.Title = "ScreeningMatrix";
+    if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+       || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+
+@section Title{
+
+    Screening Matrix
+}
+
+@section Script{
+
+    <script src="~/Scripts/multiselect.js"></script>
+
+
+    <script type="text/javascript">
+
+        var self = null;
+
+        var screeningMatrix = {
+
+            //screeningMatrixReport='@(Newtonsoft.Json.JsonConvert.SerializeObject(new FingerprintsModel.ScreeningMatrixReport()))',
+
+            init: function () {
+
+                self = this;
+
+                self.initializeElements();
+                self.resetElements();
+                self.initializeEvents();
+            },
+
+            reportPartialUrl: HostedDir + '/Screening/GetScreeningMatrixReport',
+            getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
+            generateReportUrl:HostedDir+'/Screening/GenerateScreeningMatrixReport',
+            requestedPage: 1,
+            pageSize: 10,
+            firstIndex: 0,
+            startIndex: 0,
+            lastIndex: 0,
+            pageLoadedFirst: false,
+            totalRecords: 0,
+            numOfPages: 0,
+            sortOrder: null,
+            sortColumn: null,
+            documentExtensionArray: [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"],
+            
+
+            elements: {
+                'dropdownCenter': null,
+                'divCenterDropdown': null,
+                'divClassroomDropdown': null,
+                'dropdownClassroom':null,
+                'inputsearchReport': null,
+                'buttonSearch': null,
+                'lblTotalCount': null,
+                'divtableResponsive': null,
+                'tableScreeningMatrix': null,
+                'tabletheadScreeningMatrix': null,
+                'tbodyScreeningReport': null,
+                'buttonLoadReport': null,
+                'buttonExportReport': null,
+                'divScreeningTypeDropdown': null,
+                'dropdownScreeningType': null,
+                'divPaginationSection':null,
+                'dropdownRecordsPerpage': null,
+                'buttonPagingFirst': null,
+                'buttonPagingBack': null,
+                'buttonPagingNext': null,
+                'buttonPagingLast': null,
+                'dropdownPageNumber': null,
+
+
+            },
+            ajaxOptions: {
+                url: null,
+                type: null,
+                datatype: null,
+                data: null,
+                async: true,
+                //  contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                contentType: "application/json; charset=utf-8",
+                processData: true
+            },
+            dataParameters: {
+                CenterID: [],
+                ClassroomID: [],
+                ScreeningID:[],
+                //ClassDate: null,
+                //UnscheduledSchoolDayReasonID: null,
+                //UnscheduledSchoolDayReason: null,
+                SortOrder: null,
+                SortColumn: null,
+                PageSize: null,
+                RequestedPage: null,
+                SearchTerm: null
+            //    searchTermType: null,
+                //UnscheduledSchoolDayID: null
+            },
+
+            showBusy:function(ele)
+            {
+                if(ele)
+                    $('#spinner').show();
+                else
+                    $('#spinner').hide();
+            },
+
+            initializeElements: function () {
+
+                var $selfElements = self.elements;
+                $selfElements.divCenterDropdown = $('#div-center-dropdown');
+
+                $selfElements.dropdownCenter = $selfElements.divCenterDropdown.find('#selectCenter');
+
+                $selfElements.dropdownClassroom = $('#selectClassroom');
+                $selfElements.divClassroomDropdown = self.elements.dropdownClassroom.closest('.form-group');
+              
+
+                $selfElements.divtableResponsive = $('#screening-report-table-responsive');
+               
+
+                $selfElements.inputsearchReport = $selfElements.divtableResponsive.find('#searchReportText');
+                $selfElements.lblTotalCount = $selfElements.divtableResponsive.find('#totalCountSpan');
+                $selfElements.tableScreeningMatrix = $selfElements.divtableResponsive.find('#screeningMatrix-table');
+                $selfElements.tbodyScreeningReport = $selfElements.divtableResponsive.find('#screening-tbody');
+                $selfElements.buttonSearch = $selfElements.divtableResponsive.find('#btnSearchauto');
+
+                $selfElements.divScreeningTypeDropdown = $('#div-screening-type-dropdown');
+                $selfElements.dropdownScreeningType = $selfElements.divScreeningTypeDropdown.find('#selectScreeningType');
+                $selfElements.buttonLoadReport = $('#btnLoadcreening');
+                $selfElements.buttonExportReport = $('#btnScreeningExport');
+                $selfElements.tabletheadScreeningMatrix = $selfElements.tableScreeningMatrix.find('thead');
+                $selfElements.divPaginationSection = $('#divPaginationScreening');
+
+                $selfElements.dropdownRecordsPerpage = $('#ddlpagetodisplay');
+                $selfElements.buttonPagingFirst = $selfElements.divPaginationSection.find('#ulPaging').find('#First');
+                $selfElements.buttonPagingBack = $selfElements.divPaginationSection.find('#ulPaging').find('#Back');
+                $selfElements.buttonPagingNext = $selfElements.divPaginationSection.find('#ulPaging').find('#Next');
+                $selfElements.buttonPagingLast = $selfElements.divPaginationSection.find('#ulPaging').find('#Last');
+                $selfElements.dropdownPageNumber = $selfElements.divPaginationSection.find('#ddlpaging');
+            },
+            resetElements: function () {
+
+
+                self.elements.dropdownCenter.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: _langList.SearchCenter,
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divCenterDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divCenterDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+
+                self.elements.dropdownClassroom.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder:_langList.SearchClassroom,
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divClassroomDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divClassroomDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+                self.elements.dropdownScreeningType.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: _langList.SearchScreeningType,
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divScreeningTypeDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divScreeningTypeDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+
+
+
+            },
+            initializeEvents: function () {
+
+
+                var $selfElements = self.elements;
+
+
+
+                $selfElements.dropdownCenter.on('change', function (event) {
+                    debugger;
+                    var $centerId = $selfElements.dropdownCenter.val().join();
+
+                    if ($centerId != '0' && $centerId.length==1) {
+                        self.getClassrooms($centerId);
+
+                    }
+                    else {
+                        self.elements.dropdownClassroom.closest('.form-group').hide('slow');
+                    }
+                });
+
+
+                $selfElements.buttonLoadReport.on('click', function () {
+
+                    self.dataParameters.SearchTerm = '';
+                    self.getScreeningMatrixReport();
+
+                });
+
+
+                self.elements.dropdownRecordsPerpage.on('change', function () {
+
+                    self.lastIndex = 0;
+
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+                    self.getScreeningMatrixReport();
+
+                    self.elements.buttonPagingFirst.attr('disabled', true);
+                    self.elements.buttonPagingBack.attr('disabled', true);
+                });
+
+                self.elements.buttonPagingFirst.on('click', function () {
+
+                    var $thisValue = 'First';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.buttonPagingBack.on('click', function () {
+
+                    var $thisValue = 'Back';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.dropdownPageNumber.on('change', function () {
+
+
+                    self.getListafterupdation();
+                });
+
+                self.elements.buttonPagingNext.on('click', function () {
+
+                    var $thisValue = 'Next';
+                    debugger;
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+                self.elements.buttonPagingLast.on('click', function () {
+
+                    var $thisValue = 'Last';
+
+                    self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    self.fnChangePage($thisValue);
+
+                });
+
+
+                $('#pdfanchor').on('click', function () {
+
+                    self.SearchTerm = '';
+
+
+                    if(self.validateScreeningMatrixFilter())
+                    {
+                        self.bindAjaxParameters();
+                        //self.ajaxOptions.url = self.generateReportUrl;
+                        //self.ajaxOptions.datatype = 'html',
+                        //self.ajaxOptions.type = 'POST',
+                        //self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
+                        //self.ajaxOptions.async = false;
+                        //self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+
+
+                        //self.showBusy(true);
+
+
+                        //self.ajaxCall(self.generatereport);
+
+
+                        window.location.href = HostedDir + "/Screening/GenerateScreeningMatrixReport?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString();
+
+                        
+
+                    }
+
+                });
+
+
+
+            },
+            generatereport(data)
+            {
+
+            },
+
+            getClassrooms: function (cId) {
+                debugger;
+                self.ajaxOptions.url = self.getClassroomsUrl;
+                self.ajaxOptions.datatype = 'JSON';
+                self.ajaxOptions.type = 'POST',
+                self.ajaxOptions.data = $.parseJSON(JSON.stringify({ 'centerId': cId }));
+                self.ajaxOptions.async = true;
+
+                $.ajax({
+                    url: self.getClassroomsUrl,
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function () {
+                        self.showBusy(true);
+                    },
+                    async: true,
+                    data: { 'centerId': cId },
+                    // traditional: true,
+                    //  contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        debugger;
+                        self.callbackGetClassrooms(data);
+
+                    },
+                    error: function (data) {
+                        debugger;
+                        console.log(data);
+                    },
+                    complete: function (data) {
+                        console.log(data);
+                        debugger;
+                        self.showBusy(false);
+                    }
+
+                })
+
+
+
+
+                //   self.ajaxCall(self.callbackGetClassrooms);
+
+
+            },
+            callbackGetClassrooms: function (data) {
+
+                debugger;
+                var bindData = '';
+                if (data != null && data.CenterList != null && data.CenterList.length > 0 && data.CenterList[0].Classroom != null && data.CenterList[0].Classroom.length > 0) {
+
+                    self.classroomsJson = data.CenterList[0].Classroom;
+                    $.each(data.CenterList[0].Classroom, function (i, classroom) {
+
+                        bindData += '<option value=' + classroom.ClassroomID + '>' + classroom.ClassName + '</option>';
+                    });
+                }
+
+                debugger;
+
+
+                self.elements.dropdownClassroom.multiselect('destroy');
+
+                self.elements.dropdownClassroom.html(bindData);
+
+                self.elements.dropdownClassroom.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: 'Search Classroom',
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1
+
+                });
+                self.elements.divClassroomDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divClassroomDropdown.find('.btn-group').css({ 'width': '100%' });
+
+                self.elements.dropdownClassroom.closest('.form-group').show('slow');
+
+
+
+
+            },
+            getScreeningMatrixReport: function () {
+
+                if (self.validateScreeningMatrixFilter()) {
+
+
+                    self.bindAjaxParameters();
+                    self.ajaxOptions.url = self.reportPartialUrl;
+                    self.ajaxOptions.datatype = 'html',
+                    self.ajaxOptions.type = 'POST',
+                    self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
+                    self.ajaxOptions.async = false;
+                    self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+
+
+                    self.showBusy(true);
+                  
+
+                        self.ajaxCall(self.bindScreeningMatrixReport);
+
+                  
+
+
+                }
+
+
+            },
+            validateScreeningMatrixFilter: function () {
+                var result = true;
+
+                debugger;
+               if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val()== '' || self.elements.dropdownCenter.val()== '0') {
+                    customAlertforlongtime(_langList.Centerisrequired);
+                    plainValidation(self.elements.dropdownCenter);
+                    result = false;
+                }
+
+
+
+               else if (self.elements.dropdownCenter.val().length==1 &&( self.elements.dropdownClassroom.val() == null || self.elements.dropdownClassroom.val()=='' ||self.elements.dropdownClassroom.val()== '0')) {
+                    customAlertforlongtime(_langList.Classroomisrequired);
+                    plainValidation(self.elements.dropdownClassroom);
+                    result = false;
+                }
+
+                else if (self.elements.dropdownScreeningType.val() == null ||self.elements.dropdownScreeningType.val()== '' ||self.elements.dropdownScreeningType.val()== '0') {
+                    customAlertforlongtime(_langList.Screeningtypeisrequired);
+                    plainValidation(self.elements.dropdownScreeningType);
+                    result = false;
+                }
+
+
+                return result;
+
+
+            },
+
+            bindAjaxParameters: function () {
+                debugger;
+                self.dataParameters.CenterID = self.elements.dropdownCenter.val().join();
+                self.dataParameters.ClassroomID = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val().join() : '0';
+                self.dataParameters.ScreeningID = self.elements.dropdownScreeningType.val().join();
+                self.dataParameters.RequestedPage = self.requestedPage;
+                self.dataParameters.PageSize = self.pageSize;
+              
+                self.dataParameters.SortOrder = self.sortOrder;
+                self.dataParameters.SortColumn = self.sortColumn;
+
+
+            },
+
+            ajaxCall: function (callback) {
+
+                console.log(self.ajaxOptions);
+                $.ajax({
+                    url: self.ajaxOptions.url,
+                    type: self.ajaxOptions.type,
+                    dataType: self.ajaxOptions.datatype,
+                    beforeSend: function () {
+                        self.showBusy(true);
+                    },
+                    async: self.ajaxOptions.async,
+                    data: self.ajaxOptions.data,
+                    traditional: true,
+                    processData: self.ajaxOptions.processData,
+                    // contentType: "application/json; charset=utf-8",
+                    contentType: self.ajaxOptions.contentType,
+                    success: function (data) {
+                        debugger;
+                        callback(data);
+
+                    },
+                    error: function (data) {
+                        debugger;
+                        console.log(data);
+                    },
+                    complete: function (data) {
+                        console.log(data);
+                        debugger;
+                        self.showBusy(false);
+                    }
+
+                })
+            },
+
+            bindScreeningMatrixReport: function (data) {
+
+                debugger;
+
+                self.elements.divtableResponsive.html(data);
+
+
+
+             
+
+                self.initializeElements();
+
+                self.getTotalRecord(parseInt(self.elements.lblTotalCount.html()));
+
+                self.elements.tbodyScreeningReport.find('[data-toggle="tooltip"]').tooltip();
+
+               
+                //self.elements.inputsearchReport.on('focus', function () {
+                //    debugger;
+                //    this.removeAttribute('readonly');
+
+                //});
+
+                //self.elements.inputsearchReport.on('blur', function () {
+                //    this.setAttribute('readonly', 'readonly');
+                //});
+
+                self.elements.buttonSearch.on('click', function () {
+
+
+                    if (self.elements.inputsearchReport.val() == null || self.elements.inputsearchReport.val() == '') {
+                        plainValidation(self.elements.inputsearchReport);
+                        customAlert(_langList.EnterTermToSearch);
+                        return false;
+                    }
+
+                    else {
+
+                        self.elements.dropdownPageNumber.val('1');
+                        self.requestedPage = self.elements.dropdownPageNumber.val();
+                        self.dataParameters.SearchTerm = self.elements.inputsearchReport.val();
+                        self.getScreeningMatrixReport();
+                    }
+
+                });
+
+                self.elements.tableScreeningMatrix.find('thead th').on('click', function () {
+
+                    debugger;
+
+                    if ($(this).find('i').length > 0) {
+                      //  self.sortColumn = 'th' + ($(this).index() + 1);
+
+                        self.sortColumn = $(this).children('span').attr('data-column').trim();
+
+                        if ($(this).find('i').is(':visible')) {
+                            if ($(this).find('.i-asc').is(':visible')) {
+                                self.sortOrder = "DESC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                            else if ($(this).find('.i-desc').is(':visible')) {
+                                self.sortOrder = "ASC";
+                                $(this).find('.i-asc,.i-desc').toggle();
+                            }
+                        }
+                        else {
+                            self.sortOrder = 'ASC';
+                            $(this).find('.i-asc').show();
+                        }
+
+
+                        self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                        self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+                        self.getScreeningMatrixReport();
+                    }
+                    else {
+                        return false;
+                    }
+
+
+
+                });
+
+                
+
+
+            },
+            fnChangePage: function (val) {
+                debugger;
+
+                if (self.elements.tbodyScreeningReport.find('tr').find('td[data-title="Center"]').length === 0) {
+
+                    return false;
+                }
+
+
+
+                debugger;
+
+                window.setTimeout(function () {
+
+                    var $selfElements = self.elements;
+
+                    self.pageLoadedFirst = false;
+
+                    self.pageSize = $selfElements.dropdownRecordsPerpage.val();
+
+                    if (val == 'First') {
+                        self.startIndex = 0;
+
+                        self.lastIndex = parseInt(self.pageSize) + parseInt(self.lastIndex * self.requestedPage);
+
+                        self.requestedPage = ((self.startIndex / 10) + 1);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        $selfElements.buttonPagingFirst.attr('disabled', true);
+                        $selfElements.buttonPagingBack.attr('disabled', true);
+                        $selfElements.buttonPagingNext.attr('disabled', false);
+                        $selfElements.buttonPagingLast.attr('disabled', false);
+
+                        self.lastIndex = 0;
+                    }
+                    else if (val == 'Last') {
+
+                        self.startIndex = parseInt((self.totalRecords - 1) / self.pageSize) * self.pageSize;
+
+                        self.lastIndex = self.totalRecords;
+
+                        self.requestedPage = self.numOfPages;
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+
+                        $selfElements.buttonPagingFirst.attr('disabled', false);
+                        $selfElements.buttonPagingBack.attr('disabled', false);
+                        $selfElements.buttonPagingNext.attr('disabled', true);
+                        $selfElements.buttonPagingLast.attr('disabled', true);
+
+                    }
+                    else if (val == 'Next') {
+
+                        debugger;
+                        self.lastIndex = parseInt(self.pageSize) + parseInt(self.lastIndex);
+
+                        self.requestedPage = (parseInt(self.lastIndex / self.pageSize) + 1);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        $selfElements.buttonPagingFirst.attr('disabled', false);
+                        $selfElements.buttonPagingBack.attr('disabled', false);
+
+                        if (parseInt(self.lastIndex) + parseInt(self.pageSize) >= self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', true);
+                            $selfElements.buttonPagingLast.attr('disabled', true);
+                        }
+                        else if (parseInt(self.lastIndex) - parseInt(self.pageSize) < self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', false);
+                            $selfElements.buttonPagingLast.attr('disabled', false);
+                        }
+                    }
+                    else if (val == 'Back') {
+
+
+                        self.requestedPage = self.requestedPage - 1;
+
+                        self.lastIndex = parseInt(self.lastIndex) - parseInt(self.pageSize);
+
+                        self.gotoNextPage(self.requestedPage, self.pageSize);
+
+                        if (parseInt(self.lastIndex) + parseInt(self.pageSize) > self.totalRecords) {
+
+                            $selfElements.buttonPagingNext.attr('disabled', true);
+                            $selfElements.buttonPagingLast.attr('disabled', true);
+
+                        }
+                        else if (parseInt(self.lastIndex) - parseInt(self.pageSize) < self.totalRecords) {
+                            $selfElements.buttonPagingNext.attr('disabled', false);
+                            $selfElements.buttonPagingLast.attr('disabled', false);
+
+                        }
+                        if (self.requestedPage == 1) {
+                            $selfElements.buttonPagingFirst.attr('disabled', true);
+                            $selfElements.buttonPagingBack.attr('disabled', true);
+                        }
+                    }
+                    else {
+                    }
+
+                }, 10)
+            },
+            gotoNextPage: function (reqPage, pageSize) {
+
+
+                self.getScreeningMatrixReport();
+
+            },
+
+            getTotalRecord: function (data) {
+                debugger;
+                self = this;
+
+                var $selfElements = self.elements;
+
+                $selfElements.buttonPagingFirst.attr('disabled', false);
+                $selfElements.buttonPagingBack.attr('disabled', false);
+                $selfElements.buttonPagingNext.attr('disabled', false);
+                $selfElements.buttonPagingLast.attr('disabled', false);
+
+                self.pageSize = $selfElements.dropdownRecordsPerpage.val();
+
+                if (data > 0) {
+
+                    self.totalRecords = parseInt(data);
+
+                    if (self.totalRecords <= parseInt(self.pageSize)) {
+
+
+                        $selfElements.buttonPagingFirst.attr('disabled', true);
+                        $selfElements.buttonPagingBack.attr('disabled', true);
+                        $selfElements.buttonPagingNext.attr('disabled', true);
+                        $selfElements.buttonPagingLast.attr('disabled', true);
+
+                    }
+
+                    self.numOfPages = parseInt(self.totalRecords / self.pageSize) + ((self.totalRecords % self.pageSize == 0) ? 0 : 1);
+
+                    $selfElements.dropdownPageNumber.empty();
+
+                    for (i = 1; i <= self.numOfPages; i++) {
+
+                        var newOption = "<option value='" + i + "'>" + i + "</option>";
+                        $selfElements.dropdownPageNumber.append(newOption);
+                    }
+
+                    $selfElements.dropdownPageNumber.val(self.requestedPage);
+                }
+                else {
+                    $selfElements.buttonPagingFirst.attr('disabled', true);
+                    $selfElements.buttonPagingBack.attr('disabled', true);
+                    $selfElements.buttonPagingNext.attr('disabled', true);
+                    $selfElements.buttonPagingLast.attr('disabled', true);
+                }
+            },
+
+            getListafterupdation: function () {
+                self = this;
+
+                self.pageSize = self.elements.dropdownRecordsPerpage.val();
+                self.requestedPage = self.elements.dropdownPageNumber.val();
+
+                self.startIndex = (self.pageSize * (self.requestedPage - 1)) + 1;
+                self.lastIndex = parseInt(self.pageSize * self.requestedPage) - parseInt(self.pageSize);
+
+
+                var $selfElements = self.elements;
+
+
+
+                self.getScreeningMatrixReport();
+
+                if (self.requestedPage == 1) {
+                    $selfElements.buttonPagingFirst.attr('disabled', true);
+                    $selfElements.buttonPagingBack.attr('disabled', true);
+                    $selfElements.buttonPagingNext.attr('disabled', false);
+                    $selfElements.buttonPagingLast.attr('disabled', false);
+                }
+                else if (self.requestedPage == self.numOfPages) {
+
+                    $selfElements.buttonPagingFirst.attr('disabled', false);
+                    $selfElements.buttonPagingBack.attr('disabled', false);
+                    $selfElements.buttonPagingNext.attr('disabled', true);
+                    $selfElements.buttonPagingLast.attr('disabled', true);
+                }
+                else {
+
+
+
+                    $selfElements.buttonPagingFirst.attr('disabled', false);
+                    $selfElements.buttonPagingBack.attr('disabled', false);
+                    $selfElements.buttonPagingNext.attr('disabled', false);
+                    $selfElements.buttonPagingLast.attr('disabled', false);
+
+                }
+
+
+
+
+            },
+        }
+
+
+        $(function () {
+
+
+            screeningMatrix.init();
+
+        });
+
+    </script>
+
+
+}
+
+@section Style
+{
+
+
+    <link href="~/Content/multiselect.css" rel="stylesheet" />
+
+    <style type="text/css">
+        #page-wrapper {
+            background-color: #fff;
+            min-height: 568px;
+            /*padding: 30px 15px 0;*/
+            padding: 45px 15px 0;
+        }
+
+        .multiselect-clear-filter{
+                padding-top: 10px;
+        }
+
+        
+#ulPaging a[disabled="disabled"] {
+    pointer-events: none;
+}
+
+    </style>
+
+
+}
+
+
+@section MainContentHolder{
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.ScreeningMatrix
+
+                                        <span class="view-btn backto_listspan">
+
+                                            @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12">
+
+
+                                <!--Filter Section----->
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+
+
+
+                                    <!---Center dropdown section-->
+                                    <div class="form-group col-lg-3 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center<sup>*</sup></label>
+
+                                        @{
+
+                                            FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
+
+                                            var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
+
+
+                                            //centerDetails.ForEach(x =>
+                                            //{
+                                            //    x.Value =x.Value!="0"? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value):x.Value;
+                                            //});
+                                        }
+                                        <select id="selectCenter" class="glossy-select" multiple="multiple" >
+
+                                            @if (centerDetails != null && centerDetails.Count > 0)
+
+                                            {
+                                                foreach (var center in centerDetails)
+                                                {
+
+                                                    if (center.Value != "0")
+                                                    {
+                                                        <option value="@center.Value">@center.Text</option>
+
+                                                    }
+
+
+                                                }
+
+
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+
+
+                                    <!---------Classroom drop down section----------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
+                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
+
+                                        <select class="glossy-select" id="selectClassroom" multiple="multiple"></select>
+
+                                    </div>
+
+                                    <!-----------Screening Type --------------------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-screening-type-dropdown">
+                                        <label for="selectScreeningType" class="lbl-text">@Fingerprints.LocalResource.Resources.ScreeningType <sup>*</sup></label>
+
+                                        <select id="selectScreeningType" class="glossy-select" multiple="multiple">
+
+                                            @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+
+                                            {
+                                                foreach (var screening in Model.ScreeningList)
+                                                {
+
+                                                    <option value="@screening.ScreeningID">@screening.ScreeningName</option>
+                                                }
+
+
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+                                  
+
+
+                                    <!-----In-kind activity Search section-->
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                        <label for="btnLoadcreening" style="visibility:hidden;">Action</label>
+                                        <button type="button" class="glossy-button-button button-green" id="btnLoadcreening">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            @Fingerprints.LocalResource.Resources.Load
+                                        </button>
+                                    </div>
+
+
+                                    <!-----In-kind activity Export section-->
+                                    @*<div class="form-check col-lg-2 col-xs-12 glossy_btn">
+                                        <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
+                                     
+
+
+
+                                        <div class="dropdown">
+                                            <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                                              @Fingerprints.LocalResource.Resources.Export
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                <li><a href="#">DOC</a></li>
+                                                <li><a href="#">XLS</a></li>
+                                            </ul>
+                                        </div>
+
+                                    </div>*@
+
+
+
+
+                                </div>
+
+
+
+                            </form>
+
+                            <!-------Screening Report table section------->
+
+                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+
+
+                                <div class="col-xs-12 glossy-panel-div" id="screening-report-table-responsive">
+
+
+
+
+                                    @{
+
+                                        Html.RenderPartial("~/Views/Screening/_ScreeningMatrix.cshtml", Model);
+
+                                    }
+
+
+                                </div>
+
+
+
+
+
+                            </div>
+
+
+                            <!---Pagination Section-->
+
+
+
+
+
+                          
+
+
+                            <div class="col-xs-12" id="divPaginationScreening">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                    <div class="pages_display">
+                                        <ul>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.Display</li>
+                                            <li>
+                                                <select id="ddlpagetodisplay">
+                                                    <option value="10" selected="selected">10</option>
+                                                    <option value="20">20</option>
+                                                    <option value="30">30</option>
+                                                    <option value="50">50</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </li>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                        </ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div id="divPaging" class="pagination_wrp">
+                                        <ul id="ulPaging" class="pagination">
+                                            <li>
+
+                                                @*<input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" disabled />*@
+
+                                                <a href="javascript:void(0);" id="First" disabled>
+                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Back">
+
+                                                @*<input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Back" disabled>
+                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Select">
+                                                <select class="select_cl" id="ddlpaging"></select>
+                                            </li>
+                                            <li title="Next">
+                                                @*<input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Next" disabled>
+                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                            <li title="Last">
+                                                @* <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' disabled />*@
+                                                <a href="javascript:void(0);" id="Last" disabled>
+                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+
+}

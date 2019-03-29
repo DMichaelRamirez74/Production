@@ -25,6 +25,7 @@ using System.Dynamic;
 //using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
 //using Ghostscript.NET;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

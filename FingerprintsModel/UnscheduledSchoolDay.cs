@@ -31,12 +31,6 @@ namespace FingerprintsModel
         
     }
 
-    public enum UnscheduledSchoolDayEnumMode
-    {
-        Insert=1,
-        Delete=2
-    }
-
    
 
     

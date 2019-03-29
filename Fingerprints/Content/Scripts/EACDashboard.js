@@ -1,7 +1,7 @@
 ﻿var prgYearMinDate = null;
 var anchorCurrentEnrollment = null;
 var anchorEnrolledByProgram = null;
-var anchorMissingScreening = null;
+var anchorScreeningMatrix = null;
 var anchorClassroomType = null;
 var anchorCaseNote = null;
 var anchorInkind = null;
@@ -285,28 +285,34 @@ function bindEnrolledByProgram(data) {
     }
 }
 
-function bindMissingScreening(data) {
+function bindScreeningMatrix(data) {
 
-    
-    if(data!=null && data.MissingScreenList.length>0)
+   
+
+    if (data != null && data.ScreeningMatrixList.length > 0)
     {
         var tableBind = $('#table-missing-scr');
 
-        var appendData = '<tr>\
-                            <th>Screen Name</th>\
-                            <th>Count</th>\
-                           </tr>';
+        //var appendData = '<tr>\
+        //                    <th>Screening Name</th>\
+        //                    <th>Count</th>\
+        //                   </tr>';
 
-        $.each(data.MissingScreenList, function (i, screening) {
+        var appendData = '';
+
+        $.each(data.ScreeningMatrixList, function (i, screening) {
 
             appendData+='<tr>\
-                            <td>'+screening.Name+'</td>\
-                            <td class="number-center">' + screening.Screen + '</td>\
+                            <td data-title="Screening Name">' + screening.ScreeningName + '</td>\
+                            <td data-title="Up-to-Date" class="number-center">' + screening.UptoDate + '</td>\
+                            <td data-title="Missing" class="number-center">' + screening.Missing + '</td>\
+                            <td data-title="Expired" class="number-center">' + screening.Expired + '</td>\
+                            <td data-title="Expiring" class="number-center">' + screening.Expiring + '</td>\
                         </tr>'
         });
 
 
-        tableBind.html(appendData);
+        tableBind.find('tbody').html(appendData);
     }
 
 }
@@ -414,7 +420,7 @@ $(document).ready(function () {
 
     anchorCurrentEnrollment = $('#anchorCurrentEnrollment');
     anchorEnrolledByProgram = $('#anchorEnrolledByProgram');
-    anchorMissingScreening = $('#anchorMissingScreening');
+    anchorScreeningMatrix = $('#anchorScreeningMatrix');
     anchorClassroomType = $('#anchorClassroomType');
     anchorCaseNote = $('#anchorCaseNote');
     anchorInkind = $('#anchorInkind');
@@ -489,9 +495,9 @@ $(document).ready(function () {
     });
 
 
-    anchorMissingScreening.on('click', function () {
+    anchorScreeningMatrix.on('click', function () {
 
-        refreshDashboardBySection(this, dashboardSectionType.MissingScreening, bindMissingScreening);
+        refreshDashboardBySection(this, dashboardSectionType.MissingScreening, bindScreeningMatrix);
 
     });
 

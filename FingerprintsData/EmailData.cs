@@ -21,7 +21,7 @@ namespace FingerprintsData
         DataTable _dataTable = null;
         DataSet _dataset = null;
         System.Web.HttpContext context = System.Web.HttpContext.Current;
-        public async Task<int> SendEmailParentsStaffs(StaffDetails staff, Email.EmailTypeEnum emailType, bool isStaff, long centerId=0, long classRoomId=0, params object[] list)
+        public async Task<int> SendEmailParentsStaffs(StaffDetails staff, FingerprintsModel.Enums.EmailType emailType, bool isStaff, long centerId=0, long classRoomId=0, params object[] list)
         {
             Dictionary<String, String> dictEmail = new Dictionary<string, string>();
 
@@ -30,7 +30,7 @@ namespace FingerprintsData
             {
                 dynamic optionalData = null;
 
-                if (emailType == Email.EmailTypeEnum.UnscheduledSchoolDay)
+                if (emailType == FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay)
                     optionalData = list.Where(x => x.GetType() == typeof(long)).First();
 
 
@@ -62,11 +62,11 @@ namespace FingerprintsData
                 int result=0;
                 switch (emailType)
                 {
-                    case Email.EmailTypeEnum.CenterClosure:
+                    case FingerprintsModel.Enums.EmailType.CenterClosure:
                         result= Task.FromResult( await Task.Factory.StartNew(() => this.SendEmailCenterClosure(list))).Result.Result;
                         break;
 
-                    case Email.EmailTypeEnum.UnscheduledSchoolDay:
+                    case FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay:
 
 
                         result = Task.FromResult(await Task.Factory.StartNew(() => this.SendEmailUnscheduledSchoolDay(list))).Result.Result;
@@ -121,7 +121,7 @@ namespace FingerprintsData
                 StaffDetails staff = null;
                 // StaffDetails staffThread = await Task.Factory.StartNew(() => StaffDetails.GetThreadedInstance(context));
 
-                Email.EmailStatusEnum emailStatusEnum = Email.EmailStatusEnum.All;
+                FingerprintsModel.Enums.EmailStatus emailStatusEnum = FingerprintsModel.Enums.EmailStatus.All;
                 string serer = "".Replace(" ", "").Trim();
                 foreach (var item in list)
                 {
@@ -150,9 +150,9 @@ namespace FingerprintsData
                         staff = (StaffDetails)item;
                     }
 
-                    else if (item.GetType() == typeof(Email.EmailStatusEnum))
+                    else if (item.GetType() == typeof(FingerprintsModel.Enums.EmailStatus))
                     {
-                        emailStatusEnum = (Email.EmailStatusEnum)item;
+                        emailStatusEnum = (FingerprintsModel.Enums.EmailStatus)item;
                     }
 
 
@@ -171,7 +171,7 @@ namespace FingerprintsData
 
                     switch (emailStatusEnum)
                     {
-                        case Email.EmailStatusEnum.BouncedEmails:
+                        case FingerprintsModel.Enums.EmailStatus.BouncedEmails:
 
 
 
@@ -196,7 +196,7 @@ namespace FingerprintsData
                     }
 
 
-              Email.TotalEmails=  dataset.Tables[0].AsEnumerable().Where(x => x.Field<int>("EmailStatus") == (int)emailStatusEnum || emailStatusEnum == Email.EmailStatusEnum.All).Count();
+              Email.TotalEmails=  dataset.Tables[0].AsEnumerable().Where(x => x.Field<int>("EmailStatus") == (int)emailStatusEnum || emailStatusEnum == FingerprintsModel.Enums.EmailStatus.All).Count();
 
 
                     foreach (DataRow dr in dataset.Tables[0].Rows)
@@ -226,7 +226,7 @@ namespace FingerprintsData
 
 
                         // either the email needs to be sent for all or it should be sent to only for unsent or bounced emails //
-                        if (emailStatusEnum == Email.EmailStatusEnum.All || (int)emailStatusEnum == emailstatusType)
+                        if (emailStatusEnum == FingerprintsModel.Enums.EmailStatus.All || (int)emailStatusEnum == emailstatusType)
                         {
 
 
@@ -254,8 +254,8 @@ namespace FingerprintsData
                             {
                                 ClientID = clientID,
                                 ParentID = parentID,
-                                EmailType = Email.EmailTypeEnum.UnscheduledSchoolDay,
-                                EmailStatus = (emailStatus)? Email.EmailStatusEnum.SentEmails:Email.EmailStatusEnum.BouncedEmails,
+                                EmailType = FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay,
+                                EmailStatus = (emailStatus)? FingerprintsModel.Enums.EmailStatus.SentEmails:FingerprintsModel.Enums.EmailStatus.BouncedEmails,
                                 staffDetails = staff,
                                 ReferenceID = unscheduledSchoolDayID
                             };

@@ -6582,7 +6582,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
         
 
-       public string ActiveDeactiveScreening(string id,StaffDetails staff,EnumScreeningStatus screeningStatus)
+        public string ActiveDeactiveScreening(string id, StaffDetails staff, FingerprintsModel.Enums.ScreeningStatus screeningStatus)
         {
             try
             {
@@ -6740,7 +6740,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                         {
                             var _t4 = _dataset.Tables[3];
 
-                             _ElD.Signature = Helpers.GetBase64Png( DBNull.Value == _t4.Rows[0]["Signature"] ? "" : _t4.Rows[0]["Signature"].ToString(), 400,200);
+                             _ElD.Signature = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png( DBNull.Value == _t4.Rows[0]["Signature"] ? "" : _t4.Rows[0]["Signature"].ToString(), 400,200);
                          //  _ElD.Signature = Encoding.ASCII.GetBytes(_t4.Rows[0]["Signature"].ToString());
                                 _ElD.StaffName = DBNull.Value == _t4.Rows[0]["StaffName"] ? "" : _t4.Rows[0]["StaffName"].ToString();
 

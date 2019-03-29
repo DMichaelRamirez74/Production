@@ -12,6 +12,7 @@ using Fingerprints.ViewModel;
 using System.Data.SqlClient;
 using Fingerprints.CustomClasses;
 using System.Text.RegularExpressions;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FingerprintsModel
 {
-   public class ScreeningAccess
+   public partial class ScreeningAccess
     {
         public Guid RoleID { get; set; }
         public string RoleName { get; set; }
@@ -17,12 +17,7 @@ namespace FingerprintsModel
 
         public int ScreeningAccessType { get; set; }
 
-        public enum ScreeningAccessEnum
-        {
-            Enter=1,
-            Review=2,
-            ViewOnly=3
-        }
+       
 
        
     }

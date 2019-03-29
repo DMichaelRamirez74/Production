@@ -662,7 +662,7 @@ namespace Fingerprints.Controllers
                 inkindReportmodel.RequestedPage = requestedPage;
                 inkindReportmodel.PageSize = pageSize;
                 inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
-                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.InkindReportFilter>(filterType.ToString());
                 inkindReportmodel.FromDate = fromDate;
                 inkindReportmodel.ToDate = toDate;
                 inkindReportmodel.DateEntered = dateEntered;
@@ -762,7 +762,7 @@ namespace Fingerprints.Controllers
             inkindReportmodel.RequestedPage = requestedPage;
             inkindReportmodel.PageSize = pageSize;
             inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
-            inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+            inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.InkindReportFilter>(filterType.ToString());
             inkindReportmodel.FromDate = fromDate;
             inkindReportmodel.ToDate = toDate;
             inkindReportmodel.SortColumn = sortColumn.ToUpperInvariant();
@@ -895,7 +895,7 @@ namespace Fingerprints.Controllers
                 inkindReportmodel.RequestedPage = requestedPage;
                 inkindReportmodel.PageSize = pageSize;
                 inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
-                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<InkindReportFilterEnum>(filterType.ToString());
+                inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.InkindReportFilter>(filterType.ToString());
                 inkindReportmodel.FromDate = fromDate;
                 inkindReportmodel.ToDate = toDate;
                 inkindReportmodel.DateEntered = dateEntered;

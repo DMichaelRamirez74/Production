@@ -213,7 +213,7 @@ namespace FingerprintsModel
 
         public List<InkindReport> InkindReportList { get; set; }
 
-        public InkindReportFilterEnum FilterTypeEnum { get; set; }
+        public FingerprintsModel.Enums.InkindReportFilter FilterTypeEnum { get; set; }
         public string SubFilterOption { get; set; }
 
         public string Centers { get; set; }
@@ -271,45 +271,13 @@ namespace FingerprintsModel
          List<InkindPeriods> InkindPeriodList { get; set; }
     }
 
+
+
    
 
-    public enum InkindReportFilterEnum
-    {
-       
+  
 
-        [Description("Center")]
-        Center = 1,
-
-        [Description("Contributer")]
-        Contributor = 2,
-
-        [Description("Contribution Activity")]
-        ContributionActivity =3,
-
-        [Description("Date Entered")]
-        DateEntered = 4,
-
-        [Description("Entered By")]
-        EnteredBy = 5
-
-
-    }
-
-    public enum InkindAmountTypeEnum
-    {
-        Miles=1,
-        Hours=2,
-        Fixed=3
-    }
-
-    public enum InkindActivityTypeEnum
-    {
-        [Description("Center")]
-        Center=1,
-
-        [Description("Home Based")]
-        HomeBased =2
-    }
+   
 
 
 }

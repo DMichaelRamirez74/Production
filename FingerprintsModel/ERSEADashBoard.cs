@@ -24,7 +24,7 @@ namespace FingerprintsModel
 
         public int FirstMonth { get; set; }
 
-        public Month MonthDetails { get; set; }
+        public FingerprintsModel.Enums.Month MonthDetails { get; set; }
 
         public List<SelectListItem> MonthOrdersList { get; set; }
 
@@ -81,23 +81,11 @@ namespace FingerprintsModel
         public decimal Nov { get; set; }
         public decimal Dec { get; set; }
 
+        
+
     }
 
+   
 
-    public enum Month
-    {
-        NotSet = 0,
-        Jan = 1,
-        Feb = 2,
-        Mar = 3,
-        Apr = 4,
-        May = 5,
-        Jun = 6,
-        Jul = 7,
-        Aug = 8,
-        Sep = 9,
-        Oct = 10,
-        Nov = 11,
-        Dec = 12
-    }
+   
 }

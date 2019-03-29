@@ -14,9 +14,7 @@ using System.Globalization;
 using Fingerprints.ViewModel;
 using System.Text;
 using Fingerprints.CustomClasses;
-
-
-
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {

@@ -14,6 +14,7 @@ using System.Configuration;
 using Fingerprints.CustomClasses;
 using System.Text;
 using System.Reflection;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -2599,7 +2600,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                EnumScreeningStatus enumStatus = EnumHelper.GetEnumByStringValue<EnumScreeningStatus>(mode);
+                ScreeningStatus enumStatus = EnumHelper.GetEnumByStringValue<ScreeningStatus>(mode);
 
                 return Json(agencyData.ActiveDeactiveScreening(id,StaffDetails.GetInstance(), enumStatus));
             }

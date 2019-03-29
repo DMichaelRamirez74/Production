@@ -1551,7 +1551,7 @@ namespace FingerprintsModel
                 workSheet = wb.Worksheets.Add("In-Kind Report");
                 workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
-                if(inkindReportModel.FilterTypeEnum!=InkindReportFilterEnum.DateEntered)
+                if(inkindReportModel.FilterTypeEnum!=FingerprintsModel.Enums.InkindReportFilter.DateEntered)
                 {
 
 
@@ -1559,7 +1559,7 @@ namespace FingerprintsModel
 
                 }
 
-                else if(inkindReportModel.FilterTypeEnum!=InkindReportFilterEnum.EnteredBy)
+                else if(inkindReportModel.FilterTypeEnum!=FingerprintsModel.Enums.InkindReportFilter.EnteredBy)
                 {
                     workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum);
 

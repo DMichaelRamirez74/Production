@@ -87,7 +87,7 @@
 
         var caseNoteJson=@(Model!=null ? Html.Raw(Json.Encode(Model.listCaseNote)) : null);
 
-        var dashboardSectionType=@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.ExecutiveDashBoard.DashboardSectionType)));
+     var dashboardSectionType=@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.DashboardSectionType)));
 
     </script>
 
@@ -150,9 +150,9 @@
 
                                             @{
                                                 var timelineRoles = new string[] {
-                                                   EnumHelper.GetEnumDescription(RoleEnum.Executive).ToLowerInvariant(),
-                                                    EnumHelper.GetEnumDescription(RoleEnum.AreaManager).ToLowerInvariant(),
-                                                    EnumHelper.GetEnumDescription(RoleEnum.CenterManager).ToLowerInvariant()
+                                                   EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Executive).ToLowerInvariant(),
+                                                    EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AreaManager).ToLowerInvariant(),
+                                                    EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.CenterManager).ToLowerInvariant()
                                                 };
                                             }
                                             @if (timelineRoles.Contains(Session["RoleId"].ToString()))
@@ -169,8 +169,8 @@
                                         </ul>
                                         <!-- Tab panes -->
                                         <div class="tab-content tb-bd col-xs-12">
-                                            @if (Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.Executive).ToLowerInvariant()
-                                                || Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.RoleEnum.SocialServiceManager).ToLowerInvariant())                                        {
+                                            @if (Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Executive).ToLowerInvariant()
+                                                || Session["Roleid"].ToString().ToLowerInvariant()==FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.SocialServiceManager).ToLowerInvariant())                                        {
                                                 <div role="tabpanel" class="tab-pane fade  ma-tab active in" id="Agency">
                                                     <div class="col-md-3 col-sm-6 col-xs-12 tab-img-al">
                                                         <div class="tab-img">
@@ -272,17 +272,20 @@
                                             <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
                                                 <table class="edu-table-block edu-table-enroll-center col-xs-12 no-padding" id="table-current-enroll">
 
-                                                    <tr>
-                                                        <th>Enrollment Type</th>
-                                                        <th>Total</th>
-                                                    </tr>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Enrollment Type</th>
+                                                            <th>Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    
                                                     @if (Model.EnrolledProgramList != null)
                                                     {
                                                         foreach (FingerprintsModel.ExecutiveDashBoard.EnrolledByCenterType enrollCentertype in Model.EnrollmentTypeList)
                                                         {
                                                             <tr>
-                                                                <td>@enrollCentertype.CenterType</td>
-                                                                <td class="number-center">@enrollCentertype.Total</td>
+                                                                <td data-title="Enrollment Type">@enrollCentertype.CenterType</td>
+                                                                <td data-title="Total" class="number-center">@enrollCentertype.Total</td>
                                                                 @*<td class="number-center">@enrollProgram.Available</td>*@
                                                             </tr>
                                                         }
@@ -337,39 +340,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-blue">
-                                            <div class="edu-tbl-title edu-title-blue press-btn-relative">
-                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Missing Screening">
-                                                    <div class="press-but">
-                                                        <a class="butt" href="javascript:void(0);" id="anchorMissingScreening">
-                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                <h2>Missing Screening</h2>
-                                                <div class="pin"><img src="~/Images/pin.png"></div>
-                                            </div>
-                                            <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
-                                                <table class="edu-table-block edu-table-missing col-xs-12 no-padding" id="table-missing-scr">
-                                                    <tr>
-                                                        <th>Screen Name</th>
-                                                        <th>Count</th>
-                                                    </tr>
-                                                    @if (Model.MissingScreenList != null)
-                                                    {
-                                                        foreach (FingerprintsModel.ExecutiveDashBoard.MissingScreen MissingScreen in Model.MissingScreenList)
-                                                        {
-                                                            <tr>
-                                                                <td>@MissingScreen.Name</td>
-                                                                <td class="number-center">@MissingScreen.Screen</td>
-                                                            </tr>
-                                                        }
-                                                    }
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-red">
                                             <div class="edu-tbl-title edu-title-red press-btn-relative">
@@ -413,6 +384,55 @@
                                             </div>
                                         </div>
                                     </div>
+
+
+                                    <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-blue">
+                                            <div class="edu-tbl-title edu-title-blue press-btn-relative">
+                                                <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Missing Screening">
+                                                    <div class="press-but">
+                                                        <a class="butt" href="javascript:void(0);" id="anchorScreeningMatrix">
+                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <h2>Screening Matrix</h2>
+                                                <div class="pin"><img src="~/Images/pin.png"></div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding" style="height:292px;overflow:auto;">
+                                                <table class="edu-table-block edu-table-missing col-xs-12 no-padding" id="table-missing-scr">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Screening Name</th>
+                                                            <th>Up-to-date</th>
+                                                            <th>Missing</th>
+                                                            <th>Expired</th>
+                                                            <th>Expiring</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+
+
+                                                        @if (Model.MissingScreenList != null)
+                                                        {
+                                                            foreach (FingerprintsModel.ScreeningMatrix screeningMatrix in Model.ScreeningMatrixList)
+                                                            {
+                                                                <tr>
+                                                                    <td data-title="Screening Name">@screeningMatrix.ScreeningName</td>
+                                                                    <td data-title="Up-to-date" class="number-center">@screeningMatrix.UptoDate</td>
+                                                                    <td data-title="Missing" class="number-center">@screeningMatrix.Missing</td>
+                                                                    <td data-title="Expired" class="number-center">@screeningMatrix.Expired</td>
+                                                                    <td data-title="Expiring" class="number-center">@screeningMatrix.Expiring</td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    
                                     <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-xs-12 no-padding edu-tbl-all edu-tbl-all-black press-btn-relative">
                                             <div class="press-but-block" data-toggle="tooltip" title="Re-Calculate Case Note Analysis">

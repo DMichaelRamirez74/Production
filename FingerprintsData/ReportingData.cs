@@ -148,8 +148,9 @@ namespace FingerprintsData
 
             return _ReportingM;
         }
-        public ReportingModel MonthlyMealReport(string AgencyID){
-        ReportingModel _ReportingM = new ReportingModel();
+        public ReportingModel MonthlyMealReport(string AgencyID)
+        {
+            ReportingModel _ReportingM = new ReportingModel();
             command.Parameters.Clear();
             command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
            // command.Parameters.Add(new SqlParameter("@ReportType", 3));
@@ -636,7 +637,7 @@ new DataColumn("Status",typeof(bool))
                         if (_dataset.Tables[0].Rows.Count > 0)
                         {
 
-                            listResult = Helpers.DataTableToList<CLASReview>(_dataset.Tables[0], new List<string>());
+                            listResult = Fingerprints.Common.DbHelper.DataTableToList<CLASReview>(_dataset.Tables[0], new List<string>());
 
                         }
                     }

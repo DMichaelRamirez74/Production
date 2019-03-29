@@ -3092,7 +3092,7 @@ namespace FingerprintsData
                                 if (screening.ScreeningPeriodsList[i].ScreeningAge < screeningAge)
                                 {
                                     screening.ScreeningPeriodsList[i].ScreeningFocusType = 1;
-                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expired;
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Expired;
                                 }
 
                                 if (screening.ScreeningPeriodsList[i].ScreeningAge == screeningAge)
@@ -3101,23 +3101,23 @@ namespace FingerprintsData
 
                                     if((double)clientAgeModel.Months>= expiredPeriodMonths)
                                     {
-                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expired;
+                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Expired;
                                     }
                                 //else if((double)clientAgeModel.Months < expiredPeriodMonths && (Math.Ceiling(Convert.ToDouble(screening.ChildInfo.Age)) -Convert.ToDouble(screening.ChildInfo.Age))/12<=expireInMonths )
                                 //{
-                                //    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expiring;
+                                //    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Expiring;
 
                                 //}
 
                                 else if ((double)clientAgeModel.Months < expiredPeriodMonths && (nextScreeningAge - clientAge) * 12 <= expireInMonths)
                                 {
-                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expiring;
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Expiring;
 
                                 }
 
                                 else
                                     {
-                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Current;
+                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Current;
                                     }
 
                                    
@@ -3127,7 +3127,7 @@ namespace FingerprintsData
                                 if (screening.ScreeningPeriodsList[i].ScreeningAge > screeningAge)
                                 {
                                     screening.ScreeningPeriodsList[i].ScreeningFocusType = 3;
-                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Current;
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)FingerprintsModel.Enums.ScreeningExpiration.Current;
                                 }
                             }
                        

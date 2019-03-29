@@ -2236,9 +2236,9 @@ namespace FingerprintsData
 
             Dictionary<int, object> dictionary = new Dictionary<int, object>();
 
-            dictionary.Add((int)Email.EmailStatusEnum.SentEmails, new List<ParentInfo>());
-            dictionary.Add((int)Email.EmailStatusEnum.BouncedEmails, new List<ParentInfo>());
-            dictionary.Add((int)Email.EmailStatusEnum.NoEmails, new List<ParentInfo>());
+            dictionary.Add((int)FingerprintsModel.Enums.EmailStatus.SentEmails, new List<ParentInfo>());
+            dictionary.Add((int)FingerprintsModel.Enums.EmailStatus.BouncedEmails, new List<ParentInfo>());
+            dictionary.Add((int)FingerprintsModel.Enums.EmailStatus.NoEmails, new List<ParentInfo>());
             dictionary.Add(4, new List<UnscheduledSchoolDay>());
 
 
@@ -2259,7 +2259,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@RoleID", emailReport.staffDetails.RoleId));
                     command.Parameters.Add(new SqlParameter("@UserID", emailReport.staffDetails.UserId));
                     command.Parameters.Add(new SqlParameter("@ReferenceID", emailReport.ReferenceID));
-                    command.Parameters.Add(new SqlParameter("@EmailType", (int)Email.EmailTypeEnum.UnscheduledSchoolDay));
+                    command.Parameters.Add(new SqlParameter("@EmailType", (int)FingerprintsModel.Enums.EmailType.UnscheduledSchoolDay));
                     command.Connection = Connection;
                     command.CommandText = "USP_GetClientEmailReport";
                     command.CommandType = CommandType.StoredProcedure;
@@ -2379,7 +2379,7 @@ namespace FingerprintsData
                                                                       HomePhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 1 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
                                                                       MobilePhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 2 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
                                                                       WorkPhone = string.Join("<br>", PhoneTypeList.Where(x => x.PhoneType == 3 && Convert.ToString(x.ParentId) == cpooc.cpoo.ParentId).Select(x => x.PhoneNo).ToArray()),
-                                                                      EmailStatus = cpooc.cpoo.NoEmail ? (int)Email.EmailStatusEnum.NoEmails : ce != null ? Convert.ToInt32(ce.Value) : (int)Email.EmailStatusEnum.BouncedEmails
+                                                                      EmailStatus = cpooc.cpoo.NoEmail ? (int)FingerprintsModel.Enums.EmailStatus.NoEmails : ce != null ? Convert.ToInt32(ce.Value) : (int)FingerprintsModel.Enums.EmailStatus.BouncedEmails
 
                                                                   }).Distinct().ToList();
 
@@ -2390,7 +2390,7 @@ namespace FingerprintsData
 
 
 
-                        dictionary[(int)Email.EmailStatusEnum.SentEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.SentEmails).Select(y => new ParentInfo
+                        dictionary[(int)FingerprintsModel.Enums.EmailStatus.SentEmails] = totalList.Where(x => x.EmailStatus == (int)FingerprintsModel.Enums.EmailStatus.SentEmails).Select(y => new ParentInfo
                         {
                             ClientId = y.ClientId,
                             ParentId = Convert.ToInt64(y.ParentId),
@@ -2406,7 +2406,7 @@ namespace FingerprintsData
 
 
 
-                        dictionary[(int)Email.EmailStatusEnum.BouncedEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.BouncedEmails).Select(y => new ParentInfo
+                        dictionary[(int)FingerprintsModel.Enums.EmailStatus.BouncedEmails] = totalList.Where(x => x.EmailStatus == (int)FingerprintsModel.Enums.EmailStatus.BouncedEmails).Select(y => new ParentInfo
                         {
                             ClientId = y.ClientId,
                             ParentId = Convert.ToInt64(y.ParentId),
@@ -2419,7 +2419,7 @@ namespace FingerprintsData
                         }).Distinct().ToList();
 
 
-                        dictionary[(int)Email.EmailStatusEnum.NoEmails] = totalList.Where(x => x.EmailStatus == (int)Email.EmailStatusEnum.NoEmails).Select(y => new ParentInfo
+                        dictionary[(int)FingerprintsModel.Enums.EmailStatus.NoEmails] = totalList.Where(x => x.EmailStatus == (int)FingerprintsModel.Enums.EmailStatus.NoEmails).Select(y => new ParentInfo
                         {
                             ClientId = y.ClientId,
                             ParentId = Convert.ToInt64(y.ParentId),

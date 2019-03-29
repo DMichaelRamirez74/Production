@@ -37,23 +37,12 @@ namespace FingerprintsModel
         public List<ClassRoomModel> ClassRoomIdArray { get; set; }
 
     }
-    public enum EnumDaysOff
-    {
-        [Display(Name = "Agency Wide Closed")]
-        AgencyWideClosed = 1,
-
-        [Display(Name = "Entire Center Closed")]
-        EntireCenterClosed = 2,
-
-        [Display(Name = "Classroom Closed")]
-        ClassRoomClosed = 3
-
-    }
+    
 
     public class DaysOffModel
     {
         public List<DaysOff> DaysOffList { get; set; }
-        public EnumDaysOff EnumDaysOffType { get; set; }
+        public Enums.DaysOffEnumClass.DaysOffType EnumDaysOffType { get; set; }
         public List<Center> CenterList { get; set; }
         public List<ClassRoomModel> ClassRoomList { get; set; }
        

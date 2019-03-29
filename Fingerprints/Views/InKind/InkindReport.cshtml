@@ -2,7 +2,9 @@
 
 @{
     ViewBag.Title = "InkindReport";
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+
+    if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+          || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
     {
         Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
     }
@@ -2100,8 +2102,8 @@
                 self.ajaxParameters.dateEntered = parseInt(self.elements.inKindFilter.val()) == self.filterType.DateEntered
                                                 ? self.elements.inkindDateEntered.val():"";
 
-                self.ajaxParameters.requestedPage = REQUESTED_PAGE;
-                self.ajaxParameters.pageSize = PAGE_SIZE;
+                self.ajaxParameters.requestedPage = REQUESTED_PAGE ==null || REQUESTED_PAGE==''?1:REQUESTED_PAGE;
+                self.ajaxParameters.pageSize = PAGE_SIZE==null|| PAGE_SIZE==''?10: PAGE_SIZE;
                 self.ajaxParameters.sortOrder = _sortOrder;
                 self.ajaxParameters.sortColumn = _sortColumn;
                 return self.ajaxParameters;
@@ -4113,13 +4115,13 @@
 
                                                 @*<option value="@((int)FingerprintsModel.InkindReportFilterEnum.Center)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Center)</option>*@
 
-                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.Contributor)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Contributor)</option>
+                                            <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.Contributor)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.Contributor)</option>
 
-                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.ContributionActivity)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.ContributionActivity)</option>
+                                            <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.ContributionActivity)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.ContributionActivity)</option>
 
-                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.DateEntered)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.DateEntered)</option>
+                                            <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.DateEntered)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.DateEntered)</option>
 
-                                                <option value="@((int)FingerprintsModel.InkindReportFilterEnum.EnteredBy)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.EnteredBy)</option>
+                                            <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.EnteredBy)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.EnteredBy)</option>
 
                                             </select>
 
@@ -4147,11 +4149,11 @@
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributionactivity-dropdown" style="display:none;">
                                             <label for="selectContributonActivity"  class="lbl-text">Contribution Activity</label>
 
-                                            <select class="glossy-select" id="selectContributonActivity" multiple="multiple">
-                                                <option value="@FingerprintsModel.InkindAmountTypeEnum.Miles.ToString()">@FingerprintsModel.InkindAmountTypeEnum.Miles.ToString()</option>
+                                        <select class="glossy-select" id="selectContributonActivity" multiple="multiple">
+                                            <option value="@FingerprintsModel.Enums.InkindAmountType.Miles.ToString()">@FingerprintsModel.Enums.InkindAmountType.Miles.ToString()</option>
 
-                                                <option value="@FingerprintsModel.InkindAmountTypeEnum.Hours.ToString()">@FingerprintsModel.InkindAmountTypeEnum.Hours.ToString()</option>
-                                                <option value="@FingerprintsModel.InkindAmountTypeEnum.Fixed.ToString()">@FingerprintsModel.InkindAmountTypeEnum.Fixed.ToString()</option>
+                                            <option value="@FingerprintsModel.Enums.InkindAmountType.Hours.ToString()">@FingerprintsModel.Enums.InkindAmountType.Hours.ToString()</option>
+                                            <option value="@FingerprintsModel.Enums.InkindAmountType.Fixed.ToString()">@FingerprintsModel.Enums.InkindAmountType.Fixed.ToString()</option>
 
 
                                             </select>
