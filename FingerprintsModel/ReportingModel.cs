@@ -67,7 +67,7 @@ namespace FingerprintsModel
         public string CommentNote { get; set; }
         public string DateofReview { get; set; }
         public string TimeofReview { get; set; }
-        public long Score { get; set; }
+        public decimal Score { get; set; }
         public string EnterByName { get; set; }
 
         public List<Attachments> CLASReviewAttachment { get; set; }

@@ -11,7 +11,7 @@
 
 @section Title
 {
-   New CLAS Review 
+   New CLAS Input 
 }
 
     
@@ -121,7 +121,7 @@
 <div class="row" style="padding-top:25px;">
     <div class="col-lg-12">
         <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-            <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;New CLAS Review</span>
+            <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;New CLAS Input</span>
             
             @*<a href="@Url.Action("CLASReview","Reporting")" class="btn pull-right" style="color:#fff;background:#9b59b6;text-transform:none;">Back to CLAS Review</a>*@
 
@@ -162,7 +162,12 @@
 
                 <div class="col-md-6">
                     <label>Date<sup style="color:red;" title="field is required">*</sup></label>
-                    <input data-name="Date" data-required="true" type="text" id="DateofReview" name="DateofReview" class="form-control" />
+                    @*<input data-name="Date" data-required="true" type="text" id="DateofReview" name="DateofReview" class="form-control" />*@
+                    <div class="input-group" style="display: inline-block;width:103%">
+                        <input style="width:90%;display:inline-block;border-radius: 5px 0px 0px 5px !important" type="text" id="DateofReview" name="DateofReview" placeholder="MM/DD/YYYY" class="form-control glossy-input" autocomplete="off">
+                        <div id="dor_calender_icon" class="fa fa-calendar input-group-addon glossy-date" style="height: 34px;width:36px;cursor:pointer;"></div>
+
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label>Time<sup style="color:red;" title="field is required">*</sup></label>
@@ -297,6 +302,50 @@
 
 
 
+                $(document).on("keyup", "#Score", function (e) {
+                    var text = $(this).val();
+                    //  var _type = $(this).data("type");
+                    var _val = parseInt($(this).val());
+
+
+                    if (text.length > 3 && text.indexOf('.') == -1) {
+                        $(this).val(text.slice(0, 3));
+
+                    }
+
+                    //if (text.length > 3 && text.indexOf('.') == -1) {
+                    //    $(this).val(text.slice(0, 3));
+
+                    //} else if (_val > 200) {
+                    //    $(this).val(String(_val).slice(0, 2));
+                    //    customAlert('Weight not exceed 200');
+                    //}
+
+                });
+/*
+                $(document).on("keypress", "#Score", function (event) {
+
+                    if ((event.which != 46 || $(this).val().indexOf('.') != -1) &&
+  ((event.which < 48 || event.which > 57) &&
+    (event.which != 0 && event.which != 8))) {
+                        event.preventDefault();
+                    }
+
+                    var text = $(this).val();
+
+
+
+                    if ((text.indexOf('.') != -1) &&
+                      (text.substring(text.indexOf('.')).length > 2) &&
+                      (event.which != 0 && event.which != 8) &&
+                      ($(this)[0].selectionStart >= text.length - 2)) {
+                        event.preventDefault();
+                    }
+
+                });
+                */
+
+
                 $(document).on('click', '.view-file-upload', function () {
 
 
@@ -387,6 +436,11 @@
                 });
 
 
+                $(document).on("click", "#dor_calender_icon", function (e) {
+                    e.preventDefault();
+                    $('#DateofReview').datetimepicker('show');
+
+                });
 
                 $('#DateofReview').datetimepicker({
                     // minDate: 0,
