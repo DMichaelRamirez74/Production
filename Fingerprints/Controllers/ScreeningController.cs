@@ -18,7 +18,7 @@ using System.Text;
 using iTextSharp.text.html.simpleparser;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
-using static Fingerprints.Controllers.RosterController;
+//using static Fingerprints.Controllers.RosterController;
 using iTextSharp.tool.xml.html.table;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -662,7 +662,7 @@ namespace Fingerprints.Controllers
 
 
                 doc.Add(tableLayout);
-                writer.PageEvent = new Footer();
+                writer.PageEvent = new RosterController.Footer();
                 // Closing the document  
                 doc.Close();
 
