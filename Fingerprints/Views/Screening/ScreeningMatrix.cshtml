@@ -44,7 +44,7 @@
 
             reportPartialUrl: HostedDir + '/Screening/GetScreeningMatrixReport',
             getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
-            generateReportUrl:HostedDir+'/Screening/GenerateScreeningMatrixReport',
+            exportReportUrl: HostedDir + '/Screening/ExportScreeningMatrixReport',
             requestedPage: 1,
             pageSize: 10,
             firstIndex: 0,
@@ -216,7 +216,7 @@
                     debugger;
                     var $centerId = $selfElements.dropdownCenter.val().join();
 
-                    if ($centerId != '0' && $centerId.length==1) {
+                    if ($centerId != '0' && $selfElements.dropdownCenter.val().length == 1) {
                         self.getClassrooms($centerId);
 
                     }
@@ -318,9 +318,39 @@
                         //self.ajaxCall(self.generatereport);
 
 
-                        window.location.href = HostedDir + "/Screening/GenerateScreeningMatrixReport?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString();
+                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString()+"&reportFormatType=1";
 
                         
+
+                    }
+
+                });
+
+
+                $('#excelanchor').on('click', function () {
+
+                    self.SearchTerm = '';
+
+
+                    if (self.validateScreeningMatrixFilter()) {
+                        self.bindAjaxParameters();
+                        //self.ajaxOptions.url = self.generateReportUrl;
+                        //self.ajaxOptions.datatype = 'html',
+                        //self.ajaxOptions.type = 'POST',
+                        //self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
+                        //self.ajaxOptions.async = false;
+                        //self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+
+
+                        //self.showBusy(true);
+
+
+                        //self.ajaxCall(self.generatereport);
+
+
+                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString() + "&reportFormatType=3";
+
+
 
                     }
 
