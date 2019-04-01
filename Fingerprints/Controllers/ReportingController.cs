@@ -188,11 +188,11 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult getCLASReviews(GridParams gparam,long centerid=0,long month=0)
+        public ActionResult getCLASReviews(GridParams gparam,long centerid=0,long seasonid = 0)
         {
             //  var sm = Request.QueryString["centerid"].ToString();
             long TotalCount = 0;
-            var Data = new Reporting().getCLASReviews(gparam, 1,centerid,month, ref TotalCount);
+            var Data = new Reporting().getCLASReviews(gparam, 1,centerid, seasonid, ref TotalCount);
 
             // return Json( result, JsonRequestBehavior.AllowGet);
             return Json(new { Data, TotalCount }, JsonRequestBehavior.AllowGet);

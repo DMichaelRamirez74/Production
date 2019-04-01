@@ -203,24 +203,30 @@
                                             @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input" })
                                         </div>
                                         <div class="col-md-4">
-                                            <label>Month</label>
-                                            <select id="Month" name="month" style="" class="form-control glossy-input">
-                                                <option value="">-Select Month-</option>
-                                                <option value="1">January</option>
-                                                <option value="2">February</option>
-                                                <option value="3">March</option>
-                                                <option value="4">April</option>
-                                                <option value="5">May</option>
-                                                <option value="6">June</option>
-                                                <option value="7">July</option>
-                                                <option value="8">August</option>
-                                                <option value="9">September</option>
-                                                <option value="10">October</option>
-                                                <option value="11">November</option>
-                                                <option value="12">December</option>
+                                            <label>Season</label>
+                                            <select id="Season" name="Season" style="" class="form-control glossy-input">
+                                                <option value="">-Select Season-</option>
+                                                <option value="1">Fall</option>
+                                                <option value="2">Spring</option>
+                                                </select>
 
-                                            </select>
-                                        </div>
+                                                @*<select id="Month" name="month" style="" class="form-control glossy-input">
+                <option value="">-Select Month-</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+
+            </select>*@
+</div>
 
                                         <div class="col-md-4">
 
@@ -504,7 +510,7 @@
 
         var ClasReview = {
             Centerid: 0,
-            MonthId: 0,
+            SeasonId: 0,
             gparams: {
                 Search: "",
                 SortOrder: "asc",
@@ -628,24 +634,24 @@
                 self = this;
 
                 var _centerId = $("#Centers").val();
-                var _mnth = $("#Month").val();
+                var _mnth = $("#Season").val();
 
                 if ((_centerId && _centerId != "0") || _mnth) {
 
-                    self.Centerid = _centerId; self.MonthId = _mnth;
+                    self.Centerid = _centerId; self.SeasonId = _mnth;
                     self.renderCLASTable(self.gparams.PageSize, self.gparams.RequestedPage);
 
                 } else {
-                    customAlert("select any one field center or month");
+                    customAlert("select any one field center or season");
                     return false;
                 }
             },
             clearFilter: function () {
                 var self = this;
                 $("#Centers").val('0');
-                $("#Month").val('');
+                $("#Season").val('');
                 self.Centerid = 0;
-                self.MonthId = 0;
+                self.SeasonId = 0;
                 self.renderCLASTable(10, 1);
 
             },
@@ -694,7 +700,7 @@
                     url: Urls.getCLASReviews,
                     contentType: 'application/json',
                     dataType: 'json',
-                    data: JSON.stringify({ centerid: self.Centerid, month: self.MonthId, gparam: self.gparams }),
+                    data: JSON.stringify({ centerid: self.Centerid, seasonid: self.SeasonId, gparam: self.gparams }),
                     beforeSend: function () { $("#spinner").show(); },
                     success: function (data) {
 

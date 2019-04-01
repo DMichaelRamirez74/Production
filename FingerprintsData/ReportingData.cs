@@ -594,7 +594,7 @@ new DataColumn("Status",typeof(bool))
         }
 
 
-        public List<CLASReview> getCLASReviews(GridParams gridParams, int mode, long centerid, long month,ref long TotalCount)
+        public List<CLASReview> getCLASReviews(GridParams gridParams, int mode, long centerid, long seasonid, ref long TotalCount)
         {
 
             var listResult = new List<CLASReview>();
@@ -624,7 +624,7 @@ new DataColumn("Status",typeof(bool))
                 command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
 
                 command.Parameters.Add(new SqlParameter("@CenterId", centerid));
-                command.Parameters.Add(new SqlParameter("@MonthId", month));
+                command.Parameters.Add(new SqlParameter("@Season", seasonid));
 
 
                 DataAdapter = new SqlDataAdapter(command);
@@ -698,7 +698,7 @@ new DataColumn("Status",typeof(bool))
             var imageData = new SelectListItem();
 
             GridParams gridParams = new GridParams();
-            int mode = 2; long centerid = 0; long month = 0;
+            int mode = 2; long centerid = 0; long seasonid = 0;
             try
             {
                 var stf = StaffDetails.GetInstance();
@@ -723,7 +723,7 @@ new DataColumn("Status",typeof(bool))
                 command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
 
                 command.Parameters.Add(new SqlParameter("@CenterId", centerid));
-                command.Parameters.Add(new SqlParameter("@MonthId", month));
+                command.Parameters.Add(new SqlParameter("@Season", seasonid));
                 command.Parameters.Add(new SqlParameter("@AttachmentId", AttachmentId));
 
 
