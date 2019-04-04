@@ -167,7 +167,9 @@ namespace Fingerprints.Controllers
 
                     // Health Manager Dashboard
                     else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
-                        newLocation = "~/Home/HealthManager";
+                        //newLocation = "~/Home/HealthManager";
+
+                        newLocation = "~/HealthManager/Dashboard";
 
                     // Executive Manager Dashboard
                     else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")

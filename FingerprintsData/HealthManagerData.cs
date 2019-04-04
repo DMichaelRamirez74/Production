@@ -67,12 +67,12 @@ namespace FingerprintsData
 
                                          new ScreeningMatrix
                     {
-                        ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
-                        ScreeningName = Convert.ToString(reader["ScreeningName"]),
-                        UptoDate = Convert.ToInt64(reader["UptoDate"]),
-                        Expired = Convert.ToInt64(reader["Expired"]),
-                        Expiring = Convert.ToInt64(reader["Expiring"]),
-                        Missing = Convert.ToInt64(reader["Missing"])
+                        ScreeningID =reader["ScreeningID"]==DBNull.Value?0: Convert.ToInt32(reader["ScreeningID"]),
+                        ScreeningName = reader["ScreeningName"]==DBNull.Value?string.Empty:Convert.ToString(reader["ScreeningName"]),
+                        UptoDate = reader["UptoDate"]==DBNull.Value?0: Convert.ToInt64(reader["UptoDate"]),
+                        Expired = reader["Expired"]==DBNull.Value?0:Convert.ToInt64(reader["Expired"]),
+                        Expiring =reader["Expiring"]==DBNull.Value?0: Convert.ToInt64(reader["Expiring"]),
+                        Missing =reader["Missing"]==DBNull.Value?0: Convert.ToInt64(reader["Missing"])
                     });
                 }
 

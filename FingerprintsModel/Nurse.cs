@@ -1368,6 +1368,9 @@ namespace FingerprintsModel
         public string ClassroomID { get; set; }
         public string ClassroomName { get; set; }
 
+
+        public string StepUpToQualityStars { get; set; }
+
         public long UptoDate { get; set; }
         public long Missing { get;set;}
         public long Expiring{get;set;}

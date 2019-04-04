@@ -60,16 +60,17 @@ namespace FingerprintsData
                         matrixReport.ScreeningMatrix.Add(new ScreeningMatrix
                         {
 
-                            CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])),
-                            CenterName = Convert.ToString(reader["CenterName"]),
-                            ClassroomID=EncryptDecrypt.Encrypt64(Convert.ToString(reader["ClassroomID"])),
-                            ClassroomName=Convert.ToString(reader["ClassroomName"]),
-                            ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
-                            ScreeningName=Convert.ToString(reader["ScreeningName"]),
-                            UptoDate = Convert.ToInt64(reader["UptoDate"]),
-                            Missing = Convert.ToInt64(reader["Missing"]),
-                            Expired = Convert.ToInt64(reader["Expired"]),
-                            Expiring = Convert.ToInt64(reader["Expiring"]),
+                            CenterID =reader["CenterID"]==DBNull.Value?"0": EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])),
+                            CenterName =reader["CenterName"]==DBNull.Value?string.Empty: Convert.ToString(reader["CenterName"]),
+                            ClassroomID=reader["ClassroomID"]==DBNull.Value?"0": EncryptDecrypt.Encrypt64(Convert.ToString(reader["ClassroomID"])),
+                            ClassroomName=reader["ClassroomName"]==DBNull.Value?string.Empty: Convert.ToString(reader["ClassroomName"]),
+                            ScreeningID =reader["ScreeningID"]==DBNull.Value?0: Convert.ToInt32(reader["ScreeningID"]),
+                            ScreeningName=reader["ScreeningName"]==DBNull.Value?string.Empty: Convert.ToString(reader["ScreeningName"]),
+                            UptoDate = reader["UptoDate"]==DBNull.Value?0: Convert.ToInt64(reader["UptoDate"]),
+                            Missing =reader["Missing"]==DBNull.Value?0: Convert.ToInt64(reader["Missing"]),
+                            Expired = reader["Expired"]==DBNull.Value?0:Convert.ToInt64(reader["Expired"]),
+                            Expiring =reader["Expiring"]==DBNull.Value?0: Convert.ToInt64(reader["Expiring"]),
+                            StepUpToQualityStars=reader["StepUpToQualityStars"]==DBNull.Value?string.Empty:Convert.ToString(reader["StepUpToQualityStars"])
                             
                         });
                     }
