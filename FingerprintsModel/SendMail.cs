@@ -414,7 +414,9 @@ namespace FingerprintsModel
 
             }
         }
-        public static string Sendchangepassword(string Emailid, string Password, string username, string path, string imagepath, string link = "", string code = "", string SuperAdmin = "")
+
+
+        public static bool Sendchangepassword(string Emailid, string Password, string username, string path, string imagepath, string link = "", string code = "", string SuperAdmin = "")
         {
             try
             {
@@ -434,20 +436,25 @@ namespace FingerprintsModel
                 SmtpClient Client = new SmtpClient();
                 Client.Host = Convert.ToString(ConfigurationManager.AppSettings["MailServer"]);
                 Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+
                 NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
                 Client.UseDefaultCredentials = true;
                 Client.Credentials = basicCredential;
                 Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
                 Client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 Client.Send(Message);
-                return "If the entered email exist an email has been send to the entered email id.";
+                return true;
 
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return Ex.Message;
+                // return Ex.Message;
 
+                clsError.WriteException(ex);
+
+                return false;
             }
+
         }
 
 

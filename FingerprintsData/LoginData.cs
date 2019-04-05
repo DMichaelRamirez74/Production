@@ -296,6 +296,8 @@ namespace FingerprintsData
 
             }
         }
+
+
         public string ChangePassword(string currentPassword, string newPassword, string userId)
         {
             try

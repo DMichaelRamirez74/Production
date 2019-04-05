@@ -1127,8 +1127,8 @@ namespace Fingerprints.Controllers
             try
             {
                 long _centerId = 0;
-                model.Enc_CenterId =long.TryParse(centerId,out _centerId)?centerId: EncryptDecrypt.Decrypt(centerId);
-                model.CenterID = long.TryParse(centerId, out _centerId)?centerId: Convert.ToString(EncryptDecrypt.Decrypt64(centerId));
+                model.Enc_CenterId =long.TryParse(centerId,out _centerId)?EncryptDecrypt.Encrypt64(centerId): centerId;
+                model.CenterID = long.TryParse(centerId, out _centerId)?centerId: EncryptDecrypt.Decrypt64(centerId);
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
                 model.RoleId = Session["RoleID"].ToString();

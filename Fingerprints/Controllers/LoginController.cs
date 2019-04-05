@@ -8,6 +8,7 @@ using FingerprintsModel;
 using Fingerprints.Filters;
 using Fingerprints.ViewModel;
 using FingerprintsModel.Enums;
+using System.Threading;
 
 namespace Fingerprints.Controllers
 {
@@ -160,8 +161,15 @@ namespace Fingerprints.Controllers
                     return View();
                 }
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                SendMail.Sendchangepassword(EmailId, RandomPassword, string.Empty, Server.MapPath("~/MailTemplate"), imagepath);
-                ViewBag.message = "If the entered email id exists then new password has been sent to the entered email id.";
+              bool isResult= SendMail.Sendchangepassword(EmailId, RandomPassword, string.Empty, Server.MapPath("~/MailTemplate"), imagepath);
+             
+                
+                if(isResult)
+                 ViewBag.message = "If the entered email id exists then new password has been sent to the entered email id.";
+
+                else
+                    ViewBag.message = "Error occurred. Please, try again later.";
+
                 return View();
             }
             catch (Exception Ex)
@@ -179,7 +187,29 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(LoginData.ChangePassword(currentPassword, newPassword, Session["UserID"].ToString()));
+
+
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                    
+                    
+                 string result=   LoginData.ChangePassword(currentPassword.Trim(), newPassword.Trim(),staff.UserId.ToString());
+
+
+
+                if (result=="1")
+                {
+                    string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
+
+                    Thread thread = new Thread(delegate ()
+                        {
+                            SendMail.Sendchangepassword(staff.EmailID, newPassword.Trim(), string.Empty, Server.MapPath("~/MailTemplate"), imagepath);
+
+                        });
+                        thread.Start();
+                }
+
+
+                return Json(result);
             }
             catch (Exception Ex)
             {
@@ -490,8 +520,14 @@ namespace Fingerprints.Controllers
                     return View();
                 }
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                SendMail.Sendchangepassword(EmailId, RandomPassword, string.Empty, Server.MapPath("~/MailTemplate"), imagepath);
-                ViewBag.message = "If the entered email id exists then new password has been sent to the entered email id.";
+                bool isResult=SendMail.Sendchangepassword(EmailId, RandomPassword, string.Empty, Server.MapPath("~/MailTemplate"), imagepath);
+
+                if (isResult)
+                    ViewBag.message = "If the entered email id exists then new password has been sent to the entered email id.";
+
+                else
+                    ViewBag.message = "Error occurred. Please, try again later.";
+
                 return View();
             }
             catch (Exception Ex)
