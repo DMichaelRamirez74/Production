@@ -1017,7 +1017,8 @@ namespace FingerprintsData
             }
         }
         public string AddScreeningquestion(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, string ScreeningDate, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear
-            )
+          //  , List<ScreeningAccess> _screeningAccessList
+         ,int screeningReportPeriodID,bool report   )
         {
             string result = string.Empty;
             try
@@ -1075,6 +1076,10 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Expiredperiod", expiredPeriod));
                 command.Parameters.Add(new SqlParameter("@ExpireIn", expireIn));
                 command.Parameters.Add(new SqlParameter("@ScreeningsYear", screeningsYear));
+                command.Parameters.Add(new SqlParameter("@ScreeningReportPeriodID", screeningReportPeriodID));
+                command.Parameters.Add(new SqlParameter("@Report", report));
+
+
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
 
                 //DataTable dtAccess = new DataTable();

@@ -735,13 +735,17 @@
                 $('input:radio[name=radioScreeningsYear]').focus();
             }
 
-            //else if ($('#screeningRolesBody').children('tr').find('input:checkbox:checked').length == 0) {
-            //    customAlert("Atleast one role to access screening is required");
-            //    $('#screeningRolesBody').children('tr').find('input:checkbox')[0].focus();
-            //}
+            else if ($('input:radio[name="radioReportPeriods"]:checked').length == 0)
+            {
+                customAlert("Report period is required.");
+                $('input:radio[name=radioReportPeriods]').closest('.cont-sz').css('background-color', 'pink');
+                $('input:radio[name=radioReportPeriods]').focus();
+            }
 
-
-
+                //else if ($('#screeningRolesBody').children('tr').find('input:checkbox:checked').length == 0) {
+                //    customAlert("Atleast one role to access screening is required");
+                //    $('#screeningRolesBody').children('tr').find('input:checkbox')[0].focus();
+                //}
 
             else {
                 var question = [];
@@ -875,7 +879,9 @@
                                     Inintake: $('#Inintake').prop("checked"),
                                     expiredPeriod: $('input[name=radioExpiredPeriod]:checked').val(),
                                     expireIn: $('input[name=radioExpireIn]:checked').val(),
-                                    screeningsYear: $('input[name=radioScreeningsYear]:checked').val()
+                                    screeningsYear: $('input[name=radioScreeningsYear]:checked').val(),
+                                    ScreeningReportPerioidID: $('input:radio[name="radioReportPeriods"]:checked').val(),
+                                    Report: $('input:checkbox[name="checkReport"]').prop('checked')
                                 }),
                             dataType: "json",
                             secureuri: false,
@@ -1368,6 +1374,8 @@
         int screeningsPerYear = 0;
         int screeningOrder = 0;
         int screeningCount = 0;
+        long screeningReportPeriodID = 0;
+        bool report = false;
         DataSet dsScreening = new DataSet();
 
         try
@@ -1384,7 +1392,7 @@
 
 
 
-                DataTable Screening = ((DataSet)ViewBag.screening).Tables[0].DefaultView.ToTable(true, "ScreeningID", "ScreeningName", "AgencyId", "AgencyName", "ProgramType", "DocumentUpload", "InIntake", "ExpiredPeriod", "ExpireIn", "ScreeningsPerYear", "ScreeningOrder");
+                DataTable Screening = ((DataSet)ViewBag.screening).Tables[0].DefaultView.ToTable(true, "ScreeningID", "ScreeningName", "AgencyId", "AgencyName", "ProgramType", "DocumentUpload", "InIntake", "ExpiredPeriod", "ExpireIn", "ScreeningsPerYear", "ScreeningOrder", "ScreeningReportPeriodID", "Report");
 
 
                 foreach (DataRow Row in Screening.Rows)
@@ -1402,15 +1410,17 @@
                     expireIn = Convert.ToInt32(@Row["ExpireIn"]);
                     screeningsPerYear = Convert.ToInt32(@Row["ScreeningsPerYear"]);
                     screeningOrder = Convert.ToInt32(Row["ScreeningOrder"]);
+                    screeningReportPeriodID = Convert.ToInt64(Row["ScreeningReportPeriodID"]);
+                    report = Convert.ToBoolean(Row["Report"]);
                 }
             }
 
             if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
-               ((DataSet)ViewBag.screening).Tables.Count > 0 &&
-               ((DataSet)ViewBag.screening).Tables[2] != null &&
-               ((DataSet)ViewBag.screening).Tables[2].Rows.Count > 0)
+               ((DataSet)ViewBag.screening).Tables.Count > 3 &&
+               ((DataSet)ViewBag.screening).Tables[3] != null &&
+               ((DataSet)ViewBag.screening).Tables[3].Rows.Count > 0)
             {
-                screeningCount = Convert.ToInt32(((DataSet)ViewBag.screening).Tables[2].Rows[0]["ScreeningCount"]);
+                screeningCount = Convert.ToInt32(((DataSet)ViewBag.screening).Tables[3].Rows[0]["ScreeningCount"]);
             }
 
         }
@@ -1576,11 +1586,62 @@
                             </div>
                         </div>
                     </div>
+
+
+
+
+                    <div class="col-lg-12 col-md-12 col-sm-12" id="div-report-periods">
+
+                        <div class="col-lg-6 col-md-6 col-sm-6" id="divExpiredPeriod">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full Race_label"> Report Period <sup>*</sup></label>
+                                <div class="cont-sz">
+
+
+                                    @if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
+((DataSet)ViewBag.screening).Tables.Count > 1 &&
+((DataSet)ViewBag.screening).Tables[1] != null &&
+((DataSet)ViewBag.screening).Tables[1].Rows.Count > 0)
+                                    {
+                                        DataTable reportPeriods = ((DataSet)ViewBag.screening).Tables[1].DefaultView.ToTable(true, "ScreeningReportPeriodID", "ScreeningReportDays", "ScreeningReportDescription");
+
+
+
+                                        for (int i = 0; i < reportPeriods.Rows.Count; i++)
+                                        {
+                                            <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                                <input name="radioReportPeriods" type="radio" @if (screeningReportPeriodID.ToString() == Convert.ToString(reportPeriods.Rows[i]["ScreeningReportPeriodID"])) { <text> checked="checked" </text>                              } value="@Convert.ToString(reportPeriods.Rows[i]["ScreeningReportPeriodID"])">
+                                                <span>@Convert.ToString(reportPeriods.Rows[i]["ScreeningReportDescription"])</span>
+                                            </div>
+                                        }
+
+
+
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full"> Report?</label>
+                                <div class="cont-sz">
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        <input type="checkbox" name="checkReport" @if (report) { <text> checked="checked" </text> } id="checkReport" style="float:left;margin-top:auto;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
 
-                
 
-                <div class="col-lg-12 col-md-12 col-sm-12 add-useragform add-screening add-screeningcheckbox ">
+                <div class="col-lg-12 col-md-12 col-sm-12 add-useragform add-screening add-screeningcheckbox" style="margin-top:2%;">
 
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="form-group">
@@ -1937,11 +1998,11 @@
                             else
                             {
                                 if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
-                                    ((DataSet)ViewBag.screening).Tables.Count > 0 &&
-                                    ((DataSet)ViewBag.screening).Tables[1] != null &&
-                                    ((DataSet)ViewBag.screening).Tables[1].Rows.Count > 0)
+                                    ((DataSet)ViewBag.screening).Tables.Count > 2 &&
+                                    ((DataSet)ViewBag.screening).Tables[2] != null &&
+                                    ((DataSet)ViewBag.screening).Tables[2].Rows.Count > 0)
                                 {
-                                    DataTable Questions = ((DataSet)ViewBag.screening).Tables[1].DefaultView.ToTable(true, "QuestionID", "Question", "QuestionType", "OptionId", "Optionname", "Required", "StatusQuestion", "QuestionOrder", "OptionValue", "OptionDescription");
+                                    DataTable Questions = ((DataSet)ViewBag.screening).Tables[2].DefaultView.ToTable(true, "QuestionID", "Question", "QuestionType", "OptionId", "Optionname", "Required", "StatusQuestion", "QuestionOrder", "OptionValue", "OptionDescription");
 
 
                                     int[] QuestionIDList = Questions.AsEnumerable().Select(x => x.Field<int>("QuestionID")).Distinct().ToArray();

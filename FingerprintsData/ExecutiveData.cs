@@ -106,14 +106,18 @@ namespace FingerprintsData
                     //ClassRoomType
                     if (reader.NextResult() && reader.HasRows)
                     {
-
-                        while (reader.Read())
+                        while(reader.Read())
                         {
-                            executive.ClassRoomTypeList.Add(new ExecutiveDashBoard.ClassRoomType
+                            executive.NDayScreeningReviewList.Add(new NDaysScreeningReview
                             {
-                                ClassSession = GetClassSession(reader["ClassSession"].ToString()),
-                                Total = reader["Total"].ToString(),
-                                Available = reader["Available"].ToString()
+
+
+                                ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
+                                ScreeningName = Convert.ToString(reader["ScreeningName"]),
+                                Completed = reader["Completed"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Completed"]),
+                                CompletedButLate = reader["CompletedButLate"]==DBNull.Value?0:Convert.ToInt64(reader["CompletedButLate"]),
+                                NotExpired=reader["NotExpired"]==DBNull.Value?0:Convert.ToInt64(reader["NotExpired"]),
+                                NotCompletedandLate=reader["NotCompletedandLate"]==DBNull.Value?0:Convert.ToInt64(reader["NotCompletedandLate"])
                             });
                         }
                     }
@@ -132,7 +136,7 @@ namespace FingerprintsData
 
                             executive.ScreeningMatrixList.Add(new ScreeningMatrix
                             {
-                                ScreeningName = reader["Name"] == DBNull.Value ? string.Empty: Convert.ToString(reader["Name"]),
+                                ScreeningName = reader["ScreeningName"] == DBNull.Value ? string.Empty: Convert.ToString(reader["ScreeningName"]),
                                 UptoDate= reader["UptoDate"]==DBNull.Value?0: Convert.ToInt64(reader["UptoDate"]),
                                 Missing= reader["Missing"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Missing"]),
                                 Expired= reader["Expired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Expired"]),
@@ -243,6 +247,17 @@ namespace FingerprintsData
                         while (reader.Read())
                         {
                             executive.ProgramYearStartDate = Convert.ToString(reader["ProgramYearStartDate"]);
+                        }
+                    }
+
+                    // gets the Access Section for the Roles
+
+                   if(reader.NextResult() && reader.HasRows)
+                    {
+                        while(reader.Read())
+                        {
+                            executive.AccessScreeningMatrix = reader["AccessScreeningMatrix"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningMatrix"]);
+                            executive.AccessScreeningReview = reader["AccessScreeningReview"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningReview"]);
                         }
                     }
 
@@ -1013,6 +1028,26 @@ namespace FingerprintsData
                                     dashboard.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
 
                                 }
+                                break;
+
+
+                            // Screening review //
+                            case FingerprintsModel.Enums.DashboardSectionType.ScreeningReview:
+
+                                while(reader.Read())
+                                {
+                                    dashboard.NDayScreeningReviewList.Add(new NDaysScreeningReview
+                                    {
+
+
+                                        ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
+                                        ScreeningName = Convert.ToString(reader["ScreeningName"]),
+                                        Completed = reader["Completed"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Completed"]),
+                                        CompletedButLate = reader["CompletedButLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["CompletedButLate"]),
+                                        NotExpired = reader["NotExpired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotExpired"]),
+                                        NotCompletedandLate = reader["NotCompletedandLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotCompletedandLate"])
+                                    });
+                                }
 
 
                                 break;
@@ -1024,7 +1059,7 @@ namespace FingerprintsData
 
                 //switch (EnumHelper.GetEnumByStringValue<ExecutiveDashBoard.DashboardSectionType>(sectionType.ToString()))
                 //{
-                //    case ExecutiveDashBoard.DashboardSectionType.CurrentEnrollment:
+                //    case FingerprintsModel.Enums.DashboardSectionType.CurrentEnrollment:
 
 
 
@@ -1047,7 +1082,7 @@ namespace FingerprintsData
 
 
                 //    //Enrolled By Program
-                //    case ExecutiveDashBoard.DashboardSectionType.EnrolledByProgram:
+                //    case FingerprintsModel.Enums.DashboardSectionType.EnrolledByProgram:
 
 
 
@@ -1065,7 +1100,7 @@ namespace FingerprintsData
                 //        break;
 
                 //    //MissingScreen
-                //    case ExecutiveDashBoard.DashboardSectionType.MissingScreening:
+                //    case FingerprintsModel.Enums.DashboardSectionType.MissingScreening:
 
 
 
@@ -1084,7 +1119,7 @@ namespace FingerprintsData
 
                 //    //ClassRoomType
 
-                //    case ExecutiveDashBoard.DashboardSectionType.ClassroomType:
+                //    case FingerprintsModel.Enums.DashboardSectionType.ClassroomType:
 
 
 
@@ -1103,7 +1138,7 @@ namespace FingerprintsData
 
                 //    // Case Note Analysis //
 
-                //    case ExecutiveDashBoard.DashboardSectionType.CaseNoteAnalysis:
+                //    case FingerprintsModel.Enums.DashboardSectionType.CaseNoteAnalysis:
 
 
 
@@ -1123,7 +1158,7 @@ namespace FingerprintsData
 
                 //    // In-Kind Hours and Dollars //
 
-                //    case ExecutiveDashBoard.DashboardSectionType.InKindHoursDollars:
+                //    case FingerprintsModel.Enums.DashboardSectionType.InKindHoursDollars:
 
 
                 //        while (reader.Read())
@@ -1149,7 +1184,7 @@ namespace FingerprintsData
                 //        break;
 
                 //    // Disability
-                //    case ExecutiveDashBoard.DashboardSectionType.Disabilities:
+                //    case FingerprintsModel.Enums.DashboardSectionType.Disabilities:
 
 
                 //        while (reader.Read())
@@ -1165,7 +1200,7 @@ namespace FingerprintsData
 
                 //    // Family Over Income
 
-                //    case ExecutiveDashBoard.DashboardSectionType.OverIncome:
+                //    case FingerprintsModel.Enums.DashboardSectionType.OverIncome:
 
 
 
@@ -1187,7 +1222,7 @@ namespace FingerprintsData
 
                 //    // Waiting List //
 
-                //    case ExecutiveDashBoard.DashboardSectionType.WaitingList:
+                //    case FingerprintsModel.Enums.DashboardSectionType.WaitingList:
 
 
                 //        while (reader.Read())

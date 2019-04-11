@@ -14,7 +14,8 @@ namespace FingerprintsData
     {
         IDbConnection _connection;
         IDataReader reader;
-        DBManager dbManager;
+        DBManager dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
         public HealthManagerDashboard GetHealthManagerDashboard(StaffDetails staff)
         {
 
@@ -27,7 +28,7 @@ namespace FingerprintsData
               
 
 
-                 dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+              
 
                 var parameters = new IDbDataParameter[]
                 {
@@ -76,20 +77,44 @@ namespace FingerprintsData
                     });
                 }
 
-                //healthManagerDashboard.ScreeningMatrix = Enumerable.Range(0, int.MaxValue).TakeWhile(i => reader.Read())
 
-                //  .Select(x => new ScreeningMatrix
-                //  {
-                //      ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
-                //      ScreeningName = Convert.ToString(reader["ScreeningName"]),
-                //      UptoDate = Convert.ToInt64(reader["UptoDate"]),
-                //      Expired = Convert.ToInt64(reader["Expired"]),
-                //      Expiring = Convert.ToInt64(reader["Expiring"]),
-                //      Missing = Convert.ToInt64(reader["Missing"])
-                //  });
+                var screeningReviewList = new List<NDaysScreeningReview>();
+
+                if(reader.NextResult())
+                {
+                    while(reader.Read())
+                    {
+                        screeningReviewList.Add(new NDaysScreeningReview
+                        {
+
+                            ScreeningID = reader["ScreeningID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ScreeningID"]),
+                            ScreeningName = reader["ScreeningName"] == DBNull.Value ? string.Empty : Convert.ToString(reader["ScreeningName"]),
+                            Completed = reader["Completed"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Completed"]),
+                            CompletedButLate = reader["CompletedButLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["CompletedButLate"]),
+                            NotExpired = reader["NotExpired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotExpired"]),
+                            NotCompletedandLate = reader["NotCompletedandLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotCompletedandLate"])
+
+                        });
+
+
+                    }
+
+                }
+
+                if(reader.NextResult())
+                {
+                    while(reader.Read())
+                    {
+                        healthManagerDashboard.AccessScreeningMatrix = reader["AccessScreeningMatrix"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningMatrix"]);
+                        healthManagerDashboard.AccessScreeningReview = reader["AccessScreeningReview"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningReview"]);
+                    }
+                }
+
+                
 
 
                 healthManagerDashboard.ScreeningMatrix = screeningList.AsEnumerable();
+                healthManagerDashboard.ScreeningReview = screeningReviewList.AsEnumerable();
 
 
 

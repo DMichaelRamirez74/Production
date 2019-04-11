@@ -2,6 +2,7 @@
 var anchorCurrentEnrollment = null;
 var anchorEnrolledByProgram = null;
 var anchorScreeningMatrix = null;
+var anchorScreeningReview = null;
 var anchorClassroomType = null;
 var anchorCaseNote = null;
 var anchorInkind = null;
@@ -293,10 +294,7 @@ function bindScreeningMatrix(data) {
     {
         var tableBind = $('#table-missing-scr');
 
-        //var appendData = '<tr>\
-        //                    <th>Screening Name</th>\
-        //                    <th>Count</th>\
-        //                   </tr>';
+      
 
         var appendData = '';
 
@@ -316,6 +314,34 @@ function bindScreeningMatrix(data) {
     }
 
 }
+
+
+function bindScreeningReview(data)
+{
+    if (data != null && data.NDayScreeningReviewList.length > 0) {
+        var tableBind = $('#table-scr-review');
+
+
+
+        var appendData = '';
+
+        $.each(data.NDayScreeningReviewList, function (i, screening) {
+
+            appendData += '<tr>\
+                            <td data-title="Screening Name">' + screening.ScreeningName + '</td>\
+                            <td data-title="Completed" class="number-center">' + screening.Completed + '</td>\
+                            <td data-title="Completed but Late" class="number-center">' + screening.CompletedButLate + '</td>\
+                            <td data-title="Not Expired" class="number-center">' + screening.NotExpired + '</td>\
+                            <td data-title="Not Completed and Late" class="number-center">' + screening.NotCompletedandLate + '</td>\
+                        </tr>'
+        });
+
+
+        tableBind.find('tbody').html(appendData);
+    }
+
+}
+
 
 function bindClasroomType(data) {
 
@@ -421,6 +447,7 @@ $(document).ready(function () {
     anchorCurrentEnrollment = $('#anchorCurrentEnrollment');
     anchorEnrolledByProgram = $('#anchorEnrolledByProgram');
     anchorScreeningMatrix = $('#anchorScreeningMatrix');
+    anchorScreeningReview = $('#anchorScreeningReview');
     anchorClassroomType = $('#anchorClassroomType');
     anchorCaseNote = $('#anchorCaseNote');
     anchorInkind = $('#anchorInkind');
@@ -499,6 +526,12 @@ $(document).ready(function () {
 
         refreshDashboardBySection(this, dashboardSectionType.MissingScreening, bindScreeningMatrix);
 
+    });
+
+
+    anchorScreeningReview.on('click', function () {
+   
+        refreshDashboardBySection(this, dashboardSectionType.ScreeningReview, bindScreeningReview);
     });
 
 

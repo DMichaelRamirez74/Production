@@ -2615,12 +2615,15 @@ namespace Fingerprints.Controllers
         public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
            string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear
            //,List<ScreeningAccess> screeningAccessList
+             ,int ScreeningReportPerioidID, bool Report
            )
         {
             try
             {
 
-                string message = agencyData.UpdateScreening(ScreeningId, ScreeningName, Questionlist, AgencyId, Session["UserID"].ToString(), Programtype, Document, Inintake, expiredPeriod, expireIn, screeningsYear);
+                var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+                string message = agencyData.UpdateScreening(ScreeningId, ScreeningName, Questionlist, AgencyId, staffDetails.UserId.ToString(), Programtype, Document, Inintake, expiredPeriod, expireIn, screeningsYear,ScreeningReportPerioidID,Report);
 
 
 

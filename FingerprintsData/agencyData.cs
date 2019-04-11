@@ -6616,7 +6616,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
 
-        public string UpdateScreening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear)
+        public string UpdateScreening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear,int screeningReportPeriod,bool report)
         {
             string result = string.Empty;
             try
@@ -6629,10 +6629,12 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                 command.Parameters.Add(new SqlParameter("@Programtype", Programtype));
                 command.Parameters.Add(new SqlParameter("@Document", Document == true ? 1 : 0));
                 command.Parameters.Add(new SqlParameter("@Inintake", Inintake == true ? 1 : 0));
-                command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction=ParameterDirection.Output;
+                command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@Expiredperiod", expiredPeriod));
                 command.Parameters.Add(new SqlParameter("@ExpireIn", expireIn));
                 command.Parameters.Add(new SqlParameter("@ScreeningsYear", screeningsYear));
+                command.Parameters.Add(new SqlParameter("@ScreeningReportPeriodID", screeningReportPeriod));
+                command.Parameters.Add(new SqlParameter("@Report", report));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_SaveScreening_Agency";
                 Connection.Open();
