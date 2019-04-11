@@ -7,6 +7,18 @@ using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using Fingerprints.Utilities;
+using Fingerprints.Common;
+using System.Text;
+using System.Web;
+using iTextSharp.text;
+using iTextSharp.tool.xml.html;
+using iTextSharp.tool.xml.css;
+using iTextSharp.tool.xml;
+using iTextSharp.tool.xml.pipeline.html;
+using iTextSharp.tool.xml.pipeline.end;
+using iTextSharp.tool.xml.pipeline.css;
+using iTextSharp.tool.xml.parser;
+using iTextSharp.text.pdf;
 
 namespace Fingerprints.Controllers
 {
@@ -123,7 +135,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult AddCLASReview() {
+        public ActionResult AddCLASReview()
+        {
 
             return View();
         }
@@ -145,16 +158,17 @@ namespace Fingerprints.Controllers
             data.CLASReviewAttachment = new List<Attachments>();
             //model.InkindTransactionsList[0].InkindAttachmentsList = new List<InkindAttachments>();
 
-                for (int i = 0; i < fileKeys.Length; i++)
-                {
+            for (int i = 0; i < fileKeys.Length; i++)
+            {
 
-                var fattach = new Attachments() {
-                     AttachmentFile = Request.Files[i],
-                      AttachmentFileName = Request.Files[i].FileName,
-                       AttachmentFileExtension = Path.GetExtension(Request.Files[i].FileName),
-                        AttachmentFileByte = new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength),
-                         AttachmentStatus=true
-                         
+                var fattach = new Attachments()
+                {
+                    AttachmentFile = Request.Files[i],
+                    AttachmentFileName = Request.Files[i].FileName,
+                    AttachmentFileExtension = Path.GetExtension(Request.Files[i].FileName),
+                    AttachmentFileByte = new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength),
+                    AttachmentStatus = true
+
                 };
 
                 data.CLASReviewAttachment.Add(fattach);
@@ -200,7 +214,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult ViewCLASAttachment(long attachmentId) {
+        public ActionResult ViewCLASAttachment(long attachmentId)
+        {
 
             var result = new Reporting().GetCLASAttachmentById(attachmentId);
 
@@ -208,6 +223,181 @@ namespace Fingerprints.Controllers
         }
 
         #endregion CLASReview
+
+
+        #region MDTReport
+
+        //[CustAuthFilter()]
+        //public ActionResult MDTReport() {
+
+        //    ViewBag.MDTId = 0;
+        //   // ViewBag.MDTModal = new MDTReport();
+        //    return View();
+        //}
+
+        [CustAuthFilter()]
+        public ActionResult MDTList()
+        {
+
+            return View();
+
+        }
+
+        public ActionResult getMDTList()
+        {
+
+            var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTList();
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult MDTReport(long id = 0)
+        {
+
+            ViewBag.MDTId = id;
+
+            return View();
+        }
+
+        [CustAuthFilter()]
+        public ActionResult GetMDTReportById(long id)
+        {
+            var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTReportById(id, "edit");
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult getUsersDetailsForMDT(long ClientId)
+        {
+
+            var result = new Reporting().GetUsersDetailsForMDT(ClientId);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult SubmitMDT(MDTReport data)
+        {
+            var result = new Reporting().SubmitMDTForm(data);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult MDTUploadAttachment(long id)
+        {
+            bool result = false;
+            try
+            {
+                var _files = Request.Files;
+
+                if (_files != null && _files.Count > 0)
+                {
+                    result = new Reporting().SubmitMDTAttachment(id, _files[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [CustAuthFilter()]
+        public ActionResult MDTFormPdfView(long id = 0)
+        {
+            var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTReportById(id, "pdf");
+            return View(result);
+        }
+
+
+        [CustAuthFilter()]
+        //public FileResult GetEligibilityForm(string id = "0")
+        public ActionResult GetMDTFormPDF(long id = 0,bool isdoc=false)
+        {
+            var fileBytes =new byte[0];
+
+            if (isdoc) {
+
+                var attachDetails = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTAttachmentById(id);
+                fileBytes = attachDetails.AttachmentFileByte;
+            }
+            else
+            {
+                var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTReportById(id, "pdf");
+                // Render the view xml to a string, then parse that string into an XML dom.
+                string html = this.RenderActionResultToString(this.View("MDTFormPdfView", result));
+                var output = new MemoryStream();
+                using (var doc = new Document(PageSize.A4))
+                {
+                    var writer = PdfWriter.GetInstance(doc, output);
+
+                    PDFBackgroundHelper pageEventHelper = new PDFBackgroundHelper();
+                    writer.PageEvent = pageEventHelper;
+
+                    writer.CloseStream = false;
+                    doc.Open();
+
+
+                    var tagProcessors = (DefaultTagProcessorFactory)Tags.GetHtmlTagProcessorFactory();
+                    tagProcessors.RemoveProcessor(HTML.Tag.IMG); // remove the default processor
+                    tagProcessors.AddProcessor(HTML.Tag.IMG, new CustomImageTagProcessor()); // use our new processor
+
+                    CssFilesImpl cssFiles = new CssFilesImpl();
+                    cssFiles.Add(XMLWorkerHelper.GetInstance().GetDefaultCSS());
+                    var cssResolver = new StyleAttrCSSResolver(cssFiles);
+                    cssResolver.AddCss(@"code { padding: 2px 4px; }", "utf-8", true);
+                    var charset = Encoding.UTF8;
+                    var hpc = new HtmlPipelineContext(new CssAppliersImpl(new XMLWorkerFontProvider()));
+                    hpc.SetAcceptUnknown(true).AutoBookmark(true).SetTagFactory(tagProcessors); // inject the tagProcessors
+                    var htmlPipeline = new HtmlPipeline(hpc, new PdfWriterPipeline(doc, writer));
+                    var pipeline = new CssResolverPipeline(cssResolver, htmlPipeline);
+                    var worker = new XMLWorker(pipeline, true);
+                    var xmlParser = new XMLParser(true, worker, charset);
+                    xmlParser.Parse(new StringReader(html));
+                }
+
+                output.Position = 0;
+                 fileBytes = output.ToArray();
+            }
+            // Send the binary data to the browser.
+            return new BinaryContentResult(fileBytes, "application/pdf");
+            // return File(fileBytes, "application/pdf", "MDT form of" + result.Name + ".pdf");
+
+        }
+
+        protected string RenderActionResultToString(ActionResult result)
+        {
+            // Create memory writer.
+            var sb = new StringBuilder();
+            var memWriter = new StringWriter(sb);
+
+            // Create fake http context to render the view.
+            var fakeResponse = new HttpResponse(memWriter);
+            var fakeContext = new HttpContext(System.Web.HttpContext.Current.Request,
+                fakeResponse);
+            var fakeControllerContext = new ControllerContext(
+                new HttpContextWrapper(fakeContext),
+                this.ControllerContext.RouteData,
+                this.ControllerContext.Controller);
+            var oldContext = System.Web.HttpContext.Current;
+            System.Web.HttpContext.Current = fakeContext;
+
+            // Render the view.
+            result.ExecuteResult(fakeControllerContext);
+
+            // Restore old context.
+            System.Web.HttpContext.Current = oldContext;
+
+            // Flush memory and return output.
+            memWriter.Flush();
+            return sb.ToString();
+        }
+
+
+        #endregion MDTReport
 
     }
 }
