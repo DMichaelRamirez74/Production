@@ -1,0 +1,629 @@
+﻿@{
+    ViewBag.Title = "MDTList";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Title
+{
+    MDT Report
+}
+
+
+
+
+@section style{
+    <style type="text/css">
+              .page-wrapper-change {
+                  /*width: 100%;
+                      float: left;*/
+                  background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
+                  background-size: cover;
+                  min-height: 600px;
+                  padding-top: 30px;
+              }
+
+              .div-search-section {
+                  border-radius: 10px;
+                  background: #f1f5f8;
+                  padding: 15px;
+                  margin-bottom: 20px;
+              }
+
+
+        .opticon-clm a {
+            font-size: 18px;
+    background: #e74c3c;
+    color: #fff;
+    padding: 7px 12px;
+    border-radius: 7px;
+    margin-right: 8px;
+    color:#fff;
+        }
+
+              .pdf-export,
+              .edit-icon,
+              .upload-form {
+                  cursor: pointer;
+                  font-size: 22px;
+                  margin-right: 0px;
+                  color: #fff;
+                  text-decoration: none;
+                      cursor: pointer;
+
+                  /*background: #e74c3c;
+          color: #fff;
+          padding: 7px 12px;
+          border-radius: 7px;
+        */
+              }
+
+              .edit-icon {
+                 
+                  margin-left: 0px;
+              }
+
+              .button-green:hover,
+              .button-green:focus {
+                  /* color:#fff;*/
+              }
+
+              .upload-form {
+                  color: #fff;
+              }
+
+              .opt-clmn {
+                  width: 15% !important;
+              }
+
+
+      #attach_modal .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        color: #ffffff;
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+        padding-top: 10px;
+    }
+
+    #attach_modal .form-group-al {
+        background: #f1f5f8 none repeat scroll 0 0;
+        border: 3px solid #ffffff;
+        float: left;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        color: #333;
+        padding-top: 25px;
+    }
+
+    #attach_modal h2 {
+        margin-top: 10px;
+        float: left;
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    #attach_modal .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
+
+
+
+    #attach_modal .prop-label {
+        color: #1d5990;
+        margin-left: 0px;
+    }
+
+    #attach_modal .control-label {
+        margin-left: 0px;
+    }
+        .text-bg {
+            text-shadow: 0 1px #7e50b7;
+            background-color: #5f477d;
+            background-clip: padding-box;
+            border: 1px solid !important;
+            border-color: #7e50b7 #684494 #5d3e84 !important;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            border-right: 1px solid #87759e !important;
+            color: #fff;
+            width: 70%;
+            display: inline-block !important;
+            float: left;
+        }
+
+    </style>
+
+}
+
+@section MainContentHolder{
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Rig
+                        ht Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+
+
+                            <div class="row" style="padding-top: 25px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751 !important; color: #fff;">
+                                        <span>
+                                            <i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Multi-Disciplinary Team Plan of Action
+                                        </span>
+                                        @*<button type="button" class="btn btn-success pull-right">Submit</button>*@
+
+
+
+
+                                        <a href="@Url.Action("Roster","Roster")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;color:#fff;">
+                                            Back to Roster
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+
+                                        </a>
+
+
+                                    </h2>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                                <div class="search-block-main">
+                                    @*<div class="glossy-search-block">
+
+                                        <input type="text" placeholder="Search..." id="searchText" class="form-control" autocomplete="off">
+
+                                        <div class="glossy-search-btn-div">
+                                        <button id="btnSearchauto" onclick="ClasReview.searchReview(this)">Search</button>
+                                        </div>                   </div>*@
+
+
+
+
+                                    <a href="@Url.Action("MDTReport","Reporting")" class="button-green glossy-button-button" style="text-decoration:none;float:right;color:#fff;">
+                                        Add New
+                                        <span class="glossy-button-before"></span>
+                                        <span class="glossy-button-after"></span>
+
+                                    </a>
+
+
+                                </div>
+
+
+
+
+
+                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="MDT-table">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+
+                                            <th class="dor-clm">
+
+                                                <i class="fa fa-long-arrow-down i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-calendar i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i> <i class="fa fa-long-arrow-down i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-calendar i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                Child Name
+                                            </th>
+
+
+                                            <th class="clas-clm">
+
+                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                Goal
+                                            </th>
+
+
+
+                                            <th class="center-clm" data-sort="true" data-name="CenterName">
+                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                Center
+                                            </th>
+
+
+                                            <th class="cmt-clm">
+
+                                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                Disability
+                                            </th>
+                                            <th class="score-clm">
+                                                <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>                                               <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+
+                                                Mental Issue
+                                            </th>
+                                            <th class="ebn-clm">
+                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+
+                                                Entered By
+                                            </th>
+                                            <th class="opt-clmn">
+
+                                                Action
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody"></tbody>
+
+
+
+                                </table>
+
+
+                                <div id="pagination-div" class="col-md-12" style="margin-top:20px;">
+
+                                </div>
+
+
+
+
+
+                            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<div class="modal fade" id="attach_modal" tabindex="-1" role="dialog" aria-labelledby="attach_modal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-body">
+
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2>Upload Attachment</h2>
+                <div class="form-group-al" id="attachmodal_body">
+
+                </div>
+            </div>
+        </div>
+    </div></div>
+
+
+
+    <script type="text/template" id="upload-attachment-temp">
+
+        <div class="row" style="padding:0;">
+            <input type="hidden" id="MDTId-attach" />
+            <div class="col-sm-8 col-md-offset-2">
+                <label>Choose file</label>
+                <input type="file" class="form-control text-bg" name="attch-file">
+            </div>
+            @*<div class="col-sm-6">
+                <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" style="/* display: none; */" data-original-title="Capture using Camera">
+                </div>*@
+
+            <div class="col-md-12" id="div-edit-modal-img-gallery">
+
+
+            </div>
+
+            <div class="col-md-1 col-md-offset-5" style="margin-top:40px;">
+
+                <button id="submitAttachment" type="button" class="button-green glossy-button-button" style="text-decoration:none;float:right;">
+                   Submit
+                    <span class="glossy-button-before"></span>
+                    <span class="glossy-button-after"></span>
+
+                </button>
+
+            </div>
+
+            </div>
+
+    </script>
+
+    <script type="text/template" id="MDT-tableBody-temp">
+
+        <tr>
+
+            <td class="center-clm" data-toggle="tooltip" data-container="body" title="{Name}"><p>{Name}</p></td>
+            <td class="clas-clm" data-toggle="tooltip" data-container="body" title="{Goal}"><p>{Goal}</p></td>
+            <td class="clas-clm" data-toggle="tooltip" data-container="body" title="{Center}"><p>{Center}</p></td>
+
+            <td class="cmt-clm"><p style="text-align:center;">{IsDisability}</p></td>
+            <td class="cmt-clm"><p style="text-align:center;">{IsMentalIssue}</p></td>
+            <td>{CreatedBy}</td>
+            @*<td class="dor-clm" title="{DateofReview}"><p>{DateofReview}</p></td>*@
+            <td style="padding-left:15px;" class="opticon-clm">{option}</td>
+
+            @*<td class=""></td>*@
+        </tr>
+
+    </script>
+
+
+@{
+    Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+
+}
+
+
+}
+
+
+
+
+@section Script{
+
+    <script type="text/javascript">
+
+
+
+        var Urls = {
+
+            getMDTList: '@Url.Action("getMDTList", "Reporting")',
+            GetMDTFormPDF: '@Url.Action("GetMDTFormPDF", "Reporting")',
+            EditMDTForm: "@Url.Action("MDTReport", "Reporting")",
+            submitAttachemnt:"@Url.Action("MDTUploadAttachment", "Reporting")"
+        };
+
+
+        var MDTList = {
+            Centerid: 0,
+            gparams: {
+                Search: "",
+                SortOrder: "asc",
+                SortColumn: "CenterName",
+                RequestedPage: 1,
+                PageSize: 10
+            },
+            init: function () {
+                var self = this;
+                self.initEvents();
+                self.renderMDTTable();
+            },
+            initEvents: function () {
+                var self = this;
+
+                //$(document).on("click", ".pdf-export", function (e) {
+                //    e.preventDefault();
+                //    var _id = $(this).data('id');
+
+                //    console.log(_id);
+                //});
+
+                $(document).on("click", "#submitAttachment", function (e) {
+                    e.preventDefault();
+                    var id = $("#MDTId-attach").val();
+                    var files = $('[name="attch-file"]')[0].files;
+
+                    if (files && files.length) {
+                        var _formData = new FormData();
+                        _formData.append(files[0].name, files[0]);
+                        self.submitAttachemnt(id, _formData);
+
+                    } else {
+                        customAlert("Please Select File");
+                        return false;
+                    }
+
+
+                });
+                $(document).on("click", ".upload-form", function (e) {
+                    e.preventDefault();
+                    var _id = this.dataset.mdtid;
+                    
+                    $("#attachmodal_body").html('').append( $("#upload-attachment-temp").html());
+
+                    $("#MDTId-attach").val(_id);
+                    $("#attach_modal").modal('show');
+
+                });
+
+
+                //*** Camera Option *****//
+                $(document).on('click', '#uploadImageCamera', function () {
+                    //  $selfElements.modalEditInkind.modal('hide');
+                    //$('body').addClass('modal-open');
+
+                    // $selfElements.modalUploadDocument.find('.div-image-snap-gallery').html('');
+                    $("#modal-uploaddocument").modal('show');
+                });
+
+
+                $("#modal-uploaddocument").on('shown.bs.modal', function (event) {
+                    // $('body').addClass('modal-open');
+
+                    showVideoStream();
+
+                }).on('hidden.bs.modal', function (event) {
+
+                    stopIntervalUserMedia();
+
+                });
+
+
+                $(document).on('click', "#btn-modal-doc-add", function (e) {
+
+                    debugger;
+                    //  var $imageGallerylength = $selfElements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
+                    var $imageGallerylength = $(".div-image-snap-gallery").find('.setup_viewscreen').length;
+
+                    if ($imageGallerylength == 0) {
+                        customAlert('Please capture image using camera');
+                        return false;
+                    }
+
+
+                    $('#div-edit-modal-img-gallery').append($(".div-image-snap-gallery").html());
+
+                    $(".div-image-snap-gallery").html('');
+
+                    $("#modal-uploaddocument").modal('hide');
+
+                });
+
+                
+
+
+            },
+            submitAttachemnt: function (id,formdata) {
+                var self = this;
+                $.ajax({
+                    method: "POST",
+                    url: Urls.submitAttachemnt.concat('?id=', id),
+                    data: formdata,
+                    datatype: 'json',
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function () { $("#spinner").show(); },
+                    success:function(data){
+                        if (data) {
+                            customAlert("Document uploaded successfully");
+                            
+                            //setTimeout(function () {
+                            //    window.location.reload()
+                            //}, 2000)
+                            self.renderMDTTable();
+                            $("#attach_modal").modal('hide');
+
+                        }
+                    },
+                error:function(res){
+                
+                },
+                complete: function () {
+                    $("#spinner").hide();
+                }
+
+
+                })
+
+
+            },
+            renderMDTTable: function () {
+
+                $.ajax({
+                    method: "POST",
+                    url: Urls.getMDTList,
+                    dataType: "json",
+                    contentType: "json/application",
+                    beforeSend: function () { $("#spinner").show(); },
+                    success: function (data) {
+
+                        $("#MDT-table tbody").html('');
+
+                        if (data && data.length) {
+
+
+                            data.forEach(function (obj, i) {
+
+                                var _htmStr = $("#MDT-tableBody-temp").html();
+
+                                var uploadStr = "", printSrt = "";
+                                if (!obj.IsCompleted && !obj.HaveAttachment) {  //if for uncompleted and no paper documemt
+
+                                    uploadStr = '<a style="background:green;"><i data-mdtid="' + obj.MDTId + '" data-toggle="tooltip" data-container="body" title="upload" class="fa fa-upload upload-form"> </i></a>';
+                                }
+
+                                if (!obj.IsCompleted && obj.HaveAttachment) { //not completed but have doc
+                                    printSrt = '<a style="background:#2e628d;" data-toggle="tooltip" data-container="body" title="download" href="' + Urls.GetMDTFormPDF.concat('/', obj.MDTId, '?isdoc=true') + '"><i class="fa fa-print pdf-export" data-id="' + obj.MDTId + '"></i></a>';
+
+                                } else {
+
+                                    printSrt = '<a style="background:#2e628d;" data-toggle="tooltip" data-container="body" title="download" href="' + Urls.GetMDTFormPDF.concat('/', obj.MDTId, '?isdoc=false') + '"><i class="fa fa-print pdf-export" data-id="' + obj.MDTId + '"></i></a>';
+                                }
+
+
+                                _htmStr = _htmStr.replace(/{Name}/gi, obj.Name);
+                                _htmStr = _htmStr.replace(/{Goal}/gi, obj.Goal);
+                                _htmStr = _htmStr.replace(/{Center}/gi, obj.CenterName);
+                                _htmStr = _htmStr.replace(/{IsDisability}/gi, obj.IsDisability ? 'YES' : 'NO');
+                                _htmStr = _htmStr.replace(/{IsMentalIssue}/gi, obj.IsMentalIssue ? 'YES' : 'NO');
+                                _htmStr = _htmStr.replace(/{CreatedBy}/gi, obj.CreatedBy);
+                                // _htmStr = _htmStr.replace(/{option}/, '<i class="fa fa-file-pdf-o pdf-export" data-id="' + obj.MDTId + '"></i>');
+
+
+                                _htmStr = _htmStr.replace(/{option}/,
+
+                                     ' <a data-toggle="tooltip" data-container="body" title="edit" href="' + Urls.EditMDTForm.concat('/', obj.MDTId) + '"><i class="fa fa-edit edit-icon"></i></a>'
+
+                                    + printSrt +
+
+                                     uploadStr
+                                    );
+
+
+                                $("#MDT-table tbody").append(_htmStr);
+
+                            });
+
+                            $('[data-toggle="tooltip"]').tooltip();
+
+                        } else {
+                            $("#MDT-table tbody").append('<tr><td colspan="7"><p style="width:100%">No Record Found</p></td></tr>')
+                        }
+                    },
+                    error: function (res) {
+
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+                });
+
+
+            }
+
+        };
+
+
+        $(document).ready(function () {
+            MDTList.init();
+        })
+    </script>
+}

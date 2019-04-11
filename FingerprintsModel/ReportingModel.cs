@@ -57,7 +57,9 @@ namespace FingerprintsModel
     }
 
 
-    public class CLASReview {
+    #region CLASReport
+    public class CLASReview
+    {
 
         public long ReviewId { get; set; }
         public long Center { get; set; }
@@ -83,8 +85,85 @@ namespace FingerprintsModel
         public string AttachmentFileExtension { get; set; }
         public string AttachmentFileUrl { get; set; }
         public byte[] AttachmentFileByte { get; set; }
-       // public long TransactionID { get; set; }
+        // public long TransactionID { get; set; }
         public bool AttachmentStatus { get; set; }
     }
+
+
+    #endregion CLASReport
+
+
+    #region MDTReport
+
+
+    public class MDTReport
+    {
+
+        public long MDTId { get; set; }
+        public long ClientId { get; set; }
+        public string DOB { get; set; }
+        public string Name { get; set; }
+        public string Goal { get; set; }
+        public string Summary { get; set; }
+        public bool IsDisability { get; set; }
+        public bool IsMentalIssue { get; set; }
+        /// <summary>
+        /// Parent details
+        /// </summary>
+        public long ParentId { get; set; }
+        public string ParentSign { get; set; }
+        public int ParentSignType { get; set; }
+        /// <summary>
+        /// Facilitator details
+        /// </summary>
+       public string FacilitatorId { get; set; }
+        public string FacilitatorSign { get; set; }
+        public int FacilitatorSignType { get; set; }
+
+        /// <summary>
+        /// FamilyAdvocate Details
+        /// </summary>
+        public string FamilyAdvocateId { get; set; }
+        public string FamilyAdvocateSign { get; set; }
+        public int FASignType { get; set; }
+
+        public bool Status { get; set; }
+        public string CreatedDate { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedDate { get; set; }
+        public string ModifiedBy { get; set; }
+
+        public List<MDTAction> MDTActions { get; set; }
+
+        public string CenterName { get; set; }
+        public Agency AgnecyInfo { get; set; }
+        public string AgencyId { get; set; }
+        public string AgencyName { get; set; }
+
+        public bool IsCompleted { get; set; }
+        public bool HaveAttachment { get; set; }
+      //  public string Address1 { get; set; }
+      // public string Address2 { get; set; }
+      //  public
+    }
+
+    public class MDTAction
+    {
+
+        public long ActionId { get; set; }
+        public long MDTId { get; set; }
+        public int ActionFor { get; set; }
+        public string ActionNotes { get; set; }
+        public bool Status { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public string ModifiedBy { get; set; }
+
+    }
+
+
+    #endregion MDTReport
+
 
 }

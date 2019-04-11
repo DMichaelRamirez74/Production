@@ -14,10 +14,9 @@ using System.Drawing;
 using FingerprintsData;
 using ClosedXML;
 using ClosedXML.Excel;
-
-
-
-
+using FingerprintsDataAccessHandler;
+using System.Collections;
+using Fingerprints.Common;
 
 namespace FingerprintsData
 {
@@ -756,6 +755,443 @@ new DataColumn("Status",typeof(bool))
         }
 
         #endregion CLASReview
+
+
+
+        #region MDTReport
+
+
+        public JsonResult GetUsersDetailsForMDT(long clientid) {
+
+            var Parents = new List<SelectListItem>();
+            var Facilitator = new List<SelectListItem>();
+            var FamilyAdvocate = new List<SelectListItem>();
+
+            try
+            {
+                var staff = StaffDetails.GetInstance();
+                var dbManager = new DBManager(connection.ConnectionString);
+                //var result = new { Parents= new List<SelectListItem>(), Facilitator = new List<SelectListItem>(),
+               
+                //};
+               // IDbConnection _connection;
+                var parameters = new IDbDataParameter[]
+                {
+
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",1,DbType.Int32),
+                    dbManager.CreateParameter("@ClientId",clientid,DbType.Int64)
+
+                };
+
+                //IDataReader reader = dbManager.GetDataReader("USP_MDTReportDetails", CommandType.StoredProcedure, parameters, out _connection);
+                DataSet _dataset = dbManager.GetDataSet("USP_MDTReportDetails", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null) {
+
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            Parents.Add(new SelectListItem() { Text = dr["Name"].ToString(), Value = dr["ClientID"].ToString() });
+                        }
+                    }
+
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        {
+                            Facilitator.Add(new SelectListItem() { Text = dr["Name"].ToString(), Value = dr["UserId"].ToString() });
+                        }
+                    }
+
+                    if (_dataset.Tables[2].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[2].Rows)
+                        {
+                            FamilyAdvocate.Add(new SelectListItem() { Text = dr["Name"].ToString(), Value = dr["UserId"].ToString() });
+                        }
+                    }
+
+
+                }
+                //  dbManager.GetDataSet
+                //while (reader.Read())
+                //{
+
+                //    //reader["CenterID"]
+                //}
+
+                }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+            return new JsonResult { Data = new {Parents, Facilitator, FamilyAdvocate } };
+        }
+
+
+        public List<MDTReport> GetMDTList()
+        {
+
+            var result = new List<MDTReport>();
+
+            try
+            {
+                var staff = StaffDetails.GetInstance();
+                var dbManager = new DBManager(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",3,DbType.Int32),
+
+
+                };
+
+                //IDataReader reader = dbManager.GetDataReader("USP_MDTReportDetails", CommandType.StoredProcedure, parameters, out _connection);
+                DataSet _dataset = dbManager.GetDataSet("USP_MDTReportDetails", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null)
+                {
+
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        result = DbHelper.DataTableToList<MDTReport>(_dataset.Tables[0],new List<string>() { });
+
+                    }
+                }
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+
+                        return result;
+        }
+
+
+
+        //   public MDTReport SubmitMDTForm(MDTReport MDT) {
+        public bool SubmitMDTForm(MDTReport MDT)
+        {
+
+            //var MDTR = new MDTReport();
+            var success = false;
+
+            try
+            {
+
+                var staff = StaffDetails.GetInstance();
+                //   var dbManager = new DBManager(connection.ConnectionString);
+                //var result = new { Parents= new List<SelectListItem>(), Facilitator = new List<SelectListItem>(),
+
+                //};
+
+                MDT.MDTActions = MDT.MDTActions ?? new List<MDTAction>();
+
+                var _ActionTable = new List<string>()
+                { "ActionId","MDTId","ActionFor","ActionNotes","Status"};
+                var _decrypted = new List<string>() {  };
+                DataTable ActionDT = Fingerprints.Common.DbHelper.ToUserDefinedDataTable(MDT.MDTActions, _ActionTable, _decrypted);
+
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_UpdateMDTReport";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", 1));
+
+                command.Parameters.Add(new SqlParameter("@ClientId", MDT.ClientId));
+                command.Parameters.Add(new SqlParameter("@MDTId", MDT.MDTId));
+                command.Parameters.Add(new SqlParameter("@Goal", MDT.Goal));
+                command.Parameters.Add(new SqlParameter("@Summary", MDT.Summary));
+                command.Parameters.Add(new SqlParameter("@IsDisability", MDT.IsDisability));
+                command.Parameters.Add(new SqlParameter("@IsMentalIssue", MDT.IsMentalIssue));
+                command.Parameters.Add(new SqlParameter("@IsCompleted", MDT.IsCompleted)); 
+
+                //parent details
+                command.Parameters.Add(new SqlParameter("@ParentId", MDT.ParentId));
+                command.Parameters.Add(new SqlParameter("@ParentSign", MDT.ParentSign));
+                command.Parameters.Add(new SqlParameter("@ParentSignType", MDT.ParentSignType));
+
+                //Facilitator  details
+                command.Parameters.Add(new SqlParameter("@FacilitatorId", MDT.FacilitatorId));
+                command.Parameters.Add(new SqlParameter("@FacilitatorSign", MDT.FacilitatorSign));
+                command.Parameters.Add(new SqlParameter("@FacilitatorSignType", MDT.FacilitatorSignType));
+                //Family Advocate details
+                command.Parameters.Add(new SqlParameter("@FamilyAdvocateId", MDT.FamilyAdvocateId));
+                command.Parameters.Add(new SqlParameter("@FamilyAdvocateSign", MDT.FamilyAdvocateSign));
+                command.Parameters.Add(new SqlParameter("@FASignType", MDT.FASignType));
+
+                command.Parameters.Add(new SqlParameter("@ActionDT", ActionDT));
+
+                int rowaffected = command.ExecuteNonQuery();
+
+                if (rowaffected > 0) success = true;
+
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+
+                //if (_dataset != null)
+                //{
+                //    if (_dataset.Tables[0].Rows.Count > 0)
+                //    {
+                //        MDTR= Fingerprints.Common.DbHelper.DataTableToList<MDTReport>(_dataset.Tables[0], new List<string> { })[0];
+                //    }
+                //}
+
+
+
+                //if (_dataset != null)
+                //{
+
+
+                //    if (_dataset.Tables[0].Rows.Count > 0)
+                //    {
+
+                //    }
+
+                //}
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+
+            return success;
+        }
+
+        public bool SubmitMDTAttachment(long id, HttpPostedFileBase attachment) {
+            bool success = false;
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                var fbyte = new BinaryReader(attachment.InputStream).ReadBytes(attachment.ContentLength);
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_UpdateMDTReport";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", 2));
+                command.Parameters.Add(new SqlParameter("@MDTId", id));
+
+                command.Parameters.Add(new SqlParameter("@MDTAttachment", fbyte));
+                command.Parameters.Add(new SqlParameter("@AttachmentName", attachment.FileName));
+                command.Parameters.Add(new SqlParameter("@AttachmentExtension", Path.GetExtension(attachment.FileName)));
+
+
+                int rowaffected = command.ExecuteNonQuery();
+
+                if (rowaffected > 0) success = true;
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return success;
+        }
+
+        public MDTReport GetMDTReportById(long id, string _for="edit") {
+
+            var MDTReport = new MDTReport();
+            MDTReport.AgnecyInfo = new Agency();
+            MDTReport.MDTActions = new List<MDTAction>();
+          var _MDTActions = new List<MDTAction>();
+            try
+            {
+                var staff = StaffDetails.GetInstance();
+                var dbManager = new DBManager(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",2,DbType.Int32),
+                    dbManager.CreateParameter("@ClientId",0,DbType.Int64),
+                    dbManager.CreateParameter("@MDTId",id,DbType.Int64)
+
+                };
+
+                //IDataReader reader = dbManager.GetDataReader("USP_MDTReportDetails", CommandType.StoredProcedure, parameters, out _connection);
+                DataSet _dataset = dbManager.GetDataSet("USP_MDTReportDetails", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null)
+                {
+
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        //  MDTReport = DbHelper.DataTableToList<MDTReport>(_dataset.Tables[0], new List<string>() { })[0];
+
+                        var _tmp = _dataset.Tables[0].Rows[0];
+
+                        MDTReport.MDTId = Convert.ToInt64(_tmp["MDTId"].ToString());
+                        MDTReport.ClientId = Convert.ToInt64(_tmp["ClientId"].ToString());
+
+                        MDTReport.AgencyName = _tmp["AgencyName"].ToString();
+                        MDTReport.CreatedDate = _tmp["CreatedDate"].ToString();
+                        MDTReport.CenterName= _tmp["CenterName"].ToString();
+                        MDTReport.DOB = _tmp["DOB"].ToString();
+
+                        // MDTReport.IsCompleted = bool.Parse( _tmp["IsCompleted"].ToString() ?? "False");
+                        //MDTReport.HaveAttachment = bool.Parse(_tmp["HaveAttachment"].ToString() ?? "False");
+                        MDTReport.IsCompleted = bool.Parse( _tmp["IsCompleted"].ToString());
+                        MDTReport.HaveAttachment = bool.Parse(_tmp["HaveAttachment"].ToString());
+
+                        MDTReport.Goal = _tmp["Goal"].ToString();
+                        MDTReport.Name = _tmp["Name"].ToString();
+                        MDTReport.Summary = _tmp["Summary"].ToString();
+                        MDTReport.IsDisability = Convert.ToBoolean(_tmp["IsDisability"].ToString());
+                        MDTReport.IsMentalIssue = Convert.ToBoolean(_tmp["IsMentalIssue"].ToString());
+
+                        MDTReport.ParentId = Convert.ToInt64(_tmp["ParentId"].ToString());
+                        
+                        MDTReport.ParentSignType = Convert.ToInt32(_tmp["ParentSignType"].ToString());
+
+                        MDTReport.FacilitatorId = _tmp["FacilitatorId"].ToString();
+                        
+                        MDTReport.FacilitatorSignType = Convert.ToInt32(_tmp["FacilitatorSignType"].ToString());
+
+                        MDTReport.FamilyAdvocateId = _tmp["FamilyAdvocateId"].ToString();
+                       
+                        MDTReport.FASignType =  Convert.ToInt32(_tmp["FASignType"].ToString());
+
+
+                        MDTReport.ParentSign = _tmp["ParentSign"].ToString();
+                        MDTReport.FacilitatorSign = _tmp["FacilitatorSign"].ToString();
+                        MDTReport.FamilyAdvocateSign = _tmp["FamilyAdvocateSign"].ToString();
+
+/*
+                        if (_for == "pdf")
+                        {
+                             
+                            MDTReport.ParentSign= Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(DBNull.Value == _tmp["ParentSign"] ? "{\"lines\":[]}" : _tmp["ParentSign"].ToString(), 400, 200);
+                            MDTReport.FacilitatorSign = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(DBNull.Value == _tmp["FacilitatorSign"] ? "{\"lines\":[]}" : _tmp["FacilitatorSign"].ToString(), 400, 200);
+                            MDTReport.FamilyAdvocateSign = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(DBNull.Value == _tmp["FamilyAdvocateSign"] ? "{\"lines\":[]}" : _tmp["FamilyAdvocateSign"].ToString(), 400, 200);
+                        }
+                        else {
+                            MDTReport.ParentSign = _tmp["ParentSign"].ToString();
+                            MDTReport.FacilitatorSign = _tmp["FacilitatorSign"].ToString();
+                            MDTReport.FamilyAdvocateSign = _tmp["FamilyAdvocateSign"].ToString();
+
+                        }
+
+
+                        */
+
+
+                        MDTReport.AgnecyInfo = new Agency() {
+                             address1 = _tmp["Address1"].ToString(),
+                              address2 = _tmp["Address2"].ToString(),
+                               State = _tmp["State"].ToString(),
+                               zipCode= _tmp["ZipCode"].ToString(),
+                               phone1= _tmp["Phone1"].ToString()
+                        };
+                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        //{
+                        //    Parents.Add(new SelectListItem() { Text = dr["Name"].ToString(), Value = dr["ClientID"].ToString() });
+                        //}
+                    }
+
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+                        _MDTActions = DbHelper.DataTableToList<MDTAction>(_dataset.Tables[1], new List<string>() { });
+                        MDTReport.MDTActions = _MDTActions;
+                    }
+                }
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+
+                    return MDTReport;
+
+        }
+
+
+        public Attachments GetMDTAttachmentById(long id)
+        {
+            var _attchment = new Attachments();
+
+            try
+            {
+                var staff = StaffDetails.GetInstance();
+                var dbManager = new DBManager(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",4,DbType.Int32),
+                    dbManager.CreateParameter("@MDTId",id,DbType.Int64)
+
+                };
+
+
+                DataSet _dataset = dbManager.GetDataSet("USP_MDTReportDetails", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0) {
+                        var _tR = _dataset.Tables[0].Rows[0];
+                        _attchment.AttachmentFileByte = (byte[])_tR["Attachment"];
+                        _attchment.AttachmentFileName = _tR["Attachment"].ToString();
+                        _attchment.AttachmentFileExtension = _tR["AttachmentExtension"].ToString();
+
+                    }
+                }
+
+            }catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+            return _attchment;
+        }
+
+        #endregion MDTReport
 
     }
 } 

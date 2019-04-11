@@ -1,4 +1,5 @@
 ﻿using iTextSharp.text;
+using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
 using System;
 using System.Collections.Generic;
@@ -79,5 +80,68 @@ namespace Fingerprints.Utilities
     }
 
 
+    class PDFBackgroundHelper : PdfPageEventHelper
+    {
 
-}
+        private PdfContentByte cb;
+        private List<PdfTemplate> templates;
+        //constructor
+        public PDFBackgroundHelper()
+        {
+            this.templates = new List<PdfTemplate>();
+        }
+
+        public override void OnEndPage(PdfWriter writer, Document document)
+        {
+            base.OnEndPage(writer, document);
+
+            cb = writer.DirectContentUnder;
+            PdfTemplate templateM = cb.CreateTemplate(50, 50);
+            templates.Add(templateM);
+
+            int pageN = writer.CurrentPageNumber;
+            String pageText = "Page " + pageN.ToString() + " of ";
+            BaseFont bf = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            float len = bf.GetWidthPoint(pageText, 10);
+
+            float offset = 0;
+
+            offset = (document.PageSize.Width / 2) -(len/2); //whole page width/2=> half page then substract half of text
+
+            cb.BeginText();
+            cb.SetFontAndSize(bf, 10);
+           
+
+            //  cb.SetTextMatrix(document.LeftMargin, document.PageSize.GetBottom(document.BottomMargin));
+            cb.SetTextMatrix(offset, document.PageSize.GetBottom(document.BottomMargin));
+            cb.ShowText(pageText);
+
+            
+            
+
+
+
+            cb.EndText();
+            cb.AddTemplate(templateM, offset+len, document.PageSize.GetBottom(document.BottomMargin));
+            // cb.AddTemplate(templateM, document.LeftMargin + len, document.PageSize.GetBottom(document.BottomMargin));
+            // cb.AddTemplate(templateM, offset, document.PageSize.GetBottom(document.BottomMargin));
+        }
+
+        public override void OnCloseDocument(PdfWriter writer, Document document)
+        {
+            base.OnCloseDocument(writer, document);
+            BaseFont bf = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            foreach (PdfTemplate item in templates)
+            {
+                item.BeginText();
+                item.SetFontAndSize(bf, 10);
+                item.SetTextMatrix(0, 0);
+                item.ShowText("" + (writer.PageNumber));
+                item.EndText();
+            }
+
+        }
+    }
+
+
+    }
