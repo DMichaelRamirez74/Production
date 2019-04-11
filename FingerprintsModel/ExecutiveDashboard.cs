@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FingerprintsModel
 {
-    public class ExecutiveDashBoard:NewProgramYearTransitionDashboard
+    public class ExecutiveDashBoard:NewProgramYearTransitionDashboard,IAccessSectionDashboard
     {
         public List<AbsenceByWeek> AbsenceReport { get; set; }
         public string AttendanceIssuePercentage { get; set; }
@@ -29,6 +29,10 @@ namespace FingerprintsModel
         public string TotalDollars { get; set; }
         public string WaitingList { get; set; }
         public string WaitingListCount { get; set; }
+
+        public bool AccessScreeningMatrix{ get; set; }
+
+        public bool AccessScreeningReview { get; set; }
 
         public List<EmployeeBirthday> EmployeeBirthdayList = new List<EmployeeBirthday>();
         public class EmployeeBirthday
@@ -78,6 +82,9 @@ namespace FingerprintsModel
             public string Total { get; set; }
             public string Available { get; set; }
         }
+
+
+        public List<NDaysScreeningReview> NDayScreeningReviewList = new List<NDaysScreeningReview>();
 
 
        

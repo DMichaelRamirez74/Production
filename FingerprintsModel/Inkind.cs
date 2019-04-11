@@ -233,16 +233,23 @@ namespace FingerprintsModel
         public List<InkindPeriods> InkindPeriodList { get; set; }
     }
 
-    public class InkindReport : InKindTransactions
+    public class InkindReport : InKindTransactions, IManagerReport
     {
-       public string CenterName { get; set; }
+        public string CenterName { get; set; }
         public string ActivityDescription { get; set; }
 
         public string ActivityType { get; set; }
 
         public string StaffEntered { get; set; }
 
-      
+     
+        public string StepUpToQualityStars { get; set; }
+
+        string IManagerReport.CenterID { get; set; }
+
+        public string ClassroomName { get; set; }
+
+        string IManagerReport.ClassroomID { get; set; }
 
     }
 

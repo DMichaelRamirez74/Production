@@ -1,4 +1,4 @@
-﻿using FingerprintsModel;
+﻿
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,7 +36,7 @@ namespace Fingerprints.Common
                             if (encry.Contains(prop.Name))
                             {
 
-                                propertyInfo.SetValue(obj, EncryptDecrypt.Encrypt(Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType).ToString()), null);
+                                propertyInfo.SetValue(obj, Fingerprints.Common.CryptoEncryptDecrypt.Encrypt(Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType).ToString()), null);
                                 //if (propertyInfo.PropertyType == typeof(System.Int64)) {  //if long value
                                 //    propertyInfo.SetValue(obj, EncryptDecrypt.Encrypt64(Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType).ToString()), null);
                                 //} else {
@@ -120,7 +120,7 @@ namespace Fingerprints.Common
                     // values[i] = props[i].GetValue(item);
                     PropertyDescriptor prop = props.Find(column[i].ToString(),false);
                     if (decryptedcolmn.Contains(column[i].ToString())) {
-                        values[i] = EncryptDecrypt.Decrypt(prop.GetValue(item).ToString());
+                        values[i] = Fingerprints.Common.CryptoEncryptDecrypt.Decrypt(prop.GetValue(item).ToString());
                     }
                     else
                     {

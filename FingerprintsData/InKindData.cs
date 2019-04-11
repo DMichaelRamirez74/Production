@@ -827,9 +827,11 @@ new DataColumn("Status",typeof(bool))
                                                                       ActivityDate = Convert.ToString(dr["ActivityDate"]),
                                                                       InKindAmount = Convert.ToDecimal(dr["InkindAmount"]),
                                                                       Name = Convert.ToString(dr["Name"]),
+                                                                      CenterID = Convert.ToInt32(dr["CenterID"]),
                                                                       CenterName = Convert.ToString(dr["CenterName"]),
+                                                                      StepUpToQualityStars = Convert.ToString(dr["StepUpToQualityStars"]),
                                                                       StaffEntered = Convert.ToString(dr["StaffEntered"]),
-                                                                      IsClosed=Convert.ToBoolean(dr["IsClosed"])
+                                                                      IsClosed = Convert.ToBoolean(dr["IsClosed"])
                                                                   }
 
 

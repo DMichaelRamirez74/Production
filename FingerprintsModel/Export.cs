@@ -7,11 +7,7 @@ using iTextSharp.text.pdf;
 using ClosedXML.Excel;
 using System.Data;
 using System.Web.Mvc;
-using System.Text;
-using System.Data.SqlTypes;
-//using DocumentFormat.OpenXml.Drawing;
-//using System.Drawing;
-//using Microsoft.Office.Interop.Excel;
+
 
 namespace FingerprintsModel
 {
@@ -567,43 +563,6 @@ namespace FingerprintsModel
                                 vs.Cell(ReportRow, Reportcolumn).Value = count;
                                 Status = Status + count;
                                 missingorexpired = missingorexpired + count;
-               //            }
-               //            count = 0;
-               //            if (j == 2)
-               //            {
-               //                for (var k = 1; k < screening.Count; k++)
-               //                {
-               //                    if (screening[k][i + 1].Contains("ExpiredDate"))
-               //                        count = count + 1;
-               //                }
-               //                vs.Cell(ReportRow, Reportcolumn).Value = count;
-               //                Status = Status + count;
-               //                missingorexpired = missingorexpired + count;
-               //            }
-               //            count = 0;
-               //            if (j == 3)
-               //            {
-               //                for (var k = 1; k < screening.Count; k++)
-               //                {
-               //                    if (screening[k][i + 1].Contains("ExpiringDate"))
-               //                        count = count + 1;
-               //                }
-               //                vs.Cell(ReportRow, Reportcolumn).Value = count;
-               //                Status = Status + count;
-               //            }
-               //            count = 0;
-               //        }
-               //        Reportcolumn++;
-               //    }
-               //    vs.Cell(ReportRow, Reportcolumn + 1).Value = Status;
-               //}
-               //vs.Cell(ReportRow + 2, 2).Value = "Total missing or expired records";
-               //vs.Cell(ReportRow + 2, 2).Style.Font.SetBold(true);
-               //vs.Cell(ReportRow + 2, 3).Value = missingorexpired;
-               //vs.Cell(ReportRow + 2, 4).Value = "Total completed screening";
-               //vs.Cell(ReportRow + 2, 4).Style.Font.SetBold(true);
-               //vs.Cell(ReportRow + 2, 5).Value = completed;
-               //ReportRow = ReportRow + 4;
                             }
                             count = 0;
                             if (j == 2)
@@ -615,8 +574,6 @@ namespace FingerprintsModel
                                 }
                                 vs.Cell(ReportRow, Reportcolumn).Value = count;
                                 Status = Status + count;
-                       //vs.Cell(ReportRow, 5).Value ="Status";
-                       //vs.Cell(ReportRow, 6).Value = "Notes";
                                 missingorexpired = missingorexpired + count;
                    }
                             count = 0;
@@ -1543,166 +1500,464 @@ namespace FingerprintsModel
         }
 
 
-        public MemoryStream ExportInkindReport(InkindReportModel inkindReportModel)
+        public MemoryStream ExportInkindReport(InkindReportModel inkindReportModel, string imagePath, FingerprintsModel.Enums.ReportFormatType reportFormat)
         {
             MemoryStream memoryStream = new MemoryStream();
             try
             {
 
-                XLWorkbook wb = new XLWorkbook();
-                IXLWorksheet workSheet = null;
-             
 
-                workSheet = wb.Worksheets.Add("In-Kind Report");
-                workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                #region PDF Report
 
-                if(inkindReportModel.FilterTypeEnum!=FingerprintsModel.Enums.InkindReportFilter.DateEntered)
+
+                if(reportFormat==Enums.ReportFormatType.Pdf)
                 {
+                     // Sets the maximum rows per page //
+                    Int32 colCount = 7; // column count //
 
 
-                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
+                    Document doc = new Document();
+
+                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+
+                    //Create PDF Table  
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+
+
+
+                    doc.OpenDocument();
+
+                    if (inkindReportModel != null && inkindReportModel.InkindReportList.Count > 0)
+                    {
+
+                        var centerList = inkindReportModel.InkindReportList.Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+
+                            PdfPTable tableLayout = new PdfPTable(colCount);
+                            tableLayout.HeaderRows = 3;
+
+                            //Add Content to PDF   
+                            tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+
+                            if (colCount == 7)
+                            {
+                                float[] headers = { 30, 30, 30, 20, 30, 30,30 };
+                                tableLayout.SetWidths(headers); //Set the pdf headers
+                            }
+
+                            if (i > 0)
+                            {
+                                doc.NewPage();
+
+                            }
+
+
+
+                            var inkindWithCenterList = inkindReportModel.InkindReportList.Where(x => x.CenterID == centerList[i]).ToList();
+
+
+
+                            #region Adding Headers
+
+                            #region Adding Star Rating image with Center Name
+
+                            Paragraph p = new Paragraph(inkindWithCenterList[0].CenterName, new Font(Font.FontFamily.HELVETICA, 12, 1, new iTextSharp.text.BaseColor(0, 0, 0)));
+
+
+
+                            string starImageUrl = "";
+
+                            // Star Rating Image URL //
+                            starImageUrl = imagePath + "\\220px-Star_rating_" + inkindWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+
+                            // starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+                            iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                            //Resize image depend upon your need
+
+                            starJpeg.ScaleToFit(40f, 40f);
+
+                            //Give space before image
+
+                            starJpeg.SpacingBefore = 10f;
+
+                            //Give some space after the image
+
+                            starJpeg.SpacingAfter = 10f;
+
+                            starJpeg.Alignment = Element.ALIGN_LEFT;
+
+                            p.Add(new Chunk(starJpeg, 20 * 2, 0, true));
+
+                            PdfPCell cell = new PdfPCell(p);
+                            cell.Colspan = colCount;
+                            cell.Padding = 5;
+                            cell.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                            cell.VerticalAlignment = 1;
+                            tableLayout.AddCell(cell);
+
+
+                            #endregion
+
+                            string headingName = string.Empty;
+                            if (inkindReportModel.FilterTypeEnum != FingerprintsModel.Enums.InkindReportFilter.DateEntered)
+                            {
+
+                                headingName = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
+                            }
+
+                            else if (inkindReportModel.FilterTypeEnum != FingerprintsModel.Enums.InkindReportFilter.EnteredBy)
+                            {
+                                headingName = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum);
+                            }
+
+                            else
+                            {
+                                headingName = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
+                            }
+
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(headingName, new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                Colspan = colCount,
+                                HorizontalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5
+                            });
+
+                            #endregion
+
+
+                            ////Add header 
+
+                            #region Table Headers
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Contributor", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Contributor Activity", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Activity Date", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Time Spent", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Miles Driven", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("In-Kind Amount", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Entered By", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                           
+
+                            #endregion
+
+
+
+                            #region Table Rows
+                            for (int j = 0; j < inkindWithCenterList.Count; j++)
+                            {
+
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(inkindWithCenterList[j].Name, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(inkindWithCenterList[j].ActivityDescription, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(inkindWithCenterList[j].ActivityDate, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(string.Concat(inkindWithCenterList[j].Hours, " ", "Hours", " ", inkindWithCenterList[j].Minutes, " ", "Minutes"), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(inkindWithCenterList[j].MilesDriven.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(string.Concat("$", " ", inkindWithCenterList[j].InKindAmount), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3,
+                                    BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(inkindWithCenterList[j].StaffEntered, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3,
+                                    BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                });
+
+
+
+
+
+                            }
+
+
+                            #endregion
+
+                            doc.Add(tableLayout);
+
+                        }
+                    }
+
+                    doc.CloseDocument();
+
 
                 }
+                #endregion
 
-                else if(inkindReportModel.FilterTypeEnum!=FingerprintsModel.Enums.InkindReportFilter.EnteredBy)
+                #region Excel Report
+                else if (reportFormat == Enums.ReportFormatType.Xls)
                 {
-                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum);
+                    XLWorkbook wb = new XLWorkbook();
+                    
 
+                  
+
+
+                    if (inkindReportModel.InkindReportList != null && inkindReportModel.InkindReportList.Count() > 0)
+                    {
+                        var centerList = inkindReportModel.InkindReportList.Select(x => x.CenterID).Distinct().ToList();
+
+
+                        #region Splitting records to worksheets based on Centers
+
+                        for (int i = 0; i < centerList.Count(); i++)
+                        {
+
+
+                            int inititalRow = 5;
+
+                            int ReportRow = inititalRow;
+                            int Reportcolumn = 2;
+
+                            #region Adding Worksheet
+
+                            var inkindWithCenterList = inkindReportModel.InkindReportList.Where(x => x.CenterID == centerList[i]).ToList();
+
+                            //var classroomList = screeningWithCenterList.Select(x => x.ClassroomID).Distinct().ToList();
+
+                            var centerName = inkindWithCenterList.Select(x => x.CenterName).First();
+                            var qualityStars = inkindWithCenterList.Select(x => x.StepUpToQualityStars).First();
+
+                            var vs = wb.Worksheets.Add(centerName.Length > 31 ? centerName.Substring(0, 15) : centerName);
+
+                            #region Headers with Quality Stars
+
+                            string starImageUrl = imagePath + "\\220px-Star_rating_" + inkindWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                            System.Drawing.Bitmap fullImage = new System.Drawing.Bitmap(starImageUrl);
+
+                            vs.AddPicture(fullImage).MoveTo(vs.Cell("F2"), new System.Drawing.Point(100, 1)).Scale(0.3);// optional: resize picture
+
+                            vs.Range("F2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("F2").Style.Font.SetBold(true);
+                            vs.Range("F2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Range("B2:C2").Merge();
+                            vs.Range("B2:C2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B2:C2").Style.Font.SetBold(true);
+                            vs.Range("B2:C2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Range("G2:H2").Merge();
+                            vs.Range("G2:H2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("G2:H2").Style.Font.SetBold(true);
+                            vs.Range("G2:H2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Range("D2:E2").Merge().Value = centerName;
+                            vs.Range("D2:E2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("D2:E2").Style.Font.SetBold(true);
+                            vs.Range("D2:E2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            if (inkindReportModel.FilterTypeEnum != FingerprintsModel.Enums.InkindReportFilter.DateEntered)
+                            {
+
+                                vs.Range("B3:H3").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + inkindReportModel.DateEntered;
+                            }
+
+                            else if (inkindReportModel.FilterTypeEnum != FingerprintsModel.Enums.InkindReportFilter.EnteredBy)
+                            {
+                                vs.Range("B3:H3").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum);
+                            }
+
+                            else
+                            {
+                                vs.Range("B3:H3").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
+                            }
+
+                            vs.Range("B3:H3").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B3:H3").Style.Font.SetBold(true);
+                            vs.Range("B3:H3").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            #endregion
+
+                            #region Table Headers
+
+
+                            vs.Cell(4, 2).Value = "Contributor";
+                            vs.Cell(4, 2).Style.Font.SetBold(true);
+                            vs.Cell(4, 2).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 3).Value = "Contributor Activity";
+                            vs.Cell(4, 3).Style.Font.SetBold(true);
+                            vs.Cell(4, 3).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 4).Value = "Activity Date";
+                            vs.Cell(4, 4).Style.Font.SetBold(true);
+                            vs.Cell(4, 4).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 5).Value = "Time Spent";
+                            vs.Cell(4, 5).Style.Font.SetBold(true);
+                            vs.Cell(4, 5).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 6).Value = "Miles Driven";
+                            vs.Cell(4, 6).Style.Font.SetBold(true);
+                            vs.Cell(4, 6).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 7).Value = "In-Kind Amount";
+                            vs.Cell(4, 7).Style.Font.SetBold(true);
+                            vs.Cell(4, 7).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 8).Value = "Entered By";
+                            vs.Cell(4, 8).Style.Font.SetBold(true);
+                            vs.Cell(4, 8).WorksheetColumn().Width = 30;
+
+                            vs.Range("B4:H4").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B4:H4").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                            vs.Range("B4:H4").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                            #endregion
+
+                            #region Table Rows
+
+                            for (int j = 0; j < inkindWithCenterList.Count; j++)
+                            {
+
+
+                                vs.Cell(ReportRow, Reportcolumn).Value = inkindWithCenterList[j].Name;
+                                vs.Cell(ReportRow, Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                vs.Cell(ReportRow, Reportcolumn+1).Value = inkindWithCenterList[j].ActivityDescription;
+                                vs.Cell(ReportRow, Reportcolumn+1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+1).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                vs.Cell(ReportRow, Reportcolumn+2).Value = inkindWithCenterList[j].ActivityDate;
+                                vs.Cell(ReportRow, Reportcolumn+2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+2).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                vs.Cell(ReportRow, Reportcolumn+3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+3).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Cell(ReportRow, Reportcolumn+3).Value = string.Concat(inkindWithCenterList[j].Hours, " ", "Hours", " ", inkindWithCenterList[j].Minutes, " ", "Minutes");
+
+                                vs.Cell(ReportRow, Reportcolumn+4).Value = inkindWithCenterList[j].MilesDriven;
+                                vs.Cell(ReportRow, Reportcolumn+4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+4).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                vs.Cell(ReportRow, Reportcolumn+5).Value = string.Concat("$", " ", inkindWithCenterList[j].InKindAmount);
+                                vs.Cell(ReportRow, Reportcolumn+5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+5).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                vs.Cell(ReportRow, Reportcolumn+6).Value = inkindWithCenterList[j].StaffEntered;
+                                vs.Cell(ReportRow, Reportcolumn+6).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn+6).Style.Font.SetBold(false);
+                                vs.Cell(ReportRow, Reportcolumn+6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                
+                                ReportRow++;
+                            }
+                            #endregion
+                            vs.Range("B4:H4").SetAutoFilter();
+
+                           
+                        }
+
+                        #endregion
+                        #endregion
+
+                    }
+
+                    wb.SaveAs(memoryStream);
                 }
+                #endregion
 
-                else
-                {
-                    workSheet.Range("B1:H1").Merge().Value = "In-Kind Report based on " + EnumHelper.GetEnumDescription(inkindReportModel.FilterTypeEnum) + " " + "dates from" + " " + inkindReportModel.FromDate + " " + "to " + inkindReportModel.ToDate;
-
-                }
-                workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-                workSheet.Range("B1:H1").Style.Font.SetBold(true);
-
-
-
-
-
-                //In-Kind Report Total Count Legends//
-
-
-              
-
-                workSheet.Cell(3, 6).Value = "Total Hours";
-                workSheet.Cell(3, 6).Style.Font.SetBold(true);
-                workSheet.Cell(3, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(3, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-             
-
-                workSheet.Cell(3, 7).Value = inkindReportModel.TotalHours;
-                workSheet.Cell(3, 7).Style.Font.SetBold(true);
-                workSheet.Cell(3, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(3, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-
-
-                workSheet.Cell(4, 6).Value = "Total Miles Driven";
-                workSheet.Cell(4, 6).Style.Font.SetBold(true);
-                workSheet.Cell(4, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(4, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-
-                workSheet.Cell(4, 7).Value = inkindReportModel.TotalMiles;
-                workSheet.Cell(4, 7).Style.Font.SetBold(true);
-                workSheet.Cell(4, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(4, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-
-
-                workSheet.Cell(5, 6).Value = "Total In-Kind Amount";
-                workSheet.Cell(5, 6).Style.Font.SetBold(true);
-                workSheet.Cell(5, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(5, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-                               
-                workSheet.Cell(5, 7).Value = inkindReportModel.TotalAmount;
-                workSheet.Cell(5, 7).Style.Font.SetBold(true);
-                workSheet.Cell(5, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(5, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-
-
-                workSheet.Cell(6, 6).Value = "Total Record(s)";
-                workSheet.Cell(6, 6).Style.Font.SetBold(true);
-                workSheet.Cell(6, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(6, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-                               
-                workSheet.Cell(6, 7).Value = inkindReportModel.TotalRecord;
-                workSheet.Cell(6, 7).Style.Font.SetBold(true);
-                workSheet.Cell(6, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.AshGrey;
-                workSheet.Cell(6, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
-
-                int ReportRow = 8;
-
-                //In-Kind Report Total Count Legends//
-
-                workSheet.Cell(ReportRow, 1).Value = "Contributor";
-                workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 1).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 1).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-                workSheet.Cell(ReportRow, 2).Value = "Center";
-                workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
-                workSheet.Cell(ReportRow, 2).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 2).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-                workSheet.Cell(ReportRow, 3).Value = "Contributor Activity";
-                workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 3).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 3).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-                workSheet.Cell(ReportRow, 4).Value = "Activity Date";
-                workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 4).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 4).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-
-                workSheet.Cell(ReportRow, 5).Value = "Time Spent";
-                workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 5).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 5).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-                workSheet.Cell(ReportRow, 6).Value = "Miles Driven";
-                workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 6).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 6).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-
-                workSheet.Cell(ReportRow, 7).Value = "In-Kind Amount";
-                workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 7).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 7).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-
-                workSheet.Cell(ReportRow, 8).Value = "Entered By";
-                workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
-                workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
-                workSheet.Cell(ReportRow, 8).Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.BlueGray;
-                workSheet.Cell(ReportRow, 8).Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-
-
-                ReportRow = ReportRow + 1;
-
-                foreach (var item in inkindReportModel.InkindReportList)
-                {
-                    workSheet.Cell(ReportRow, 1).Value = item.Name;
-                    workSheet.Cell(ReportRow, 2).Value = item.CenterName;
-                    workSheet.Cell(ReportRow, 3).Value = item.ActivityDescription;
-                    workSheet.Cell(ReportRow, 4).Value = item.ActivityDate;
-                    workSheet.Cell(ReportRow, 5).Value = string.Concat(item.Hours, " ", "Hours", " ", item.Minutes, " ", "Minutes");
-                    workSheet.Cell(ReportRow, 6).Value = item.MilesDriven;
-                    workSheet.Cell(ReportRow, 7).Value = string.Concat("$"," ", item.InKindAmount);
-                    workSheet.Cell(ReportRow, 8).Value = item.StaffEntered;
-                    ReportRow++;
-                }
-
-                wb.SaveAs(memoryStream);
             }
             catch (Exception ex)
             {
@@ -2226,33 +2481,33 @@ namespace FingerprintsModel
 
                                 vs.Cell(ReportRow, Reportcolumn + 1).Value = screeningList[k].ScreeningName;
                                 vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(false);
                                 vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 
                                 vs.Cell(ReportRow, Reportcolumn + 2).Value = screeningList[k].UptoDate;
                                 vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(false);
                                 vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 
                                 vs.Cell(ReportRow, Reportcolumn + 3).Value = screeningList[k].Missing;
                                 vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(false);
                                 vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 
 
                                 vs.Cell(ReportRow, Reportcolumn + 4).Value = screeningList[k].Expired;
                                 vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(false);
                                 vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 
 
                                 vs.Cell(ReportRow, Reportcolumn + 5).Value = screeningList[k].Expiring;
                                 vs.Cell(ReportRow, Reportcolumn + 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
-                                vs.Cell(ReportRow, Reportcolumn + 5).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn + 5).Style.Font.SetBold(false);
                                 vs.Cell(ReportRow, Reportcolumn + 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
                                 ReportRow++;
@@ -2322,6 +2577,585 @@ namespace FingerprintsModel
 
 
 
+
+
+        public MemoryStream ExportScreeningReviewReport(NDayScreeningReviewReport screeningReviewReport, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+            try
+            {
+
+
+                var screeningReview = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<NDaysScreeningReview>();
+                var displayNameHelper = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Fingerprints.Common.Helpers.DisplayNameHelper>();
+
+
+                screeningReview.ClassroomName = string.Empty;
+
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+                    int maxLinesPerPage = 33; // Sets the maximum rows per page //
+                    Int32 colCount = 6; // column count //
+
+
+                    Document doc = new Document();
+
+                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+
+                    //Create PDF Table  
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+
+
+
+                    doc.OpenDocument();
+
+                    if (screeningReviewReport != null && screeningReviewReport.NDayScreeningReviewList.Count > 0)
+                    {
+
+                        var centerList = screeningReviewReport.NDayScreeningReviewList.Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+
+                            PdfPTable tableLayout = new PdfPTable(colCount);
+                            tableLayout.HeaderRows = 3;
+
+                            //Add Content to PDF   
+                            tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+
+                            if (colCount == 6)
+                            {
+                                float[] headers = { 30, 30, 30, 20, 30, 30 };
+                                tableLayout.SetWidths(headers); //Set the pdf headers
+                            }
+
+                            if (i > 0)
+                            {
+                                doc.NewPage();
+
+                            }
+
+
+
+                            var screeningWithCenterList = screeningReviewReport.NDayScreeningReviewList.Where(x => x.CenterID == centerList[i]).ToList();
+
+                            var classroomList = screeningWithCenterList.Select(x => x.ClassroomID).Distinct().ToList();
+
+
+                            #region Adding Headers
+
+                            #region Adding Star Rating image with Center Name
+
+                            Paragraph p = new Paragraph(screeningWithCenterList[0].CenterName, new Font(Font.FontFamily.HELVETICA, 12, 1, new iTextSharp.text.BaseColor(0, 0, 0)));
+
+
+
+                            string starImageUrl = "";
+
+                            // Star Rating Image URL //
+                            starImageUrl = imagePath + "\\220px-Star_rating_" + screeningWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+
+                            // starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+                            iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                            //Resize image depend upon your need
+
+                            starJpeg.ScaleToFit(40f, 40f);
+
+                            //Give space before image
+
+                            starJpeg.SpacingBefore = 10f;
+
+                            //Give some space after the image
+
+                            starJpeg.SpacingAfter = 10f;
+
+                            starJpeg.Alignment = Element.ALIGN_LEFT;
+
+                            p.Add(new Chunk(starJpeg, 20 * 2, 0, true));
+
+                            PdfPCell cell = new PdfPCell(p);
+                            cell.Colspan = colCount;
+                            cell.Padding = 5;
+                            cell.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                            cell.VerticalAlignment = 1;
+                            tableLayout.AddCell(cell);
+
+
+                            #endregion
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("45-Day Screening Review Report", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                Colspan = colCount,
+                                HorizontalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5
+                            });
+
+                            #endregion
+
+
+                            ////Add header 
+
+                            #region Table Headers
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "ClassroomName"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "ScreeningName"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "Completed"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "CompletedButLate"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "NotExpired"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(screeningReview, "NotCompletedandLate"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            #endregion
+
+
+
+                            #region Table Rows
+                            for (int j = 0; j < classroomList.Count; j++)
+                            {
+                                var screeningList = screeningWithCenterList.Where(x => x.ClassroomID == classroomList[j]).ToList();
+
+
+
+                                for (int k = 0; k < screeningList.Count; k++)
+
+                                {
+                                    var rowSpan = screeningList.Count();
+
+
+                                    if (tableLayout.Rows.Count == maxLinesPerPage && k > 0)
+                                    {
+                                        tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].ClassroomName, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                        {
+                                            HorizontalAlignment = Element.ALIGN_LEFT,
+                                            Padding = 3,
+                                            Rowspan = (rowSpan - k),
+                                            BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                        });
+
+                                    }
+
+
+                                    if (k == 0)
+                                    {
+                                        tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].ClassroomName, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                        {
+                                            HorizontalAlignment = Element.ALIGN_LEFT,
+                                            Padding = 3,
+                                            Rowspan = ((tableLayout.Rows.Count + rowSpan <= maxLinesPerPage)) ? rowSpan : (tableLayout.Rows.Count + rowSpan > maxLinesPerPage) ? rowSpan - ((tableLayout.Rows.Count + rowSpan) - maxLinesPerPage) : rowSpan,
+                                            BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                        });
+
+                                    }
+
+
+
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].ScreeningName, new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].Completed.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].CompletedButLate.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].NotExpired.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(screeningList[k].NotCompletedandLate.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+                                }
+
+
+
+
+                            }
+
+
+                            #endregion
+
+                            var completed = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.Completed);
+                            var completedButLate = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.CompletedButLate);
+                            var notExpired = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.NotExpired);
+                            var notCompletedandLate = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.NotCompletedandLate);
+
+                            #region Total Calculation
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Total", new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_RIGHT,
+                                Padding = 3,
+                                Colspan = 2,
+
+                                BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(completed.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(completedButLate.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(notExpired.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(notCompletedandLate.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, iTextSharp.text.BaseColor.BLACK)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                            });
+
+                            #endregion
+
+                            doc.Add(tableLayout);
+
+                        }
+                    }
+
+                    doc.CloseDocument();
+
+
+
+                }
+
+
+
+                #endregion
+
+
+                #region Export Excel
+                else if (reportFormat == Enums.ReportFormatType.Xls)
+                {
+                    XLWorkbook wb = new XLWorkbook();
+
+
+                    if (screeningReviewReport.NDayScreeningReviewList != null && screeningReviewReport.NDayScreeningReviewList.Count > 0)
+                    {
+
+
+                        var centerList = screeningReviewReport.NDayScreeningReviewList.Select(x => x.CenterID).Distinct().ToList();
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+                            #region Adding Worksheet
+
+                            var screeningWithCenterList = screeningReviewReport.NDayScreeningReviewList.Where(x => x.CenterID == centerList[i]).ToList();
+
+                            var classroomList = screeningWithCenterList.Select(x => x.ClassroomID).Distinct().ToList();
+
+                            var centerName = screeningWithCenterList.Select(x => x.CenterName).First();
+                            var qualityStars = screeningWithCenterList.Select(x => x.StepUpToQualityStars).First();
+
+                            var vs = wb.Worksheets.Add(centerName.Length > 31 ? centerName.Substring(0, 15) : centerName);
+
+                            #region Headers with Quality Stars
+
+                            string starImageUrl = imagePath + "\\220px-Star_rating_" + screeningWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                            // string starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+
+                            System.Drawing.Bitmap fullImage = new System.Drawing.Bitmap(starImageUrl);
+
+
+                            vs.AddPicture(fullImage).MoveTo(vs.Cell("F2"), new System.Drawing.Point(100, 1)).Scale(0.3);// optional: resize picture
+
+
+
+                            vs.Range("B2:C2").Merge();
+                            vs.Range("B2:C2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B2:C2").Style.Font.SetBold(true);
+                            vs.Range("B2:C2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Range("F2:G2").Merge();
+                            vs.Range("F2:G2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("F2:G2").Style.Font.SetBold(true);
+                            vs.Range("F2:G2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Range("D2:E2").Merge().Value = centerName;
+                            vs.Range("D2:E2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("D2:E2").Style.Font.SetBold(true);
+                            vs.Range("D2:E2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Range("B3:G3").Merge().Value = "45-Day Screening Review Report";
+                            vs.Range("B3:G3").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B3:G3").Style.Font.SetBold(true);
+                            vs.Range("B3:G3").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            #endregion
+
+
+
+                            #region Table Headers
+
+                            vs.Cell(4, 2).Value = displayNameHelper.GetDisplayName(screeningReview, "ClassroomName");
+                            vs.Cell(4, 2).Style.Font.SetBold(true);
+                            vs.Cell(4, 2).WorksheetColumn().Width = 30;
+
+
+
+
+
+                            vs.Cell(4, 3).Value = displayNameHelper.GetDisplayName(screeningReview, "ScreeningName");
+                            vs.Cell(4, 3).Style.Font.SetBold(true);
+                            vs.Cell(4, 3).WorksheetColumn().Width = 30;
+                            //  vs.Range("C4:C4").SetAutoFilter();
+
+
+                            vs.Cell(4, 4).Value = displayNameHelper.GetDisplayName(screeningReview, "Completed");
+                            vs.Cell(4, 4).Style.Font.SetBold(true);
+                            vs.Cell(4, 4).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 5).Value = displayNameHelper.GetDisplayName(screeningReview, "CompletedButLate");
+                            vs.Cell(4, 5).Style.Font.SetBold(true);
+                            vs.Cell(4, 5).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 6).Value = displayNameHelper.GetDisplayName(screeningReview, "NotExpired");
+                            vs.Cell(4, 6).Style.Font.SetBold(true);
+                            vs.Cell(4, 6).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 7).Value = displayNameHelper.GetDisplayName(screeningReview, "NotCompletedandLate");
+                            vs.Cell(4, 7).Style.Font.SetBold(true);
+                            vs.Cell(4, 7).WorksheetColumn().Width = 30;
+
+                            vs.Range("B4:G4").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B4:G4").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                            vs.Range("B4:G4").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                            #endregion
+
+                            int inititalRow = 5;
+
+                            int ReportRow = inititalRow;
+                            int Reportcolumn = 2;
+
+
+
+                            #region Table Rows
+
+                            for (int j = 0; j < classroomList.Count; j++)
+                            {
+                                var screeningList = screeningWithCenterList.Where(x => x.ClassroomID == classroomList[j]).ToList();
+
+
+                                for (int k = 0; k < screeningList.Count; k++)
+                                {
+                                    var rowSpan = screeningList.Count;
+
+                                    if (k == 0)
+                                    {
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Merge().Value = screeningList[k].ClassroomName;
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Style.Font.SetBold(true);
+                                        vs.Range("B" + ReportRow + ":B" + (ReportRow + (rowSpan - 1)) + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                    }
+
+                                    vs.Cell(ReportRow, Reportcolumn + 1).Value = screeningList[k].ScreeningName;
+                                    vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Value = screeningList[k].Completed;
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                                    vs.Cell(ReportRow, Reportcolumn + 3).Value = screeningList[k].CompletedButLate;
+                                    vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                                    vs.Cell(ReportRow, Reportcolumn + 4).Value = screeningList[k].NotExpired;
+                                    vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                                    vs.Cell(ReportRow, Reportcolumn + 5).Value = screeningList[k].NotCompletedandLate;
+                                    vs.Cell(ReportRow, Reportcolumn + 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 5).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                    ReportRow++;
+
+                                }
+                            }
+
+
+                            #endregion
+
+
+                            vs.Range("B4:G4").SetAutoFilter();
+                           
+
+
+                            #region Total Calculation 
+
+                            vs.Range("B" + ReportRow + ":C" + ReportRow + "").Merge().Value = "Total";
+                            vs.Range("B" + ReportRow + ":C" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+                            vs.Range("B" + ReportRow + ":C" + ReportRow + "").Style.Font.SetBold(true);
+                            vs.Range("B" + ReportRow + ":C" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            //var completed = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.Completed);
+                            //var completedButLate = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.CompletedButLate);
+                            //var notExpired = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.NotExpired);
+                            //var notCompletedandLate = screeningWithCenterList.Where(x => x.CenterID == centerList[i]).Sum(x => x.NotCompletedandLate);
+
+
+                            int summationRow = (inititalRow + (ReportRow - 1));
+
+
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 2).Value = vs.Evaluate("SUM(D" + inititalRow + ":D" + summationRow + ")");
+
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 3).Value = vs.Evaluate("SUM(E" + inititalRow + ":E" + summationRow + ")");
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 4).Value = vs.Evaluate("SUM(F" + inititalRow + ":F" + summationRow + ")");
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 5).Value = vs.Evaluate("SUM(G" + inititalRow + ":G" + summationRow + ")");
+                            vs.Cell(ReportRow, Reportcolumn + 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 5).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 5).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            #endregion
+
+                            #endregion
+                        }
+                    }
+
+                    wb.SaveAs(memoryStream);
+                }
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
 
         public class TwoColumnHeaderFooter : PdfPageEventHelper
         {

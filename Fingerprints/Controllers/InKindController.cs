@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Web;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -883,57 +884,45 @@ namespace Fingerprints.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [CustAuthFilter()]
-        public ActionResult ExportInkindReport(int filterType, string selectedOption,string centers, string fromDate, string toDate, string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
+        public void ExportInkindReport(InkindReportModel inkindReportmodel,int filterType,int reportFormatType )
         {
-            InkindReportModel inkindReportmodel = new InkindReportModel();
 
             try
             {
 
-                inkindReportmodel.RequestedPage = requestedPage;
-                inkindReportmodel.PageSize = pageSize;
+                var reportFormat = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
                 inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
                 inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.InkindReportFilter>(filterType.ToString());
-                inkindReportmodel.FromDate = fromDate;
-                inkindReportmodel.ToDate = toDate;
-                inkindReportmodel.DateEntered = dateEntered;
-                inkindReportmodel.SortColumn = string.IsNullOrEmpty(sortColumn) ||sortColumn=="null" ? string.Empty : sortColumn.ToUpperInvariant();
-                inkindReportmodel.SortOrder = string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty:sortOrder ;
+        
+                inkindReportmodel.SortColumn = string.IsNullOrEmpty(inkindReportmodel.SortColumn) || inkindReportmodel.SortColumn == "null" ? string.Empty : inkindReportmodel.SortColumn.ToUpperInvariant();
+                inkindReportmodel.SortOrder = string.IsNullOrEmpty(inkindReportmodel.SortOrder) || inkindReportmodel.SortOrder == "null"?string.Empty : inkindReportmodel.SortOrder;
 
-                inkindReportmodel.SubFilterOption = selectedOption;
-                inkindReportmodel.Centers = centers;
-                inkindReportmodel.SearchTerm = searchTerm;
-                inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType) || searchTermType == "null" ? string.Empty : searchTermType;
-
-
+                inkindReportmodel.SearchTermType = string.IsNullOrEmpty(inkindReportmodel.SearchTermType) || inkindReportmodel.SearchTermType == "null" ? string.Empty : inkindReportmodel.SearchTermType;
 
                 new InKindData().GetInkindReportData(ref inkindReportmodel, staff);
 
+                string imagePath = Server.MapPath("~/Images/");
 
+                MemoryStream memoryStream = new MemoryStream();
 
                 if (inkindReportmodel != null && inkindReportmodel.InkindReportList != null && inkindReportmodel.InkindReportList.Count > 0)
                 {
-                    Response.Clear();
-                    Response.Buffer = true;
-                    Response.Charset = "";
-                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    Response.AddHeader("content-disposition", "attachment;filename=In-Kind Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
-                    System.IO.MemoryStream ms = new Export().ExportInkindReport(inkindReportmodel);
-                    ms.WriteTo(Response.OutputStream);
-                    Response.Flush();
-                    Response.End();
-                    return View();
+
+                    memoryStream = new Export().ExportInkindReport(inkindReportmodel,imagePath, reportFormat);
+                  
                 }
-                return Json("Error occurred. Please, try again later", JsonRequestBehavior.AllowGet);
+
+                string reportName = "In-Kind Report";
+
+                DownloadReport(memoryStream, reportFormat, reportName);
 
 
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
-                return Json("Error occurred. Please, try again later", JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -958,6 +947,42 @@ namespace Fingerprints.Controllers
 
             isResult= new InKindData().ActivateNewInkindPeriodData(staff, yakkrId);
             return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+        public void DownloadReport(MemoryStream memoryStream, ReportFormatType reportFormat, string reportName, params object[] args)
+        {
+            Response.Clear();
+            Response.Buffer = true;
+
+            switch (reportFormat)
+            {
+                case FingerprintsModel.Enums.ReportFormatType.Pdf:
+
+                    byte[] bytes = memoryStream.ToArray();
+                    memoryStream.Close();
+                    Response.ContentType = "application/pdf";
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".pdf");
+
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    Response.BinaryWrite(bytes);
+
+                    break;
+
+                case FingerprintsModel.Enums.ReportFormatType.Xls:
+
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                    memoryStream.WriteTo(Response.OutputStream);
+
+                    break;
+
+            }
+
+
+            Response.End();
+            Response.Close();
         }
 
     }

@@ -15,7 +15,9 @@ namespace FingerprintsModel
 
         public List<AccessRoles> TitleList { get; set; }
         public List<Role> RoleList { get; set; }
+
         public List<ScreeningNew> ScreeningList { get; set; }
+
         public int SelectedScreeningID { get; set; }
     }
 

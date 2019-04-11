@@ -1,10 +1,9 @@
-﻿@model FingerprintsModel.ScreeningMatrixReport
-
+﻿@model FingerprintsModel.NDayScreeningReviewReport
 
 @{
-    ViewBag.Title = "ScreeningMatrix";
+    ViewBag.Title = "ScreeningReview";
     if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
-       || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+         || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
     {
 
         Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
@@ -16,23 +15,22 @@
 }
 
 @section Title{
-
-    Screening Matrix
-}
+    
+    45-Day Screening Review
+    }
 
 @section Script{
-
+    
     <script src="~/Scripts/multiselect.js"></script>
 
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
         var self = null;
-
         var screeningMatrix = {
 
-            //screeningMatrixReport='@(Newtonsoft.Json.JsonConvert.SerializeObject(new FingerprintsModel.ScreeningMatrixReport()))',
 
+            reportFormatType:@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.ReportFormatType))),
             init: function () {
 
                 self = this;
@@ -42,9 +40,10 @@
                 self.initializeEvents();
             },
 
-            reportPartialUrl: HostedDir + '/Screening/GetScreeningMatrixReport',
+            reportPartialUrl: HostedDir + '/Screening/GetScreeningReviewReport',
             getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
-            exportReportUrl: HostedDir + '/Screening/ExportScreeningMatrixReport',
+            exportReportUrl: HostedDir + '/Screening/ExportScreeningReviewReport',
+            getscreeningUrl:HostedDir+'/Screening/GetScreeningByReportPeriods',
             requestedPage: 1,
             pageSize: 10,
             firstIndex: 0,
@@ -56,18 +55,21 @@
             sortOrder: null,
             sortColumn: null,
             documentExtensionArray: [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"],
-            
+
 
             elements: {
+                'dropdownReportDays':null,
                 'dropdownCenter': null,
                 'divCenterDropdown': null,
                 'divClassroomDropdown': null,
-                'dropdownClassroom':null,
+                'dropdownClassroom': null,
+                'divEnrollmentStatusDropdown':null,
+                'dropdownEnrollmentStatus':null,
                 'inputsearchReport': null,
                 'buttonSearch': null,
                 'lblTotalCount': null,
                 'divtableResponsive': null,
-                'tableScreeningMatrix': null,
+                'tableScreeningReview': null,
                 'tabletheadScreeningMatrix': null,
                 'tbodyScreeningReport': null,
                 'buttonLoadReport': null,
@@ -81,6 +83,8 @@
                 'buttonPagingNext': null,
                 'buttonPagingLast': null,
                 'dropdownPageNumber': null,
+                'anchorPdf': null,
+                'anchorExcel':null
 
 
             },
@@ -98,16 +102,14 @@
                 CenterID: [],
                 ClassroomID: [],
                 ScreeningID:[],
-                //ClassDate: null,
-                //UnscheduledSchoolDayReasonID: null,
-                //UnscheduledSchoolDayReason: null,
                 SortOrder: null,
                 SortColumn: null,
                 PageSize: null,
                 RequestedPage: null,
-                SearchTerm: null
-            //    searchTermType: null,
-                //UnscheduledSchoolDayID: null
+                SearchTerm: null,
+                ScreeningReportPeriodID: null,
+                EnrollmentStatus:null
+
             },
 
             showBusy:function(ele)
@@ -121,28 +123,36 @@
             initializeElements: function () {
 
                 var $selfElements = self.elements;
+
+                $selfElements.dropdownReportDays = $('#selectReportDays');
                 $selfElements.divCenterDropdown = $('#div-center-dropdown');
 
                 $selfElements.dropdownCenter = $selfElements.divCenterDropdown.find('#selectCenter');
 
                 $selfElements.dropdownClassroom = $('#selectClassroom');
                 $selfElements.divClassroomDropdown = self.elements.dropdownClassroom.closest('.form-group');
-              
+
+                $selfElements.divEnrollmentStatusDropdown = $('#div-enrollmentstatus-dropdown');
+                $selfElements.dropdownEnrollmentStatus =$selfElements.divEnrollmentStatusDropdown.find('#selectEnrollmentStatus');
+
+                $selfElements.anchorPdf = $('#pdfanchor');
+                $selfElements.anchorExcel = $('#excelanchor');
+
 
                 $selfElements.divtableResponsive = $('#screening-report-table-responsive');
-               
+
 
                 $selfElements.inputsearchReport = $selfElements.divtableResponsive.find('#searchReportText');
                 $selfElements.lblTotalCount = $selfElements.divtableResponsive.find('#totalCountSpan');
-                $selfElements.tableScreeningMatrix = $selfElements.divtableResponsive.find('#screeningMatrix-table');
+                $selfElements.tableScreeningReview = $selfElements.divtableResponsive.find('#screeningReview-table');
                 $selfElements.tbodyScreeningReport = $selfElements.divtableResponsive.find('#screening-tbody');
                 $selfElements.buttonSearch = $selfElements.divtableResponsive.find('#btnSearchauto');
 
                 $selfElements.divScreeningTypeDropdown = $('#div-screening-type-dropdown');
                 $selfElements.dropdownScreeningType = $selfElements.divScreeningTypeDropdown.find('#selectScreeningType');
-                $selfElements.buttonLoadReport = $('#btnLoadcreening');
+                $selfElements.buttonLoadReport = $('#btnLoadcreeningReview');
                 $selfElements.buttonExportReport = $('#btnScreeningExport');
-                $selfElements.tabletheadScreeningMatrix = $selfElements.tableScreeningMatrix.find('thead');
+                $selfElements.tabletheadScreeningMatrix = $selfElements.tableScreeningReview.find('thead');
                 $selfElements.divPaginationSection = $('#divPaginationScreening');
 
                 $selfElements.dropdownRecordsPerpage = $('#ddlpagetodisplay');
@@ -203,6 +213,23 @@
 
 
 
+                self.elements.dropdownEnrollmentStatus .multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: _langList.SearchScreeningType,
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divEnrollmentStatusDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divEnrollmentStatusDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+
+
 
             },
             initializeEvents: function () {
@@ -211,6 +238,13 @@
                 var $selfElements = self.elements;
 
 
+                $selfElements.dropdownReportDays.on('change', function () {
+
+
+                    self.getScreenings();
+
+
+                });
 
                 $selfElements.dropdownCenter.on('change', function (event) {
                     debugger;
@@ -229,7 +263,7 @@
                 $selfElements.buttonLoadReport.on('click', function () {
 
                     self.dataParameters.SearchTerm = '';
-                    self.getScreeningMatrixReport();
+                    self.getScreeningReviewReport();
 
                 });
 
@@ -243,7 +277,7 @@
 
                     self.pageSize = self.elements.dropdownRecordsPerpage.val();
 
-                    self.getScreeningMatrixReport();
+                    self.getScreeningReviewReport();
 
                     self.elements.buttonPagingFirst.attr('disabled', true);
                     self.elements.buttonPagingBack.attr('disabled', true);
@@ -296,12 +330,13 @@
                 });
 
 
-                $('#pdfanchor').on('click', function () {
+                self.elements.anchorPdf.on('click', function () {
 
                     self.SearchTerm = '';
+                    debugger;
 
 
-                    if(self.validateScreeningMatrixFilter())
+                    if(self.validateScreeningReviewFilter())
                     {
                         self.bindAjaxParameters();
                         //self.ajaxOptions.url = self.generateReportUrl;
@@ -318,21 +353,40 @@
                         //self.ajaxCall(self.generatereport);
 
 
-                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString()+"&reportFormatType=1";
+                        //$.ajax({
 
-                        
+                        //    url: self.exportReportUrl,
+                        //    type: "GET",
+                        //    datatype: 'binary',
+                        //    contentType:"application/json; charset=utf-8",
+                        //    data: { nDayScreeningReviewReport : self.dataParameters, reportFormatType: 1 },
+                        //    success: function (data) {
+                        //        console.log(data);
+                        //    },
+                        //    error: function (data) {
+                        //        console.log(data);
+                        //        alert('error');
+                        //    }
+
+
+                        //});
+
+
+                        window.location.href = self.exportReportUrl + "?ScreeningReportPeriodID=" + self.dataParameters.ScreeningReportPeriodID + "&ScreeningID=" + self.dataParameters.ScreeningID + "&CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&EnrollmentStatus=" + self.dataParameters.EnrollmentStatus.trim().toString() + "&reportFormatType="+self.reportFormatType.Pdf+"";
+
+
 
                     }
 
                 });
 
 
-                $('#excelanchor').on('click', function () {
+                self.elements.anchorExcel.on('click', function () {
 
                     self.SearchTerm = '';
 
 
-                    if (self.validateScreeningMatrixFilter()) {
+                    if (self.validateScreeningReviewFilter()) {
                         self.bindAjaxParameters();
                         //self.ajaxOptions.url = self.generateReportUrl;
                         //self.ajaxOptions.datatype = 'html',
@@ -348,8 +402,9 @@
                         //self.ajaxCall(self.generatereport);
 
 
-                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString() + "&reportFormatType=3";
+                      //  window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString() + "&reportFormatType=3";
 
+                        window.location.href = self.exportReportUrl + "?ScreeningReportPeriodID=" + self.dataParameters.ScreeningReportPeriodID + "&ScreeningID=" + self.dataParameters.ScreeningID + "&CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&EnrollmentStatus=" + self.dataParameters.EnrollmentStatus.trim().toString() + "&reportFormatType="+self.reportFormatType.Xls+"";
 
 
                     }
@@ -357,6 +412,10 @@
                 });
 
 
+                if(self.elements.dropdownReportDays.val()!='0')
+                {
+                    self.getScreenings();
+                }
 
             },
             generatereport(data)
@@ -403,7 +462,7 @@
 
 
 
-      
+                //   self.ajaxCall(self.callbackGetClassrooms);
 
 
             },
@@ -416,7 +475,7 @@
                     self.classroomsJson = data.CenterList[0].Classroom;
                     $.each(data.CenterList[0].Classroom, function (i, classroom) {
 
-                        bindData += '<option value=' + classroom.ClassroomID + '>' + classroom.ClassName + '</option>';
+                        bindData += '<option value=' + classroom.Enc_ClassRoomId + '>' + classroom.ClassName + '</option>';
                     });
                 }
 
@@ -446,55 +505,120 @@
 
 
             },
-            getScreeningMatrixReport: function () {
 
-                if (self.validateScreeningMatrixFilter()) {
+            getScreenings:function()
+            {
+                self.ajaxOptions.url = self.getscreeningUrl;
+                self.ajaxOptions.datatype = 'json',
+                self.ajaxOptions.type = 'POST',
+                self.ajaxOptions.data = JSON.stringify({ screeningReportPeriodID: self.elements.dropdownReportDays.val() });
+                self.ajaxOptions.async = true;
+                self.ajaxOptions.contentType = 'application/json; charset=utf-8';
 
+
+                self.showBusy(true);
+
+
+                self.ajaxCall(self.callbackGetScreenings);
+
+            },
+
+            callbackGetScreenings:function(data)
+            {
+                console.log(data);
+                debugger;
+                var appendData = '';
+
+                if(data!=null && data.length>0)
+                {
+
+
+
+                    $.each(data, function (i, screening) {
+
+                        appendData += '<option value="' + screening.Value + '">' + screening.Text + '</option>';
+
+                    });
+                }
+
+
+                self.elements.dropdownScreeningType.html(appendData);
+
+                self.elements.dropdownScreeningType.multiselect('destroy');
+                self.elements.dropdownScreeningType.multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    filterPlaceholder: _langList.SearchScreeningType,
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divScreeningTypeDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divScreeningTypeDropdown.find('.btn-group').css({ 'width': '100%' });
+            },
+
+            getScreeningReviewReport: function () {
+                debugger;
+                if (self.validateScreeningReviewFilter()) {
 
                     self.bindAjaxParameters();
                     self.ajaxOptions.url = self.reportPartialUrl;
                     self.ajaxOptions.datatype = 'html',
                     self.ajaxOptions.type = 'POST',
-                    self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
+                    self.ajaxOptions.data = JSON.stringify({ nDayScreeningReviewReport: self.dataParameters });
                     self.ajaxOptions.async = false;
                     self.ajaxOptions.contentType = 'application/json; charset=utf-8';
 
-
                     self.showBusy(true);
-                  
 
-                        self.ajaxCall(self.bindScreeningMatrixReport);
-
-                  
-
+                    self.ajaxCall(self.bindScreeningReviewReport);
 
                 }
 
 
             },
-            validateScreeningMatrixFilter: function () {
+            validateScreeningReviewFilter: function () {
                 var result = true;
 
                 debugger;
-               if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val()== '' || self.elements.dropdownCenter.val()== '0') {
+
+
+                if (self.elements.dropdownRecordsPerpage.val() == null || self.elements.dropdownPageNumber.val() == '-1')
+                {
+                    customAlertforlongTime("Report periods are required");
+                    plainValidation(self.elements.dropdownRecordsPerpage);
+                    result = false;
+                }
+
+
+              else if (self.elements.dropdownScreeningType.val() == null || self.elements.dropdownScreeningType.val() == '' || self.elements.dropdownScreeningType.val() == '0') {
+                    customAlertforlongtime(_langList.Screeningtypeisrequired);
+                    plainValidation(self.elements.dropdownScreeningType);
+                    result = false;
+                }
+
+              else if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val()== '' || self.elements.dropdownCenter.val()== '0') {
                     customAlertforlongtime(_langList.Centerisrequired);
                     plainValidation(self.elements.dropdownCenter);
                     result = false;
                 }
 
-
-
                else if (self.elements.dropdownCenter.val().length==1 &&( self.elements.dropdownClassroom.val() == null || self.elements.dropdownClassroom.val()=='' ||self.elements.dropdownClassroom.val()== '0')) {
                     customAlertforlongtime(_langList.Classroomisrequired);
                     plainValidation(self.elements.dropdownClassroom);
                     result = false;
-                }
+               }
 
-                else if (self.elements.dropdownScreeningType.val() == null ||self.elements.dropdownScreeningType.val()== '' ||self.elements.dropdownScreeningType.val()== '0') {
-                    customAlertforlongtime(_langList.Screeningtypeisrequired);
-                    plainValidation(self.elements.dropdownScreeningType);
-                    result = false;
-                }
+               else if (self.elements.dropdownEnrollmentStatus.val() == null || self.elements.dropdownEnrollmentStatus.val() == '')
+               {
+                   customAlertforlongtime("Enrollment status is required");
+                   plainValidation(self.elements.dropdownEnrollmentStatus);
+                   result = false;
+               }
+
 
 
                 return result;
@@ -507,13 +631,14 @@
                 self.dataParameters.CenterID = self.elements.dropdownCenter.val().join();
                 self.dataParameters.ClassroomID = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val().join() : '0';
                 self.dataParameters.ScreeningID = self.elements.dropdownScreeningType.val().join();
+                self.dataParameters.ScreeningReportPeriodID = self.elements.dropdownReportDays.val();
+                self.dataParameters.EnrollmentStatus = self.elements.dropdownEnrollmentStatus.val().join();
+
                 self.dataParameters.RequestedPage = self.requestedPage;
                 self.dataParameters.PageSize = self.pageSize;
-              
-                self.dataParameters.SortOrder = self.sortOrder==null || self.sortOrder==''?'ASC':self.sortOrder;
-                self.dataParameters.SortColumn = self.sortColumn == null || self.sortColumn == '' ? self.elements.tableScreeningMatrix.find('thead').find('tr:eq(0)').find('th').children('span').html().trim() : self.sortColumn;
 
-
+                self.dataParameters.SortOrder = self.sortOrder == null || self.sortOrder == '' ? 'ASC' : self.sortOrder;
+                self.dataParameters.SortColumn = self.sortColumn == null || self.sortColumn == '' ? self.elements.tableScreeningReview.find('thead').find('tr:eq(0)').find('th').children('span').html().trim() : self.sortColumn;
             },
 
             ajaxCall: function (callback) {
@@ -540,6 +665,8 @@
                     error: function (data) {
                         debugger;
                         console.log(data);
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
                     },
                     complete: function (data) {
                         console.log(data);
@@ -550,15 +677,22 @@
                 })
             },
 
-            bindScreeningMatrixReport: function (data) {
+            bindScreeningReviewReport: function (data) {
 
                 debugger;
+
+                if (data!=null && data.Data!=null && data.Data == "Login")
+                {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    return;
+                }
+
 
                 self.elements.divtableResponsive.html(data);
 
 
 
-             
+
 
                 self.initializeElements();
 
@@ -566,7 +700,7 @@
 
                 self.elements.tbodyScreeningReport.find('[data-toggle="tooltip"]').tooltip();
 
-               
+
                 //self.elements.inputsearchReport.on('focus', function () {
                 //    debugger;
                 //    this.removeAttribute('readonly');
@@ -591,12 +725,12 @@
                         self.elements.dropdownPageNumber.val('1');
                         self.requestedPage = self.elements.dropdownPageNumber.val();
                         self.dataParameters.SearchTerm = self.elements.inputsearchReport.val();
-                        self.getScreeningMatrixReport();
+                        self.getScreeningReviewReport();
                     }
 
                 });
 
-                self.elements.tableScreeningMatrix.find('thead th').on('click', function () {
+                self.elements.tableScreeningReview.find('thead th').on('click', function () {
 
                     debugger;
 
@@ -625,7 +759,7 @@
 
                         self.pageSize = self.elements.dropdownRecordsPerpage.val();
 
-                        self.getScreeningMatrixReport();
+                        self.getScreeningReviewReport();
                     }
                     else {
                         return false;
@@ -635,7 +769,7 @@
 
                 });
 
-                
+
 
 
             },
@@ -748,7 +882,7 @@
             gotoNextPage: function (reqPage, pageSize) {
 
 
-                self.getScreeningMatrixReport();
+                self.getScreeningReviewReport();
 
             },
 
@@ -813,7 +947,7 @@
 
 
 
-                self.getScreeningMatrixReport();
+                self.getScreeningReviewReport();
 
                 if (self.requestedPage == 1) {
                     $selfElements.buttonPagingFirst.attr('disabled', true);
@@ -853,25 +987,22 @@
 
         });
 
-    </script>
+</script>
 
+    }
 
-}
 
 @section Style
 {
 
-
-    <link href="~/Content/multiselect.css" rel="stylesheet" />
-
+<link href="~/Content/multiselect.css" rel="stylesheet" />
     <style type="text/css">
         #page-wrapper {
-            background-color: #fff;
-            min-height: 568px;
-            /*padding: 30px 15px 0;*/
-            padding: 45px 15px 0;
-        }
-
+    background-color: #fff;
+    min-height: 568px;
+    /* padding: 30px 15px 0; */
+    padding: 45px 15px 0;
+}
         .multiselect-clear-filter{
                 padding-top: 10px;
         }
@@ -880,195 +1011,227 @@
 #ulPaging a[disabled="disabled"] {
     pointer-events: none;
 }
-
     </style>
+    }
 
 
-}
-
-
-@section MainContentHolder{
-
-
+@section MainContentHolder
+{
     <div class="row Zoom">
-        <div class="col-lg-12" style="padding:0;">
-            <div class="page-wrapper-change">
-                <div class="container-fluid">
-                    <div class="row">
+    <div class="col-lg-12" style="padding:0;">
+        <div class="page-wrapper-change">
+            <div class="container-fluid">
+                <div class="row">
 
-                        <!-----Right Side Container Section------->
-                        <div class="glossy-right-side-container col-xs-12">
+                    <!-----Right Side Container Section------->
+                    <div class="glossy-right-side-container col-xs-12">
 
-                            <!----Heading Section------>
-                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
-                                <div class="col-lg-12">
-                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.ScreeningMatrix
+                        <!----Heading Section------>
+                        <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                            <div class="col-lg-12">
+                                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                    <i class="fa fa-file" aria-hidden="true"></i>&nbsp;45-Day Screening Review
 
-                                        <span class="view-btn backto_listspan">
+                                    <span class="view-btn backto_listspan">
 
-                                            @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
+                                        @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
 
-                                        </span>
-                                    </h2>
-                                </div>
+                                    </span>
+                                </h2>
                             </div>
+                        </div>
 
-                            <!--Filter and Search Form----->
-                            <form class="col-xs-12">
-
-
-                                <!--Filter Section----->
-                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+                        <!--Filter and Search Form----->
+                        <form class="col-xs-12">
 
 
+                            <!--Filter Section----->
+                            <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
 
 
-                                    <!---Center dropdown section-->
-                                    <div class="form-group col-lg-3 col-sm-6 col-xs-12" id="div-center-dropdown">
-                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center<sup>*</sup></label>
-
-                                        @{
-
-                                            FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
-
-                                            var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
 
 
-                                            //centerDetails.ForEach(x =>
-                                            //{
-                                            //    x.Value =x.Value!="0"? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value):x.Value;
-                                            //});
+                                <!---Screening Report Periods drop down section-->
+                                <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-reportdays-dropdown" style="display:none;">
+                                    <label for="selectReportDays" class="lbl-text">Report Periods &nbsp;<sup>*</sup></label>
+
+
+
+
+                                   
+                                    <select id="selectReportDays" class="glossy-select" disabled style="display:none;">
+
+                                        <option value="0">--Select--</option>
+
+
+                                        @if (Model != null && Model.ScreeningReportPeriodsList != null && Model.ScreeningReportPeriodsList.Count > 0)
+                                        {
+
+                                            for (int i = 0; i < Model.ScreeningReportPeriodsList.Count; i++)
+                                            {
+
+                                                if (Model.ScreeningReportPeriodsList[i].ScreeningReportDays == 45)
+                                                {
+                                                    <option selected="selected" value="@Model.ScreeningReportPeriodsList[i].ScreeningReportPeriodID">@Model.ScreeningReportPeriodsList[i].ScreeningReportDescription</option>
+
+                                                }
+
+                                                else
+                                                {
+                                                    <option value="@Model.ScreeningReportPeriodsList[i].ScreeningReportPeriodID">@Model.ScreeningReportPeriodsList[i].ScreeningReportDescription</option>
+
+                                                }
+                                            }
                                         }
-                                        <select id="selectCenter" class="glossy-select" multiple="multiple" >
-
-                                            @if (centerDetails != null && centerDetails.Count > 0)
-
-                                            {
-                                                foreach (var center in centerDetails)
-                                                {
-
-                                                    if (center.Value != "0")
-                                                    {
-                                                        <option value="@center.Value">@center.Text</option>
-
-                                                    }
 
 
-                                                }
+                                    </select>
 
 
-                                            }
+                                   
 
-                                        </select>
+                                    
 
-                                    </div>
-
-
-
-
-                                    <!---------Classroom drop down section----------->
-
-                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
-                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
-
-                                        <select class="glossy-select" id="selectClassroom" multiple="multiple"></select>
-
-                                    </div>
-
-                                    <!-----------Screening Type --------------------->
-
-                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-screening-type-dropdown">
-                                        <label for="selectScreeningType" class="lbl-text">@Fingerprints.LocalResource.Resources.ScreeningType <sup>*</sup></label>
-
-                                        <select id="selectScreeningType" class="glossy-select" multiple="multiple">
-
-                                            @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
-
-                                            {
-                                                foreach (var screening in Model.ScreeningList)
-                                                {
-
-                                                    <option value="@screening.ScreeningID">@screening.ScreeningName</option>
-                                                }
-
-
-                                            }
-
-                                        </select>
-
-                                    </div>
-
-
-                                  
-
-
-                                    <!-----In-kind activity Search section-->
-                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
-                                        <label for="btnLoadcreening" style="visibility:hidden;">Action</label>
-                                        <button type="button" class="glossy-button-button button-green" id="btnLoadcreening">
-                                            <span class="glossy-button-after"></span>
-                                            <span class="glossy-button-before"></span>
-                                            @Fingerprints.LocalResource.Resources.Load
-                                        </button>
-                                    </div>
-
-
-                                    <!-----In-kind activity Export section-->
-                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn">
-                                        <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
-                                        
-                                      @*<button type="button" class="glossy-button-button button-blue" id="btnScreeningExport">
-                                            <span class="glossy-button-after"></span>
-                                            <span class="glossy-button-before"></span>
-                                            Export
-                                        </button>*@
-
-
-
-                                        <div class="dropdown">
-                                            <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
-                                              @Fingerprints.LocalResource.Resources.Export
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
-                                                @*<li><a href="#">DOC</a></li>*@
-                                                <li><a href="javascript:void(0);" id="excelanchor" >XLS</a></li>
-                                            </ul>
-                                        </div>
-
-                                    </div>
-
-
+                                 
 
 
                                 </div>
 
+                                <!-----------Screening Type --------------------->
+
+                                <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-screening-type-dropdown">
+                                    <label for="selectScreeningType" class="lbl-text">@Fingerprints.LocalResource.Resources.ScreeningType <sup>*</sup></label>
+
+                                    <select id="selectScreeningType" class="glossy-select" multiple="multiple">
+
+                                        @*@if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+
+                                        {
+                                            foreach (var screening in Model.ScreeningList)
+                                            {
+
+                                                <option value="@screening.ScreeningID">@screening.ScreeningName</option>
+                                            }
 
 
-                            </form>
+                                        }*@
 
-                            <!-------Screening Report table section------->
+                                    </select>
 
-                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
-
-
-
-                                <div class="col-xs-12 glossy-panel-div" id="screening-report-table-responsive">
+                                </div>
 
 
-
+                                <!---Center drop-down section-->
+                                <div class="form-group col-lg-3 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                    <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center &nbsp;<sup>*</sup></label>
 
                                     @{
 
-                                        Html.RenderPartial("~/Views/Screening/_ScreeningMatrix.cshtml", Model);
+                                        FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
 
+                                        var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
+
+
+                                        centerDetails.ForEach(x =>
+                                        {
+                                            x.Value = x.Value != "0" ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                        });
                                     }
+                                    <select id="selectCenter" class="glossy-select" multiple="multiple">
 
+                                        @if (centerDetails != null && centerDetails.Count > 0)
+
+                                        {
+                                            foreach (var center in centerDetails)
+                                            {
+
+                                                if (center.Value != "0")
+                                                {
+                                                    <option value="@center.Value">@center.Text</option>
+
+                                                }
+
+
+                                            }
+
+
+                                        }
+
+                                    </select>
 
                                 </div>
 
+
+
+
+                                <!---------Classroom drop down section----------->
+
+                                <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
+                                    <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom &nbsp;<sup>*</sup></label>
+
+                                    <select class="glossy-select" id="selectClassroom" multiple="multiple"></select>
+
+                                </div>
+
+
+                                <!---Enrollment Status type-->
+                                <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enrollmentstatus-dropdown">
+                                    <label for="selectEnrollmentStatus" class="lbl-text">Enrollment Status &nbsp;<sup>*</sup></label>
+
+                                 
+                                    <select id="selectEnrollmentStatus" class="glossy-select" multiple="multiple">
+
+
+
+                           
+                                        <option value="@((int)FingerprintsModel.Enums.EnrollmentStatusType.Accepted)">@FingerprintsModel.Enums.EnrollmentStatusType.Accepted.ToString()</option>
+
+                                        <option value="@((int)FingerprintsModel.Enums.EnrollmentStatusType.Enrolled)">@FingerprintsModel.Enums.EnrollmentStatusType.Enrolled.ToString()</option>
+                                        <option value="@((int)FingerprintsModel.Enums.EnrollmentStatusType.Withdrawn)">@FingerprintsModel.Enums.EnrollmentStatusType.Withdrawn.ToString()</option>
+
+
+                                        <option value="@((int)FingerprintsModel.Enums.EnrollmentStatusType.ReEnrolled)">Re-Enrolled</option>
+
+
+                                        <option value="@((int)FingerprintsModel.Enums.EnrollmentStatusType.Transitioned)">@FingerprintsModel.Enums.EnrollmentStatusType.Transitioned.ToString()</option>
+
+                                    </select>
+
+                                </div>
+
+                              
+
+
+
+
+
+                                <!-----Screening Review Load section-->
+                                <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                    <label for="btnLoadcreeningReview" style="visibility:hidden;">Action</label>
+                                    <button type="button" class="glossy-button-button button-green" id="btnLoadcreeningReview">
+                                        <span class="glossy-button-after"></span>
+                                        <span class="glossy-button-before"></span>
+                                        @Fingerprints.LocalResource.Resources.Load
+                                    </button>
+                                </div>
+
+
+                                <!-----In-kind activity Export section-->
+                                <div class="form-check col-lg-2 col-xs-12 glossy_btn">
+                                    <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
+
+                                    <div class="dropdown">
+                                        <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                                            @Fingerprints.LocalResource.Resources.Export
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                            <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                        </ul>
+                                    </div>
+
+                                </div>
 
 
 
@@ -1076,90 +1239,119 @@
                             </div>
 
 
-                            <!---Pagination Section-->
+
+                        </form>
+
+                        <!-------Screening Report table section------->
+
+                        <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+
+
+                            <div class="col-xs-12 glossy-panel-div" id="screening-report-table-responsive">
 
 
 
 
+                                @{
 
-                          
+                                    Html.RenderPartial("~/Views/Screening/_ScreeningReview.cshtml", Model);
+
+                                }
 
 
-                            <div class="col-xs-12" id="divPaginationScreening">
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
-                                    <div class="pages_display">
-                                        <ul>
-                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.Display</li>
-                                            <li>
-                                                <select id="ddlpagetodisplay">
-                                                    <option value="10" selected="selected">10</option>
-                                                    <option value="20">20</option>
-                                                    <option value="30">30</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                            </li>
-                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
-                                        </ul>
-                                        <div class="clear"></div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <div id="divPaging" class="pagination_wrp">
-                                        <ul id="ulPaging" class="pagination">
-                                            <li>
-
-                                                @*<input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" disabled />*@
-
-                                                <a href="javascript:void(0);" id="First" disabled>
-                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                </a>
-
-                                            </li>
-                                            <li title="Back">
-
-                                                @*<input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' disabled />*@
-                                                <a href="javascript:void(0);" id="Back" disabled>
-                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                </a>
-
-                                            </li>
-                                            <li title="Select">
-                                                <select class="select_cl" id="ddlpaging"></select>
-                                            </li>
-                                            <li title="Next">
-                                                @*<input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' disabled />*@
-                                                <a href="javascript:void(0);" id="Next" disabled>
-                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                </a>
-                                            </li>
-                                            <li title="Last">
-                                                @* <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' disabled />*@
-                                                <a href="javascript:void(0);" id="Last" disabled>
-                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
                             </div>
+
 
 
 
 
                         </div>
+
+
+                        <!---Pagination Section-->
+
+
+
+
+
+
+
+
+                        <div class="col-xs-12" id="divPaginationScreening">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                <div class="pages_display">
+                                    <ul>
+                                        <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.Display</li>
+                                        <li>
+                                            <select id="ddlpagetodisplay">
+                                                <option value="10" selected="selected">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </li>
+                                        <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                    </ul>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <div id="divPaging" class="pagination_wrp">
+                                    <ul id="ulPaging" class="pagination">
+                                        <li>
+
+                                            @*<input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" disabled />*@
+
+                                            <a href="javascript:void(0);" id="First" disabled>
+                                                <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+
+                                        </li>
+                                        <li title="Back">
+
+                                            @*<input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' disabled />*@
+                                            <a href="javascript:void(0);" id="Back" disabled>
+                                                <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+
+                                        </li>
+                                        <li title="Select">
+                                            <select class="select_cl" id="ddlpaging"></select>
+                                        </li>
+                                        <li title="Next">
+                                            @*<input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' disabled />*@
+                                            <a href="javascript:void(0);" id="Next" disabled>
+                                                <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+                                        </li>
+                                        <li title="Last">
+                                            @* <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' disabled />*@
+                                            <a href="javascript:void(0);" id="Last" disabled>
+                                                <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
     </div>
 
 
 
 
+</div>
 
-}
+
+    
+    }
+

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Web;
 using System.Data;
 using System.Web.Mvc;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace FingerprintsModel
 {
@@ -17,6 +13,8 @@ namespace FingerprintsModel
 
        
         public int ScreeningID { get; set; }
+
+        [Display(Name ="Screening Type")]
         public string ScreeningName { get; set; }
 
      
@@ -41,6 +39,9 @@ namespace FingerprintsModel
         public bool IsExpiring { get; set; }
         public int ScreeningsPerYear { get; set; }
 
+        public int ScreeningReportPeriodID{get;set;}
+
+        public bool Report { get; set; }
     }
 
     public class ScreeningPeriods 

@@ -22,6 +22,7 @@ using iTextSharp.tool.xml;
 using iTextSharp.tool.xml.html.table;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -37,6 +38,7 @@ namespace Fingerprints.Controllers
 
         StaffDetails staff = FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
+        ScreeningData screeningData = FactoryInstance.Instance.CreateInstance<ScreeningData>();
         public ActionResult AddScreening(DataTable CustomScreening)
         {
             Screening _screening = new Screening();
@@ -94,7 +96,7 @@ namespace Fingerprints.Controllers
 
             () =>
             {
-                report.ScreeningList = FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningsByUserAccess(staff);
+                report.ScreeningList = screeningData.GetScreeningsByUserAccess(staff);
 
             }
 
@@ -110,7 +112,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                report = FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningMatrixReport(report, staff);
+                report = screeningData.GetScreeningMatrixReport(report, staff);
 
             }
             catch (Exception ex)
@@ -121,7 +123,8 @@ namespace Fingerprints.Controllers
             return report;
         }
 
-
+        [HttpPost]
+        [CustAuthFilter()]
         public PartialViewResult GetScreeningMatrixReport(ScreeningMatrixReport screeningMatrixReport)
         {
 
@@ -208,37 +211,91 @@ string imagePath=Server.MapPath("~/Images/");
 
                 } 
 
-                //PdfPCell cell = new PdfPCell(new Phrase("Glenwood Center"));
 
-                //cell.Colspan = 6;
 
-                //cell.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
 
-                //table.AddCell(cell);
 
-                //table.AddCell("Col 1 Row 1");
+                #endregion
 
-                //table.AddCell("Col 2 Row 1");
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
 
-                //table.AddCell("Col 3 Row 1");
+          
 
-                //table.AddCell("Col 1 Row 2");
 
-                //table.AddCell("Col 2 Row 2");
+        }
 
-                //table.AddCell("Col 3 Row 2");
 
-                //pdfDoc.Add(table);
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult ScreeningReview()
+        {
 
-                ///*Creating the PDF file*/
-                //pdfWriter.CloseStream = false;
-                //pdfDoc.Close();
-                //Response.Buffer = true;
-                //Response.ContentType = "application/pdf";
-                //Response.AddHeader("content-disposition", "attachment;filename=Credit-Card-Report.pdf");
-                //Response.Cache.SetCacheability(HttpCacheability.NoCache);
-                //Response.Write(pdfDoc);
-                //Response.End()
+            NDayScreeningReviewReport modal = new NDayScreeningReviewReport();
+          
+            modal.ScreeningReportPeriodsList =  FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningReportPeriods(staff);
+            return View(modal);
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+
+        public JsonResult GetScreeningByReportPeriods(int screeningReportPeriodID)
+        {
+            int userscreenings = 2;
+            List<SelectListItem> screeningList = screeningData.GetScreeningByReportDays(staff, screeningReportPeriodID, userscreenings);
+
+
+            return Json(screeningList, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetScreeningReviewReport(NDayScreeningReviewReport nDayScreeningReviewReport)
+        {
+
+            nDayScreeningReviewReport.SkipRows = nDayScreeningReviewReport.GetSkipRows();
+
+
+            nDayScreeningReviewReport = screeningData.GetScreeningReviewReport(staff, nDayScreeningReviewReport);
+
+            return PartialView("~/Views/Screening/_ScreeningReview.cshtml", nDayScreeningReviewReport);
+        }
+
+
+
+        public void ExportScreeningReviewReport(NDayScreeningReviewReport nDayScreeningReviewReport, int reportFormatType)
+        {
+         
+
+            try
+            {
+
+
+                nDayScreeningReviewReport.RequestedPage = 0;
+                nDayScreeningReviewReport.PageSize = 0;
+                nDayScreeningReviewReport.SkipRows = nDayScreeningReviewReport.GetSkipRows();
+                nDayScreeningReviewReport.SortColumn = "Classroom";
+                nDayScreeningReviewReport.SortOrder = "ASC";
+              
+                nDayScreeningReviewReport = screeningData.GetScreeningReviewReport(staff,nDayScreeningReviewReport);
+
+
+                #region Itextsharp PDF generation Region
+
+                string imagePath = Server.MapPath("~/Images/");
+
+
+                var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+                    MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportScreeningReviewReport(nDayScreeningReviewReport, reportTypeEnum,imagePath);
+                 string reportName = "45-Day_Screening_Review_Report";
+
+                 DownloadReport(workStream, reportTypeEnum, reportName);
 
 
 
@@ -251,9 +308,48 @@ string imagePath=Server.MapPath("~/Images/");
             }
 
 
+          
+
+
+
         }
 
 
+        public void DownloadReport(MemoryStream memoryStream, ReportFormatType reportFormat, string reportName, params object[] args)
+        {
+            Response.Clear();
+            Response.Buffer = true;
+
+            switch (reportFormat)
+            {
+                case FingerprintsModel.Enums.ReportFormatType.Pdf:
+
+                    byte[] bytes = memoryStream.ToArray();
+                    memoryStream.Close();
+                    Response.ContentType = "application/pdf";
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".pdf");
+
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    Response.BinaryWrite(bytes);
+
+                    break;
+
+                case FingerprintsModel.Enums.ReportFormatType.Xls:
+
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                    memoryStream.WriteTo(Response.OutputStream);
+
+                    break;
+
+            }
+
+
+            Response.End();
+            Response.Close();
+        }
 
 
     }

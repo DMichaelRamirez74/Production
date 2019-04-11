@@ -20,6 +20,7 @@ namespace FingerprintsModel.Enums
         InKindHoursDollars = 6,
         Disabilities = 7,
         OverIncome = 8,
-        WaitingList = 9
+        WaitingList = 9,
+        ScreeningReview=10
     }
 }

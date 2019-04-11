@@ -6,13 +6,13 @@
     if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
           || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
     {
+
         Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
     }
     else
     {
         Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     }
-
 }
 
 @section Title
@@ -55,7 +55,7 @@
             inkindPeriods:@Html.Raw(Json.Encode(Model.InkindPeriodList)),
 
             inkindBudgetPeriods:[],
-
+            reportFormatType:@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.ReportFormatType))),
 
             elements: {
 
@@ -66,7 +66,8 @@
                 'divEnteredByDropdown':null,
                 'dropdownEnteredBy':null,
                 'inkindSearch': null,
-                'inkindExport':null,
+                'inkindExportPdf':null,
+                'inkindExportExcel':null,
                 'divCenterDropdown': null,
                 'dropdownCenter': null,
                 //  'divAgencyDropdown': null,
@@ -167,7 +168,8 @@
                 $selfElements.divEnteredByDropdown=$('#div-enteredby-dropdown');
                 $selfElements.dropdownEnteredBy=$('#selectEnteredBy');
                 $selfElements.inkindSearch = $('#btnSearchInkind');
-                $selfElements.inkindExport=$('#btninkindExport');
+                $selfElements.inkindExportPdf=$('#pdfanchor');
+                $selfElements.inkindExportExcel=$('#excelanchor');
                 $selfElements.divCenterDropdown = $('#div-center-dropdown');
                 $selfElements.dropdownCenter = $('#selectCenter');
 
@@ -374,7 +376,8 @@
                     {
                         case self.filterType.DateEntered:
 
-
+                            self.elements.inkindFromDate.val('');
+                            self.elements.inkindToDate.val('');
                             self.elements.inkindFromDate.parent('div').parent('div').hide('slow');
                             self.elements.inkindToDate.parent('div').parent('div').hide('slow');
                             self.elements.inkindDateEntered.val('');
@@ -542,21 +545,45 @@
 
 
 
-                $selfElements.inkindExport.on('click',function(e){
+                $selfElements.inkindExportExcel.on('click',function(e){
 
 
                     e.preventDefault();
 
+                    
+
                     if(self.validateFilterSection())
                     {
-
                         self.bindAjaxParameters();
+                        $('input[name="SubFilterOption"]').val(self.ajaxParameters.selectedOption);
+                        $('input[name="Centers"]').val(self.ajaxParameters.centers);
+                        $('input[name="filterType"]').val(self.ajaxParameters.filterType);
+                        $('input[name="reportFormatType"]').val(self.reportFormatType.Xls);
+                        $('#filterForm').submit();
 
-                        window.location.href = HostedDir + '/InKind/ExportInkindReport?filterType='+self.ajaxParameters.filterType+
-                            '&selectedOption='+self.ajaxParameters.selectedOption+'&centers='+self.ajaxParameters.centers+' &fromDate='+self.ajaxParameters.fromDate+'&toDate='+self.ajaxParameters.toDate+
-                            '&dateEntered='+self.ajaxParameters.dateEntered+'&requestedPage='+0+'&pageSize='+0+
-                            '&sortOrder='+self.ajaxParameters.sortOrder+'&sortColumn='+self.ajaxParameters.sortColumn+'&searchTerm='+self.ajaxParameters.searchTerm+
-                            '&searchTermType=""';
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+
+                self.elements.inkindExportPdf.on('click',function(e){
+
+                    debugger;
+                    e.preventDefault();
+
+                    
+
+                    if(self.validateFilterSection())
+                    {
+                        self.bindAjaxParameters();
+                        $('input[name="SubFilterOption"]').val(self.ajaxParameters.selectedOption);
+                        $('input[name="Centers"]').val(self.ajaxParameters.centers);
+                        $('input[name="filterType"]').val(self.ajaxParameters.filterType);
+                        $('input[name="reportFormatType"]').val(self.reportFormatType.Pdf);
+                        $('#filterForm').submit();
 
                     }
                     else
@@ -1318,7 +1345,7 @@
 
                 else if ($selfElements.inKindFilter.val() == self.filterType.DateEntered
            && ($selfElements.inkindDateEntered.val() == null
-           || $selfElements.inkindDateEntered.val() == '')) {
+           || $selfElements.inkindDateEntered.val() == ''|| $selfElements.inkindDateEntered.val().trim()=='__/__/____')) {
 
                     plainValidation($selfElements.inkindDateEntered);
                     customAlert('Please enter date');
@@ -1328,26 +1355,21 @@
 
 
                 else if (($selfElements.inkindFromDate.val() == null || $selfElements.inkindFromDate.val() == '' || $selfElements.inkindFromDate.val() == "__/__/____")
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                     && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy
-                    
-                    ) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
                     plainValidation($selfElements.inkindFromDate);
                     customAlert('Please enter From date');
                     return false;
                 }
 
                 else if (($selfElements.inkindToDate.val() == null || $selfElements.inkindToDate.val() == '' || $selfElements.inkindToDate.val() == "__/__/____")
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                    && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('Please enter To date');
                     return false;
                 }
                 else if ((new Date($selfElements.inkindToDate.val()).setHours(0, 0, 0, 0)
                          < new Date($selfElements.inkindFromDate.val()).setHours(0, 0, 0, 0))
-                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered
-                    && parseInt($selfElements.inKindFilter.val())==self.filterType.EnteredBy) {
+                     && parseInt($selfElements.inKindFilter.val())!=self.filterType.DateEntered) {
                     plainValidation($selfElements.inkindToDate);
                     customAlert('To date should by greater than or equal to From date');
                     return false;
@@ -1471,12 +1493,26 @@
                         if (data != null && data.length > 0) {
                             var appendSection = '';
 
-                            $.each(data, function (i, option) {
+                            if (filterType==self.filterType.Contributor)
+                            {
+                                for(var i=0;i<=100;i++)
+                                {
+                                    $.each(data, function (i, option) {
 
-                                appendSection += '<option value=' + option.Value + '>' + option.Text + '</option>';
-                            });
+                                        appendSection += '<option value=' + option.Value + '>' + option.Text + '</option>';
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                $.each(data, function (i, option) {
 
-                           
+                                    appendSection += '<option value=' + option.Value + '>' + option.Text + '</option>';
+                                });
+                            }
+
+
+
 
                             switch (filterType) {
 
@@ -4098,18 +4134,29 @@
                                     </div>
                                 </div>
 
-                                <!--Filter and Search Form----->
-                                <form class="col-xs-12">
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12" id="filterForm" action="/InKind/ExportInkindReport" method="post">
+
+                               
+                               
+                                  
+
+                                 
+                                <!--Filter Section----->
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
 
 
-                                    <!--Filter Section----->
-                                    <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+                                
+                                    <input type="hidden" name="filterType" />
+                                    <input type="hidden" name="reportFormatType" />
+                                    <input type="hidden" name="Centers" />
+                                    <input type="hidden" name="SubFilterOption"/>
 
-                                        <!---Filter Type Section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12">
-                                            <label for="selectFilterBy" class="lbl-text" >Filter By <sup>*</sup></label>
+                                    <!---Filter Type Section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12">
+                                        <label for="selectFilterBy" class="lbl-text">Filter By <sup>*</sup></label>
 
-                                            <select class="glossy-select" id="selectFilterBy">
+                                        <select class="glossy-select" id="selectFilterBy" name="filterType">
 
 
 
@@ -4128,11 +4175,13 @@
                                         </div>
 
 
-                                        <!---Center dropdown section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-center-dropdown" >
-                                            <label for="selectCenter"  class="lbl-text">Center <sup>*</sup></label>
+                                    <!---Center dropdown section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-center-dropdown">
 
-                                            <select id="selectCenter" class="glossy-select" multiple="multiple"></select>
+                                       
+                                        <label for="selectCenter" class="lbl-text">Center <sup>*</sup></label>
+
+                                        <select id="selectCenter" class="glossy-select" name="Centers" multiple="multiple"></select>
 
                                         </div>
 
@@ -4161,19 +4210,19 @@
                                         </div>
 
 
-                                        <!-----In-kind activity Date Entered section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
-                                            <label for="dateEnteredDateTimePicker"  class="lbl-text">Date Entered <sup>*</sup></label>
-                                            <div class="input-group date">
-                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="dateEnteredDateTimePicker">
-                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
-                                            </div>
+                                    <!-----In-kind activity Date Entered section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
+                                        <label for="dateEnteredDateTimePicker" class="lbl-text">Date Entered <sup>*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" name="DateEntered" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="dateEnteredDateTimePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
                                         </div>
-                                        
-                                        <!-----In-kind activity Date Entered section-->
-                                       
+                                    </div>
+
+                                    <!-----In-kind activity Date Entered section-->
+
 
 
                                         <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enteredby-dropdown" style="display:none;">
@@ -4186,49 +4235,64 @@
                                       
                                             
 
-                                        <!-----In-kind activity From date section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12">
-                                            <label for="fromDateDateTimePicker">From Date <sup style="color:red;">*</sup></label>
-                                            <div class="input-group date">
-                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
-                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
-                                            </div>
+                                    <!-----In-kind activity From date section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12">
+                                        <label for="fromDateDateTimePicker">From Date <sup style="color:red;">*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control glossy-date-input" name="FromDate" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
                                         </div>
-                                        <!-----In-kind activity To date section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12">
-                                            <label for="toDateDateTimePicker">To Date <sup style="color:red;">*</sup></label>
-                                            <div class="input-group date">
-                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
-                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
-                                            </div>
+                                    </div>
+                                    <!-----In-kind activity To date section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12">
+                                        <label for="toDateDateTimePicker">To Date <sup style="color:red;">*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control glossy-date-input"  name="ToDate" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
                                         </div>
-                                        <!-----In-kind activity Search section-->
-                                        <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
-                                            <label for="exampleInputPassword1" style="visibility:hidden;">Action</label>
-                                            <button type="button" class="glossy-button-button button-green" id="btnSearchInkind">
-                                                <span class="glossy-button-after"></span>
-                                                <span class="glossy-button-before"></span>
-                                                Load
-                                            </button>
-                                        </div>
-
-
-                                        <!-----In-kind activity Export section-->
-                                        <div class="form-check col-lg-2 col-xs-12 glossy_btn">
-                                            <label for="exampleInputPassword1" style="visibility:hidden;">Action</label>
-                                            <button type="button" class="glossy-button-button button-blue" id="btninkindExport">
-                                                <span class="glossy-button-after"></span>
-                                                <span class="glossy-button-before"></span>
-                                                Export
-                                            </button>
-                                        </div>
+                                    </div>
+                                    <!-----In-kind activity Search section-->
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                        <label for="exampleInputPassword1" style="visibility:hidden;">Action</label>
+                                        <button type="button" class="glossy-button-button button-green" id="btnSearchInkind">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            Load
+                                        </button>
                                     </div>
 
 
+                                    <!-----In-kind activity Export section-->
+                                  
+
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn">
+                                        <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
+
+                                        <div class="dropdown">
+                                            <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                                                @Fingerprints.LocalResource.Resources.Export
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                @*<li><a href="#">DOC</a></li>*@
+                                                <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+
+
+                                    </div>
+                               
+                               
+
+
+                        
 
                                 </form>
 
