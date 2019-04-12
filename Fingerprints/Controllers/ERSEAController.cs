@@ -294,7 +294,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter(RoleEnum.ERSEAManager)]
+        [CustAuthFilter()]
         public ActionResult CommunityAssessment()
         {
             return View();
