@@ -1,0 +1,747 @@
+﻿
+@model FingerprintsModel.ScreeningFollowupReport
+
+
+<style type="text/css">
+    .table-back-shadow {
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    #screeningMatrix-table tbody tr > td:first-child p, #screeningMatrix-table .td-screeningname > p {
+        width: 225px !important;
+    }
+
+
+    /*#screeningMatrix-table .td-screeningname> p {
+        width: 280px!important;
+    }*/
+
+
+    .total-details-table {
+        width: auto;
+        float: right;
+    }
+
+        .total-details-table tr, .total-details-table td {
+            padding: 0 10px;
+            line-height: 25px;
+        }
+
+            .total-details-table tr td label {
+                color: #1d5381;
+            }
+
+
+    .search-block, .glossy-search-block {
+        width: auto;
+        display: inline-block;
+        float: left;
+        margin-right: auto;
+        /*margin-top: 70px;*/
+    }
+
+
+
+        .search-block button {
+            font-size: 18px;
+            text-transform: capitalize;
+            text-align: center;
+            display: inline-block;
+            border-radius: 0 !important;
+            font-size: 14px;
+            background: #215785;
+            color: #fff;
+            border: none;
+            margin: 0;
+            border-radius: 4px;
+            width: auto;
+            padding: 7px 14px;
+            margin: auto;
+            font-weight: bold;
+            line-height: 20px;
+            border-top-right-radius: 5px !important;
+            border-bottom-right-radius: 5px !important;
+        }
+
+        .search-block input {
+            float: left;
+            color: #333;
+            font-size: 14px;
+            margin-right: 0;
+            width: 335px;
+            line-height: 32px;
+            height: 32px;
+            padding: 7px 10px;
+            border-top-left-radius: 5px !important;
+            border-bottom-left-radius: 5px !important;
+        }
+
+
+
+
+        
+              
+
+
+
+    @@media (min-width: 400px) and (max-width: 748px) {
+        .search-block input, .glossy-search-block input {
+            width: 225px;
+        }
+
+        span.multiselect-native-select .dropdown-toggle {
+            z-index: unset !important;
+        }
+
+        .multiselect-native-select ul.multiselect-container.dropdown-menu {
+            z-index: 9999999 !important;
+        }
+    }
+
+
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .search-block input, .glossy-search-block int {
+            width: 81% !important;
+        }
+    }
+
+    .search-block-main {
+        margin-bottom: 10px;
+        display: flex;
+        padding: 0;
+    }
+
+
+    span.multiselect-native-select .dropdown-toggle {
+        z-index: unset !important;
+    }
+
+    .multiselect-native-select ul.multiselect-container.dropdown-menu {
+        z-index: 9999999 !important;
+    }
+
+    .input-group.date .datepicker-icon {
+        cursor: pointer;
+        border-color: #7e50b7 #684494 #5d3e84 !important;
+        -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        text-shadow: 0 1px #7e50b7;
+        background-color: #5f477d;
+    }
+
+        .input-group.date .datepicker-icon span {
+            color: #fff;
+        }
+
+
+    /*table#screeningMatrix-table> tbody> tr> td :first-child p {
+            width: 340px!important;
+        }*/
+</style>
+
+
+<div class="col-xs-12 search-block-main">
+    <div class="glossy-search-block col-md-12">
+        <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+        <div class="glossy-search-btn-div">
+            <button id="btnSearchauto">@Fingerprints.LocalResource.Resources.Search</button>
+        </div>
+    </div>
+
+    <table class="col-md-12 table-striped total-details-table table-back-shadow">
+        <tr>
+            <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+            <td id="totalCountSpan">@Model.TotalRecord</td>
+        </tr>
+    </table>
+
+</div>
+
+
+<div class="col-xs-12 no-padding table-wrapper"  style="padding:0;">
+<div class="col-xs-12 no-padding table-outer" style="padding:0;">
+
+
+
+    <!--Table -->
+    <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table main-table" id="screening-followup-table" style="padding:0;">
+        <!--- Table Headers -->
+        <thead class="table-hd scroll-thead">
+            <tr>
+
+                <!--- Center Name --->
+                <th class="fixed-side">
+
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "center")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                    }
+                }
+                else if (string.IsNullOrEmpty(Model.SortColumn))
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Center">Center</span>
+                </th>
+
+
+                <!--- Classroom Name --->
+                <th class="fixed-side1">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "classroom")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Classroom">Classroom</span>
+                </th>
+
+
+                <!----Screening Type --->
+                <th class="fixed-side2">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "screening type")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Screening Type">Screening Type</span>
+                </th>
+
+                <!---- Client --->
+                <th class="fixed-side3">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "client")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Client">Client</span>
+                </th>
+
+                <!--- Date of Birth --->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "dob")
+                    {
+                        if (Model.SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        }
+                        else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                        }
+
+                    }
+
+                    else
+                    {
+                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                    }
+
+                    <span data-column="DOB"> DOB</span>
+                </th>
+
+                <!--- Age ---->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "age")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Age">Age</span>
+                </th>
+
+                <!-- Program Type --->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "prg type")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Prg Type">Prg Type</span>
+                </th>
+
+                <!---- Date of First Service --->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "date of first service")
+                    {
+                        if (Model.SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        }
+                        else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                        }
+
+                    }
+
+                    else
+                    {
+                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                    }
+
+                    <span data-column="Date of First Service">Date of First Service</span>
+                </th>
+
+
+
+                <!--- Follow-up Question ---->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "follow-up question")
+                {
+                    if (Model.SortOrder.ToLowerInvariant() == "asc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                    {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                    }
+                }
+                else
+                {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                    <span data-column="Follow-up Question" style="text-transform:none;">Follow-up Question</span>
+                </th>
+
+
+
+
+                <!--- Screening Period ---->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "screening period")
+                    {
+                        if (Model.SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+                        else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+
+                    <span data-column="Screening Period" style="text-transform:none;">Screening Period</span>
+                </th>
+
+
+                <!--- Custom Screening Period ---->
+                <th scope="col">
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "custom screening")
+                    {
+                        if (Model.SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+                        else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-asc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+
+                    <span data-column="Custom Screening" style="text-transform:none;">Custom Screening</span>
+                </th>
+
+
+                <!---Last Date of Screening ---->
+                <th scope="col">
+
+                    @if (Model.SortColumn != null && Model.SortColumn.ToLowerInvariant().Trim() == "date of last screening")
+                    {
+                        if (Model.SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        }
+                        else if (Model.SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;white-space:normal;"></i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;white-space:normal;"></i>
+                    }
+
+                    <span data-column="Date of Last Screening">Date of Last Screening</span>
+                </th>
+
+
+            </tr>
+        </thead>
+        <!--- Table Body --->
+        <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="screening-tbody">
+
+            @try
+            {
+
+                if (Model != null && Model.ScreeningFollowupList != null && Model.ScreeningFollowupList.Count > 0)
+                {
+
+                    int i = 0;
+
+                    while (i < Model.ScreeningFollowupList.Count)
+                    {
+
+                        <tr>
+
+                            <td role="gridcell" class="fixed-side" data-title="@Fingerprints.LocalResource.Resources.Center">
+                                <p title="@Model.ScreeningFollowupList[i].CenterName" data-toggle="tooltip">@Model.ScreeningFollowupList[i].CenterName</p>
+                            </td>
+
+                            <td role="gridcell" class="fixed-side1" data-title="@Fingerprints.LocalResource.Resources.Classroom">
+                                <p title="@Model.ScreeningFollowupList[i].ClassroomName" data-toggle="tooltip">@Model.ScreeningFollowupList[i].ClassroomName</p>
+                            </td>
+
+                            <td role="gridcell" class="fixed-side2" data-title="Screening Type">
+                                <p title="@Model.ScreeningFollowupList[i].ScreeningQuestion.ScreeningName" data-toggle="tooltip">@Model.ScreeningFollowupList[i].ScreeningQuestion.ScreeningName</p>
+                            </td>
+
+                            <td role="gridcell" class="fixed-side3" data-title="@Fingerprints.LocalResource.Resources.Client">
+                                <p title="@Model.ScreeningFollowupList[i].ClientName" data-toggle="tooltip">@Model.ScreeningFollowupList[i].ClientName</p>
+                            </td>
+
+                            <td role="gridcell" data-title="DOB">
+                                <p>@Model.ScreeningFollowupList[i].Dob</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Age">
+                                <p>@Model.ScreeningFollowupList[i].AgeInWords</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Program Type">
+                                <p data-toggle="tooltip">@Model.ScreeningFollowupList[i].ProgramType</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Date of First Service">
+                                <p>@Model.ScreeningFollowupList[i].DateOfFirstService</p>
+                            </td>
+
+                            @{
+                                var question = Model.ScreeningFollowupList[i].ScreeningQuestion.Questionlist != null &&
+                                               Model.ScreeningFollowupList[i].ScreeningQuestion.Questionlist.Any() ? Model.ScreeningFollowupList[i].ScreeningQuestion.Questionlist.Select(x => x.Question).First() : string.Empty;
+                            }
+                            <td role="gridcell" data-title="Screening Quesetion">
+                                <p data-toggle="tooltip" title="@question">@question</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Screening Period">
+                                <p data-toggle="tooltip" title="@Model.ScreeningFollowupList[i].ScreeningPeriods.Description">@Model.ScreeningFollowupList[i].ScreeningPeriods.Description</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Custom Screening Period">
+                                <p data-toggle="tooltip" title="@(Model.ScreeningFollowupList[i].ScreeningPeriods.CustomScreeningPeriod == 1 ? "Yes" : "No")">@(Model.ScreeningFollowupList[i].ScreeningPeriods.CustomScreeningPeriod == 1 ? "Yes" : "No")</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Date of Last Screening">
+                                <p title="@Model.ScreeningFollowupList[i].ScreeningDate">@Model.ScreeningFollowupList[i].ScreeningDate</p>
+                            </td>
+
+                        </tr>
+                            i++;
+
+                                }
+
+
+
+                               
+
+
+
+                            }
+                            else
+                            {
+                                    <tr style="width:98.3%">
+                                        <td colspan="12" style="padding: 25px;text-align:center;font-weight:bold;">
+                                            @if (Model.SortColumn == null)
+                    { <text>@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red">*</sup></text> }
+                    else
+                    { <text>@Fingerprints.LocalResource.Resources.Recordsnotfound</text>}
+                                        </td>
+
+
+
+
+                                    </tr>
+
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+                                FingerprintsModel.clsError.WriteException(ex);
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+        </tbody>
+
+
+
+    </table>
+
+</div>
+</div>
+
+
+@if (Model!=null && Model.ScreeningFollowupList!=null && Model.ScreeningFollowupList.Count > 0)
+{
+
+    <style type="text/css">
+        /*Fixed Horizontal Scroll and Frozen Column*/
+
+
+
+        @@media (min-width: 1201px) {
+            .glossy-table-body tr td:nth-child(1) p {
+                width: 186px !important;
+            }
+
+            .glossy-table thead tr th {
+                white-space: nowrap;
+            }
+
+            .fixed-side {
+                position: sticky;
+                left: 0;
+                white-space: nowrap;
+                width: 113px !important;
+                border: none;
+            }
+
+            .fixed-side1 {
+                position: sticky;
+                left: calc(198px *1);
+                white-space: nowrap;
+                width: 142px !important;
+                border: none;
+            }
+
+            .fixed-side2 {
+                position: sticky;
+                left: calc(160px *2);
+                white-space: nowrap;
+                width: 117px !important;
+                border: none;
+            }
+
+            .fixed-side3 {
+                position: sticky;
+                left: calc(147px *3);
+                white-space: nowrap;
+                width: 126px !important;
+                border: none;
+            }
+
+            th.fixed-side, th.fixed-side1, th.fixed-side2, th.fixed-side3 {
+                border-collapse: separate;
+                border-right: unset !important;
+            }
+
+            td.fixed-side, td.fixed-side1, td.fixed-side2, td.fixed-side3 {
+                border-collapse: separate;
+            }
+
+
+            .table-wrapper th, .table-wrapper td {
+                padding: 5px 10px;
+                white-space: nowrap;
+                vertical-align: top;
+            }
+
+            .table-wrapper table {
+                width: 100%;
+                margin: auto;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+
+
+
+            .table-striped > tbody > tr:nth-of-type(odd) > td:nth-child(1), .table-striped > tbody > tr:nth-of-type(odd) > td:nth-child(2), .table-striped > tbody > tr:nth-of-type(odd) > td:nth-child(3), .table-striped > tbody > tr:nth-of-type(odd) > td:nth-child(4) {
+                background: #f9f9f9;
+            }
+
+            .table-striped > tbody > tr:nth-of-type(even) > td:nth-child(1), .table-striped > tbody > tr:nth-of-type(even) > td:nth-child(2), .table-striped > tbody > tr:nth-of-type(even) > td:nth-child(3), .table-striped > tbody > tr:nth-of-type(even) > td:nth-child(4) {
+                background: #f1f5f8;
+            }
+
+
+            th.fixed-side, th.fixed-side1, th.fixed-side2, th.fixed-side3 {
+                background: linear-gradient(to bottom, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+            }
+        }
+
+
+
+       
+      
+        /**/
+    </style>
+
+}
+
+<style type="text/css">
+
+      @@media(min-width:768px) and (max-width:942px)
+        {
+
+            .glossy-search-btn-div #btnSearchauto
+            {
+
+                    border-top-left-radius: 5px!important;
+                   border-bottom-left-radius: 5px!important;
+            }
+
+             #btnSearchauto:after{
+                content:unset!important;
+            }
+            .glossy-search-btn-div{
+                    top: 5px;
+            }
+        }
+
+</style>
+    <script type="text/javascript">
+
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $(".main-table").clone(true).appendTo('#table-scroll').addClass('clone')
+      
+    </script>

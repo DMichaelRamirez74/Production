@@ -132,6 +132,8 @@ namespace FingerprintsModel
         public string ClassRoomName { get; set; }
         public string ClassRoomID { get; set; }
         public string ClientName { get; set; }
+
+        public string DateOfFirstService { get; set; }
         public string ClassStartDate { get; set; }
         public string OverIncome { get; set; }
         public string Foster { get; set; }

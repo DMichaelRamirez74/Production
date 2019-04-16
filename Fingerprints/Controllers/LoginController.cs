@@ -378,7 +378,7 @@ namespace Fingerprints.Controllers
                     {
                        Session["AgencyID"] = UserInfo.AgencyId;
                         isCoreTeam = new LoginData().IsDevelopmentTeam(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                        List<Tuple<string, string,int>> AccessList = new List<Tuple<string, string,int>>();
+                        List<Tuple<string, string,int,bool>> AccessList = new List<Tuple<string, string,int,bool>>();
                         bool isAcceptanceProcess = false;
                         AccessList = new LoginData().GetAccessPageByUserId(ref isAcceptanceProcess,UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
 

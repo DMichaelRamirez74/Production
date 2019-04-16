@@ -436,10 +436,10 @@ namespace FingerprintsData
             return isRowAffected;
         }
 
-        public List<Tuple<string, string, int>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
+        public List<Tuple<string, string, int,bool>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
         {
 
-            List<Tuple<string, string, int>> AccessList = new List<Tuple<string, string, int>>();
+            List<Tuple<string, string, int,bool>> AccessList = new List<Tuple<string, string, int,bool>>();
             try
             {
                 if (Connection.State == ConnectionState.Open)
@@ -459,15 +459,15 @@ namespace FingerprintsData
                 DataAdapter = new SqlDataAdapter(Command);
                 _Dataset = new DataSet();
                 DataAdapter.Fill(_Dataset);
-               if(_Dataset != null )
+                if (_Dataset != null)
                 {
 
-                    if(_Dataset.Tables.Count > 0 && _Dataset.Tables[0].Rows.Count > 0)
+                    if (_Dataset.Tables.Count > 0 && _Dataset.Tables[0].Rows.Count > 0)
                     {
 
                         foreach (DataRow dr in _Dataset.Tables[0].Rows)
                         {
-                            AccessList.Add(new Tuple<string, string, int>(dr["LayoutName"].ToString(), dr["URL"].ToString(), Convert.ToInt32(dr["MasterId"])));
+                            AccessList.Add(new Tuple<string, string, int,bool>(dr["LayoutName"].ToString(), dr["URL"].ToString(), Convert.ToInt32(dr["MasterId"]),Convert.ToBoolean(dr["ReportMenu"])));
                         }
                     }
 

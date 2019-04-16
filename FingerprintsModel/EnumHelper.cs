@@ -70,6 +70,8 @@ namespace FingerprintsModel
                 ret += name + ":" + ((int)val).ToString() + ",";
 
             }
+
+            
             ret += "}";
             return ret;
 

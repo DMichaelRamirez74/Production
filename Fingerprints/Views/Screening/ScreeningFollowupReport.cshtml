@@ -1,8 +1,8 @@
-﻿@model FingerprintsModel.ScreeningMatrixReport
+﻿@model FingerprintsModel.ScreeningFollowupReport
 
 
 @{
-    ViewBag.Title = "ScreeningMatrix";
+    ViewBag.Title = "Screening Follow-up Report";
     if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
        || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
     {
@@ -15,9 +15,10 @@
     }
 }
 
-@section Title{
+@section Title
+{
+    Screening Follow-up Report
 
-    Screening Matrix
 }
 
 @section Script{
@@ -28,11 +29,10 @@
     <script type="text/javascript">
 
         var self = null;
+        var screeningFollowup = {
 
-        var screeningMatrix = {
 
-            //screeningMatrixReport='@(Newtonsoft.Json.JsonConvert.SerializeObject(new FingerprintsModel.ScreeningMatrixReport()))',
-
+            reportFormatType:@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.ReportFormatType))),
             init: function () {
 
                 self = this;
@@ -42,9 +42,10 @@
                 self.initializeEvents();
             },
 
-            reportPartialUrl: HostedDir + '/Screening/GetScreeningMatrixReport',
+            reportPartialUrl: HostedDir + '/Screening/GetScreeningFollowupReport',
             getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
-            exportReportUrl: HostedDir + '/Screening/ExportScreeningMatrixReport',
+            exportReportUrl: HostedDir + '/Screening/ExportScreeningReviewReport',
+            // getscreeningUrl:HostedDir+'/Screening/GetScreeningByReportPeriods',
             requestedPage: 1,
             pageSize: 10,
             firstIndex: 0,
@@ -56,20 +57,21 @@
             sortOrder: null,
             sortColumn: null,
             documentExtensionArray: [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"],
-            
+
 
             elements: {
+              
                 'dropdownCenter': null,
                 'divCenterDropdown': null,
                 'divClassroomDropdown': null,
-                'dropdownClassroom':null,
+                'dropdownClassroom': null,
                 'inputsearchReport': null,
                 'buttonSearch': null,
                 'lblTotalCount': null,
                 'divtableResponsive': null,
-                'tableScreeningMatrix': null,
-                'tabletheadScreeningMatrix': null,
-                'tbodyScreeningReport': null,
+                'tableReport': null,
+                'tabletheadReport': null,
+                'tbodyReport': null,
                 'buttonLoadReport': null,
                 'buttonExportReport': null,
                 'divScreeningTypeDropdown': null,
@@ -81,6 +83,8 @@
                 'buttonPagingNext': null,
                 'buttonPagingLast': null,
                 'dropdownPageNumber': null,
+                'anchorPdf': null,
+                'anchorExcel':null
 
 
             },
@@ -95,19 +99,17 @@
                 processData: true
             },
             dataParameters: {
-                CenterID: [],
-                ClassroomID: [],
-                ScreeningID:[],
-                //ClassDate: null,
-                //UnscheduledSchoolDayReasonID: null,
-                //UnscheduledSchoolDayReason: null,
+                CenterIDs: [],
+                ClassroomIDs: [],
+                ScreeningIDs:[],
                 SortOrder: null,
                 SortColumn: null,
                 PageSize: null,
                 RequestedPage: null,
-                SearchTerm: null
-            //    searchTermType: null,
-                //UnscheduledSchoolDayID: null
+                SearchTerm: null,
+                ScreeningReportPeriodID: null,
+                EnrollmentStatus:null
+
             },
 
             showBusy:function(ele)
@@ -121,28 +123,36 @@
             initializeElements: function () {
 
                 var $selfElements = self.elements;
+
+                $selfElements.dropdownReportDays = $('#selectReportDays');
                 $selfElements.divCenterDropdown = $('#div-center-dropdown');
 
                 $selfElements.dropdownCenter = $selfElements.divCenterDropdown.find('#selectCenter');
 
                 $selfElements.dropdownClassroom = $('#selectClassroom');
                 $selfElements.divClassroomDropdown = self.elements.dropdownClassroom.closest('.form-group');
-              
+
+                $selfElements.divEnrollmentStatusDropdown = $('#div-enrollmentstatus-dropdown');
+                $selfElements.dropdownEnrollmentStatus =$selfElements.divEnrollmentStatusDropdown.find('#selectEnrollmentStatus');
+
+                $selfElements.anchorPdf = $('#pdfanchor');
+                $selfElements.anchorExcel = $('#excelanchor');
+
 
                 $selfElements.divtableResponsive = $('#screening-report-table-responsive');
-               
+
 
                 $selfElements.inputsearchReport = $selfElements.divtableResponsive.find('#searchReportText');
                 $selfElements.lblTotalCount = $selfElements.divtableResponsive.find('#totalCountSpan');
-                $selfElements.tableScreeningMatrix = $selfElements.divtableResponsive.find('#screeningMatrix-table');
-                $selfElements.tbodyScreeningReport = $selfElements.divtableResponsive.find('#screening-tbody');
+                $selfElements.tableReport = $selfElements.divtableResponsive.find('#screening-followup-table');
+                $selfElements.tbodyReport = $selfElements.divtableResponsive.find('#screening-tbody');
                 $selfElements.buttonSearch = $selfElements.divtableResponsive.find('#btnSearchauto');
 
                 $selfElements.divScreeningTypeDropdown = $('#div-screening-type-dropdown');
                 $selfElements.dropdownScreeningType = $selfElements.divScreeningTypeDropdown.find('#selectScreeningType');
-                $selfElements.buttonLoadReport = $('#btnLoadcreening');
+                $selfElements.buttonLoadReport = $('#btnLoadcreeningFollowup');
                 $selfElements.buttonExportReport = $('#btnScreeningExport');
-                $selfElements.tabletheadScreeningMatrix = $selfElements.tableScreeningMatrix.find('thead');
+                $selfElements.tabletheadReport = $selfElements.tableReport.find('thead');
                 $selfElements.divPaginationSection = $('#divPaginationScreening');
 
                 $selfElements.dropdownRecordsPerpage = $('#ddlpagetodisplay');
@@ -203,6 +213,23 @@
 
 
 
+                self.elements.dropdownEnrollmentStatus .multiselect({
+
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    //enableFiltering: false,
+                    //filterPlaceholder: _langList.SearchScreeningType,
+                    // enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+
+
+                });
+                self.elements.divEnrollmentStatusDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+                self.elements.divEnrollmentStatusDropdown.find('.btn-group').css({ 'width': '100%' });
+
+
+
+
 
             },
             initializeEvents: function () {
@@ -211,9 +238,16 @@
                 var $selfElements = self.elements;
 
 
+                //$selfElements.dropdownReportDays.on('change', function () {
+
+
+                //    self.getScreenings();
+
+
+                //});
 
                 $selfElements.dropdownCenter.on('change', function (event) {
-                 
+                
                     var $centerId = $selfElements.dropdownCenter.val().join();
 
                     if ($centerId != '0' && $selfElements.dropdownCenter.val().length == 1) {
@@ -229,7 +263,15 @@
                 $selfElements.buttonLoadReport.on('click', function () {
 
                     self.dataParameters.SearchTerm = '';
-                    self.getScreeningMatrixReport();
+
+                    self.showBusy(true);
+
+                    window.setTimeout(function(){
+                        
+                        
+                        self.getReport();
+
+                    },10);
 
                 });
 
@@ -243,10 +285,19 @@
 
                     self.pageSize = self.elements.dropdownRecordsPerpage.val();
 
-                    self.getScreeningMatrixReport();
+                    self.showBusy(true);
 
-                    self.elements.buttonPagingFirst.attr('disabled', true);
-                    self.elements.buttonPagingBack.attr('disabled', true);
+                    window.setTimeout(function(){
+                        
+                        
+                        self.getReport();
+                        self.elements.buttonPagingFirst.attr('disabled', true);
+                        self.elements.buttonPagingBack.attr('disabled', true);
+                    },10);
+
+                   
+
+                 
                 });
 
                 self.elements.buttonPagingFirst.on('click', function () {
@@ -271,14 +322,19 @@
 
                 self.elements.dropdownPageNumber.on('change', function () {
 
+                    self.showBusy(true);
 
-                    self.getListafterupdation();
+                    window.setTimeout(function(){
+
+                        self.getListafterupdation();
+
+                    },1)
                 });
 
                 self.elements.buttonPagingNext.on('click', function () {
 
                     var $thisValue = 'Next';
-                    debugger;
+                   
                     self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
 
                     self.fnChangePage($thisValue);
@@ -296,67 +352,62 @@
                 });
 
 
-                $('#pdfanchor').on('click', function () {
+                self.elements.anchorPdf.on('click', function (e) {
 
                     self.SearchTerm = '';
+                  
 
 
-                    if(self.validateScreeningMatrixFilter())
+
+                    e.preventDefault();
+
+                    
+
+                    if(self.validateReportFilter())
                     {
                         self.bindAjaxParameters();
-                        //self.ajaxOptions.url = self.generateReportUrl;
-                        //self.ajaxOptions.datatype = 'html',
-                        //self.ajaxOptions.type = 'POST',
-                        //self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
-                        //self.ajaxOptions.async = false;
-                        //self.ajaxOptions.contentType = 'application/json; charset=utf-8';
-
-
-                        //self.showBusy(true);
-
-
-                        //self.ajaxCall(self.generatereport);
-
-
-                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString()+"&reportFormatType=1";
-
-                        
+                      
+                        $('input[name="reportFormatType"]').val(self.reportFormatType.Pdf);
+                        $('#formScreeningFollowup').submit();
 
                     }
+                    else
+                    {
+                        return false;
+                    }
+
+
+                   
 
                 });
 
 
-                $('#excelanchor').on('click', function () {
+                self.elements.anchorExcel.on('click', function (e) {
 
                     self.SearchTerm = '';
 
 
-                    if (self.validateScreeningMatrixFilter()) {
+                    e.preventDefault();
+
+                    
+
+                    if(self.validateReportFilter())
+                    {
                         self.bindAjaxParameters();
-                        //self.ajaxOptions.url = self.generateReportUrl;
-                        //self.ajaxOptions.datatype = 'html',
-                        //self.ajaxOptions.type = 'POST',
-                        //self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
-                        //self.ajaxOptions.async = false;
-                        //self.ajaxOptions.contentType = 'application/json; charset=utf-8';
+                       
+                        $('input[name="reportFormatType"]').val(self.reportFormatType.Xls);
+                        $('#formScreeningFollowup').submit();
 
-
-                        //self.showBusy(true);
-
-
-                        //self.ajaxCall(self.generatereport);
-
-
-                        window.location.href =self.exportReportUrl+"?CenterID=" + self.dataParameters.CenterID + "&ClassroomID=" + self.dataParameters.ClassroomID.trim().toString() + "&ScreeningID=" + self.dataParameters.ScreeningID.trim().toString() + "&reportFormatType=3";
-
-
-
+                    }
+                    else
+                    {
+                        return false;
                     }
 
                 });
 
 
+             
 
             },
             generatereport(data)
@@ -365,7 +416,7 @@
             },
 
             getClassrooms: function (cId) {
-                debugger;
+               
                 self.ajaxOptions.url = self.getClassroomsUrl;
                 self.ajaxOptions.datatype = 'JSON';
                 self.ajaxOptions.type = 'POST',
@@ -381,46 +432,38 @@
                     },
                     async: true,
                     data: { 'centerId': cId },
-                    // traditional: true,
-                    //  contentType: "application/json; charset=utf-8",
                     success: function (data) {
-                        debugger;
+                       
                         self.callbackGetClassrooms(data);
 
                     },
                     error: function (data) {
-                        debugger;
+                       
                         console.log(data);
                     },
                     complete: function (data) {
                         console.log(data);
-                        debugger;
+                      
                         self.showBusy(false);
                     }
 
-                })
-
-
-
-
-      
-
+                });
 
             },
             callbackGetClassrooms: function (data) {
 
-                debugger;
+              
                 var bindData = '';
                 if (data != null && data.CenterList != null && data.CenterList.length > 0 && data.CenterList[0].Classroom != null && data.CenterList[0].Classroom.length > 0) {
 
                     self.classroomsJson = data.CenterList[0].Classroom;
                     $.each(data.CenterList[0].Classroom, function (i, classroom) {
 
-                        bindData += '<option value=' + classroom.ClassroomID + '>' + classroom.ClassName + '</option>';
+                        bindData += '<option value=' + classroom.Enc_ClassRoomId + '>' + classroom.ClassName + '</option>';
                     });
                 }
 
-                debugger;
+              
 
 
                 self.elements.dropdownClassroom.multiselect('destroy');
@@ -446,55 +489,127 @@
 
 
             },
-            getScreeningMatrixReport: function () {
 
-                if (self.validateScreeningMatrixFilter()) {
+            //getScreenings:function()
+            //{
+            //    self.ajaxOptions.url = self.getscreeningUrl;
+            //    self.ajaxOptions.datatype = 'json',
+            //    self.ajaxOptions.type = 'POST',
+            //    self.ajaxOptions.data = JSON.stringify({ screeningReportPeriodID: self.elements.dropdownReportDays.val() });
+            //    self.ajaxOptions.async = true;
+            //    self.ajaxOptions.contentType = 'application/json; charset=utf-8';
 
+
+            //    self.showBusy(true);
+
+
+            //    self.ajaxCall(self.callbackGetScreenings);
+
+            //},
+
+            //callbackGetScreenings:function(data)
+            //{
+            //    console.log(data);
+            //    debugger;
+            //    var appendData = '';
+
+            //    if(data!=null && data.length>0)
+            //    {
+
+
+
+            //        $.each(data, function (i, screening) {
+
+            //            appendData += '<option value="' + screening.Value + '">' + screening.Text + '</option>';
+
+            //        });
+            //    }
+
+
+            //    self.elements.dropdownScreeningType.html(appendData);
+
+            //    self.elements.dropdownScreeningType.multiselect('destroy');
+            //    self.elements.dropdownScreeningType.multiselect({
+
+            //        maxHeight: 200,
+            //        includeSelectAllOption: true,
+            //        enableFiltering: true,
+            //        filterPlaceholder: _langList.SearchScreeningType,
+            //        enableCaseInsensitiveFiltering: true,
+            //        numberDisplayed: 1,
+
+
+            //    });
+            //    self.elements.divScreeningTypeDropdown.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
+            //    self.elements.divScreeningTypeDropdown.find('.btn-group').css({ 'width': '100%' });
+            //},
+
+            getReport: function () {
+               
+                if (self.validateReportFilter()) {
 
                     self.bindAjaxParameters();
                     self.ajaxOptions.url = self.reportPartialUrl;
                     self.ajaxOptions.datatype = 'html',
                     self.ajaxOptions.type = 'POST',
-                    self.ajaxOptions.data = JSON.stringify({ screeningMatrixReport: self.dataParameters });
+                    self.ajaxOptions.data = JSON.stringify({ report: self.dataParameters });
                     self.ajaxOptions.async = false;
                     self.ajaxOptions.contentType = 'application/json; charset=utf-8';
 
 
-                    self.showBusy(true);
-                  
+                    
+                      
+                   
 
-                        self.ajaxCall(self.bindScreeningMatrixReport);
+                    self.ajaxCall(self.bindReport);
 
-                  
+                }
+                else{
 
-
+                    self.showBusy(false);
                 }
 
 
             },
-            validateScreeningMatrixFilter: function () {
+            validateReportFilter: function () {
                 var result = true;
 
                 debugger;
-               if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val()== '' || self.elements.dropdownCenter.val()== '0') {
+
+
+                //if (self.elements.dropdownRecordsPerpage.val() == null || self.elements.dropdownPageNumber.val() == '-1')
+                //{
+                //    customAlertforlongTime("Report periods are required");
+                //    plainValidation(self.elements.dropdownRecordsPerpage);
+                //    result = false;
+                //}
+
+
+                if (self.elements.dropdownScreeningType.val() == null || self.elements.dropdownScreeningType.val() == '' || self.elements.dropdownScreeningType.val() == '0') {
+                    customAlertforlongtime(_langList.Screeningtypeisrequired);
+                    plainValidation(self.elements.dropdownScreeningType);
+                    result = false;
+                }
+
+                else if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val()== '' || self.elements.dropdownCenter.val()== '0') {
                     customAlertforlongtime(_langList.Centerisrequired);
                     plainValidation(self.elements.dropdownCenter);
                     result = false;
                 }
 
-
-
-               else if (self.elements.dropdownCenter.val().length==1 &&( self.elements.dropdownClassroom.val() == null || self.elements.dropdownClassroom.val()=='' ||self.elements.dropdownClassroom.val()== '0')) {
+                else if (self.elements.dropdownCenter.val().length==1 &&( self.elements.dropdownClassroom.val() == null || self.elements.dropdownClassroom.val()=='' ||self.elements.dropdownClassroom.val()== '0')) {
                     customAlertforlongtime(_langList.Classroomisrequired);
                     plainValidation(self.elements.dropdownClassroom);
                     result = false;
                 }
 
-                else if (self.elements.dropdownScreeningType.val() == null ||self.elements.dropdownScreeningType.val()== '' ||self.elements.dropdownScreeningType.val()== '0') {
-                    customAlertforlongtime(_langList.Screeningtypeisrequired);
-                    plainValidation(self.elements.dropdownScreeningType);
-                    result = false;
-                }
+                //else if (self.elements.dropdownEnrollmentStatus.val() == null || self.elements.dropdownEnrollmentStatus.val() == '')
+                //{
+                //    customAlertforlongtime("Enrollment status is required");
+                //    plainValidation(self.elements.dropdownEnrollmentStatus);
+                //    result = false;
+                //}
+
 
 
                 return result;
@@ -504,16 +619,17 @@
 
             bindAjaxParameters: function () {
                 debugger;
-                self.dataParameters.CenterID = self.elements.dropdownCenter.val().join();
-                self.dataParameters.ClassroomID = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val().join() : '0';
-                self.dataParameters.ScreeningID = self.elements.dropdownScreeningType.val().join();
+                self.dataParameters.CenterIDs = self.elements.dropdownCenter.val();
+                self.dataParameters.ClassroomIDs = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val().join() : '0';
+                self.dataParameters.ScreeningIDs= self.elements.dropdownScreeningType.val();
+                //    self.dataParameters.ScreeningReportPeriodID = self.elements.dropdownReportDays.val();
+                //   self.dataParameters.EnrollmentStatus = self.elements.dropdownEnrollmentStatus.val().join();
+
                 self.dataParameters.RequestedPage = self.requestedPage;
                 self.dataParameters.PageSize = self.pageSize;
-              
-                self.dataParameters.SortOrder = self.sortOrder==null || self.sortOrder==''?'ASC':self.sortOrder;
-                self.dataParameters.SortColumn = self.sortColumn == null || self.sortColumn == '' ? self.elements.tableScreeningMatrix.find('thead').find('tr:eq(0)').find('th').children('span').html().trim() : self.sortColumn;
 
-
+                self.dataParameters.SortOrder = self.sortOrder == null || self.sortOrder == '' ? 'ASC' : self.sortOrder;
+                self.dataParameters.SortColumn = self.sortColumn == null || self.sortColumn == '' ? self.elements.tableReport.find('thead').find('tr:eq(0)').find('th').children('span').html().trim() : self.sortColumn;
             },
 
             ajaxCall: function (callback) {
@@ -540,6 +656,8 @@
                     error: function (data) {
                         debugger;
                         console.log(data);
+                        //   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
                     },
                     complete: function (data) {
                         console.log(data);
@@ -550,32 +668,31 @@
                 })
             },
 
-            bindScreeningMatrixReport: function (data) {
+            bindReport: function (data) {
 
                 debugger;
+
+                if (data!=null && data.Data!=null && data.Data == "Login")
+                {
+                    // customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    return;
+                }
+
 
                 self.elements.divtableResponsive.html(data);
 
 
 
-             
+                $(".main-table").clone(true).appendTo('#table-scroll').addClass('clone')
 
                 self.initializeElements();
 
                 self.getTotalRecord(parseInt(self.elements.lblTotalCount.html()));
 
-                self.elements.tbodyScreeningReport.find('[data-toggle="tooltip"]').tooltip();
+                self.elements.tbodyReport.find('[data-toggle="tooltip"]').tooltip();
 
-               
-                //self.elements.inputsearchReport.on('focus', function () {
-                //    debugger;
-                //    this.removeAttribute('readonly');
 
-                //});
 
-                //self.elements.inputsearchReport.on('blur', function () {
-                //    this.setAttribute('readonly', 'readonly');
-                //});
 
                 self.elements.buttonSearch.on('click', function () {
 
@@ -591,17 +708,21 @@
                         self.elements.dropdownPageNumber.val('1');
                         self.requestedPage = self.elements.dropdownPageNumber.val();
                         self.dataParameters.SearchTerm = self.elements.inputsearchReport.val();
-                        self.getScreeningMatrixReport();
+
+                        self.showBusy(true);
+                        window.setTimeout(function(){
+                            self.getReport();
+
+                        },10);
                     }
 
                 });
 
-                self.elements.tableScreeningMatrix.find('thead th').on('click', function () {
+                self.elements.tableReport.find('thead th').on('click', function () {
 
                     debugger;
 
                     if ($(this).find('i').length > 0) {
-                      //  self.sortColumn = 'th' + ($(this).index() + 1);
 
                         self.sortColumn = $(this).children('span').attr('data-column').trim();
 
@@ -624,8 +745,15 @@
                         self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
 
                         self.pageSize = self.elements.dropdownRecordsPerpage.val();
+                       
+                        self.showBusy(true);
+                        
+                        window.setTimeout(function(){
+                            self.getReport();
 
-                        self.getScreeningMatrixReport();
+                        },10);
+
+                      
                     }
                     else {
                         return false;
@@ -635,14 +763,14 @@
 
                 });
 
-                
+
 
 
             },
             fnChangePage: function (val) {
                 debugger;
 
-                if (self.elements.tbodyScreeningReport.find('tr').find('td[data-title="Center"]').length === 0) {
+                if (self.elements.tbodyReport.find('tr').find('td[data-title="Center"]').length === 0) {
 
                     return false;
                 }
@@ -650,6 +778,8 @@
 
 
                 debugger;
+
+                self.showBusy(true);
 
                 window.setTimeout(function () {
 
@@ -748,7 +878,7 @@
             gotoNextPage: function (reqPage, pageSize) {
 
 
-                self.getScreeningMatrixReport();
+                self.getReport();
 
             },
 
@@ -813,7 +943,7 @@
 
 
 
-                self.getScreeningMatrixReport();
+                self.getReport();
 
                 if (self.requestedPage == 1) {
                     $selfElements.buttonPagingFirst.attr('disabled', true);
@@ -849,47 +979,65 @@
         $(function () {
 
 
-            screeningMatrix.init();
+            screeningFollowup.init();
+
+
+
+
+        
 
         });
 
     </script>
 
-
 }
+
 
 @section Style
 {
 
-
     <link href="~/Content/multiselect.css" rel="stylesheet" />
-
     <style type="text/css">
         #page-wrapper {
             background-color: #fff;
             min-height: 568px;
-            /*padding: 30px 15px 0;*/
             padding: 45px 15px 0;
         }
 
-        .multiselect-clear-filter{
-                padding-top: 10px;
+        .multiselect-clear-filter {
+            padding-top: 10px;
+        }
+
+
+        #ulPaging a[disabled="disabled"] {
+            pointer-events: none;
+        }
+
+        .table-outer {
+            padding: 0;
+            max-width: 1099px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .table-outer,.table-wrapper,.table-main{
+        padding:0;
+    }
+
+        #screening-followup-table thead th{
+            white-space:nowrap;
+            padding: 9px;
+            text-transform:none;
         }
 
         
-#ulPaging a[disabled="disabled"] {
-    pointer-events: none;
-}
 
     </style>
-
-
 }
 
 
-@section MainContentHolder{
-
-
+@section MainContentHolder
+{
     <div class="row Zoom">
         <div class="col-lg-12" style="padding:0;">
             <div class="page-wrapper-change">
@@ -903,7 +1051,7 @@
                             <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
                                 <div class="col-lg-12">
                                     <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.ScreeningMatrix
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;Screening Follow-up Report
 
                                         <span class="view-btn backto_listspan">
 
@@ -915,7 +1063,7 @@
                             </div>
 
                             <!--Filter and Search Form----->
-                            <form class="col-xs-12">
+                            <form class="col-xs-12" id="formScreeningFollowup"  action="/Screening/ExportScreeningFollowupReport" method="post">
 
 
                                 <!--Filter Section----->
@@ -923,10 +1071,37 @@
 
 
 
+                                    <input type="hidden" name="reportFormatType"/>
 
-                                    <!---Center dropdown section-->
+                                    <!-----------Screening Type --------------------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-screening-type-dropdown">
+                                        <label for="selectScreeningType" class="lbl-text">@Fingerprints.LocalResource.Resources.ScreeningType <sup>*</sup></label>
+
+                                        <select id="selectScreeningType" name="ScreeningIDs" class="glossy-select" multiple="multiple">
+
+                                            @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+                                            {
+
+                                                int i = 0;
+                                                while (i < Model.ScreeningList.Count)
+                                                {
+
+                                                    <option value="@FingerprintsModel.EncryptDecrypt.Encrypt64(Convert.ToString(Model.ScreeningList[i].ScreeningID))">@Model.ScreeningList[i].ScreeningName</option>
+
+                                                    i++;
+                                                }
+
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!---Center drop-down section-->
                                     <div class="form-group col-lg-3 col-sm-6 col-xs-12" id="div-center-dropdown">
-                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center<sup>*</sup></label>
+                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center &nbsp;<sup>*</sup></label>
 
                                         @{
 
@@ -935,12 +1110,12 @@
                                             var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
 
 
-                                            //centerDetails.ForEach(x =>
-                                            //{
-                                            //    x.Value =x.Value!="0"? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value):x.Value;
-                                            //});
+                                            centerDetails.ForEach(x =>
+                                            {
+                                                x.Value = x.Value != "0" ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                            });
                                         }
-                                        <select id="selectCenter" class="glossy-select" multiple="multiple" >
+                                        <select id="selectCenter" name="CenterIDs" class="glossy-select" multiple="multiple">
 
                                             @if (centerDetails != null && centerDetails.Count > 0)
 
@@ -970,43 +1145,17 @@
                                     <!---------Classroom drop down section----------->
 
                                     <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
-                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
+                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom &nbsp;<sup>*</sup></label>
 
-                                        <select class="glossy-select" id="selectClassroom" multiple="multiple"></select>
-
-                                    </div>
-
-                                    <!-----------Screening Type --------------------->
-
-                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-screening-type-dropdown">
-                                        <label for="selectScreeningType" class="lbl-text">@Fingerprints.LocalResource.Resources.ScreeningType <sup>*</sup></label>
-
-                                        <select id="selectScreeningType" class="glossy-select" multiple="multiple">
-
-                                            @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
-
-                                            {
-                                                foreach (var screening in Model.ScreeningList)
-                                                {
-
-                                                    <option value="@screening.ScreeningID">@screening.ScreeningName</option>
-                                                }
-
-
-                                            }
-
-                                        </select>
+                                        <select class="glossy-select" name="ClassroomIDs" id="selectClassroom" multiple="multiple"></select>
 
                                     </div>
 
 
-                                  
-
-
-                                    <!-----In-kind activity Search section-->
+                                    <!-----Screening Review Load section-->
                                     <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
-                                        <label for="btnLoadcreening" style="visibility:hidden;">Action</label>
-                                        <button type="button" class="glossy-button-button button-green" id="btnLoadcreening">
+                                        <label for="btnLoadcreeningFollowup" style="visibility:hidden;">Action</label>
+                                        <button type="button" class="glossy-button-button button-green" id="btnLoadcreeningFollowup">
                                             <span class="glossy-button-after"></span>
                                             <span class="glossy-button-before"></span>
                                             @Fingerprints.LocalResource.Resources.Load
@@ -1017,24 +1166,15 @@
                                     <!-----In-kind activity Export section-->
                                     <div class="form-check col-lg-2 col-xs-12 glossy_btn">
                                         <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
-                                        
-                                      @*<button type="button" class="glossy-button-button button-blue" id="btnScreeningExport">
-                                            <span class="glossy-button-after"></span>
-                                            <span class="glossy-button-before"></span>
-                                            Export
-                                        </button>*@
-
-
 
                                         <div class="dropdown">
                                             <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
-                                              @Fingerprints.LocalResource.Resources.Export
+                                                @Fingerprints.LocalResource.Resources.Export
                                                 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
-                                                @*<li><a href="#">DOC</a></li>*@
-                                                <li><a href="javascript:void(0);" id="excelanchor" >XLS</a></li>
+                                                <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
                                             </ul>
                                         </div>
 
@@ -1062,12 +1202,13 @@
 
                                     @{
 
-                                        Html.RenderPartial("~/Views/Screening/_ScreeningMatrix.cshtml", Model);
+                                        Html.RenderPartial("~/Views/Screening/_ScreeningFollowup.cshtml", Model);
 
                                     }
 
 
                                 </div>
+
 
 
 
@@ -1082,7 +1223,7 @@
 
 
 
-                          
+
 
 
                             <div class="col-xs-12" id="divPaginationScreening">
@@ -1157,8 +1298,6 @@
 
 
     </div>
-
-
 
 
 

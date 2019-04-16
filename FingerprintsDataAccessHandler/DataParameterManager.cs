@@ -50,7 +50,8 @@ namespace FingerprintsDataAccessHandler
         {
             return new SqlParameter
             {
-                DbType = dbType,
+                SqlDbType = dbType==DbType.Object && value.GetType()==typeof(DataTable)? SqlDbType.Structured :  SqlDbType.NVarChar,
+                DbType =  (DbType)dbType,
                 ParameterName = name,
                 Direction = direction,
                 Value = value
@@ -61,7 +62,8 @@ namespace FingerprintsDataAccessHandler
         {
             return new SqlParameter
             {
-                DbType = dbType,
+                SqlDbType = dbType==DbType.Object && value.GetType() == typeof(DataTable) ? SqlDbType.Structured : SqlDbType.NVarChar,
+                DbType = (DbType)dbType,
                 Size = size,
                 ParameterName = name,
                 Direction = direction,

@@ -80,27 +80,11 @@ namespace Fingerprints.Controllers
             report.RequestedPage = 1;
             report.PageSize = 10;
             report.SkipRows = report.GetSkipRows();
-            //report.SortOrder = "ASC";
-            //report.SortColumn = "Center";
-
-            Parallel.Invoke(
-
-            //    () =>
 
 
-            //{
-            //    report = GetScreeningMatrix(report);
+            report.ScreeningList = screeningData.GetScreeningsByUserAccess(staff);
 
 
-            //},
-
-            () =>
-            {
-                report.ScreeningList = screeningData.GetScreeningsByUserAccess(staff);
-
-            }
-
-            );
 
 
             return View(report);
@@ -228,6 +212,8 @@ string imagePath=Server.MapPath("~/Images/");
 
         }
 
+        #region Screening Review Report
+
 
         [HttpGet]
         [CustAuthFilter()]
@@ -235,8 +221,8 @@ string imagePath=Server.MapPath("~/Images/");
         {
 
             NDayScreeningReviewReport modal = new NDayScreeningReviewReport();
-          
-            modal.ScreeningReportPeriodsList =  FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningReportPeriods(staff);
+
+            modal.ScreeningReportPeriodsList = FactoryInstance.Instance.CreateInstance<ScreeningData>().GetScreeningReportPeriods(staff);
             return View(modal);
         }
 
@@ -267,10 +253,10 @@ string imagePath=Server.MapPath("~/Images/");
         }
 
 
-
+        #region Export Screening Review Report
         public void ExportScreeningReviewReport(NDayScreeningReviewReport nDayScreeningReviewReport, int reportFormatType)
         {
-         
+
 
             try
             {
@@ -308,12 +294,105 @@ string imagePath=Server.MapPath("~/Images/");
             }
 
 
-          
+
 
 
 
         }
+        #endregion
 
+        #endregion
+
+        #region Screening Follow-up Report
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult ScreeningFollowupReport()
+        {
+
+            ScreeningFollowupReport report = FactoryInstance.Instance.CreateInstance<ScreeningFollowupReport>();
+
+            report.ScreeningList = screeningData.GetScreeningsByUserAccess(staff);
+
+            return View(report);
+        }
+
+        #region Screening Follow-up Report Partial View
+        public PartialViewResult GetScreeningFollowupReport(ScreeningFollowupReport report)
+        {
+
+            report = this.GetScreeningFollowup(report);
+
+            return PartialView("~/Views/Screening/_ScreeningFollowup.cshtml",report);
+        }
+        #endregion
+
+
+        public ScreeningFollowupReport GetScreeningFollowup(ScreeningFollowupReport report)
+        {
+
+            report.SkipRows = report.GetSkipRows();
+            report = screeningData.GetScreeningFollowupReport(staff, report);
+
+            return report;
+        }
+
+        #region Export Screening Followup Report
+        
+        [HttpPost]
+        public void ExportScreeningFollowupReport(ScreeningFollowupReport followupReport, int reportFormatType)
+        {
+
+
+            try
+            {
+
+
+                followupReport.RequestedPage = 0;
+                followupReport.PageSize = 0;
+                followupReport.SkipRows = followupReport.GetSkipRows();
+                followupReport.SortColumn = "Classroom";
+                followupReport.SortOrder = "ASC";
+
+                followupReport = screeningData.GetScreeningFollowupReport(staff, followupReport);
+
+
+                #region Itextsharp PDF generation Region
+
+                string imagePath = Server.MapPath("~/Images/");
+
+
+                var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+                MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportScreeningFollowupReport(followupReport, reportTypeEnum, imagePath);
+                string reportName = "Screening Follow-up Report";
+
+                DownloadReport(workStream, reportTypeEnum, reportName);
+
+
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+
+
+
+
+        }
+        #endregion
+
+
+
+
+        #endregion
+
+        #region Download Report Generic Method (PDF,EXCEL)
 
         public void DownloadReport(MemoryStream memoryStream, ReportFormatType reportFormat, string reportName, params object[] args)
         {
@@ -350,6 +429,7 @@ string imagePath=Server.MapPath("~/Images/");
             Response.End();
             Response.Close();
         }
+        #endregion
 
 
     }

@@ -654,8 +654,8 @@
 </head>
 <body>
     @{
-        List<Tuple<string, string, int>> AccessList = new List<Tuple<string, string, int>>();
-        AccessList = (List<Tuple<string, string, int>>)Session["AccessList"];
+        List<Tuple<string, string,int,bool>> AccessList = new List<Tuple<string, string,int,bool>>();
+        AccessList = (List<Tuple<string, string,int,bool>>)Session["AccessList"];
     }
 
 
@@ -890,14 +890,18 @@
 
                             }
                             @{
-                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                              
+
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
                             }
-                            @if (AccessList != null && AccessList.Count > 0)
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
                                     <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
@@ -911,61 +915,39 @@
                                                     </ul>
                                                 </li>
                                             }
-                                            else if (item.Item3 == 23 || item.Item3 == 25) //clas report or clas review
-                                            {
-                                                _clasReportMenus.Add(item);
-
-                                            }
+                                            
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
-
-
-                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
-                                        {
-                                            <li class="">
-
-                      <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
-                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                  
-                        @if (_clasReportMenus.Any(x => x.Item3 == 25))
-                        { //if have review the can view
-
-                            <li>
-                                <a id="li9" href="/Reporting/CLASReview">
-                                    <i class="fa fa-bolt" aria-hidden="true"></i>
-                                    CLAS Report
-                                </a>
-                            </li>
-                            <li>
-                                <a id="li9" href="/Reporting/AddCLASReview">
-                                    <i class="fa fa-bolt" aria-hidden="true"></i>
-                                    CLAS Input
-                                </a>
-                            </li>
-                                                   
-
-
-                        }
-                        else
-                        {
-                            <li>
-                                <a id="li9" href="/Reporting/CLASReview">
-                                    <i class="fa fa-bolt" aria-hidden="true"></i>
-                                    CLAS Report
-                                </a>
-                            </li>
-                        }
-
-                                                
-                                                </ul></li>
-                                        }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                                @if (reportMenu != null && reportMenu.Count > 0)
+                                {
+                                    <li class="">
+
+                                        <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                        <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                            @foreach (var item in reportMenu)
+                                            {
+                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                            }
+
+
+
+                                        </ul>
+                                    </li>
+                                }
 
                         </ul>
                     </div>
@@ -1013,33 +995,30 @@
                                 </a>
                             </li>
 
-                            @*<li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Event Creation</a> </li>*@
-                            @*<li> <a id="li1" href="~/ERSEA/SelectionCriteriaUpdate"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Selection Criteria Update</a> </li>
-                                <li> <a id="lireport" href="~/ERSEA/CommunityAssessment"><i class="fa fa-bar-chart-o fa-fw"></i>&nbsp;Community Assessment</a> </li>
-                                <li> <a id="lireport" href="~/ERSEA/CenterAnalysis"><i class="fa fa-university fa-fw"></i>&nbsp;Center Analysis</a> </li>
-                                <li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Workshop Analysis</a> </li>
-                                <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>*@
-                            @if (AccessList != null && AccessList.Count > 0)
+                    
+                          
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        <li> <a id="li1" href="~/EducationManager/ScreeningAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Developmental Screening</a> </li>
-                                        <li> <a id="li1" href="~/EducationManager/DECA"><i class="fa fa-dashboard fa-fw"></i>&nbsp;DECA Screening</a> </li>
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
-
-
-
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
@@ -1048,6 +1027,28 @@
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
 
                                     </ul>
                                 </li>
@@ -1143,81 +1144,61 @@
                                 </a>
                             </li>
                             @{
-                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
                             }
-                            @if (AccessList != null && AccessList.Count > 0)
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                        <li class="">
-                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
-                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
-                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
-                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
-                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
-                                            </ul>
-                                        </li>
-                                        }
-                                        else if (item.Item3 == 23 || item.Item3 == 25) //clas report or clas review
-                                        {
-                                            _clasReportMenus.Add(item);
+                                                <li class="">
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                                    </ul>
+                                                </li>
+                                            }
 
-                                        }
-                                        else
-                                        {
-                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                            else
+                                            {
+                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
-                                    @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
-                                    {
-                                        <li class="">
+                                    </ul>
 
-                                            <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
-                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-
-                                                @if (_clasReportMenus.Any(x => x.Item3 == 25))
-                                                { //if have review the can view
-
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/AddCLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS input
-                                                        </a>
-                                                    </li>
+                                </li>
+                            }
 
 
 
-                                                }
-                                                else
-                                                {
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-                                                }
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
 
-                                            </ul>
-                                        </li>
-                                    }
-                                   
-                                </ul>
-                            </li>
+                                        }
+
+
+
+                                    </ul>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -1274,7 +1255,6 @@
 
 
                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a></li>
-                          @*  <li><a id="optClassdays" href="@Url.Action("OptionalClassDays","AgencyUser")"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Optional Class Days</a></li>*@
                             
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
                             <li class="">
@@ -1309,83 +1289,68 @@
                                 </ul>
                             </li>
                             <li> <a id="lireport" href="~/Home/VolunteerBudget"><i class="fa fa-dashboard fa-fw" aria-hidden="true"></i>Inkind Budget</a> </li>
+                           
+                            
                             @{
-                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
                             }
-                            @if (AccessList != null && AccessList.Count > 0)
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                        <li class="">
-                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
-                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
-                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
-                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
-                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
-                                            </ul>
-                                        </li>
-                                        }
-                                        else if (item.Item3 == 23 || item.Item3 == 25) //clas report or clas review
-                                        {
-                                            _clasReportMenus.Add(item);
+                                                <li class="">
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                                    </ul>
+                                                </li>
+                                            }
 
-                                        }
-                                        else
-                                        {
-                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                            else
+                                            {
+                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
 
-                                    @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
-                                    {
-                                        <li class="">
-
-                                            <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
-                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-
-                                                @if (_clasReportMenus.Any(x => x.Item3 == 25))
-                                                { //if have review the can view
-
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/AddCLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Input
-                                                        </a>
-                                                    </li>
-
-
-
-                                                }
-                                                else
-                                                {
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-                                                }
-
-
-                                            </ul>
-                                        </li>
-                                    }
-                                </ul>
-                            </li>
+                                </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+                           
+
+
                         </ul>
                     </div>
                 </div>
@@ -1447,34 +1412,69 @@
                                     </div>
                                 </a>
                             </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+
+
+
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
-                            <li>
-                                <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu <span class="fa arrow"></span></a>
-                                <ul id="ul4" class="nav nav-second-level collapse">
-                                    @foreach (var item in AccessList)
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
-                                        <li class="">
-                                            <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
-                                            <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
-                                                <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
-                                                <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
-                                                <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.EventReport</a> </li>
-                                            </ul>
-                                        </li>
+                                                <li class="">
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
+                                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
+                                                    </ul>
+                                                </li>
                                             }
+
                                             else
                                             {
-                                        <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                                <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
-                                </ul>
-                            </li>
+                                    </ul>
+
+                                </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+
 
                         </ul>
                     </div>
@@ -1533,25 +1533,32 @@
                                 </a>
                             </li>
 
-                            @if (AccessList != null && AccessList.Count > 0)
+                           
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
-                            <li>
-                                <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu <span class="fa arrow"></span></a>
-                                <ul id="ul4" class="nav nav-second-level collapse">
-                                    @foreach (var item in AccessList)
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -1559,8 +1566,34 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+
+
                         </ul>
                     </div>
                 </div>
@@ -1571,13 +1604,15 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            @*<li> <a id="li1" href="~/Home/ApplicationApprovalDashboard"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>*@
-                            @*<li> <a id="li1" onclick="GotoHomeApplicationApprovalDashboard();" href="#"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>*@
-                            @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
-                            {
-                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
-                            }
-                            <li> <a id="li2" href="~/Home/AgencyHealthNurse"><i class="fa fa-dashboard fa-fw"></i> Center Overview (@Session["YakkrCountPending"])</a> </li>
+
+
+    @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
+    {
+        <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+    }
+
+
+    <li> <a id="li2" href="~/Home/AgencyHealthNurse"><i class="fa fa-dashboard fa-fw"></i> Center Overview (@Session["YakkrCountPending"])</a> </li>
 
 
 
@@ -1617,25 +1652,35 @@
                                     </div>
                                 </a>
                             </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+
+
+
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -1643,8 +1688,33 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+
 
                         </ul>
                     </div>
@@ -1657,7 +1727,6 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
 
-                            @* <li> <a id="li1" href="~/Home/AgencyHRDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>*@
                             <li> <a id="li1" onclick="GotoHomeAgencyHRDashboard();" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
 
 
@@ -1667,9 +1736,7 @@
                             }
 
 
-                            @*<li><a id="li5" href="~/AgencyAdmin/pendingVerification"><i class="fa fa-bar-chart-o fa-fw"></i> Pending Verification</a></li>*@
                             <li><a id="li5" onclick="GotoAgencyAdminpendingVerification();" href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Pending Verification</a></li>
-                            @*<li><a id="li6" href="~/Agency/viewagencystaff"><i class="fa fa-users"></i> Staff List</a></li>*@
                             <li><a id="li6" onclick="GotoAgencyviewagencystaff();" href="#"><i class="fa fa-users"></i> Staff List</a></li>
                             <li><a id="li7" href="~/AgencyUser/staffReport"><i class="fa fa-bar-chart-o fa-fw"></i> Staff Report</a></li>
 
@@ -1684,25 +1751,32 @@
 
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr<span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
 
-                            @if (AccessList != null && AccessList.Count > 0)
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -1710,8 +1784,32 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+                            
 
                         </ul>
                     </div>
@@ -1725,40 +1823,69 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/Home/AgencyFacilitiesManagerDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-
+                           
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
+                          
+                            
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
 
-
-                            @if (AccessList != null && AccessList.Count > 0)
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -1798,81 +1925,59 @@
                            
 
                             @{
-                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
                             }
-                            
-                            @if (AccessList != null && AccessList.Count > 0)
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
-                                            else if (item.Item3 == 23 || item.Item3 == 25) //clas report or clas review
-                                            {
-                                                _clasReportMenus.Add(item);
 
-                                            }
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
-
-                                        
                                         }
-                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
                                         {
-                                            <li class="">
-
-                                                <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
-                                                <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-
-                                                    @if (_clasReportMenus.Any(x => x.Item3 == 25))
-                                                    { //if have review the can view
-
-                                                        <li>
-                                                            <a id="li9" href="/Reporting/CLASReview">
-                                                                <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                                CLAS Report
-                                                            </a>
-                                                        </li>
-                                                            <li>
-                                                                <a id="li9" href="/Reporting/AddCLASReview">
-                                                                    <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                                    CLAS Input
-                                                                </a>
-                                                            </li>
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
 
-
-                                                    }
-                                                    else
-                                                    {
-                                                        <li>
-                                                            <a id="li9" href="/Reporting/CLASReview">
-                                                                <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                                CLAS Report
-                                                            </a>
-                                                        </li>
-                                                    }
-
-
-                                                </ul>
-                                            </li>
                                         }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -1950,31 +2055,62 @@
 
                                 </a>
                             </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -2037,31 +2173,62 @@
 
                                 </a>
                             </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -2086,31 +2253,62 @@
                             }
 
 
-                            @if (AccessList != null && AccessList.Count > 0)
+                          
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -2138,7 +2336,7 @@
 
             else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
             {
-                <!-- Menu Excutive-->
+                <!-- Menu Excutive -->
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
@@ -2165,29 +2363,42 @@
 
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
 
+                           
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
-                            <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
+                           
+                           
+
+                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
                             <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
                             <li> <a id="lireport" href="~/Home/VolunteerBudget"><i class="fa fa-dashboard fa-fw"></i>Inkind Budget</a> </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+                          
+                            
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -2195,8 +2406,33 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+
                         </ul>
                     </div>
                 </div>
@@ -2207,14 +2443,16 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-
+                            
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
+                           
 
+                            
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
 
@@ -2232,25 +2470,33 @@
                             <li> <a id="lireport" href="~/Billing/BillingReview"><i class="fa fa-dashboard fa-fw"></i>Billing Review</a> </li>
                             <li> <a id="lireport" href="~/Billing/GenerateInvoice"><i class="fa fa-dashboard fa-fw"></i>Generate Invoice</a> </li>
                             <li> <a id="lireport" href="~/Billing/AccountReceivableListing"><i class="fa fa-dashboard fa-fw"></i>Accounts Recievable Listing</a> </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+                         
+                            
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -2258,8 +2504,34 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+
+
                         </ul>
                     </div>
                 </div>
@@ -2272,7 +2544,7 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/ERSEA/ERSEADashboard"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Dashboard</a> </li>
-
+                            
 
                             @if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
                             {
@@ -2280,6 +2552,10 @@
                             }
 
 
+                          
+
+
+                            
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
                             <li> <a id="li1" href="~/ERSEA/SelectionCriteriaUpdate"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Selection Criteria Update</a> </li>
@@ -2299,28 +2575,35 @@
 
                             <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>
 
-                            @* <li> <a id="lireport" href="~/Inkind/PublicAssetEntry"><i class="fa fa-dashboard fa-fw"></i>Public Asset Entry</a> </li>*@
 
-                            @if (AccessList != null && AccessList.Count > 0)
+
+
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/CompletedEvents"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Completed Events</a> </li>
-
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -2328,8 +2611,33 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
+                          
 
 
                             @if (Session["IsShowScreening"] != null && Convert.ToBoolean(Session["IsShowScreening"]))
@@ -2357,35 +2665,71 @@
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
+                          
 
+                          
+
+                            
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li> <a id="li1" href="~/Transportation/CreateRoute"><i class="fa fa-road fa-fw"></i> Create Route</a> </li>
                             <li> <a id="li1" href="~/Transportation/AssignRoute"><i class="fa fa fa-map fa-fw"></i> Assign Route</a> </li>
-                            @if (AccessList != null && AccessList.Count > 0)
+                           
+                            
+
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
+
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
                                     </ul>
                                 </li>
                             }
@@ -2418,26 +2762,33 @@
                                 <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
                             }
 
+                            
 
-                            @if (AccessList != null && AccessList.Count > 0)
+                            @{
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
+                            }
+
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
+
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
@@ -2445,8 +2796,32 @@
                                             }
                                         }
                                     </ul>
+
                                 </li>
                             }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+
+
+                                        }
+
+
+
+                                    </ul>
+                                </li>
+                            }
+
 
 
 
@@ -2486,7 +2861,10 @@
 
 
                             <li> <a id="lireport" href="~/Home/CenterClosure"><i class="fa fa-dashboard fa-fw"></i>Center Closure</a> </li>
+                           
 
+                          
+                          
 
 
                             @if (@FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.TeacherAssistant].ToLowerInvariant() == Session["RoleId"].ToString())
@@ -2535,6 +2913,9 @@
 
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span">(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</span></a> </li>
 
+
+                           
+
                             @if (staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AreaManager).ToLowerInvariant() ||
 
                                             staff.RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.SocialServiceManager).ToLowerInvariant())
@@ -2545,97 +2926,66 @@
                                 <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
                             }
 
+                           
+
                             @{
-                                var _clasReportMenus = new List<Tuple<string, string, int>>();
+                                var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
+                                var myMenu = AccessList.Where(x => x.Item4 == false).ToList();
                             }
 
-                            @if (AccessList != null && AccessList.Count > 0)
+                            @if (myMenu != null && myMenu.Count > 0)
                             {
                                 <li>
-                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.MyMenu<span class="fa arrow"></span></a>
                                     <ul id="ul4" class="nav nav-second-level collapse">
-                                        @foreach (var item in AccessList)
+                                        @foreach (var item in myMenu)
                                         {
                                             if (item.Item1 == "Event Creation")
                                             {
                                                 <li class="">
-                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Events <span class="fa arrow"></span></a>
+                                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>@Fingerprints.LocalResource.Resources.Events <span class="fa arrow"></span></a>
                                                     <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i>Create Event</a> </li>
-                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> List of Events</a> </li>
-                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> Cancelled Events</a></li>
-                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> Event Report</a> </li>
+                                                        <li><a id="li9" href="~/EducationManager/StaffEventCreation"><i class="fa fa-bolt" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.CreateEvent</a> </li>
+                                                        <li> <a id="a1" href="~/EducationManager/EventsList"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i> @Fingerprints.LocalResource.Resources.ListofEvents</a> </li>
+                                                        <li><a id="l11" href="~/EducationManager/CancelledEvents"><i class="fa fa-calendar-minus-o" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.CancelledEvents</a></li>
+                                                        <li> <a id="a1" href="~/EducationManager/StaffEventReports"><i class="fa fa-list-alt fa-fw" aria-hidden="true"></i>@Fingerprints.LocalResource.Resources.EventReport</a> </li>
                                                     </ul>
                                                 </li>
                                             }
-                                            else if (item.Item3 == 23 || item.Item3 == 25) //clas report or clas review
-                                            {
-                                                _clasReportMenus.Add(item);
 
-                                            }
                                             else
                                             {
                                                 <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
                                             }
                                         }
+                                    </ul>
 
-                                        @if (_clasReportMenus != null && _clasReportMenus.Count > 0)
+                                </li>
+                            }
+
+
+
+                            @if (reportMenu != null && reportMenu.Count > 0)
+                            {
+                                <li class="">
+
+                                    <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> My Reports <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+
+                                        @foreach (var item in reportMenu)
                                         {
-                                            <li class="">
-
-                                                <a id="li9" href="#"><i class="fa fa-bar-chart-o"></i> Reporting <span class="fa arrow"></span></a>
-                                                <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                                 @if (_clasReportMenus.Any(x => x.Item3 == 25))
-                                                 { //if have review the can view
+                                            <li><a id="IsDemographic" href="@item.Item2" class="my-menu-layout"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
 
 
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/AddCLASReview">
-                                                            <i class="fa  "fa-bolt" aria-hidden="true"></i>
-                                                          CLAS Input
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-
-
-                                                 }
-                                                 else
-                                                 {
-                                                    <li>
-                                                        <a id="li9" href="/Reporting/CLASReview">
-                                                            <i class="fa fa-bolt" aria-hidden="true"></i>
-                                                            CLAS Report
-                                                        </a>
-                                                    </li>
-                                                 }
-
-                                                @*
-                                                        @foreach (var item in _clasReportMenus)
-                                                    {
-
-                                                        <li>
-                                                            <a id="li9" href="@item.Item2">
-                                                                <i class="fa @(item.Item3 == 24 ? "fa-list-alt" : "fa-bolt")" aria-hidden="true"></i>
-                                                                @item.Item1
-                                                            </a>
-                                                        </li>
-
-                                                    }
-
-                                                    *@
-                                                </ul>
-                                            </li>
                                         }
+
+
 
                                     </ul>
                                 </li>
                             }
+
 
 
        
@@ -2802,8 +3152,7 @@
             </div>
         </div>
     }
-    @*<script src="~/Scripts/metisMenu.min.js"></script>*@
-    @*<script src="~/Scripts/startmin.js"></script>*@
+
     <script>
 
 
