@@ -2290,10 +2290,12 @@ function GetBounds() {
                     });
                 }
                 else {
-                    var first = results[0].geometry.viewport.b;
-                    var second = results[0].geometry.viewport.f;
+                   // var first = results[0].geometry.viewport.b;
+                  //  var second = results[0].geometry.viewport.f;
                     bounds = { "south": 33.935, "west": -81.171, "north": 34.133, "east": -80.704 };
-                    bounds = { "south": second.b, "west": first.b, "north": second.f, "east": first.f };
+                    //  bounds = { "south": second.b, "west": first.b, "north": second.f, "east": first.f };
+
+                    bounds = results[0].geometry.viewport.toJSON();
                     if (!allow)
                         BindDataByZip();
                     if (!allow)
@@ -2321,10 +2323,12 @@ function GetBoundZip(zip) {
                 var y = results[0].geometry.location.lng();
                 latitutde = x;
                 longitude = y;
-                var first = results[0].geometry.viewport.b;
-                var second = results[0].geometry.viewport.f;
+              //  var first = results[0].geometry.viewport.b;
+              //  var second = results[0].geometry.viewport.f;
                 bounds = { "south": 33.935, "west": -81.171, "north": 34.133, "east": -80.704 };
-                bounds = { "south": second.b, "west": first.b, "north": second.f, "east": first.f };
+                // bounds = { "south": second.b, "west": first.b, "north": second.f, "east": first.f };
+                bounds = results[0].geometry.viewport.toJSON();
+
                 if (!allow)
                     BindDataZip(zip);                 
             } else {
@@ -2414,7 +2418,7 @@ function BindDataByState() {
     }   
 }
 
-var Map;
+var map;
 var bounds;
 var markers;
 var windowtext;
@@ -2525,7 +2529,7 @@ function initMap() {
 };
 function LoadMapUpdate() {
 
-    Map = AffMap($("#map_canvas"), {
+    map = AffMap($("#map_canvas"), {
         gmapSettings: {
             zoom: zoom,
             minZoom: 6,
@@ -2533,35 +2537,35 @@ function LoadMapUpdate() {
             center: center
         }
     });
-    // Map.addOverlay("/Images/tiles/{x}-{y}-{z}.png");
+    // map.addOverlay("/Images/tiles/{x}-{y}-{z}.png");
 
-    Map.addOverlay("https://www.unitedstateszipcodes.org/tiles/all/{x}-{y}-{z}.png");
+    map.addOverlay("https://www.unitedstateszipcodes.org/tiles/all/{x}-{y}-{z}.png");
     if (typeof geojson !== "undefined") {
-        Map.addGeoJSON(geojson)
+        map.addGeoJSON(geojson)
     }
     if (typeof bounds !== "undefined") {
-        Map.gmap.fitBounds(bounds)
+        map.gmap.fitBounds(bounds)
     }
     if (typeof map_control_html !== "undefined") {
-        Map.addControl(map_control_html, map_control_onclick)
+        map.addControl(map_control_html, map_control_onclick)
     }
     if (typeof markers !== "undefined" && markers.length > 0) {
         for (var a = 0; a < markers.length; a++) {
-            Map.codeAddress(markers[a], function (d) {
+            map.codeAddress(markers[a], function (d) {
                 var c = new google.maps.Marker({
-                    map: Map.gmap,
+                    map: map.gmap,
                     position: d[0].geometry.location
                 });
-                Map.gmap.setCenter(d[0].geometry.location);
+                map.gmap.setCenter(d[0].geometry.location);
                 if (windowtext != null) {
                     var e = new google.maps.InfoWindow({
                         content: windowtext
                     });
-                    e.open(Map.gmap, c)
+                    e.open(map.gmap, c)
                 }
             })
         }
     }
 }
 
-//Chart Map Functionality//
+//Chart map Functionality//
