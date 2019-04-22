@@ -82,6 +82,110 @@ ERSEA Dashboard
                 font-size: 17px;
                 padding-top: 3px;
             }
+
+
+        .scroll-thead
+        {
+            width: 100%!important;
+        }
+
+        .ersea-table thead tr td
+        {
+            font-size: 14px!important;
+        }
+
+        .ersea-table thead tr th
+        {
+            font-size: 14px!important;
+        }
+
+        .scroll-tbody1 tr
+        {
+            width: 100%!important;
+        }
+
+        .ersea-table .scroll-tbody{
+            max-height: 300px;
+            height:auto;
+        }
+
+        @@media only screen and (max-width: 768px) {
+            .ersea-table .scroll-tbody {
+                width: 100%;
+                max-height:none !important;
+            }
+         #ada_body tr {
+           padding:0px;
+           border:1px solid #fff;
+           border-bottom-width: 15px;
+         }
+            .center_name_clm
+            {
+                width: 100%!important;
+            }
+
+                        .center_name1_clm
+            {
+                width: 100%!important;
+            }
+                        .total_clm
+                                   {
+                width: 100%!important;
+            }
+
+            #no-more-tables8 td:before
+            {
+                margin-top: 12px;
+            }
+            .ersea-table-head p
+            {
+                text-align: center;
+            }
+            .total_title
+            {
+                text-align: left!important;
+            }
+            #no-more-tables8 tr {
+    padding-bottom: 20px;
+    box-shadow: 0px 0px 5px #e8d8d8;
+        background: #f1f5f8!important;
+}         
+
+            .ersea-table
+            {
+                background: white!important;
+            }
+            #no-more-tables8 td
+            {
+                background: white;
+            }
+
+            #no-more-tables8 td {
+    min-height: 35px;
+}
+        }
+
+        tbody.ersea-table-head tr td
+        {
+            background: transparent!important;
+        }
+
+                tbody.ersea-table-head tr td p
+        {
+            background: transparent!important;
+        }
+
+                    .ersea-table-head tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+            
+            .ersea-table-head tr:nth-of-type(even) {
+    background-color: #f1f5f8;
+}
+        .head-width-cal {
+         width:calc( 100% - 17px ) !important;
+        }
+
     </style>
 
 
@@ -208,158 +312,16 @@ ERSEA Dashboard
                                     <div class="notifi_lst">
 
                                         <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
-                                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
-                                                <div class="tab_tlt">Center ADA Report<span>@Model.OverAllPercentage%</span></div>
-                                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
-                                                    <thead class="table-hd scroll-thead" id="ada_head" style="width:100%">
-                                                        <tr>
-                                                            <th>Center Name</th>
-                                                       
-                                                            
-                                                            @foreach (var item in Model.MonthOrdersList)
-                                                            {
-                                                                if (j <=2)
-                                                                {
-                                                                    <th style="background:#FF9800;">@item.Text.ToUpper()</th>
-                                                                }
-                                                                else if (j > 2 && j <= 5)
-                                                                {
-                                                                    <th style="background:#dc6eab;">@item.Text.ToUpper()</th>
-
-                                                                }
-                                                                else if (j >5 && j <=8)
-                                                                {
-                                                                    <th style = "background:#8a0fbc;" > @item.Text.ToUpper() </th>
-
-                                                                }
-                                                                else if (j > 8 && j <= 11)
-                                                                {
-                                                                    <th style="background:#33e0ed;"> @item.Text.ToUpper() </th>
-                                                                }
+                                           
+                                            
+                                             <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                               
+                                            @{
+                                                Html.RenderPartial("~/Views/ERSEA/_ADAByCenterPartial.cshtml", Model);
+                                            }
+                                             </div>
 
 
-                                                                j++;
-                                                            }
-
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="ersea-table-head ada_body scroll-tbody" id="ada_body">
-
-                                                        @foreach (FingerprintsModel.ADA obj in Model.listADA)
-                                                        {
-
-                                                            <tr id="tr_ada_@i">
-                                                                <td data-title="Center Name">
-                                                                    <p title="@obj.CenterName" data-toggle="tooltip">@obj.CenterName</p>
-                                                                </td>
-                                                                @foreach (var item2 in Model.MonthOrdersList)
-                                                                {
-                                                                    //var k = Model.FirstMonth;
-                                                                    //var j = Model.MonthOrdersList.Where(x => x.Value == (k%12).ToString()).Select(x => x.Text).ToString();
-                                                                    <td data-title="@item2.Text">
-                                                                        <p>@((decimal)obj[item2.Text])%</p>
-                                                                    </td>
-
-                                                                }
-
-
-                                                                @*<td data-title="Sep">
-                                                                        <p>@obj.Feb%</p>
-                                                                    </td>
-                                                                    <td data-title="Oct">
-                                                                        <p>@obj.Mar%</p>
-                                                                    </td>
-                                                                    <td data-title="Nov">
-                                                                        <p>@obj.Apr%</p>
-                                                                    </td>
-                                                                    <td data-title="Dec">
-                                                                        <p>@obj.May%</p>
-                                                                    </td>
-                                                                    <td data-title="Jan">
-                                                                        <p>@obj.Jun%</p>
-                                                                    </td>
-
-                                                                    <td data-title="Mar">
-                                                                        <p>@obj.Jul%</p>
-                                                                    </td>
-                                                                    <td data-title="Apr">
-                                                                        <p>@obj.Aug%</p>
-                                                                    </td>
-                                                                    <td data-title="May">
-                                                                        <p>@obj.Sep%</p>
-                                                                    </td>
-                                                                    <td data-title="Jun">
-                                                                        <p>@obj.Oct%</p>
-                                                                    </td>
-                                                                    <td data-title="Jul">
-                                                                        <p>@obj.Nov%</p>
-                                                                    </td>
-                                                                    <td data-title="Feb">
-                                                                        <p>@obj.Dec%</p>
-                                                                    </td>*@
-
-                                                            </tr>
-                                                            i++;
-                                                        }
-
-
-                                                    </tbody>
-                                                </table>
-
-                                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
-
-                                                    <tbody class="ersea-table-head tbody_total scroll-tbody1">
-
-                                                        <tr style="height: 10px;"></tr>
-                                                        <tr>
-                                                            <td data-title="Center Name">
-                                                                <p><strong>TOTAL</strong></p>
-                                                            </td>
-                                                            @foreach (var item3 in Model.MonthOrdersList)
-                                                            {
-                                                                <td data-title="@item3.Text">
-                                                                    <p><strong>@((decimal)Model.TotalADA[item3.Text])%</strong></p>
-                                                                </td>
-                                                            }
-
-                                                            @*<td data-title="Sep">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Feb%</strong></p>
-                                                                </td>
-                                                                <td data-title="Oct">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Mar%</strong></p>
-                                                                </td>
-                                                                <td data-title="Nov">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Apr%</strong></p>
-                                                                </td>
-                                                                <td data-title="Dec">
-                                                                    <p><strong>@ViewBag.TotalPercentage.May%</strong></p>
-                                                                </td>
-                                                                <td data-title="Jan">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Jun%</strong></p>
-                                                                </td>
-                                                                <td data-title="Feb">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Jul%</strong></p>
-                                                                </td>
-                                                                <td data-title="Mar">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Aug%</strong></p>
-                                                                </td>
-                                                                <td data-title="Apr">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Sep%</strong></p>
-                                                                </td>
-                                                                <td data-title="May">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Oct%</strong></p>
-                                                                </td>
-                                                                <td data-title="Jun">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Nov%</strong></p>
-                                                                </td>
-                                                                <td data-title="Jul">
-                                                                    <p><strong>@ViewBag.TotalPercentage.Dec%</strong></p>
-                                                                </td>*@
-
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
                                         </div>
 
 
@@ -421,8 +383,8 @@ ERSEA Dashboard
 
 
             //height of ADA percentage div tbody to 65% of window height//
-            $('#ada_body').height($(window).height() - (($(window).height() * 65) / 100));
-
+           // $('#ada_body').height($(window).height() - (($(window).height() * 65) / 100));
+/*
             $(window).on('load', function () {
 
                 $('#ada_body').find('tr').each(function (i, k) {
@@ -439,13 +401,13 @@ ERSEA Dashboard
 
                         //});
                         // $('#ada_head').css({ "width": "100%" });
-                        $('#ada_head').css({ "width": "calc( 100% - 17px )" });
+                        $('#ada_head').css({ "width": "calc( 100% - 17px ) !important" });
 
                         $('.scroll-tbody1').css('width', '100%')
 
                     }
                     else {
-                        $('#ada_head').css({ "width": "calc( 100% - 17px )" });
+                        $('#ada_head').css({ "width": "calc( 100% - 17px ) !important" });
                         //$('#ada_head').css({ "width": "100%" });
                         $('.scroll-tbody1').css('width', '100%')
                     }
@@ -459,8 +421,10 @@ ERSEA Dashboard
                
 
             });
-            $(window).bind("load resize", function () {
 
+            */
+            $(window).bind("load resize", function () {
+/*
                 topOffset = 50;
                 width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
                 if (width < 768) {
@@ -481,12 +445,17 @@ ERSEA Dashboard
 
                 }
 
+                */
+
                 //reSizeContent();
+
+                
             });
 
 
+            
+            
 
-        });
 
         function reSizeContent() {
 

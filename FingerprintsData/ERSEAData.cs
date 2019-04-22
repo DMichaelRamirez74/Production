@@ -992,13 +992,13 @@ namespace FingerprintsData
             }
         }
 
-        public ERSEADashBoard GetADABasedonCenter(ref List<ADA> lstADA, ref int firstMonth, string AgencyId)
+        public ERSEADashBoard GetADABasedonCenter(ref List<ADA> lstADA, ref int firstMonth)
         {
             lstADA = new List<ADA>();
             ERSEADashBoard erseaDashboard = new ERSEADashBoard();
             try
             {
-
+                var stf = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
@@ -1007,7 +1007,11 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetADAForMonth";
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+
+                command.Parameters.AddWithValue("@AgencyId", stf.AgencyId);
+                command.Parameters.AddWithValue("@RoleId", stf.RoleId);
+                command.Parameters.AddWithValue("@UserId", stf.UserId);
+
                 Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();

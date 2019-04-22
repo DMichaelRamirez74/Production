@@ -35,6 +35,23 @@ namespace Fingerprints.Controllers
         [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult ERSEADashboard()
         {
+            var result = this.GetERSEADashboard();
+            return View(result);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult ADAByCenter()
+        {
+
+            var result = this.GetERSEADashboard();
+            return View(result);
+        }
+
+
+
+        [CustAuthFilter(RoleEnum.ERSEAManager)]
+        public ERSEADashBoard GetERSEADashboard()
+        {
             ERSEADashBoard obj = new ERSEADashBoard();
             try
             {
@@ -48,7 +65,8 @@ namespace Fingerprints.Controllers
                 List<CityName> lstCityName = new List<CityName>();
                 int firstMonth = 0;
                 new ERSEAData().GetApplicationEnrollmentBasedonZip(ref lstApplication, Session["AgencyID"].ToString());
-                obj = new ERSEAData().GetADABasedonCenter(ref lstADA, ref firstMonth, Session["AgencyID"].ToString());
+                // obj = new ERSEAData().GetADABasedonCenter(ref lstADA, ref firstMonth, Session["AgencyID"].ToString());
+                obj = new ERSEAData().GetADABasedonCenter(ref lstADA, ref firstMonth);
                 new ERSEAData().GetCityName(ref lstCityName);
 
                 // var firstnM = Enum.GetName(typeof(Month), 0);
@@ -109,8 +127,11 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            return View(obj);
+            // return View(obj);
+            return obj;
         }
+
+
 
         //[HttpPost]
         //public ActionResult GetApplicationEnrollmentBasedonZip()

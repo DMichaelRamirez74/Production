@@ -1,0 +1,300 @@
+﻿@model FingerprintsModel.ERSEADashBoard
+
+@{ 
+
+    int i = 0;
+    int j = 0;
+}
+
+
+<style type="text/css">
+   
+
+    .scroll-thead th {
+        border: 1px solid #f1f5f8;
+    }
+
+    .scroll-thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        width: calc( 100% - 17px );
+    }
+
+    .scroll-tbody tr td, .scroll-tbody1 tr td {
+        word-break: break-word;
+    }
+
+    .scroll-tbody {
+        display: block;
+        height: 250px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+            .scroll-tbody tr td, .scroll-tbody1 tr td {
+                word-break: break-word;
+            }
+
+    .scroll-tbody1 {
+        display: block;
+    }
+
+        .scroll-tbody1 tr {
+            display: table;
+            /*width: 100%;*/
+            width: 98.5%;
+            table-layout: fixed;
+        }
+
+    .ersea-table thead tr th {
+        font-size: 16px;
+    }
+
+    .top-header-title-ersea {
+        margin-top: 30px;
+    }
+
+    .pagination-ch {
+        padding: 6px 11px;
+        height: 33px;
+        background: #fff;
+        display: inline-block !important;
+        cursor: pointer;
+        vertical-align: top;
+    }
+
+        .pagination-ch i {
+            font-size: 17px;
+            padding-top: 3px;
+        }
+
+
+    .scroll-thead {
+        width: 100% !important;
+    }
+
+    .ersea-table thead tr td {
+        font-size: 14px !important;
+    }
+
+    .ersea-table thead tr th {
+        font-size: 14px !important;
+    }
+
+    .scroll-tbody1 tr {
+        width: 100% !important;
+    }
+
+    .ersea-table .scroll-tbody {
+        max-height: 300px;
+        height: auto;
+    }
+
+    @@media only screen and (max-width: 768px) {
+        .ersea-table .scroll-tbody {
+            width: 100%;
+        }
+
+        .center_name_clm {
+            width: 100% !important;
+        }
+
+        .center_name1_clm {
+            width: 100% !important;
+        }
+
+        .total_clm {
+            width: 100% !important;
+        }
+
+        #no-more-tables8 td:before {
+            margin-top: 12px;
+        }
+
+        .ersea-table-head p {
+            text-align: center;
+        }
+
+        .total_title {
+            text-align: left !important;
+        }
+
+        #no-more-tables8 tr {
+            padding-bottom: 20px;
+            box-shadow: 0px 0px 5px #e8d8d8;
+            background: #f1f5f8 !important;
+        }
+
+        .ersea-table {
+            background: white !important;
+        }
+
+        #no-more-tables8 td {
+            background: white;
+        }
+
+        #no-more-tables8 td {
+            min-height: 35px;
+        }
+    }
+
+    tbody.ersea-table-head tr td {
+        background: transparent !important;
+    }
+
+        tbody.ersea-table-head tr td p {
+            background: transparent !important;
+        }
+
+    .ersea-table-head tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .ersea-table-head tr:nth-of-type(even) {
+        background-color: #f1f5f8;
+    }
+
+    .head-width-cal {
+        width: calc( 100% - 17px ) !important;
+    }
+</style>
+
+
+
+
+<div class="tab_tlt">Center ADA Report<span>@Model.OverAllPercentage%</span></div>
+
+<table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
+    <thead class="table-hd scroll-thead" id="ada_head" style="width:100%">
+        <tr>
+            <th style="width: 350px;" class="center_name_clm">Center Name</th>
+
+
+            @foreach (var item in Model.MonthOrdersList)
+            {
+                if (j <= 2)
+                {
+                    <th style="background:#FF9800;">@item.Text.ToUpper()</th>
+                }
+                else if (j > 2 && j <= 5)
+                {
+                    <th style="background:#dc6eab;">@item.Text.ToUpper()</th>
+
+                }
+                else if (j > 5 && j <= 8)
+                {
+                    <th style="background:#8a0fbc;"> @item.Text.ToUpper() </th>
+
+                }
+                else if (j > 8 && j <= 11)
+                {
+                    <th style="background:#33e0ed;"> @item.Text.ToUpper() </th>
+                }
+
+
+                j++;
+            }
+
+        </tr>
+    </thead>
+    <tbody class="ersea-table-head ada_body scroll-tbody" id="ada_body">
+
+        @foreach (FingerprintsModel.ADA obj in Model.listADA)
+        {
+
+
+
+            <tr id="tr_ada_@i">
+
+
+                <td data-title="Center Name" style="width: 350px;" class="center_name1_clm">
+                    <p title="@obj.CenterName" data-toggle="tooltip">@obj.CenterName</p>
+                </td>
+
+
+
+                @foreach (var item2 in Model.MonthOrdersList)
+                {
+
+                    <td data-title="@item2.Text">
+                        <p style="text-align: center!important;">@((decimal)obj[item2.Text])</p>
+                    </td>
+
+                }
+
+
+
+
+            </tr>
+            i++;
+        }
+
+
+    </tbody>
+</table>
+
+<table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
+
+    <tbody class="ersea-table-head tbody_total scroll-tbody1">
+
+
+        <tr>
+            <td style="width: 350px;" class="total_clm">
+                <p class="total_title"><strong>TOTAL (%)</strong></p>
+            </td>
+            @foreach (var item3 in Model.MonthOrdersList)
+            {
+                <td data-title="@item3.Text">
+                    <p style="text-align: center!important;"><strong>@((decimal)Model.TotalADA[item3.Text])</strong></p>
+                </td>
+            }
+
+
+        </tr>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+
+
+        $(document).on("click", "#adaAnchor", function () {
+
+            setTimeout(function () {
+
+
+                resizeADATable();
+            }, 1000);
+        });
+
+  //init shape for adaby centerPage
+        setTimeout(function () {
+            resizeADATable();
+        }, 10000);
+
+    });
+
+
+    function resizeADATable() {
+        if ($("#ada_body").hasVerticalScrollBar()) {
+            //    $("#ada_head").css("width", "calc(100% - 17px)!important");
+            $("#ada_head").addClass('head-width-cal');
+            $(".scroll-tbody1").addClass('head-width-cal');
+        } else {
+            $("#ada_head").removeClass('head-width-cal');
+            $(".scroll-tbody1").removeClass('head-width-cal');
+        }
+    }
+
+</script>
