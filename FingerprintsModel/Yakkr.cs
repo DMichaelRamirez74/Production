@@ -91,7 +91,7 @@ public int? CaseNoteId { get; set; }
  public string DateOfAppointment { get; set; }
  public string TimeOfAppointment { get; set; }
 public string ClientStory { get; set; }
-
+public string DateOfInterview { get; set; }
     }
 
     public class ReferalDetails

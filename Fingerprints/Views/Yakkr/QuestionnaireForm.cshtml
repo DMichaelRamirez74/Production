@@ -107,7 +107,7 @@
         position: relative;
         overflow: hidden;
         min-width: 96px;
-        line-height: 38px !important;
+      
         padding: 0 24px;
         font-size: 14px;
         color: white;
@@ -279,6 +279,15 @@
                     </div>
 
 
+                    <div>
+                        <label>Interview Date</label>
+
+                        <div class="input-group" style="display: inline-block;">
+                            <input style="width:150px;display:inline-block;" type="text" id="DateOfInterview" name="DateOfInterview" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date" />
+                            <div id="calender_icon_doi" class="fa fa-calendar input-group-addon" style="height: 34px;width:36px;cursor:pointer;"></div>
+
+                        </div>
+                    </div>
 
                     <div>
                         <label> Did you make and go to your appointment?</label>
@@ -602,19 +611,41 @@
         });
 
 
+        $(document).on('click', "#calender_icon_doi", function (e) {
+            $('[name="DateOfInterview"]').datetimepicker('toggle');
+        });
+
         $(document).on('click', "#calender_icon", function (e) {
             $('[name="DateOfAppointment"]').datetimepicker('toggle');
         });
 
         $('[name="DateOfAppointment"]').datetimepicker({
+            maxDate: '+1d',
+            timepicker: false,
+            format: 'm/d/Y',
+            validateOnBlur: false,
+
+        });
+
+                // $('[name="DateOfAppointment"], #DateOfInterview').datetimepicker({
+        $('#DateOfInterview').datetimepicker({
 
             maxDate: '+1d',
             timepicker: false,
             format: 'm/d/Y',
-            validateOnBlur: false
+            validateOnBlur: false,
+           
         });
 
-        $('#DateOfAppointment').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#DateOfAppointment,#DateOfInterview').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+        $(document).on('change','[name="DateOfInterview"]',function (e) {
+           // console.log(this.value);
+            // $('[name="DateOfAppointment"]').datetimepicker('maxDate', this.value);
+            $('[name="DateOfAppointment"]').datetimepicker({ maxDate: new Date(this.value) });
+
+        });
 
         $(document).on('blur', '#DateOfAppointment', function () {
 
@@ -732,6 +763,7 @@
                     });
                     $("#CaseNotetags").val(Tags);
 
+                    var _doi = $('[name="DateOfInterview"]').val();
                     var _ongoingVal = $('[name="AppointmentMaked"]:checked').val();
                     var _dofAppin = $('[name="DateOfAppointment"]').val();
                     var _ServiceReceived = $('[name="ServiceReceived"]:checked').val();
@@ -743,6 +775,16 @@
                     var _csTags = $("#CaseNotetags").val();
                     var _anref = $('[name="anotherref"]:checked').val();
                     var _cStory = $('[name="ClientStory"]').val();
+
+                    if (new Date(_dofAppin) > new Date(_doi)) {//if date of interview greater then date of appoinment
+                        customAlert("Interview date cannot be greater then date of appointment.");
+                        return false;
+                    }
+
+                    if (!_doi) {
+                        customAlert("Please select interview date.");
+                        return false;
+                    }
 
                     if (!_ongoingVal) {
                         customAlert("Please choose Appoinment Yes or No.")

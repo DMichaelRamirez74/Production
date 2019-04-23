@@ -910,6 +910,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@mode", 1));
                 command.Parameters.Add(new SqlParameter("@YakkrId", qsform.YakkrId));
 
+                command.Parameters.Add(new SqlParameter("@DateOfInterview", qsform.DateOfInterview));
                 command.Parameters.Add(new SqlParameter("@AppointmentMaked", qsform.AppointmentMaked));
                 command.Parameters.Add(new SqlParameter("@ServiceReceived", qsform.ServiceReceived));
                 command.Parameters.Add(new SqlParameter("@Rating", qsform.Rating));
