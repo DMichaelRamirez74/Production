@@ -10,6 +10,8 @@ using System.Web.Mvc;
 using Fingerprints.Filters;
 using System.Web.Script.Serialization;
 using FingerprintsModel.Enums;
+using Fingerprints.Common;
+using Fingerprints.Utilities;
 
 namespace Fingerprints.Controllers
 {
@@ -47,6 +49,23 @@ namespace Fingerprints.Controllers
             return View(result);
         }
 
+        [CustAuthFilter()]
+        public ActionResult DownloadADAByCenter()
+        {
+
+            var result = this.GetERSEADashboard();
+            var fileBytes = new byte[0];
+            // Render the view xml to a string, then parse that string into an XML dom.
+            //string html = this.RenderActionResultToString(this.View("_ADAByCenterPartial", result,this));
+            string html = Helper.RenderActionResultToString(this.View("ADAByCenterPDFView", result), this);
+            fileBytes = Helper.GetPDFBytesFromHTML(html,false);
+
+
+            // Send the binary data to the browser.
+            //  return new BinaryContentResult(fileBytes, "application/pdf");
+
+            return File(fileBytes, "application/pdf", "ADA By Center.pdf");
+    }
 
 
         [CustAuthFilter(RoleEnum.ERSEAManager)]
@@ -56,7 +75,7 @@ namespace Fingerprints.Controllers
             try
             {
                 //get the Json filepath  
-                //string file = Server.MapPath("~/Content/JSON/us_census_zipcode.json");
+                //string file = Server.MapPath("~/Content/JSON/us_census_zipcode.json");E:\Pandian\Git Repository\Fingerprints-Production\Fingerprints\Views\ERSEA\ADAByCenter.cshtml
                 //deserialize JSON from file  
                 //var Json = System.IO.File.ReadAllText(file);
 

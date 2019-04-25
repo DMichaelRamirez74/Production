@@ -4,9 +4,11 @@ using FingerprintsModel;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
+using iTextSharp.tool.xml.css;
 using iTextSharp.tool.xml.html;
 using iTextSharp.tool.xml.parser;
 using iTextSharp.tool.xml.pipeline.css;
+using iTextSharp.tool.xml.pipeline.end;
 using iTextSharp.tool.xml.pipeline.html;
 using System;
 using System.Collections.Generic;
@@ -16,13 +18,14 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
 namespace Fingerprints.Utilities
 {
-    public static class Helper
+     public abstract class  Helper
     {
 
         public static int GetYakkrCountByUserId(string UserId, string AgencyId, string Status = "1")
@@ -688,6 +691,74 @@ namespace Fingerprints.Utilities
             String file = Convert.ToBase64String(bytes);
             b64 = b64 + file;
             return b64;
+        }
+
+        public static string RenderActionResultToString(ActionResult result,Controller ctrl)
+        {
+            // Create memory writer.
+            var sb = new StringBuilder();
+            var memWriter = new StringWriter(sb);
+
+            // Create fake http context to render the view.
+            var fakeResponse = new HttpResponse(memWriter);
+            var fakeContext = new HttpContext(System.Web.HttpContext.Current.Request,
+                fakeResponse);
+            var fakeControllerContext = new ControllerContext(
+                new HttpContextWrapper(fakeContext),
+                ctrl.ControllerContext.RouteData,
+                ctrl.ControllerContext.Controller);
+            var oldContext = System.Web.HttpContext.Current;
+            System.Web.HttpContext.Current = fakeContext;
+
+            // Render the view.
+            result.ExecuteResult(fakeControllerContext);
+
+            // Restore old context.
+            System.Web.HttpContext.Current = oldContext;
+
+            // Flush memory and return output.
+            memWriter.Flush();
+            return sb.ToString();
+        }
+
+        public static  byte[]  GetPDFBytesFromHTML(string htmlMarkup, bool pnoEnable=true) {
+
+            var output = new MemoryStream();
+            using (var doc = new Document(PageSize.A4))
+            {
+                var writer = PdfWriter.GetInstance(doc, output);
+
+                if (pnoEnable)
+                {
+                    PDFBackgroundHelper pageEventHelper = new PDFBackgroundHelper();
+                    writer.PageEvent = pageEventHelper;
+                }
+                writer.CloseStream = false;
+                doc.Open();
+
+
+                var tagProcessors = (DefaultTagProcessorFactory)Tags.GetHtmlTagProcessorFactory();
+                tagProcessors.RemoveProcessor(HTML.Tag.IMG); // remove the default processor
+                tagProcessors.AddProcessor(HTML.Tag.IMG, new CustomImageTagProcessor()); // use our new processor
+
+                CssFilesImpl cssFiles = new CssFilesImpl();
+                cssFiles.Add(XMLWorkerHelper.GetInstance().GetDefaultCSS());
+                var cssResolver = new StyleAttrCSSResolver(cssFiles);
+                cssResolver.AddCss(@"code { padding: 2px 4px; }", "utf-8", true);
+                var charset = Encoding.UTF8;
+                var hpc = new HtmlPipelineContext(new CssAppliersImpl(new XMLWorkerFontProvider()));
+                hpc.SetAcceptUnknown(true).AutoBookmark(true).SetTagFactory(tagProcessors); // inject the tagProcessors
+                var htmlPipeline = new HtmlPipeline(hpc, new PdfWriterPipeline(doc, writer));
+                var pipeline = new CssResolverPipeline(cssResolver, htmlPipeline);
+                var worker = new XMLWorker(pipeline, true);
+                var xmlParser = new XMLParser(true, worker, charset);
+                xmlParser.Parse(new StringReader(htmlMarkup));
+
+            }
+            output.Position = 0;
+            
+
+            return output.ToArray();
         }
 
     }

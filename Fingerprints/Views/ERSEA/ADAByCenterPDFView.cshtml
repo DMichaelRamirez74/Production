@@ -1,0 +1,165 @@
+﻿@{
+
+    Layout = null;
+}
+@model FingerprintsModel.ERSEADashBoard
+
+@{
+
+    int i = 0;
+    int j = 0;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ADA By center</title>
+    <style>
+        #main-table {
+         
+         font-size:12px;
+        
+        }
+            #main-table tr th {
+            margin-bottom:5px;
+            }
+            #main-table tr th,
+             #main-table tr td {
+            
+         border:1px solid #333;
+            height:30px;
+            
+           
+            }
+        .centr-clmn {
+        width:200px;
+        }
+        .percentage-card {
+         background:#34495e;
+         text-align:center;
+         color:#ffffff;
+         height:30px;
+        }
+
+        .mnth-clmn {
+          text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <div style="float:right;">
+
+      
+            <table style="width:200px;float:right;" align="right">
+                <thead>
+                    <tr>
+                        <td style="width:150px;height:20px;">Report Date :</td>
+                        @{
+                            var DateStr = DateTime.Now.Month.ToString() + '/' + DateTime.Now.Day.ToString() + '/' + DateTime.Now.Year.ToString();
+                        }
+                        <td style="width:120px;">@DateStr</td>
+                    </tr>
+                </thead>
+            </table>
+        
+
+
+        <div class="percentage-card" >
+            Center ADA Report - <span> @Model.OverAllPercentage%</span>
+        </div>
+        <div style="height:20px;" ></div>
+
+        <table id="main-table" width="700" border="0" cellspacing="0" cellpadding="0"  style="repeat-header: yes; repeat-footer: false;">
+
+            <thead>
+                <tr>
+                    <th class="centr-clmn">Center Name</th>
+                    @foreach (var item in Model.MonthOrdersList)
+            {
+                if (j <= 2)
+                {
+                            <th class="mnth-clmn">@item.Text.ToUpper()</th>
+                        }
+                        else if (j > 2 && j <= 5)
+                        {
+                            <th class="mnth-clmn" >@item.Text.ToUpper()</th>
+
+                        }
+                        else if (j > 5 && j <= 8)
+                        {
+                            <th class="mnth-clmn" > @item.Text.ToUpper() </th>
+
+                        }
+                        else if (j > 8 && j <= 11)
+                        {
+                            <th class="mnth-clmn"> @item.Text.ToUpper() </th>
+                        }
+
+
+                        j++;
+                    }
+                </tr>
+            </thead>
+            <tbody>
+
+              
+
+                    @foreach (FingerprintsModel.ADA obj in Model.listADA)
+                    {
+
+
+
+                    <tr>
+
+
+                        <td>
+                            @obj.CenterName
+                        </td>
+
+
+
+                        @foreach (var item2 in Model.MonthOrdersList)
+                {
+
+                            <td align="center">
+                               @((decimal)obj[item2.Text])
+                            </td>
+
+                        }
+
+
+
+
+                    </tr>
+                        i++;
+                    }
+
+              
+
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    
+                    <td>
+                        <strong>TOTAL (%)</strong>
+                    </td>
+                    @foreach (var item3 in Model.MonthOrdersList)
+            {
+                        <td style="text-align:center;">
+                           <strong>@((decimal)Model.TotalADA[item3.Text])</strong>
+                        </td>
+                    }
+
+
+                </tr>
+            </tfoot>
+        </table>
+
+
+
+    </div>
+</body>
+</html>
