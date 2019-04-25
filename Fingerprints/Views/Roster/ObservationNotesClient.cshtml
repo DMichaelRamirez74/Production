@@ -1,0 +1,727 @@
+﻿@{
+
+    @section Title
+    {
+        Observation Notes Client
+    }
+    ViewBag.Title = "ObservationNotesClient";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+
+@section Script{
+    <script type="text/javascript">
+    var count = 1;
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        if ('@ViewBag.message' != '') {
+            customAlert('@ViewBag.message');
+        }
+        $('#Rosterli').addClass("active");
+        $('#Yakkrli').removeClass("active");
+        $('#Appointmentli').removeClass("active");
+        $('#CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',',';'] });
+
+        CKEDITOR.replace('Note', {
+            language: 'en-gb',
+            uiColor: '#295b8f',
+            disableNativeSpellChecker: false
+        });
+    });
+
+
+
+        function Getcasenote(Casenoteid) {
+            $('#CaseNoteid').val(Casenoteid);
+        $.ajax({
+            url: HostedDir + "/Roster/Getcasenotedetails",
+            type: "POST",
+            data: {
+                Casenoteid: Casenoteid,
+                ClientId: $('#ClientId').val()
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (Data) {
+                BindCaseNotelist(Data);
+            }
+        , error: function (Data) {
+            customAlert("Error occured please try again later.");
+        }
+        });
+    }
+    function BindCaseNotelist(Data) {
+        cleanValidation();
+        //$('#Attachment').hide();
+        $('#Attachments').show();
+        $('#Attach').empty();
+        //$('#SaveNoteSubmit').hide();
+
+        $('.tag').remove();
+        var outputArray = [];
+        var Attachments = [];
+        if (Data != null && Data.length > 0) {
+            if(Data[0].GroupCaseNote==0)
+            {
+                $('#CaseNoteHeading').text('Edit Case Note');
+                $('#Attachmectstag').removeAttr("onclick");
+                $('#Attachmectstag').attr("onclick","AddMore();");
+                $('#FirstFile').removeAttr("disabled");
+                $('#SaveNoteSubmit').show();
+                $('#CaseNoteDate').val('');
+                $('#CaseNotetitle').val('');
+                $('#CaseNotesNote').val('');
+                $('#ClientName').val('');
+                $('#ClientNameModel').val('');
+                $('#CaseNoteSecurity').prop("checked", false);
+                $('#CaseNoteSecurity').removeAttr("disabled");
+                $('#ClientDiv input[type=checkbox]').each(function () {
+                    $(this).prop("checked", false);
+                    $(this).removeAttr("disabled");
+                });
+                $('#StaffDiv input[type=checkbox]').each(function () {
+                    $(this).prop("checked", false);
+                    $(this).removeAttr("disabled");
+                });
+                $('#CaseNoteDate').val(Data[0].Date);
+                $('#CaseNotetitle').val(Data[0].Title);
+                CKEDITOR.instances['Note'].setData(Data[0].Note);
+                $('#ClientName').text(Data[0].Name);
+                $('#ClientNameModel').text(Data[0].Name);
+                if (Data[0].SecurityLevel)
+                    $('#CaseNoteSecurity').prop("checked", true);
+                for (var i = 0; i < Data.length; i++) {
+                    $('#ClientDiv input[type=checkbox]').each(function () {
+                        if( $(this).val()==Data[i].clientid)
+                            $(this).prop("checked", true);
+                    });
+                }
+                for (var i = 0; i < Data.length; i++)
+                {
+                    if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1)
+                    {
+                        outputArray.push(Data[i].Tagname);
+                    }
+                }
+                for (var i = 0; i < Data.length; i++)
+                {
+                    if ((jQuery.inArray(Data[i].Attachment, Attachments)) == -1)
+                    {
+                        Attachments.push(Data[i].Attachment);
+                    }
+                }
+                for (var i = 0; i < Attachments.length; i++) {
+                    if (Attachments[i] != "0" && Attachments[i] != "")
+                        $('#Attach').append("<a target='_blank' title='Click here to download' href='"+HostedDir+"/Agencyuser/getpdfimage1/"+Attachments[i]+",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                }
+                if ($('#Attach').children().length < 1)
+                {
+                    $('#Attach').append("<span>No file available</span>");
+                }
+                for (var i = 0; i < outputArray.length; i++) {
+                    $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag(this);" title="Removing tag">x</a></span>');
+                }
+                for (var i = 0; i < Data.length; i++) {
+                    $('#StaffDiv input[type=checkbox]').each(function () {
+                        if( $(this).val()==Data[i].Staffid)
+                            $(this).prop("checked", true);
+                    });
+                }
+                $('#StaffName').text(Data[0].BY);
+                $('#CaseNoteDate').attr("Readonly",true);
+                $('#CaseNotetitle').attr("Readonly",true);
+                //$('#CaseNoteSecurity').attr("disabled",true);
+                CKEDITOR.instances['Note'].setReadOnly(true);
+                //$('#ClientDiv input[type=checkbox]').each(function () {
+                //    $(this).attr("disabled",true);
+                //});
+                //$('#StaffDiv input[type=checkbox]').each(function () {
+                //    $(this).attr("disabled",true);
+                //});
+                $('#CaseNotetags_tag').removeAttr("disabled");
+            }
+            else  if(Data[0].GroupCaseNote==1)
+            {
+                $('#CaseNoteHeading').text('Group Case Note');
+                $('#Attachmectstag').removeAttr("onclick");
+                $('#Attachmectstag').attr("onclick","return false;");
+                $('#SaveNoteSubmit').hide();
+                $('#CaseNoteDate').val('');
+                $('#CaseNotetitle').val('');
+                $('#CaseNotesNote').val('');
+                $('#ClientName').val('');
+                $('#ClientNameModel').val('');
+                $('#CaseNoteSecurity').prop("checked", false);
+                $('#CaseNoteSecurity').attr("disabled","disabled");
+                $('#CaseNotetags_tag').attr("disabled","disabled");
+                $('#FirstFile').attr("disabled","disabled");
+
+                $('#ClientDiv input[type=checkbox]').each(function () {
+                    $(this).prop("checked", false);
+                    $(this).attr("disabled","disabled");
+                });
+                $('#StaffDiv input[type=checkbox]').each(function () {
+                    $(this).prop("checked", false);
+                    $(this).attr("disabled","disabled");
+                });
+                $('#CaseNoteDate').val(Data[0].Date);
+                $('#CaseNotetitle').val(Data[0].Title);
+                CKEDITOR.instances['Note'].setData(Data[0].Note);
+                $('#ClientName').text(Data[0].Name);
+                $('#ClientNameModel').text(Data[0].Name);
+                if (Data[0].SecurityLevel)
+                    $('#CaseNoteSecurity').prop("checked", true);
+                for (var i = 0; i < Data.length; i++) {
+                    $('#ClientDiv input[type=checkbox]').each(function () {
+                        if( $(this).val()==Data[i].clientid)
+                        {
+                            $(this).prop("checked", true);
+                        }
+                    });
+                }
+                for (var i = 0; i < Data.length; i++)
+                {
+                    if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1)
+                    {
+                        outputArray.push(Data[i].Tagname);
+                    }
+                }
+                for (var i = 0; i < Data.length; i++)
+                {
+                    if ((jQuery.inArray(Data[i].Attachment, Attachments)) == -1)
+                    {
+                        Attachments.push(Data[i].Attachment);
+                    }
+                }
+                for (var i = 0; i < Attachments.length; i++) {
+                    if (Attachments[i] != "0" && Attachments[i] != "")
+                        $('#Attach').append("<a target='_blank' title='Click here to download' href='"+HostedDir+"/Agencyuser/getpdfimage1/"+Attachments[i]+",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                }
+                if ($('#Attach').children().length < 1)
+                {
+                    $('#Attach').append("<span>No file available</span>");
+                }
+                for (var i = 0; i < outputArray.length; i++) {
+                    $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#"  title="Removing tag">x</a></span>');
+                }
+                for (var i = 0; i < Data.length; i++) {
+                    $('#StaffDiv input[type=checkbox]').each(function () {
+                        if( $(this).val()==Data[i].Staffid)
+                            $(this).prop("checked", true);
+                    });
+                }
+                $('#StaffName').text(Data[0].BY);
+                $('#CaseNoteDate').attr("Readonly",true);
+                $('#CaseNotetitle').attr("Readonly",true);
+                //$('#CaseNoteSecurity').attr("disabled",true);
+                CKEDITOR.instances['Note'].setReadOnly(true);
+                //$('#ClientDiv input[type=checkbox]').each(function () {
+                //    $(this).attr("disabled",true);
+                //});
+                //$('#StaffDiv input[type=checkbox]').each(function () {
+                //    $(this).attr("disabled",true);
+                //});
+
+
+
+
+
+            }
+
+
+
+            if (!$('#ModalAddCasenote').hasClass('in'))
+                $('#ModalAddCasenote').modal('toggle');
+        }
+    }
+
+    function removetag(object)
+    {
+        $(object).parent('.tag').remove();
+
+    }
+
+    function AddNewCaseNote(clientid) {
+        $('#CaseNoteHeading').text('Add New Case Note');
+        $('#Attachmectstag').removeAttr("onclick");
+        $('#Attachmectstag').attr("onclick","AddMore();");
+        $('#CaseNoteid').val(0);
+        $('#Attachments').hide();
+        $('#CaseNoteDate').val('');
+        $('#CaseNotetitle').val('');
+        $('#CaseNotesNote').val('');
+        $('#ClientName').val('');
+        $('#ClientNameModel').val('');
+        $('#CaseNoteSecurity').prop("checked", false);
+        $('#CaseNoteSecurity').removeAttr("disabled");
+        $('#CaseNotetags_tag').removeAttr("disabled");
+        $('#CaseNotetags_tag').removeAttr("FirstFile");
+        $('.tag').remove();
+        $('#ClientDiv input[type=checkbox]').each(function () {
+            $(this).prop("checked", false);
+            $(this).removeAttr("disabled");
+
+        });
+        $('#StaffDiv input[type=checkbox]').each(function () {
+            $(this).prop("checked", false);
+            $(this).removeAttr("disabled");
+        });
+        CKEDITOR.instances['Note'].setData("");
+        $('#SaveNoteSubmit').show();
+        $('#Attachment').show();
+        $('#CaseNoteDate').attr("Readonly",false);
+        $('#CaseNotetitle').attr("Readonly",false);
+        $('#CaseNoteSecurity').attr("disabled",false);
+        CKEDITOR.instances['Note'].setReadOnly(false);
+        $('#ClientDiv input[type=checkbox]').each(function () {
+            $(this).attr("disabled",false);
+
+        });
+        $('#StaffDiv input[type=checkbox]').each(function () {
+            $(this).attr("disabled",false);
+        });
+
+
+        if (!$('#ModalAddCasenote').hasClass('in'))
+            $('#ModalAddCasenote').modal('toggle');
+    }
+    var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+    function ValidateSingleInputpdf2(oInput) {
+        if (oInput.type == "file") {
+            var sFileName = oInput.value;
+            if (sFileName.length > 0) {
+                var blnValid = false;
+                var valid_size = 3 * 1000 * 1000;
+                var v = oInput.files[0].size;
+                if (v <= valid_size) {
+                    for (var j = 0; j < _validFileExtensions1.length; j++) {
+                        var sCurExtension = _validFileExtensions1[j];
+                        if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                            $('#DobverificationinPaper').prop("checked", false);
+                            blnValid = true;
+                            break;
+                        }
+                    }
+                    if (!blnValid) {
+                        oInput.value = "";
+                        return false;
+                    }
+                }
+                else {
+                    oInput.value = "";
+                    customAlertforlongtime("File size should not be greater than 3 MB. ");
+                    return false;
+
+                }
+
+            }
+        }
+        return true;
+    }
+    function Checkdate(value) {
+
+
+
+        isValid = true;
+        if(!$(value).attr("readonly"))
+        {
+
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+                else
+                {
+                    var text = $(value).val();
+                    var comp = text.split('/');
+                    var m = parseInt(comp[0], 10);
+                    var d = parseInt(comp[1], 10);
+                    var y = parseInt(comp[2], 10);
+                    var date = new Date(y,m-1,d);
+                    if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                    } else {
+                        customAlert("Invalid date. ");
+                        $(value).val('');
+                        return false;
+                    }
+
+
+
+                }
+            }
+            var txtdate = $(value).val();
+            var selectedTimestampequal = new Date();
+            var year = selectedTimestampequal.getFullYear();
+            var month = selectedTimestampequal.getMonth() + 1;
+            var day = selectedTimestampequal.getDate();
+            today1 = month + '/' + day + '/' + year;
+            var newinput = today1.split("/");
+            var newday = newinput[1];
+            var str = newday.substr(0, 1);
+            var newdaynew = ('0' + newday).slice(-2);
+            var newmonth = newinput[0];
+            var str1 = newmonth.substr(0, 1);
+            var newmonthnew = ('0' + newmonth).slice(-2);
+            today = newmonthnew + '/' + newdaynew + '/' + year;
+            if (today == txtdate) {
+                return true;
+            }
+            var testdatelocalinput = new Date(txtdate);
+            var selectedTimestamp = new Date().getTime();
+            var testdatelocalinputTS = testdatelocalinput.getTime();
+            var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+            if ( testdatelocalinputTS  > selectedTimestamp   ) {
+                customAlert("Case Note date must be less than or equal to today's date.");
+                $(value).val('');
+                return false;
+            }
+            else if (timestamp > testdatelocalinputTS) {
+                customAlert("Case Note date cannot be less than 30 days from today's date.");
+                $(value).val('');
+                return false;
+            }
+        }
+        return true;
+    }
+    function AddMore() {
+        $('#Attachment').append("<div class='col-sm-12 adddivspace'><div class='col-sm-2' ><label></label>" +
+                                 "</div><div class='col-sm-3'> <input type='file'  name='Attachments[" + count + "].file' onchange='ValidateSingleInputpdf2(this)'  class='form-control' /></div></div>");
+        count++;
+    }
+    function Validatecasenote() {
+        isValid = true;
+        cleanValidation();
+        var Clientcount = 0;
+        var Tags = '';
+        $('#CaseNotetags_tagsinput .tag span').each(function () {
+            Tags = Tags + $(this).text().trim() + ',';
+        });
+        $("#CaseNotetags").val(Tags);
+
+        $('#Note').val(CKEDITOR.instances['Note'].getData());
+
+        $('#ClientDiv input:checked').each(function () {
+            if ($(this).prop("checked")) {
+                Clientcount = 1;
+            }
+        });
+        Tags = '';
+        if ($('#CaseNoteDate').val().trim() == "") {
+            isValid = false;
+            customAlert("Case note date is required. ");
+            plainValidation('#CaseNoteDate');
+            return isValid;
+        }
+        else if ($('#CaseNotetitle').val().trim() == "") {
+            isValid = false;
+            customAlert("Title is required.");
+            plainValidation('#CaseNotetitle');
+            return isValid;
+        }
+        else if (CKEDITOR.instances['Note'].getData() == "") {
+            isValid = false;
+            customAlert("Note is required.");
+            return isValid;
+        }
+        else if (Clientcount == 0) {
+            isValid = false;
+            customAlert("Clients name is required.");
+            $('#ClientDiv').focus();
+            return isValid;
+        }
+        else if ($('#CaseNotetags').val().trim() == "") {
+            isValid = false;
+            customAlert("Tags is required.");
+            plainValidation('#CaseNotetags');
+            return isValid;
+        }
+        return isValid;
+
+    }
+
+    </script>
+}
+
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                <span>Obervation Note Manager</span>
+                <span class="view-btn backto_listspan" id="BackToList">
+                    @if (ViewBag.Householdid != null && Convert.ToString(ViewBag.Householdid) != "0")
+                    {
+                        <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Observation Note</a>
+                        <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" class="backto_list">Back To Family Intake</a>
+                    }
+                    else
+                    {
+                        <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Observation Note</a>
+                        <a href="~/Teacher/Roster" class="backto_list">Back To Roster</a>
+
+
+                    }
+                </span>
+            </h2>
+        </div>
+        <div class="col-lg-12">
+            <h4>
+                @if (ViewBag.Name != null)
+                {
+                    <span id="clientName" style="color: #285b8f;">@ViewBag.Name</span>
+                }
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                @*<table class="table table_size">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th>Date</th>
+                            <th>Title</th>
+                            <th>By</th>
+                            <th>Attachments</th>
+                            <th>References</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.CaseNotelist != null)
+                        {
+                            foreach (var item1 in ViewBag.CaseNotelist)
+                            {
+                                <tr>
+                                    <td style="text-align:center;">@item1.Date</td>
+                                    <td style="text-align:center;"><a style="text-decoration:underline;cursor:pointer;" title="Click here to view Case Note" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</a>  </td>
+                                    <td style="text-align:center;">@item1.BY</td>
+                                    <td style="text-align:center;">@item1.Attachment</td>
+                                    <td style="text-align:center;">@item1.References</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>*@
+                <table class="table table_size">
+                    @*<thead style="cursor:pointer;">
+                        <tr>
+                            <th>Date</th>
+                            <th>Title</th>
+                            <th>By</th>
+                            <th>Attachments</th>
+                            <th>References</th>
+                        </tr>
+                    </thead>*@
+                    <tbody>
+                       <tr><th>Domain</th><td>Domain1</td><td>Domain2</td><td>Domain3</td><td>Domain4</td><td>Domain5</td><td>Domain6</td></tr>
+                        <tr><th>Count</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+              
+                <table class="table table_size">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th>Domain</th>
+                            <th>Notes</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>                        
+                        <tr><td colspan="3">No Notes Found</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
+            <div class="modal fade scroll-modal" id="ModalAddCasenote" role="dialog">
+                <div class="modal-dialog income-popup width-auto">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <h3 class="text-center"><span id="CaseNoteHeading" class="extra-title muted">Add New Case Note</span></h3>
+                            <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;">
+                                <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                    <h3 id="CaseNoteTitle" class="text-center pull-left"><span class="extra-title muted"></span></h3>
+                                    <button type="submit" id="SaveNoteSubmit" onclick="return Validatecasenote();" class="my-btn pull-right">Save</button>
+                                    <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                    <input id="ClientId" type="hidden" name="ClientId" value="@ViewBag.Client" />
+                                    <input id="CenterId" type="hidden" name="CenterId" value="@ViewBag.centerid" />
+                                    <input id="ProgramId" type="hidden" name="ProgramId" value="@ViewBag.Programid" />
+                                    <input id="HouseHoldId" type="hidden" name="HouseHoldId" value="@ViewBag.Householdid" />
+                                    <input id="CaseNoteid" type="hidden" name="CaseNoteid" value="0" />
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div>
+                                <div class="row qualifierdiv add-useragform1">
+                                    <div class="row" style="margin-bottom:3%;">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-2">
+                                                <label>Date <sup style="color:red">*</sup></label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <input type="text" id="CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 adddivspace">
+                                            <div class="col-sm-2">
+                                                <label>Title <sup style="color:red">*</sup></label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <input type="text" maxlength="100" id="CaseNotetitle" name="CaseNotetitle" class="form-control" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 adddivspace">
+                                            <div class="col-sm-2">
+                                                <label>Note <sup style="color:red">*</sup></label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <textarea id="Note" name="Note">  </textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 adddivspace">
+                                            <div class="col-xs-3  col-sm-2">
+                                                <label>Clients  <sup style="color:red">*</sup></label>
+                                            </div>
+                                            <div class="col-xs-9 col-sm-10">
+                                                <div id="ClientDiv" class="case-note">
+
+                                                    @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist != null)
+                                                    {
+                                                        foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist)
+                                                        {
+                                                            <div class="col-sm-12"><input type="checkbox" name="ClientIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
+                                                        }
+                                                    }
+
+
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 adddivspace">
+                                            <div class="col-sm-2">
+                                                <label>Tags <sup style="color:red">*</sup> </label>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <input type="text" id="CaseNotetags" name="CaseNotetags" class="form-control" />
+                                            </div>
+                                        </div>
+                                        @if (ViewBag.Householdid != null && ViewBag.Householdid == "0")
+                                        {
+                                            <div class="col-sm-12 adddivspace">
+                                                <div class="col-xs-3 col-sm-2">
+                                                    <label>Developmental Team</label>
+                                                </div>
+                                                <div class="col-xs-9 col-sm-10" id="Divstaff">
+                                                    <div id="StaffDiv" class="case-note">
+
+                                                        @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
+                                                        {
+                                                            foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
+                                                            {
+                                                                <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
+                                                            }
+                                                        }
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-sm-12 adddivspace" style="display:none;">
+                                                <div class="col-xs-3 col-sm-2">
+                                                    <label>Developmental Team</label>
+                                                </div>
+                                                <div class="col-xs-9 col-sm-10" id="Divstaff">
+                                                    <div id="StaffDiv" class="case-note">
+
+                                                        @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
+                                                        {
+                                                            foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
+                                                            {
+                                                                <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
+                                                            }
+                                                        }
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        }
+                                        <div class="col-sm-12 adddivspace">
+                                            <div class="col-sm-2">
+                                                <label>Secure Note Level?</label>
+                                            </div>
+                                            <div class="col-sm-2" style="margin-left:16px;">
+
+                                                <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" />
+                                                <span>Yes</span>
+
+                                            </div>
+                                        </div>
+                                        <div id="Attachment">
+                                            <div class="col-sm-12 adddivspace">
+                                                <div class="col-sm-2">
+                                                    <label>Attachment</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
+                                                </div>
+                                                <div class="col-sm-3 adddivspace">
+                                                    <span>Add Attachment </span>
+                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment " onclick="AddMore();"><i class="fa fa-plus-square"></i></a>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="Attachments" style="display:none;">
+                                            <div class="col-sm-12 adddivspace">
+                                                <div class="col-sm-2">
+                                                    <label>Download Attachment</label>
+                                                </div>
+                                                <div id="Attach" class="col-sm-10 adddivspace">
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+}

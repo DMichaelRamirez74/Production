@@ -137,3 +137,13 @@ function checkDecimal(el) {
         }
         return val;
     }
+
+
+//addon plugin for find out element have scroll or not
+    $.fn.hasVerticalScrollBar = function () {
+        return this[0].clientHeight < this[0].scrollHeight;
+    }
+
+    $.fn.hasHorizontalScrollBar = function () {
+        return this[0].clientWidth < this[0].scrollWidth;
+    }

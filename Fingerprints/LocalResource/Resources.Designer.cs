@@ -142,6 +142,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Attachment(s).
+        /// </summary>
+        public static string Add_Attachment {
+            get {
+                return ResourceManager.GetString("Add_Attachment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Email Address.
         /// </summary>
         public static string AddEmailAddress {
@@ -282,6 +291,15 @@ namespace Fingerprints.LocalResource {
         public static string Baccalaureate_Degree {
             get {
                 return ResourceManager.GetString("Baccalaureate_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back to Roster.
+        /// </summary>
+        public static string Back_to_Roster {
+            get {
+                return ResourceManager.GetString("Back_to_Roster", resourceCulture);
             }
         }
         
@@ -574,6 +592,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CLAS Report.
+        /// </summary>
+        public static string CLAS_Report {
+            get {
+                return ResourceManager.GetString("CLAS_Report", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Class Date.
         /// </summary>
         public static string ClassDate {
@@ -804,6 +831,15 @@ namespace Fingerprints.LocalResource {
         public static string Date {
             get {
                 return ResourceManager.GetString("Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date &amp; Time.
+        /// </summary>
+        public static string Date_and_Time {
+            get {
+                return ResourceManager.GetString("Date_and_Time", resourceCulture);
             }
         }
         
@@ -1051,6 +1087,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entered By.
+        /// </summary>
+        public static string Entered_By {
+            get {
+                return ResourceManager.GetString("Entered_By", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please enter any term to search.
         /// </summary>
         public static string EnterTermToSearch {
@@ -1231,6 +1276,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Files.
+        /// </summary>
+        public static string Files {
+            get {
+                return ResourceManager.GetString("Files", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filter.
+        /// </summary>
+        public static string Filter {
+            get {
+                return ResourceManager.GetString("Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Full.
         /// </summary>
         public static string Full {
@@ -1245,6 +1308,15 @@ namespace Fingerprints.LocalResource {
         public static string FutureClients {
             get {
                 return ResourceManager.GetString("FutureClients", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to CLAS Report.
+        /// </summary>
+        public static string Go_to_CLAS_Report {
+            get {
+                return ResourceManager.GetString("Go_to_CLAS_Report", resourceCulture);
             }
         }
         
@@ -1668,6 +1740,15 @@ namespace Fingerprints.LocalResource {
         public static string Native_North_American_Alaska_Languages {
             get {
                 return ResourceManager.GetString("Native_North_American_Alaska_Languages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New CLAS Input.
+        /// </summary>
+        public static string New_CLAS_Input {
+            get {
+                return ResourceManager.GetString("New_CLAS_Input", resourceCulture);
             }
         }
         
@@ -2113,6 +2194,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Score.
+        /// </summary>
+        public static string Score {
+            get {
+                return ResourceManager.GetString("Score", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Screening.
         /// </summary>
         public static string Screening {
@@ -2199,6 +2289,15 @@ namespace Fingerprints.LocalResource {
         public static string SearchScreeningType {
             get {
                 return ResourceManager.GetString("SearchScreeningType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Season.
+        /// </summary>
+        public static string Season {
+            get {
+                return ResourceManager.GetString("Season", resourceCulture);
             }
         }
         
@@ -2379,6 +2478,15 @@ namespace Fingerprints.LocalResource {
         public static string ThisYearsAttendancePercentage {
             get {
                 return ResourceManager.GetString("ThisYearsAttendancePercentage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time.
+        /// </summary>
+        public static string Time {
+            get {
+                return ResourceManager.GetString("Time", resourceCulture);
             }
         }
         

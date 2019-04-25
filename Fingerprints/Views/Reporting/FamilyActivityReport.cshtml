@@ -1,0 +1,309 @@
+﻿@model FingerprintsModel.FamilyActivityReport
+
+@{
+    ViewBag.Title = "Family Activity Report";
+    if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+       || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+
+@section Title
+{
+    Family Activity Report
+
+}
+
+
+
+@section Script{
+
+   <script>
+       var reportType=@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.ReportFormatType)));
+    </script>
+
+   @Scripts.Render("~/bundles/family_activity_report");
+
+
+
+}
+
+
+@section Style{
+
+<link href="~/Content/multiselect.css" rel="stylesheet" />
+    
+  
+<link href="~/Content/css/FamilyActivityReport.css" rel="stylesheet" />
+}
+
+}
+
+@section MainContentHolder
+{
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;Family Activity Report
+
+                                        <span class="view-btn backto_listspan">
+
+
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12" id="formReport" action="/Reporting/ExportFamilyActivityReport" method="post">
+
+
+                                <!--Filter Section----->
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+
+
+                                    <input type="hidden" name="reportFormatType" />
+
+
+
+                                    <!---Center drop-down section-->
+                                    <div class="form-group col-lg-3 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center &nbsp;<sup>*</sup></label>
+
+                                        @{
+
+                                        FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
+
+                                        var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
+
+
+                                        centerDetails.ForEach(x =>
+                                        {
+                                            x.Value = x.Value != "0" ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                        });
+                                        }
+                                        <select id="selectCenter" name="CenterIDs" class="glossy-select" multiple="multiple">
+
+                                            @if (centerDetails != null && centerDetails.Count > 0)
+
+                                        {
+                                            foreach (var center in centerDetails)
+                                            {
+
+                                                if (center.Value != "0")
+                                                {
+                                        <option value="@center.Value">@center.Text</option>
+
+                                                }
+
+
+                                            }
+
+
+                                        }
+
+                                        </select>
+
+                                    </div>
+
+
+
+
+                                    <!---------Classroom drop down section----------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" style="display:none;">
+                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom &nbsp;<sup>*</sup></label>
+
+                                        <select class="glossy-select" name="ClassroomIDs" id="selectClassroom" multiple="multiple"></select>
+
+                                    </div>
+
+
+
+
+                                    <!----------- Month Drop-down --------------------->
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-months-dropdown">
+                                        <label for="selectMonths" class="lbl-text">@Fingerprints.LocalResource.Resources.Month <sup>*</sup></label>
+
+                                        <select id="selectMonths" name="Months" class="glossy-select" multiple="multiple">
+
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Jan)">@FingerprintsModel.Enums.Month.Jan.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Feb)">@FingerprintsModel.Enums.Month.Feb.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Mar)">@FingerprintsModel.Enums.Month.Mar.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Apr)">@FingerprintsModel.Enums.Month.Apr.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.May)">@FingerprintsModel.Enums.Month.May.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Jun)">@FingerprintsModel.Enums.Month.Jun.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Jul)">@FingerprintsModel.Enums.Month.Jul.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Aug)">@FingerprintsModel.Enums.Month.Aug.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Sep)">@FingerprintsModel.Enums.Month.Sep.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Oct)">@FingerprintsModel.Enums.Month.Oct.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Nov)">@FingerprintsModel.Enums.Month.Nov.ToString()</option>
+                                            <option value="@((int)FingerprintsModel.Enums.Month.Dec)">@FingerprintsModel.Enums.Month.Dec.ToString()</option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!-----Family Activity Report Load section-->
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                        <label for="btnLoadFamilyActivity" style="visibility:hidden;">Action</label>
+                                        <button type="button" class="glossy-button-button button-green" id="btnLoadFamilyActivity">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            @Fingerprints.LocalResource.Resources.Load
+                                        </button>
+                                    </div>
+
+
+                                    <!-----Family activity Report Export section-->
+                                    <div class="form-check col-lg-2 col-xs-12 glossy_btn">
+                                        <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
+
+                                        <div class="dropdown">
+                                            <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown">
+                                                @Fingerprints.LocalResource.Resources.Export
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+
+
+
+
+                                </div>
+
+
+
+                            </form>
+
+                            <!-------  Family Activity Report table section  ------->
+
+                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+
+
+                                <div class="col-xs-12 glossy-panel-div" id="report-table-responsive">
+
+
+                                    @{
+
+                                        Html.RenderPartial("~/Views/Reporting/_FamilyActivity.cshtml", Model);
+
+                                    }
+
+
+                                </div>
+
+
+
+
+
+
+                            </div>
+
+
+                            <!---Pagination Section-->
+
+
+
+
+
+
+
+
+                            @*<div class="col-xs-12" id="divPaginationFamilyActivity">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                    <div class="pages_display">
+                                        <ul>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.Display</li>
+                                            <li>
+                                                <select id="ddlpagetodisplay">
+                                                    <option value="10" selected="selected">10</option>
+                                                    <option value="20">20</option>
+                                                    <option value="30">30</option>
+                                                    <option value="50">50</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </li>
+                                            <li style="color:#ffffff;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                        </ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div id="divPaging" class="pagination_wrp">
+                                        <ul id="ulPaging" class="pagination">
+                                            <li>
+
+
+                                                <a href="javascript:void(0);" id="First" disabled>
+                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Back">
+
+                                                <a href="javascript:void(0);" id="Back" disabled>
+                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+
+                                            </li>
+                                            <li title="Select">
+                                                <select class="select_cl" id="ddlpaging"></select>
+                                            </li>
+                                            <li title="Next">
+                                                <a href="javascript:void(0);" id="Next" disabled>
+                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                            <li title="Last">
+                                                <a href="javascript:void(0);" id="Last" disabled>
+                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>*@
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+}

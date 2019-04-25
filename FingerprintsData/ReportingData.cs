@@ -17,6 +17,7 @@ using ClosedXML.Excel;
 using FingerprintsDataAccessHandler;
 using System.Collections;
 using Fingerprints.Common;
+using System.Globalization;
 
 namespace FingerprintsData
 {
@@ -661,7 +662,8 @@ new DataColumn("Status",typeof(bool))
                             {
                                 if(item.ReviewId == _attach.MainTableId)
                                 {
-                                    if (listResult[j].CLASReviewAttachment == null) {
+                                    if (listResult[j].CLASReviewAttachment == null)
+                                    {
                                         listResult[j].CLASReviewAttachment = new List<Attachments>();
                                     }
 
@@ -693,7 +695,8 @@ new DataColumn("Status",typeof(bool))
         }
 
 
-        public SelectListItem GetCLASAttachmentById(long AttachmentId) {
+        public SelectListItem GetCLASAttachmentById(long AttachmentId)
+        {
             var imageData = new SelectListItem();
 
             GridParams gridParams = new GridParams();
@@ -743,7 +746,8 @@ new DataColumn("Status",typeof(bool))
                 }
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 clsError.WriteException(ex);
             }
@@ -761,7 +765,8 @@ new DataColumn("Status",typeof(bool))
         #region MDTReport
 
 
-        public JsonResult GetUsersDetailsForMDT(long clientid) {
+        public JsonResult GetUsersDetailsForMDT(long clientid)
+        {
 
             var Parents = new List<SelectListItem>();
             var Facilitator = new List<SelectListItem>();
@@ -790,7 +795,8 @@ new DataColumn("Status",typeof(bool))
                 //IDataReader reader = dbManager.GetDataReader("USP_MDTReportDetails", CommandType.StoredProcedure, parameters, out _connection);
                 DataSet _dataset = dbManager.GetDataSet("USP_MDTReportDetails", CommandType.StoredProcedure, parameters);
 
-                if (_dataset != null) {
+                if (_dataset != null)
+                {
 
 
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -827,8 +833,9 @@ new DataColumn("Status",typeof(bool))
                 //    //reader["CenterID"]
                 //}
 
-                }
-            catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -873,7 +880,8 @@ new DataColumn("Status",typeof(bool))
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -907,76 +915,92 @@ new DataColumn("Status",typeof(bool))
                 DataTable ActionDT = Fingerprints.Common.DbHelper.ToUserDefinedDataTable(MDT.MDTActions, _ActionTable, _decrypted);
 
 
-                var stf = StaffDetails.GetInstance();
+                //var stf = StaffDetails.GetInstance();
 
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
 
-                Connection.Open();
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_UpdateMDTReport";
-                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
-                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
-                command.Parameters.Add(new SqlParameter("@Mode", 1));
+                //Connection.Open();
+                //command.Parameters.Clear();
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.CommandText = "USP_UpdateMDTReport";
+                //command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                //command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                //command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                //command.Parameters.Add(new SqlParameter("@Mode", 1));
 
-                command.Parameters.Add(new SqlParameter("@ClientId", MDT.ClientId));
-                command.Parameters.Add(new SqlParameter("@MDTId", MDT.MDTId));
-                command.Parameters.Add(new SqlParameter("@Goal", MDT.Goal));
-                command.Parameters.Add(new SqlParameter("@Summary", MDT.Summary));
-                command.Parameters.Add(new SqlParameter("@IsDisability", MDT.IsDisability));
-                command.Parameters.Add(new SqlParameter("@IsMentalIssue", MDT.IsMentalIssue));
-                command.Parameters.Add(new SqlParameter("@IsCompleted", MDT.IsCompleted)); 
+                //command.Parameters.Add(new SqlParameter("@ClientId", MDT.ClientId));
+                //command.Parameters.Add(new SqlParameter("@MDTId", MDT.MDTId));
+                //command.Parameters.Add(new SqlParameter("@Goal", MDT.Goal));
+                //command.Parameters.Add(new SqlParameter("@Summary", MDT.Summary));
+                //command.Parameters.Add(new SqlParameter("@IsDisability", MDT.IsDisability));
+                //command.Parameters.Add(new SqlParameter("@IsMentalIssue", MDT.IsMentalIssue));
+                //command.Parameters.Add(new SqlParameter("@IsCompleted", MDT.IsCompleted)); 
 
-                //parent details
-                command.Parameters.Add(new SqlParameter("@ParentId", MDT.ParentId));
-                command.Parameters.Add(new SqlParameter("@ParentSign", MDT.ParentSign));
-                command.Parameters.Add(new SqlParameter("@ParentSignType", MDT.ParentSignType));
+                ////parent details
+                //command.Parameters.Add(new SqlParameter("@ParentId", MDT.ParentId));
+                //command.Parameters.Add(new SqlParameter("@ParentSign", MDT.ParentSign));
+                //command.Parameters.Add(new SqlParameter("@ParentSignType", MDT.ParentSignType));
 
-                //Facilitator  details
-                command.Parameters.Add(new SqlParameter("@FacilitatorId", MDT.FacilitatorId));
-                command.Parameters.Add(new SqlParameter("@FacilitatorSign", MDT.FacilitatorSign));
-                command.Parameters.Add(new SqlParameter("@FacilitatorSignType", MDT.FacilitatorSignType));
-                //Family Advocate details
-                command.Parameters.Add(new SqlParameter("@FamilyAdvocateId", MDT.FamilyAdvocateId));
-                command.Parameters.Add(new SqlParameter("@FamilyAdvocateSign", MDT.FamilyAdvocateSign));
-                command.Parameters.Add(new SqlParameter("@FASignType", MDT.FASignType));
+                ////Facilitator  details
+                //command.Parameters.Add(new SqlParameter("@FacilitatorId", MDT.FacilitatorId));
+                //command.Parameters.Add(new SqlParameter("@FacilitatorSign", MDT.FacilitatorSign));
+                //command.Parameters.Add(new SqlParameter("@FacilitatorSignType", MDT.FacilitatorSignType));
+                ////Family Advocate details
+                //command.Parameters.Add(new SqlParameter("@FamilyAdvocateId", MDT.FamilyAdvocateId));
+                //command.Parameters.Add(new SqlParameter("@FamilyAdvocateSign", MDT.FamilyAdvocateSign));
+                //command.Parameters.Add(new SqlParameter("@FASignType", MDT.FASignType));
 
-                command.Parameters.Add(new SqlParameter("@ActionDT", ActionDT));
+                //command.Parameters.Add(new SqlParameter("@ActionDT", ActionDT));
 
-                int rowaffected = command.ExecuteNonQuery();
+                //int rowaffected = command.ExecuteNonQuery();
 
-                if (rowaffected > 0) success = true;
-
-                //DataAdapter = new SqlDataAdapter(command);
-                //_dataset = new DataSet();
-                //DataAdapter.Fill(_dataset);
-
-                //if (_dataset != null)
-                //{
-                //    if (_dataset.Tables[0].Rows.Count > 0)
-                //    {
-                //        MDTR= Fingerprints.Common.DbHelper.DataTableToList<MDTReport>(_dataset.Tables[0], new List<string> { })[0];
-                //    }
-                //}
+                //if (rowaffected > 0) success = true;
 
 
 
-                //if (_dataset != null)
-                //{
+                var dbManager = new DBManager(connection.ConnectionString);
+                var parameters = new IDbDataParameter[]
+         {
 
 
-                //    if (_dataset.Tables[0].Rows.Count > 0)
-                //    {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",1,DbType.Int32),
 
-                //    }
+                    dbManager.CreateParameter("@ClientId",MDT.ClientId,DbType.Int64),
+                    dbManager.CreateParameter("@MDTId",MDT.MDTId,DbType.Int64),
+                    dbManager.CreateParameter("@Goal",MDT.Goal,DbType.String),
+                    dbManager.CreateParameter("@Summary",MDT.Summary,DbType.String),
+                    dbManager.CreateParameter("@IsDisability",MDT.IsDisability,DbType.Boolean),
+                    dbManager.CreateParameter("@IsMentalIssue",MDT.IsMentalIssue,DbType.Boolean),
 
-                //}
+                    //parent details
+                    dbManager.CreateParameter("@ParentId", MDT.ParentId,DbType.Int64),
+                    dbManager.CreateParameter("@ParentSign",MDT.ParentSign,DbType.String),
+                    dbManager.CreateParameter("@ParentSignType",MDT.ParentSignType,DbType.Int32),
+
+                  //  Facilitator  details
+                    dbManager.CreateParameter("@FacilitatorId",Guid.Parse(MDT.FacilitatorId),DbType.Guid),
+                    dbManager.CreateParameter("@FacilitatorSign",MDT.FacilitatorSign,DbType.String),
+                    dbManager.CreateParameter("@FacilitatorSignType",MDT.FacilitatorSignType,DbType.Int32),
+                 //   Family Advocate details
+                     dbManager.CreateParameter("@FamilyAdvocateId",Guid.Parse(MDT.FamilyAdvocateId),DbType.Guid),
+                    dbManager.CreateParameter("@FamilyAdvocateSign",MDT.FamilyAdvocateSign,DbType.String),
+                    dbManager.CreateParameter("@FASignType",MDT.FASignType,DbType.Int32),
+
+                    dbManager.CreateParameter("@ActionDT",ActionDT,DbType.Object)
+
+         };
+                // DataSet _dataset = dbManager.GetDataSet("USP_UpdateMDTReport", CommandType.StoredProcedure, parameters);
+
+                success = dbManager.ExecuteWithNonQuery<bool>("USP_UpdateMDTReport", CommandType.StoredProcedure, parameters);
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -984,7 +1008,8 @@ new DataColumn("Status",typeof(bool))
             return success;
         }
 
-        public bool SubmitMDTAttachment(long id, HttpPostedFileBase attachment) {
+        public bool SubmitMDTAttachment(long id, HttpPostedFileBase attachment)
+        {
             bool success = false;
             try
             {
@@ -1024,7 +1049,8 @@ new DataColumn("Status",typeof(bool))
             return success;
         }
 
-        public MDTReport GetMDTReportById(long id, string _for="edit") {
+        public MDTReport GetMDTReportById(long id, string _for = "edit")
+        {
 
             var MDTReport = new MDTReport();
             MDTReport.AgnecyInfo = new Agency();
@@ -1117,12 +1143,13 @@ new DataColumn("Status",typeof(bool))
                         */
 
 
-                        MDTReport.AgnecyInfo = new Agency() {
-                             address1 = _tmp["Address1"].ToString(),
-                              address2 = _tmp["Address2"].ToString(),
-                               State = _tmp["State"].ToString(),
-                               zipCode= _tmp["ZipCode"].ToString(),
-                               phone1= _tmp["Phone1"].ToString()
+                        MDTReport.AgnecyInfo = new Agency()
+                        {
+                            address1 = _tmp["Address1"].ToString(),
+                            address2 = _tmp["Address2"].ToString(),
+                            State = _tmp["State"].ToString(),
+                            zipCode = _tmp["ZipCode"].ToString(),
+                            phone1 = _tmp["Phone1"].ToString()
                         };
                         //foreach (DataRow dr in _dataset.Tables[0].Rows)
                         //{
@@ -1138,7 +1165,8 @@ new DataColumn("Status",typeof(bool))
                 }
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -1174,7 +1202,8 @@ new DataColumn("Status",typeof(bool))
 
                 if (_dataset != null)
                 {
-                    if (_dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0) {
+                    if (_dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                    {
                         var _tR = _dataset.Tables[0].Rows[0];
                         _attchment.AttachmentFileByte = (byte[])_tR["Attachment"];
                         _attchment.AttachmentFileName = _tR["Attachment"].ToString();
@@ -1183,7 +1212,8 @@ new DataColumn("Status",typeof(bool))
                     }
                 }
 
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
 
                 clsError.WriteException(ex);
@@ -1192,6 +1222,86 @@ new DataColumn("Status",typeof(bool))
         }
 
         #endregion MDTReport
+
+        #region Family Activity Report
+
+        public FamilyActivityReport GetFamilyActivityReport(StaffDetails staff, FamilyActivityReport modal)
+        {
+            IDbConnection dbConnection;
+
+            try
+            {
+
+
+                modal.FamilyActivityList = new List<FamilyActivityModel>();
+
+                var centerIds = string.Join(",", modal.CenterIDs.Select(x => EncryptDecrypt.Decrypt64(x)));
+              //  var classroomIds = string.Join(",", modal.ClassroomIDs.Select(x => EncryptDecrypt.Decrypt64(x)));
+                var months = string.Join(",", modal.Months.Select(x => x));
+                var dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+
+                  //  dbManager.CreateParameter("@Months",months,DbType.String),
+                    dbManager.CreateParameter("@CenterIDs",centerIds,DbType.String),
+                   // dbManager.CreateParameter("@ClassroomIDs",classroomIds,DbType.String),
+                   // dbManager.CreateParameter("@Take",modal.PageSize,DbType.Int32),
+                   // dbManager.CreateParameter("@Skip",modal.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@SortOrder",modal.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",modal.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",modal.SearchTerm,DbType.String),
+
+                    dbManager.CreateParameter("@TotalRecord",int.MaxValue,0,DbType.Int32,ParameterDirection.Output)
+                };
+
+                IDataReader reader = dbManager.GetDataReader("USP_GetFamilyActivityReport", CommandType.StoredProcedure, parameters, out dbConnection);
+
+
+                while (reader.Read())
+                {
+                    modal.FamilyActivityList.Add(new FamilyActivityModel
+                    {
+                        CenterID = reader["CenterID"] == DBNull.Value ? "0" : Convert.ToString(reader["CenterID"]),
+                        CenterName = reader["CenterName"] == DBNull.Value ? "0" : Convert.ToString(reader["CenterName"]),
+                       // ClassroomID = reader["ClassroomID"] == DBNull.Value ? "0" : Convert.ToString(reader["ClassroomID"]),
+                      //  ClassroomName = reader["ClassroomName"] == DBNull.Value ? string.Empty : Convert.ToString(reader["ClassroomName"]),
+                        Month=reader["Month"]==DBNull.Value?string.Empty:Convert.ToString(reader["Month"]),
+                        MonthLastDate=reader["MonthEnd"] ==DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["MonthEnd"].ToString(),new CultureInfo("en-US",true)),
+                        FPA = reader["FPA"] == DBNull.Value ? 0 : Convert.ToInt64(reader["FPA"]),
+                        Referral = reader["Referral"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Referral"]),
+                        InternalReferral = reader["InternalReferral"] == DBNull.Value ? 0 : Convert.ToInt64(reader["InternalReferral"]),
+                        QualityOfReferral = reader["QualityOfReferral"] == DBNull.Value ? 0 : Convert.ToInt64(reader["QualityOfReferral"]),
+                        StepUpToQualityStars = reader["StepUpToQualityStars"] == DBNull.Value ? "0" : Convert.ToString(reader["StepUpToQualityStars"])
+
+                    });
+                }
+
+                reader.Close();
+                dbManager.CloseConnection(dbConnection);
+
+                modal.TotalRecord = (int)parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).First();
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+            }
+
+
+
+            return modal;
+        }
+
+
+        #endregion
 
     }
 } 

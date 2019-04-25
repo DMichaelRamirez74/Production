@@ -1385,7 +1385,7 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            //return Json(_screening,JsonRequestBehavior.AllowGet);
+            
             return PartialView("~/Views/Screening/ScreeningCurrentFocusPartial.cshtml", _screening);
         }
 

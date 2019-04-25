@@ -19,6 +19,7 @@ using iTextSharp.tool.xml.pipeline.end;
 using iTextSharp.tool.xml.pipeline.css;
 using iTextSharp.tool.xml.parser;
 using iTextSharp.text.pdf;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -219,8 +220,11 @@ namespace Fingerprints.Controllers
 
             var result = new Reporting().GetCLASAttachmentById(attachmentId);
 
-           return Json(result,JsonRequestBehavior.AllowGet);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
+
+
+       
 
         #endregion CLASReview
 
@@ -398,6 +402,128 @@ namespace Fingerprints.Controllers
 
 
         #endregion MDTReport
+
+
+
+        #region Family Activity Report
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public ActionResult FamilyActivityReport()
+        {
+
+            var model = FactoryInstance.Instance.CreateInstance<FamilyActivityReport>();
+
+            model.SearchTerm = string.Empty;
+            model.SkipRows = 0;
+           
+
+            return View(model);
+        }
+
+
+        public PartialViewResult GetFamilyActivityReport(FamilyActivityReport familyActivityReport)
+        {
+            familyActivityReport = this.GetFamilyActivity(familyActivityReport);
+
+            return PartialView("~/Views/Reporting/_FamilyActivity.cshtml", familyActivityReport);
+        }
+
+        public FamilyActivityReport GetFamilyActivity(FamilyActivityReport familyActivityReport)
+        {
+            familyActivityReport.SkipRows = familyActivityReport.GetSkipRows();
+            familyActivityReport =FactoryInstance.Instance.CreateInstance<Reporting>().GetFamilyActivityReport(StaffDetails.GetInstance(), familyActivityReport);
+
+            return familyActivityReport;
+        }
+
+
+        #region Export Family Activity Report
+        public void ExportFamilyActivityReport(FamilyActivityReport familyActivityReport, int reportFormatType)
+        {
+
+
+            try
+            {
+         
+                familyActivityReport.SortColumn = "Classroom";
+                familyActivityReport.SortOrder = "ASC";
+
+                familyActivityReport = this.GetFamilyActivity(familyActivityReport);
+
+
+                #region Itextsharp PDF generation Region
+
+                string imagePath = Server.MapPath("~/Images/");
+
+
+                var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+                MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportFamilyActivityReport(familyActivityReport, reportTypeEnum, imagePath);
+                string reportName = "Family_Activity_Report";
+
+                DownloadReport(workStream, reportTypeEnum, reportName);
+
+
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+
+
+
+
+        }
+        #endregion
+
+        #endregion
+
+
+        #region Download Report Generic Method (PDF,EXCEL)
+
+        public void DownloadReport(MemoryStream memoryStream, ReportFormatType reportFormat, string reportName, params object[] args)
+        {
+            Response.Clear();
+            Response.Buffer = true;
+
+            switch (reportFormat)
+            {
+                case FingerprintsModel.Enums.ReportFormatType.Pdf:
+
+                    byte[] bytes = memoryStream.ToArray();
+                    memoryStream.Close();
+                    Response.ContentType = "application/pdf";
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".pdf");
+
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    Response.BinaryWrite(bytes);
+
+                    break;
+
+                case FingerprintsModel.Enums.ReportFormatType.Xls:
+
+                    Response.Charset = "";
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                    memoryStream.WriteTo(Response.OutputStream);
+
+                    break;
+
+            }
+
+
+            Response.End();
+            Response.Close();
+        }
+        #endregion
+
 
     }
 }

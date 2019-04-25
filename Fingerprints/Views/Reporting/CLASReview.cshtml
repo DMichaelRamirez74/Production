@@ -1,4 +1,5 @@
 ﻿@using FingerprintsModel
+@using Fingerprints.LocalResource;
 @{
     ViewBag.Title = "CLASReview";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
@@ -7,7 +8,7 @@
 
 @section Title
 {
-    CLAS Reporting
+   @Resources.CLAS_Report
 }
 
 
@@ -148,6 +149,14 @@
     top: -32px;
 }
 
+        @@media only screen and (max-width: 768px)
+        {
+            body .glossy-table tr td
+            {
+                width: 100%!important;
+                    min-height: 50px;
+            }
+        }
     </style>
 }
 
@@ -172,14 +181,14 @@
                             <div class="row" style="padding-top:25px;">
                                 <div class="col-lg-12">
                                     <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                        <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;CLAS Report</span>
+                                        <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;@Resources.CLAS_Report</span>
                                         @*<button type="button" class="btn btn-success pull-right">Submit</button>*@
 
   
 
 
                                         <a href="@Url.Action("Roster","Roster")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;">
-                                            Back to Roster
+                                           @Resources.Back_to_Roster
                                             <span class="glossy-button-before"></span>
                                             <span class="glossy-button-after"></span>
 
@@ -199,31 +208,31 @@
                                     <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
 
                                         <div class="col-md-4">
-                                            <label>Center</label>
+                                            <label>@Resources.Center</label>
                                             @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input" })
                                         </div>
                                         <div class="col-md-4">
-                                            <label>Season</label>
+                                            <label>@Resources.Season</label>
                                             <select id="Season" name="Season" style="" class="form-control glossy-input">
                                                 <option value="">-Select Season-</option>
                                                 <option value="1">Fall</option>
                                                 <option value="2">Spring</option>
-                                                </select>
+                                            </select>
 
-                                                @*<select id="Month" name="month" style="" class="form-control glossy-input">
-                <option value="">-Select Month-</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
+                                            @*<select id="Month" name="month" style="" class="form-control glossy-input">
+                                                    <option value="">-Select Month-</option>
+                                                    <option value="1">January</option>
+                                                    <option value="2">February</option>
+                                                    <option value="3">March</option>
+                                                    <option value="4">April</option>
+                                                    <option value="5">May</option>
+                                                    <option value="6">June</option>
+                                                    <option value="7">July</option>
+                                                    <option value="8">August</option>
+                                                    <option value="9">September</option>
+                                                    <option value="10">October</option>
+                                                    <option value="11">November</option>
+                                                    <option value="12">December</option>
 
             </select>*@
 </div>
@@ -233,13 +242,13 @@
                                             <button id="filter-review" class="glossy-button-button button-green" type="button" style="margin-top:22px;" onclick="ClasReview.filterReview(this)">
                                                 <span class="glossy-button-after"></span>
                                                 <span class="glossy-button-before"></span>
-                                                Filter
+                                              @Resources.Filter
                                             </button>
 
                                             <button id="filter-review" class="glossy-button-button button-blue" type="button" style="margin-top:22px;" onclick="ClasReview.clearFilter()">
                                                 <span class="glossy-button-after"></span>
                                                 <span class="glossy-button-before"></span>
-                                                Clear
+                                                @Resources.Clear
                                             </button>
 
                                         </div>
@@ -265,10 +274,10 @@
                                 <div class="search-block-main">
                                     <div class="glossy-search-block">
 
-                                        <input type="text" placeholder="Search..." id="searchText" class="form-control" autocomplete="off">
+                                        <input type="text" placeholder="@Resources.Search..." id="searchText" class="form-control" autocomplete="off">
 
                                         <div class="glossy-search-btn-div">
-                                            <button id="btnSearchauto" onclick="ClasReview.searchReview(this)">Search</button>
+                                            <button id="btnSearchauto" onclick="ClasReview.searchReview(this)">@Resources.Search</button>
                                         </div>
                                     </div>
 
@@ -282,17 +291,17 @@
                                 <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="CLAS-table">
                                     <thead class="table-hd scroll-thead">
                                         <tr>
-                                            <th class="center-clm" data-sort="true" data-name="CenterName">
+                                            <th class="center-clm" data-sort="true" data-name="CenterName" data-title="Center Name">
                                                 <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                                                 <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                                                Center
+                                               @Resources.Center
                                             </th>
 
                                             <th class="clas-clm">
 
                                                 <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                                                 <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                                                Classroom
+                                               @Resources.Classroom
                                             </th>
 
 
@@ -303,7 +312,7 @@
                                                 <i class="fa fa-calendar i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                                                 <i class="fa fa-long-arrow-down i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                                                 <i class="fa fa-calendar i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-
+                                                @Resources.Date
                                                 Date & Time
                                             </th>
 
@@ -312,7 +321,7 @@
                                                 <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                                                 <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
-                                                Notes
+                                                @Resources.Notes
                                             </th>
                                             <th class="score-clm">
 
@@ -320,7 +329,7 @@
                                                 <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
 
-                                                Score
+                                                @Resources.Score
                                             </th>
                                             <th class="ebn-clm">
 
@@ -328,7 +337,7 @@
                                                 <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
 
-                                                Entered By
+                                                @Resources.Entered_By
                                             </th>
                                             <th class="file-clm">
 
@@ -336,7 +345,7 @@
                                                 <i class="fa fa-sort-amount-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
 
-                                                Files
+                                                @Resources.Files
                                             </th>
 
 
@@ -483,13 +492,13 @@
     <script type="text/template" id="CLAS-tableBody-temp">
 
         <tr>
-            <td class="center-clm" data-toggle="tooltip" data-container="body" title="{CenterName}"><p>{CenterName}</p></td>
-            <td class="clas-clm" title="{ClassRoomName}"><p>{ClassRoomName}</p></td>
-            <td class="dor-clm" title="{DateofReview}"><p>{DateofReview}</p></td>
-            <td class="cmt-clm" data-toggle="tooltip" data-container="body" title="{CommentNote}"><p>{CommentNote}</p></td>
-            <td class="score-clm"><p>{Score}</p></td>
-            <td class="ebn-clm" title="{EnterByName}"><p>{EnterByName}</p></td>
-            <td class="file-clm"><p>{Files}</p></td>
+            <td data-title="Center Name" class="center-clm" data-toggle="tooltip" data-container="body" title="{CenterName}"><p>{CenterName}</p></td>
+            <td data-title="Class Room Name" class="clas-clm" title="{ClassRoomName}"><p>{ClassRoomName}</p></td>
+            <td data-title="Date of review" class="dor-clm" title="{DateofReview}"><p>{DateofReview}</p></td>
+            <td data-title="Comment Note" class="cmt-clm" data-toggle="tooltip" data-container="body" title="{CommentNote}"><p>{CommentNote}</p></td>
+            <td data-title="Score" class="score-clm"><p>{Score}</p></td>
+            <td data-title="Enter by" class="ebn-clm" title="{EnterByName}"><p>{EnterByName}</p></td>
+            <td data-title="Files" class="file-clm"><p>{Files}</p></td>
             @*<td class=""></td>*@
         </tr>
 

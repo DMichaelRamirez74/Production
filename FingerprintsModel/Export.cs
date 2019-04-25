@@ -3751,6 +3751,637 @@ namespace FingerprintsModel
         }
 
 
+        #region Export Family Activity Report
+
+        public MemoryStream ExportFamilyActivityReport(FamilyActivityReport familyActivityReport, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+            try
+            {
+
+
+                var familyActivityModel = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FamilyActivityModel>();
+                var displayNameHelper = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Fingerprints.Common.Helpers.DisplayNameHelper>();
+
+
+                familyActivityModel.ClassroomName = string.Empty;
+
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+                   
+                    Int32 colCount = 5; // column count //
+
+
+                    Document doc = new Document();
+
+                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+
+                    //Create PDF Table  
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+
+
+
+                    doc.OpenDocument();
+
+                    if (familyActivityReport != null && familyActivityReport.FamilyActivityList.Count > 0)
+                    {
+
+                        var centerList = familyActivityReport.FamilyActivityList.Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+
+                            PdfPTable tableLayout = new PdfPTable(colCount);
+                            tableLayout.HeaderRows = 3;
+
+                            //Add Content to PDF   
+                            tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+
+                            if (colCount == 5)
+                            {
+                                float[] headers = { 20, 30, 30, 30, 30};
+                                tableLayout.SetWidths(headers); //Set the pdf headers
+                            }
+
+                            if (i > 0)
+                            {
+                                doc.NewPage();
+
+                            }
+
+
+
+                            var reportWithCenterList = familyActivityReport.FamilyActivityList.OrderBy(x=>x.MonthLastDate).Where(x => x.CenterID == centerList[i]).ToList();
+
+
+                            #region Adding Headers
+
+                            #region Adding Star Rating image with Center Name
+
+                            Paragraph p = new Paragraph(reportWithCenterList[0].CenterName, new Font(Font.FontFamily.HELVETICA, 12, 1, new iTextSharp.text.BaseColor(0, 0, 0)));
+
+
+
+                            string starImageUrl = "";
+
+                            // Star Rating Image URL //
+                            starImageUrl = imagePath + "\\220px-Star_rating_" + reportWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+
+                            // starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+                            iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                            //Resize image depend upon your need
+
+                            starJpeg.ScaleToFit(40f, 40f);
+
+                            //Give space before image
+
+                            starJpeg.SpacingBefore = 10f;
+
+                            //Give some space after the image
+
+                            starJpeg.SpacingAfter = 10f;
+
+                            starJpeg.Alignment = Element.ALIGN_LEFT;
+
+                            p.Add(new Chunk(starJpeg, 20 * 2, 0, true));
+
+                            PdfPCell cell = new PdfPCell(p);
+                            cell.Colspan = colCount;
+                            cell.Padding = 5;
+                            cell.HorizontalAlignment = 1; //0=Left, 1=Centre, 2=Right
+                            cell.VerticalAlignment = 1;
+                            tableLayout.AddCell(cell);
+
+
+                            #endregion
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Family Activity Report", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                Colspan = colCount,
+                                HorizontalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5
+                            });
+
+                            #endregion
+
+
+                            ////Add header 
+
+                            #region Table Headers
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(familyActivityModel, "Month"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(familyActivityModel, "FPA"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(familyActivityModel, "Referral"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(familyActivityModel, "InternalReferral"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(displayNameHelper.GetDisplayName(familyActivityModel, "QualityOfReferral"), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                            });
+
+                           
+
+                            #endregion
+
+
+
+                            #region Table Rows
+                            for (int j = 0; j < reportWithCenterList.Count; j++)
+                            {
+                              
+
+                                bool isFeaturedMonth= Array.IndexOf(familyActivityReport.Months, reportWithCenterList[j].MonthLastDate.GetValueOrDefault().Month) > -1;
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].Month, new Font(Font.FontFamily.HELVETICA, 8, isFeaturedMonth ? Font.BOLD:0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].FPA.ToString(), new Font(Font.FontFamily.HELVETICA, 8, isFeaturedMonth ? Font.BOLD:0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].Referral.ToString(), new Font(Font.FontFamily.HELVETICA, 8, isFeaturedMonth?Font.BOLD: 0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].InternalReferral.ToString(), new Font(Font.FontFamily.HELVETICA, 8, isFeaturedMonth?Font.BOLD:0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].QualityOfReferral.ToString(), new Font(Font.FontFamily.HELVETICA, 8, isFeaturedMonth?Font.BOLD:0, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+                              
+                            }
+
+
+                            #endregion
+
+
+                            #region Total All Months Calculation
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Total (All Months)", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList.Select(x=>x.FPA).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList.Select(x=>x.Referral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList.Select(x => x.InternalReferral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(reportWithCenterList.Select(x => x.QualityOfReferral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+                            #endregion
+
+
+                            #region total Featured Months Calculation
+
+
+                            var featureMonthList = reportWithCenterList.Join(familyActivityReport.Months, fa => fa.MonthLastDate.GetValueOrDefault().Month, m => m, (fa, m) => new
+                                       FingerprintsModel.FamilyActivityModel
+                            {
+                                FPA = fa.FPA,
+                                Referral = fa.Referral,
+                                InternalReferral = fa.InternalReferral,
+                                QualityOfReferral = fa.QualityOfReferral
+
+                            }).ToList();
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Total (Featured Months)", new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(featureMonthList.Select(x => x.FPA).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(featureMonthList.Select(x => x.Referral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(featureMonthList.Select(x => x.InternalReferral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(featureMonthList.Select(x => x.QualityOfReferral).Sum().ToString(), new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 3,
+                                BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+
+                            });
+
+
+                            #endregion
+
+                            doc.Add(tableLayout);
+
+                        }
+                    }
+
+                    doc.CloseDocument();
+
+
+
+                }
+
+
+
+                #endregion
+
+
+                #region Export Excel
+                else if (reportFormat == Enums.ReportFormatType.Xls)
+                {
+                    XLWorkbook wb = new XLWorkbook();
+
+
+                    if (familyActivityReport.FamilyActivityList != null && familyActivityReport.FamilyActivityList.Count > 0)
+                    {
+
+
+                        var centerList = familyActivityReport.FamilyActivityList.Select(x => x.CenterID).Distinct().ToList();
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+                            #region Adding Worksheet
+
+                            var reportWithCenterList = familyActivityReport.FamilyActivityList.OrderBy(x=>x.MonthLastDate).Where(x => x.CenterID == centerList[i]).ToList();
+
+
+
+                            var centerName = reportWithCenterList.Select(x => x.CenterName).First();
+
+
+                            var vs = wb.Worksheets.Add(centerName.Length > 31 ? centerName.Substring(0, 15) : centerName);
+
+                            #region Headers with Quality Stars
+
+                            string starImageUrl = imagePath + "\\220px-Star_rating_" + reportWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                            // string starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+
+                            System.Drawing.Bitmap fullImage = new System.Drawing.Bitmap(starImageUrl);
+
+
+                            vs.AddPicture(fullImage).MoveTo(vs.Cell("F2"), new System.Drawing.Point(100, 1)).Scale(0.3);// optional: resize picture
+
+
+
+                            vs.Range("F2:F2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+
+
+                            vs.Range("B2:E2").Merge().Value = centerName;
+                            vs.Range("B2:E2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B2:E2").Style.Font.SetBold(true);
+                            vs.Range("B2:E2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Range("B3:F3").Merge().Value = "Family Activity Report";
+                            vs.Range("B3:F3").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B3:F3").Style.Font.SetBold(true);
+                            vs.Range("B3:F3").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            #endregion
+
+
+
+                            #region Table Headers
+
+                            vs.Cell(4, 2).Value = displayNameHelper.GetDisplayName(familyActivityModel, "Month");
+                            vs.Cell(4, 2).Style.Font.SetBold(true);
+                            vs.Cell(4, 2).WorksheetColumn().Width = 30;
+
+
+
+
+
+                            vs.Cell(4, 3).Value = displayNameHelper.GetDisplayName(familyActivityModel, "FPA");
+                            vs.Cell(4, 3).Style.Font.SetBold(true);
+                            vs.Cell(4, 3).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 4).Value = displayNameHelper.GetDisplayName(familyActivityModel, "Referral");
+                            vs.Cell(4, 4).Style.Font.SetBold(true);
+                            vs.Cell(4, 4).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 5).Value = displayNameHelper.GetDisplayName(familyActivityModel, "InternalReferral");
+                            vs.Cell(4, 5).Style.Font.SetBold(true);
+                            vs.Cell(4, 5).WorksheetColumn().Width = 30;
+
+                            vs.Cell(4, 6).Value = displayNameHelper.GetDisplayName(familyActivityModel, "QualityOfReferal");
+                            vs.Cell(4, 6).Style.Font.SetBold(true);
+                            vs.Cell(4, 6).WorksheetColumn().Width = 30;
+
+
+                            vs.Range("B4:F4").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B4:F4").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                            vs.Range("B4:F4").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                            #endregion
+
+                            int inititalRow = 5;
+
+                            int ReportRow = inititalRow;
+                            int Reportcolumn = 2;
+
+
+
+                            #region Table Rows
+
+                            for (int j = 0; j < reportWithCenterList.Count; j++)
+                            {
+
+
+                                bool isFeaturedMonth = Array.IndexOf(familyActivityReport.Months, reportWithCenterList[j].MonthLastDate.GetValueOrDefault().Month) > -1;
+
+
+                                vs.Cell(ReportRow, Reportcolumn).DataType = XLDataType.Text;
+                               // vs.Cell(ReportRow, Reportcolumn).Value = reportWithCenterList[j].Month.Replace("-","");
+                                vs.Cell(ReportRow, Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(isFeaturedMonth);
+                                vs.Cell(ReportRow, Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Cell(ReportRow, Reportcolumn).SetValue<string>(Convert.ToString(reportWithCenterList[j].Month));
+
+
+                                vs.Cell(ReportRow, Reportcolumn + 1).Value = reportWithCenterList[j].FPA;
+                                vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(isFeaturedMonth);
+                                vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                                vs.Cell(ReportRow, Reportcolumn + 2).Value = reportWithCenterList[j].Referral;
+                                vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(isFeaturedMonth);
+                                vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                                vs.Cell(ReportRow, Reportcolumn + 3).Value = reportWithCenterList[j].InternalReferral;
+                                vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(isFeaturedMonth);
+                                vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                                vs.Cell(ReportRow, Reportcolumn + 4).Value = reportWithCenterList[j].QualityOfReferral;
+                                vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(isFeaturedMonth);
+                                vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                                ReportRow++;
+
+
+                            }
+
+
+                            #endregion
+
+
+                            vs.Range("B4:B4").SetAutoFilter();
+
+
+                   
+
+                            #region Total Calculation (All Months)
+
+                            vs.Cell(ReportRow, Reportcolumn ).Value = "Total (All Months)";
+                            vs.Cell(ReportRow, Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 1).Value = reportWithCenterList.Select(x => x.FPA).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 2).Value = reportWithCenterList.Select(x => x.Referral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 3).Value = reportWithCenterList.Select(x => x.InternalReferral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Cell(ReportRow, Reportcolumn + 4).Value = reportWithCenterList.Select(x => x.QualityOfReferral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+
+                            #endregion
+
+
+                            ReportRow++;
+
+                            #region Total Calculation (Featured Months)
+
+                            var featureMonthList = reportWithCenterList.Join(familyActivityReport.Months, fa => fa.MonthLastDate.GetValueOrDefault().Month, m => m, (fa, m) => new
+                                       FingerprintsModel.FamilyActivityModel
+                            {
+                                FPA = fa.FPA,
+                                Referral = fa.Referral,
+                                InternalReferral = fa.InternalReferral,
+                                QualityOfReferral = fa.QualityOfReferral
+
+                            }).ToList();
+
+
+
+                            vs.Cell(ReportRow, Reportcolumn).Value = "Total (Featured Months)";
+                            vs.Cell(ReportRow, Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Cell(ReportRow, Reportcolumn + 1).Value = featureMonthList.Select(x => x.FPA).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Cell(ReportRow, Reportcolumn + 2).Value = featureMonthList.Select(x => x.Referral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Cell(ReportRow, Reportcolumn + 3).Value = featureMonthList.Select(x => x.InternalReferral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                            vs.Cell(ReportRow, Reportcolumn + 4).Value = featureMonthList.Select(x => x.QualityOfReferral).Sum().ToString();
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Font.SetBold(true);
+                            vs.Cell(ReportRow, Reportcolumn + 4).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                            vs.Range("B" + ReportRow + ":F" + ReportRow + "").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+
+
+                            #endregion
+
+                            #endregion
+
+                           
+                        }
+                    }
+
+                
+                    wb.SaveAs(memoryStream);
+
+                   
+                }
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
+
+
+        #endregion
+
 
         public class TwoColumnHeaderFooter : PdfPageEventHelper
         {

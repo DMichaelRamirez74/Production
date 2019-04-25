@@ -23,6 +23,20 @@ namespace Fingerprints
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            bundles.Add(new ScriptBundle("~/bundles/datetimepicker").Include("~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"));
+
+
+            bundles.Add(new ScriptBundle("~/bundles/family_activity_report").Include(
+
+                "~/Scripts/multiselect.js",
+                "~/Scripts/FamilyActivityReport.js"
+                ));
+
+
+
+
+
+
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
@@ -54,7 +68,7 @@ namespace Fingerprints
                      "~/Scripts/OfflineStorage/bootbox.min.js",
                       "~/Scripts/OfflineStorage/Config.js","~/Scripts/OfflineStorage/db.js","~/Scripts/OfflineStorage/DbManager.js", "~/Scripts/Samplescript/jqueryui.js",
                       "~/Scripts/jquery.signature.js"));
-            bundles.Add(new ScriptBundle("~/bundles/datetimepicker").Include("~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"));
+
 
             BundleTable.EnableOptimizations = true;
 

@@ -1,0 +1,378 @@
+﻿@model FingerprintsModel.FamilyActivityReport
+
+
+
+
+
+@*<div class="col-xs-12 search-block-main">
+        <div class="glossy-search-block col-md-12">
+            <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+            <div class="glossy-search-btn-div">
+                <button id="btnSearchauto">@Fingerprints.LocalResource.Resources.Search</button>
+            </div>
+        </div>
+
+        <table class="col-md-12 table-striped total-details-table table-back-shadow">
+            <tr>
+                <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+                <td id="totalCountSpan">@Model.TotalRecord</td>
+            </tr>
+        </table>
+
+    </div>*@
+
+
+
+
+<div class="panel with-nav-tabs panel-primary col-xs-12">
+
+    <div class="panel-heading panelul col-xs-12">
+        <ul id="myTab" class="nav nav-tabs navtabs1 col-xs-12">
+
+            @{
+
+                var centerIDList = Model.FamilyActivityList != null ? Model.FamilyActivityList.Select(x => x.CenterID).Distinct().ToList() : new List<string>();
+                var centerList = new List<SelectListItem>();
+
+                foreach (var item in centerIDList)
+                {
+                    centerList.Add(new SelectListItem
+                    {
+
+                        Text = Model.FamilyActivityList.Where(x => x.CenterID == item).Select(x => x.CenterName).First(),
+                        Value = item
+                    });
+                }
+
+
+            }
+
+            @if (centerList != null && centerList.Count() > 0)
+            {
+                int i = 0;
+                do
+                {
+
+                    if (i == 0)
+                    {
+                        <li class="active"><a href="@string.Concat("#",i.ToString())" accesskey="@centerList[i].Value" data-toggle="tab" aria-expanded="true">@centerList[i].Text</a></li>
+                    }
+                    else
+                    {
+
+                        <li><a href="@string.Concat("#",i.ToString())" accesskey="@centerList[i].Value" data-toggle="tab" aria-expanded="true">@centerList[i].Text</a></li>
+                    }
+
+                    i++;
+
+
+
+                } while (i < centerList.Count());
+
+
+            }
+
+        </ul>
+
+    </div>
+
+
+
+    <div id="myTabContent" class="tab-content col-xs-12">
+
+        @if (centerList != null && centerList.Count > 0)
+        {
+
+
+
+            for (int j = 0; j < centerList.Count; j++)
+            {
+
+                var familyActivityList = Model.FamilyActivityList.Where(x => x.CenterID == centerList[j].Value).ToList();
+
+                if (Model.SortOrder.ToLowerInvariant() == "asc")
+                {
+                    familyActivityList = familyActivityList.OrderBy(x => x.MonthLastDate).ToList();
+                }
+                else
+                {
+                    familyActivityList = familyActivityList.OrderByDescending(x => x.MonthLastDate).ToList();
+                }
+
+                if (familyActivityList.Count > 0)
+                {
+
+                    <div class="@if (j == 0) {<text>tab-pane fade active in col-xs-12</text>} else { <text>tab-pane fade col-xs-12</text> }" id="@j">
+                        <div class="col-xs-12">
+
+
+                            <!--Table -->
+                            <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="family-activity-table">
+
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th>
+                                            <span>Month</span>
+                                        </th>
+
+
+                                        <th>
+                                            <span>FPA</span>
+                                        </th>
+
+
+
+                                        <th>
+                                            <span>Referral</span>
+                                        </th>
+
+
+
+                                        <th>
+                                            <span>Internal Referral</span>
+                                        </th>
+
+
+
+                                        <th>
+                                            <span style="text-transform:none;">Quality of Referral</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+                                    @for (int i = 0; i < familyActivityList.Count; i++)
+                                    {
+                                                                                                                                                //style="background:#ffa;
+                                        <tr @if (Array.IndexOf(Model.Months, familyActivityList[i].MonthLastDate.GetValueOrDefault().Month) > -1) { <text> style="font-weight:bold;" </text>    }>
+                                            <td role="gridcell" data-title="Month">
+                                                <p>@familyActivityList[i].Month</p>
+                                            </td>
+
+
+                                            <td role="gridcell" data-title="FPA">
+                                                <p>@familyActivityList[i].FPA</p>
+                                            </td>
+
+                                            <td role="gridcell" data-title="Referral">
+                                                <p>@familyActivityList[i].Referral</p>
+                                            </td>
+
+                                            <td role="gridcell" data-title="Internal Referral">
+                                                <p>@familyActivityList[i].InternalReferral</p>
+                                            </td>
+
+                                            <td role="gridcell" data-title="Quality of Referral">
+                                                <p>@familyActivityList[i].QualityOfReferral</p>
+                                            </td>
+
+                                        </tr>
+
+                                    }
+
+                                    <tr style="font-weight:bold;background:#285b8f;color:#ffffff;">
+                                        <td role="gridcell" data-title="Total (All Months)">
+                                            <p style="width:100%;">Total (All Months)</p>
+                                        </td>
+
+
+                                        <td role="gridcell" data-title="FPA">
+                                            <p>@familyActivityList.Select(x => x.FPA).Sum().ToString()</p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Referral">
+                                            <p>@familyActivityList.Select(x => x.Referral).Sum().ToString()</p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Internal Referral">
+                                            <p>@familyActivityList.Select(x => x.InternalReferral).Sum().ToString()</p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Quality of Referral">
+                                            <p>@familyActivityList.Select(x => x.QualityOfReferral).Sum().ToString()</p>
+                                        </td>
+                                    </tr>
+
+
+                                    @{
+                                        var featureMonthList = familyActivityList.Join(Model.Months, fa => fa.MonthLastDate.GetValueOrDefault().Month, m => m, (fa, m) => new
+                                        FingerprintsModel.FamilyActivityModel
+                                        {
+                                            FPA = fa.FPA,
+                                            Referral = fa.Referral,
+                                            InternalReferral = fa.InternalReferral,
+                                            QualityOfReferral = fa.QualityOfReferral
+
+                                        }).ToList();
+                                    }
+
+                                    <tr style="font-weight:bold;background:#285b8f;color:#ffffff;">
+                                        <td role="gridcell" data-title="Total (Featured Months)">
+                                            <p style="width:100%;">Total (Featured Months)</p>
+                                        </td>
+
+
+                                        <td role="gridcell" data-title="FPA">
+                                            <p>@featureMonthList.Select(x => x.FPA).Sum().ToString() </p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Referral">
+                                            <p>@featureMonthList.Select(x => x.Referral).Sum().ToString()</p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Internal Referral">
+                                            <p>@featureMonthList.Select(x => x.InternalReferral).Sum().ToString()</p>
+                                        </td>
+
+                                        <td role="gridcell" data-title="Quality of Referral">
+                                            <p>@featureMonthList.Select(x => x.QualityOfReferral).Sum().ToString()</p>
+                                        </td>
+                                    </tr>
+
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+
+                                                }
+
+
+
+
+
+                                            }
+
+
+
+                                        }
+
+                                        else
+                                        {
+                                            <div class="col-xs-12"><label class="text-center">Search by Filter <sup style="color:red;">*</sup></label></div>
+                                        }
+
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+<!--- Table Body --->
+@*<tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="family-activity-tbody">
+
+        @try
+        {
+
+            if (familyActivityList != null && familyActivityList.Count > 0)
+            {
+
+                int i = 0;
+
+                while (i < familyActivityList.Count)
+                {
+
+                    <tr>
+
+                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Center">
+                            <p title="@familyActivityList[i].CenterName" data-toggle="tooltip">@familyActivityList[i].CenterName</p>
+                        </td>
+
+                        <td role="gridcell" data-title="Month">
+                            <p>@familyActivityList[i].Month</p>
+                        </td>
+
+
+                        <td role="gridcell" data-title="FPA">
+                            <p>@familyActivityList[i].FPA</p>
+                        </td>
+
+                        <td role="gridcell" data-title="Referral">
+                            <p>@familyActivityList[i].Referral</p>
+                        </td>
+
+                        <td role="gridcell" data-title="Internal Referral">
+                            <p>@familyActivityList[i].InternalReferral</p>
+                        </td>
+
+                        <td role="gridcell" data-title="Quality of Referral">
+                            <p>@familyActivityList[i].QualityOfReferral</p>
+                        </td>
+
+                    </tr>
+                    i++;
+
+                }
+
+
+
+
+
+
+
+            }
+            else
+            {
+                <tr style="width:98.3%">
+                    <td colspan="6" style="padding: 25px;text-align:center;font-weight:bold;">
+                        @if (Model != null && Model.SortColumn == null)
+                        { <text>@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red">*</sup></text> }
+                        else
+                        { <text>@Fingerprints.LocalResource.Resources.Recordsnotfound</text>}
+                    </td>
+
+                </tr>
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            FingerprintsModel.clsError.WriteException(ex);
+        }
+
+    </tbody>*@
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+    @@media(min-width:768px) and (max-width:942px) {
+
+        .glossy-search-btn-div #btnSearchauto {
+            border-top-left-radius: 5px !important;
+            border-bottom-left-radius: 5px !important;
+        }
+
+        #btnSearchauto:after {
+            content: unset !important;
+        }
+
+        .glossy-search-btn-div {
+            top: 5px;
+        }
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+</script>
