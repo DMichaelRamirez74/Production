@@ -115,18 +115,18 @@ namespace Fingerprints.Controllers
 
                 if (count > 0)
                 {
-                    obj.TotalADA.Jan = Math.Round((obj.listADA.Sum(a => a.Jan) / count) * 100, 0);
-                    obj.TotalADA.Feb = Math.Round((obj.listADA.Sum(a => a.Feb) / count) * 100, 0);
-                    obj.TotalADA.Mar = Math.Round((obj.listADA.Sum(a => a.Mar) / count) * 100, 0);
-                    obj.TotalADA.Apr = Math.Round((obj.listADA.Sum(a => a.Apr) / count) * 100, 0);
-                    obj.TotalADA.May = Math.Round((obj.listADA.Sum(a => a.May) / count) * 100, 0);
-                    obj.TotalADA.Jun = Math.Round((obj.listADA.Sum(a => a.Jun) / count) * 100, 0);
-                    obj.TotalADA.Jul = Math.Round((obj.listADA.Sum(a => a.Jul) / count) * 100, 0);
-                    obj.TotalADA.Aug = Math.Round((obj.listADA.Sum(a => a.Aug) / count) * 100, 0);
-                    obj.TotalADA.Sep = Math.Round((obj.listADA.Sum(a => a.Sep) / count) * 100, 0);
-                    obj.TotalADA.Oct = Math.Round((obj.listADA.Sum(a => a.Oct) / count) * 100, 0);
-                    obj.TotalADA.Nov = Math.Round((obj.listADA.Sum(a => a.Nov) / count) * 100, 0);
-                    obj.TotalADA.Dec = Math.Round((obj.listADA.Sum(a => a.Dec) / count) * 100, 0);
+                    obj.TotalADA.Jan = Math.Round((obj.listADA.Sum(a => a.Jan) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Feb = Math.Round((obj.listADA.Sum(a => a.Feb) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Mar = Math.Round((obj.listADA.Sum(a => a.Mar) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Apr = Math.Round((obj.listADA.Sum(a => a.Apr) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.May = Math.Round((obj.listADA.Sum(a => a.May) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Jun = Math.Round((obj.listADA.Sum(a => a.Jun) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Jul = Math.Round((obj.listADA.Sum(a => a.Jul) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Aug = Math.Round((obj.listADA.Sum(a => a.Aug) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Sep = Math.Round((obj.listADA.Sum(a => a.Sep) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Oct = Math.Round((obj.listADA.Sum(a => a.Oct) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Nov = Math.Round((obj.listADA.Sum(a => a.Nov) / count) * 100, 1,MidpointRounding.ToEven);
+                    obj.TotalADA.Dec = Math.Round((obj.listADA.Sum(a => a.Dec) / count) * 100, 1,MidpointRounding.ToEven);
                 }
                 decimal total = (obj.TotalADA.Jan + obj.TotalADA.Feb + obj.TotalADA.Mar + obj.TotalADA.Apr + obj.TotalADA.May + obj.TotalADA.Jun + obj.TotalADA.Jul + obj.TotalADA.Aug + obj.TotalADA.Sep + obj.TotalADA.Oct + obj.TotalADA.Nov + obj.TotalADA.Dec);
                 //decimal total = (lstADA.Sum(a => a.Jan) + lstADA.Sum(a => a.Feb) + lstADA.Sum(a => a.Mar) + lstADA.Sum(a => a.Apr) + lstADA.Sum(a => a.May) + lstADA.Sum(a => a.Jun) + lstADA.Sum(a => a.Jul) + lstADA.Sum(a => a.Aug) + lstADA.Sum(a => a.Sep) + lstADA.Sum(a => a.Oct) + lstADA.Sum(a => a.Nov) + lstADA.Sum(a => a.Dec));
