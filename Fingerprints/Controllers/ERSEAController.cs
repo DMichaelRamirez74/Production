@@ -128,14 +128,14 @@ namespace Fingerprints.Controllers
                     obj.TotalADA.Nov = Math.Round((obj.listADA.Sum(a => a.Nov) / count) * 100, 1,MidpointRounding.ToEven);
                     obj.TotalADA.Dec = Math.Round((obj.listADA.Sum(a => a.Dec) / count) * 100, 1,MidpointRounding.ToEven);
                 }
-                decimal total = (obj.TotalADA.Jan + obj.TotalADA.Feb + obj.TotalADA.Mar + obj.TotalADA.Apr + obj.TotalADA.May + obj.TotalADA.Jun + obj.TotalADA.Jul + obj.TotalADA.Aug + obj.TotalADA.Sep + obj.TotalADA.Oct + obj.TotalADA.Nov + obj.TotalADA.Dec);
+              //  decimal total = (obj.TotalADA.Jan + obj.TotalADA.Feb + obj.TotalADA.Mar + obj.TotalADA.Apr + obj.TotalADA.May + obj.TotalADA.Jun + obj.TotalADA.Jul + obj.TotalADA.Aug + obj.TotalADA.Sep + obj.TotalADA.Oct + obj.TotalADA.Nov + obj.TotalADA.Dec); //0643
                 //decimal total = (lstADA.Sum(a => a.Jan) + lstADA.Sum(a => a.Feb) + lstADA.Sum(a => a.Mar) + lstADA.Sum(a => a.Apr) + lstADA.Sum(a => a.May) + lstADA.Sum(a => a.Jun) + lstADA.Sum(a => a.Jul) + lstADA.Sum(a => a.Aug) + lstADA.Sum(a => a.Sep) + lstADA.Sum(a => a.Oct) + lstADA.Sum(a => a.Nov) + lstADA.Sum(a => a.Dec));
                 if (count == 0)
                 {
 
                 }
                 // ViewBag.OverAllPercentage = Math.Round((total / (300)) * 100, 0);
-                obj.OverAllPercentage = Math.Round((total / (12)), 0);
+                //  obj.OverAllPercentage = Math.Round((total / (12)), 0);  //0643
                 obj.OverAllApplication = lstApplication.Sum(a => a.Application);
                 obj.OverAllEnrollment = lstApplication.Sum(a => a.Enrollment);
                 obj.OverAllWithdrawn = lstApplication.Sum(a => a.Withdrawn);
@@ -173,6 +173,9 @@ namespace Fingerprints.Controllers
         //    return Json(JSONString);
         //}
         //GET Selection SelectionCriteriaUpdate Page.
+
+
+       
 
         [CustAuthFilter(RoleEnum.ERSEAManager)]
         public ActionResult SelectionCriteriaUpdate()

@@ -998,6 +998,7 @@ namespace FingerprintsData
             ERSEADashBoard erseaDashboard = new ERSEADashBoard();
             try
             {
+               
                 var stf = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
@@ -1019,43 +1020,14 @@ namespace FingerprintsData
                 Connection.Close();
                 if (_dataset != null)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+                    if (_dataset.Tables.Count > 0 &&_dataset.Tables[0].Rows.Count > 0)
                     {
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    ADA obj = new ADA();
-                        //    obj.CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "";
-                        //    obj.Jan = !string.IsNullOrEmpty(dr["Jan"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jan"].ToString()), 0) : 0;
-                        //    obj.Feb = !string.IsNullOrEmpty(dr["Feb"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Feb"].ToString()), 0) : 0;
-                        //    obj.Mar = !string.IsNullOrEmpty(dr["Mar"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Mar"].ToString()), 0) : 0;
-                        //    obj.Apr = !string.IsNullOrEmpty(dr["Apr"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Apr"].ToString()), 0) : 0;
-                        //    obj.May = !string.IsNullOrEmpty(dr["May"].ToString()) ? Math.Round(Convert.ToDecimal(dr["May"].ToString()), 0) : 0;
-                        //    obj.Jun = !string.IsNullOrEmpty(dr["Jun"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jun"].ToString()), 0) : 0;
-                        //    obj.Jul = !string.IsNullOrEmpty(dr["Jul"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jul"].ToString()), 0) : 0;
-                        //    obj.Aug = !string.IsNullOrEmpty(dr["Aug"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Aug"].ToString()), 0) : 0;
-                        //    obj.Sep = !string.IsNullOrEmpty(dr["Sep"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Sep"].ToString()), 0) : 0;
-                        //    obj.Oct = !string.IsNullOrEmpty(dr["Oct"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Oct"].ToString()), 0) : 0;
-                        //    obj.Nov = !string.IsNullOrEmpty(dr["Nov"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Nov"].ToString()), 0) : 0;
-                        //    obj.Dec = !string.IsNullOrEmpty(dr["Dec"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Dec"].ToString()), 0) : 0;
-                        //    lstADA.Add(obj);
-                        //}
+                      
 
                         erseaDashboard.listADA = _dataset.Tables[0].AsEnumerable().Select(x => new ADA
                         {
                             CenterName = !string.IsNullOrEmpty(x.Field<string>("CenterName").ToString()) ? x.Field<string>("CenterName").ToString() : "",
-                            //Jan = !string.IsNullOrEmpty(x.Field<decimal>("Jan").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jan"))) : 0,
-                            //Feb = !string.IsNullOrEmpty(x.Field<decimal>("Feb").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Feb"))) : 0,
-                            //Mar = !string.IsNullOrEmpty(x.Field<decimal>("Mar").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Mar"))) : 0,
-                            //Apr = !string.IsNullOrEmpty(x.Field<decimal>("Apr").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Apr"))) : 0,
-                            //May = !string.IsNullOrEmpty(x.Field<decimal>("May").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("May"))) : 0,
-                            //Jun = !string.IsNullOrEmpty(x.Field<decimal>("Jun").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jun"))) : 0,
-                            //Jul = !string.IsNullOrEmpty(x.Field<decimal>("Jul").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jul"))) : 0,
-                            //Aug = !string.IsNullOrEmpty(x.Field<decimal>("Aug").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Aug"))) : 0,
-                            //Sep = !string.IsNullOrEmpty(x.Field<decimal>("Sep").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Sep"))) : 0,
-                            //Oct = !string.IsNullOrEmpty(x.Field<decimal>("Oct").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Oct"))) : 0,
-                            //Nov = !string.IsNullOrEmpty(x.Field<decimal>("Nov").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Nov"))) : 0,
-                            //Dec = !string.IsNullOrEmpty(x.Field<decimal>("Dec").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Dec"))) : 0,
-
+                
                             Jan = !string.IsNullOrEmpty(x.Field<decimal>("Jan").ToString()) ? Math.Round( Convert.ToDecimal(x.Field<decimal>("Jan")),1,MidpointRounding.ToEven) : 0,
                             Feb = !string.IsNullOrEmpty(x.Field<decimal>("Feb").ToString()) ? Math.Round( Convert.ToDecimal(x.Field<decimal>("Feb")),1,MidpointRounding.ToEven) : 0,
                             Mar = !string.IsNullOrEmpty(x.Field<decimal>("Mar").ToString()) ? Math.Round( Convert.ToDecimal(x.Field<decimal>("Mar")),1,MidpointRounding.ToEven) : 0,
@@ -1075,7 +1047,7 @@ namespace FingerprintsData
 
                     }
 
-                    if (_dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
                     {
                         erseaDashboard.MonthOrdersList = _dataset.Tables[1].AsEnumerable().Select(x => new SelectListItem
                         {
@@ -1085,7 +1057,14 @@ namespace FingerprintsData
 
                         }).ToList();
                     }
-                }
+
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        erseaDashboard.OverAllPercentage = Math.Round(Convert.ToDecimal(_dataset.Tables[2].Rows[0]["Percentage"].ToString()), 1, MidpointRounding.ToEven);
+
+                    }
+
+                    }
             }
             catch (Exception ex)
             {
