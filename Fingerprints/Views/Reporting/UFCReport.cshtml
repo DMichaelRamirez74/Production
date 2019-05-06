@@ -1,0 +1,551 @@
+﻿@using FingerprintsModel
+@using Fingerprints.LocalResource;
+
+@{
+    @section Title
+{
+        Undocumented Family Contact Report
+    }
+
+    if (Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+    || Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+}
+
+
+
+@section style{
+
+
+    <link href="~/Content/multiselect.css" rel="stylesheet" />
+
+    <style type="text/css">
+        #page-wrapper {
+            background-color: #fff;
+            min-height: 568px;
+            padding: 30px 15px 0;
+        }
+
+        .div-search-section {
+            border-radius: 10px;
+            background: #f1f5f8;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .text-bg {
+            text-shadow: 0 1px #7e50b7;
+            background-color: #5f477d;
+            background-clip: padding-box;
+            border: 1px solid !important;
+            border-color: #7e50b7 #684494 #5d3e84 !important;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+            border-right: 1px solid #87759e !important;
+            color: #fff;
+            width: 70%;
+            display: inline-block !important;
+            float: left;
+        }
+
+        #filtercontent-div label, #maincontent-div p {
+            color: #1d5381;
+        }
+
+       @* .center-multiselect {
+            background-color: #4CAF50 !important;
+            border-color: #4CAF50 #47b34b #118e16 !important;
+            /* border-radius: 4px !important; */
+            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+            text-align: left;
+        }
+       *@
+
+            .center-multiselect .caret {
+                position: absolute;
+                right: 8px;
+                top: 15px;
+            }
+
+        .multiselect-native-select li.active label.checkbox {
+            color: #fff !important;
+        }
+
+            #div-table-responsive .panel-primary {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    </style>
+
+
+
+}
+
+@section MainContentHolder{
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Rig
+                        ht Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+
+
+                            <div class="row" style="padding-top: 25px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751 !important; color: #fff;">
+                                        <span>
+                                            <i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Undocumented Family Contact Report
+                                        </span>
+                                        <a href="@Url.Action("Roster","Roster")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;color:#fff;">
+                                            Back to Roster
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+
+                                        </a>
+
+
+                                    </h2>
+                                </div>
+                            </div>
+
+
+
+
+                            <div id="filtercontent-div" style="display:block">
+
+                                <div class="row content-bg-main" style="margin:0px;">
+                                    <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                                        <div class="col-md-4">
+                                            <label>@Resources.Center</label>
+                                            @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()).Where(x => x.Value != "0").ToList(), new { @class = "form-control glossy-input glossy-select", @multiple = "multiple" })
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>@Resources.Month</label>
+
+
+                                            <select id="Month" name="month" style="" class="form-control glossy-input">
+                                                <option value="">-Select Month-</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Jan)">@FingerprintsModel.Enums.Month.Jan.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Feb)">@FingerprintsModel.Enums.Month.Feb.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Mar)">@FingerprintsModel.Enums.Month.Mar.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Apr)">@FingerprintsModel.Enums.Month.Apr.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.May)">@FingerprintsModel.Enums.Month.May.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Jun)">@FingerprintsModel.Enums.Month.Jun.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Jul)">@FingerprintsModel.Enums.Month.Jul.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Aug)">@FingerprintsModel.Enums.Month.Aug.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Sep)">@FingerprintsModel.Enums.Month.Sep.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Oct)">@FingerprintsModel.Enums.Month.Oct.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Nov)">@FingerprintsModel.Enums.Month.Nov.ToString()</option>
+                                                <option value="@((int)FingerprintsModel.Enums.Month.Dec)">@FingerprintsModel.Enums.Month.Dec.ToString()</option>
+                                                @*<option value="1">Jan</option>
+                                                <option value="2">Feb</option>
+                                                <option value="3">Mar</option>
+                                                <option value="4">Apr</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>*@
+
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4" style="margin-top: 22px;">
+
+                                            <button id="filter-review" class="glossy-button-button button-green" type="button" style="float:left;" onclick="_Ufc.filterReview(this)">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                @Resources.Load
+                                            </button>
+
+
+                                            <div class="dropdown" style="float:left;margin-left: 15px;">
+                                                <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+                                                    Export
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                    <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                                </ul>
+                                            </div>
+
+                                            @*<button id="filter-review" class="glossy-button-button button-blue" type="button" style="margin-top:22px;" onclick="ClasReview.clearFilter()">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                @Resources.Clear
+                                            </button>*@
+
+                                        </div>
+
+                                        @*<div class="form-check col-md-2 col-xs-12 glossy_btn">
+                                            <label for="btnScreeningExport" style="visibility:hidden;">Action</label>
+
+                                            <div class="dropdown open">
+                                                <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+                                                    Export
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                    <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                                </ul>
+                                            </div>
+
+                                        </div>*@
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+
+
+                            <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                                @*<div class="search-block-main">
+
+                <div class="glossy-search-block col-md-12">
+                    <input type="text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly,readonly');" readonly="" placeholder="Search..." id="searchInkindText" class="form-control">
+                    <div class="glossy-search-btn-div">
+                        <button id="btnSearchauto" data-search-item="">Search</button>
+                    </div>
+                </div>
+
+            </div>*@
+
+
+                                @*<div class="panel with-nav-tabs panel-primary col-xs-12">
+
+            <div class="panel-heading panelul col-xs-12">
+                <ul id="center-tab" class="nav nav-tabs navtabs1 col-xs-12">
+
+                    </ul></div></div>*@
+
+
+                                <div class="panel with-nav-tabs panel-primary col-xs-12">
+
+                                    <div class="panel-heading panelul col-xs-12" style="min-height:50px;">
+                                        <ul id="center-tab" class="nav nav-tabs navtabs1 col-xs-12">
+
+
+
+                                            @*<li class="active"><a href="#0" accesskey="75" data-toggle="tab" aria-expanded="true">GLENWOOD CENTER for EARLY CHILDHOOD</a></li>
+                                            <li class=""><a href="#1" accesskey="77" data-toggle="tab" aria-expanded="false">Home Based</a></li>*@
+
+                                        </ul>
+
+                                    </div>
+
+
+
+                                    <div id="myTabContent" class="tab-content col-xs-12">
+
+                                        <div class="tab-pane fade col-xs-12 active in" id="0">
+                                            <div class="col-xs-12">
+
+
+                     <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" style="margin:10px 0px;" id="UFC-table">
+                                                    <thead class="table-hd scroll-thead">
+                                                        <tr>
+
+                                                            @*<th class="dor-clm">@Resources.CenterName</th>*@
+                                                            <th style="width:5%">Month</th>
+                                                            <th style="width:7%">Parents</th>
+                                                            <th style="width:5%" class="dor-clm">Last Case Note Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="glossy-table-body">
+                                                        <tr>
+                                                            <td colspan="4" class="text-center"><p style="width:auto;text-align:center;">Search by filter</p></td>
+
+                                                        </tr>
+
+                                                    </tbody>
+
+                                                </table>
+
+                                                <div id="pagination-div" class="col-md-12" style="margin-top:20px;">
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+
+    <script type="text/template" id="ufcreport-temp">
+
+        <tr>
+            @*<td class="" style="width:auto;"><p>{centername}</p></td>*@
+            <td class=""><p>{month}</p></td>
+            <td class="" ><p style="width:auto;">{parents}</p></td>
+            <td class=""><p>{lastcndate}</p></td>
+
+
+        </tr>
+
+    </script>
+
+    <script type="text/template" id="centertab-temp"> 
+        <li  class="{isactive}"><a  href="#0" class="center-tablink" accesskey="{centerid}" data-toggle="tab" aria-expanded="true">{centername}</a></li>
+
+    </script>
+
+}
+
+
+@section Script{
+
+    <script src="~/Scripts/multiselect.js"></script>
+
+    <script type="text/javascript">
+
+
+        var Urls = {
+            getUFCReport: "@Url.Action("GetUFCReport", "Reporting")",
+            getUFCReportPDF: "@Url.Action("GetUFCReportPDF", "Reporting")",
+            getUFCReportExcel: "@Url.Action("GetUFCReportExcel", "Reporting")",
+        };
+
+        var _Ufc = {
+            centers: "",
+            month:"",
+            init: function () {
+                var self = this;
+                self.initEvents();
+              //  self.LoadUFCData();
+            },
+            finData:[],
+            gparams: {
+                Search: "",
+                SortOrder: "asc",
+                SortColumn: "Month",
+                RequestedPage: 1,
+                PageSize: 10
+            },
+            DOM: {
+                Centers: $("#Centers"),
+                month: $("#Month"),
+                ufcreportTemp:$("#ufcreport-temp"),
+                centerTemp: $("#centertab-temp"),
+                ufctablebody:$("#UFC-table tbody"),
+                centertab: $("#center-tab"),
+               // tablink: $(".center-tablink")
+
+            },
+            initEvents: function () {
+                var self = this;
+                var $dm = self.DOM;
+
+                $dm.Centers.multiselect({
+                    maxHeight: 200,
+                    includeSelectAllOption: true,
+                    enableFiltering: true,
+                    // filterPlaceholder: 'Search Contribution Activity',
+                    enableCaseInsensitiveFiltering: true,
+                    numberDisplayed: 1,
+                    inheritClass: true,
+                    buttonWidth: '280px'
+                });
+
+
+                $(document).on("click", "#pdfanchor", function (e) {
+                    e.preventDefault();
+                    window.location.href = Urls.getUFCReportPDF.concat('?centerIds=', self.centers, "&month=", self.month);
+                });
+
+                $(document).on("click", "#excelanchor", function (e) {
+                    e.preventDefault();
+                    window.location.href = Urls.getUFCReportExcel.concat('?centerIds=', self.centers, "&month=", self.month);
+                });
+
+                $(document).on( "click",".center-tablink", function (e) {
+
+                    var _cid = $(this).attr('accesskey');
+                    console.log(_cid);
+                    self.LoadUFCData(_cid);
+                });
+
+
+
+            },
+            renderGridPage: function (PageSize, PageNo) {
+              //  var self = this;
+                console.log(PageSize, PageNo);
+                var skip=0;
+
+                if (PageNo > 1) {
+                    skip = (PageSize-1)*PageNo;
+                }
+                var _copydata = JSON.parse( JSON.stringify( _Ufc.finData));
+                var pdata = _copydata.splice(skip, PageSize);
+
+                _Ufc.renderTable(pdata);
+
+            },
+            LoadUFCData: function (centerid) {
+                var self = this;
+
+                $.ajax({
+                    type: "POST",
+                    url: Urls.getUFCReport.concat('?centerIds=', centerid, "&month=", self.month),
+                    datattype: "json",
+                    contentType: "application/json;",
+                    beforeSend: function () { $("#spinner").show(); },
+                    success: function (data) {
+                        data = data || [];
+                        self.finData = data;
+                        self.renderGridPage(10, 1)
+                        //self.renderTable(data);
+                        $("#pagination-div").ApplinkPG(self.finData.length, self.gparams, self.renderGridPage);
+
+                    },
+                    error: function (res) {
+
+                        customAlert("Something went wrong, please try again");
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+
+                });
+
+            },
+            renderTable(data){
+                var self = this;
+
+                self.DOM.ufctablebody.html('');
+                if (data.length) {
+
+                    data.forEach(function (obj, i) {
+
+                        var _html = self.DOM.ufcreportTemp.html();
+
+                        //_html = _html.replace('{centername}', obj.CenterName);
+                        _html = _html.replace('{month}', self.getMonthName(obj.Month)+"-"+obj.MonthType);
+                        _html = _html.replace('{parents}', self.renderParentTemp(obj.Parents));
+                        _html = _html.replace('{lastcndate}', obj.LastCaseNoteDate);
+
+                        self.DOM.ufctablebody.append(_html);
+                    })
+
+                } else {
+                    self.DOM.ufctablebody.append('<tr><td class="text-center" colspan="4"><p style="width:auto;">No Record Found</p></td></tr>')
+                }
+
+            },
+            filterReview:function(ele){
+                var self = this;
+
+
+
+                self.centers = self.DOM.Centers.val() == null ? [] : self.DOM.Centers.val()  ;
+                self.month = self.DOM.month.val() == null ? "" : self.DOM.month.val();
+
+                if (self.centers) {
+                    self.renderCenterTab();
+                    self.LoadUFCData(self.centers[0]);
+                } else {
+
+                    customAlert("@Resources.Centerisrequired");
+
+                }
+
+            },
+            renderCenterTab:function(){
+                var self =this;
+                // centers
+                console.log(self.centers);
+                self.DOM.centertab.html('');
+                self.centers.forEach(function (obj, i) {
+
+                    var _str = self.DOM.centerTemp.html();
+                    _str = _str.replace('{centername}', self.DOM.Centers.find("option[value='" + obj + "']").text());
+                    _str = _str.replace('{isactive}', i == 0 ? 'active' : '');
+                    _str = _str.replace('{centerid}',obj);
+
+                    self.DOM.centertab.append(_str);
+                });
+
+            },
+            getMonthName(mno){
+
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun', 'Jul', 'Aug', 'Sep','Oct', 'Nov', 'Dec'];
+
+                return months[mno - 1] || '';
+            },
+            renderParentTemp(str) {
+                var _PA = str.split(',');
+                var returnStr = "";
+                returnStr += "<span>".concat(_PA[0], "</span>");
+                if (_PA[1]) {
+                    returnStr += "<span>, ".concat(_PA[1], "</span>");
+                }
+                //_PA.forEach(function (obj, i) {
+                //    if (obj) {
+                //        //  returnStr += "<p>".concat(obj,"</p>");
+                //        returnStr += "<span>".concat(obj, "</span>");
+                //    }
+                //    if (i < _PA.length-1 ) {
+                //        returnStr += "<span>, </span>";
+                //    }
+                //});
+                return returnStr;
+            }
+
+
+        };
+
+        $(document).ready(function () {
+
+            _Ufc.init();
+        });
+
+    </script>
+
+
+}

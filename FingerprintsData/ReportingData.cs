@@ -1303,5 +1303,217 @@ new DataColumn("Status",typeof(bool))
 
         #endregion
 
+        #region UFCReport
+
+        public List<UFCReport>  GetUFCReport(string centers,long month)
+        {
+            var result = new List<UFCReport>();
+
+            IDbConnection dbConnection;
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                var dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@mode",1,DbType.Int32),
+                    dbManager.CreateParameter("@CenterIDs",centers,DbType.String),
+                    dbManager.CreateParameter("@month",month,DbType.Int64),
+
+
+                   // dbManager.CreateParameter("@TotalRecord",int.MaxValue,0,DbType.Int32,ParameterDirection.Output)
+                };
+
+                IDataReader reader = dbManager.GetDataReader("USP_UFCReportDetails", CommandType.StoredProcedure, parameters, out dbConnection);
+
+
+                while (reader.Read())
+                {
+                    //modal.FamilyActivityList.Add(new FamilyActivityModel
+                    //{
+                    //    CenterID = reader["CenterID"] == DBNull.Value ? "0" : Convert.ToString(reader["CenterID"]),
+                    //}
+                    string parents = Convert.ToString(reader["Parent1Name"] ?? "");
+                    if (DBNull.Value != reader["Parent2Name"]) {
+                        parents += ", " + Convert.ToString(reader["Parent2Name"] ?? "");
+                    }
+                    result.Add(new UFCReport()
+                    {
+                         CenterId = Convert.ToInt64( reader["CenterID"] ?? 0 ),
+                         CenterName = Convert.ToString(reader["CenterName"] ?? ""),
+                         LastCaseNoteDate = Convert.ToString(reader["LastCaseNoteDate"] ?? ""),
+                          HouseholdId= Convert.ToInt64(reader["HouseholdId"] ?? 0),
+                           Month= Convert.ToInt64(reader["MonthNumber"] ?? 0),
+                        //  Parents = Convert.ToString(reader["Parent1Name"] ?? 0) +","+ Convert.ToString(reader["Parent2Name"] ?? 0),
+                        Parents= parents,
+                        MonthType = Convert.ToString(reader["MonthType"] ?? ""),
+                        
+                    });
+
+                }
+
+                reader.Close();
+                dbManager.CloseConnection(dbConnection);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+            }
+            return result;
+        }
+
+
+        public MemoryStream GetUFCReportExcel(List<UFCReport> dataList, string imagePath)
+        {
+
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+            try
+            {
+                XLWorkbook wb = new XLWorkbook();
+
+
+                if (dataList != null && dataList.Count > 0)
+                {
+                    var familyActivityModel = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FamilyActivityModel>();
+                    var displayNameHelper = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Fingerprints.Common.Helpers.DisplayNameHelper>();
+
+                    var centerList = dataList.Select(x => x.CenterId).Distinct().ToList();
+                    for (int i = 0; i < centerList.Count; i++)
+                    {
+                        #region Adding Worksheet
+
+                        var reportWithCenterList = dataList.OrderBy(x => x.Month).Where(x => x.CenterId == centerList[i]).ToList();
+                        var centerName = reportWithCenterList.Select(x => x.CenterName).First();
+
+
+                        var vs = wb.Worksheets.Add(centerName.Length > 31 ? centerName.Substring(0, 15) : centerName);
+
+
+                        #region Headers with Quality Stars
+
+                        // string starImageUrl = imagePath + "\\220px-Star_rating_" + reportWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+                        // System.Drawing.Bitmap fullImage = new System.Drawing.Bitmap(starImageUrl);
+
+                        //vs.AddPicture(fullImage).MoveTo(vs.Cell("F2"), new System.Drawing.Point(100, 1)).Scale(0.3);// optional: resize picture
+                        //vs.Range("F2:F2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                        vs.Range("B2:D2").Merge().Value = centerName;
+                        vs.Range("B2:D2").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        vs.Range("B2:D2").Style.Font.SetBold(true);
+                        vs.Range("B2:D2").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                        vs.Range("B3:D3").Merge().Value = "UFC Report";
+                        vs.Range("B3:D3").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        vs.Range("B3:D3").Style.Font.SetBold(true);
+                        vs.Range("B3:D3").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                        #endregion Headers with Quality Stars
+
+
+                        #region Table Headers
+
+                        vs.Cell(4, 2).Value =  "Month";
+                        vs.Cell(4, 2).Style.Font.SetBold(true);
+                        vs.Cell(4, 2).WorksheetColumn().Width = 30;
+
+                        vs.Cell(4, 3).Value = "Parents";
+                        vs.Cell(4, 3).Style.Font.SetBold(true);
+                        vs.Cell(4, 3).WorksheetColumn().Width = 30;
+
+                        vs.Cell(4, 4).Value =  "Last Case Note Date";
+                        vs.Cell(4, 4).Style.Font.SetBold(true);
+                        vs.Cell(4, 4).WorksheetColumn().Width = 30;
+                        vs.Range("B4:D4").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        vs.Range("B4:D4").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                        vs.Range("B4:D4").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                        #endregion Table Headers
+
+
+                        #region Table Rows
+
+                        int inititalRow = 5;
+
+                        int ReportRow = inititalRow;
+                        int Reportcolumn = 2;
+
+                        for (int j = 0; j < reportWithCenterList.Count; j++)
+                        {
+                            bool isFeaturedMonth = false;
+
+                            // bool isFeaturedMonth = Array.IndexOf(dataList., reportWithCenterList[j].MonthLastDate.GetValueOrDefault().Month) > -1;
+
+
+                            string monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(reportWithCenterList[j].Month)).Substring(0, 3);
+
+
+                            vs.Cell(ReportRow, Reportcolumn).DataType = XLDataType.Text;
+                            // vs.Cell(ReportRow, Reportcolumn).Value = reportWithCenterList[j].Month.Replace("-","");
+                           vs.Cell(ReportRow, Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(isFeaturedMonth);
+                            vs.Cell(ReportRow, Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            // vs.Cell(ReportRow, Reportcolumn).SetValue<string>(Convert.ToString(reportWithCenterList[j].Month));
+                            vs.Cell(ReportRow, Reportcolumn).SetValue<string>(Convert.ToString(monthName+"-"+ reportWithCenterList[j].MonthType));
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 1).Value = reportWithCenterList[j].Parents;
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Font.SetBold(isFeaturedMonth);
+                            vs.Cell(ReportRow, Reportcolumn + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+                            vs.Cell(ReportRow, Reportcolumn + 2).Value = reportWithCenterList[j].LastCaseNoteDate;
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(isFeaturedMonth);
+                            vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+
+
+                            //vs.Cell(ReportRow, Reportcolumn + 3).Value = reportWithCenterList[j].LastCaseNoteDate;
+                            //vs.Cell(ReportRow, Reportcolumn + 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                            //vs.Cell(ReportRow, Reportcolumn + 3).Style.Font.SetBold(isFeaturedMonth);
+                            //vs.Cell(ReportRow, Reportcolumn + 3).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                     
+                            ReportRow++;
+
+
+                        }
+
+
+                        #endregion Table Rows
+
+
+
+
+                        #endregion Adding Worksheet
+
+
+
+
+
+                    }
+                    wb.SaveAs(memoryStream);
+                }
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+            return memoryStream;
+
+                }
+
+        #endregion UFCReport
     }
 } 

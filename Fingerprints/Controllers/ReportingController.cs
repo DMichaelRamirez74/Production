@@ -323,7 +323,8 @@ namespace Fingerprints.Controllers
         {
             var fileBytes =new byte[0];
 
-            if (isdoc) {
+            if (isdoc)
+            {
 
                 var attachDetails = FactoryInstance.Instance.CreateInstance<Reporting>().GetMDTAttachmentById(id);
                 fileBytes = attachDetails.AttachmentFileByte;
@@ -525,5 +526,108 @@ namespace Fingerprints.Controllers
         #endregion
 
 
+
+        #region UFC Report
+
+        public ActionResult UFCReport()
+        {
+
+            return View();
+        }
+
+        public ActionResult GetUFCReport(string centerIds = "", long month = 0)
+        {
+
+
+            var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetUFCReport(centerIds, month);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [CustAuthFilter()]
+        public ActionResult GetUFCReportPDF(string centerIds = "", long month = 0)
+        {
+
+            var fileBytes = new byte[0];
+            try
+            {
+                var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetUFCReport(centerIds, month);
+
+                // Render the view xml to a string, then parse that string into an XML dom.
+                //string html = this.RenderActionResultToString(this.View("_ADAByCenterPartial", result,this));
+                string html = Helper.RenderActionResultToString(this.View("UFCReportPDFView", result), this);
+                fileBytes = Helper.GetPDFBytesFromHTML(html, false);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            // Send the binary data to the browser.
+            //return new BinaryContentResult(fileBytes, "application/pdf");
+
+             return File(fileBytes, "application/pdf", "UFC Report.pdf");
+        }
+
+
+        [CustAuthFilter()]
+        public ActionResult GetUFCReportExcel(string centerIds = "", long month = 0)
+        {
+
+            var fileBytes = new byte[0];
+            var ms = new MemoryStream();
+            try
+            {
+                string imagePath = Server.MapPath("~/Images/");
+                var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetUFCReport(centerIds, month);
+                ms = FactoryInstance.Instance.CreateInstance<Reporting>().GetUFCReportExcel(result, imagePath);
+
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=UFC Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                ms.WriteTo(Response.OutputStream);
+                Response.End();
+                Response.Close();
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            // Send the binary data to the browser.
+            return new BinaryContentResult(ms.ToArray(), Response.ContentType);
+
+        }
+
+
+        //for dev purpose
+        public ActionResult GetUFCReportPDFView(string centerIds = "", long month = 0)
+        {
+
+            var fileBytes = new byte[0];
+            try
+            {
+                var result = FactoryInstance.Instance.CreateInstance<Reporting>().GetUFCReport(centerIds, month);
+
+                string html = Helper.RenderActionResultToString(this.View("UFCReportPDFView", result), this);
+                fileBytes = Helper.GetPDFBytesFromHTML(html, false);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            // Send the binary data to the browser.
+            return new BinaryContentResult(fileBytes, "application/pdf");
+
+            // return File(fileBytes, "application/pdf", "UFC Report.pdf");
+        }
+
+
+
+        #endregion UFC Report
     }
 }

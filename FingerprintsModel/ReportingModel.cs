@@ -166,4 +166,25 @@ namespace FingerprintsModel
     #endregion MDTReport
 
 
+    #region UFCReport
+
+    public class UFCReport
+    {
+
+        public long CenterId { get; set; }
+        public string CenterName { get; set; }
+
+        public long HouseholdId { get; set; }
+        public string Parents { get; set; }
+        public string LastCaseNoteDate { get; set; }
+
+        public long Month { get; set; }
+
+        public string MonthType { get; set; }
+
+    }
+
+    #endregion UFCReport
+
+
 }

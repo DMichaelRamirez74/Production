@@ -1,0 +1,148 @@
+﻿@{
+
+    Layout = null;
+}
+@using FingerprintsModel;
+
+@model List<FingerprintsModel.UFCReport>
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>UFC Report</title>
+    <style>
+                #main-center-table {
+         
+         font-size:12px;
+        
+        
+        }
+            #main-center-table tr th {
+            margin-bottom:5px;
+            
+            }
+
+             #main-center-table tr th{
+            font-weight:bold !important;
+            text-align:center;
+            }
+
+            #main-center-table tr th,
+            #main-center-table tr td {
+            
+         border:1px solid #333;
+            height:30px;
+            }
+
+                #main-center-table tr td:nth-child(2){
+                 color:red;
+                }
+        .month-clmn,
+        .lcndate-clmn {
+        text-align:center;
+        }
+
+        .parent-clmn {
+         margin-left:10px;
+        }
+
+        .title-card {
+         background:#34495e;
+         text-align:center;
+         color:#ffffff;
+         height:30px;
+         margin-bottom:25px;
+        }
+        </style>
+    </head>
+<body>
+
+    @{ 
+
+        var centers = Model.GroupBy(a => a.CenterName, a => a.CenterName).ToList();
+
+
+
+
+
+    }
+
+    <div class="title-card">
+      <span>  UFC Report </span>
+    </div>
+    <div style="height:10px;"></div>
+
+        @helper getMonthName(long mno) {
+
+            string[] months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+
+           <span>@months[mno-1]</span>
+        }
+        @{long i = 1; }
+   @foreach (var center in centers)
+   {
+      
+ <table id="main-center-table" border="0" cellspacing="0" cellpadding="0" style="width:1000px; repeat-header: yes; repeat-footer: yes;">
+     <thead>
+     <tr>
+         <th colspan="3" style="text-align:left;border:0px solid black;">
+             <p style="margin-left:10px;"> Center: @center.Key</p>
+         </th>
+     </tr>
+     <tr>
+                @*<th>Center Name</th>*@
+                <th>Month</th>
+                <th>Parents</th>
+                <th>Last Case Note Date</th>
+
+         </tr></thead>
+     <tbody>
+        @foreach (var item in Model)
+        {
+            var parentAr = item.Parents.Split(',');
+
+            if (center.Key == item.CenterName)
+            {
+            <tr>
+                @*<td>@item.CenterName</td>*@
+                <td class="month-clmn"> @getMonthName(@item.Month)</td>
+                <td class="parent-clmn">
+
+                    @foreach (var parent in parentAr)
+                    {
+                        <p style="margin:0px;line-height: 0px !important;margin-left:10px;">
+                            @parent
+                        </p><br />
+                    }
+
+                </td>
+                <td class="lcndate-clmn">@item.LastCaseNoteDate</td>
+         
+         </tr>
+
+            }
+
+        }
+
+     </tbody>
+ </table>
+       if (i < centers.Count)
+       {
+<div style="page-break-before:always">&nbsp;</div>
+       }
+       { i++;}
+   }
+
+
+
+
+
+
+
+</body>
+
+
+</html>
