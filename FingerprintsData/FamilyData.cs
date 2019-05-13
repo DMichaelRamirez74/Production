@@ -7139,7 +7139,9 @@ namespace FingerprintsData
                             info.OverIncome = Convert.ToInt32(dr["OverIncome"]);
                             info.Disability = Convert.ToInt32(dr["Disability"]);
                             yakkrcount = Convert.ToInt32(dr["yakkrcount"]);
-                         
+                            //   info.ClosingRate = Convert.ToInt64(dr["ClosingRate"]);
+                            info.ClosingRate =Math.Round( Convert.ToDecimal(dr["ClosingRate"]),1,MidpointRounding.ToEven);
+
                             centerList.Add(info);
                         }
 

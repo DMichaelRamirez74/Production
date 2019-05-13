@@ -169,6 +169,7 @@ namespace FingerprintsModel
         public int HomeVisitAppointment { get; set; }
         public int OverIncome { get; set; }
         public int Disability { get; set; }
+        public decimal ClosingRate { get; set; }
     }
 
     public class Roster
