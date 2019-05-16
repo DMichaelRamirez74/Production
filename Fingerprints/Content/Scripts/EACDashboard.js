@@ -9,7 +9,10 @@ var anchorInkind = null;
 var anchorDisabilities = null;
 var anchorOverIncome = null;
 var anchorWaitingList = null;
+var anchorWaitCount = null;
+var anchorADA = null;
 
+var monthArray = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 
 function makeCaseNoteChart(chartData) {
@@ -102,7 +105,232 @@ function makeCaseNoteChart(chartData) {
     });
 }
 
+function makeADAChart(adaData)
+{
 
+    var adaChartData = [];
+
+    $.each(adaData, function (i, ada) {
+
+        adaChartData.push({
+
+            'Month': ada.Month,
+            'Percentage': ada.Percentage,
+            'Color': (ada.Percentage < 85) ? '#e74c3c' : '#2ecc71',
+            'MonthNumber': ada.MonthNumber,
+            'ExplanationUnderPercentage': ada.ExplanationUnderPercentage
+        });
+
+    });
+
+
+  
+
+
+    var chart = AmCharts.makeChart("chartdivADA", {
+        "hideCredits": true,
+        "type": "serial",
+       
+        "dataProvider": adaChartData,
+        "graphs": [{
+            "fillAlphas": 1,
+            // "fillColor":"#296EED",
+            "lineAlpha": 0,
+            "lineColor": "black",
+            "type": "column",
+            "valueField": "Percentage",
+            "fillColorsField": 'Color',
+            "columnWidth": 0.6,
+            "balloonFunction": function (item, content) {
+                var html = "<p>" + item.dataContext.Month + "</p></p>Percentage : " + item.dataContext.Percentage + "</p>";
+                // console.log(item, content);
+                return html;
+            }
+
+        }],
+        "categoryField": "Month",
+        "categoryAxis": {
+            "color": "#ffffff",
+            "axisColor": "#ffffff",
+            "axisAlpha": 1,
+            "gridColor": "#ffffff",
+            "gridAlpha": 0,
+        },
+        "valueAxes": [{
+            "position": "bottom",
+            // "offset": -200,
+            "minimum": 0,
+            "color": "#ffffff",
+            "axisColor": "#ffffff",
+            "axisAlpha": 1,
+            "gridColor": "#ffffff",
+            "gridAlpha": 1,
+            "maximum": 100,
+            "labelFunction": function (valueText, date, valueAxis) {
+                //console.log(valueText, date, valueAxis);
+                return valueText + "%";
+            }
+        },
+
+        /*{
+            "position": "left",
+            "offset": -200,
+            "minimum": 0,
+            "maximum": 100
+        }
+        */
+        ],
+
+        "startDuration": 1,
+        "chartCursor": {
+            "fullWidth": true,
+            "cursorAlpha": 0.1,
+            "enabled": false,
+            "cursorColor": "#000000",
+            "valueBalloonsEnabled": false,
+            "zoomable": false,
+            "listeners": [{
+                "event": "changed",
+                "method": function (ev) {
+                    // Log last cursor position
+                    ev.chart.lastCursorPosition = ev.index;
+                }
+            }]
+        },
+        "listeners": [{
+            "event": "clickGraphItem",
+            "method": function (ev) {
+                console.log(ev.item);
+                console.log(ev.item.dataContext.Percentage);
+               
+                var dataContext=ev.item.dataContext;
+               
+                   
+                if(dataContext.MonthNumber<(new Date().getMonth()+1))
+
+                {
+                    BootstrapDialog.show({
+                        title: '<span>Low ADA % Explanation</span>',
+                        message: $('<label>ADA for the month of ' + monthArray[dataContext.MonthNumber - 1] + ' is below 85%, give explanation:</label> <textarea id="textExplanation" class="form-control"  style="min-height:150px;" placeholder="Try to input multiple lines here...">' + dataContext.ExplanationUnderPercentage + '</textarea>'),
+                        closable: true,
+                        closeByBackdrop: false,
+                        closeByKeyboard: false,
+                        buttons: [{
+                            label: 'Submit',
+                            cssClass: 'btn-primary',
+                            action: function (diaSelf) {
+
+                                if ($('#textExplanation').val() == null || $('#textExplanation').val() == '') {
+                                    customAlert('Explanation is required');
+                                    return false;
+                                }
+                                else {
+
+                                    $.ajax({
+
+                                        url: HostedDir + '/Home/SaveADAExplanation',
+                                        type: 'POST',
+                                        datatype: 'JSON',
+                                        data: { 'month': dataContext.MonthNumber, 'explanation': $('#textExplanation').val() },
+                                        async: true,
+                                        beforeSend: function () {
+
+                                            $('#spinner').show();
+
+                                        },
+                                        success: function (data) {
+                                            if (data) {
+                                                customAlert('Record saved successfully');
+                                                ev.item.dataContext.ExplanationUnderPercentage = $('#textExplanation').val();
+                                                diaSelf.close();
+
+                                            }
+                                            else {
+                                                customAlert('Error occurred. Please, try again later');
+                                                diaSelf.close();
+                                            }
+                                        },
+                                        error: function (xhr) {
+                                            console.log(xhr);
+                                            customAlert('Error occurred. Please, try again later');
+                                            diaSelf.close();
+                                        },
+                                        complete: function (data) {
+                                            $('#spinner').hide();
+                                        }
+
+                                    });
+                                }
+
+                            }
+                        },
+                        {
+                            label: 'Close',
+                            cssClass: 'btn-primary',
+                            action: function (diagSelf) {
+
+                                diagSelf.close();
+
+                            }
+                        }]
+                    });
+                }
+                 
+
+               
+
+            }
+        }]
+    });
+}
+
+function makeWaitingListChart()
+{
+
+    var reasondataProvider = [];
+    if (dataGrid != null && dataGrid.length > 0) {
+        var colorArray = ["#69b4d6", "#6973d6", "#9c66cf", "#cc6765", "#78cc65"]
+
+        $.each(dataGrid, function (n, reason) {
+            reasondataProvider.push({
+
+                'country': reason.Text,
+                'litres': parseInt(reason.Value),
+                'color': colorArray[n]
+            });
+
+        });
+
+
+    }
+
+
+    var chart = AmCharts.makeChart("acceptanceReasonWaiting", {
+        "hideCredits": true,
+        "type": "pie",
+        "labelRadius": -35,
+        "labelText": "",
+        "legend": {
+            "position": "right",
+            "marginRight": 10,
+            "autoMargins": false,
+            "equalWidths": false,
+            "valueTextRegular": "([[value]])"
+        },
+        "balloon": {
+            "adjustBorderColor": true,
+            "color": "#000000",
+            // "cornerRadius": 5,
+            "fontSize": 12,
+            "maxWidth": 520,
+            "verticalPadding": 20,
+            "fillColor": "#FFFFFF"
+        },
+        "dataProvider": reasondataProvider,
+        "valueField": "litres",
+        "titleField": "country"
+    });
+}
 
 function jilioThermExecutiveDashboard()
 {
@@ -427,6 +655,20 @@ function bindWaitingListExecutive(data) {
     {
         $('#wait-p').html(data.WaitingList + ' %');
         $('#wait-count').html(data.WaitingListCount);
+
+       
+        dataGrid = data.AcceptanceReason;
+
+        makeWaitingListChart();
+    }
+}
+
+
+function bindADAExecutive(data)
+{
+    if(data!=null && data.ADAList!=null && data.ADAList.length>0)
+    {
+        makeADAChart(data.ADAList);
     }
 }
 
@@ -454,7 +696,8 @@ $(document).ready(function () {
     anchorDisabilities = $('#anchorDisabilities');
     anchorOverIncome = $('#anchorOverIncome');
     anchorWaitingList = $('#anchorWaitingList');
-
+    anchorWaitCount = $('#wait-count');
+    anchorADA = $('#anchorADA');
 
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -572,6 +815,22 @@ $(document).ready(function () {
 
         refreshDashboardBySection(this, dashboardSectionType.WaitingList, bindWaitingListExecutive);
     });
+
+    anchorADA.on('click', function () {
+
+        refreshDashboardBySection(this,dashboardSectionType.ADA,bindADAExecutive)
+    });
+
+
+    anchorWaitCount.on('click', function () {
+
+
+        $('#modalAcceptanceReasonWaitingList').modal('show');
+    });
+
+
+
+    makeWaitingListChart();
 
 
 
@@ -852,6 +1111,11 @@ $(document).ready(function () {
 
     if (caseNoteJson != null && caseNoteJson.length > 0) {
         makeCaseNoteChart(caseNoteJson);
+    }
+
+
+    if (adaJson != null && adaJson.length > 0) {
+        makeADAChart(adaJson);
     }
 
 

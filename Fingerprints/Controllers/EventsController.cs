@@ -13,6 +13,7 @@ using System.Data;
 using Fingerprints.CustomClasses;
 using Fingerprints.ViewModel;
 using System.Text;
+using FingerprintsModel.Enums;
 
 namespace Fingerprints.Controllers
 {
@@ -31,7 +32,10 @@ namespace Fingerprints.Controllers
         roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
         roleid=5ac211b2-7d4a-4e54-bd61-5c39d67a1106 (Parent)
         */
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
 
         public ActionResult CreateEvent(string Id, string Name,string cId="")
         {
@@ -39,7 +43,7 @@ namespace Fingerprints.Controllers
             objEvents.Workshopid = Convert.ToInt32(Id);
             objEvents.Workshopname = Name;
             objEvents.CenterId = cId;
-            new EventsData().GetWorkshopDetails(ref objEvents, Id);
+            new EventsData().GetWorkshopDetails(ref objEvents, Id, staff);
             List<SelectListItem> objCIFFOB = new List<SelectListItem>();
 
 
@@ -57,7 +61,7 @@ namespace Fingerprints.Controllers
                     {
                        
                         objCIFFOB.Add(new SelectListItem { Value = "1", Text = "Open", Selected = true });
-                        objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Cancelled" });
+                        objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Canceled" });
                         objCIFFOB.Add(new SelectListItem { Value = "0", Text = "Closed" });
                       
                     }
@@ -65,19 +69,19 @@ namespace Fingerprints.Controllers
                     {
                        
                         objCIFFOB.Add(new SelectListItem { Value = "1", Text = "Open", Selected = true });
-                        objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Cancelled" });
+                        objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Canceled" });
                        
                     }
                     break;
                 case "2":
                    
                     objCIFFOB.Add(new SelectListItem { Value = "2", Text = "Pending", Selected = true });
-                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Cancelled" });
+                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Canceled" });
                     break;
 
                 case "3":
                     objCIFFOB.Add(new SelectListItem { Value = "1", Text = "Open" });
-                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Cancelled", Selected = true });
+                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Canceled", Selected = true });
                     break;
 
                 case "0":
@@ -89,7 +93,7 @@ namespace Fingerprints.Controllers
                     objCIFFOB.Add(new SelectListItem { Value = "-1", Text = "Choose" });
                     objCIFFOB.Add(new SelectListItem { Value = "2", Text = "Pending" });
                     objCIFFOB.Add(new SelectListItem { Value = "1", Text = "Open" });
-                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Cancelled" });
+                    objCIFFOB.Add(new SelectListItem { Value = "3", Text = "Canceled" });
                     objCIFFOB.Add(new SelectListItem { Value = "0", Text = "Closed" });
                     break;
 
@@ -100,7 +104,7 @@ namespace Fingerprints.Controllers
             return View(objEvents);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult SaveEvents(Events objEvents)
         {
             bool isResult = false;
@@ -122,7 +126,7 @@ namespace Fingerprints.Controllers
             return Json(isResult);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b,5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.CenterManager,RoleEnum.Parent)]
         public JsonResult GetCancelledEventInfo(int mode)
         {
             EventsList events = new EventsList();
@@ -154,7 +158,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public void GetRegisteredParentAndMail(Events events)
         {
 
@@ -341,7 +345,7 @@ namespace Fingerprints.Controllers
             return Json(CenterAddress);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public JsonResult UploadFile(string monitor)
         {
             string[] _imgpath = new string[System.Web.HttpContext.Current.Request.Files.Count];
@@ -357,7 +361,7 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public JsonResult ChangeImage(string monitor, string eventId)
         {
             string[] _imgpath = new string[System.Web.HttpContext.Current.Request.Files.Count];
@@ -431,7 +435,7 @@ namespace Fingerprints.Controllers
             return _imgpath;
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult EventsReport()
         {
             try
@@ -445,7 +449,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult Events()
         {
             EventsModal eventsModal = new EventsModal();
@@ -469,7 +473,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
 
         public JsonResult GetEventsByCenter(string centerId)
         {
@@ -520,7 +524,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult EventDetails(string id)
         {
 
@@ -539,7 +543,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public ActionResult ParentEventSelection()
         {
             ParentSelectionEvent modal = new ParentSelectionEvent();
@@ -559,7 +563,7 @@ namespace Fingerprints.Controllers
             }
             return View(modal);
         }
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public ActionResult ParentEventRegistration(string id = "0", string m = "0")
         {
 
@@ -604,7 +608,7 @@ namespace Fingerprints.Controllers
             return events.ListReason;
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public ActionResult EventInformation(string id = "0", int mode = 0)
         {
             ParentRegisterEvent registerEvent = new ParentRegisterEvent();
@@ -646,7 +650,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult RegisterEvent(string parentEventString = "", int mode = 0)
         {
 
@@ -669,7 +673,7 @@ namespace Fingerprints.Controllers
             return Json(feedBack, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult CancelEventRegistration(string enc_EventId)
         {
             bool isResult = false;
@@ -690,13 +694,13 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult CancelledEvents()
         {
             return View();
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public ActionResult CancelledEventsForParent()
         {
             try
@@ -710,7 +714,7 @@ namespace Fingerprints.Controllers
 
             return View();
         }
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
 
         public ActionResult RegisteredParentsForEvent()
         {
@@ -719,7 +723,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public JsonResult GetRegParentsByWorkShop(string workShopId, string centerId, int mode, string searchText = "")
         {
             ParentRegisterEvent parentEvent = new ParentRegisterEvent();
@@ -739,7 +743,7 @@ namespace Fingerprints.Controllers
                 return Json(parentEvent, JsonRequestBehavior.AllowGet);
             }
         }
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult GetParentEventCalender()
         {
             EventsList events = new EventsList();
@@ -761,7 +765,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult ParentCheckInEvent(string id = "0", string enc_id = "0")
         {
 
@@ -788,7 +792,7 @@ namespace Fingerprints.Controllers
 
         
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult NewRegistration(string WorkShopName, string CenterName, string Enc_Centerid = "0", string WorkShopId = "0")
         {
 
@@ -827,7 +831,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public JsonResult GetNewClientBySearch(string Enc_Centerid = "0", string WorkShopId = "0", string searchText = "", string centerId2 = "0", int mode = 0)
         {
             List<NewRegistration> list = new List<NewRegistration>();
@@ -855,7 +859,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult NewParentCheckInEvent(string householdid = "0", string centerid = "0", string clientid = "0", string WorkShopId = "0")
         {
             ParentRegisterEvent registerEvent = new ParentRegisterEvent();
@@ -898,7 +902,7 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
 
         public JsonResult AcceptParentSigForEvent(string parentEventString = "")
         {
@@ -922,7 +926,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult GetRemainingSeats(string enc_Id = "0")
         {
             EventsList events = new EventsList();
@@ -942,7 +946,7 @@ namespace Fingerprints.Controllers
                 return Json(remainingCount, JsonRequestBehavior.AllowGet);
             }
         }
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult GetEventsCountCalender(bool isRender = false)
         {
             EventsList events = new EventsList();
@@ -974,7 +978,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+        [CustAuthFilter(RoleEnum.Parent)]
         public JsonResult GetEventsForCalender()
         {
             EventsList events = new EventsList();
@@ -997,14 +1001,14 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult GetWorkshopReport(string Workshopid, string CenterId)
         {
             string JSONString = string.Empty;
             try
             {
                 DataTable dtWorkshop = new DataTable();
-                new EventsData().WorkshopReport(ref dtWorkshop, Workshopid, CenterId);
+                new EventsData().WorkshopReport(ref dtWorkshop,staff,  Workshopid, CenterId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtWorkshop);
             }
             catch (Exception Ex)
@@ -1014,7 +1018,7 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         public ActionResult GetCancelledWorkshop(string CenterId)
         {
             string JSONString = string.Empty;
@@ -1031,7 +1035,7 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
 
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter(RoleEnum.CenterManager)]
         [JsonMaxLengthAttribute]
         public JsonResult GetChildrenImage(string enc_clientId)
         {

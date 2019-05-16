@@ -25,6 +25,11 @@ namespace FingerprintsModel
         public bool ToView { get; set; }
         public bool ToFollowUp { get; set; }
         public bool ToEnter { get; set; }
+
+        public bool ToCreate { get; set; }
+        public bool ToReview { get; set; }
+
+       
         public List<UserDetails> UserList { get; set; }
 
         public static readonly Dictionary<int, string> RolesDictionary = new Dictionary<int, string>()
@@ -234,6 +239,10 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
         public string RoleId { get; set; }
         public int ScreeningID { get; set; }
+
+        public bool ToCreate { get; set; }
+
+        public bool ToReview { get; set; }
 
     }
 

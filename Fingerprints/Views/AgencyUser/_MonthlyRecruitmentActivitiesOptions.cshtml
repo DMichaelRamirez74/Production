@@ -1,0 +1,69 @@
+﻿@model FingerprintsModel.MonthlyRecruitmentActivities
+
+<div class="col-xs-12 glossy-panel-div">
+
+
+
+    @if (Model != null && Model.RecruitmentActivityList != null && Model.RecruitmentActivityList.Count > 0)
+    {
+
+        <div class="col-lg-12 col-xs-12 no-padding">
+            <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Select_one_more_activities <sup>*</sup></label>
+        </div>
+
+        <div class="col-lg-12 col-sm-12 col-xs-12 activity-option-div" id="activity-option-div">
+            @{
+                int i = 0;
+            }
+
+            @foreach (var checkboxOption in Model.RecruitmentActivityList)
+            {
+                // fa-checkbox  
+                <div class="form-group col-xs-12">
+                    <div style="width:3%;padding:0;" class="col-xs-1">
+                        <input type="checkbox"  id="checkbox_@i" @if (checkboxOption.Selected) { <text> checked</text> } name="fundcheckbox" value="@checkboxOption.RecruitmentActivityID" style="display:block;" class="abtCheckbox">
+                    </div>
+                    <label style="font-weight:normal;padding:0;" class="col-xs-11">@checkboxOption.Description</label>
+                </div>
+
+                i++;
+            }
+
+
+
+        </div>
+
+
+        <div class="col-xs-12 text-center adddivspace glossy_btn">
+            <input type="hidden" id="hide-trans-id" value="@Model.ActivityTransactionID" />
+
+            <button class="glossy-button-button button-green" type="button" id="btn-add-trans-activity">
+                @Fingerprints.LocalResource.Resources.Submit
+                <span class="glossy-button-before"></span>
+                <span class="glossy-button-after"></span>
+
+            </button>
+            &nbsp;&nbsp;
+
+            <button class="glossy-button-button button-blue" type="button" id="btn-reset-trans-activity">
+               @Fingerprints.LocalResource.Resources.Clear
+                <span class="glossy-button-before"></span>
+                <span class="glossy-button-after"></span>
+
+            </button>
+        </div>
+
+
+                }
+                else
+                {
+                    <div class="form-group col-lg-6 col-sm-6 col-xs-12">
+                        <label for="selectCenter" class="lbl-text text-center">@Fingerprints.LocalResource.Resources.Recordsnotfound</label>
+
+                    </div>
+                }
+
+
+
+
+</div>

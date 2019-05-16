@@ -7,6 +7,7 @@ using iTextSharp.text.pdf;
 using ClosedXML.Excel;
 using System.Data;
 using System.Web.Mvc;
+using iTextSharp.text.pdf.languages;
 
 
 namespace FingerprintsModel
@@ -4382,6 +4383,803 @@ namespace FingerprintsModel
 
         #endregion
 
+
+        #region Export Center Monthly Report
+
+        public MemoryStream ExportCenterMonthlyReport(CenterMonthlyReport centerMonthlyReport, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+            try
+            {
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+
+
+
+
+                    Document doc = new Document();
+
+                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+
+                    //Create PDF Table  
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+
+
+
+                    doc.OpenDocument();
+
+                    if (centerMonthlyReport != null && centerMonthlyReport.CenterMonthlyReportList.Count > 0)
+                    {
+
+                        var centerList = centerMonthlyReport.CenterMonthlyReportList.Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+
+
+                            var reportWithCenterList = centerMonthlyReport.CenterMonthlyReportList.OrderBy(x => x.MonthLastDate).Where(x => x.CenterID == centerList[i]).ToList();
+
+
+                            for (int j = 0; j < reportWithCenterList.Count; j++)
+                            {
+
+                                if (j > 0 || i > 0)
+                                    doc.NewPage();
+
+
+                                #region Heading of the Report
+
+                                Paragraph headerPara = new Paragraph("Center Monthly Report", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0)));
+                                PdfPTable headerTable = new PdfPTable(1);
+                                headerTable.WidthPercentage = 100;
+                                float[] tableheaders = { 100 };
+                                headerTable.SetWidths(tableheaders);
+                                PdfPCell headerCell = new PdfPCell(headerPara);
+                                headerCell.Border = 0;
+                                headerCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                                headerTable.AddCell(headerCell);
+                                doc.Add(headerTable);
+                                #endregion
+
+                                doc.Add(new Paragraph("\n"));
+
+                                #region Center Details
+
+                                PdfPTable centerTable = new PdfPTable(3);
+                                centerTable.WidthPercentage = 100;
+                                float[] centerHeaders = { 40, 20, 40 };
+                                centerTable.SetWidths(centerHeaders);
+
+                                #region Center Details Heading
+                                centerTable.AddCell(new PdfPCell(new Phrase("Center", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+                                centerTable.AddCell(new PdfPCell(new Phrase("Star Rating", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                centerTable.AddCell(new PdfPCell(new Phrase("Month", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                #endregion
+
+                                #region Center Details Data
+
+                                centerTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].CenterName, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #region Adding Star Rating image 
+
+                                Paragraph p = new Paragraph();
+                                p.Alignment = Element.ALIGN_CENTER;
+
+
+                                string starImageUrl = "";
+
+                                // Starr Rating Image URL //
+                                starImageUrl = imagePath + "\\220px-Star_rating_" + reportWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+
+                                // starImageUrl = imagePath + "\\Star_" + screeningWithCenterList[0].StepUpToQualityStars + "_Rating.png";
+
+
+                                iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                                //Resize image depend upon your need
+
+                                starJpeg.ScaleToFit(40f, 40f);
+
+                                //Give space before image
+
+                              //  starJpeg.SpacingBefore = 10f;
+
+                                //Give some space after the image
+
+                               // starJpeg.SpacingAfter = 10f;
+
+                                starJpeg.Alignment = Element.ALIGN_CENTER;
+
+                                p.Add(new Chunk(starJpeg, 0, 0, true));
+
+                                
+
+
+                                #endregion
+
+
+                                centerTable.AddCell(new PdfPCell(p)
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                centerTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].Month, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+
+                                doc.Add(centerTable);
+                                #endregion
+
+                                #region adding space
+
+
+                                doc.Add(new Paragraph("\n"));
+
+                                #endregion
+
+
+                                #region Center coordinator and Family service workers
+
+
+                                PdfPTable fswTable = new PdfPTable(2);
+                                fswTable.WidthPercentage = 100;
+                                float[] fswHeadrs = { 50, 50 };
+                                centerTable.SetWidths(centerHeaders);
+
+                                #region Headers
+                                fswTable.AddCell(new PdfPCell(new Phrase("Center Coordinator", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                fswTable.AddCell(new PdfPCell(new Phrase("Family Service Worker(s)", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+
+
+
+
+                                #endregion
+
+
+                                #region Data
+
+                                Paragraph centerCordinatorPara = new Paragraph();
+
+                                Paragraph fswPara = new Paragraph();
+
+                                if(reportWithCenterList[j].CenterCordinators.Count>0)
+                                {
+                                    for (int k = 0; k < reportWithCenterList[j].CenterCordinators.Count; k++)
+                                    {
+                                        centerCordinatorPara.Add(new Phrase(reportWithCenterList[j].CenterCordinators[k].Text, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        centerCordinatorPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    centerCordinatorPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+                                if(reportWithCenterList[j].FamilyServiceWorkers.Count>0)
+                                {
+                                    for (int l = 0; l < reportWithCenterList[j].FamilyServiceWorkers.Count; l++)
+                                    {
+                                        fswPara.Add(new Phrase(reportWithCenterList[j].FamilyServiceWorkers[l].Text, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        fswPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    fswPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+
+                                fswTable.AddCell(new PdfPCell(centerCordinatorPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                fswTable.AddCell(new PdfPCell(fswPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+
+
+                                #endregion
+
+                                doc.Add(fswTable);
+                                #endregion
+
+
+                                #region adding space
+
+                                doc.Add(new Paragraph("\n"));
+
+
+                                #endregion
+
+                                #region FPA,Referrals,FSW Home Visits
+
+                                PdfPTable familyActivityTable = new PdfPTable(3);
+                                familyActivityTable.WidthPercentage = 100;
+                                float[] activityTableHeaders = { 33, 34, 33 };
+                                familyActivityTable.SetWidths(activityTableHeaders);
+
+
+                                #region Family Activity Headers
+                                familyActivityTable.AddCell(new PdfPCell(new Phrase("Cumulative Family Goals", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                familyActivityTable.AddCell(new PdfPCell(new Phrase("Monthly Referrals", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                familyActivityTable.AddCell(new PdfPCell(new Phrase("FSW Home Visit (Month)", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                #endregion
+
+                                #region Family Activity Data
+
+                                #region FPA
+
+                                Paragraph fpaPara = new Paragraph();
+                                if (reportWithCenterList[j].FPA.Count>0)
+                                {
+
+                                    for (int a = 0; a < reportWithCenterList[j].FPA.Count; a++)
+                                    {
+                                        fpaPara.Add(new Phrase(reportWithCenterList[j].FPA[a].Text + " (" + reportWithCenterList[j].FPA[a].Value + ")", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        fpaPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    fpaPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+
+                                familyActivityTable.AddCell(new PdfPCell(fpaPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+                                #region Referral
+
+                                Paragraph referralPara = new Paragraph();
+
+                                if(reportWithCenterList[j].Referral.Count>0)
+                                {
+                                    for (int a = 0; a < reportWithCenterList[j].Referral.Count; a++)
+                                    {
+                                        referralPara.Add(new Phrase(reportWithCenterList[j].Referral[a].Text + " (" + reportWithCenterList[j].Referral[a].Value + ")", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        referralPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    referralPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+
+                                familyActivityTable.AddCell(new PdfPCell(referralPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+                                #region FSW Home Visit
+
+
+                                Paragraph fswHomeVisitPara = new Paragraph();
+
+                                if(reportWithCenterList[j].FSWHomeVisit.Count>0)
+                                {
+                                    for (int a = 0; a < reportWithCenterList[j].FSWHomeVisit.Count; a++)
+                                    {
+                                        fswHomeVisitPara.Add(new Phrase(reportWithCenterList[j].FSWHomeVisit[a].Text + " (" + reportWithCenterList[j].FSWHomeVisit[a].Value + ")", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        fswHomeVisitPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    fswHomeVisitPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+                                familyActivityTable.AddCell(new PdfPCell(fswHomeVisitPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+
+                                #endregion
+
+
+                                doc.Add(familyActivityTable);
+                                #endregion
+
+
+                                #region adding space
+
+                                doc.Add(new Paragraph("\n"));
+
+                                #endregion
+
+                                #region Monthly Recruitment Activities
+
+                                PdfPTable recruitmentTable = new PdfPTable(3);
+                                recruitmentTable.WidthPercentage = 100;
+
+                                
+                                float[] recruitmentHeaders = { 20, 30,50 };
+                                recruitmentTable.SetWidths(recruitmentHeaders);
+
+
+                                #region Recruitment Activities
+
+
+                                #region Getting Data
+
+                                var activitiesStaffList = reportWithCenterList[j].RecruitmentActivitiesList.OrderBy(x=>x.EnteredBy).Select(x => x.EnteredBy).Distinct().ToList();
+
+                                int rowSpanRecruitmentActivities = 0;
+
+
+                                foreach(var item in activitiesStaffList)
+                                {
+                                    rowSpanRecruitmentActivities += reportWithCenterList[j].RecruitmentActivitiesList.Where(x => x.EnteredBy == item).Count();
+                                }
+                                #endregion
+
+                                recruitmentTable.AddCell(new PdfPCell(new Phrase("Monthly Recruitment Activities", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    VerticalAlignment=Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    Rowspan= rowSpanRecruitmentActivities,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                #endregion
+
+                                #region Data
+
+                                if(activitiesStaffList.Count>0)
+                                {
+                                    for (int m = 0; m < activitiesStaffList.Count; m++)
+                                    {
+                                        var activitiesList = reportWithCenterList[j].RecruitmentActivitiesList.Where(x => x.EnteredBy == activitiesStaffList[m]).ToList();
+
+                                        for (int n = 0; n < activitiesList.Count; n++)
+                                        {
+                                            if (n == 0)
+                                            {
+                                                recruitmentTable.AddCell(new PdfPCell(new Phrase(activitiesList[n].EnteredBy, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                                {
+
+                                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                                    Padding = 5,
+                                                    Rowspan = activitiesList.Count
+
+                                                });
+                                            }
+
+                                            recruitmentTable.AddCell(new PdfPCell(new Phrase(activitiesList[n].Description, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                            {
+
+                                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                                Padding = 5,
+                                            });
+
+                                        }
+
+
+                                    }
+                                }
+                                else
+                                {
+                                    recruitmentTable.AddCell(new PdfPCell(new Phrase( string.Empty, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        Padding = 5,
+                                        Colspan=2
+                                    });
+                                }
+                               
+
+
+                                
+                                #endregion;
+
+
+                                doc.Add(recruitmentTable);
+
+                                #endregion
+
+
+                                #region adding space
+
+                                doc.Add(new Paragraph("\n"));
+
+
+                                #endregion
+
+
+                                #region Parent Meeting
+                                PdfPTable parentMeetingTable = new PdfPTable(4);
+                                parentMeetingTable.WidthPercentage = 100;
+                                float[] meetingHeaders = { 20, 40, 30, 10 };
+                                parentMeetingTable.SetWidths(meetingHeaders);
+
+                                #region Headers & Data
+
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase("Parent Meeting Title", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ParentMeeting.WorkshopName, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5
+
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase("Number in Attendance", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ParentMeeting.AttendanceCount.ToString(), new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase("Description of Event", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ParentMeeting.Description, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5,
+                                    Colspan = 3
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase("Description of the Education Component", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                parentMeetingTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ParentMeeting.EducationComponentDescription, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5,
+                                    Colspan = 3
+                                });
+
+
+
+                                #endregion
+
+                                doc.Add(parentMeetingTable);
+                                #endregion
+
+
+                                #region adding space
+
+                                doc.Add(new Paragraph("\n"));
+
+
+
+                                #endregion
+
+                                #region ADA Section
+
+                                PdfPTable adaTable = new PdfPTable(4);
+                                adaTable.WidthPercentage = 100;
+                                float[] adaHeaders = { 10, 10, 20, 60 };
+                                adaTable.SetWidths(adaHeaders);
+
+                                #region Headers
+
+                                adaTable.AddCell(new PdfPCell(new Phrase("Monthly ADA", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                adaTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ADA.ToString() + " " + "%", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+
+                                });
+
+                                adaTable.AddCell(new PdfPCell(new Phrase("If ADA is below 85%, give explanation:", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                adaTable.AddCell(new PdfPCell(new Phrase(reportWithCenterList[j].ExplanationADAUnderPercentage, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+                                doc.Add(adaTable);
+
+                                #endregion
+
+
+                                #region adding space
+
+                                doc.Add(new Paragraph("\n"));
+
+
+
+
+                                #endregion
+
+                                #region Child & Family Review
+                                PdfPTable cfrTable = new PdfPTable(3);
+                                cfrTable.WidthPercentage = 100;
+                                float[] cfrHeaders = { 30, 30, 30 };
+                                cfrTable.SetWidths(cfrHeaders);
+
+
+                                #region Child and Family Review Headers
+
+                                cfrTable.AddCell(new PdfPCell(new Phrase("CFR Date", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                cfrTable.AddCell(new PdfPCell(new Phrase("Teacher Home Visits for the Month", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+
+                                cfrTable.AddCell(new PdfPCell(new Phrase("P.T.C. for the Month", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+
+                                #endregion
+
+                                #region Child & Family Review
+
+                                Paragraph familyReviewPara = new Paragraph();
+
+
+                                familyReviewPara.Add(new Phrase(reportWithCenterList[j].ChildFamilyReview.Value, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                familyReviewPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                familyReviewPara.Add(new Phrase(reportWithCenterList[j].ChildFamilyReview.Text, new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+
+                                cfrTable.AddCell(new PdfPCell(familyReviewPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+
+                                #region Teacher Home Visit
+                                Paragraph teacherHomeVisitPara = new Paragraph();
+
+                                if(reportWithCenterList[j].TeacherHomeVisit.Count>0)
+                                {
+                                    for (int s = 0; s < reportWithCenterList[j].TeacherHomeVisit.Count; s++)
+                                    {
+                                        teacherHomeVisitPara.Add(new Phrase(reportWithCenterList[j].TeacherHomeVisit[s].Text + " (" + reportWithCenterList[j].TeacherHomeVisit[s].Value+")", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        teacherHomeVisitPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    teacherHomeVisitPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+
+                                cfrTable.AddCell(new PdfPCell(teacherHomeVisitPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+                                #region Parent Teacher Conferences
+                                Paragraph ptcPara = new Paragraph();
+
+                                if(reportWithCenterList[j].ParentTeacherConference.Count>0)
+                                {
+                                    for (int s = 0; s < reportWithCenterList[j].ParentTeacherConference.Count; s++)
+                                    {
+                                        ptcPara.Add(new Phrase(reportWithCenterList[j].ParentTeacherConference[s].Text + " (" + reportWithCenterList[j].ParentTeacherConference[s].Value+")", new Font(Font.FontFamily.HELVETICA, 8, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+                                        ptcPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                    }
+                                }
+                                else
+                                {
+                                    ptcPara.Add(new Phrase("\n\n", new Font(Font.FontFamily.HELVETICA, 10, 0, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                }
+
+
+
+
+                                cfrTable.AddCell(new PdfPCell(ptcPara)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+                                #endregion
+
+                                #endregion
+
+                                doc.Add(cfrTable);
+                                #endregion
+
+                            }
+
+                        }
+                    }
+
+                    doc.CloseDocument();
+
+
+
+                }
+
+
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
+
+        #endregion
 
         public class TwoColumnHeaderFooter : PdfPageEventHelper
         {

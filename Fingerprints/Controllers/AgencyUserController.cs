@@ -4638,7 +4638,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor,RoleEnum.HealthNurse,RoleEnum.SocialServiceManager,RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public JsonResult getSchedule(string Id = "0")
         {
             FamilyData obj = new FamilyData();
@@ -4668,13 +4668,13 @@ namespace Fingerprints.Controllers
             }
         }
         //Changes on 18jan2017
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.HomeVisitor,RoleEnum.HealthNurse,RoleEnum.SocialServiceManager,RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult FSWAppointment()
         {
             return View();
         }
         //Changes on 23Dec2017
-        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.HomeVisitor)]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.SocialServiceManager, RoleEnum.HealthNurse, RoleEnum.HomeVisitor,RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public JsonResult listAppointment(string sortOrder, string sortDirection, string search, int pageSize = 0, int requestedPage = 1)
         {
             try
@@ -8205,6 +8205,193 @@ namespace Fingerprints.Controllers
         }
 
 
+
+
+        #region Monthly Recruitment Activities
+
+
+        #region View page Monthly Recruitment Activities
+
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public ActionResult MonthlyRecruitmentActivities()
+        {
+            MonthlyRecruitmentActivities activities = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MonthlyRecruitmentActivities>();
+
+
+            activities=agencyData.CheckRecruitmentActivityAccess(staff, activities);
+
+            //if(activities.IsCreate)
+            //{
+            //    activities.PageSize = 10;
+            //    activities.RequestedPage = 1;
+            //    activities.SkipRows = activities.GetSkipRows();
+
+            //    activities = agencyData.GetMonthlyRecruitmentActivities(staff, activities);
+
+            //}
+
+
+            return View(activities);
+        }
+
+
+        #endregion
+
+        #region Get Recruitment Activity Lookup
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetRecruitmentActivityLookup(MonthlyRecruitmentActivities activities)
+        {
+            activities.SkipRows = activities.GetSkipRows();
+            activities = agencyData.GetMonthlyRecruitmentActivities(staff, activities);
+
+            return PartialView("~/Views/AgencyUser/_MonthlyRecruitmentActivities.cshtml", activities);
+        }
+
+
+        #endregion
+
+
+
+
+        #region Get Monthly Recruitment Activities Partial View
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetMonthlyRecruitmentActivities(MonthlyRecruitmentActivities activities)
+        {
+
+            activities.PageSize = 0;
+            activities.SkipRows = 0;
+            activities.RequestedPage = 0;
+            activities=  agencyData.GetMonthlyRecruitmentActivities(staff, activities);
+
+            return PartialView("~/Views/AgencyUser/_MonthlyRecruitmentActivitiesOptions.cshtml", activities);
+        }
+
+        #endregion
+
+
+        #region Add Recruitment Activity lookup
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult AddRecruitmentActivityLookup(MonthlyRecruitmentActivities activities)
+        {
+            bool isResult = false;
+
+            activities.RecruitmentActivityList.ForEach(x =>{x.Status = true;});
+
+            isResult=agencyData.Add_Remove_RecruitmentActivityLookup(staff, activities);
+           
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+
+        #endregion
+
+
+        #region Remove Recruitment Activity Lookup
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult RemoveRecruitmentActivityLookup(MonthlyRecruitmentActivities activities)
+        {
+            bool isResult = false;
+            activities.RecruitmentActivityList.ForEach(x => { x.Status = false; });
+            isResult = agencyData.Add_Remove_RecruitmentActivityLookup(staff, activities);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Add Recruitment Activity Transaction by Center,Month
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult AddRecruitmentActivityTransaction(MonthlyRecruitmentActivities activities)
+        {
+            bool isResult;
+            activities.RecruitmentActivityList.ForEach(x => { x.Status = true; });
+            isResult = agencyData.AddRecruitmentActivityTransaction(staff, activities);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #endregion
+
+
+
+        #region Education Component
+
+        #region GET View Page
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public ActionResult EducationComponent()
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Get Education Components
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetEducationComponentPartial(EducationComponent educationComponent)
+        {
+            educationComponent.SkipRows = educationComponent.GetSkipRows();
+
+             educationComponent = agencyData.GetEducationComponent(staff, educationComponent);
+
+            return PartialView("~/Views/AgencyUser/_EducationComponent.cshtml", educationComponent);
+        }
+
+        #endregion
+
+        #region Add Education Component
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult AddEducationComponent(EducationComponent educationComponent)
+        {
+            bool isResult = false;
+
+            educationComponent.EducationComponentList.ForEach(x => { x.Status = true; });
+
+            isResult = agencyData.Add_Remove_EducationComponent(staff, educationComponent);
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+
+        }
+        #endregion
+
+
+        #region Remove Education Component
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult RemoveEducationComponent(EducationComponent educationComponent)
+        {
+            bool isResult = false;
+
+            educationComponent.EducationComponentList.ForEach(x => { x.Status = false; });
+
+            isResult = agencyData.Add_Remove_EducationComponent(staff, educationComponent);
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+
+        }
+        #endregion
+
+
+        #endregion
 
 
 

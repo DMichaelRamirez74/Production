@@ -1303,6 +1303,187 @@ new DataColumn("Status",typeof(bool))
 
         #endregion
 
+        #region Center Monthly Report
+
+        public CenterMonthlyReport GetCenterMonthlyReport(StaffDetails staff, CenterMonthlyReport report)
+        {
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+                report.CenterMonthlyReportList = new List<CenterMonthlyReportModel>();
+
+                var centerIds = string.Join(",", report.CenterIDs.Select(x => EncryptDecrypt.Decrypt64(x)));
+                var months = string.Join(",", report.Months.Select(x => x));
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@CenterIDs",centerIds,DbType.String),
+                    dbManager.CreateParameter("@Months",months,DbType.String)
+
+                };
+
+                _dataset = dbManager.GetDataSet("USP_GetCenterMonthlyReport", CommandType.StoredProcedure, parameters);
+
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    int i = 0;
+
+                    while (i < report.Months.Length)
+                    {
+
+
+                        List<CenterMonthlyReportModel> modelList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                                    where Convert.ToInt32(dr["MonthNumber"]) == report.Months[i]
+                                                                    select new CenterMonthlyReportModel
+                                                                    {
+                                                                        CenterID = dr["CenterID"] != DBNull.Value ? EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()) : string.Empty,
+                                                                        CenterName = dr["CenterName"] != DBNull.Value ? Convert.ToString(dr["CenterName"]) : string.Empty,
+                                                                        StepUpToQualityStars = dr["StepUpToQualityStars"] != DBNull.Value ? Convert.ToString(dr["StepUpToQualityStars"]) : string.Empty,
+                                                                        Month = dr["Month"] != DBNull.Value ? Convert.ToString(dr["Month"]) : string.Empty,
+                                                                        MonthLastDate = dr["MonthEnd"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(dr["MonthEnd"].ToString(), new CultureInfo("en-US", true)),
+                                                                        ADA = dr["ADA"] == DBNull.Value ? 0 : Convert.ToDecimal(dr["ADA"]) == 0 ? 0 : Convert.ToDecimal(dr["ADA"]),
+                                                                        ExplanationADAUnderPercentage = dr["ExplanationADAUnderPercentage"] != DBNull.Value ? Convert.ToString(dr["ExplanationADAUnderPercentage"]) : string.Empty,
+
+                                                                        FamilyServiceWorkers = (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                                                                                                                                   where Convert.ToInt64(dr1["CenterID"]) == Convert.ToInt64(dr["CenterID"]) && Convert.ToString(dr1["RoleID"]).ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.FamilyServiceWorker).ToLowerInvariant()
+                                                                                                                                                                   select new SelectListItem
+                                                                                                                                                                   {
+                                                                                                                                                                       Text = string.Concat(Convert.ToString(dr1["FirstName"]), " ", Convert.ToString(dr1["LastName"])),
+                                                                                                                                                                       Value = Convert.ToString(dr1["RoleID"])
+
+
+                                                                                                                                                                   }).ToList() : new List<SelectListItem>(),
+
+                                                                        CenterCordinators = (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                                                                                                                                where Convert.ToInt64(dr1["CenterID"]) == Convert.ToInt64(dr["CenterID"]) && Convert.ToString(dr1["RoleID"]).ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.CenterManager).ToLowerInvariant()
+                                                                                                                                                                select new SelectListItem
+                                                                                                                                                                {
+                                                                                                                                                                    Text = string.Concat(Convert.ToString(dr1["FirstName"]), " ", Convert.ToString(dr1["LastName"])),
+                                                                                                                                                                    Value = Convert.ToString(dr1["RoleID"])
+
+
+                                                                                                                                                                }).ToList() : new List<SelectListItem>(),
+                                                                        ChildFamilyReview = (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0) ? (from DataRow dr2 in _dataset.Tables[2].Rows
+                                                                                                                                                                where Convert.ToInt32(dr2["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr2["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                                select new SelectListItem
+                                                                                                                                                                {
+                                                                                                                                                                    Text = dr2["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr2["StaffName"]),
+                                                                                                                                                                    Value = dr2["CFRDate"] == DBNull.Value ? string.Empty : Convert.ToString(dr2["CFRDate"])
+                                                                                                                                                                }
+
+
+                                                                                                                                                        ).FirstOrDefault() : new SelectListItem(),
+
+
+
+                                                                        FPA = (_dataset.Tables.Count > 3 && _dataset.Tables[3].Rows.Count > 0) ? (from DataRow dr3 in _dataset.Tables[3].Rows
+                                                                                                                                                  where Convert.ToInt32(dr3["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr3["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                  select new SelectListItem
+                                                                                                                                                  {
+                                                                                                                                                      Text = dr3["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr3["StaffName"]).Trim(),
+                                                                                                                                                      Value = dr3["FPA"] == DBNull.Value ? "0" : Convert.ToString(dr3["FPA"])
+                                                                                                                                                  }).OrderBy(x => x.Text).ToList() : new List<SelectListItem>(),
+
+                                                                        Referral = (_dataset.Tables.Count > 4 && _dataset.Tables[4].Rows.Count > 0) ? (from DataRow dr4 in _dataset.Tables[4].Rows
+                                                                                                                                                       where Convert.ToInt32(dr4["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr4["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                       select new SelectListItem
+                                                                                                                                                       {
+                                                                                                                                                           Text = dr4["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr4["StaffName"]).Trim(),
+                                                                                                                                                           Value = dr4["Referral"] == DBNull.Value ? string.Empty : Convert.ToString(dr4["Referral"])
+                                                                                                                                                       }).ToList() : new List<SelectListItem>(),
+
+
+                                                                        FSWHomeVisit = (_dataset.Tables.Count > 5 && _dataset.Tables[5].Rows.Count > 0) ? (from DataRow dr5 in _dataset.Tables[5].Rows
+                                                                                                                                                           where Convert.ToInt32(dr5["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr5["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+
+                                                                                                                                                           select new SelectListItem
+                                                                                                                                                           {
+                                                                                                                                                               Text = dr5["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr5["StaffName"]).Trim(),
+                                                                                                                                                               Value = dr5["FSWHomeVisit"] == DBNull.Value ? "0" : Convert.ToString(dr5["FSWHomeVisit"])
+                                                                                                                                                           }).OrderBy(x => x.Text).ToList() : new List<SelectListItem>(),
+
+                                                                        TeacherHomeVisit = (_dataset.Tables.Count > 6 && _dataset.Tables[6].Rows.Count > 0) ? (from DataRow dr6 in _dataset.Tables[6].Rows
+                                                                                                                                                               where Convert.ToInt32(dr6["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr6["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                               select new SelectListItem
+                                                                                                                                                               {
+                                                                                                                                                                   Text = dr6["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr6["StaffName"]).Trim(),
+                                                                                                                                                                   Value = dr6["TeacherHomeVisit"] == DBNull.Value ? "0" : Convert.ToString(dr6["TeacherHomeVisit"])
+                                                                                                                                                               }).ToList() : new List<SelectListItem>(),
+
+                                                                        ParentTeacherConference = (_dataset.Tables.Count > 7 && _dataset.Tables[7].Rows.Count > 0) ? (from DataRow dr7 in _dataset.Tables[7].Rows
+
+                                                                                                                                                                      where Convert.ToInt32(dr7["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr7["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                                      select new SelectListItem
+                                                                                                                                                                      {
+                                                                                                                                                                          Text = dr7["StaffName"] == DBNull.Value ? string.Empty : Convert.ToString(dr7["StaffName"]).Trim(),
+                                                                                                                                                                          Value = dr7["ParentTeacherConference"] == DBNull.Value ? "0" : Convert.ToString(dr7["ParentTeacherConference"])
+                                                                                                                                                                      }
+
+                                                                                                                                                               ).ToList() : new List<SelectListItem>(),
+
+
+
+
+
+                                                                        ParentMeeting = (_dataset.Tables.Count > 8 && _dataset.Tables[8].Rows.Count > 0) ? (from DataRow dr8 in _dataset.Tables[8].Rows
+                                                                                                                                                            where Convert.ToInt32(dr8["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr8["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                            select new ParentMeeting
+                                                                                                                                                            {
+                                                                                                                                                                WorkshopName = dr8["WorkshopTitle"] != DBNull.Value ? Convert.ToString(dr8["WorkshopTitle"]) : string.Empty,
+                                                                                                                                                                Description = dr8["EventDescription"] != DBNull.Value ? Convert.ToString(dr8["EventDescription"]) : string.Empty,
+                                                                                                                                                                AttendanceCount = dr8["Attended"] != DBNull.Value ? Convert.ToInt32(dr8["Attended"]) : 0,
+                                                                                                                                                                EducationComponentDescription = dr8["EducationComponentDescription"] != DBNull.Value ? Convert.ToString(dr8["EducationComponentDescription"]) : string.Empty
+
+                                                                                                                                                            }
+
+
+                                                                                                                                                   ).FirstOrDefault() : new ParentMeeting(),
+
+                                                                        RecruitmentActivitiesList = (_dataset.Tables.Count > 9 && _dataset.Tables[9].Rows.Count > 0) ? (from DataRow dr9 in _dataset.Tables[9].Rows
+                                                                                                                                                                        where Convert.ToInt32(dr9["MonthNumber"]) == report.Months[i] && Convert.ToInt64(dr9["CenterID"]) == Convert.ToInt64(dr["CenterID"])
+                                                                                                                                                                        select new RecruitmentActivities
+                                                                                                                                                                        {
+                                                                                                                                                                            EnteredBy = string.Concat(Convert.ToString(dr9["FirstName"]).Trim(), " " + Convert.ToString(dr9["LastName"]).Trim(), " ", "(", Convert.ToString(dr9["RoleName"]).Trim(), ")").Trim(),
+                                                                                                                                                                            Description = Convert.ToString(dr9["Description"])
+
+                                                                                                                                                                        }).ToList() : new List<RecruitmentActivities>()
+                                                                    }
+
+                                                       ).ToList();
+
+
+                        modelList.ForEach(x => x.ChildFamilyReview = x.ChildFamilyReview ?? new SelectListItem());
+
+
+                        report.CenterMonthlyReportList.AddRange(modelList);
+
+                        i++;
+                    }
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            return report;
+        }
+
+        #endregion
+
+
         #region UFCReport
 
         public List<UFCReport>  GetUFCReport(string centers,long month)
@@ -1507,7 +1688,8 @@ new DataColumn("Status",typeof(bool))
                 }
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
             return memoryStream;

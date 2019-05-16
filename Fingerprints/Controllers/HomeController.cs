@@ -29,6 +29,7 @@ using System.Resources;
 using System.Globalization;
 using System.Collections;
 using FingerprintsModel.Enums;
+using Fingerprints.Common;
 
 namespace Fingerprints.Controllers
 {
@@ -473,7 +474,7 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter(RoleEnum.AreaManager, RoleEnum.CenterManager, RoleEnum.ERSEAManager, RoleEnum.Executive, RoleEnum.SocialServiceManager)]
+        [CustAuthFilter(RoleEnum.AreaManager, RoleEnum.CenterManager,RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin, RoleEnum.ERSEAManager, RoleEnum.Executive, RoleEnum.SocialServiceManager)]
         public ActionResult DaysOff()
         {
             List<DaysOff> offList = new List<DaysOff>();
@@ -1833,6 +1834,16 @@ namespace Fingerprints.Controllers
             return Json(new ExecutiveData().GetExecuteDashboardBySection(sectionType, staffDetails), JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpPost]
+        [CustAuthFilter()]
+
+        public JsonResult SaveADAExplanation(int month,string explanation)
+        {
+            bool isResult = FactoryInstance.Instance.CreateInstance<ExecutiveData>().SaveADAExplanation(staffDetails,month,explanation);
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
 
     }
 }

@@ -19,10 +19,84 @@
 
 
     <style type="text/css">
-        #settab
-        {
-            max-height:150px;
-            overflow-y:scroll;
+        /**************
+                **  A-Z Index Component
+                ***************/
+        .ux-a-z-index {
+            display: block;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+            .ux-a-z-index a {
+                background: #EFEFEF;
+                border: 1px solid #D2D2D2;
+                border-radius: 3px;
+                color: #3D6683;
+                display: inline-block;
+                font-size: 14px;
+                font-weight: 700;
+                padding-top: 2px;
+                text-align: center;
+                text-decoration: none;
+                width: 33px !important;
+                line-height: 22.4px;
+            }
+
+                .ux-a-z-index a:hover {
+                    background: #B4B4B4;
+                    border: 1px solid #B4B4B4;
+                    box-shadow: 0 0 1px #A5A5A5;
+                    color: #ffffff;
+                }
+
+                .ux-a-z-index a.selected {
+                    /*background: #3D6683 !important;*/
+                    box-shadow: 0 0 0 0.2rem rgba(40,167,69,.5);
+                    background-color: #1e7e34;
+                    border-color: #1c7430;
+                    bottom-border: none;
+                    color: #FFF !important;
+                }
+
+        .ux-a-z-item-container {
+            display: none;
+            min-height: 4px 0;
+            padding: 15px 25px;
+        }
+
+            .ux-a-z-item-container.selected {
+                display: block;
+            }
+
+        .no-js .ux-a-z-item-container {
+            display: block;
+            min-height: 0;
+            padding: 15px 25px;
+        }
+
+        .ux-a-z-item-container ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .ux-a-z-item-container .ux-weak {
+            margin: 25px auto;
+            text-align: center;
+            width: 300px;
+        }
+
+        /**  A-Z Index Component End **/
+
+        #settab {
+            max-height: 150px;
+            overflow-y: scroll;
+        }
+
+
+
+        .title33 > a {
+            padding: 0 !important;
         }
         /* Tablet */
         @@media only screen and (min-width: 767px) and (max-width: 991px) {
@@ -713,16 +787,90 @@
                     <a class="leftLst"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
                     <a class="rightLst"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
                     </div>*@
+
+
+
+                @*@{
+
+                        var alphabetArray = new string[] { "A", "B", "C", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", };
+                    }
+
+                    <div class="ux-a-z-index">
+
+                        <a class="selected" href="#All" id="All-index">All</a>
+
+                        @foreach (var array in alphabetArray)
+                        {
+
+
+                            <a href="#@array" id="@array-index">@array</a>
+
+
+
+                        }
+                        <a href="#numbers" id="numbers-index" style="width:60px!important;">Others</a>
+                    </div>*@
+
+
                 <div class="col-xs-12">
                     <div class="col-xs-12" id="settab">
+
+
+
+
+
+
                         @if (Model != null && Model.TitleList != null && Model.TitleList.Count > 0)
                         {
-                            int i = 0;
-                            foreach (var item in Model.TitleList)
-                            {
-                                if (Model.TitleId == item.TitleId)
+
+
+                            @*foreach (var array in alphabetArray)
                                 {
-                                    <div class="item col-xs-2"><span class="active title@(item.TitleId) cls-title" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
+                                    var titleList = Model.TitleList.Where(x => x.TitleDescription.Trim().Substring(0, 1).ToLowerInvariant().Contains(array.ToLowerInvariant())).ToList();
+
+                                    if (titleList.Count > 0)
+                                    {
+
+                                        var id = string.Concat(array, "-", "container");
+
+                                        <div class="col-xs-12 ux-a-z-item-container selected" style="padding-left:25px;padding-top:10px;" id="@id" >
+                                            <h3 style="margin: 0;text-align: left;color: #fff;">@array</h3>
+                                            <hr style="margin:0;">
+
+
+
+                                            @foreach (var title in titleList)
+                                            {
+
+
+
+                                                if (Model.TitleId == title.TitleId)
+                                                {
+                                            <div class="item col-xs-2" style="width:auto;"><span class="active title@(title.TitleId) cls-title" data-title="@title.TitleDescription" onclick="accessRole.GetAccessRoleList(@title.TitleId,this)"><a style="background-color:@title.ColorCode.Trim()" data-toggle="tab" href="#">@title.TitleDescription</a></span></div>
+
+                                                }
+                                                else
+                                                {
+                                            <div class="item col-xs-2" style="width:auto;"><span class="cls-title title@(title.TitleId)" data-title="@title.TitleDescription" onclick="accessRole.GetAccessRoleList(@title.TitleId,this)"><a style="background-color:@title.ColorCode.Trim()" data-toggle="tab" href="#">@title.TitleDescription</a></span></div>
+
+                                                }
+
+                                            }
+
+                                        </div>
+                                    }
+                                }*@
+
+
+                        int i = 0;
+                        foreach (var item in Model.TitleList)
+                        {
+
+
+                            if (Model.TitleId == item.TitleId)
+                            {
+                                <div class="item col-xs-2"><span class="active title@(item.TitleId) cls-title" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
+
                                 }
                                 else
                                 {
@@ -737,13 +885,22 @@
                 @*<!-- settab pills-->*@
 
                 <div id="partialDiv" class="col-xs-12">
-                    @if (Model.TitleId == 6)
+
+                    @switch (Model.TitleId)
                     {
-                        @Html.Partial("~/Views/Partialviews/ScreeningAccessRoles.cshtml", Model)
-                    }
-                    else
-                    {
-                        @Html.Partial("~/Views/Partialviews/AccessRolesListPartial.cshtml", Model)
+                        case 6:
+                            @Html.Partial("~/Views/Partialviews/ScreeningAccessRoles.cshtml", Model);
+                            break;
+                        case 33:
+                            @Html.Partial("~/Views/Partialviews/RecruitmentActivitiesAccessRoles.cshtml", Model)
+
+                            break;
+
+                        default:
+                            @Html.Partial("~/Views/Partialviews/AccessRolesListPartial.cshtml", Model)
+
+                            break;
+
                     }
 
                 </div>
@@ -763,6 +920,19 @@
 
         var TitleId = 1;
         $(document).ready(function () {
+
+
+
+
+            jQuery(".ux-a-z-index").length && jQuery(".ux-a-z-index a").each(function () {
+                jQuery(this).on("click", function (event) {
+                    event.preventDefault();
+                    var selection = jQuery(this).text();
+                    switch_selected(selection)
+                });
+            });
+
+
             if ('@ViewBag.Result' == '1') {
                 customAlert('Record saved successfully');
             }
@@ -919,6 +1089,29 @@
             //this function define the size of the items
 
         });
+
+
+        function switch_selected(newSelection) {
+            jQuery(".ux-a-z-index a.selected").removeClass("selected");
+            debugger;
+            jQuery(".ux-a-z-item-container.selected").fadeOut("fast", function () {
+                jQuery(this).removeClass("selected");
+                jQuery("#" + newSelection + "-index").addClass("selected");
+
+                if (newSelection == "All") {
+                    jQuery(".ux-a-z-item-container").fadeIn("fast", function () {
+                        jQuery(this).addClass("selected");
+                    });
+                }
+                else {
+                    jQuery("#" + newSelection + "-container").fadeIn("fast", function () {
+                        jQuery(this).addClass("selected");
+                    });
+                }
+
+            });
+        }
+
         function setUserColorSpectrum() {
 
             $('.usercolor').spectrum('destroy');
@@ -1115,13 +1308,34 @@
 
                 if ($(arg).is(":checked")) {
                     $('.user' + value).not(':disabled').prop('checked', true);
-                    if (!$('input:checkbox[name="Role[' + value + '].IsAllow"]').is(":checked")) {
-                        $('input:checkbox[name="Role[' + value + '].IsAllow"]').prop('checked', true);
+
+                    if ($('#TitleId').val() == '33') {
+                        if (!$('input:checkbox[name="Role[' + value + '].ToCreate"]').is(":checked")) {
+                            $('input:checkbox[name="Role[' + value + '].ToCreate"]').prop('checked', true);
+                        }
+
+                        if (!$('input:checkbox[name="Role[' + value + '].ToReview"]').is(":checked")) {
+                            $('input:checkbox[name="Role[' + value + '].ToReview"]').prop('checked', true);
+                        }
+                    }
+                    else {
+                        if (!$('input:checkbox[name="Role[' + value + '].IsAllow"]').is(":checked")) {
+                            $('input:checkbox[name="Role[' + value + '].IsAllow"]').prop('checked', true);
+                        }
                     }
                 }
                 else {
                     $('.user' + value).prop('checked', false);
-                    $('input:checkbox[name="Role[' + value + '].IsAllow"]').prop('checked', false);
+
+                    if ($('#TitleId').val() == '33') {
+                        $('input:checkbox[name="Role[' + value + '].ToCreate"]').prop('checked', false);
+
+                        $('input:checkbox[name="Role[' + value + '].ToReview"]').prop('checked', false);
+                    }
+                    else {
+                        $('input:checkbox[name="Role[' + value + '].IsAllow"]').prop('checked', false);
+
+                    }
 
                 }
             },
@@ -1142,9 +1356,14 @@
 
             CarouselOpen: function (arg) {
 
+                
+
                 var val = $(arg).next('tr');
+
                 $(arg).closest('tbody').find('.open').removeClass('in');
+
                 val.addClass('in');
+
                 if ($(arg).next('.input_smtmarg').hasClass('active')) {
                     //if($(arg).find(".edu_next").is(":checked")==false)
                     //{
@@ -1162,8 +1381,16 @@
                 //$(arg).closest('tbody').find('.open').not('.in').removeClass('open');
             },
             SelectToView: function (arg, row) {
+
+
+
+               
+
                 var $tdIndex = $(arg).parent('td').index();
                 var $disabled = false;
+
+
+
                 if ($(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToEnter"]').is(':checked') || $(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToFollowUp"]').is(':checked')) {
                     $disabled = true;
                 }
@@ -1194,6 +1421,88 @@
                 $(arg).closest('tr').next('tr').find('table > tbody').find('tr').find('td:not(":eq(3)")').find('input:checkbox').each(function () {
                     $(this).prop({ 'checked': false, 'disabled': $disabled });
                 });
+
+            },
+
+            SelectToEnter: function (arg, row) {
+
+
+
+                
+
+                var $tdIndex = $(arg).parent('td').index();
+                var $disabled = false;
+                var $isChecked = false;
+
+
+
+                if ($(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToCreate"]').is(':checked')
+
+                  //  || $(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToReview"]').is(':checked')
+                    ) {
+
+                    $disabled = true;
+                }
+
+                if (!$(arg).is(':checked')) {
+
+
+
+                    $(arg).closest('tr').next('tr').find('table > tbody').find('tr').find('td:eq(' + $tdIndex + ')').find('input:checkbox').each(function () {
+
+                        $(this).prop('checked', false);
+
+                    });
+                }
+                else {
+                    $isChecked = true;
+                }
+
+
+
+                $(arg).closest('tr').find('td:eq(2)').find('input:checkbox').prop({ 'checked': $isChecked, 'disabled': $disabled });
+
+                //$(arg).closest('tr').next('tr').find('table > tbody').find('tr:eq('+($tdIndex+1)+')').find('td:eq(2)').find('input:checkbox').each(function () {
+
+                //    $(this).prop({ 'checked': $isChecked, 'disabled': $disabled });
+
+                //});
+
+            },
+
+            SelectToReview: function (arg, row) {
+
+
+
+               
+
+                var $tdIndex = $(arg).parent('td').index();
+                var $disabled = false;
+
+
+
+                //if ($(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToReview"]').is(':checked') || $(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToReview"]').is(':checked')) {
+
+                //    $disabled = true;
+                //}
+
+                if (!$(arg).is(':checked')) {
+                    $(arg).closest('tr').next('tr').find('table > tbody').find('tr').find('td:eq(' + $tdIndex + ')').find('input:checkbox').each(function () {
+
+                        $(this).prop('checked', false);
+
+                    });
+                }
+
+
+                //$(arg).closest('tr').find('input:checkbox[name="Role[' + row + '].ToEnter"]').prop({ 'checked': false, 'disabled': $disabled });
+
+                //$(arg).closest('tr').next('tr').find('table > tbody').find('tr').find('td:eq(3)').find('input:checkbox').each(function () {
+
+                //    $(this).prop({ 'checked': false, 'disabled': $disabled });
+
+                //});
+
             },
 
             ChooseColor: function (arg) {
@@ -1240,6 +1549,8 @@
 
             },
             IsValidInputs: function () {
+
+             
                 var roleCount = $('.view').length;
                 var isValid = true;
                 for (var i = 0; i < roleCount; i++) {

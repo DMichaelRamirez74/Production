@@ -32,9 +32,18 @@ namespace Fingerprints
                 "~/Scripts/FamilyActivityReport.js"
                 ));
 
+            bundles.Add(new ScriptBundle("~/bundles/center_monthly_report").Include(
+               "~/Scripts/multiselect.js",
+               "~/Scripts/CenterMonthlyReport.js"
+               ));
 
 
 
+
+
+
+            bundles.Add(new ScriptBundle("~/bundles/adabycenter").Include(
+                "~/Scripts/ADAByCenter-{version}.js"));
 
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));

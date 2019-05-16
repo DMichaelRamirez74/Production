@@ -11956,7 +11956,8 @@ namespace FingerprintsData
                                           MeetingNotes = Convert.ToString(dr["Notes"]),
                                           MeetingDate = Convert.ToString(dr["Date"]),
                                           HouseholdAddress = Convert.ToString(dr["HouseholdAddress"]),
-                                          HouseholdPhoneNo = Convert.ToString(dr["HouseholdPhoneNo"]).Replace(",", "<br>")
+                                          HouseholdPhoneNo = Convert.ToString(dr["HouseholdPhoneNo"]).Replace(",", "<br>"),
+                                          IsCenterVisit = Convert.ToBoolean(dr["IsCenterVisit"])
                                       }
 
                                     ).ToList();
@@ -14425,6 +14426,23 @@ namespace FingerprintsData
                         }
                     }
 
+                }
+
+                if(ds.Tables.Count>7 && ds.Tables[7]!=null && ds.Tables[7].Rows.Count>0)
+                {
+
+                    per.AcceptanceReason = (from DataRow dr7 in ds.Tables[7].Rows
+                                            select new SelectListItem
+                                            {
+                                                Text = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReasonForAcceptance>(Convert.ToString(dr7["ReasonForAcceptance"])).ToString(),
+                                                Value = Convert.ToString(dr7["Count"])
+                                            }
+
+                                          ).OrderBy(x => x.Text).ToList();
+                }
+                else
+                {
+                    per.AcceptanceReason = new List<SelectListItem>();
                 }
             }
             catch (Exception ex)

@@ -30,8 +30,8 @@ namespace Fingerprints.Controllers
         agencyData agencyData = new agencyData();
         Center _center = new Center();
         RaceSubcategoryData _raceSubcategoryData = new RaceSubcategoryData();
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
-        public ActionResult enrollmentcodeGeneration(string ak="0")
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
+        public ActionResult enrollmentcodeGeneration(string ak = "0")
         {
             try
             {
@@ -63,7 +63,7 @@ namespace Fingerprints.Controllers
                     string link = UrlExtensions.LinkToRegistrationProcess("/AgencyUser/staffRegistration");
                     string path = Server.MapPath("~/MailTemplate/RegistrationLink.xml");
                     string agencyname = Convert.ToString(Session["AgencyName"]);
-                    Thread thread = new Thread(delegate()
+                    Thread thread = new Thread(delegate ()
                     {
                         sendenrolement(emailId, enrollmentCode, agencyname, expirytime, path, link, imagepath);
 
@@ -81,7 +81,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public ActionResult pendingApproval()
         {
             try
@@ -95,7 +95,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public JsonResult listpendingApproval(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try
@@ -124,7 +124,7 @@ namespace Fingerprints.Controllers
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
                 if (message.Contains("1"))
                 {
-                    Thread thread = new Thread(delegate()
+                    Thread thread = new Thread(delegate ()
                     {
                         sendMail(emailid, name, link, path, imagepath);
                     });
@@ -148,7 +148,7 @@ namespace Fingerprints.Controllers
                 string path = Server.MapPath("~/MailTemplate/EmailVerification.xml");
                 string link = UrlExtensions.LinkToRegistrationProcess("/AgencyUser/staffemailverification?id=" + id);
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                Thread thread = new Thread(delegate()
+                Thread thread = new Thread(delegate ()
                 {
                     sendMail(emaild, name, link, path, imagepath);
                 });
@@ -2372,10 +2372,16 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            if(type==6)
-                return PartialView("~/Views/Partialviews/ScreeningAccessRoles.cshtml", accessRoles);
-            else
-            return PartialView("~/Views/Partialviews/AccessRolesListPartial.cshtml", accessRoles);
+            switch (type)
+            {
+                case 6:
+                    return PartialView("~/Views/Partialviews/ScreeningAccessRoles.cshtml", accessRoles);
+                case 33:
+                    return PartialView("~/Views/Partialviews/RecruitmentActivitiesAccessRoles.cshtml", accessRoles);
+
+                default:
+                    return PartialView("~/Views/Partialviews/AccessRolesListPartial.cshtml", accessRoles);
+            }
         }
 
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]

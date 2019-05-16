@@ -15,6 +15,7 @@ namespace FingerprintsModel
         public int Workshopid { get; set; }
         public string Workshopname { get; set; }
         public string Workshopdescription { get; set; }
+        public long EducationComponentID { get; set; }
         public int Eventid { get; set; }
         public string Speaker { get; set; }
         public string Comments { get; set; }
@@ -61,6 +62,7 @@ namespace FingerprintsModel
 
         public long MinutesDiff { get; set; }
 
+        public List<EducationComponent> EducationComponentList { get; set; }
 
     }
 
@@ -92,6 +94,7 @@ namespace FingerprintsModel
         public bool DurationType { get; set; }
         public string EmailId { get; set; }
         public string EventDescription { get; set; }
+        public string EducationComponentDescription { get; set; }
         public long CenterId { get; set; }
         public string CenterName { get; set; }
         public string Enc_CenterId { get; set; }

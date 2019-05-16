@@ -13,6 +13,8 @@ using System.Web;
 using System.IO;
 using Newtonsoft.Json;
 using System.Dynamic;
+using Fingerprints.Common;
+using FingerprintsDataAccessHandler;
 
 namespace FingerprintsData
 {
@@ -5385,7 +5387,9 @@ namespace FingerprintsData
                                              ToView = Convert.ToBoolean(dr5["OnlyViewScrening"]),
                                              ToEnter = Convert.ToBoolean(dr5["EnterScreening"]),
                                              ToFollowUp = Convert.ToBoolean(dr5["Review_FolloUpScreening"]),
-                                             ScreeningID=Convert.ToInt32(dr5["ScreeningID"])
+                                             ScreeningID = Convert.ToInt32(dr5["ScreeningID"]),
+                                             ToCreate = Convert.ToBoolean(dr5["ToCreate"]),
+                                             ToReview = Convert.ToBoolean(dr5["ToReview"])
                                          }).ToList();
                         if (role.UserList.Count > 0)
                         {
@@ -5413,6 +5417,16 @@ namespace FingerprintsData
                                                    where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["Review_FolloUpScreening"]) == true
                                                    select (true)).Any();
                             }
+                            if (type == 33)
+                            {
+                                role.ToCreate = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                                 where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToCreate"]) == true
+                                                 select (true)).Any();
+                                role.ToReview = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                                 where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToReview"]) == true
+                                                 select (true)).Any();
+                            }
+
                             AccessRoles.RoleList.Add(role);
                         }
 
@@ -5450,43 +5464,43 @@ namespace FingerprintsData
                     if (RoleList != null && RoleList.Count > 0)
                     {
 
-                     
-                        dt.Columns.AddRange(new DataColumn[7]
+
+                        dt.Columns.AddRange(new DataColumn[9]
                         {
                             new DataColumn("RoleId",typeof(string)),
                             new DataColumn("UserId",typeof(string)),
                             new DataColumn("ColorCode",typeof(string)),
-                              new DataColumn("MasterId",typeof(int)),
+                            new DataColumn("MasterId",typeof(int)),
                              new DataColumn("ToView",typeof(bool)),
                              new DataColumn("ToEnter",typeof(bool)),
                               new DataColumn("ToFollowup",typeof(bool)),
-
-
+                              new DataColumn("ToCreate",typeof(bool)),
+                              new DataColumn("ToReview",typeof(bool))
                         });
 
                         foreach (Role role in RoleList)
                         {
-                            if (role.IsAllow || role.ToView || role.ToFollowUp || role.ToEnter)
+                            if (role.IsAllow || role.ToView || role.ToFollowUp || role.ToEnter || role.ToCreate || role.ToReview)
 
                             {
                                 if (role.UserList.Count == 0)
                                 {
-                                    dt.Rows.Add(role.RoleId, null, role.ColorCode, type, role.ToView, role.ToEnter, role.ToFollowUp);
+                                    dt.Rows.Add(role.RoleId, null, role.ColorCode, type, role.ToView, role.ToEnter, role.ToFollowUp, role.ToCreate, role.ToReview);
 
                                 }
                                 else
                                 {
                                     foreach (UserDetails user in role.UserList)
                                     {
-                                        if (user.IsAllow || user.ToView || user.ToFollowUp || user.ToEnter)
-                                            dt.Rows.Add(role.RoleId, user.UserId, role.ColorCode, type, user.ToView, user.ToEnter, user.ToFollowUp);
+                                        if (user.IsAllow || user.ToView || user.ToFollowUp || user.ToEnter || user.ToCreate || user.ToReview)
+                                            dt.Rows.Add(role.RoleId, user.UserId, role.ColorCode, type, user.ToView, user.ToEnter, user.ToFollowUp, user.ToCreate, user.ToReview);
                                     }
 
                                 }
                             }
 
                         }
-                       
+
                     }
                     command.Parameters.AddWithValue("@AccessRoles", dt);
                     command.CommandType = CommandType.StoredProcedure;
@@ -6786,6 +6800,404 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
             return _ElD;
         }
 
+
+
+        #region Get Academic Months
+
+        public List<SelectListItem> GetAcademicMonths(StaffDetails staff)
+        {
+
+            List<SelectListItem> academicMonths = new List<SelectListItem>();
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                };
+                string query = "SELECT MonthLastDate,MonthNumber,Month FROM FN_GetAcademicMonths(@AgencyID,@RoleID,@UserID)";
+
+
+                _dataTable = dbManager.GetDataTable(query, CommandType.Text, parameters);
+
+                if (_dataTable != null && _dataTable.Rows.Count > 0)
+                {
+                    academicMonths = (from DataRow dr in _dataTable.Rows
+                                      orderby DateTime.Parse(Convert.ToString(dr["MonthLastDate"]), new CultureInfo("en-US", true)) ascending
+                                      select new SelectListItem
+                                      {
+                                          Text = Convert.ToString(dr["Month"]),
+                                          Value = Convert.ToString(dr["MonthNumber"])
+                                      }).ToList();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return academicMonths;
+
+
+        }
+
+
+        #endregion
+
+        #region Monthly Recruitment Activities
+
+
+        #region Gets the Access sections of Recruitment Activities
+
+        public MonthlyRecruitmentActivities CheckRecruitmentActivityAccess(StaffDetails staff,MonthlyRecruitmentActivities activities)
+        {
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid)
+                };
+
+                _dataset = dbManager.GetDataSet("USP_GetRecruitmentActivityAccess", CommandType.StoredProcedure, parameters);
+
+                if(_dataset!=null && _dataset.Tables.Count>0)
+                {
+                    if(_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count>0)
+                    {
+                        activities.IsCreate = (from DataRow dr in _dataset.Tables[0].Rows
+                                                where
+                                                EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Create
+                                                select dr["RecruitmentActivityID"].ToString()
+                                               ).Any();
+
+                        activities.IsReview = (from DataRow dr in _dataset.Tables[0].Rows
+                                                where
+                                                EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Create
+                                                ||
+                                                EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Review
+                                                select dr["RecruitmentActivityID"].ToString()
+
+                                             ).Any();
+                    }
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return activities;
+
+
+        }
+
+        #endregion
+
+        #region Get recruitment activities by Agency / Month
+        public MonthlyRecruitmentActivities GetMonthlyRecruitmentActivities(StaffDetails staff, MonthlyRecruitmentActivities activities)
+        {
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@CenterID", activities.CenterID!=null && activities.CenterID!="" && activities.CenterID!="0"? Convert.ToInt64(EncryptDecrypt.Decrypt64(activities.CenterID)):0,DbType.Int64),
+                    dbManager.CreateParameter("@MonthNumber",activities.Month,DbType.Int32),
+                    dbManager.CreateParameter("@Take",activities.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",activities.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@TotalRecord",10,activities.TotalRecord,DbType.Int32,ParameterDirection.Output)
+                    
+                };
+                _dataset = dbManager.GetDataSet("USP_GetRecruitmentActivities", CommandType.StoredProcedure, parameters);
+
+
+                activities.TotalRecord =(int) parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault();
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    //if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    //{
+                    //    activities.IsCreate = (from DataRow dr in _dataset.Tables[0].Rows
+                    //                            where
+                    //                            EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Create
+                    //                            select dr["RecruitmentActivityID"].ToString()
+                    //                            ).Any();
+
+                    //    activities.IsReview = (from DataRow dr in _dataset.Tables[0].Rows
+                    //                            where
+                    //                            EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Create
+                    //                            ||
+                    //                            EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.RecruitmentActivityAccessType>(Convert.ToString(dr["RecruitmentActivityID"])) == FingerprintsModel.Enums.RecruitmentActivityAccessType.Review
+                    //                            select dr["RecruitmentActivityID"].ToString()
+
+                    //                         ).Any();
+
+                    //}
+
+                    if ( _dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        activities.RecruitmentActivityList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                               select new RecruitmentActivities
+                                                               {
+                                                                   RecruitmentActivityID = Convert.ToInt64(dr["RecruitmentActivityID"]),
+                                                                   Description = Convert.ToString(dr["Description"]),
+                                                                   Selected = Convert.ToBoolean(dr["Selected"]),
+                                                                   EnteredBy=string.Concat(Convert.ToString(dr["FirstName"])," ",Convert.ToString(dr["LastName"])).Trim(),
+                                                                   IsReported=Convert.ToBoolean(dr["IsReported"])
+                                                               }).ToList();
+
+                        activities.ActivityTransactionID = (from DataRow dr in _dataset.Tables[0].Rows
+                                                            where Convert.ToInt64(dr["ActivityTransactionID"]) > 0
+                                                            select Convert.ToInt64(dr["ActivityTransactionID"])).FirstOrDefault();
+
+                    
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return activities;
+        }
+
+        #endregion
+
+        #region Add /Remove Recruitment Activities
+
+        public bool Add_Remove_RecruitmentActivityLookup(StaffDetails staff, MonthlyRecruitmentActivities activities)
+        {
+            bool isRowsAffected;
+            try{
+
+
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3]
+                {
+                  new DataColumn("RecruitmentActivityID",typeof(Int64)),
+                  new DataColumn("Description",typeof(string)),
+                  new DataColumn("Status",typeof(bool))
+
+                });
+
+
+                foreach(var item in activities.RecruitmentActivityList)
+                {
+                    _dataTable.Rows.Add(item.RecruitmentActivityID, item.Description, item.Status);
+                }
+
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@RecruitmentActivityTable",_dataTable,DbType.Object),
+             
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_Add_Remove_RecruitmentActivityLookup", CommandType.StoredProcedure, parameters);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+
+                isRowsAffected = false;
+            }
+            return isRowsAffected;
+
+        }
+
+        #endregion
+
+
+        #region Add Recruitment Activity Report by Center, Month
+
+        public bool AddRecruitmentActivityTransaction(StaffDetails staff, MonthlyRecruitmentActivities activities)
+        {
+            bool isRowsAffected;
+            try
+            {
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3]
+                {
+                  new DataColumn("RecruitmentActivityID",typeof(Int64)),
+                  new DataColumn("Description",typeof(string)),
+                  new DataColumn("Status",typeof(bool))
+                });
+
+                foreach (var item in activities.RecruitmentActivityList)
+                {
+                    _dataTable.Rows.Add(item.RecruitmentActivityID, item.Description, item.Status);
+                }
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@RecruitmentActivityTable",_dataTable,DbType.Object),
+                    dbManager.CreateParameter("@CenterID",activities != null && activities.CenterID != "" && activities.CenterID != "0" ? Convert.ToInt64(EncryptDecrypt.Decrypt64(activities.CenterID)) : 0 ,DbType.Int64),
+                    dbManager.CreateParameter("@MonthNumber",activities.Month,DbType.Int32),
+                    dbManager.CreateParameter("@ActivityTransactionID",activities.ActivityTransactionID,DbType.Int64)
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_AddRecruitmentActivityTransaction", CommandType.StoredProcedure, parameters);
+            }
+
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                isRowsAffected = false;
+            }
+            return isRowsAffected;
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region Education Component
+
+        #region Get Education Components
+
+        
+        public EducationComponent GetEducationComponent(StaffDetails staff, EducationComponent component)
+        {
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@Take",component.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",component.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@TotalRecord",10,component.TotalRecord,DbType.Int32,ParameterDirection.Output)
+
+                };
+                _dataset = dbManager.GetDataSet("USP_GetEducationComponent", CommandType.StoredProcedure, parameters);
+
+
+                component.TotalRecord = (int)parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault();
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    
+
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        component.EducationComponentList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                              select new EducationComponent
+                                                              {
+                                                                  EducationComponentID = Convert.ToInt64(dr["EducationComponentID"]),
+                                                                  Description = Convert.ToString(dr["Description"]),
+                                                                  EnteredBy = string.Concat(Convert.ToString(dr["FirstName"]), " ", Convert.ToString(dr["LastName"])).Trim(),
+                                                                  IsReported = Convert.ToBoolean(dr["IsReported"])
+                                                              }).ToList();
+
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return component;
+        }
+
+
+
+
+
+        #endregion
+
+
+        #region Add / Remove Education Components
+
+        public bool Add_Remove_EducationComponent(StaffDetails staff, EducationComponent educationComponent)
+        {
+            bool isRowsAffected;
+            try
+            {
+
+
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3]
+                {
+                  new DataColumn("EducationComponentID",typeof(Int64)),
+                  new DataColumn("Description",typeof(string)),
+                  new DataColumn("Status",typeof(bool))
+
+                });
+
+
+                foreach (var item in educationComponent.EducationComponentList)
+                {
+                    _dataTable.Rows.Add(item.EducationComponentID, item.Description, item.Status);
+                }
+
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@EducationCompontentTable",_dataTable,DbType.Object),
+
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_Add_Remove_EducationComponent", CommandType.StoredProcedure, parameters);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+                isRowsAffected = false;
+            }
+            return isRowsAffected;
+
+        }
+
+        #endregion
+
+
+        #endregion
 
     }
 }

@@ -427,6 +427,23 @@ namespace Fingerprints.Utilities
             return listYears;
         }
 
+
+        public static List<SelectListItem>GetAcademicMonths(StaffDetails staff)
+        {
+            List<SelectListItem> academicMonths;
+            try
+            {
+
+                academicMonths= Fingerprints.Common.FactoryInstance.Instance.CreateInstance<agencyData>().GetAcademicMonths(staff);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+                academicMonths = new List<SelectListItem>();
+            }
+            return academicMonths;
+        }
+
         public static List<SelectListItem> GetCurrentandFutureYearsByAgency(string agencyId)
         {
             List<SelectListItem> futureYears = new List<SelectListItem>();

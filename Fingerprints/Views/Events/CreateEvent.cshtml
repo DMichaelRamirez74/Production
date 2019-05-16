@@ -5,6 +5,7 @@
 
 }
 
+
 @section MainContentHolder{
 
     <link href="~/Content/css/events.css" rel="stylesheet" />
@@ -20,7 +21,7 @@
             color: red;
         }
 
-        .ddlDuration option, .ddlEventStatus option, .billing-select1 option {
+        .ddlDuration option, .ddlEventStatus option, .billing-select1 option,select option {
             color: white;
         }
 
@@ -70,7 +71,16 @@
                                     </li>
                                     <li style="display:none;"><span class="lft lbl-required">Workshop Name</span><span class="rgt"><input type="text" id="txtWorkshopName" class="form-control decimal txt-empty" value=""></span></li>
                                     <li><span class="lft lbl-required">Workshop Description</span><span class="rgt"><input type="text" id="txtWorkshopDescription" class="form-control decimal txt-empty" value="@Model.Workshopdescription"></span></li>
-                                    <li><span class="lft lbl-required">Speaker</span><span class="rgt"><input type="text" id="txtSpeaker" class="form-control decimal txt-empty" value="@Model.Speaker"></span></li>
+                                    <li>
+                                    <span class="lft lbl-required">Description of the Education Component</span><span class="rgt">
+                                        
+                                        @Html.DropDownListFor(m=>m.EducationComponentID,new SelectList(Model.EducationComponentList, "EducationComponentID", "Description"),"--Select--",new { @class="form-control" })
+
+                                      @*  <input type="text" id="txtWorkshopDescription" class="form-control decimal txt-empty" value="@Model.Workshopdescription">*@
+                                        
+                                        </span></li>
+                                   
+                                     <li><span class="lft lbl-required">Speaker</span><span class="rgt"><input type="text" id="txtSpeaker" class="form-control decimal txt-empty" value="@Model.Speaker"></span></li>
                                     <li><span class="lft">Comments</span><span class="rgt"><input type="text" id="txtComments" class="form-control decimal txt-empty" value="@Model.Comments"></span></li>
                                     <li><span class="lft lbl-required">Event Date</span><span class="rgt"><input type="text" id="txtEventDate" class="form-control decimal txt-empty" value="@Model.EventDate"></span></li>
                                     <li><span class="lft lbl-required">Time</span><span class="rgt"><input type="text" id="txtTime" class="form-control decimal txt-empty" value="@Model.EventTime"></span></li>
@@ -94,7 +104,28 @@
                                     <li><span class="lft lbl-required">No of seats</span><span class="rgt"><input type="text" id="txtNoOfSeats" class="form-control decimal txt-empty" value="@Model.NoOfSeats"></span></li>
                                     <li><span class="lft lbl-required">Center</span><span class="rgt">
                                        @*@Html.DropDownListFor(a => a.CenterId, Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyId"].ToString(),Session["RoledId"].ToString()), new { @class = "billing-select1 form-control" })*@
-                                         @Html.DropDownList("CenterId", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "billing-select1 form-control" })
+                                       @{ 
+                                           var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString());
+                                       }
+
+                                        <select class="billing-select1 form-control" id="CenterId">
+
+                                            @foreach(var item in centerList)
+                                            {
+                                                if(item.Value==Model.CenterId)
+                                                {
+                                                    <option value="@item.Value" selected>@item.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+
+                                                }
+
+                                            }
+
+                                        </select>
+                                        
                                         
                                          </span></li>
                                     <li>
@@ -440,10 +471,10 @@
                 var centerdate = $('#txtDate').val();
                 var othercenterdate = $('#txtOtherCenterDate').val();
                 if (centerdate.trim() != "" && othercenterdate.trim() != "") {
-                    if (new Date(othercenterdate) < new Date(centerdate))
+                    if (new Date(othercenterdate).setHours(0,0,0,0) < new Date(centerdate).setHours(0,0,0,0))
                         $('.error-date-other').show();
                     else if ($('#txtEventDate').val() != '') {
-                        if (new Date(othercenterdate) > new Date($('#txtEventDate').val()))
+                        if (new Date(othercenterdate).setHours(0,0,0,0) > new Date($('#txtEventDate').val()).setHours(0,0,0,0))
                             $('.error-date-other').show();
                     }
                 }
@@ -452,6 +483,8 @@
             //Btn Create Click Event
             $('.btn-create').click(function () {
 
+                cleanValidation();
+
                 var isAllowed = true;
                 var eventdate = $('#txtEventDate').val();
                 var othercenterdate = $('#txtOtherCenterDate').val();
@@ -459,53 +492,78 @@
                 //Status
                 if ($('.ddlEventStatus').val() == "-1") {
                     customAlert("Event Status is mandatory");
+                    plainValidation('.ddlEventStatus');
                     isAllowed = false;
                 }
                 else if ($('#txtWorkshopDescription').val().trim() == "") { //WorkshopDescription
                     customAlert("Workshop Description is mandatory");
+                    plainValidation('#txtWorkshopDescription');
+                    isAllowed = false;
+                }
+
+                else if ($('#EducationComponentID').val() == '')
+                {
+                    customAlert("Description of the Education Component is mandatory");
+                    plainValidation('#EducationComponentID');
+
                     isAllowed = false;
                 }
                 else if ($('#txtSpeaker').val().trim() == "") {//Speaker
                     customAlert("Speaker is mandatory");
+                    plainValidation('#txtSpeaker');
+
                     isAllowed = false;
                 }
                 else if ($('#txtEventDate').val().trim() == "") {//Event Date
                     customAlert("Event Date is mandatory");
+                    plainValidation('#txtEventDate');
+
                     isAllowed = false;
                 }
                 else if ($('#txtTime').val().trim() == "") {//Time
                     customAlert("Time is mandatory");
+                    plainValidation('#txtTime');
+
                     isAllowed = false;
                 }
                 else if ($('#txtDate').val().trim() == "") {//Date for Center Members
                     customAlert("Date for Center Members is mandatory");
+                    plainValidation('#txtDate');
+
                     isAllowed = false;
                 }
                 else if ($('#txtOtherCenterDate').val().trim() == "") {//Date for Other Center Members
                     customAlert("Date for Other Center Members is mandatory");
+                    plainValidation('#txtOtherCenterDate');
+
                     isAllowed = false;
                 }
                 else if ($('.ddlDuration').val() == "0") {
                     customAlert("Duration is mandatory");
+                    plainValidation('.ddlDuration');
+
                     isAllowed = false;
                 }
                 else if ($('#txtNoOfSeats').val().trim() == "") {
                     customAlert("No of seats is mandatory");
+                    plainValidation('#txtNoOfSeats');
+
                     isAllowed = false;
                 }
                 else if ($('#CenterId').val() == "0") {
                     customAlert("Center is mandatory");
+                    plainValidation('#CenterId');
                     isAllowed = false;
                 }
-                else if ((eventdate.trim() != "" && centerdate.trim() != "") && (new Date(eventdate) < new Date(centerdate))) {
+                else if ((eventdate.trim() != "" && centerdate.trim() != "") && (new Date(eventdate).setHours(0,0,0,0) < new Date(centerdate).setHours(0,0,0,0))) {
                     $('.error-date-center').show();
                     isAllowed = false;
                 }
-                else if ((centerdate.trim() != "" && othercenterdate.trim() != "") && (new Date(othercenterdate) < new Date(centerdate))) {
+                else if ((centerdate.trim() != "" && othercenterdate.trim() != "") && (new Date(othercenterdate).setHours(0,0,0,0) < new Date(centerdate).setHours(0,0,0,0))) {
                     $('.error-date-other').show();
                     isAllowed = false;
                 }
-                else if (new Date(othercenterdate) > new Date(centerdate)) {
+                else if (new Date(othercenterdate).setHours(0,0,0,0) > new Date(eventdate).setHours(0,0,0,0)) {
                     $('.error-date-other').show();
                     isAllowed = false;
                 }
@@ -605,6 +663,7 @@
 
                     Events.IsUpdate = $('#isUpdate').val();
                     Events.Eventid = $('#txt_EventId').val();
+                    Events.EducationComponentID = $('#EducationComponentID').val();
                     if (eventStatusId != "") {
                         checkmode = 1;
                     }

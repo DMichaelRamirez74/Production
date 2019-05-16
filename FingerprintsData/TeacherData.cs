@@ -278,15 +278,16 @@ namespace FingerprintsData
             try
             {
 
-            StaffDetails staff = StaffDetails.GetInstance();
-            SqlConnection Connection = connection.returnConnection();
-            SqlCommand command = new SqlCommand();
-            SqlDataAdapter DataAdapter = null;
-            DataSet _dataset = null;
+                StaffDetails staff = StaffDetails.GetInstance();
+                SqlConnection Connection = connection.returnConnection();
+                SqlCommand command = new SqlCommand();
+                SqlDataAdapter DataAdapter = null;
+                DataSet _dataset = null;
 
 
                 command.Connection = Connection;
                 command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ClientID", "1"));
                 command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
@@ -295,54 +296,58 @@ namespace FingerprintsData
                 command.CommandText = "SP_GetTeacherList";
                 Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
-            _dataset = new DataSet();
-            DataAdapter.Fill(_dataset);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
                 Connection.Close();
-            DataTable dt = _dataset.Tables[0];
-            List<TeacherModel> chList = new List<TeacherModel>();
-            foreach (DataRow dr in _dataset.Tables[0].Rows)
-            {
-                chList.Add(new TeacherModel
+                DataTable dt = _dataset.Tables[0];
+                List<TeacherModel> chList = new List<TeacherModel>();
+                foreach (DataRow dr in _dataset.Tables[0].Rows)
                 {
-                    ClientID = Convert.ToString(dr["ClientID"]),
-                    Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                    Programid = Convert.ToString(dr["ProgramID"]),
-                    CenterID = Convert.ToString(dr["CenterID"]),
-                    Enc_CenterId = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
-                        Enc_ClassRoomId=EncryptDecrypt.Encrypt64(dr["ClassroomID"].ToString()),
-                    Enc_ProgramId = EncryptDecrypt.Encrypt64(dr["ProgramID"].ToString()),
-                    Enc_HouseholdId = EncryptDecrypt.Encrypt64(dr["HouseholdId"].ToString()),
-                    CName = Convert.ToString(dr["CName"]),
-                    CDOB = Convert.ToString(dr["DOB"]),
-                    CImage = Convert.ToString(dr["FileNameul"]),
-                    // CIFileData = (byte[])dr["profilepic"],
-                    EnrollmentDays = Convert.ToString(dr["EnrollmentDays"]),
+                    chList.Add(new TeacherModel
+                    {
+                        ClientID = Convert.ToString(dr["ClientID"]),
+                        Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                        Programid = Convert.ToString(dr["ProgramID"]),
+                        CenterID = Convert.ToString(dr["CenterID"]),
+                        Enc_CenterId = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
+                        Enc_ClassRoomId = EncryptDecrypt.Encrypt64(dr["ClassroomID"].ToString()),
+                        Enc_ProgramId = EncryptDecrypt.Encrypt64(dr["ProgramID"].ToString()),
+                        Enc_HouseholdId = EncryptDecrypt.Encrypt64(dr["HouseholdId"].ToString()),
+                        CName = Convert.ToString(dr["CName"]),
+                        CDOB = Convert.ToString(dr["DOB"]),
+                        CImage = Convert.ToString(dr["FileNameul"]),
+                        // CIFileData = (byte[])dr["profilepic"],
+                        EnrollmentDays = Convert.ToString(dr["EnrollmentDays"]),
                         PercentAbsent = Convert.ToDecimal(dr["AbsentPercent"]),
-                    AttendanceType = Convert.ToString(dr["AttendanceType"]),
-                    CNotes = Convert.ToString(dr["Notes"]),
-                    Parent1ID = Convert.ToString(dr["A1ID"]),
-                    Parent1Name = Convert.ToString(dr["A1Name"]),
-                    //Parent2ID = Convert.ToString(dr["A2ID"]),
-                    //Parent2Name = Convert.ToString(dr["A2Name"]),
-                    TimeIn = Convert.ToString(dr["TimeIn"]),
-                    TimeIn2 = Convert.ToString(dr["TimeIn2"]),
-                    TimeOut = Convert.ToString(dr["TimeOut"]),
-                    TimeOut2 = Convert.ToString(dr["TimeOut2"]),
-                    ObservationChecked = Convert.ToBoolean(dr["Observation"]),
-                    Disability = Convert.ToString(dr["Disability"]),
-                    DisabilityDescription = Convert.ToString(dr["DisabilityDescription"]),
-                    Dateofclassstartdate = Convert.ToString(dr["Dateofclassstartdate"]),
-                    IsLateArrival = Convert.ToBoolean(dr["IsLateArrival"]),
-                    NotCheckedCount = Convert.ToInt32(dr["AttendanceTypChecked"]),
+                        AttendanceType = Convert.ToString(dr["AttendanceType"]),
+                        CNotes = Convert.ToString(dr["Notes"]),
+                        Parent1ID = Convert.ToString(dr["A1ID"]),
+                        Parent1Name = Convert.ToString(dr["A1Name"]),
+                        //Parent2ID = Convert.ToString(dr["A2ID"]),
+                        //Parent2Name = Convert.ToString(dr["A2Name"]),
+                        TimeIn = Convert.ToString(dr["TimeIn"]),
+                        TimeIn2 = Convert.ToString(dr["TimeIn2"]),
+                        TimeOut = Convert.ToString(dr["TimeOut"]),
+                        TimeOut2 = Convert.ToString(dr["TimeOut2"]),
+                        ObservationChecked = Convert.ToBoolean(dr["Observation"]),
+                        Disability = Convert.ToString(dr["Disability"]),
+                        DisabilityDescription = Convert.ToString(dr["DisabilityDescription"]),
+                        Dateofclassstartdate = Convert.ToString(dr["Dateofclassstartdate"]),
+                        IsLateArrival = Convert.ToBoolean(dr["IsLateArrival"]),
+                        NotCheckedCount = Convert.ToInt32(dr["AttendanceTypChecked"]),
                         IsCaseNoteEntered = Convert.ToInt32(dr["IsCaseNoteEntered"]),
-                        CenterName=Convert.ToString(dr["CenterName"]),
-                        ClassroomName=Convert.ToString(dr["ClassroomName"])
-                });
+                        CenterName = Convert.ToString(dr["CenterName"]),
+                        ClassroomName = Convert.ToString(dr["ClassroomName"]),
+                        HasHomeVisit = Convert.ToBoolean(dr["rHV"]),
+                        HasCenterVisit = Convert.ToBoolean(dr["rPTC"])
 
-            }
+                    });
+
+                }
+
                 chList.ForEach(x => x.PercentAbsent = (x.PercentAbsent == 0 || x.PercentAbsent >= 100) ? Math.Round(x.PercentAbsent) : x.PercentAbsent);
 
-           
+
 
                 if (_dataset.Tables[1] != null)
                 {
@@ -361,20 +366,20 @@ namespace FingerprintsData
                     }
                 }
 
-        
 
-            if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
-            {
-                // _TeacherM.TodayClosed = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]);
 
-                _TeacherM.ClosedDetails = new ClosedInfo
+                if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
                 {
-                    ClosedToday = Convert.ToInt32(_dataset.Tables[2].Rows[0]["TodayClosed"]),
-                    CenterName = _dataset.Tables[2].Rows[0]["CenterName"].ToString(),
-                    ClassRoomName = _dataset.Tables[2].Rows[0]["ClassRoomName"].ToString(),
-                    AgencyName = _dataset.Tables[2].Rows[0]["AgencyName"].ToString()
-                };
-            }
+                    // _TeacherM.TodayClosed = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]);
+
+                    _TeacherM.ClosedDetails = new ClosedInfo
+                    {
+                        ClosedToday = Convert.ToInt32(_dataset.Tables[2].Rows[0]["TodayClosed"]),
+                        CenterName = _dataset.Tables[2].Rows[0]["CenterName"].ToString(),
+                        ClassRoomName = _dataset.Tables[2].Rows[0]["ClassRoomName"].ToString(),
+                        AgencyName = _dataset.Tables[2].Rows[0]["AgencyName"].ToString()
+                    };
+                }
 
 
 
@@ -390,20 +395,28 @@ namespace FingerprintsData
                                                         }).ToList();
 
 
+                    }
                 }
-            }
 
-                if(_dataset.Tables.Count>4 && _dataset.Tables[4]!=null && _dataset.Tables[4].Rows.Count>0)
+                if (_dataset.Tables.Count > 4 && _dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
                 {
                     _TeacherM.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[4].Rows[0]["AllowCaseNoteTeacher"]);
+                }
+
+                if (_dataset.Tables.Count > 5 && _dataset.Tables[5] != null && _dataset.Tables[5].Rows.Count > 0)
+                {
+                    _TeacherM.Appointment = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Appointment"]);
                 }
 
                 _TeacherM.Itemlst = chList;
                 _TeacherM.NotCheckedCount = _TeacherM.Itemlst.Count(x => x.NotCheckedCount == 0);
 
-            _TeacherM.RosterCount = (notChecked) ? (_TeacherM.NotCheckedCount > 0 && _TeacherM.NotCheckedCount < 10) ? "0" + _TeacherM.NotCheckedCount.ToString() : _TeacherM.NotCheckedCount.ToString() : (_TeacherM.Itemlst.Count() > 0 && _TeacherM.Itemlst.Count() < 10) ? "0" + _TeacherM.Itemlst.Count().ToString() : _TeacherM.Itemlst.Count().ToString();
-        }
-            catch(Exception ex)
+                _TeacherM.RosterCount = (notChecked) ? (_TeacherM.NotCheckedCount > 0 && _TeacherM.NotCheckedCount < 10) ? "0" + _TeacherM.NotCheckedCount.ToString() : _TeacherM.NotCheckedCount.ToString() : (_TeacherM.Itemlst.Count() > 0 && _TeacherM.Itemlst.Count() < 10) ? "0" + _TeacherM.Itemlst.Count().ToString() : _TeacherM.Itemlst.Count().ToString();
+
+                HttpContext.Current.Session["Appointment"] = _TeacherM.Appointment;
+
+            }
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -412,7 +425,7 @@ namespace FingerprintsData
                 Connection.Dispose();
                 command.Dispose();
             }
-            
+
             return _TeacherM;
 
         }
@@ -3204,7 +3217,8 @@ namespace FingerprintsData
         }
 
 
-        public bool AddChildWH(List<ClientGrowth> data, int mode) {
+        public bool AddChildWH(List<ClientGrowth> data, int mode)
+        {
             bool IsSuccess = false;
 
 
@@ -3282,7 +3296,8 @@ namespace FingerprintsData
                     // _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>();
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
             return _clientGrowth;
@@ -3312,13 +3327,15 @@ namespace FingerprintsData
 
                 var re = command.ExecuteNonQuery();
 
-                if(re > 0) {
+                if (re > 0)
+                {
                     success = true;
                 }
 
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 
@@ -3401,7 +3418,8 @@ namespace FingerprintsData
                             // result.DTWeightLengthGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
                             result.DTWeightLengthGrowth = _ds.Tables[4];
                         }
-                        else if (type == 2) {
+                        else if (type == 2)
+                        {
                             //result.DTBMIGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
                             result.DTBMIGrowth = _ds.Tables[4];
                         }
@@ -3423,5 +3441,258 @@ namespace FingerprintsData
 
             #endregion GrowthAnalysis
 
+
+
+        #region Teacher Home Visit Entry
+
+        #region Get Teacher Home Visit Entry
+        public List<TeacherVisit> GetTeacherHomeVisitEntry(StaffDetails staff, string encClientID)
+        {
+
+            List<TeacherVisit> hvClient = new List<TeacherVisit>();
+
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientID",Convert.ToInt64(EncryptDecrypt.Decrypt64(encClientID)),DbType.Int64)
+                };
+
+                _dataset = dbManager.GetDataSet("USP_GetTeacherHomeVisitEntry", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    hvClient = (from DataRow dr in _dataset.Tables[0].Rows
+                                 select new TeacherVisit
+                                 {
+
+                                     VisitCount = Convert.ToInt32(dr["VisitCount"]),
+                                     YakkrID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["YakkrID"])),
+                                     YakkrCode = Convert.ToString(dr["YakkrCode"]),
+                                     Date = dr["Date"] == DBNull.Value ? string.Empty : Convert.ToString(dr["Date"]),
+                                     Editable = Convert.ToBoolean(dr["Editable"]),
+                                     ParentDetailsList = (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                                                                                                                           select new ParentDetails
+                                                                                                                                                           {
+                                                                                                                                                               ParentName = dr1["ParentName"].ToString(),
+                                                                                                                                                               ParentRole = dr1["ParentRole"].ToString(),
+                                                                                                                                                               ClientId = dr1["ClientId"].ToString(),
+                                                                                                                                                               ProfilePicture = dr1["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["ProfilePic"])
+                                                                                                                                                           }).ToList() : new List<ParentDetails>()
+
+                                 }
+
+                                 ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return hvClient;
+        }
+
+        #endregion
+
+
+        #region Add Teacher Home Visit Entry
+
+        public bool AddTeacherHomeVisitEntry(StaffDetails staff, List<TeacherVisit> teacherVisitList)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                DataTable hvTable = new DataTable();
+
+                hvTable.Columns.AddRange(new DataColumn[7]
+                {
+                    new DataColumn("ClientID",typeof(Int64)),
+                    new DataColumn("MeetingDate",typeof(DateTime)),
+                    new DataColumn("ParentID1", typeof(Int64)),
+                    new DataColumn("ParentID2",typeof(Int64)),
+                    new DataColumn("YakkrCode",typeof(Int64)),
+                    new DataColumn("YakkrID",typeof(Int64)),
+                    new DataColumn("Day",typeof(int)),
+                });
+
+
+                foreach (var item in teacherVisitList)
+                {
+                    hvTable.Rows.Add(
+                                         Convert.ToInt64(EncryptDecrypt.Decrypt64(item.Enc_ClientId))
+                                       , DateTime.Parse(item.Date, new CultureInfo("en-US", true))
+                                       , Convert.ToInt64(item.ParentId1)
+                                       , Convert.ToInt64(item.ParentId2)
+                                       , string.IsNullOrEmpty(item.YakkrCode) ? 0 : Convert.ToInt64(item.YakkrCode)
+                                       , Convert.ToInt64(EncryptDecrypt.Decrypt64(item.YakkrID))
+                                       , item.Day);
+
+                }
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@TeacherVisitTable", hvTable, DbType.Object)
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_AddTeacherHomeVisitEntry", CommandType.StoredProcedure, parameters);
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return isRowsAffected;
+
+        }
+
+        #endregion
+        #endregion
+
+
+        #region Parent Teacher Conferences
+
+        #region Get Parent Teacher Conference Entry
+
+        public List<TeacherVisit> GetParentTeacherConferenceEntry(StaffDetails staff, string encClientID)
+        {
+
+            List<TeacherVisit> ptcClient = new List<TeacherVisit>();
+            try
+            {
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientID",Convert.ToInt64(EncryptDecrypt.Decrypt64(encClientID)),DbType.Int64)
+                };
+
+                _dataset = dbManager.GetDataSet("USP_GetParentTeacherConferenceEntry", CommandType.StoredProcedure, parameters);
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    ptcClient = (from DataRow dr in _dataset.Tables[0].Rows
+                                 select new TeacherVisit
+                                 {
+
+                                     VisitCount = Convert.ToInt32(dr["VisitCount"]),
+                                     YakkrID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["YakkrID"])),
+                                     YakkrCode = Convert.ToString(dr["YakkrCode"]),
+                                     Date=dr["Date"]==DBNull.Value?string.Empty:Convert.ToString(dr["Date"]),
+                                     Editable=Convert.ToBoolean(dr["Editable"]),
+                                     ParentDetailsList = (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                                                                                                                           select new ParentDetails
+                                                                                                                                                           {
+                                                                                                                                                               ParentName = dr1["ParentName"].ToString(),
+                                                                                                                                                               ParentRole = dr1["ParentRole"].ToString(),
+                                                                                                                                                               ClientId = dr1["ClientId"].ToString(),
+                                                                                                                                                               ProfilePicture = dr1["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["ProfilePic"])
+                                                                                                                                                           }).ToList() : new List<ParentDetails>()
+
+                                 }
+
+                                 ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return ptcClient;
+        }
+
+
+        #endregion
+
+        #region Add Parent Teacher Conference Entry
+
+        public bool AddParentTeacherConferenceEntry(StaffDetails staff, List<TeacherVisit> teacherVisitList)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                DataTable ptcTable = new DataTable();
+
+                ptcTable.Columns.AddRange(new DataColumn[7]
+                {
+                    new DataColumn("ClientID",typeof(Int64)),
+                    new DataColumn("MeetingDate",typeof(DateTime)),
+                    new DataColumn("ParentID1", typeof(Int64)),
+                    new DataColumn("ParentID2",typeof(Int64)),
+                    new DataColumn("YakkrCode",typeof(Int64)),
+                    new DataColumn("YakkrID",typeof(Int64)),
+                    new DataColumn("Day",typeof(int)),
+                });
+
+
+                foreach (var item in teacherVisitList)
+                {
+                    ptcTable.Rows.Add(
+                                         Convert.ToInt64(EncryptDecrypt.Decrypt64(item.Enc_ClientId))
+                                       , DateTime.Parse(item.Date, new CultureInfo("en-US", true))
+                                       , Convert.ToInt64(item.ParentId1)
+                                       , Convert.ToInt64(item.ParentId2)
+                                       , string.IsNullOrEmpty(item.YakkrCode) ? 0 : Convert.ToInt64(item.YakkrCode)
+                                       , Convert.ToInt64(EncryptDecrypt.Decrypt64(item.YakkrID))
+                                       , item.Day);
+
+                }
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                dbManager.CreateParameter("@AgencyID", staff.AgencyId, DbType.Guid),
+                dbManager.CreateParameter("@RoleID", staff.RoleId, DbType.Guid),
+                dbManager.CreateParameter("@UserID", staff.UserId, DbType.Guid),
+                dbManager.CreateParameter("@TeacherVisitTable", ptcTable, DbType.Object)
+
+                };
+
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_AddParentTeacherConferenceEntry", CommandType.StoredProcedure, parameters);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+
+            return isRowsAffected;
+
+        }
+
+        #endregion
+
+        #endregion
     }
 }

@@ -143,6 +143,7 @@ namespace Fingerprints.Controllers
                 _event.ClientName = "";
                 _event.StaffId = new Guid(Session["UserId"].ToString());
                 _event.AgencyId = new Guid(Session["AgencyID"].ToString());
+                _event.StaffRoleId = new Guid(Session["RoleID"].ToString());
                 _event.MeetingDescription = _event.title;
                 string h = homeVisitorData.saveEvent(_event);
                 List<Scheduler> m = new List<Scheduler>();
@@ -407,9 +408,10 @@ namespace Fingerprints.Controllers
                 var StfInfo = StaffDetails.GetInstance();
                 _event.StaffId = new Guid(Session["UserId"].ToString());
                 _event.AgencyId = new Guid(Session["AgencyID"].ToString());
+                _event.StaffRoleId = new Guid(Session["RoleID"].ToString());
                 _event.MeetingDescription = _event.title;
 
-                string h = homeVisitorData.saveEvent(_event);
+                string h = homeVisitorData.saveEvent(_event,yakkrid);
               
                 m = homeVisitorData.getUserEvents();
 

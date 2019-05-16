@@ -486,6 +486,49 @@ namespace Fingerprints.Controllers
         #endregion
 
 
+        #region Center Monthly Report
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult CenterMonthlyReport()
+        {
+            return View();
+        }
+
+
+        #region Export Center Monthly Report
+        public void ExportCenterMonthlyReport(CenterMonthlyReport centerMonthlyReport, int reportFormatType)
+        {
+            try
+            {
+
+                #region Itextsharp PDF generation Region
+
+                string imagePath = Server.MapPath("~/Images/");
+
+                centerMonthlyReport = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetCenterMonthlyReport(StaffDetails.GetInstance(), centerMonthlyReport);
+
+
+                var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+                MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportCenterMonthlyReport(centerMonthlyReport, reportTypeEnum, imagePath);
+                string reportName = "Center_Monthly_Report_";
+
+                DownloadReport(workStream, reportTypeEnum, reportName);
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
         #region Download Report Generic Method (PDF,EXCEL)
 
         public void DownloadReport(MemoryStream memoryStream, ReportFormatType reportFormat, string reportName, params object[] args)

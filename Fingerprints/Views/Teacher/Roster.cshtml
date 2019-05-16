@@ -4,12 +4,12 @@
 @{
     @section Title
 {
-      Teacher  Roster
+        Teacher  Roster
     }
     ViewBag.Title = "CheckIn";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     string closedString = string.Empty;
-    ViewBag.ClosedToday = (Model != null && Model.ClosedDetails!=null) ? Model.ClosedDetails.ClosedToday : 0;
+    ViewBag.ClosedToday = (Model != null && Model.ClosedDetails != null) ? Model.ClosedDetails.ClosedToday : 0;
     Session["NotCheckedCount"] = Model.NotCheckedCount;
 
 
@@ -22,7 +22,7 @@
 
 
 @section Script{
-<script>
+    <script>
 
 
         var $closedDetails=@Html.Raw(Json.Encode(Model.ClosedDetails));
@@ -38,6 +38,52 @@
         $(document).ready(function () {
 
 
+            $('#fromDateDateTimePicker1, #fromDateDateTimePicker2').datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                validateOnBlur: false,
+                mask: true,
+                maxDate: new Date(),
+
+
+            });
+
+            $('#ptcDate1, #ptcDate2').datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                validateOnBlur: false,
+                mask: true,
+                maxDate: new Date(),
+
+
+            });
+
+            $('#fromDateDateTimePicker1, #fromDateDateTimePicker1').mask("99/99/9999");
+            $('#ptcDate1,#ptcDate2').mask("99/99/9999");
+
+            $('#ptcDate1').siblings('.seats-icon').on('click',function(){
+
+                $('#ptcDate1').datetimepicker('show');
+            });
+
+            $('#ptcDate2').siblings('.seats-icon').on('click',function(){
+
+                $('#ptcDate2').datetimepicker('show');
+            });
+
+
+            $('#fromDateDateTimePicker1').siblings('.seats-icon').on('click',function(){
+
+                $('#fromDateDateTimePicker1').datetimepicker('show');
+            });
+
+            $('#fromDateDateTimePicker2').siblings('.seats-icon').on('click',function(){
+
+                $('#fromDateDateTimePicker2').datetimepicker('show');
+            });
+
+
+
 
             $('[data-target="tooltip"]').tooltip();
 
@@ -48,174 +94,524 @@
 
             $('#myModalattendance').on('show.bs.modal', function () {
 
-                   
-
-            $('#myModalattendance').find('#divAbsenceReasonList').find('#ReasonList').val('');
-            $('#myModalattendance').find('#divAbsenceReasonList').hide();
-            // do something when the modal is shown
-        });
 
 
-        $("#AbsentType").change(function () {
+                $('#myModalattendance').find('#divAbsenceReasonList').find('#ReasonList').val('');
+                $('#myModalattendance').find('#divAbsenceReasonList').hide();
+                // do something when the modal is shown
+            });
 
-            if ($(this).val() == 2 || $(this).val() == 4) {
 
-                $('#divAbsenceReasonList').show();
-                $('#ReasonList').val("");
-            }
-            else {
+            $("#AbsentType").change(function () {
+
+                if ($(this).val() == 2 || $(this).val() == 4) {
+
+                    $('#divAbsenceReasonList').show();
+                    $('#ReasonList').val("");
+                }
+                else {
+                    $('#divAbsenceReasonList').hide();
+                    $('#divNewReason').hide();
+                    $('#txtNewReason').val("");
+                    $('#ReasonList').val("");
+                }
+
+            });
+
+            $('#ReasonList').on('change', function () {
+                if ($(this).val() == "-1") {
+                    $('#divNewReason').show();
+                }
+                else {
+                    $('#txtNewReason').val("");
+                    $('#divNewReason').hide();
+                }
+            });
+
+
+            $("#myModalattendance").on("hidden.bs.modal", function () {
                 $('#divAbsenceReasonList').hide();
                 $('#divNewReason').hide();
+                $('#divAbsenceNoShow').hide();
                 $('#txtNewReason').val("");
                 $('#ReasonList').val("");
+                $('#AbsentType').val("");
+
+
+            });
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+
+                }
+            });
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
             }
-
-        });
-
-        $('#ReasonList').on('change', function () {
-            if ($(this).val() == "-1") {
-                $('#divNewReason').show();
-            }
-            else {
-                $('#txtNewReason').val("");
-                $('#divNewReason').hide();
-            }
-        });
-
-
-        $("#myModalattendance").on("hidden.bs.modal", function () {
-            $('#divAbsenceReasonList').hide();
-            $('#divNewReason').hide();
-            $('#divAbsenceNoShow').hide();
-            $('#txtNewReason').val("");
-            $('#ReasonList').val("");
-            $('#AbsentType').val("");
-
-
-        });
-
-        $('input').keypress(function () {
-            if ($(this).val() == 'MM/DD/YYYY') {
-                $(this).val('');
-              
-            }
-        });
-        if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
-            customAlert('@TempData["message"]');
-        }
-        @{
+            @{
                     TempData["message"]=null;
 
                 }
 
 
 
-        if (location.hash) {
-            $('a[href=' + location.hash + ']').tab('show');
-        }
-        $(document.body).on("click", "a[data-toggle]", function (event) {
-            location.hash = this.getAttribute("href");
-        });
-        $('body').on('click', '.referral-icon', function () {
-            $('#TeacherRoster tr').removeClass('current-child');
-            $(this).closest('tr').addClass('current-child');
-            var ClientId = $(this).find('.child-id').val();
-            var CenterId = $(this).find('.child-center-id').val();
-            var Template = '<div class="form-group classroom-panel cls-teachername development-team-list" style="text-align:left;margin-left: 0px;"><input type="checkbox" class="member-option" style="position:relative;top:2px;margin-right:4px;"/><input type="hidden" name="childid" id="user" class="user-id" value="##USERID##"/><span class="closed-request-teachername" style="font-size:14px;">##MEMBER##</span></div>';
-            $.ajax({
-                type: "POST",
-                url: "/Teacher/GetChildDevelopmentTeamByChildId",
-                data: { 'ClientId': ClientId, 'CenterId': CenterId },
-                success: function (data) {
-                    var input = "";
-                    var JsonData = JSON.parse(data);
+            if (location.hash) {
+                $('a[href=' + location.hash + ']').tab('show');
+            }
+            $(document.body).on("click", "a[data-toggle]", function (event) {
+                location.hash = this.getAttribute("href");
+            });
+            $('body').on('click', '.referral-icon', function () {
+                $('#TeacherRoster tr').removeClass('current-child');
+                $(this).closest('tr').addClass('current-child');
+                var ClientId = $(this).find('.child-id').val();
+                var CenterId = $(this).find('.child-center-id').val();
+                var Template = '<div class="form-group classroom-panel cls-teachername development-team-list" style="text-align:left;margin-left: 0px;"><input type="checkbox" class="member-option" style="position:relative;top:2px;margin-right:4px;"/><input type="hidden" name="childid" id="user" class="user-id" value="##USERID##"/><span class="closed-request-teachername" style="font-size:14px;">##MEMBER##</span></div>';
+                $.ajax({
+                    type: "POST",
+                    url: "/Teacher/GetChildDevelopmentTeamByChildId",
+                    data: { 'ClientId': ClientId, 'CenterId': CenterId },
+                    success: function (data) {
+                        var input = "";
+                        var JsonData = JSON.parse(data);
 
-                    if (JSON.parse(data).length > 1) {
-                        $.each(JSON.parse(data), function (i, val) {
-                            input += Template.replace("##USERID##", val["UserId"]).replace("##MEMBER##", val["Name"]);
-                        });
+                        if (JSON.parse(data).length > 1) {
+                            $.each(JSON.parse(data), function (i, val) {
+                                input += Template.replace("##USERID##", val["UserId"]).replace("##MEMBER##", val["Name"]);
+                            });
+                        }
+                        else {
+                            input += Template.replace("##USERID##", JsonData[0].UserId).replace("##MEMBER##", JsonData[0].Name);
+                        }
+                        $('.development-team-container').empty();
+                        $('.development-team-container').append(input);
+                    },
+                    error: function (data) {
+                        console.log('Error');
                     }
-                    else {
-                        input += Template.replace("##USERID##", JsonData[0].UserId).replace("##MEMBER##", JsonData[0].Name);
-                    }
-                    $('.development-team-container').empty();
-                    $('.development-team-container').append(input);
+                });
+                $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
+            });
+
+
+            // nREF Case Note Initializations//
+
+
+            CKEDITOR.replace('nREFNote', {
+                language: 'en-gb',
+                uiColor: '#195180',
+                allowedContent: true,
+                disableNativeSpellChecker: false
+            });
+
+
+
+
+
+            $('#nREF_status_CaseNotetags').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInput(),
+                    'appendTo': "#ModalAddCasenote"
                 },
-                error: function (data) {
-                    console.log('Error');
+                autocomplete_url: '',
+            });
+            $('#nREF_status_CaseNotetags').importTags("nREF,,;");
+
+
+            //nREF Case Note Initializations//
+
+
+            // Modal home visit //
+            $('#modal-hv-report #btn-modal-submit').on('click',function(){
+                debugger;
+                var $modal=$('#modal-hv-report');
+
+                cleanValidation();
+
+                if($modal.find('input[name="homeVisit1Date"]').is(':visible') && $modal.find('input[name="homeVisit1Date"]').val()==''  )
+                {
+                    customAlertforlongtime('Home Visit-1 Date is required');
+                    plainValidation($modal.find('input[name="homeVisit1Date"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="homeVisit1Date"]').is(':visible')
+                           && $modal.find('input[name="homeVisit1Date"]').val()!=''
+                           && new Date($modal.find('input[name="homeVisit1Date"]').val()).setHours(0,0,0,0)>new Date().setHours(0,0,0,0)  )
+                {
+                    customAlertforlongtime('Home Visit-1 Date should not greater than today\'s date ');
+                    plainValidation($modal.find('input[name="homeVisit1Date"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="homeVisit1Date"]').is(':visible')
+                   && $modal.find('input[name="homeVisit2Date"]').is(':visible')
+                   && new Date($modal.find('input[name="homeVisit1Date"]').val()).setHours(0,0,0,0)>new Date($modal.find('input[name="homeVisit2Date"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('Home Visit-1 Date should be less than Home Visit-2 Date ');
+                    plainValidation($modal.find('input[name="homeVisit1Date"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="homeVisit1Date"]').is(':visible')
+                        && $modal.find('input[name="homeVisit2Date"]').is(':visible')
+                        && new Date($modal.find('input[name="homeVisit1Date"]').val()).setHours(0,0,0,0)==new Date($modal.find('input[name="homeVisit2Date"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('Home Visit-1 Date and Home Visit-2 Date should not be same ');
+                    plainValidation($modal.find('input[name="homeVisit1Date"]'));
+                    plainValidation($modal.find('input[name="homeVisit2Date"]'));
+                    return false;
+                }
+
+                if($modal.find('#div-hv-1').is(':visible') && $modal.find('#parentCheck1').find('input:checkbox:checked').length==0)
+                {
+                    customAlertforlongtime('At least one parent needs to be selected');
+                    plainValidation($modal.find('#parentCheck1'));
+                    return false;
+                }
+
+                if($modal.find('input[name="homeVisit2Date"]').is(':visible') && $modal.find('input[name="homeVisit2Date"]').val()==''  )
+                {
+                    customAlertforlongtime('Home Visit-2 Date is required');
+                    plainValidation($modal.find('input[name="homeVisit2Date"]'));
+                    return false;
+                }
+
+
+                if($modal.find('input[name="homeVisit2Date"]').is(':visible')
+                         && $modal.find('input[name="homeVisit2Date"]').val()!='' &&  new Date($modal.find('input[name="homeVisit2Date"]').val()).setHours(0,0,0,0)>new Date().setHours(0,0,0,0)  )
+                {
+                    customAlertforlongtime('Home Visit-2 Date should not greater than today\'s date ');
+                    plainValidation($modal.find('input[name="homeVisit2Date"]'));
+                    return false;
+                }
+
+                if(!$modal.find('input[name="homeVisit1Date"]').is(':visible')
+                 && $modal.find('#lblhv1').html().trim()!='' && new Date($modal.find('input[name="homeVisit2Date"]').val()).setHours(0,0,0,0) <= new Date($modal.find('#lblhv1').html().trim()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('Home Visit-2 Date should be greater than Home Visit-1 Date ');
+                    plainValidation($modal.find('input[name="homeVisit2Date"]'));
+                    return false;
+                }
+
+                if($modal.find('#div-hv-2').is(':visible') && $modal.find('#parentCheck2').find('input:checkbox:checked').length==0)
+                {
+                    customAlertforlongtime('At least one parent needs to be selected');
+                    plainValidation($modal.find('#parentCheck2'));
+                    return false;
+                }
+
+
+
+                var teacherHomeVisit=[];
+
+                if($modal.find('input[name="homeVisit1Date"]').is(':visible')
+                            && $modal.find('input[name="homeVisit1Date"]').val()!='')
+                {
+
+
+                    teacherHomeVisit.push({'Date': $modal.find('input[name="homeVisit1Date"]').val(),
+                        'YakkrID':$modal.find('input[name="YakkrIdFirst"]').val(),
+                        'ParentDetailsList':[],
+                        'Enc_ClientId':$modal.find('input[name="eClientID"]').val(),
+                        'Day':($modal.find('input[name="homeVisit1Date"]').val() == null || $modal.find('input[name="homeVisit1Date"]').val() == '') ? 0 : new Date($modal.find('input[name="homeVisit1Date"]').val().trim()).getDay(),
+                        'ParentId1':$modal.find('#parentCheck1').find('input:checkbox:checked')[0].getAttribute('parent'),
+                        'ParentId2':$modal.find('#parentCheck1').find('input:checkbox:checked').length>1?$modal.find('#parentCheck1').find('input:checkbox:checked')[1].getAttribute('parent'):0
+
+                    });
+                }
+
+
+                if($modal.find('input[name="homeVisit2Date"]').is(':visible')
+                            && $modal.find('input[name="homeVisit2Date"]').val()!='')
+                {
+
+
+                    teacherHomeVisit.push({'Date': $modal.find('input[name="homeVisit2Date"]').val(),
+                        'YakkrID':$modal.find('input[name="YakkrIdSecond"]').val(),
+                        'ParentDetailsList':[],
+                        'Enc_ClientId':$modal.find('input[name="eClientID"]').val(),
+                        'Day':($modal.find('input[name="homeVisit2Date"]').val() == null || $modal.find('input[name="homeVisit2Date"]').val() == '') ? 0 : new Date($modal.find('input[name="homeVisit2Date"]').val().trim()).getDay(),
+                        'ParentId1':$modal.find('#parentCheck2').find('input:checkbox:checked')[0].getAttribute('parent'),
+                        'ParentId2':$modal.find('#parentCheck2').find('input:checkbox:checked').length>1?$modal.find('#parentCheck2').find('input:checkbox:checked')[1].getAttribute('parent'):0
+
+                    });
+                }
+
+
+                $.ajax({
+                    url:HostedDir+'/Teacher/AddTeacherHomeVisitEntry',
+                    type:'POST',
+                    datatype:'JSON',
+                    contentType:"application/json; charset=utf-8",
+                    data:JSON.stringify({'teacherVisitList':teacherHomeVisit}),
+                    beforeSend:function(){
+
+                        $('#spinner').show()
+                    },
+                    success:function(data)
+                    {
+                        if(data)
+                        {
+                            customAlertforlongtime('Record saved successfully');
+                            $(rHVanchor).remove();
+                            $modal.modal('hide');
+                        }
+                        else{
+                            customAlertforlongtime('Error occurred. Please, try again later');
+                            $modal.modal('hide');
+
+                        }
+                    },
+                    error:function(data)
+                    {
+                        customAlertforlongtime('Error occurred. Please, try again later');
+                        $modal.modal('hide');
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+
+                });
+
+            });
+
+
+
+
+            // Modal PTC Visit //
+            $('#modal-ptc-report #btn-modal-submit').on('click',function(){
+
+                cleanValidation();
+
+                var $modal=$('#modal-ptc-report');
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible') && $modal.find('input[name="ptcDate1"]').val()==''  )
+                {
+                    customAlertforlongtime('P.T.C. 1 Date is required');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                            && $modal.find('input[name="ptcDate1"]').val()!='' &&  new Date($modal.find('input[name="ptcDate1"]').val()).setHours(0,0,0,0)>new Date().setHours(0,0,0,0)  )
+                {
+                    customAlertforlongtime('P.T.C. 1 Date should not greater than today\'s date ');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    return false;
+                }
+
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                   && $modal.find('input[name="ptcDate2"]').is(':visible')
+                   && new Date($modal.find('input[name="ptcDate1"]').val()).setHours(0,0,0,0)>new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('P.T.C. 1 Date should be less than P.T.C. 2 Date ');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                        && $modal.find('input[name="ptcDate2"]').is(':visible')
+                        && new Date($modal.find('input[name="ptcDate1"]').val()).setHours(0,0,0,0)==new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('P.T.C. 1 Date and P.T.C. 2 Date should not be same ');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    plainValidation($modal.find('input[name="ptcDate2"]'));
+                    return false;
+                }
+
+                if($modal.find('#div-ptc-1').is(':visible') && $modal.find('#parentCheck1').find('input:checkbox:checked').length==0)
+                {
+                    customAlertforlongtime('At least one parent needs to be selected');
+                    plainValidation($modal.find('#parentCheck1'));
+                    return false;
+                }
+
+                if($modal.find('input[name="ptcDate2"]').is(':visible') && $modal.find('input[name="ptcDate2"]').val()=='')
+                {
+                    customAlertforlongtime('P.T.C. 2 Date is required');
+                    plainValidation($modal.find('input[name="ptcDate2"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="ptcDate2"]').is(':visible')
+                          && $modal.find('input[name="ptcDate2"]').val()!='' &&  new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0)>new Date().setHours(0,0,0,0)  )
+                {
+                    customAlertforlongtime('P.T.C. 2 Date should not greater than today\'s date ');
+                    plainValidation($modal.find('input[name="ptcDate2"]'));
+                    return false;
+                }
+
+
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                          && $modal.find('input[name="ptcDate2"]').is(':visible')
+                          && new Date($modal.find('input[name="ptcDate1"]').val()).setHours(0,0,0,0)==new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('P.T.C. 1 Date and P.T.C. 2 Date should not be same ');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    plainValidation($modal.find('input[name="ptcDate2"]'));
+                    return false;
+                }
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                    && $modal.find('input[name="ptcDate2"]').is(':visible')
+                    && new Date($modal.find('input[name="ptcDate1"]').val()).setHours(0,0,0,0)>new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('P.T.C. 1 Date should be less than P.T.C. 2 Date ');
+                    plainValidation($modal.find('input[name="ptcDate1"]'));
+                    return false;
+                }
+
+                if(!$modal.find('input[name="ptcDate1"]').is(':visible')
+                && $modal.find('#lblptc1').html().trim()!='' && new Date($modal.find('input[name="ptcDate2"]').val()).setHours(0,0,0,0) <= new Date($modal.find('#lblptc1').html().trim()).setHours(0,0,0,0))
+                {
+                    customAlertforlongtime('P.T.C. 2 Date should be greater than P.T.C. 1 Date ');
+                    plainValidation($modal.find('input[name="ptcDate2"]'));
+                    return false;
+                }
+
+                if($modal.find('#div-ptc-2').is(':visible') && $modal.find('#parentCheck2').find('input:checkbox:checked').length==0)
+                {
+                    customAlertforlongtime('At least one parent needs to be selected');
+                    plainValidation($modal.find('#parentCheck2'));
+                    return false;
+                }
+
+                var parentCenteVisit=[];
+
+                if($modal.find('input[name="ptcDate1"]').is(':visible')
+                            && $modal.find('input[name="ptcDate1"]').val()!='')
+                {
+
+
+                    parentCenteVisit.push({'Date': $modal.find('input[name="ptcDate1"]').val(),
+                        'YakkrID':$modal.find('input[name="YakkrId1"]').val(),
+                        'ParentDetailsList':[],
+                        'Enc_ClientId':$modal.find('input[name="eClientID"]').val(),
+                        'Day':($modal.find('input[name="ptcDate1"]').val() == null || $modal.find('input[name="ptcDate1"]').val() == '') ? 0 : new Date($modal.find('input[name="ptcDate1"]').val().trim()).getDay(),
+                        'ParentId1':$modal.find('#parentCheck1').find('input:checkbox:checked')[0].getAttribute('parent'),
+                        'ParentId2':$modal.find('#parentCheck1').find('input:checkbox:checked').length>1?$modal.find('#parentCheck1').find('input:checkbox:checked')[1].getAttribute('parent'):0
+
+                    });
+                }
+
+
+                if($modal.find('input[name="ptcDate2"]').is(':visible')
+                            && $modal.find('input[name="ptcDate2"]').val()!='')
+                {
+
+
+                    parentCenteVisit.push({'Date': $modal.find('input[name="ptcDate2"]').val(),
+                        'YakkrID':$modal.find('input[name="YakkrId2"]').val(),
+                        'ParentDetailsList':[],
+                        'Enc_ClientId':$modal.find('input[name="eClientID"]').val(),
+                        'Day':($modal.find('input[name="ptcDate2"]').val() == null || $modal.find('input[name="ptcDate2"]').val() == '') ? 0 : new Date($modal.find('input[name="ptcDate2"]').val().trim()).getDay(),
+                        'ParentId1':$modal.find('#parentCheck2').find('input:checkbox:checked')[0].getAttribute('parent'),
+                        'ParentId2':$modal.find('#parentCheck2').find('input:checkbox:checked').length>1?$modal.find('#parentCheck2').find('input:checkbox:checked')[1].getAttribute('parent'):0
+
+                    });
+                }
+
+
+                $.ajax({
+                    url:HostedDir+'/Teacher/AddParentTeacherConferenceEntry',
+                    type:'POST',
+                    datatype:'JSON',
+                    contentType:"application/json; charset=utf-8",
+                    data:JSON.stringify({'teacherVisitList':parentCenteVisit}),
+                    beforeSend:function(){
+
+                        $('#spinner').show();
+                    },
+                    success:function(data)
+                    {
+                        if(data)
+                        {
+                            customAlertforlongtime('Record saved successfully');
+                            $(rPTCanchor).remove();
+                            $modal.modal('hide');
+                        }
+                        else{
+                            customAlertforlongtime('Error occurred. Please, try again later');
+                            $modal.modal('hide');
+
+                        }
+                    },
+                    error:function(data)
+                    {
+                        customAlertforlongtime('Error occurred. Please, try again later');
+                        $modal.modal('hide');
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+
+                });
+
+            });
+
+
+        });
+
+
+        var YakkrDetails = [];
+        $('body').on('click', '.btn-send', function () {
+            // $('.btn-send').click(function () {
+            var ClientId = $('.current-child').find('.child-id').val();
+            var CenterId = $('.current-child').find('.child-center-id').val();
+
+            $('.development-team-list').each(function () {
+                if ($(this).find('.member-option').is(':checked')) {
+                    var yakkrdetails = {};
+
+                    yakkrdetails.CenterId = CenterId;
+                    yakkrdetails.ClientId = ClientId;
+                    yakkrdetails.ToSataffId = $(this).find('.user-id').val();
+                    yakkrdetails.RouteCode = "98";
+                    yakkrdetails.Message = $('#CNotes').val();
+                    YakkrDetails.push(yakkrdetails);
                 }
             });
-            $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
-        });
-        // nREF Case Note Initializations//
-        CKEDITOR.replace('nREFNote', {
-            language: 'en-gb',
-            uiColor: '#195180',
-            allowedContent: true,
-            disableNativeSpellChecker: false
-        });
-        $('#nREF_status_CaseNotetags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete: {
-                //'source': tags_array[0].split(/,\s*/)
-                'source': getTagsOnInput(),
-                'appendTo': "#ModalAddCasenote"
-            },
-            autocomplete_url: '',
-        });
-        $('#nREF_status_CaseNotetags').importTags("nREF,,;");
-        //nREF Case Note Initializations//
-    });
-    var YakkrDetails = [];
-    $('body').on('click', '.btn-send', function () {
-        // $('.btn-send').click(function () {
-        var ClientId = $('.current-child').find('.child-id').val();
-        var CenterId = $('.current-child').find('.child-center-id').val();
-        $('.development-team-list').each(function () {
-            if ($(this).find('.member-option').is(':checked')) {
-                var yakkrdetails = {};
 
-                yakkrdetails.CenterId = CenterId;
-                yakkrdetails.ClientId = ClientId;
-                yakkrdetails.ToSataffId = $(this).find('.user-id').val();
-                yakkrdetails.RouteCode = "98";
-                yakkrdetails.Message = $('#CNotes').val();
-                YakkrDetails.push(yakkrdetails);
+            if (YakkrDetails.length > 0) {
+                YakkrDetails = JSON.stringify({ 'yakkrdetails': YakkrDetails });
+                $.ajax(
+                            {
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                type: "POST",
+                                async: false,
+                                url: "/Teacher/AddChildReferealNotes",
+                                data: YakkrDetails,
+                                success: function (data) {
+                                    // window.location.href = "/Home/TeacherDashBoard";
+                                },
+                                error: function (data) {
+
+                                }
+                            });
             }
+            $('#myModalApprovalForClassRoomOpenCloseRequest').modal('hide');
+            $('#TeacherRoster tr').removeClass('current-child');
+            return false;
+        });
+        $(window).on('popstate', function () {
+            var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+            $('a[href=' + anchor + ']').tab('show');
         });
 
-        if (YakkrDetails.length > 0) {
-            YakkrDetails = JSON.stringify({ 'yakkrdetails': YakkrDetails });
-            $.ajax(
-                        {
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: 'json',
-                            type: "POST",
-                            async: false,
-                            url: "/Teacher/AddChildReferealNotes",
-                            data: YakkrDetails,
-                            success: function (data) {
-                                // window.location.href = "/Home/TeacherDashBoard";
-                            },
-                            error: function (data) {
+        $(document).on("click", ".open-myModalAb", function () {
 
-                            }
-                        });
-        }
-        $('#myModalApprovalForClassRoomOpenCloseRequest').modal('hide');
-        $('#TeacherRoster tr').removeClass('current-child');
-        return false;
-    });
-    $(window).on('popstate', function () {
-        var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
-        $('a[href=' + anchor + ']').tab('show');
-    });
-
-    $(document).on("click", ".open-myModalAb", function () {
-
-        // $('.clear-popup').val(0);
+            // $('.clear-popup').val(0);
 
             if($closedDetails!=null && $closedDetails.ClosedToday>0)
             {
@@ -244,27 +640,360 @@
 
         });
 
-    $(document).on("click", ".open-myModalStudent", function () {
-        var childnameID = $(this).data('id');
-        var l = childnameID.length;
-        var n = childnameID.indexOf("-");
-        var CID = childnameID.substring(0, n);
-        var CN = childnameID.substring(n + 1, l) + "'s Attendance Detail";
-        var parent1 = $(this).data('Parent1Name');
-        var parent2 = $(this).data('Parent2Name');
+        $(document).on("click", ".open-myModalStudent", function () {
+            var childnameID = $(this).data('id');
+            var l = childnameID.length;
+            var n = childnameID.indexOf("-");
+            var CID = childnameID.substring(0, n);
+            var CN = childnameID.substring(n + 1, l) + "'s Attendance Detail";
+            var parent1 = $(this).data('Parent1Name');
+            var parent2 = $(this).data('Parent2Name');
 
-        $(".modal-header #childname").text(CN);
-        $(".modal-header #childid").val(CID);
-        $(".modal-header #childlbl").text(CN);
-        $(".form-group #Parent1").text(parent1);
-        $(".form-group #Parent2").text(parent2);
+            $(".modal-header #childname").text(CN);
+            $(".modal-header #childid").val(CID);
+            $(".modal-header #childlbl").text(CN);
+            $(".form-group #Parent1").text(parent1);
+            $(".form-group #Parent2").text(parent2);
 
-        // As pointed out in comments,
-        // it is superfluous to have to manually call the modal.
-        // $('#addBookDialog').modal('show');
-    });
+            // As pointed out in comments,
+            // it is superfluous to have to manually call the modal.
+            // $('#addBookDialog').modal('show');
+        });
 
 
+
+        var rHVanchor=null;
+        function getHomeVisitReport(ele)
+        {
+
+
+            var eClientID=$(ele).parent('td').closest('tr').children('td:eq(0)').attr('eclientid');
+            var clientName=$(ele).parent('td').closest('tr').children('td:eq(0)').html();
+            rHVanchor=ele;
+            $.ajax({
+                url:HostedDir+'/Teacher/GetTeacherHomeVisitEntry',
+                type:'POST',
+                datatype:"JSON",
+                data:{eClientID:eClientID},
+                beforeSend:function(){
+                    $('#spinner').show()
+                },
+                success:function(data)
+                {
+                    console.log(data);
+
+                    var $hvModal=$('#modal-hv-report');
+
+                    if(data!=null && data.length > 0)
+                    {
+                        var yakkrFirst= data.filter(function(yakkr200){
+
+                            return yakkr200.YakkrCode=='200' && yakkr200.VisitCount==1
+                        });
+
+
+                        var yakkrSecond= data.filter(function(yakkr221){
+
+                            return yakkr221.YakkrCode=='221' && yakkr221.VisitCount==2
+                        });
+
+
+                        $hvModal.find('#div-hv-1').hide();
+                        $hvModal.find('#lblhv1').hide();
+                        $hvModal.find('#div-hv-1 input').val('');
+                        $hvModal.find('#div-hv-1 input[name="YakkrIdFirst"]').val('');
+                        $hvModal.find('#parentDiv1').find('#parentCheck1').html('');
+                        $hvModal.find('#div-hv-1').hide();
+                        $hvModal.find('#lblhv1').html('');
+
+                        $hvModal.find('#lblhv2').hide();
+                        $hvModal.find('#div-hv-2').hide();
+                        $hvModal.find('#div-hv-2 input').val('');
+                        $hvModal.find('#div-hv-2 input[name="YakkrIdSecond"]').val('');
+                        $hvModal.find('#parentDiv2').find('#parentCheck2').html('');
+                        $hvModal.find('#div-hv-2').hide();
+                        $hvModal.find('#lblhv2').html('');
+
+
+                        $hvModal.find('input[name="eClientID"]').val(eClientID);
+
+                        $hvModal.find('#hv-report-heading').html('Home Visit Entry Report for '+clientName+'');
+
+
+                        var parentAppdendDiv='';
+                        if(data[0].ParentDetailsList!=null && data[0].ParentDetailsList.length>0)
+                        {
+                            $.each(data[0].ParentDetailsList,function(i,parent){
+
+                                if(parent.ParentName!='')
+                                {
+                                    parentAppdendDiv += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;">\
+                                                            <input type="checkbox" class="ParentID'+i+'  parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '"    parent=' + parent.ClientId + ' role=' + parent.ParentRole + '" />\
+                                                            <span style="margin-right:5px;padding-left: 10px;">' + parent.ParentName + '</span></div>';
+
+                                }
+
+                            });
+
+
+                        }
+                       
+                      
+
+                        if(yakkrFirst.length>0)
+                        {
+                            $hvModal.find('#div-hv-1 input').val('');
+
+                            $hvModal.find('#div-hv-1 input[name="homeVisit1Date"]').val(yakkrFirst[0].Date);
+
+                            if(!yakkrFirst[0].Editable && yakkrFirst[0].Date!=null && yakkrFirst[0].Date!='')
+                            {
+                                $hvModal.find('#div-hv-1').hide();
+
+                                $hvModal.find('#lblhv1').html(yakkrFirst[0].Date);
+                                $hvModal.find('#lblhv1').show();
+
+                                var yakkrFirstDate=new Date(yakkrFirst[0].Date);
+
+
+                            }
+                            else
+                            {
+
+
+
+                                $hvModal.find('#lblhv1').html('');
+                                $hvModal.find('#div-hv-1').show();
+                                $hvModal.find('#parentDiv1').find('#parentCheck1').html(parentAppdendDiv);
+
+                                if($hvModal.find('#parentDiv1').find('#parentCheck1').find('input:checkbox').length==1)
+                                {
+                                    $hvModal.find('#parentDiv1').find('#parentCheck1').find('input:checkbox').prop('checked',true);
+                                }
+
+
+                            }
+
+                            $hvModal.find('#div-hv-1 input[name="YakkrIdFirst"]').val(yakkrFirst[0].YakkrID);
+
+                        }
+
+
+                        if(yakkrSecond.length>0)
+                        {
+                            $hvModal.find('#div-hv-2 input').val('');
+                            $hvModal.find('#div-hv-2 input[name="homeVisit2Date"]').val(yakkrSecond[0].Date);
+
+                            if(!yakkrSecond[0].Editable && yakkrSecond[0].Date!=null && yakkrSecond[0].Date!='')
+                            {
+
+
+
+                                $hvModal.find('#div-hv-2').hide();
+
+                                $hvModal.find('#lblhv2').html(yakkrFirst[0].Date);
+                                $hvModal.find('#lblhv2').show();
+                            }
+                            else{
+
+
+                                $hvModal.find('#lblhv2').hide();
+
+                                $hvModal.find('#div-hv-2').show();
+                                $hvModal.find('#parentDiv2').find('#parentCheck2').html(parentAppdendDiv);
+
+
+                                if($hvModal.find('#parentDiv2').find('#parentCheck2').find('input:checkbox').length==1)
+                                {
+                                    $hvModal.find('#parentDiv2').find('#parentCheck2').find('input:checkbox').prop('checked',true);
+                                }
+                            }
+
+                            $hvModal.find('#div-hv-2 input[name="YakkrIdSecond"]').val(yakkrSecond[0].YakkrID);
+
+                        }
+                        cleanValidation();
+                        $hvModal.find('#parentCheck1').css('background-color','');
+                        $hvModal.find('#parentCheck2').css('background-color','');
+                        $hvModal.modal('show');
+
+                    }
+                },
+                error:function(data)
+                {
+
+                },
+                complete:function(data)
+                {
+                    $('#spinner').hide();
+                }
+
+            });
+        }
+
+
+        var rPTCanchor=null;
+        function getCenterVisitReport(ele)
+        {
+            var eClientID=$(ele).parent('td').closest('tr').children('td:eq(0)').attr('eclientid');
+            var clientName=$(ele).parent('td').closest('tr').children('td:eq(0)').html();
+            rPTCanchor=ele;
+
+            $.ajax({
+                url:HostedDir+'/Teacher/GetParentTeacherConferenceEntry',
+                type:'POST',
+                datatype:"JSON",
+                data:{eClientID:eClientID},
+                beforeSend:function(){
+                    $('#spinner').show();
+                },
+                success:function(data)
+                {
+
+                    console.log(data);
+                    var $ptcModal=$('#modal-ptc-report');
+                    debugger;
+                    if(data!=null && data.length>0)
+                    {
+                        var yakkrFirst= data.filter(function(visit){
+
+                            return visit.VisitCount==1
+                        });
+
+
+                        var yakkrSecond= data.filter(function(visit){
+
+                            return visit.VisitCount==2
+                        });
+
+
+                        $ptcModal.find('#div-ptc-1').hide();
+                        $ptcModal.find('#div-ptc-1 input').val('');
+                        $ptcModal.find('#div-ptc-1 input[name="YakkrId1"]').val('');
+                        $ptcModal.find('#parentDiv1').find('#parentCheck1').html('');
+                        $ptcModal.find('#div-ptc-1').hide();
+                        $ptcModal.find('#lblptc1').hide();
+                        $ptcModal.find('#lblptc1').html('');
+
+
+                        $ptcModal.find('#div-ptc-2').hide();
+                        $ptcModal.find('#div-ptc-2 input').val('');
+                        $ptcModal.find('#div-ptc-2 input[name="YakkrId2"]').val('');
+                        $ptcModal.find('#parentDiv2').find('#parentCheck2').html('');
+                        $ptcModal.find('#div-ptc-2').hide();
+                        $ptcModal.find('#lblptc2').hide();
+                        $ptcModal.find('#lblptc2').html('');
+
+
+
+
+
+                        $ptcModal.find('input[name="eClientID"]').val(eClientID);
+
+                        $ptcModal.find('#ptc-report-heading').html('P.T.C. Entry Report for '+clientName+'')
+
+
+                        var parentAppdendDiv='';
+                        if(data[0].ParentDetailsList!=null && data[0].ParentDetailsList.length>0)
+                        {
+                            $.each(data[0].ParentDetailsList,function(i,parent){
+
+                                if(parent.ParentName!='')
+                                {
+                                    parentAppdendDiv += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;">\
+                                                            <input type="checkbox" class="ParentID'+i+'  parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '"    parent=' + parent.ClientId + ' role=' + parent.ParentRole + '" />\
+                                                            <span style="margin-right:5px;padding-left: 10px;">' + parent.ParentName + '</span></div>';
+
+                                }
+
+
+                            });
+
+
+                        }
+
+                        if(yakkrFirst.length>0)
+                        {
+
+
+
+                            $ptcModal.find('#div-ptc-1 input').val('');
+
+                            $ptcModal.find('#div-ptc-1 input[name="ptcDate1"]').val(yakkrFirst[0].Date);
+
+                            if(!yakkrFirst[0].Editable && yakkrFirst[0].Date!=null && yakkrFirst[0].Date!='')
+                            {
+                                $ptcModal.find('#div-ptc-1').hide();
+                                $ptcModal.find('#lblptc1').html(yakkrFirst[0].Date);
+                                $ptcModal.find('#lblptc1').show();
+                            }
+                            else{
+
+                                $ptcModal.find('#parentDiv1').find('#parentCheck1').html(parentAppdendDiv);
+                                $ptcModal.find('#lblptc1').hide();
+                                $ptcModal.find('#div-ptc-1').show();
+
+                                if($ptcModal.find('#parentDiv1').find('#parentCheck1').find('input:checkbox').length==1)
+                                {
+                                    $ptcModal.find('#parentDiv1').find('#parentCheck1').find('input:checkbox').prop('checked',true);
+                                }
+                            }
+
+                            $ptcModal.find('#div-ptc-1 input[name="YakkrId1"]').val(yakkrFirst[0].YakkrID);
+
+
+
+                        }
+
+
+                        if(yakkrSecond.length>0)
+                        {
+
+                            $ptcModal.find('#div-ptc-2 input').val('');
+
+                            $ptcModal.find('#div-ptc-2 input[name="ptcDate2"]').val(yakkrSecond[0].Date);
+
+                            if(!yakkrSecond[0].Editable && yakkrSecond[0].Date !=null && yakkrSecond[0].Date!='')
+                            {
+
+                                $ptcModal.find('#div-ptc-2').hide();
+                                $ptcModal.find('#lblptc2').html(yakkrSecond[0].Date);
+                                $ptcModal.find('#lblptc2').show();
+                            }
+                            else{
+
+                                $ptcModal.find('#div-ptc-2').show();
+                                $ptcModal.find('#parentDiv2').find('#parentCheck2').html(parentAppdendDiv);
+                                $ptcModal.find('#lblptc2').hide();
+
+                                if($ptcModal.find('#parentDiv2').find('#parentCheck2').find('input:checkbox').length==1)
+                                {
+                                    $ptcModal.find('#parentDiv2').find('#parentCheck2').find('input:checkbox').prop('checked',true);
+                                }
+                            }
+
+
+                            $ptcModal.find('#div-ptc-2 input[name="YakkrId2"]').val(yakkrSecond[0].YakkrID);
+
+                        }
+                        cleanValidation();
+                        $ptcModal.find('#parentCheck1').css('background-color','');
+                        $ptcModal.find('#parentCheck2').css('background-color','');
+
+                        $ptcModal.modal('show');
+
+                    }
+                },
+                error:function(data)
+                {
+
+                },
+                complete:function(data)
+                {
+                    $('#spinner').hide();
+                }
+            });
+        }
 
 
         function showAttendancePopup(ele)
@@ -358,134 +1087,144 @@
                         customAlert("Please Enter Other Reason");
                     }
 
+                }
             }
+
+            return isValid;
         }
 
-        return isValid;
-    }
+        function getProfilePicture(pic) {
 
-    function getProfilePicture(pic) {
+            // $('.tooltiptext').css({ 'visibility': 'hidden' });
 
-        // $('.tooltiptext').css({ 'visibility': 'hidden' });
+            var enc_id = $(pic).attr('EClientId');
+            var position = $(pic).position();
+            var topalignment = position.top;
+            $.ajax({
+                url: '/Teacher/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
 
-        var enc_id = $(pic).attr('EClientId');
-        var position = $(pic).position();
-        var topalignment = position.top;
-        $.ajax({
-            url: '/Teacher/GetChildrenImage',
-            dataType: 'json',
-            type: 'post',
-            data: { enc_clientId: enc_id },
-            success: function (data) {
-
-                var image = '';
-                if (data.Text == "" && data.Value == "2") {
-                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
-                }
-                else if (data.Text == "" && data.Value == "1") {
-                    image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
-                }
-                else if (data.Text == "" && ata.Text == "3") {
-                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
-                }
-                else if (data.Text != "") {
-                    image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
-                }
-                else {
-                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
-                }
-
-                $(pic).children('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
-                // $(pic).parent('td').find('.roundimage').zoomify();
-
-            },
-            error: function (data) {
-
-            }
-        });
-    }
-
-
-    function showImage(ele) {
-        $('#spinner').show();
-        var enc_id = $(ele).attr('EClientId');
-        $.ajax({
-            url: '/Roster/GetChildrenImage',
-            dataType: 'json',
-            type: 'post',
-            data: { enc_clientId: enc_id },
-            success: function (data) {
-
-                var image = '';
-                if (data.Text == "" && data.Value == "2") {
-                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
-                }
-                else if (data.Text == "" && data.Value == "1") {
-                    image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
-                }
-                else if (data.Text == "" && ata.Text == "3") {
-                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
-                }
-                else if (data.Text != "") {
-                    image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
-                }
-                else {
-                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
-                }
-
-                $(ele).parent('td').append(image);
-                $(ele).parent('td').find('.roundimage').zoomify();
-                $(ele).remove();
-                $('#spinner').hide();
-            },
-            error: function (data) {
-                $('#spinner').hide();
-            }
-        });
-    }
-
-    //function hideProfileImage(pics) {
-    //    $(pics).find('.tooltiptext').css({ 'visibility': 'hidden' });
-    //}
-
-
-    function updateNotCheckedIn(count) {
-        $('#not-check-a').children('#notCheckIn').text('(' + count + ')');
-    }
-
-    function getTagsOnInput() {
-        var tagInp = $('#nREF_status_CaseNotetags').val();
-        var tagsArr = [];
-        $.ajax({
-            url: '/Roster/GetCaseNoteTagonInput',
-            datatype: 'json',
-            type: 'post',
-            async: true,
-            data: { searchText: tagInp },
-            success: function (data) {
-                if (data != null) {
-                    if (data.length > 0) {
-                        $.each(data, function (i, tags) {
-                            tagsArr.push(tags.Text);
-                        });
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
                     }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
+                    }
+
+                    $(pic).children('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    // $(pic).parent('td').find('.roundimage').zoomify();
+
+                },
+                error: function (data) {
+
                 }
-            },
-            error: function (data) {
-            }
-        });
-        return tagsArr;
-    }
-    function getFormattedDate(date) {
-        date = new Date(date);
-        var year = date.getFullYear();
-        var month = (1 + date.getMonth()).toString();
-        month = month.length > 1 ? month : '0' + month;
-        var day = date.getDate().toString();
-        day = day.length > 1 ? day : '0' + day;
-        return month + '/' + day + '/' + year;
-    }
-</script>
+            });
+        }
+
+
+        function showImage(ele) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
+
+        //function hideProfileImage(pics) {
+        //    $(pics).find('.tooltiptext').css({ 'visibility': 'hidden' });
+        //}
+
+
+        function updateNotCheckedIn(count) {
+            $('#not-check-a').children('#notCheckIn').text('(' + count + ')');
+        }
+
+
+        function getTagsOnInput() {
+            var tagInp = $('#nREF_status_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+    </script>
 }
 
 
@@ -493,192 +1232,480 @@
 
     <style type="text/css">
         .page-wrapper-change {
-    background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
-    background-size: cover !important;
-    background-position: 100% 100% !important;
-}
+            background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+
         /*04-May-2018*/
-.edu_class_room{width:100%;float:left;margin-top:15px;margin-bottom:30px;}
-.edu_clrtable{width:100%;float:left;padding:15px;background-color:#fff;border-radius:7px;}
-.edu_clrtable table tbody tr td{color:#163b69;text-align:center;}
-td.edu_chk{color:#27ae60 !important;}
-td.edu_ntchk{color:#c0392b !important;}
-.edu_clrtable table thead tr th{background-color:#9B58B4;color:#fff;text-align:center;}
-.edu_clrm_head{width:100%;float:left;margin-bottom:15px;}
-.edu_clrm_head h3{background-color:#f9c751;color:#000;padding:15px;border-radius:7px;font-weight:600;}
-.edu_clrm_head small{color:#000;}
-.edu_frm_ps label{float:left;width:40%;}
-.edu_frm_ps label{float:left;width:40%;color:#163b69;font-weight:300;}
-.edu_meal_detail{width:100%;float:left;background-color:#f1f5f8;padding:30px 15px;margin-bottom:28px;border-radius:7px;}
-.edu_frm_chk input[type="checkbox"]{float:left;width:auto;}
-.edu_frm_chk label{float:left;width:auto;padding-left:9px;padding-top:2px;color:#163b69;font-weight:300;}
-.edu_frm_ps select{width:60%;-webkit-appearance:none;float:left;background:#fff url(../images/class-room/arr-down.png) no-repeat 97% center;}
-.part_edubtn{width:100%;float:left;text-align:center;}
-.btn-edu-sucess{background-color:#2ecc71;border-radius:0 !important;color:#fff !important;padding:7px 15px !important;outline:none !important;}
-.part_edubtn button.btn-edu-sucess{margin-right:20px;}
-.btn-edu-exit{background-color:#e74c3c;border-radius:0 !important;color:#fff !important;padding:7px 15px !important;outline:none !important;}
-.edu_frm_chk{float:right;width:60%;}
-.edu_frm_ps select, .edu_frm_ps input{width:60%;float:left;}
-/*start Pop-up*/
-.modal-content.add_screen{background-color:#6a51a3; border:5px solid #fff; max-width:1200px; width:100%;}
-.modal-content.add_screen .modal-header{border-bottom:none; padding:10px;}
-.modal-content.add_screen .modal-header .close {
-    margin-top: -2px;
-    position: absolute;
-    top: -14px;
-    right: -14px;
-    background-color: #db4437;
-    border-radius: 50%;
-    /* padding: 12px 9px; */
-    opacity: 1;
-    width: 40px;
-    height: 40px;
-    color: #fff;
-}.pop_title{background-color:#e67e22;padding:7px; border-radius:5px; margin-bottom:30px; color:#fff; text-align:center; font-size:20px;}
-.modal-dialog.view_pop{max-width:1200px; width:100%;}
-.modal-content.add_screen .modal-body	{background-color:#f1f5f8; width:100%; float:left; padding:0px; border-radius:46px 47px 0px 0px;}
-.nopadding{padding:0px;}
-.modal-content.add_screen .modal-body h4{background-color:#34495e; color:#fff; text-align:center; padding:15px;}
-.pop_list{background-color:#fff; padding:10px; margin:20px;     max-height: 570px;height: 570px;}
-.pop_list ul li.pink{background-color:#ffcccc; }.pop_list ul li{list-style:none; text-align: center;
-    padding: 10px; margin-bottom:15px;}
-.pop_content{margin:20px;}.nopadding{padding:0px!important;}
-.nopadding h4{margin:0px;}
-.pop_list ul{margin:10px 5px;}
-.pop_list ul li{cursor: pointer;}
-.pop_list ul li.blue{background-color:#c5eff7; }
-.pop_list ul li.green{background-color:#b2f5a8; }
-.pop_list ul li.yellow{background-color:#f7d794; }
-.pop_list ul li.black{background-color:#34495e; color:#fff; }
-.file_attach{margin:5px;}.form_filed{margin-top:25px;}
-.form_filed label{color: #164978;
-    font-size: 16px; font-weight:normal;}
-.form_filed sup{color:red;}
-.modal-dialog.view_pop {
-    margin: 1% auto 0 !important;
-}
-.form_filed ::placeholder {color: #164978!important;}
-.form_filed .form-control{color:#164978!important; margin-bottom:15px; height:40px; border:1px solid #e7e7e7; box-shadow:none;}
-.pop_list.form_section{overflow-y:scroll;}
-.modal-content.add_screen .modal-footer{text-align:center;}
-.pop_footer{margin-top:30px; width: 100%;
-    float: left;}.pop_footer button.btn.btn-success{width:auto !important; padding:6px 25px; font-weight:bold;}
-	.pop_footer button.btn.btn-default{width:auto!important; padding:6px 25px; background-color:#34495e!important; border:1px solid #34495e!important; font-weight:bold; }
-h4.right_radius{border-radius:4px 0px 0px 0px;}
-h4.left_radius{border-radius:0px 4px 0px 0px;}
-#email ::placeholder {color: #164978;}
-select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.png) no-repeat 97% center;-webkit-appearance:none;}
-/*pop-up*/
-/*04-May-2018*/
-    </style>
-<style>
-    @@media only screen and (min-width: 767px) and (max-width: 991px) {
+        .edu_class_room {
+            width: 100%;
+            float: left;
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
         .edu_clrtable {
-        border-radius: 0 !important;
+            width: 100%;
+            float: left;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 7px;
         }
-    }
-    .childName .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: black;
-        /*background-color: rgba(0, 0, 0, 0.18);*/
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 0;
-        position: absolute;
-        z-index: 1;
-        /*top: 28px;*/
-        /*left: 128px;*/
-        left: 105px;
-        line-height: 25px;
-        border: 1px solid black;
-    }
+
+            .edu_clrtable table tbody tr td {
+                color: #163b69;
+                text-align: center;
+            }
+
+        td.edu_chk {
+            color: #27ae60 !important;
+        }
+
+        td.edu_ntchk {
+            color: #c0392b !important;
+        }
+
+        .edu_clrtable table thead tr th {
+            background-color: #9B58B4;
+            color: #fff;
+            text-align: center;
+        }
+
+        .edu_clrm_head {
+            width: 100%;
+            float: left;
+            margin-bottom: 15px;
+        }
+
+            .edu_clrm_head h3 {
+                background-color: #f9c751;
+                color: #000;
+                padding: 15px;
+                border-radius: 7px;
+                font-weight: 600;
+            }
+
+            .edu_clrm_head small {
+                color: #000;
+            }
+
+        .edu_frm_ps label {
+            float: left;
+            width: 40%;
+        }
+
+        .edu_frm_ps label {
+            float: left;
+            width: 40%;
+            color: #163b69;
+            font-weight: 300;
+        }
+
+        .edu_meal_detail {
+            width: 100%;
+            float: left;
+            background-color: #f1f5f8;
+            padding: 30px 15px;
+            margin-bottom: 28px;
+            border-radius: 7px;
+        }
+
+        .edu_frm_chk input[type="checkbox"] {
+            float: left;
+            width: auto;
+        }
+
+        .edu_frm_chk label {
+            float: left;
+            width: auto;
+            padding-left: 9px;
+            padding-top: 2px;
+            color: #163b69;
+            font-weight: 300;
+        }
+
+        .edu_frm_ps select {
+            width: 60%;
+            -webkit-appearance: none;
+            float: left;
+            background: #fff url(../images/class-room/arr-down.png) no-repeat 97% center;
+        }
+
+        .part_edubtn {
+            width: 100%;
+            float: left;
+            text-align: center;
+        }
+
+        .btn-edu-sucess {
+            background-color: #2ecc71;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .part_edubtn button.btn-edu-sucess {
+            margin-right: 20px;
+        }
+
+        .btn-edu-exit {
+            background-color: #e74c3c;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .edu_frm_chk {
+            float: right;
+            width: 60%;
+        }
+
+        .edu_frm_ps select, .edu_frm_ps input {
+            width: 60%;
+            float: left;
+        }
+        /*start Pop-up*/
+        .modal-content.add_screen {
+            background-color: #6a51a3;
+            border: 5px solid #fff;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+            .modal-content.add_screen .modal-header {
+                border-bottom: none;
+                padding: 10px;
+            }
+
+                .modal-content.add_screen .modal-header .close {
+                    margin-top: -2px;
+                    position: absolute;
+                    top: -14px;
+                    right: -14px;
+                    background-color: #db4437;
+                    border-radius: 50%;
+                    /* padding: 12px 9px; */
+                    opacity: 1;
+                    width: 40px;
+                    height: 40px;
+                    color: #fff;
+                }
+
+        .pop_title {
+            background-color: #e67e22;
+            padding: 7px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .modal-dialog.view_pop {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .modal-content.add_screen .modal-body {
+            background-color: #f1f5f8;
+            width: 100%;
+            float: left;
+            padding: 0px;
+            border-radius: 46px 47px 0px 0px;
+        }
+
+        .nopadding {
+            padding: 0px;
+        }
+
+        .modal-content.add_screen .modal-body h4 {
+            background-color: #34495e;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .pop_list {
+            background-color: #fff;
+            padding: 10px;
+            margin: 20px;
+            max-height: 570px;
+            height: 570px;
+        }
+
+            .pop_list ul li.pink {
+                background-color: #ffcccc;
+            }
+
+            .pop_list ul li {
+                list-style: none;
+                text-align: center;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+
+        .pop_content {
+            margin: 20px;
+        }
+
+        .nopadding {
+            padding: 0px !important;
+        }
+
+            .nopadding h4 {
+                margin: 0px;
+            }
+
+        .pop_list ul {
+            margin: 10px 5px;
+        }
+
+            .pop_list ul li {
+                cursor: pointer;
+            }
+
+                .pop_list ul li.blue {
+                    background-color: #c5eff7;
+                }
+
+                .pop_list ul li.green {
+                    background-color: #b2f5a8;
+                }
+
+                .pop_list ul li.yellow {
+                    background-color: #f7d794;
+                }
+
+                .pop_list ul li.black {
+                    background-color: #34495e;
+                    color: #fff;
+                }
+
+        .file_attach {
+            margin: 5px;
+        }
+
+        .form_filed {
+            margin-top: 25px;
+        }
+
+            .form_filed label {
+                color: #164978;
+                font-size: 16px;
+                font-weight: normal;
+            }
+
+            .form_filed sup {
+                color: red;
+            }
+
+        .modal-dialog.view_pop {
+            margin: 1% auto 0 !important;
+        }
+
+        .form_filed ::placeholder {
+            color: #164978 !important;
+        }
+
+        .form_filed .form-control {
+            color: #164978 !important;
+            margin-bottom: 15px;
+            height: 40px;
+            border: 1px solid #e7e7e7;
+            box-shadow: none;
+        }
+
+        .pop_list.form_section {
+            overflow-y: scroll;
+        }
+
+        .modal-content.add_screen .modal-footer {
+            text-align: center;
+        }
+
+        .pop_footer {
+            margin-top: 30px;
+            width: 100%;
+            float: left;
+        }
+
+            .pop_footer button.btn.btn-success {
+                width: auto !important;
+                padding: 6px 25px;
+                font-weight: bold;
+            }
+
+            .pop_footer button.btn.btn-default {
+                width: auto !important;
+                padding: 6px 25px;
+                background-color: #34495e !important;
+                border: 1px solid #34495e !important;
+                font-weight: bold;
+            }
+
+        h4.right_radius {
+            border-radius: 4px 0px 0px 0px;
+        }
+
+        h4.left_radius {
+            border-radius: 0px 4px 0px 0px;
+        }
+
+        #email ::placeholder {
+            color: #164978;
+        }
+
+        select.form-control.edu_arr {
+            background: #fff url(../images/class-room/arr-down.png) no-repeat 97% center;
+            -webkit-appearance: none;
+        }
+        /*pop-up*/
+
+        /*04-May-2018*/
 
 
-        .childName .tooltiptext::after {
-            content: " ";
+        #rhv-table, #rptc-table {
+            width: 100%;
+            margin: auto;
+        }
+
+            #rhv-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group, #rptc-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group {
+                margin-left: 23%;
+                padding: 10px;
+            }
+    </style>
+
+    <style>
+        @@media only screen and (min-width: 767px) and (max-width: 991px) {
+            .edu_clrtable {
+                border-radius: 0 !important;
+            }
+        }
+
+        @@media only screen and (min-width:230px ) and (max-width:1200px) {
+            #rptc-table #div-ptc-2, #rptc-table #div-ptc-1,#rhv-tabl #div-hv-1,#rhv-tabl #div-hv-2 {
+                margin-top: 20px;
+            }
+
+            #rptc-table,#rhv-table {
+                padding-left: 25px;
+                padding-right: 25px;
+                padding-top: 25px;
+            }
+        }
+
+        .childName .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            /*background-color: rgba(0, 0, 0, 0.18);*/
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
             position: absolute;
-            top: 50%;
-            right: 100%; /* To the left of the tooltip */
-            margin-top: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: transparent black transparent transparent;
+            z-index: 1;
+            /*top: 28px;*/
+            /*left: 128px;*/
+            left: 105px;
+            line-height: 25px;
+            border: 1px solid black;
         }
 
-    .childName:hover .tooltiptext {
-        visibility: visible;
-    }
 
-    .childName:not( :hover ) .tooltiptext {
-        visibility: hidden;
-    }
+            .childName .tooltiptext::after {
+                content: " ";
+                position: absolute;
+                top: 50%;
+                right: 100%; /* To the left of the tooltip */
+                margin-top: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: transparent black transparent transparent;
+            }
 
-       .education-content-desc1 p {
-        background: #e74c3c;
-        border: 1px solid #c0392b;
-        padding: 12px 15px;
-        color: #fff;
-        text-align: center;
-        font-size: 18px;
-        margin: 0; /* font-weight: bold; */
-    }
+        .childName:hover .tooltiptext {
+            visibility: visible;
+        }
 
-       .no-padding{
-           padding:0;
-       }
+        .childName:not( :hover ) .tooltiptext {
+            visibility: hidden;
+        }
 
-       #TeacherRoster tbody th{
-           border:1px solid #ccc;
-       }
-</style>
+        .education-content-desc1 p {
+            background: #e74c3c;
+            border: 1px solid #c0392b;
+            padding: 12px 15px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            margin: 0; /* font-weight: bold; */
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        #TeacherRoster tbody th {
+            border: 1px solid #ccc;
+        }
+    </style>
+
+
 
     @* New Design *@
-<div class="container-fuild">
-<form method="post" enctype="multipart/form-data">
 
 
-    <input type="hidden" id="profileindex" name="profileindex" />
-    <input type="hidden" id="eduindex" name="eduindex" />
+    <div class="container-fuild">
 
-    <div class="modal fade" id="myModalApprovalForClassRoomOpenCloseRequest" role="dialog" style="display: none;">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <input type="hidden" name="childid" id="childid" value="">
-                    <input type="hidden" name="childname" id="childname" value="">
-                    <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Child Development Team</label>
-                </div>
-                <div class="form-group-al" style="width: 420px;margin: auto;display: block;">
-                    <div class="development-team-container">
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" id="profileindex" name="profileindex" />
+            <input type="hidden" id="eduindex" name="eduindex" />
 
-                    </div>
-                    <div class="form-group classroom-open-panel">
-                        <label style="float:left;width:auto;margin-left:0;" class="control-label" for="current_password">Notes</label>
-                        <textarea style="resize:none;width:65%;height:50px;display:inline-block;margin-left:7px;" class="form-control txt-classroom-notes" id="CNotes" placeholder=""></textarea>
-                        <div class="err-container" style="height:20px;margin-bottom:10px;">
-                            <label class="control-label"></label>
-                            <span class="error-message error-message-classroom" style="display:none;text-align:center;width:100%!important;">Notes is mandatory</span>
+            <div class="modal fade" id="myModalApprovalForClassRoomOpenCloseRequest" role="dialog" style="display: none;">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <input type="hidden" name="childid" id="childid" value="">
+                            <input type="hidden" name="childname" id="childname" value="">
+                            <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Child Development Team</label>
+                        </div>
+                        <div class="form-group-al" style="width: 420px;margin: auto;display: block;">
+                            <div class="development-team-container">
+
+                            </div>
+                            <div class="form-group classroom-open-panel">
+                                <label style="float:left;width:auto;margin-left:0;" class="control-label" for="current_password">Notes</label>
+                                <textarea style="resize:none;width:65%;height:50px;display:inline-block;margin-left:7px;" class="form-control txt-classroom-notes" id="CNotes" placeholder=""></textarea>
+                                <div class="err-container" style="height:20px;margin-bottom:10px;">
+                                    <label class="control-label"></label>
+                                    <span class="error-message error-message-classroom" style="display:none;text-align:center;width:100%!important;">Notes is mandatory</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btnPassword address-btn btn-send" style="width: 18% !important;">Send Note</button>
+                            <button class="btnPassword address-btn btn-classroom-cancel" data-dismiss="modal">Back</button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btnPassword address-btn btn-send" style="width: 18% !important;">Send Note</button>
-                    <button class="btnPassword address-btn btn-classroom-cancel" data-dismiss="modal">Back</button>
-                </div>
             </div>
-        </div>
-    </div>
-        <div class="row" style="margin:0px;">
-            <div class="edu_class_room">
 
 
 
-                 @*   @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")*@
 
-                <div class="edu_clrm_head">
+            <div class="row" style="margin:0px;">
+                <div class="edu_class_room">
+
+
+
+                    @*   @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")*@
+
+                    <div class="edu_clrm_head">
 
 
                         <h3>
@@ -706,105 +1733,100 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
                                     <th>Disabilities</th>
                                     <th>Services</th>
                                 </tr>
-
                             </thead>
                             <tbody>
 
 
+
                                 @foreach (var j in Model.Itemlst)
                                 {
-                                <tr>
+                                    <tr>
 
-                            <td EClientId="@j.Enc_ClientId" class="childName">@j.CName</td>
-                            <td>@j.CDOB</td>
-                                   
-                            <td><a href="javascript:void(0)" onclick="showImage(this);" EClientId='@j.Enc_ClientId'>View</a></td>
+                                        <td EClientId="@j.Enc_ClientId" class="childName">@j.CName</td>
+                                        <td>@j.CDOB</td>
+                                        <td><a href="javascript:void(0)" onclick="showImage(this);" EClientId='@j.Enc_ClientId'>View</a></td>
+                                        <td>@j.Dateofclassstartdate</td>
 
-                            <td>@j.Dateofclassstartdate</td>
-
-                                    @if (j.AttendanceType == "Not Checked In" && (j.IsLateArrival || j.IsCaseNoteEntered != 0))
-                                    {
-                                <td style="font-family:Arial;color:blueviolet;">Marked as Late Arrival<br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
-                                    }
-                                    else
-                                    {
-                                    if (j.AttendanceType == "Not Checked In")
-                                    {
-
-                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
-
-                                    }
-
-                                    else if (j.AttendanceType == "Present")
-                                    {
-                                <td style="font-family:Arial;color:rebeccapurple;">
-
-
-
-                                                        <a href="~/Teacher/CheckInCheckOutDetail?clientid=@j.ClientID&accesstype=1" title="Details" class="links">
-                                                            @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
-
-                                            </a>
-                                </td>
-
-                                    }
-                                    else if(j.AttendanceType == "Absent Excused")
-                                    {
-                                <td style="font-family:Arial;color:#9c27b0;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
-                                        }
-                                        else if (j.AttendanceType == "Present Other")
+                                        @if (j.AttendanceType == "Not Checked In" && (j.IsLateArrival || j.IsCaseNoteEntered != 0))
                                         {
-                                <td style="font-family:Arial;color:#ff5722;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                            <td style="font-family:Arial;color:blueviolet;">Marked as Late Arrival<br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
                                         }
                                         else
                                         {
-                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                            if (j.AttendanceType == "Not Checked In")
+                                            {
+
+                                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+
+                                            }
+
+                                            else if (j.AttendanceType == "Present")
+                                            {
+                                                <td style="font-family:Arial;color:rebeccapurple;">
+
+
+
+                                                    <a href="~/Teacher/CheckInCheckOutDetail?clientid=@j.ClientID&accesstype=1" title="Details" class="links">
+                                                        @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+
+                                                    </a>
+                                                </td>
+
+                                            }
+                                            else if (j.AttendanceType == "Absent Excused")
+                                            {
+                                                <td style="font-family:Arial;color:#9c27b0;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                            }
+                                            else if (j.AttendanceType == "Present Other")
+                                            {
+                                                <td style="font-family:Arial;color:#ff5722;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                            }
+                                            else
+                                            {
+                                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+
+                                            }
 
                                         }
 
-                                    }
-
-                                    @if (j.ObservationChecked)
-                                    {
-                                    <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                    }
-                                    else if (j.AttendanceType == "Present")
-                                    {
-                                    <th>
+                                        @if (j.ObservationChecked)
+                                        {
+                                            <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                        }
+                                        else if (j.AttendanceType == "Present")
+                                        {
+                                            <th>
 
 
-                                        <a href="@Url.Action("ParentCheckIn", "Teacher" , new { clientid=@j.ClientID, accesstype=1, available="1" })" class="office">
+                                                <a href="@Url.Action("ParentCheckIn", "Teacher" , new { clientid=@j.ClientID, accesstype=1, available="1" })" class="office">
 
-                                            <img alt="List View" src="@Url.Content("~/Images/whiteX.gif")" />
-                                        </a>
-                                    </th>
-                                    }
-                                    else
-                                    {
+                                                    <img alt="List View" src="@Url.Content("~/Images/whiteX.gif")" />
+                                                </a>
+                                            </th>
+                                        }
+                                        else
+                                        {
 
-                                    <th><img src="~/Images/whiteX.gif" /> </th>
+                                            <th><img src="~/Images/whiteX.gif" /> </th>
 
-                                    }
-
-
-                            <td>@j.PercentAbsent %</td>
-                            <td>@j.EnrollmentDays</td>
-                                 
+                                        }
 
 
-                                  
-                                      @if (j.Disability == "1")
-                                    {
-                                <td>
-                                        <img src="~/Images/whiteCheck.jpg" title="@j.DisabilityDescription" />
-                                </td>
-                                    }
-                                    else
-                                    {
-                                <td><img src="~/Images/whiteX.gif" title="No Disability Recorded" /></td>
-                                    }
+                                        <td>@j.PercentAbsent %</td>
+                                        <td>@j.EnrollmentDays</td>
 
-                            <td style="white-space:nowrap;">
+                                        @if (j.Disability == "1")
+                                        {
+                                            <td>
+                                                <img src="~/Images/whiteCheck.jpg" title="@j.DisabilityDescription" />
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td><img src="~/Images/whiteX.gif" title="No Disability Recorded" /></td>
+                                        }
+
+                                        <td style="white-space:nowrap;">
 
 
                                             @if (Model.ClosedDetails.ClosedToday > 0)
@@ -818,7 +1840,7 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 
                                             }
 
-                                           @* <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>*@
+                                            @* <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>*@
 
                                             @if (Model.AllowCaseNoteTeacher == "1")
                                             {
@@ -828,6 +1850,18 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 
 
                                             <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
+
+                                            @if (j.HasHomeVisit)
+                                            {
+                                                <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Home Visit Report" href="javascript:void(0);" onclick="getHomeVisitReport(this);">rHV&nbsp;</a>
+
+                                            }
+
+                                            @if (j.HasCenterVisit)
+                                            {
+                                                <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Parent Center Visit Report" href="javascript:void(0);" onclick="getCenterVisitReport(this);">rPTC&nbsp;</a>
+
+                                            }
 
                                             <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId" data-centerid="@j.Enc_CenterId" data-classroomid="@FingerprintsModel.EncryptDecrypt.Decrypt64(j.Enc_ClassRoomId)" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" data-target="tooltip" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
 
@@ -845,59 +1879,296 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 
                                 }
 
-                            </tbody>
 
+                            </tbody>
                         </table>
 
                     </div>
 
+
+                </div>
             </div>
-        </div>
 
-    @using (Html.BeginForm("CheckIn", "Teacher"))
+            @using (Html.BeginForm("CheckIn", "Teacher"))
     {
-            <div class="modal fade" id="myModalattendance" role="dialog">
-            <div class="modal-dialog">
-                    <!-- Modal content-->
+                <div class="modal fade" id="myModalattendance" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Attendance for <label id="childlbl" text="" /> </h3>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
+
+                                @Html.DropDownListFor(m => m.AttendanceTypeId, Model.AttendanceTypeList, "Select Type", new { id = "AbsentType", Name = "AbsentType", style = "width: 45%;", @class = "form-control clear-popup" })
+
+
+                            </div>
+                            <div class="form-group" id="divAbsenceReasonList" style="display:none;">
+                                <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
+                                @Html.DropDownListFor(m => m.AbsenceReasonId, Model.AbsenceReasonList, "Select Reason", new { id = "ReasonList", Name = "ReasonList", style = "width: 45%;", @class = "form-control clear-popup" })
+                            </div>
+                            <div class="form-group" id="divNewReason" style="display:none;">
+                                <label class="control-label">Other Reason <span style="color:red;">*</span></label>
+                                <input type="text" name="txtNewReason" id="txtNewReason" class="form-control" style="width:45%;" />
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btnPassword" id="submit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
+                                <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+
+
+
+
+        </form>
+
+
+        <div class="modal fade scroll-modal custom-modal in" id="modal-hv-report" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-ch">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Attendance for <label id="childlbl" text="" /> </h3>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                        <h2 id="hv-report-heading" class="extra-title muted"> </h2>
+                        <form id="formEditInkind" enctype="multipart/form-data">
+                            <input type="hidden" name="eClientID" />
+                            <div class="max_items_addn popup-addn-scroll">
 
-                        @Html.DropDownListFor(m => m.AttendanceTypeId, Model.AttendanceTypeList, "Select Type", new { id = "AbsentType", Name = "AbsentType", style = "width: 45%;", @class = "form-control clear-popup" })
-
-
-                    </div>
-                    <div class="form-group" id="divAbsenceReasonList" style="display:none;">
-                        <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
-                        @Html.DropDownListFor(m => m.AbsenceReasonId, Model.AbsenceReasonList, "Select Reason", new { id = "ReasonList", Name = "ReasonList", style = "width: 45%;", @class = "form-control clear-popup" })
-                    </div>
-                    <div class="form-group" id="divNewReason" style="display:none;">
-                        <label class="control-label">Other Reason <span style="color:red;">*</span></label>
-                        <input type="text" name="txtNewReason" id="txtNewReason" class="form-control" style="width:45%;" />
-                    </div>
-
-                    <div class="modal-footer">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
+                                    <div class="glossy-panel-div col-xs-12" style="padding:0;">
 
 
-                        <button class="btnPassword" id="submit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
+                                        <table class="table table-area-head table-bordered text-center glossy-table" id="rhv-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Home Visit - 1 </th>
+                                                    <th>Home Visit - 2</th>
+                                                </tr>
 
-                        <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+                                            </thead>
+                                            <tbody class="glossy-table-body">
 
+                                                <tr>
+
+                                                    <td data-title="Home Visit - 1">
+
+                                                        <label id="lblhv1" class="lbl-text" style="display:none;"></label>
+
+
+                                                        <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-hv-1">
+                                                            <div class="input-group date col-lg-5 col-md-5">
+                                                                <input type="text" class="form-control glossy-date-input" name="homeVisit1Date" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker1">
+                                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+                                                            <input type="hidden" name="YakkrIdFirst" />
+
+
+                                                            <div class="form-group  col-lg-12 col-sm-12 col-xs-12 text-left" id="parentDiv1" style="margin-top:3%;padding:0;">
+                                                                <label class="lbl-text" style="color:#1d5381;font-weight:bold;">Select Parent(s) <sup style="color:red;">*</sup></label>
+
+                                                                <div class="col-xs-12" id="parentCheck1">
+
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </td>
+                                                    <td data-title="Home Visit - 2">
+
+                                                        <label id="lblhv2" class="lbl-text" style="display:none;"></label>
+
+                                                        <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-hv-2">
+                                                            <div class="input-group date col-lg-5 col-md-5">
+                                                                <input type="text" class="form-control glossy-date-input" name="homeVisit2Date" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker2">
+                                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+
+                                                            <input type="hidden" name="YakkrIdSecond" />
+
+                                                            <div class="form-group  col-lg-12 col-sm-12 col-xs-12 text-left" id="parentDiv2" style="margin-top:3%;padding:0;">
+                                                                <label class="lbl-text" style="color:#1d5381;font-weight:bold;">Select Parent(s) <sup style="color:red;">*</sup></label>
+                                                                <div class="col-xs-12" id="parentCheck2">
+
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                                <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Save
+                                </button>
+
+                                &nbsp;&nbsp;
+
+                                <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Exit
+                                </button>
+                            </div>
+
+
+                        </form>
 
 
                     </div>
                 </div>
             </div>
+
         </div>
-    }
 
-        </form>
-</div>
 
+
+        <div class="modal fade scroll-modal custom-modal in" id="modal-ptc-report" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-ch">
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                        <h2 id="ptc-report-heading" class="extra-title muted"> </h2>
+                        <form id="formEditInkind" enctype="multipart/form-data">
+                            <input type="hidden" name="eClientID" />
+                            <div class="max_items_addn popup-addn-scroll">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
+                                    <div class="glossy-panel-div col-xs-12" style="padding:0;">
+
+
+                                        <table class="table table-area-head table-bordered text-center glossy-table" id="rptc-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>P.T.C.  1 </th>
+                                                    <th>P.T.C.  2</th>
+                                                </tr>
+
+                                            </thead>
+                                            <tbody class="glossy-table-body">
+
+                                                <tr>
+
+                                                    <td data-title="P.T.C. 1">
+
+                                                        <label id="lblptc1" class="lbl-text" style="display:none;"></label>
+
+                                                        <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-ptc-1">
+                                                            <div class="input-group date col-lg-7">
+                                                                <input type="text" class="form-control glossy-date-input" name="ptcDate1" maxlength="12" placeholder="MM/DD/YYYY" id="ptcDate1">
+                                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+                                                            <input type="hidden" name="YakkrId1" />
+
+                                                            <div class="form-group  col-lg-12 col-sm-12 col-xs-12 text-left" id="parentDiv1" style="margin-top:3%;padding:0;">
+                                                                <label class="lbl-text" style="color:#1d5381;font-weight:bold;">Select Parent(s) <sup style="color:red;">*</sup></label>
+
+                                                                <div class="col-xs-12" id="parentCheck1">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+
+
+                                                    </td>
+                                                    <td data-title="P.T.C. 2">
+                                                        <label id="lblptc2" class="lbl-text" style="display:none;"></label>
+
+
+                                                        <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-ptc-2">
+                                                            <div class="input-group date col-lg-7">
+                                                                <input type="text" class="form-control glossy-date-input" name="ptcDate2" maxlength="12" placeholder="MM/DD/YYYY" id="ptcDate2">
+                                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                                </span>
+                                                            </div>
+
+                                                            <input type="hidden" name="YakkrId2" />
+
+                                                            <div class="form-group  col-lg-12 col-sm-12 col-xs-12 text-left" id="parentDiv2" style="margin-top:3%;padding:0;">
+                                                                <label class="lbl-text" style="color:#1d5381;font-weight:bold;">Select Parent(s) <sup style="color:red;">*</sup></label>
+                                                                <div class="col-xs-12" id="parentCheck2">
+
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                                <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Save
+                                </button>
+
+                                &nbsp;&nbsp;
+
+                                <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Exit
+                                </button>
+                            </div>
+
+
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
     @* New Design *@
-@Html.Partial("~/Views/Partialviews/InternalReferral.cshtml")
+
+    @Html.Partial("~/Views/Partialviews/InternalReferral.cshtml")
+
 }

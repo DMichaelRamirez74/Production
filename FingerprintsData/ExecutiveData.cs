@@ -26,8 +26,17 @@ namespace FingerprintsData
         public ExecutiveDashBoard GetExecutiveDetails(StaffDetails staff, string Command)
         {
             ExecutiveDashBoard executive = new ExecutiveDashBoard();
+
+
+
+          
             try
             {
+
+
+                executive.AcceptanceReason = new List<SelectListItem>();
+               
+
                 double doubCheck = 0;
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
@@ -71,6 +80,25 @@ namespace FingerprintsData
                         }
                     }
 
+                    //Waiting List Chart Data //
+
+                    if (reader.NextResult() && reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            executive.AcceptanceReason.Add(new SelectListItem
+                            {
+                                Text = reader["Description"]==DBNull.Value?string.Empty:Convert.ToString(reader["Description"]),
+                                Value =reader["Count"]==DBNull.Value?"0":Convert.ToString(reader["Count"])
+                            });
+
+                        }
+                    }
+
+
+
+
+
                     //Employee Birthday
                     if (reader.NextResult() && reader.HasRows)
                     {
@@ -81,7 +109,7 @@ namespace FingerprintsData
                                 executive.EmployeeBirthdayList.Add(new ExecutiveDashBoard.EmployeeBirthday
                                 {
                                     Staff = reader["Staff"].ToString(),
-                                    DateOfBirth = Convert.ToDateTime(reader["DOB"].ToString()).ToString("MMM-dd")
+                                    DateOfBirth = DateTime.Parse(reader["DOB"].ToString(), new CultureInfo("en-US", true)).ToString("MMM, dd")
                                 });
                             }
                         }
@@ -216,7 +244,7 @@ namespace FingerprintsData
                     executive.EnrollmentTypeList = executive.EnrollmentTypeList.OrderBy(x => x.CenterType).ToList();
 
 
-
+                    // Case Note by Month //
                     if (reader.NextResult() && reader.HasRows)
                     {
                         while (reader.Read())
@@ -225,6 +253,22 @@ namespace FingerprintsData
                             {
                                 Percentage = Convert.ToDecimal(reader["Percentage"]) == Convert.ToInt32(reader["Percentage"]) ? Convert.ToInt32(reader["Percentage"]).ToString() : Convert.ToString(reader["Percentage"]),
                                 Month = Convert.ToString(reader["Month"])
+                            });
+                        }
+                    }
+
+                    // ADA Month Order  and has explanation for ADA less than 85% //
+                    if(reader.NextResult() && reader.HasRows)
+                    {
+                        while(reader.Read())
+                        {
+                            executive.ADAList.Add(new ExecutiveDashBoard.ADAChart
+                            {
+                                Month= FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
+                                MonthOrder=Convert.ToInt32(reader["MonthOrder"]),
+                                Percentage= Math.Round(Convert.ToDecimal(reader["ADA"]), 1, MidpointRounding.ToEven),
+                                MonthNumber=Convert.ToInt32(reader["MonthNumber"]),
+                                ExplanationUnderPercentage=Convert.ToString(reader["ExplanationUnderPercentage"]).Trim()
                             });
                         }
                     }
@@ -1028,6 +1072,24 @@ namespace FingerprintsData
                                     dashboard.WaitingListCount = double.TryParse(reader["WaitingListCount"].ToString(), out doubCheck) ? Math.Round(Convert.ToDouble(reader["WaitingListCount"].ToString()), 1).ToString() : 0.ToString("N1");
 
                                 }
+                                dashboard.AcceptanceReason = new List<SelectListItem>();
+
+                                //Waiting List Chart Data //
+
+                                if (reader.NextResult() && reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.AcceptanceReason.Add(new SelectListItem
+                                        {
+                                            Text = reader["Description"] == DBNull.Value ? string.Empty : Convert.ToString(reader["Description"]),
+                                            Value = reader["Count"] == DBNull.Value ? "0" : Convert.ToString(reader["Count"])
+                                        });
+
+                                    }
+                                }
+
+
                                 break;
 
 
@@ -1052,12 +1114,33 @@ namespace FingerprintsData
 
                                 break;
 
+
+                            //ADA//
+                            case FingerprintsModel.Enums.DashboardSectionType.ADA:
+
+                                // ADA Month Order  and has explanation for ADA less than 85% //
+                                if (reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        dashboard.ADAList.Add(new ExecutiveDashBoard.ADAChart
+                                        {
+                                            Month = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
+                                            MonthOrder = Convert.ToInt32(reader["MonthOrder"]),
+                                            Percentage = Math.Round(Convert.ToDecimal(reader["ADA"]), 1, MidpointRounding.ToEven),
+                                            MonthNumber = Convert.ToInt32(reader["MonthNumber"]),
+                                            ExplanationUnderPercentage = Convert.ToString(reader["ExplanationUnderPercentage"]).Trim()
+                                        });
+                                    }
+                                }
+                                break;
+
                         }
                     }
                 }
 
 
-                //switch (EnumHelper.GetEnumByStringValue<ExecutiveDashBoard.DashboardSectionType>(sectionType.ToString()))
+                //switch (EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.DashboardSectionType>(sectionType.ToString()))
                 //{
                 //    case FingerprintsModel.Enums.DashboardSectionType.CurrentEnrollment:
 
@@ -1258,6 +1341,39 @@ namespace FingerprintsData
 
         #endregion
 
+
+        #region Save ADA Explanation for below 85%
+
+
+        public bool SaveADAExplanation(StaffDetails staff,int month,string explanation)
+
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@MonthNumber",month,DbType.Int32),
+                    dbManager.CreateParameter("@Explanation",explanation,DbType.String)
+
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_AddADAExplanation", CommandType.StoredProcedure, parameters);
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return isRowsAffected;
+        }
+        #endregion
     }
 
 

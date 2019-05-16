@@ -151,6 +151,7 @@
                 $('#lblNewStatus').text("Re-enrolled");
                 $('#ddlreason').val('');
                 $('#ClientNameAll').text($(object).attr("name"));
+
                 $('#ChangeclientStatus').modal('show');
             }
             if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
@@ -726,8 +727,12 @@
                     return false;
                 };
 
-                if (presentArray.indexOf(attendSelectAttr) > -1) {
-                    isupdateEnroll = true;
+                if (presentArray.indexOf(attendSelectAttr) > -1 || $('#household-div').is(':visible')==true) {
+
+                    if (presentArray.indexOf(attendSelectAttr) > -1)
+                    {
+                        isupdateEnroll = true;
+                    }
 
                     if ($('.parent-check[type=checkbox]:checked').length === 0) {
                         plainValidation('#familyCheckBox');
@@ -1239,12 +1244,12 @@
                 $('#divPaging').show();
                 var tbody = $('#GridScheduler > tbody');
                 for (var i = 0; i < data.list.length; i++) {
-
+                    var isCenterVisit = (data.list[i].IsCenterVisit == true) ? 1 : 0;
                     var tr = "";
                     tr += "<tr>";
 
                     // tr += "<td><a href='#' onclick='Getschool(this);' accesskey=" + data.list[i].SchoolDistrictID + ">" + ((typeof (data.list[i].Acronym) != 'undefined') && (data.list[i].Acronym != null) ? data.list[i].Acronym : '') + "</td>";
-                    tr += "<td style='width:20%'>" + ((typeof (data.list[i].ClientName) != 'undefined') && (data.list[i].ClientName != null) ? '<a href="#" onclick="Selectschedule(this);" accesskey="' + data.list[i].MeetingId + '">' + data.list[i].ClientName + ' </a>' : '') + " </span></td>";
+                    tr += "<td style='width:20%'>" + ((typeof (data.list[i].ClientName) != 'undefined') && (data.list[i].ClientName != null) ? '<a href="#" onclick="Selectschedule(this);" accesskey="' + data.list[i].MeetingId + '"  data-center-visit="'+isCenterVisit+'">' + data.list[i].ClientName + ' </a>' : '') + " </span></td>";
                     tr += "<td style='width:20%'>" + ((typeof (data.list[i].MeetingDescription) != 'undefined') && (data.list[i].MeetingDescription != null) ? data.list[i].MeetingDescription : '') + " </td>";
                     tr += "<td style='width:9%'>" + ((typeof (data.list[i].MeetingDate) != 'undefined') && (data.list[i].MeetingDate != null) ? data.list[i].MeetingDate : '') + " </span></td>";
                     tr += "<td style='text-align:center; width:16%' class='fr-to-time'>" + ((typeof (data.list[i].StartTime) != 'undefined') && (data.list[i].StartTime != null) ? data.list[i].StartTime + '-' + data.list[i].EndTime : '') + " </span></td>";
@@ -1261,6 +1266,7 @@
         function Selectschedule(value) {
 
             $('#MeetingId').val($(value).attr("accesskey"));
+            var isCenterVisit = $(value).data('center-visit');
 
             //var timeZoneId = $('#timeZoneText').val().trim();
 
@@ -1315,7 +1321,18 @@
                         //   SelectDateFetch(response.MeetingDate);
                         $('#meetingDate').html(response.MeetingDate);
 
-                        $('#Resourece1')[0].innerText = "Today's Appointment for " + response.ClientName;
+
+                        if (isCenterVisit == '1')
+                        {
+                            $('#Resourece1')[0].innerText = "Today's Appointment for " + response.ClientName +" (P.T.C.)";
+
+                        }
+                        else
+                        {
+                            $('#Resourece1')[0].innerText = "Today's Appointment for " + response.ClientName;
+
+                        }
+
                         $('#schedule_popup').find('#fromTime').html(response.StartTime);
                         $('#schedule_popup').find('#endTime').html(response.EndTime);
                         $('#Notes').html(response.MeetingNotes);
@@ -1337,7 +1354,7 @@
                             {
                                 //if(family.ParentRole==1)
                                 //{
-                                    parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID1 parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '" parent=' + family.ClientId + ' role=' + family.ParentRole + '" /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
+                                parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID1 parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '"  pro-im="'+family.ProfilePicture+'"   parent=' + family.ClientId + ' role=' + family.ParentRole + '" /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
 
                                 ////}
                                 ////if (family.ParentRole == 2) {
@@ -1368,6 +1385,7 @@
                         $('#schedule_popup').find('#hvCompleteBtn').attr({ 'enc_clientid': response.Enc_ClientId, 'accesskey': $(value).attr("accesskey") });
 
                         cleanValidation();
+
                         $('#household-div,#reschedule-div, #reschedule-meeting-div').hide();
 
 
@@ -1382,22 +1400,23 @@
                                 var src = '';
                                 if (pare_role === '1') {
                                     if (image === '') {
-                                        src = '/Content/img/ic_male.png';
+                                        src = '/Images/adult-image.png';
                                     }
                                     else {
                                         src = 'data:image/jpg;base64,' + image + '';
                                     }
                                 }
+                                
                                 else if (pare_role === '2') {
                                     if (image === '') {
-                                        src = '/Content/img/ic_female.png';
+                                        src = '/Images/female-adult.png';
                                     }
                                     else {
                                         src = 'data:image/jpg;base64,' + image + '';
                                     }
                                 }
 
-                                var src = (image == '') ? '/Content/img/ic_male.png' : 'data:image/jpg;base64,' + image + '';
+                                var src = (image == '') ? '/Images/adult-image.png' : 'data:image/jpg;base64,' + image + '';
 
                                 $('#signature-div').find('.signature-div-inner').attr('id', 'sig_' + id + '');
 
@@ -1435,6 +1454,18 @@
                         });
 
 
+                        if (isCenterVisit == "1")
+                        {
+                            $('#household-div').show();
+                            $('#schedule_popup').find('#hvCompleteBtn').html("P.T.C. Complete");
+                        }
+                        else {
+                            $('#household-div').show();
+                            $('#schedule_popup').find('#hvCompleteBtn').html("HV Complete");
+
+                        }
+
+
                         $('#schedule_popup').modal('show');
                         // totalSeconds = 0;
 
@@ -1467,9 +1498,18 @@
 
         function SaveSignature(val) {
 
+
+           
             var canvas_id = $(val).attr('canvas-id');
             isValid = false;
             var sigToImage = $('#' + canvas_id + '').signature('toJSON');
+
+            if (sigToImage == '{"lines":[]}' || sigToImage == '')
+            {
+                customAlert('Please enter signature');
+                return false;
+            }
+
             $('#' + canvas_id + '').css({ 'background-color': '' });
             $('#' + canvas_id + '').siblings('#image_' + canvas_id + '').val(sigToImage);
 
@@ -2555,7 +2595,7 @@
                 </div>
                 <div class="clearfix"></div>
                 <div style="width: 100%;display: inline-block;text-align: center; margin-bottom: 20px; margin-top:20px;">
-                    <button type="button" class="my-btn1" style="width:112px!important;" id="hvCompleteBtn">HV Complete</button>
+                    <button type="button" class="my-btn1" style="width:13%!important;" id="hvCompleteBtn">HV Complete</button>
                     <button type="button" data-dismiss="modal" class="my-btn1">Exit</button>
                 </div>
             </div>
@@ -3109,7 +3149,7 @@
                 <div class="add-useragform student-scroll full-border full-border-margin">
 
                     <div id="sig" class="kbw-signature" style="position:relative;">
-                        <p style="position:absolute;left:10px;top:10px;font-size:16px;font-weight:bold;color:#bfbfbf;">Sign Here</p>
+                        <p style="position:absolute;left:10px;top:165px;font-size:16px;font-weight:bold;color:#bfbfbf;">Sign Here</p>
 
                     </div>
 

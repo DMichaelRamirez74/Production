@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -30,6 +31,8 @@ namespace FingerprintsModel
         public string WaitingList { get; set; }
         public string WaitingListCount { get; set; }
 
+        public List<SelectListItem> AcceptanceReason { get; set; }
+
         public bool AccessScreeningMatrix{ get; set; }
 
         public bool AccessScreeningReview { get; set; }
@@ -40,6 +43,20 @@ namespace FingerprintsModel
             public string Staff { get; set; }
             public string DateOfBirth { get; set; }
         }
+
+
+
+        public class ADAChart
+        {
+            public string Month { get; set; }
+            public int MonthOrder { get; set; }
+            public decimal Percentage { get; set; }
+            public int MonthNumber { get; set; }
+
+            public string ExplanationUnderPercentage { get; set; }
+        }
+
+        public List<ADAChart> ADAList = new List<ADAChart>();
 
         public List<CaseNote> listCaseNote = new List<CaseNote>();
         public class CaseNote

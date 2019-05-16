@@ -142,11 +142,56 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add another education component.
+        /// </summary>
+        public static string Add_another_education_comp {
+            get {
+                return ResourceManager.GetString("Add_another_education_comp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add another education component.
+        /// </summary>
+        public static string Add_another_education_component {
+            get {
+                return ResourceManager.GetString("Add_another_education_component", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add another recruitment activity.
+        /// </summary>
+        public static string Add_another_recruitment_activity {
+            get {
+                return ResourceManager.GetString("Add_another_recruitment_activity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Attachment(s).
         /// </summary>
         public static string Add_Attachment {
             get {
                 return ResourceManager.GetString("Add_Attachment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add/Edit Education Component.
+        /// </summary>
+        public static string Add_Edit_Education_Component {
+            get {
+                return ResourceManager.GetString("Add_Edit_Education_Component", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add/Edit Recruitment Activity.
+        /// </summary>
+        public static string Add_Edit_Recruitment_Activity {
+            get {
+                return ResourceManager.GetString("Add_Edit_Recruitment_Activity", resourceCulture);
             }
         }
         
@@ -264,6 +309,24 @@ namespace Fingerprints.LocalResource {
         public static string Associate_Degree {
             get {
                 return ResourceManager.GetString("Associate_Degree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At least one recruitment activity is required.
+        /// </summary>
+        public static string Atleast_one_activity_required {
+            get {
+                return ResourceManager.GetString("Atleast_one_activity_required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At least one education component is required!.
+        /// </summary>
+        public static string Atleast_one_edcuation_comp_required {
+            get {
+                return ResourceManager.GetString("Atleast_one_edcuation_comp_required", resourceCulture);
             }
         }
         
@@ -700,6 +763,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Click OK to proceed..
+        /// </summary>
+        public static string Click_ok_to_proceed {
+            get {
+                return ResourceManager.GetString("Click_ok_to_proceed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Client.
         /// </summary>
         public static string Client {
@@ -750,6 +822,15 @@ namespace Fingerprints.LocalResource {
         public static string CommunityAssessment {
             get {
                 return ResourceManager.GetString("CommunityAssessment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmation.
+        /// </summary>
+        public static string Confirmation {
+            get {
+                return ResourceManager.GetString("Confirmation", resourceCulture);
             }
         }
         
@@ -934,6 +1015,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string Description {
+            get {
+                return ResourceManager.GetString("Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Developmental Team.
         /// </summary>
         public static string DevelopmentalTeam {
@@ -970,11 +1060,38 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        public static string Edit {
+            get {
+                return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Profile.
         /// </summary>
         public static string Edit_Profile {
             get {
                 return ResourceManager.GetString("Edit_Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit Education Component.
+        /// </summary>
+        public static string EditEducationComponent {
+            get {
+                return ResourceManager.GetString("EditEducationComponent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit Recruitment Activity.
+        /// </summary>
+        public static string EditRecruitmentActivity {
+            get {
+                return ResourceManager.GetString("EditRecruitmentActivity", resourceCulture);
             }
         }
         
@@ -988,11 +1105,29 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Education component is required.
+        /// </summary>
+        public static string Education_component_required {
+            get {
+                return ResourceManager.GetString("Education_component_required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Education Status.
         /// </summary>
         public static string Education_Status {
             get {
                 return ResourceManager.GetString("Education_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Education Component.
+        /// </summary>
+        public static string EducationComponent {
+            get {
+                return ResourceManager.GetString("EducationComponent", resourceCulture);
             }
         }
         
@@ -1146,6 +1281,15 @@ namespace Fingerprints.LocalResource {
         public static string Events_registered_on_your_center {
             get {
                 return ResourceManager.GetString("Events_registered_on_your_center", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        public static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
             }
         }
         
@@ -1389,6 +1533,15 @@ namespace Fingerprints.LocalResource {
         public static string Health {
             get {
                 return ResourceManager.GetString("Health", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Health Histroy Report.
+        /// </summary>
+        public static string HealthHistroyReport {
+            get {
+                return ResourceManager.GetString("HealthHistroyReport", resourceCulture);
             }
         }
         
@@ -1708,6 +1861,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Month is required.
+        /// </summary>
+        public static string MonthisRequired {
+            get {
+                return ResourceManager.GetString("MonthisRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monthly Recruitment Activities.
+        /// </summary>
+        public static string MonthlyRecruitmentActivities {
+            get {
+                return ResourceManager.GetString("MonthlyRecruitmentActivities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to My Menu.
         /// </summary>
         public static string MyMenu {
@@ -1848,6 +2019,15 @@ namespace Fingerprints.LocalResource {
         public static string Nurse {
             get {
                 return ResourceManager.GetString("Nurse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
             }
         }
         
@@ -2032,6 +2212,24 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please specify recruitment activity below..
+        /// </summary>
+        public static string Pls_specify_activity_below {
+            get {
+                return ResourceManager.GetString("Pls_specify_activity_below", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify education component below..
+        /// </summary>
+        public static string Pls_specify_education_component_below {
+            get {
+                return ResourceManager.GetString("Pls_specify_education_component_below", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pound.
         /// </summary>
         public static string Pound {
@@ -2104,6 +2302,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Recruitment activity is required.
+        /// </summary>
+        public static string Recruitment_activity_required {
+            get {
+                return ResourceManager.GetString("Recruitment_activity_required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registered.
         /// </summary>
         public static string Registered {
@@ -2127,6 +2334,15 @@ namespace Fingerprints.LocalResource {
         public static string Remove {
             get {
                 return ResourceManager.GetString("Remove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report Recruitment Activity.
+        /// </summary>
+        public static string ReportRecruitmentActivity {
+            get {
+                return ResourceManager.GetString("ReportRecruitmentActivity", resourceCulture);
             }
         }
         
@@ -2329,6 +2545,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select one or more recruitment activities.
+        /// </summary>
+        public static string Select_one_more_activities {
+            get {
+                return ResourceManager.GetString("Select_one_more_activities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please select anyone Language.
         /// </summary>
         public static string SelectAnyoneLanguage {
@@ -2397,6 +2622,15 @@ namespace Fingerprints.LocalResource {
         public static string Spanish {
             get {
                 return ResourceManager.GetString("Spanish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify, one or more recruitment activities below.
+        /// </summary>
+        public static string Specify_one_more_activities {
+            get {
+                return ResourceManager.GetString("Specify_one_more_activities", resourceCulture);
             }
         }
         
@@ -2748,6 +2982,24 @@ namespace Fingerprints.LocalResource {
         public static string Yakkr {
             get {
                 return ResourceManager.GetString("Yakkr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are about to delete the following activity.
+        /// </summary>
+        public static string You_about_to_delete_activity {
+            get {
+                return ResourceManager.GetString("You_about_to_delete_activity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are about to delete the following education component.
+        /// </summary>
+        public static string You_about_to_delete_education_comp {
+            get {
+                return ResourceManager.GetString("You_about_to_delete_education_comp", resourceCulture);
             }
         }
         

@@ -31,9 +31,9 @@ namespace FingerprintsData
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@AgencyId", objEvents.AgencyId));
                 command.Parameters.Add(new SqlParameter("@EventName", objEvents.Workshopname));
-                command.Parameters.Add(new SqlParameter("@EventDate", Convert.ToDateTime(objEvents.EventDate)));
-                command.Parameters.Add(new SqlParameter("@OpenToCenter", Convert.ToDateTime(objEvents.CenterDate)));
-                command.Parameters.Add(new SqlParameter("@OpenToPublic", Convert.ToDateTime(objEvents.OtherCenterDate)));
+                command.Parameters.Add(new SqlParameter("@EventDate", DateTime.Parse(objEvents.EventDate, new CultureInfo("en-US",true))));
+                command.Parameters.Add(new SqlParameter("@OpenToCenter", DateTime.Parse(objEvents.CenterDate,new CultureInfo("en-US",true))));
+                command.Parameters.Add(new SqlParameter("@OpenToPublic", DateTime.Parse(objEvents.OtherCenterDate,new CultureInfo("en-US",true))));
                 command.Parameters.Add(new SqlParameter("@EventTime", objEvents.EventTime));
                 command.Parameters.Add(new SqlParameter("@Description", objEvents.Workshopdescription));
                 command.Parameters.Add(new SqlParameter("@CenterId", objEvents.CenterId));
@@ -42,7 +42,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Comments", objEvents.Comments));
                 command.Parameters.Add(new SqlParameter("@MaxAttendance", objEvents.NoOfSeats));
                 if (!string.IsNullOrEmpty(objEvents.RSVPDate))
-                    command.Parameters.Add(new SqlParameter("@RSVPCutOffDate", Convert.ToDateTime(objEvents.RSVPDate)));
+                    command.Parameters.Add(new SqlParameter("@RSVPCutOffDate", DateTime.Parse(objEvents.RSVPDate,new CultureInfo("en-US",true))));
                 command.Parameters.Add(new SqlParameter("@RSVPPoints", objEvents.RSVPPoints));
                 command.Parameters.Add(new SqlParameter("@AttendPoints", objEvents.AttendancePoints));
                 command.Parameters.Add(new SqlParameter("@Budget", !string.IsNullOrEmpty(objEvents.Budget) ? Convert.ToInt64(objEvents.Budget) : 0));
@@ -63,6 +63,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@EventDateChangeDesc", objEvents.EventDateDescription));
                 command.Parameters.Add(new SqlParameter("@EventTimeChangeDesc", objEvents.EventTimeDescription));
                 command.Parameters.Add(new SqlParameter("@EventId", objEvents.Eventid));
+                command.Parameters.Add(new SqlParameter("@EducationComponentID", objEvents.EducationComponentID));
+
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_SaveWorkshopDetail";
@@ -431,7 +433,7 @@ namespace FingerprintsData
             return Address;
         }
 
-        public void GetWorkshopDetails(ref Events objEvents, string Id)
+        public void GetWorkshopDetails(ref Events objEvents, string Id,StaffDetails staff)
         {
             // string Address = "";
             try
@@ -440,6 +442,9 @@ namespace FingerprintsData
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Workshopid", Id));
                 command.Parameters.Add(new SqlParameter("@CenterId", objEvents.CenterId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetWorkShopDetails";
@@ -477,6 +482,22 @@ namespace FingerprintsData
                     else
                         objEvents.ImagePath = Imagepath;
                     objEvents.IsUpdate = !string.IsNullOrEmpty(objEvents.Speaker);
+                }
+
+
+                if(_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                {
+                    objEvents.EducationComponentList = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                        select new EducationComponent
+                                                        {
+                                                            Description = Convert.ToString(dr1["Description"]),
+                                                            EducationComponentID = Convert.ToInt64(dr1["EducationComponentID"]),
+                                                            IsReported=Convert.ToBoolean(dr1["IsReported"])
+                                                        }
+                                                      ).ToList();
+
+                    objEvents.EducationComponentID = objEvents.EducationComponentList.Where(x => x.IsReported).Select(x => x.EducationComponentID).FirstOrDefault();
+                
                 }
             }
             catch (Exception ex)
@@ -523,7 +544,7 @@ namespace FingerprintsData
                             {
                                 EventId = Convert.ToInt64(dr["EventId"]),
                                 EventName = dr["EventName"].ToString(),
-                                EventDate = Convert.ToDateTime(dr["EventDate"]).ToString("MM/dd/yyyy"),
+                                EventDate = Convert.ToString(dr["EventDate"]),
                                 EventTime = GetFormattedTime(dr["EventTime"].ToString()),
                                 WorkShopName = dr["WorkShopName"].ToString(),
                                 EventStatus = dr["EventStatus"].ToString(),
@@ -1229,7 +1250,8 @@ namespace FingerprintsData
                                 MaxAttend = dr["MaxAttendance"].ToString(),
                                 AvailableSlots = Convert.ToInt64(dr["AvailableSeats"]),
                                 CenterName = dr["CenterName"].ToString(),
-                                EventStatus = dr["EventStatus"].ToString()
+                                EventStatus = dr["EventStatus"].ToString(),
+                                EducationComponentDescription=dr["EducationComponentDescription"]==DBNull.Value?string.Empty:Convert.ToString(dr["EducationComponentDescription"])
                             };
                         }
                     }
@@ -1843,7 +1865,7 @@ namespace FingerprintsData
             }
         }
 
-        public void WorkshopReport(ref DataTable dtWorkshop, string Workshopid, string CenterId)
+        public void WorkshopReport(ref DataTable dtWorkshop,StaffDetails staff, string Workshopid, string CenterId)
         {
             try
             {
@@ -1853,6 +1875,10 @@ namespace FingerprintsData
                 command.CommandText = "USP_GetWorkshopReport";
                 command.Parameters.AddWithValue("@Workshopid", Workshopid);
                 command.Parameters.AddWithValue("@CenterId", CenterId);
+                command.Parameters.AddWithValue("@AgencyID", staff.AgencyId);
+                command.Parameters.AddWithValue("@RoleID", staff.RoleId);
+                command.Parameters.AddWithValue("@UserID", staff.UserId);
+
                 DataAdapter = new SqlDataAdapter(command);
                 DataAdapter.Fill(dtWorkshop);
             }

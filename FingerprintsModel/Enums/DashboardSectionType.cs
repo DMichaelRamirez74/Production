@@ -21,6 +21,7 @@ namespace FingerprintsModel.Enums
         Disabilities = 7,
         OverIncome = 8,
         WaitingList = 9,
-        ScreeningReview=10
+        ScreeningReview=10,
+        ADA=11
     }
 }

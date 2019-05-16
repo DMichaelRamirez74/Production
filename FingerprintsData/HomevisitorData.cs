@@ -51,7 +51,7 @@ namespace FingerprintsData
             return ds;
         }
 
-        public string saveEvent(Scheduler obj)
+        public string saveEvent(Scheduler obj, long yakkrid=0)
         {
             DataSet ds = new DataSet();
             try
@@ -76,10 +76,12 @@ namespace FingerprintsData
                 cmd.Parameters.AddWithValue("@EndTime ", obj.EndTime);
                 cmd.Parameters.AddWithValue("@Date ", obj.MeetingDate);
                 cmd.Parameters.AddWithValue("@CreatedBy", obj.StaffId);
+                cmd.Parameters.AddWithValue("@RoleID", obj.StaffRoleId);
                 cmd.Parameters.AddWithValue("@EndDate", obj.EndDate);
                 cmd.Parameters.AddWithValue("@Parentid", obj.ParentId);
                 cmd.Parameters.AddWithValue("@InstanceId", obj.InstanceId);
                 cmd.Parameters.AddWithValue("@IsCenterVisit", obj.IsCenterVisit);
+                cmd.Parameters.AddWithValue("@YakkrId", yakkrid);
                 cmd.Parameters.AddWithValue("@result", string.Empty).Direction = ParameterDirection.Output;
                 cmd.Connection.Open();
                 int i = cmd.ExecuteNonQuery();
@@ -272,6 +274,8 @@ namespace FingerprintsData
                 int RowsAffected = (int)command.ExecuteNonQuery();
                 if (RowsAffected > 0)
                     isRowAffected = true;
+
+
             }
             catch (Exception ex)
             {

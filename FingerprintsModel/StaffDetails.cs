@@ -79,6 +79,14 @@ namespace FingerprintsModel
 
         }
 
+        public StaffDetails(bool createInstance)
+        {
+            if(createInstance)
+             Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+        }
+
+      
+
 
         //public StaffDetails(Guid userId, Guid roleId, Guid? agencyId, string name = "")
         //{

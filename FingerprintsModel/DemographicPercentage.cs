@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -92,6 +93,8 @@ namespace FingerprintsModel
         public int StaffPacificLang { get; set; }
         public int StaffSpanisLang { get; set; }
         public int StaffOtherLang { get; set; }
+
+        public List<SelectListItem> AcceptanceReason { get; set; }
 
     }
 

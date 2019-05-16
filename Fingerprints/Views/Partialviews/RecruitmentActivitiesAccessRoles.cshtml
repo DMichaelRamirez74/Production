@@ -1,0 +1,151 @@
+﻿@model FingerprintsModel.AccessRoles
+
+
+
+
+
+<style type="text/css">
+    .rec_0 {
+        margin-left: 35px!important;
+    }
+
+    .rec_1 {
+        margin-left: 25px!important;
+    }
+</style>
+
+
+
+@if (Model != null)
+{
+    try
+    {
+        <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
+            <div class="ictab_content">
+                <div class="tab-content">
+                    <div class="tab-pane showactive fade in active">
+                        <div class="import_frrm">
+                            <div class="ic_forsub">
+                                <h3 id="title">Monthly Recruitment Activities</h3>
+
+                                <button class="btn-submit-edu" onclick="return accessRole.IsValidInputs()" value="RecruitmentActivities" name="Command" type="submit">Submit</button>
+                                <input type="hidden" value="@Model.TitleId" id="TitleId" name="TitleId" />
+
+                            </div>
+
+
+                            <div class="icefu_form">
+                                <table id="settab_edu" class="table table-responsive table-headfix fold-table settab-table-color">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:auto;">Role List</th>
+                                            <th style="text-align:center!important;">@FingerprintsModel.Enums.RecruitmentActivityAccessType.Create.ToString()</th>
+                                            <th>@FingerprintsModel.Enums.RecruitmentActivityAccessType.Review.ToString()</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @if (Model != null && Model.RoleList != null && Model.RoleList.Count > 0)
+                                        {
+                                            for (int i = 0; i < Model.RoleList.Count; i++)
+                                            {
+
+
+                                                <tr class="view" onclick="accessRole.CarouselOpen(this);">
+
+                                                    <td enc-id="rr">
+                                                        @Model.RoleList[i].RoleName
+                                                        <input type="hidden" class="edu_next " name="Role[@i].RoleId" value="@Model.RoleList[i].RoleId" />
+                                                    </td>
+                                                    <td class="settabl-row1">
+                                                        <input type="checkbox" onchange="accessRole.SelectToEnter(this,@i)" class="edu_next role@(i)"
+                                                               @if (Model.RoleList[i].ToCreate) { <text> checked="checked" </text>              }
+                                                               name="Role[@i].ToCreate" value="true" />
+                                                    </td>
+                                                    <td class="settabl-row2">
+                                                        <input type="checkbox" onchange="accessRole.SelectToReview(this,@i)" class="edu_next role@(i)"
+                                                               @if (Model.RoleList[i].ToReview) { <text> checked="checked" </text>               }
+                                                               name="Role[@i].ToReview" value="true" />
+                                                    </td>
+                                                  
+                                                </tr>
+                                                <tr class="input_smtmarg open">
+                                                    <td colspan="2" style="background-color: #44aedc;">
+                                                        <div class="sub_table_icc">
+                                                            <table class="table table-bordered table-responsive">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th></th>
+                                                                        <th style="text-align: center !important;"><input name="" onchange="accessRole.CheckAll(this,@i)" class="edu_next selectall@(i)" type="checkbox"><label>Select all</label></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @if (Model.RoleList[i].UserList != null && Model.RoleList[i].UserList.Count > 0)
+                                                                    {
+                                                                        for (int j = 0; j < Model.RoleList[i].UserList.Count; j++)
+                                                                        {
+                                                                            <tr>
+
+                                                                                <td>@Model.RoleList[i].UserList[j].StaffName</td>
+                                                                                <td>
+
+                                                                                    <input type="checkbox" onchange="accessRole.SelectToEnter(this,@i)" class="edu_next rec_0 user@(i)"
+                                                                                           @if (Model.RoleList[i].UserList[j].ToCreate) { <text> checked="checked" </text>                }
+                                                                                           name="Role[@i].UserList[@j].ToCreate" value="true" />
+
+                                                                                    <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].RoleId" value="@Model.RoleList[i].UserList[j].RoleId" />
+                                                                                    <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].UserId" value="@Model.RoleList[i].UserList[j].UserId" />
+                                                                                    <input type="hidden" class="edu_next" name="Role[@i].UserList[@j].ColorCode" value="@Model.RoleList[i].UserList[j].ColorCode" />
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input type="checkbox" onchange="accessRole.SelectToReview(this,@i)" class="edu_next rec_1 user@(i)"
+                                                                                           @if (Model.RoleList[i].UserList[j].ToReview) { <text> checked="checked" </text>                }
+                                                                                           name="Role[@i].UserList[@j].ToReview" value="true" />
+                                                                                </td>
+                                                                               
+                                                                            </tr>
+
+                                                                        }
+                                                                    }
+
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                //}
+
+                                            }
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </form>
+    }
+    catch (Exception ex)
+    {
+        FingerprintsModel.clsError.WriteException(ex);
+    }
+
+}
+
+else
+{
+    <div class="col-xs-12">No Records Found</div>
+}
+<script type="text/javascript">
+
+    function getScreeningRolesByScreening(ele)
+    {
+        $('#settab').find('.active').trigger('click');
+    }
+
+</script>

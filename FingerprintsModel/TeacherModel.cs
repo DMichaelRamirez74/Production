@@ -136,6 +136,12 @@ namespace FingerprintsModel
 
         public string AllowCaseNoteTeacher { get; set; }
 
+        public int Appointment { get; set; }
+
+        public bool HasHomeVisit { get; set; }
+
+        public bool HasCenterVisit { get; set; }
+
         public  List<InkindPeriods> InkindPeriodList {get;set;}
     }
 

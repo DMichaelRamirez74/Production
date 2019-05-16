@@ -33,7 +33,7 @@ namespace Fingerprints.Controllers
        roleid=7c2422ba-7bd4-4278-99af-b694dcab7367(Executive)
        */
         FamilyData _family = new FamilyData();
-        TeacherData _Teacher = new TeacherData();
+        TeacherData _Teacher = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<TeacherData>();
         string available = "3";
         [JsonMaxLengthAttribute]
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
@@ -1515,6 +1515,85 @@ namespace Fingerprints.Controllers
 
 
         #endregion GrowthAnalysis
+
+
+        #region Home Visit Entry
+
+
+        //[CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
+        //public ActionResult HomeVisitEntry()
+        //{
+        //    return View();
+        //}
+
+
+
+        [CustAuthFilter(RoleEnum.EducationManager,RoleEnum.Teacher)]
+        [HttpPost]
+        public JsonResult GetTeacherHomeVisitEntry(string eClientID)
+        {
+
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            List<TeacherVisit> homeVisitYakkr= _Teacher.GetTeacherHomeVisitEntry(staff, eClientID);
+
+            return Json(homeVisitYakkr, JsonRequestBehavior.AllowGet);
+
+
+        }
+
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.EducationManager)]
+        [HttpPost]
+        public JsonResult AddTeacherHomeVisitEntry(List<TeacherVisit> teacherVisitList)
+        {
+            bool isResult = false;
+
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            isResult = _Teacher.AddTeacherHomeVisitEntry(staff, teacherVisitList);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Parent Teacher Conference 
+
+        #region Get Parent Teacher Conference Entry
+
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.EducationManager)]
+        [HttpPost]
+        public JsonResult GetParentTeacherConferenceEntry(string eClientID)
+        {
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            List<TeacherVisit> ptcYakkr = _Teacher.GetParentTeacherConferenceEntry(staff, eClientID);
+
+            return Json(ptcYakkr, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Add Parent Teacher Conference Entry
+
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.EducationManager)]
+        [HttpPost]
+        public JsonResult AddParentTeacherConferenceEntry(List<TeacherVisit> teacherVisitList)
+        {
+            bool isResult = false;
+
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            isResult = _Teacher.AddParentTeacherConferenceEntry(staff, teacherVisitList);
+
+
+            return Json(isResult,JsonRequestBehavior.AllowGet);
+        }
+
+
+        #endregion
+
+        #endregion
+
+
+
 
 
 

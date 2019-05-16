@@ -1,0 +1,150 @@
+﻿@model FingerprintsModel.MonthlyRecruitmentActivities
+
+
+
+
+
+
+
+<div class="col-xs-12 search-block-main">
+    @*<div class="glossy-search-block col-md-12">
+            <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly,readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search..." id="searchReportText" class="form-control" value="">
+            <div class="glossy-search-btn-div">
+                <button id="btnSearchauto" >@Fingerprints.LocalResource.Resources.Search</button>
+            </div>
+        </div>*@
+
+    <table class="col-md-3 pull-right table-striped total-details-table table-back-shadow">
+        <tr>
+            <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+            <td id="totalCountSpan">@Model.TotalRecord</td>
+        </tr>
+    </table>
+
+</div>
+
+
+
+
+
+<table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="monthly-recruitment-table">
+    <thead class="table-hd scroll-thead">
+        <tr>
+            <th>@Fingerprints.LocalResource.Resources.Description</th>
+            <th>@Fingerprints.LocalResource.Resources.Entered_By</th>
+            <th>@Fingerprints.LocalResource.Resources.Action</th>
+        </tr>
+    </thead>
+    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="recruitmentActivity-tbody">
+
+        @try
+        {
+
+            if (Model != null && Model.RecruitmentActivityList != null && Model.RecruitmentActivityList.Count > 0)
+            {
+
+                for (int i = 0; i < Model.RecruitmentActivityList.Count; i++)
+                {
+                    <tr>
+
+
+
+                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Description">
+                            <p title="@Model.RecruitmentActivityList[i].Description" data-toggle="tooltip">
+                                @Model.RecruitmentActivityList[i].Description
+                        </p>
+                    </td>
+
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Entered_By">
+                        <p>@Model.RecruitmentActivityList[i].EnteredBy</p>
+                    </td>
+
+
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Action">
+                        <input type="hidden" id="input-hide-act-id" value="@Model.RecruitmentActivityList[i].RecruitmentActivityID" />
+
+                        <i class="fa fa-edit  btn-edit-trans" aria-hidden="true" data-toggle="tooltip" title="@Fingerprints.LocalResource.Resources.Edit"></i>
+
+                        @if (!Model.RecruitmentActivityList[i].IsReported)
+                        {
+                            <i class="fa fa-trash  btn-delete-trans" aria-hidden="true" data-toggle="tooltip" title="@Fingerprints.LocalResource.Resources.Delete"></i>
+
+                        }
+
+                    </td>
+
+
+
+                </tr>
+                }
+
+            }
+            else
+            {
+                <tr style="width:98.3%">
+                    <td colspan="7" style="padding: 25px;text-align:center;font-weight:bold;">
+                     
+                    <text>@Fingerprints.LocalResource.Resources.Recordsnotfound</text>
+                    </td>
+
+
+
+
+                </tr>
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            FingerprintsModel.clsError.WriteException(ex);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    $('[data-toggle="tooltip"]').tooltip();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

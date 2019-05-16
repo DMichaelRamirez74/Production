@@ -1,0 +1,419 @@
+﻿@model FingerprintsModel.MonthlyRecruitmentActivities
+
+@{
+    ViewBag.Title = Fingerprints.LocalResource.Resources.MonthlyRecruitmentActivities;
+    if (Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+       || Session["RoleId"].ToString() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+
+@section Title
+{
+
+   @Fingerprints.LocalResource.Resources.MonthlyRecruitmentActivities
+}
+
+@section Script
+{
+
+
+
+    <script type="text/javascript">
+        var recruitmentActivityJson=@Html.Raw(Json.Encode(new FingerprintsModel.MonthlyRecruitmentActivities()));
+
+    </script>
+
+<script src="~/Scripts/MonthlyRecruitmentActivities.js"></script>
+
+
+}
+
+
+@section Style
+{
+
+    <link href="~/Content/css/MonthlyRecruitmentActivities.css" rel="stylesheet" />
+
+}
+
+@section MainContentHolder{
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-tasks" aria-hidden="true"></i>&nbsp;@ViewBag.Title
+
+                                        <span class="view-btn backto_listspan">
+
+
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+
+
+                            @if (Model.IsCreate)
+                            {
+
+
+                                <form class="col-xs-12" id="formAddActivity">
+
+                                    <fieldset class="col-xs-12 glossy-panel-div activity-fieldset">
+                                        <legend class="activity-legend">@Fingerprints.LocalResource.Resources.Add_Edit_Recruitment_Activity</legend>
+
+
+
+                                        @*<div class="col-xs-12 text-right glossy_btn div-add-activity">
+                                                <button class="glossy-button-button button-green glossy-button-hover" id="addActivityBtn">
+                                                    Add Recruitment Activity
+
+                                                    <span class="glossy-button-after"></span>
+                                                    <span class="glossy-button-before"></span>
+
+                                                </button>
+                                            </div>*@
+
+
+
+                                        <div class="form-group col-xs-12 col-sm-12 div-activity-add adddivspace">
+
+                                            <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-textarea-activity-group">
+                                                <label class="lbl-text col-xs-12">@Fingerprints.LocalResource.Resources.Pls_specify_activity_below</label>
+
+                                                <div class="col-xs-12 col-sm-12">
+                                                    <textarea style="min-height:50px;line-height:normal;" class="col-xs-9"></textarea>
+
+                                                    <div class="col-xs-3 div-a-add">
+                                                        <a href="javascript:void(0)" id="anchorAddMoreActivity" class="a-add-activity" title="@Fingerprints.LocalResource.Resources.Add_another_recruitment_activity"><i class="fa fa-plus-circle"></i>&nbsp;@Fingerprints.LocalResource.Resources.Add</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="col-xs-12 glossy_btn adddivspace text-left" style="margin-left:30px;margin-top:10px;">
+                                            <button type="button" class="glossy-button-button button-green" id="btn-add-activity">
+                                                @Fingerprints.LocalResource.Resources.Submit
+                                                <span class="glossy-button-before"></span>
+                                                <span class="glossy-button-after"></span>
+                                            </button>
+                                            &nbsp;&nbsp;
+                                            <button type="button" class="glossy-button-button button-red" id="btn-reset-activity">
+                                                @Fingerprints.LocalResource.Resources.Clear
+                                                <span class="glossy-button-before"></span>
+                                                <span class="glossy-button-after"></span>
+                                            </button>
+
+                                        </div>
+
+
+
+                                        <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+                                            <div class="col-xs-12 glossy-panel-div" id="activities-grid-responsive">
+
+
+                                                @*@{
+
+                                                    Html.RenderPartial("~/Views/AgencyUser/_MonthlyRecruitmentActivities.cshtml", Model);
+
+                                                }*@
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!----Pagination Section---->
+
+                                        <div class="col-xs-12" id="div-pagination-recruitment-activities">
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                                                <div class="pages_display">
+                                                    <ul>
+                                                        <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.Display</li>
+                                                        <li>
+                                                            <select id="ddlpagetodisplay">
+                                                                <option value="10" selected="selected">10</option>
+                                                                <option value="20">20</option>
+                                                                <option value="30">30</option>
+                                                                <option value="50">50</option>
+                                                                <option value="100">100</option>
+                                                            </select>
+                                                        </li>
+                                                        <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                                    </ul>
+                                                    <div class="clear"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                                <div id="divPaging" class="pagination_wrp">
+                                                    <ul id="ulPaging" class="pagination">
+                                                        <li>
+                                                            <a href="javascript:void(0);" id="First" disabled>
+                                                                <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li title="Back">
+
+                                                            <a href="javascript:void(0);" id="Back" disabled>
+                                                                <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <li title="Select">
+                                                            <select class="select_cl" id="ddlpaging"></select>
+                                                        </li>
+                                                        <li title="Next">
+                                                            <a href="javascript:void(0);" id="Next" disabled>
+                                                                <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li title="Last">
+                                                            <a href="javascript:void(0);" id="Last" disabled>
+                                                                <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </fieldset>
+
+                                </form>
+
+                                                    }
+
+
+
+
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12" id="formReportActivity">
+
+                                <fieldset class="col-xs-12 glossy-panel-div activity-fieldset">
+                                    <legend class="activity-legend">@Fingerprints.LocalResource.Resources.ReportRecruitmentActivity</legend>
+
+                                    <!--Filter Section----->
+                                    <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+
+
+                                        <input type="hidden" name="reportFormatType" />
+
+
+
+
+                                        <div class="form-group col-lg-5 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                            <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center &nbsp;<sup>*</sup></label>
+
+                                            @{
+
+                                                FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
+
+                                                var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString(), false, false, false, false, false);
+
+
+                                                centerDetails.ForEach(x =>
+                                                {
+                                                    x.Value = x.Value != "0" ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                                });
+                                            }
+                                            <select id="selectCenter" name="CenterIDs" class="glossy-select">
+
+                                                <option value="0">-- Select --</option>
+
+                                                @if (centerDetails != null && centerDetails.Count > 0)
+
+                                                {
+                                                    foreach (var center in centerDetails)
+                                                    {
+
+                                                        if (center.Value != "0")
+                                                        {
+                                                            <option value="@center.Value">@center.Text</option>
+
+                                                        }
+
+
+                                                    }
+
+
+                                                }
+
+                                            </select>
+
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+
+                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-months-dropdown">
+                                            <label for="selectMonths" class="lbl-text">@Fingerprints.LocalResource.Resources.Month <sup>*</sup></label>
+
+                                            <select id="selectMonths" name="Months" class="glossy-select">
+
+                                                <option value="0">-- Select --</option>
+
+                                                @{
+
+                                                    var monthList = Fingerprints.Utilities.Helper.GetAcademicMonths(Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsModel.StaffDetails>());
+                                                }
+
+
+                                                @foreach (var item in monthList)
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+
+                                            </select>
+
+                                        </div>
+
+
+
+
+
+                                        <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                            <label for="btnLoadReport" style="visibility:hidden;">Action</label>
+                                            <button type="button" class="glossy-button-button button-green" id="btnLoadMonthlyRecruitment">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                @Fingerprints.LocalResource.Resources.Load
+                                            </button>
+                                        </div>
+
+                                        <div class="col-xs-12" id="div-bind-partial">
+
+
+
+
+
+                                        </div>
+
+
+
+                                    </div>
+
+
+                                </fieldset>
+
+
+
+
+
+
+
+
+                            </form>
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+
+    <!-------- Adding Recruitment Activity Modal ------------>
+
+
+    <div class="modal fade scroll-modal custom-modal modal-lg in" style="margin:auto;" id="modal-recruitment-activity" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                    <h2 id="CaseNoteHeading" class="extra-title muted">@Fingerprints.LocalResource.Resources.EditRecruitmentActivity </h2>
+                    <form id="formEditInkind" enctype="multipart/form-data">
+
+                        <div class="max_items_addn popup-addn-scroll">
+
+                            <div class="form-group col-xs-12 div-activity-add">
+
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <label class="lbl-text" style="color:#1d5381;font-weight:bold;margin-top:10px;">@Fingerprints.LocalResource.Resources.Pls_specify_activity_below</label>
+                                    <textarea style="width:100%;min-height:100px;line-height:normal;" id="textarea-modal-activity"></textarea>
+                                </div>
+                            </div>
+
+                         
+
+                            <div class="form-group final-btn text-center glossy_btn adddivspace"style="margin-top:10px;">
+                                <input type="hidden" id="hide-modal-act-id"/>
+
+                                <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    @Fingerprints.LocalResource.Resources.Save
+                                </button>
+                                &nbsp;&nbsp;
+                                <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    @Fingerprints.LocalResource.Resources.Exit
+                                </button>
+                            </div>
+
+
+
+
+
+
+
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+    <!---- Modal ---->
+}
+
+<h2></h2>

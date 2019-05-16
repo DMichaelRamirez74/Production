@@ -86,7 +86,7 @@ namespace FingerprintsModel
 
         public int IsChildWithdrawn { get; set; }
 
-        public int IsCenterVisit { get; set; }
+        public bool IsCenterVisit { get; set; }
     }
 
     public class ParentDetails
