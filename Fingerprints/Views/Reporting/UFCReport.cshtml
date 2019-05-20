@@ -179,7 +179,7 @@
 
                                         <div class="col-md-4" style="margin-top: 22px;">
 
-                                            <button id="filter-review" class="glossy-button-button button-green" type="button" style="float:left;" onclick="_Ufc.filterReview(this)">
+                                            <button id="filter-review" class="glossy-button-button button-green" type="button" style="float:left;">
                                                 <span class="glossy-button-after"></span>
                                                 <span class="glossy-button-before"></span>
                                                 @Resources.Load
@@ -351,30 +351,35 @@
             getUFCReportExcel: "@Url.Action("GetUFCReportExcel", "Reporting")",
         };
 
-        var _Ufc = {
-            centers: "",
-            month:"",
-            init: function () {
-                var self = this;
-                self.initEvents();
-              //  self.LoadUFCData();
-            },
-            finData:[],
-            gparams: {
-                Search: "",
-                SortOrder: "asc",
-                SortColumn: "Month",
-                RequestedPage: 1,
-                PageSize: 10
-            },
-            DOM: {
-                Centers: $("#Centers"),
-                month: $("#Month"),
-                ufcreportTemp:$("#ufcreport-temp"),
-                centerTemp: $("#centertab-temp"),
-                ufctablebody:$("#UFC-table tbody"),
-                centertab: $("#center-tab"),
-               // tablink: $(".center-tablink")
+
+
+
+        function UFCFactory() {
+
+            var _Ufc = {
+                centers: "",
+                month: "",
+                init: function () {
+                    var self = this;
+                    self.initEvents();
+                    //  self.LoadUFCData();
+                },
+                finData: [],
+                gparams: {
+                    Search: "",
+                    SortOrder: "asc",
+                    SortColumn: "Month",
+                    RequestedPage: 1,
+                    PageSize: 10
+                },
+                DOM: {
+                    Centers: $("#Centers"),
+                    month: $("#Month"),
+                    ufcreportTemp: $("#ufcreport-temp"),
+                    centerTemp: $("#centertab-temp"),
+                    ufctablebody: $("#UFC-table tbody"),
+                    centertab: $("#center-tab"),
+                    // tablink: $(".center-tablink")
 
             },
             initEvents: function () {
@@ -405,10 +410,15 @@
 
                 $(document).on( "click",".center-tablink", function (e) {
 
-                    var _cid = $(this).attr('accesskey');
-                    console.log(_cid);
-                    self.LoadUFCData(_cid);
-                });
+                        var _cid = $(this).attr('accesskey');
+                        console.log(_cid);
+                        self.LoadUFCData(_cid);
+                    });
+
+                    $(document).on("click", "#filter-review", function (e) {
+                        e.preventDefault();
+                        self.filterReview(this);
+                    });
 
 
 
@@ -538,11 +548,28 @@
             }
 
 
-        };
+            };
+
+          /*  return {
+                factpublicInit: function () {
+                    _Ufc.init();
+                },
+                filterReview: function(){
+                _Ufc.filterReview();
+                }
+            }*/
+
+            return _Ufc;
+
+        }
 
         $(document).ready(function () {
 
-            _Ufc.init();
+            // _Ufc.init();
+
+            // UFCFactory().factpublicInit();
+            UFCFactory().init();
+
         });
 
     </script>
