@@ -4356,7 +4356,8 @@ namespace Fingerprints.Controllers
                 FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
+                
+                DataSet _dataset = obj.GetCenterCaseNote(staff);
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;
@@ -4448,7 +4449,7 @@ namespace Fingerprints.Controllers
                 FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = obj.GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
+                DataSet _dataset = obj.GetCenterCaseNote(staff);
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;
@@ -8196,13 +8197,115 @@ namespace Fingerprints.Controllers
         }
 
 
+        #region Substitute Teacher
 
-        [CustAuthFilter()]
+
+
+        #region View Page
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
+
         [HttpGet]
-        public ActionResult AssignSubstituteTeacher()
+        public ActionResult AssignSubstituteRole()
         {
             return View();
         }
+
+        #endregion
+
+        #region Add Substitute Role
+
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
+        [HttpPost]
+        public ActionResult AddSubstituteRole(SubstituteRole substituteRole)
+        {
+            int result = 0;
+
+            substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(RoleEnum.Teacher));
+            substituteRole.Status = true;
+
+            result = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().Add_Remove_SubstituteRole(staff, substituteRole);
+
+            if (result == 1)
+            {
+                long substituteId = substituteRole.SubstituteID;
+                int emailType = Convert.ToInt32(substituteRole.Status);
+                string mailTemplatePath = Server.MapPath("~/MailTemplate");
+                Task.Factory.StartNew(() =>
+                Fingerprints.Common.FactoryInstance.Instance.CreateInstance<EmailData>().SendEmailSubstituteRoleModified<bool>(staff, substituteId, emailType, mailTemplatePath));
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        #region Remove Substitute Role
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
+        [HttpPost]
+        public JsonResult RemoveSubstituteRole(SubstituteRole substituteRole)
+        {
+            int result = 0;
+
+            substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(RoleEnum.Teacher));
+            substituteRole.Status = false;
+
+            result = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().Add_Remove_SubstituteRole(staff, substituteRole);
+
+
+            if (result == 1)
+            {
+                long substituteId = substituteRole.SubstituteID;
+                int emailType = Convert.ToInt32(substituteRole.Status);
+                string mailTemplatePath = Server.MapPath("~/MailTemplate");
+                Task.Factory.StartNew(() =>
+                Fingerprints.Common.FactoryInstance.Instance.CreateInstance<EmailData>().SendEmailSubstituteRoleModified<bool>(staff, substituteId, emailType, mailTemplatePath));
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Get Substitute Role for all centers
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
+        [HttpPost]
+        public PartialViewResult GetSubstituteRole(SubstituteRole substituteRole)
+        {
+            substituteRole.SkipRows = substituteRole.GetSkipRows();
+
+            substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+
+            return PartialView("~/Views/AgencyUser/_SubstituteRole.cshtml",substituteRole);
+        }
+
+
+        #endregion
+
+
+        #region Get Substitute Role list by Center used of Searching, sorting and pagination
+
+        [CustAuthFilter(RoleEnum.CenterManager)]
+        [HttpPost]
+        public PartialViewResult GetSubstituteRoleByCenter(SubstituteRole substituteRole)
+        {
+            substituteRole.SkipRows = substituteRole.GetSkipRows();
+
+            substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+
+            return PartialView("~/Views/AgencyUser/_SubstituteRoleTable.cshtml", substituteRole.SubsituteRoleList);
+        }
+
+
+
+
+        #endregion
+
+        #endregion
 
 
 

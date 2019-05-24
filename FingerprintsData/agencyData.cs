@@ -2990,6 +2990,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@centerId", centerId));
                 command.Parameters.Add(new SqlParameter("@ProgramYear", programYear));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", 0));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 // command.CommandText = "Sp_Sel_AgencyUser_Dropdowndata";
@@ -3453,7 +3454,8 @@ namespace FingerprintsData
                             obj.ActiveProgramYear = Convert.ToString(dr["ActiveProgramYear"]);
                             obj.UserId = dr["UserId"] == DBNull.Value ? "" : dr["UserId"].ToString();
                             //insert userlist to final review user
-                            if (!string.IsNullOrEmpty(obj.UserId)) {
+                            if (!string.IsNullOrEmpty(obj.UserId))
+                            {
                                 var users = new HomevisitorData().GetUsersByRoleId(obj.RoleID.ToString(), stf.RoleId.ToString(), stf.UserId.ToString(), stf.AgencyId.ToString());
                                 if (users.Count > 0)
                                 {
@@ -3463,7 +3465,8 @@ namespace FingerprintsData
                                         obj.RoleList.Add(new Role() { RoleId = item.Value, RoleName = item.Text });
                                     }
                                 }
-                                else {
+                                else
+                                {
                                     obj.RoleList = new List<Role>();
                                 }
                                 
@@ -3485,7 +3488,8 @@ namespace FingerprintsData
             return _AcceptanceProcessList;
         }
 
-        public bool GetOverIncomeReview() {
+        public bool GetOverIncomeReview()
+        {
             bool result = false;
 
             try
@@ -3494,7 +3498,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.Text;
                 command.CommandText = @"select top 1 isnull(OverIncomeAcceptance,0) as OverIncomeAcceptance from AgencyInfo where 
-                                        AgencyId = '" + stf.AgencyId.ToString()+"' and Status = 1";
+                                        AgencyId = '" + stf.AgencyId.ToString() + "' and Status = 1";
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -3506,7 +3510,8 @@ namespace FingerprintsData
                     }
                 }
 
-                    }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -6674,7 +6679,8 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
 
-        public EligibilityDetail GetEligibilityFormByClient(string ClientId,int mode) {
+        public EligibilityDetail GetEligibilityFormByClient(string ClientId, int mode)
+        {
 
 
             EligibilityDetail _ElD = new EligibilityDetail();
@@ -6731,9 +6737,11 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
                         if (_dataset.Tables[1].Rows.Count > 0)
                         {
-                            foreach (DataRow dr in _dataset.Tables[1].Rows) {
+                            foreach (DataRow dr in _dataset.Tables[1].Rows)
+                            {
 
-                                var _singDoc = new FamilyHousehold.IncomeDocument(){
+                                var _singDoc = new FamilyHousehold.IncomeDocument()
+                                {
 
                                     DocumentId = DBNull.Value == dr["DocumentId"] ? 0 :  Int64.Parse(dr["DocumentId"].ToString()),
                                     DocumentName = DBNull.Value == dr["DocumentName"] ? "" : dr["DocumentName"].ToString()

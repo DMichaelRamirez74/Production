@@ -298,7 +298,10 @@
             BootstrapDialog.confirm($(object).text() + ' role will be active. Do you want to continuue.', function (result) {
                 if (result) {
                     if (object != null)
-                        window.location.href = HostedDir + '/MyProfile/ChangeRole/' + $(object).attr("accesskey");
+                        window.location.href = HostedDir + '/MyProfile/ChangeRole?id=' + $(object).attr("accesskey") + '&subId=' + $(object).attr('data-sub-id').trim();
+
+                     //   window.location.href = HostedDir + '/MyProfile/ChangeRole/' + $(object).attr("accesskey");
+
                 }
             });
 
@@ -876,7 +879,7 @@
                                                 {
                                                     foreach (var item in ((List<FingerprintsModel.Role>)Session["RoleList"]))
                                                     {
-                                                        <li><a onclick="Checkrole(this);" accesskey="@item.RoleId" href="#"><i class="fa fa-user fa-user-secret"></i> @item.RoleName</a></li>
+                                                        <li><a onclick="Checkrole(this);" accesskey="@item.RoleId" data-sub-id="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.SubstituteID.ToString())" href="#"><i class="fa fa-user fa-user-secret"></i> @item.RoleName</a></li>
                                                     }
                                                 }
                                             </ul>

@@ -1007,7 +1007,7 @@ namespace FingerprintsData
 
 
 
-        public void MarkAbsent(ref string result, string ChildID, string UserID, string absentType, string Cnotes, string agencyid, int AbsentReasonid, string NewReason)
+        public void MarkAbsent(ref string result, string ChildID,StaffDetails staff,  string absentType, string Cnotes,  int AbsentReasonid, string NewReason)
         {
 
 
@@ -1020,12 +1020,13 @@ namespace FingerprintsData
                         Connection.Close();
                     Connection.Open();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@clientID", ChildID));
                     command.Parameters.Add(new SqlParameter("@PSignature", " "));
                     command.Parameters.Add(new SqlParameter("@PareID", " "));
                     command.Parameters.Add(new SqlParameter("@Notes", " "));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendancePresent";
@@ -1042,13 +1043,14 @@ namespace FingerprintsData
                         Connection.Close();
                     Connection.Open();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@ClientID", ChildID));
                     command.Parameters.Add(new SqlParameter("@AttendanceType", absentType));
                     command.Parameters.Add(new SqlParameter("@AbsenceReasonId", AbsentReasonid));
                     command.Parameters.Add(new SqlParameter("@NewReason", NewReason));
                     command.Parameters.Add(new SqlParameter("@Notes", ""));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendanceAbsent";
@@ -1122,7 +1124,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid, bool isEndOfYear = false, bool isInkind = false)
+        public List<ClassRoom> Getclassrooms(string Centerid,StaffDetails staffDetails, bool isEndOfYear = false, bool isInkind = false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -1131,13 +1133,15 @@ namespace FingerprintsData
                 int cenID = 0;
                 Centerid = int.TryParse(Centerid, out cenID) ? Centerid : EncryptDecrypt.Decrypt64(Centerid);
 
-                StaffDetails staffDetails = StaffDetails.GetInstance();
+             
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staffDetails.AgencyId));
                 command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staffDetails.SubstituteID));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Parameters.Add(new SqlParameter("@IsInkind", isInkind));
+
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getclassrooms";

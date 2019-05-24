@@ -190,7 +190,9 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 string result = "";
-                new TeacherData().MarkAbsent(ref result, childID, Session["UserID"].ToString(), absentType, Cnotes, Session["AgencyID"].ToString(), reasonid, NewReason);
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+                new TeacherData().MarkAbsent(ref result, childID, staff, absentType, Cnotes,  reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
                 return View(new TeacherData().GetChildList());
@@ -222,7 +224,8 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return View(new TeacherData().GetMeals(Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return View(new TeacherData().GetMeals(staff));
             }
             catch (Exception Ex)
             {
@@ -236,9 +239,12 @@ namespace Fingerprints.Controllers
         {
             try
             {
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+
                 string result = "";
 
-                TeacherModel _teacher = new TeacherData().GetMeals(ref result, Session["UserID"].ToString(), Session["AgencyID"].ToString(), collection);
+                TeacherModel _teacher = new TeacherData().GetMeals(ref result, staff, collection);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
                 return View(_teacher);
@@ -255,6 +261,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
                 int reasonid = 0;
                 string childID = collection.Get("childid");
                 string absentType = collection.Get("AbsentType");
@@ -264,7 +271,7 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 //string result = "";
-                TeacherModel _teacher = new TeacherData().MarkAbsent(ref result, childID, Session["UserID"].ToString(), absentType, Cnotes, Session["AgencyID"].ToString(), reasonid, NewReason);
+                TeacherModel _teacher = new TeacherData().MarkAbsent(ref result, childID, staff,  absentType, Cnotes, reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
 
@@ -284,7 +291,8 @@ namespace Fingerprints.Controllers
             {
                 ViewData["ActiveTabTeacher"] = 0;
                 string result = "";
-                return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), available));
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return View(new TeacherData().GetParentList(ref result, clientid, staff, 1,  available));
             }
             catch (Exception Ex)
             {
@@ -298,7 +306,8 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return View(new TeacherData().GetMainChildDisplay(clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return View(new TeacherData().GetMainChildDisplay(clientid, 1, staff));
             }
             catch (Exception Ex)
             {
@@ -313,7 +322,8 @@ namespace Fingerprints.Controllers
             try
             {
                 string result = "";
-                return View(new TeacherData().GetParentList(ref result, clientid, 1, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0"));
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return View(new TeacherData().GetParentList(ref result, clientid, staff,1, "0"));
             }
             catch (Exception Ex)
             {
@@ -345,12 +355,13 @@ namespace Fingerprints.Controllers
                 TeacherModel _teach = new TeacherModel();
                 string available = collection.Get("Available");
                 string Oavailable = collection.Get("OfficeAvailable");
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
                 string result = "";
                 if (available == "1" && Oavailable == "0")
                 {
                     ViewData["ActiveTabTeacher"] = 1;
-                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                     _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return View(_teach);
@@ -358,7 +369,7 @@ namespace Fingerprints.Controllers
                 }
                 else if (available == "2")
                 {
-                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                     _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("Roster");
@@ -367,7 +378,7 @@ namespace Fingerprints.Controllers
 
                 else
                 {
-                    _teach = new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 1, Session["AgencyID"].ToString());
+                     _teach = new TeacherData().GetParentList(ref result, clientid,staff, collection, 1 );
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("~/Teacher/ParentCheckIn_CheckOut?available=" + available + "");
@@ -389,7 +400,8 @@ namespace Fingerprints.Controllers
             try
             {
                 string result = "";
-                new TeacherData().GetParentList(ref result, clientid, Session["UserID"].ToString(), collection, 2, Session["AgencyID"].ToString());
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                new TeacherData().GetParentList(ref result, clientid, staff, collection, 2);
                 return Redirect("ParentCheckIn_CheckOut?available=" + available + "");
 
             }
@@ -484,6 +496,7 @@ namespace Fingerprints.Controllers
             bool Result = false;
             try
             {
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
                 if (monitor != null)
                 {
@@ -493,7 +506,7 @@ namespace Fingerprints.Controllers
                             obj_Monitor.UserID = new Guid(Session["UserID"].ToString());
                         if (Session["AgencyID"] != null)
                             obj_Monitor.AgencyID = new Guid(Session["AgencyID"].ToString());
-                        Guid? MonitorId = _Teacher.InsertMonitoringDetail(obj_Monitor);
+                        Guid? MonitorId = _Teacher.InsertMonitoringDetail(staff, obj_Monitor);
                         if (MonitorId != null)
                         {
                             obj_Monitor.Id = MonitorId;

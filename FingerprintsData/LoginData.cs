@@ -18,13 +18,15 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataTable UserDataTable = null;
         DataSet _Dataset = null;
-        public FingerprintsModel.Login LoginUser(out string result, out List<Role> RoleList, string UserName, string Password, string IPaddress)
+        public FingerprintsModel.Login LoginUser(out string result, string UserName, string Password, string IPaddress)
         {
-     //  string Pwd = EncryptDecrypt.Decrypt(Password);
-            Login Login = null;
+            //string Pwd = EncryptDecrypt.Decrypt(Password);
+            Login Login = new Login();
             result = string.Empty;
-            RoleList = new List<Role>();
-           try
+
+            Login.RoleList = new List<Role>();
+            Login.SubstituteRoleList = new List<SubstituteRole>();
+            try
             {
                 Command.Parameters.Add(new SqlParameter("@emailid", UserName));
                 Command.Parameters.Add(new SqlParameter("@password", EncryptDecrypt.Encrypt(Password)));
@@ -62,16 +64,18 @@ namespace FingerprintsData
                     }
                     if (_Dataset != null && _Dataset.Tables.Count > 1 && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
                     {
-                        Role info = new Role();
-                        foreach (DataRow dr in _Dataset.Tables[1].Rows)
-                        {
-                            info = new Role();
-                            info.RoleId = dr["Roleid"].ToString();
-                            info.RoleName = dr["rolename"].ToString();
-                            info.Defaultrole = Convert.ToBoolean(dr["defualtrole"]);
-                            RoleList.Add(info);
-                        }
+                        Login.RoleList = (from DataRow dr in _Dataset.Tables[1].Rows
+                                          select new Role
+                                          {
 
+
+                                              SubstituteID = Convert.ToInt64(dr["SubstituteID"]),
+                                              RoleId = dr["Roleid"].ToString(),
+                                              RoleName = dr["rolename"].ToString(),
+                                              Defaultrole = Convert.ToBoolean(dr["defualtrole"])
+
+                                          }
+                                        ).ToList();
 
                     }
                 }
@@ -129,7 +133,8 @@ namespace FingerprintsData
 
                     }
 
-                    if (_Dataset != null && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0) {
+                    if (_Dataset != null && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
+                    {
                         primarylang = DBNull.Value == _Dataset.Tables[1].Rows[0]["PrimaryLanguageSpoken"] ? 1 : Convert.ToInt32(_Dataset.Tables[1].Rows[0]["PrimaryLanguageSpoken"].ToString());
                     }
 

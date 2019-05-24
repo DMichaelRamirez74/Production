@@ -20,6 +20,7 @@ using iTextSharp.tool.xml.pipeline.css;
 using iTextSharp.tool.xml.parser;
 using iTextSharp.text.pdf;
 using FingerprintsModel.Enums;
+using Newtonsoft.Json;
 
 namespace Fingerprints.Controllers
 {
@@ -572,12 +573,14 @@ namespace Fingerprints.Controllers
 
         #region UFC Report
 
+        [CustAuthFilter()]
         public ActionResult UFCReport()
         {
 
             return View();
         }
 
+        [CustAuthFilter()]
         public ActionResult GetUFCReport(string centerIds = "", long month = 0)
         {
 

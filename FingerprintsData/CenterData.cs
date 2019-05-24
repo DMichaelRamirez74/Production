@@ -2549,5 +2549,160 @@ namespace FingerprintsData
 
         #endregion
 
+
+        #region Substitute Teacher
+
+
+
+
+
+        #region Add Substitute Teacher
+
+        public int Add_Remove_SubstituteRole(StaffDetails staff, SubstituteRole substituteRole)
+        {
+
+            int result;
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@CenterID", substituteRole.CenterID=="0"?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.CenterID)),DbType.Int64),
+                    dbManager.CreateParameter("@ClassroomID",substituteRole.ClassroomID=="0"?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.ClassroomID)),DbType.Int64),
+                    dbManager.CreateParameter("@FromDate",substituteRole.FromDate,DbType.String),
+                    dbManager.CreateParameter("@ToDate",substituteRole.ToDate,DbType.String),
+                    dbManager.CreateParameter("@StaffRoleID",substituteRole.StaffDetails.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@StaffID",substituteRole.StaffDetails.StaffID==null?(Guid?)null:substituteRole.StaffDetails.StaffID,DbType.Guid),
+                    dbManager.CreateParameter("@SubstituteID",10, substituteRole.SubstituteID,DbType.Int64,ParameterDirection.InputOutput),
+                    dbManager.CreateParameter("@Status",substituteRole.Status,DbType.Boolean),
+                    dbManager.CreateParameter("@Result",8,0,DbType.Int32,ParameterDirection.Output)
+
+                };
+
+                dbManager.ExecuteWithNonQuery<bool>("USP_Add_Remove_SubstituteRole", CommandType.StoredProcedure, parameters);
+
+                result = (int)parameters.Where(x => x.ParameterName == "@Result" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault();
+                substituteRole.SubstituteID = Convert.ToInt64(parameters.Where(x => x.ParameterName == "@SubstituteID" && x.Direction == ParameterDirection.InputOutput).Select(x => x.Value).FirstOrDefault());
+               
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                result = 0;
+            }
+            return result;
+        }
+
+
+        #endregion
+
+        #region Get Substitute Role
+
+        public SubstituteRole GetSubstituteRole(StaffDetails staff, SubstituteRole substituteRole)
+        {
+            IDbConnection dbConnection = null;
+            IDataReader reader = null;
+            var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+            try
+            {
+                substituteRole.SubsituteRoleList = new List<SubstituteRole>();
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@StaffRoleID",substituteRole.StaffDetails.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@Take",substituteRole.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",substituteRole.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(substituteRole.CenterID) && substituteRole.CenterID!="0"?Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.CenterID)):0,DbType.Int64),
+                    dbManager.CreateParameter("@SortOrder",substituteRole.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",substituteRole.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",substituteRole.SearchTerm,DbType.String)
+                };
+
+                reader = dbManager.GetDataReader("USP_GetSubstituteRole", CommandType.StoredProcedure, parameters, out dbConnection);
+
+
+                while (reader.Read())
+                {
+                    substituteRole.SubsituteRoleList.Add(new SubstituteRole
+                    {
+                        CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])),
+                        ClassroomID = EncryptDecrypt.Encrypt64(Convert.ToString(reader["ClassroomID"])),
+                        CenterName = Convert.ToString(reader["CenterName"]),
+                        ClassroomName = Convert.ToString(reader["ClassroomName"]),
+                        StaffDetails = new StaffDetails(false)
+                        {
+                            UserId = new Guid(Convert.ToString(reader["UserID"])),
+                            FullName = string.Concat(Convert.ToString(reader["FirstName"]), " ", Convert.ToString(reader["LastName"])).Trim(),
+                            RoleId = new Guid(Convert.ToString(reader["RoleID"]))
+                        },
+                        SubstituteID = Convert.ToInt64(reader["SubstituteID"]),
+                        FromDate = Convert.ToString(reader["FromDate"]),
+                        ToDate = Convert.ToString(reader["ToDate"])
+                    });
+                }
+
+                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
+                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
+
+                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
+
+                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
+
+
+                if (reader.NextResult())
+                {
+                    while (reader.Read())
+                    {
+                        substituteRole.SubsituteRoleList.ForEach(x =>
+                        {
+                            x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])) ? Convert.ToInt32(reader["TotalRecord"]) : x.TotalRecord;
+                            x.SortOrder = substituteRole.SortOrder;
+                            x.SortColumn = substituteRole.SortColumn;
+                        });
+
+                        //substituteRole.SubsituteRoleList.ForEach(x => {
+                        //    x.TotalRecord = 48;
+                        //});
+                    }
+
+
+                }
+
+                reader.Close();
+                dbManager.CloseConnection(dbConnection);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+
+            }
+
+            return substituteRole;
+        }
+
+
+        #endregion
+
+
+
+        #endregion
+
     }
 }

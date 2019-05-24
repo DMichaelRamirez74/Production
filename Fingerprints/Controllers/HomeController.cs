@@ -453,11 +453,12 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                Guid? userId = null;
-                if (Session["UserID"] != null)
-                    userId = new Guid(Session["UserID"].ToString());
+
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+             
                 ViewBag.CenterId = CenterId;
-                List<DailySaftyCheckImages> listImages = new TeacherData().GetDailySaftyCheckImages(userId, Session["Roleid"].ToString(), CenterId);
+                List<DailySaftyCheckImages> listImages = new TeacherData().GetDailySaftyCheckImages(staff,CenterId);
                 return View(listImages);
             }
             catch (Exception Ex)

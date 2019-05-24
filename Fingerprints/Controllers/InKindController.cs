@@ -104,7 +104,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new RosterData().Getclassrooms(Centerid, staff.AgencyId.ToString(), isEndOfYear: false, isInkind: true));
+                return Json(new RosterData().Getclassrooms(Centerid,staff, isEndOfYear: false, isInkind: true));
             }
             catch (Exception Ex)
             {

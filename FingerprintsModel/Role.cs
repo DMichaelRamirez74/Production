@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace FingerprintsModel
 {
-    public  class Role
+    public  class Role:SubstituteRole
     {
 
         public Role()

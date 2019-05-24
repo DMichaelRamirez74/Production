@@ -50,7 +50,7 @@ namespace Fingerprints.Controllers
          */
         RosterData RosterData = new RosterData();
 
-        StaffDetails staff = StaffDetails.GetInstance();
+        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
         string[] managerRoleArray = { "A65BB7C2-E320-42A2-AED4-409A321C08A5","3B49B025-68EB-4059-8931-68A0577E5FA2",
                 "944D3851-75CC-41E9-B600-3FA904CF951F", "047C02FE-B8F1-4A9B-B01F-539D6A238D80",
@@ -116,7 +116,7 @@ namespace Fingerprints.Controllers
                 if (collection.Get("ReasonList").ToString() != "")
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 string result = "";
-                RosterData.MarkAbsent(ref result, childID, staff.UserId.ToString(), absentType, Cnotes, staff.AgencyId.ToString(), reasonid, NewReason);
+                RosterData.MarkAbsent(ref result, childID,staff,  absentType, Cnotes,  reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
 
@@ -175,7 +175,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(RosterData.Getclassrooms(Centerid, Session["AgencyID"].ToString()));
+                return Json(RosterData.Getclassrooms(Centerid,staff));
             }
             catch (Exception Ex)
             {

@@ -2224,7 +2224,8 @@ namespace Fingerprints.Controllers
             {
                 centerId = EncryptDecrypt.Decrypt64(centerId);
                 bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
-                return Json(new RosterData().Getclassrooms(centerId, Session["AgencyID"].ToString(),isEndYear), JsonRequestBehavior.AllowGet);
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return Json(new RosterData().Getclassrooms(centerId, staff, isEndYear), JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {

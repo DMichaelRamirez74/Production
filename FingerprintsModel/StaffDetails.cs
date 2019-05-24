@@ -64,7 +64,7 @@ namespace FingerprintsModel
             this.RoleId = ((HttpContext.Current.Session["RoleID"]==null)? (Guid?)null : new Guid(HttpContext.Current.Session["RoleID"].ToString()));
             this.FullName =((HttpContext.Current.Session["FullName"]==null)?string.Empty: HttpContext.Current.Session["FullName"].ToString());
             this.EmailID = ((HttpContext.Current.Session["EmailID"]==null)?string.Empty:HttpContext.Current.Session["EmailID"].ToString());
-                
+            this.SubstituteID = ((HttpContext.Current.Session["SubstituteID"] == null) ? string.Empty : HttpContext.Current.Session["SubstituteID"].ToString());
 
         }
 
@@ -75,6 +75,7 @@ namespace FingerprintsModel
             this.RoleId = ((_currentContext.Session["RoleID"] == null) ? (Guid?)null : new Guid(_currentContext.Session["RoleID"].ToString()));
             this.FullName = ((_currentContext.Session["FullName"] == null) ? string.Empty : _currentContext.Session["FullName"].ToString());
             this.EmailID = ((_currentContext.Session["EmailID"] == null) ? string.Empty : _currentContext.Session["EmailID"].ToString());
+            this.SubstituteID = ((_currentContext.Session["SubstituteID"] == null) ? string.Empty : _currentContext.Session["SubstituteID"].ToString());
 
 
         }
@@ -100,7 +101,11 @@ namespace FingerprintsModel
         public Guid? RoleId { get; set; }
         public Guid? AgencyId { get; set; }
 
+        public Guid? StaffID { get; set; }
+
         public string EmailID { get; set; }
+
+        public string SubstituteID { get; set; }
 
     }
 

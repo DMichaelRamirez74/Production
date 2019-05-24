@@ -66,8 +66,8 @@ namespace Fingerprints.Controllers
 
                 }
                 string result = string.Empty;
-                List<Role> RoleList = null;
-                FingerprintsModel.Login UserInfo = LoginData.LoginUser(out result, out RoleList, User.Emailid.Trim(), User.Password.Trim(), IPAddress);
+               
+                FingerprintsModel.Login UserInfo = LoginData.LoginUser(out result, User.Emailid.Trim(), User.Password.Trim(), IPAddress);
                 if (!result.ToLower().Contains("success"))// UserInfo == null)
                 {
                     User.UserName = "";
@@ -322,8 +322,8 @@ namespace Fingerprints.Controllers
                     return View();
                 }
                 string result = string.Empty;
-                List<Role> RoleList = null;
-                FingerprintsModel.Login UserInfo = LoginData.LoginUser(out result, out RoleList, User.Emailid.Trim(), User.Password.Trim(), IPAddress);
+            
+                FingerprintsModel.Login UserInfo = LoginData.LoginUser(out result,User.Emailid.Trim(), User.Password.Trim(), IPAddress);
                 if (!result.ToLower().Contains("success"))
                 {
                     User.UserName = string.Empty;
@@ -391,9 +391,9 @@ namespace Fingerprints.Controllers
                             Session["IsCoreTeam"] = true;
                         }
                       
-                        if (RoleList != null)
+                        if (UserInfo.RoleList != null)
                         {
-                            Session["RoleList"] = RoleList;
+                            Session["RoleList"] = UserInfo.RoleList;
                         }
                     }
 

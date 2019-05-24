@@ -291,6 +291,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ClientID", "1"));
                 command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandTimeout = 120;
                 command.CommandText = "SP_GetTeacherList";
@@ -429,7 +430,7 @@ namespace FingerprintsData
             return _TeacherM;
 
         }
-        public TeacherModel GetMainChildDisplay(string clientID, int accesstype, string UserID, string agencyid)
+        public TeacherModel GetMainChildDisplay(string clientID, int accesstype, StaffDetails staff)
         {
             SqlConnection Connection = connection.returnConnection();
             SqlConnection Connection2 = connection.returnConnection();
@@ -447,9 +448,10 @@ namespace FingerprintsData
 
             Connection.Open();
             command.Connection = Connection;
-            command.Parameters.Add(new SqlParameter("@UserID", UserID));
+            command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
             command.Parameters.Add(new SqlParameter("@ClientID", clientID));
-            command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+            command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+            command.Parameters.Add(new SqlParameter("@SubstituteID",staff.SubstituteID));
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_GetTeacherList1";
             DataAdapter = new SqlDataAdapter(command);
@@ -491,7 +493,7 @@ namespace FingerprintsData
             }
             Connection2.Open();
             command2.Connection = Connection2;
-            command2.Parameters.Add(new SqlParameter("@AgencyID", "0bcff6e0-e162-4d82-8fe2-a70a2623b4f9"));
+            command2.Parameters.Add(new SqlParameter("@AgencyID",staff.AgencyId ));
             command2.CommandType = CommandType.StoredProcedure;
             command2.CommandText = "SP_GetObservationLookup";
             DataAdapter2 = new SqlDataAdapter(command2);
@@ -511,7 +513,7 @@ namespace FingerprintsData
 
             Connection3.Open();
             command3.Connection = Connection3;
-            command3.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+            command3.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
             command3.Parameters.Add(new SqlParameter("@ClientID", clientID));
             command3.CommandType = CommandType.StoredProcedure;
             command3.CommandText = "SP_GetDailyObservation";
@@ -547,7 +549,7 @@ namespace FingerprintsData
 
             return _TeacherM;
         }
-        public TeacherModel MarkAbsent(ref string result, string ChildID, string UserID, string absentType, string Cnotes, string agencyid, int AbsentReasonid, string NewReason)
+        public TeacherModel MarkAbsent(ref string result, string ChildID,StaffDetails staff,  string absentType, string Cnotes, int AbsentReasonid, string NewReason)
         {
             try
             {
@@ -558,12 +560,13 @@ namespace FingerprintsData
                         Connection.Close();
                     Connection.Open();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@clientID", ChildID));
                     command.Parameters.Add(new SqlParameter("@PSignature", " "));
                     command.Parameters.Add(new SqlParameter("@PareID", " "));
                     command.Parameters.Add(new SqlParameter("@Notes", " "));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendancePresent";
@@ -580,13 +583,14 @@ namespace FingerprintsData
                         Connection.Close();
                     Connection.Open();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@clientID", ChildID));
                     command.Parameters.Add(new SqlParameter("@AttendanceType", absentType));
                     command.Parameters.Add(new SqlParameter("@AbsenceReasonId", AbsentReasonid));
                     command.Parameters.Add(new SqlParameter("@NewReason", NewReason));
                     command.Parameters.Add(new SqlParameter("@Notes", ""));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendanceAbsent";
@@ -606,7 +610,172 @@ namespace FingerprintsData
         }
 
 
-        public TeacherModel GetParentList(ref string result, string clientID, int accesstype, string UserID, string agencyid, string available)
+        //public TeacherModel GetParentList(ref string result, string clientID, int accesstype, string UserID, string agencyid, string available)
+        //{
+        //    result = "";
+        //    SqlConnection Connection = connection.returnConnection();
+        //    SqlConnection Connection2 = connection.returnConnection();
+        //    SqlConnection Connection3 = connection.returnConnection();
+        //    SqlConnection Connection4 = connection.returnConnection();
+        //    SqlConnection Connection5 = connection.returnConnection();
+        //    SqlCommand command = new SqlCommand();
+        //    SqlCommand command2 = new SqlCommand();
+        //    SqlCommand command3 = new SqlCommand();
+        //    SqlCommand command4 = new SqlCommand();
+        //    SqlCommand command5 = new SqlCommand();
+        //    SqlDataAdapter DataAdapter = null;
+        //    SqlDataAdapter DataAdapter2 = null;
+        //    SqlDataAdapter DataAdapter3 = null;
+        //    SqlDataAdapter DataAdapter4 = null;
+        //    SqlDataAdapter DataAdapter5 = null;
+        //    DataSet _dataset = null;
+        //    DataSet _dataset2 = null;
+        //    DataSet _dataset3 = null;
+        //    DataSet _dataset4 = null;
+        //    DataSet _dataset5 = null;
+
+        //    Connection.Open();
+        //    command.Connection = Connection;
+        //    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+        //    command.Parameters.Add(new SqlParameter("@ClientID", clientID));
+        //    command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+        //    command.CommandType = CommandType.StoredProcedure;
+        //    command.CommandText = "SP_GetTeacherList1";
+        //    DataAdapter = new SqlDataAdapter(command);
+        //    _dataset = new DataSet();
+        //    DataAdapter.Fill(_dataset);
+        //    DataTable dt = _dataset.Tables[0];
+
+
+        //    TeacherModel _TeacherM = new TeacherModel();
+        //    _TeacherM.EmergencyContactList = new List<FamilyHousehold>();
+        //    _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
+
+        //    foreach (DataRow dr in _dataset.Tables[0].Rows)
+        //    {
+        //        _TeacherM.CName = Convert.ToString(dr["CName"]);
+        //        _TeacherM.Parent1Name = Convert.ToString(dr["A1Name"]);
+        //        _TeacherM.Parent2Name = Convert.ToString(dr["A2Name"]);
+        //        _TeacherM.Parent1ID = Convert.ToString(dr["A1ID"]);
+        //        _TeacherM.Parent2ID = Convert.ToString(dr["A2ID"]);
+        //        _TeacherM.OtherNameTeacher = Convert.ToString(dr["TeacherOtherNotes"]);
+        //        _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
+        //        _TeacherM.CIFileData = (byte[])dr["profilepic"];
+        //        _TeacherM.CImage = dr["FileNameul"].ToString();
+
+        //    }
+
+        //    if (!string.IsNullOrEmpty(clientID) || clientID != "1")
+        //    {
+        //        if (_dataset.Tables.Count > 1)
+        //        {
+        //            _TeacherM.EmergencyContactList = (from DataRow dr1 in _dataset.Tables[1].Rows
+        //                                              select new FamilyHousehold
+        //                                              {
+        //                                                  EmegencyId = Convert.ToInt32(dr1["ID"]),
+        //                                                  Efirstname = Convert.ToString(dr1["Name"]),
+        //                                                  EDOB = dr1["DOB"].ToString() == "" ? "" : Convert.ToDateTime(dr1["DOB"]).ToString("MM/dd/yyyy"),
+        //                                                  ERelationwithchild = Convert.ToString(dr1["RelationName"]),
+        //                                                  EImagejson = dr1["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["DocumentFile"])
+        //                                              }
+
+        //                                            ).ToList();
+        //        }
+        //    }
+        //    Connection2.Open();
+        //    command2.Connection = Connection2;
+        //    command2.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+        //    command2.CommandType = CommandType.StoredProcedure;
+        //    command2.CommandText = "SP_GetObservationLookup";
+        //    DataAdapter2 = new SqlDataAdapter(command2);
+        //    _dataset2 = new DataSet();
+        //    DataAdapter2.Fill(_dataset2);
+        //    DataTable dt2 = _dataset2.Tables[0];
+        //    List<TeacherModel> observationlst = new List<TeacherModel>();
+        //    foreach (DataRow dr2 in _dataset2.Tables[0].Rows)
+        //    {
+        //        observationlst.Add(new TeacherModel
+        //        {
+        //            ObservationID = Convert.ToString(dr2["ObservationKey"]),
+        //            ObservationDescription = Convert.ToString(dr2["Description"])
+        //        });
+        //    }
+        //    _TeacherM.Observationlst = observationlst;
+
+        //    Connection3.Open();
+        //    command3.Connection = Connection3;
+        //    command3.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+        //    command3.Parameters.Add(new SqlParameter("@ClientID", clientID));
+        //    command3.CommandType = CommandType.StoredProcedure;
+        //    command3.CommandText = "SP_GetDailyObservation";
+        //    DataAdapter3 = new SqlDataAdapter(command3);
+        //    _dataset3 = new DataSet();
+        //    DataAdapter3.Fill(_dataset3);
+        //    DataTable dt3 = _dataset3.Tables[0];
+        //    List<TeacherModel> observationlstChecked = new List<TeacherModel>();
+        //    foreach (DataRow dr3 in _dataset3.Tables[0].Rows)
+        //    {
+        //        observationlstChecked.Add(new TeacherModel
+        //        {
+        //            ObservationIDChecked = Convert.ToString(dr3["Observation"]),
+
+        //        });
+        //        _TeacherM.TeacherCheckInSig = Convert.ToString(dr3["TeacherCheckInSig"]);
+        //        _TeacherM.OtherNameTeacher = Convert.ToString(dr3["TeacherOther"]);
+        //    }
+
+        //    _TeacherM.Activitylst = new List<InkindActivity>();
+        //    _TeacherM.Activitylst = new InKindData().GetInkindActivities(new StaffDetails(), 0, 0, true, 2).InkindActivityList;
+
+        //    _TeacherM.ObservationlstChecked = observationlstChecked;
+        //    _TeacherM.Observationlst = observationlst;
+
+        //    Connection.Close();
+        //    Connection3.Close();
+        //    Connection2.Close();
+        //    Connection4.Close();
+        //    command.Dispose();
+        //    command2.Dispose();
+        //    command3.Dispose();
+        //    command4.Dispose();
+
+        //    _TeacherM.Available = available.ToString();
+        //    List<TeacherModel> hours = new List<TeacherModel>();
+        //    hours.Add(new TeacherModel { hourID = "0", hourDes = "0" });
+        //    hours.Add(new TeacherModel { hourID = "1", hourDes = "1" });
+        //    hours.Add(new TeacherModel { hourID = "2", hourDes = "2" });
+        //    hours.Add(new TeacherModel { hourID = "3", hourDes = "3" });
+        //    hours.Add(new TeacherModel { hourID = "4", hourDes = "4" });
+        //    _TeacherM.Hours = hours;
+        //    List<TeacherModel> minutes = new List<TeacherModel>();
+        //    minutes.Add(new TeacherModel { minID = "0", minDes = "0" });
+        //    minutes.Add(new TeacherModel { minID = "15", minDes = "15" });
+        //    minutes.Add(new TeacherModel { minID = "30", minDes = "30" });
+        //    minutes.Add(new TeacherModel { minID = "45", minDes = "45" });
+        //    _TeacherM.Minutes = minutes;
+        //    Connection5.Open();
+        //    command5.Connection = Connection;
+        //    command5.Parameters.Add(new SqlParameter("@UserID", UserID));
+        //    command5.CommandType = CommandType.StoredProcedure;
+        //    command5.CommandText = "SP_GetTeacherInfo";
+        //    DataAdapter5 = new SqlDataAdapter(command5);
+        //    _dataset5 = new DataSet();
+        //    DataAdapter5.Fill(_dataset5);
+        //    foreach (DataRow dr in _dataset5.Tables[0].Rows)
+        //    {
+
+        //        _TeacherM.ClassID = Convert.ToString(dr["ClassroomID"]);
+        //        _TeacherM.CenterID = Convert.ToString(dr["CenterID"]);
+        //    }
+        //    command5.Dispose();
+        //    Connection5.Close();
+
+
+        //    return _TeacherM;
+        //}
+
+
+        public TeacherModel GetParentList(ref string result, string clientID,StaffDetails staff, int accesstype, string available)
         {
 
             TeacherModel _TeacherM = new TeacherModel();
@@ -619,9 +788,11 @@ namespace FingerprintsData
                 DataSet _dataset = null;
                 Connection.Open();
                 command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ClientID", clientID));
-                command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
+
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetTeacherList1";
                 DataAdapter = new SqlDataAdapter(command);
@@ -767,7 +938,7 @@ namespace FingerprintsData
         }
 
 
-        public TeacherModel GetParentList(ref string result, string clientID, string UserID, FormCollection collection, int savetype, string agencyid)
+        public TeacherModel GetParentList(ref string result, string clientID,StaffDetails staff,  FormCollection collection, int savetype)
         {
             result = "";
             string result1 = "";
@@ -788,12 +959,13 @@ namespace FingerprintsData
                         Connection.Close();
                     Connection.Open();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@clientID", clientID));
                     command.Parameters.Add(new SqlParameter("@PSignature", imgSig));
                     command.Parameters.Add(new SqlParameter("@PareID", ParentID));
                     command.Parameters.Add(new SqlParameter("@Notes", OtherNotes));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendancePresent";
@@ -827,7 +999,7 @@ namespace FingerprintsData
                                                where act != "false"
                                                select new InKindTransactions
                                                {
-                                                   AgencyId = new Guid(agencyid),
+                                                   AgencyId = new Guid(staff.AgencyId.ToString()),
                                                    ParentID = EncryptDecrypt.Encrypt64(ParentID),
                                                    ActivityDate = activityDate,
                                                    CenterID = Convert.ToInt32(centerid),
@@ -903,8 +1075,8 @@ namespace FingerprintsData
                                 command.Dispose();
                                 Connection.Open();
                                 command.Connection = Connection;
-                                command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
-                                command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                                 command.Parameters.Add(new SqlParameter("@ClientID", clientID));
                                 command.Parameters.Add(new SqlParameter("@TSignature", imgSig));
                                 command.Parameters.Add(new SqlParameter("@StaffSignatureCode", SignatureCode));
@@ -925,7 +1097,7 @@ namespace FingerprintsData
 
                 }
 
-                return GetParentList(ref result1, clientID, 2, UserID, agencyid, TAvailable);
+                return GetParentList(ref result1, clientID,staff, 2,  TAvailable);
 
 
             }
@@ -944,9 +1116,9 @@ namespace FingerprintsData
                 ParentID = (ParentID == "00000") ? (Convert.ToInt32(emergency) > 0) ? emergency : ParentID : ParentID;
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
-             
+
                 command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@clientID", clientID));
                 command.Parameters.Add(new SqlParameter("@PSignature", imgSig));
                 command.Parameters.Add(new SqlParameter("@PareID", ParentID));
@@ -961,17 +1133,16 @@ namespace FingerprintsData
                 command.ExecuteNonQuery();
                 Connection.Close();
                 command.Dispose();
-                return GetParentList(ref result1, clientID, 2, UserID, agencyid, TAvailable);
+                return GetParentList(ref result1, clientID,staff, 2, TAvailable);
 
             }
         }
-        public TeacherModel GetMeals(string UserID, string agencyid)
+        public TeacherModel GetMeals(StaffDetails staff)
         {
             TeacherModel _TeacherM = new TeacherModel();
             try
             {
                 _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
-                Guid agency = new Guid(agencyid);
                 SqlConnection Connection = connection.returnConnection();
                 SqlCommand command = new SqlCommand();
                 SqlCommand commandTeacher = new SqlCommand();
@@ -982,7 +1153,9 @@ namespace FingerprintsData
                 DataSet _datasetMeal = null;
                 Connection.Open();
                 commandTeacher.Connection = Connection;
-                commandTeacher.Parameters.Add(new SqlParameter("@UserID", UserID));
+                commandTeacher.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                commandTeacher.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
+
                 commandTeacher.CommandType = CommandType.StoredProcedure;
                 commandTeacher.CommandText = "SP_GetTeacherInfo";
                 DataAdapter = new SqlDataAdapter(commandTeacher);
@@ -999,7 +1172,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@CenterID", _TeacherM.CenterID));
                 command.Parameters.Add(new SqlParameter("@ClassroomID", _TeacherM.ClassID));
-                command.Parameters.Add(new SqlParameter("@AgencyID", agency));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetMealList";
                 DataAdapter = new SqlDataAdapter(command);
@@ -1039,7 +1212,7 @@ namespace FingerprintsData
                 commandMeal.Connection = Connection;
                 commandMeal.Parameters.Add(new SqlParameter("@ClassroomID", _TeacherM.ClassID));
                 commandMeal.Parameters.Add(new SqlParameter("@CenterID", _TeacherM.CenterID));
-                commandMeal.Parameters.Add(new SqlParameter("@AgencyID", agency));
+                commandMeal.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 commandMeal.CommandType = CommandType.StoredProcedure;
                 commandMeal.CommandText = "Sp_Get_classinfo";
                 DataAdapterMeal = new SqlDataAdapter(commandMeal);
@@ -1108,7 +1281,7 @@ namespace FingerprintsData
             }
             return _TeacherM;
         }
-        public TeacherModel GetMeals(ref string result, string UserID, string agencyid, FormCollection collection)
+        public TeacherModel GetMeals(ref string result,StaffDetails staff, FormCollection collection)
         {
             try
             {
@@ -1144,8 +1317,9 @@ namespace FingerprintsData
                 Connection.Open();
                 command.Connection = Connection;
 
-                command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
-                command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                 command.Parameters.Add(new SqlParameter("@clientID", 1));
                 command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
                 command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
@@ -1170,8 +1344,8 @@ namespace FingerprintsData
                         Connection.Open();
                         command.Connection = Connection;
 
-                        command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
-                        command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                        command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                        command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                         command.Parameters.Add(new SqlParameter("@clientID", obs));
                         command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
                         command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
@@ -1195,7 +1369,7 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
             }
-            return GetMeals(UserID, agencyid);
+            return GetMeals(staff);
         }
         public void ExecutiveDashboard(ref DataTable Screeninglist, string Agencyid, string userid)
         {
@@ -1275,7 +1449,7 @@ namespace FingerprintsData
 
         }
 
-        public List<DailySaftyCheckImages> GetDailySaftyCheckImages(Guid? UserId, string RoleID, Int64? CenterId)
+        public List<DailySaftyCheckImages> GetDailySaftyCheckImages(StaffDetails staff, Int64? CenterId)
         {
             List<DailySaftyCheckImages> listImage = new List<DailySaftyCheckImages>();
             try
@@ -1284,8 +1458,9 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetDailySafetyCheckImages";
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleID));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                 if (CenterId != null)
                     command.Parameters.Add(new SqlParameter("@CenterId", CenterId));
                 DataAdapter = new SqlDataAdapter(command);
@@ -1330,7 +1505,7 @@ namespace FingerprintsData
 
         }
 
-        public Guid? InsertMonitoringDetail(Monitoring objMonitoring)
+        public Guid? InsertMonitoringDetail(StaffDetails staff, Monitoring objMonitoring)
         {
             Guid? MonitorId = null;
             try
@@ -1341,6 +1516,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@PassFailCode", objMonitoring.PassFailCode));
                 command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Parameters.Add(new SqlParameter("@UserId", objMonitoring.UserID));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Monitoring";

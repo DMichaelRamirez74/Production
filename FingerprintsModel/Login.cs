@@ -30,6 +30,10 @@ namespace FingerprintsModel
         public string AllowCaseNoteTeacher { get; set; }
 
         public bool IsInAcceptanceProcess { get; set; }
+
+        public List<Role> RoleList { get; set; }
+
+        public List<SubstituteRole> SubstituteRoleList { get; set; }
         
         public StaffSignature StaffSignature { get; set; }
     }

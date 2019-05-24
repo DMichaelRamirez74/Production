@@ -231,7 +231,8 @@ namespace Fingerprints.Controllers
                 // FamilyData obj = new FamilyData();
                 List<SelectListItem> Centerlist = new List<SelectListItem>();
                 List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                DataSet _dataset = new FamilyData().GetCenterCaseNote(Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                DataSet _dataset = new FamilyData().GetCenterCaseNote(staff);
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     SelectListItem info = null;
@@ -260,7 +261,8 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new RosterData().Getclassrooms(Centerid, Session["AgencyID"].ToString()));
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+                return Json(new RosterData().Getclassrooms(Centerid, staff));
             }
             catch (Exception Ex)
             {

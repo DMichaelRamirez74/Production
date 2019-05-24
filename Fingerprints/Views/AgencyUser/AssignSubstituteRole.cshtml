@@ -1,0 +1,186 @@
+﻿@{
+    ViewBag.Title = "Assign Substitute Teacher";
+    Layout = (Session["RoleID"].ToString() == "a65bb7c2-e320-42a2-aed4-409a321c08a5" || Session["RoleID"].ToString() == "3b49b025-68eb-4059-8931-68a0577e5fa2") ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+@section Title
+{
+    Assign Substitute Teacher
+}
+
+
+@section Style
+{
+<link href="~/Content/multiselect.css" rel="stylesheet" />
+
+    <link href="~/Content/css/AssignSubstituteRole.css" rel="stylesheet" />
+}
+
+
+@section Script
+{
+<script src="~/Scripts/multiselect.js"></script>
+   <script type="text/javascript">
+       var dataModel=@Html.Raw(Json.Encode(Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsModel.SubstituteRole>(true)));
+    </script>
+    
+<script src="~/Scripts/AssignSubstituteRole.js"></script>
+
+}
+
+
+@section MainContentHolder
+{
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;Assign Substitute Teacher
+
+                                        <span class="view-btn backto_listspan">
+
+
+
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!--Filter and Search Form----->
+                            <form class="col-xs-12" id="formReport" method="post">
+
+
+                                <!--Filter Section----->
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+
+
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-md-6 col-xs-12" id="div-search-staff">
+                                        <label for="searchStaff" class="lbl-text">Search Staff <sup>*</sup></label>
+
+                                        <input type="text" placeholder="Search..." id="searchStaff" class="glossy-select">
+
+                                    </div>
+
+
+
+                                    <div class="form-group col-lg-2 col-sm-6 col-md-6 col-xs-12">
+                                        <label for="selectCenter" class="lbl-text">Center <sup>*</sup></label>
+
+
+                                        @{
+                                            var staffDetails = FingerprintsModel.StaffDetails.GetInstance();
+
+                                            var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString(), isCenterBasedOnly: true);
+                                            if (centerList.Count == 2)
+                                            {
+                                                centerList = centerList.Where(x => x.Value != "0").ToList();
+                                            }
+                                            centerList.ForEach(x =>
+                                            {
+                                                x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                            });
+
+                                        }
+
+                                        @Html.DropDownList("selectCenter", new SelectList(centerList, "Value", "Text"), new { @class = "glossy-select" })
+
+
+
+
+
+
+                                    </div>
+
+                                    <div class="form-group col-lg-2  col-sm-6 col-md-6col-xs-12" style="display:none;">
+                                        <label for="selectClassroom" class="lbl-text">Classroom <sup>*</sup></label>
+
+                                        <select class="glossy-select" id="selectClassroom"></select>
+
+                                    </div>
+                                    <!---Center dropdown section-->
+                                    <!-----In-kind activity From date section-->
+                                    <div class="form-group col-lg-2  col-sm-6 col-md-6 col-xs-12">
+                                        <label for="fromDateDateTimePicker" class="lbl-text">From Date <sup style="color:red;">*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!-----In-kind activity To date section-->
+                                    <div class="form-group col-lg-2  col-sm-6 col-md-6 col-xs-12">
+                                        <label for="toDateDateTimePicker" class="lbl-text">To Date <sup style="color:red;">*</sup></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!-----In-kind activity Search section-->
+                                    <div class="form-check col-lg-2  col-sm-12 col-md-12 col-xs-12 glossy_btn">
+                                        <label for="exampleInputPassword1" style="visibility:hidden;">Save</label>
+                                        <input type="hidden" id="accesskey" value="" />
+                                        <button type="button" class="glossy-button-button button-green" id="btnSubmitTeacher">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            @Fingerprints.LocalResource.Resources.Submit
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button type="button" class="glossy-button-button button-red" id="btnClearTeacher">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            @Fingerprints.LocalResource.Resources.Clear
+                                        </button>
+                                    </div>
+
+
+                                    <!-----In-kind activity Export section-->
+
+                                </div>
+
+
+
+                            </form>
+
+                            <!-------In-kind Report table section------->
+
+                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+
+                                <div class="col-xs-12 glossy-panel-div" id="report-table-responsive">
+
+
+                                </div>
+
+
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+}
+

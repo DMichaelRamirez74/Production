@@ -7,7 +7,9 @@ using System.Configuration;
 using System.Net;
 using System.Net.Mail;
 using System.Xml;
-
+using System.IO;
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 
 namespace FingerprintsModel
 {
@@ -64,7 +66,8 @@ namespace FingerprintsModel
                 Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
                 NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
                 Client.UseDefaultCredentials = true;
-                Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+                 Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+                
                 Client.Credentials = basicCredential;
                 Client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 Client.Send(Message);
@@ -579,13 +582,55 @@ namespace FingerprintsModel
 
 
 
-        public static bool SendEmailWithTask(string fromEmail,string toEmail,string message,string subject )
+        public static bool SendEmailWithTask(string fromEmail,string toEmail,string message,string subject, byte[] logoImage=null)
         {
 
             try {
+                
+
 
 
                 MailMessage mailMessage = new MailMessage(fromEmail, toEmail);
+
+                message = message.Replace("$LogoPath$", "cid:logoImage");
+                // Create the HTML view
+                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(
+                                                             message,
+                                                             Encoding.UTF8,
+                                                             MediaTypeNames.Text.Html);
+                // Create a plain text message for client that don't support HTML
+                AlternateView plainView = AlternateView.CreateAlternateViewFromString(
+                                                            Regex.Replace(message,
+                                                                          "<[^>]+?>",
+                                                                          string.Empty),
+                                                            Encoding.UTF8,
+                                                            MediaTypeNames.Text.Plain);
+
+                if (logoImage!=null && logoImage.Length>0)
+                {
+                    LinkedResource img = new LinkedResource(new MemoryStream(logoImage), MediaTypeNames.Image.Jpeg);
+                    img.ContentId = "logoImage";
+                    img.TransferEncoding = TransferEncoding.Base64;
+                    img.ContentLink = new Uri("cid:" + img.ContentId);
+
+
+
+                    htmlView.LinkedResources.Add(img);
+
+
+                    
+                  
+                }
+
+                mailMessage.AlternateViews.Add(plainView);
+                mailMessage.AlternateViews.Add(htmlView);
+
+
+
+
+
+
+
                 mailMessage.Body = message;
                 mailMessage.Subject = subject;
                 mailMessage.IsBodyHtml = true;
@@ -601,6 +646,7 @@ namespace FingerprintsModel
               //  NetworkCredential basicCredential = new NetworkCredential("fingerprintsdeveloper@gmail.com", "FingerPrints123");
 
                 Client.UseDefaultCredentials = true;
+               
                 Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
                 Client.Credentials = basicCredential;
                 Client.DeliveryMethod = SmtpDeliveryMethod.Network;

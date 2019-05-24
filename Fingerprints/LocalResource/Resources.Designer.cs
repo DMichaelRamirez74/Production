@@ -1537,11 +1537,11 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Health Histroy Report.
+        ///   Looks up a localized string similar to Health History Report.
         /// </summary>
-        public static string HealthHistroyReport {
+        public static string HealthHistoryReport {
             get {
-                return ResourceManager.GetString("HealthHistroyReport", resourceCulture);
+                return ResourceManager.GetString("HealthHistoryReport", resourceCulture);
             }
         }
         
@@ -2743,7 +2743,7 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Total Record (s).
+        ///   Looks up a localized string similar to Total Record(s).
         /// </summary>
         public static string TotalRecords {
             get {

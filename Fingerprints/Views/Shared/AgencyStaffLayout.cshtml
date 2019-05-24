@@ -422,7 +422,7 @@
             BootstrapDialog.confirm($(object).text() + ' role will be active. Do you want to continuue.', function (result) {
                 if (result) {
                     if (object != null)
-                        window.location.href = HostedDir + '/MyProfile/ChangeRole/' + $(object).attr("accesskey");
+                        window.location.href = HostedDir + '/MyProfile/ChangeRole?id=' + $(object).attr("accesskey") + '&subId=' + $(object).attr('data-sub-id').trim();
                 }
             });
         }
@@ -822,7 +822,7 @@
                                         {
                                             foreach (var item in ((List<FingerprintsModel.Role>)Session["RoleList"]))
                                             {
-                                                <li><a onclick="Checkrole(this);" accesskey="@item.RoleId" href="#"><i class="fa fa-user fa-fw"></i> @item.RoleName</a></li>
+                                                <li><a onclick="Checkrole(this);" accesskey="@item.RoleId" data-sub-id="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.SubstituteID.ToString())" href="#"><i class="fa fa-user fa-fw"></i> @item.RoleName</a></li>
                                             }
                                         }
                                     </ul>
@@ -1260,7 +1260,11 @@
                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a></li>
                             
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> @Fingerprints.LocalResource.Resources.ParentContactInformation</a> </li>
-                            <li class="">
+                         
+                            <li><a id="li9" href="~/AgencyUser/AssignSubstituteRole"><i class="fa fa-user-plus" aria-hidden="true"></i> Assign Substitute Teacher</a> </li>
+                           
+                            
+                             <li class="">
                                 <a id="li9" href="#"><i class="fa fa-table fa-fw"></i>Workshops/Events <span class="fa arrow"></span></a>
                                 <ul id="ul4" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
 

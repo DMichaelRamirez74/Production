@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml;
 
 namespace FingerprintsData
 {
@@ -327,6 +327,143 @@ namespace FingerprintsData
 
         }
 
+        public  async Task<T> SendEmailSubstituteRoleModified<T>(StaffDetails staff, long SubstituteID,int emailType,string mailTemplatePath, params object[] list)
+        {
+            
+            try
+            {
 
+            
+
+                string toEmailAddress = string.Empty;
+                string fromEmailAddress = string.Empty;
+
+                string emailMessage = string.Empty;
+
+                string assignSubRole = "Today, you were assigned to be a substitute teacher for classroom <strong>[classroom name]</strong> at center <strong>[center name]</strong>. The dates are <strong>[date from]</strong> to <strong>[date to]</strong>. When you log onto the system use your alternate role called substitute teacher to see the classroom screens.";
+                string cancelSubRole = "Your upcoming assignment as a substitute teacher has been canceled for classroom <strong>[classroom name]</strong> at center <strong>[center name]</strong> on the following dates <strong>[date from]</strong> to <strong>[date to]</strong>.";
+            
+                byte[] logoImage=null;
+                string subject = string.Empty;
+
+                 XmlNodeList xmlnode;
+                 XmlDocument xmlDoc = new XmlDocument();
+                string footer = string.Empty;
+                string body = string.Empty;
+
+                xmlDoc.Load(mailTemplatePath + "\\SubstituteRole.xml");
+                xmlnode = xmlDoc.GetElementsByTagName("Subject");
+                subject = xmlnode[0].InnerXml;
+                xmlnode = xmlDoc.GetElementsByTagName("Footer");
+                footer = xmlnode[0].InnerXml;
+                xmlnode = xmlDoc.GetElementsByTagName("Body");
+                body = xmlnode[0].InnerXml;
+
+
+                emailMessage = body;
+
+                //StreamReader streamReader = new StreamReader(string.Concat(mailTemplatePath + "/SubstituteRole.xml"));
+                //emailMessage = streamReader.ReadToEnd();
+             
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@SubstituteID",SubstituteID,DbType.Int64),
+                };
+
+                DataSet dataSet = dbManager.GetDataSet("USP_SubstituteRole_EmailData", CommandType.StoredProcedure, parameters);
+
+                if(dataSet != null && dataSet.Tables.Count>0)
+                {
+                   if(dataSet.Tables[0].Rows.Count>0)
+                    {
+
+                        toEmailAddress = Convert.ToString(dataSet.Tables[0].Rows[0]["EmailAddress"]);
+
+
+                        emailMessage = emailMessage.Replace("$Name", string.Concat(Convert.ToString(dataSet.Tables[0].Rows[0]["FirstName"]), " ", Convert.ToString(dataSet.Tables[0].Rows[0]["LastName"])).Trim());
+
+                        if (emailType==1)
+                        {
+
+                            assignSubRole= assignSubRole.Replace("[classroom name]", Convert.ToString(dataSet.Tables[0].Rows[0]["ClassroomName"]).Trim());
+                            assignSubRole= assignSubRole.Replace("[center name]", Convert.ToString(dataSet.Tables[0].Rows[0]["CenterName"]).Trim());
+                            assignSubRole= assignSubRole.Replace("[date from]", Convert.ToString(dataSet.Tables[0].Rows[0]["FromDate"]).Trim());
+                            assignSubRole= assignSubRole.Replace("[date to]", Convert.ToString(dataSet.Tables[0].Rows[0]["ToDate"]).Trim());
+
+                           
+                        }
+                        else
+                        {
+
+                            cancelSubRole= cancelSubRole.Replace("[classroom name]", Convert.ToString(dataSet.Tables[0].Rows[0]["ClassroomName"]).Trim());
+                            cancelSubRole= cancelSubRole.Replace("[center name]", Convert.ToString(dataSet.Tables[0].Rows[0]["CenterName"]).Trim());
+                            cancelSubRole= cancelSubRole.Replace("[date from]", Convert.ToString(dataSet.Tables[0].Rows[0]["FromDate"]).Trim());
+                            cancelSubRole= cancelSubRole.Replace("[date to]", Convert.ToString(dataSet.Tables[0].Rows[0]["ToDate"]).Trim());
+                        }
+
+                        emailMessage = emailMessage.Replace("$CenterName$", Convert.ToString(dataSet.Tables[0].Rows[0]["CenterName"]).Trim());
+                        emailMessage = emailMessage.Replace("$CenterAddress$", Convert.ToString(dataSet.Tables[0].Rows[0]["Address"]).Trim());
+                        emailMessage = emailMessage.Replace("$City$", Convert.ToString(dataSet.Tables[0].Rows[0]["City"]).Trim());
+                        emailMessage = emailMessage.Replace("$State$", Convert.ToString(dataSet.Tables[0].Rows[0]["State"]).Trim());
+                        emailMessage = emailMessage.Replace("$Zip$", Convert.ToString(dataSet.Tables[0].Rows[0]["Zip"]).Trim());
+                    }
+
+                   if(dataSet.Tables.Count>1 && dataSet.Tables[1]!=null && dataSet.Tables[1].Rows.Count>0)
+                    {
+
+                        fromEmailAddress = Convert.ToString(dataSet.Tables[1].Rows[0]["EmailAddress"]).Trim();
+
+                        emailMessage = emailMessage.Replace("$FromName$", string.Concat(Convert.ToString(dataSet.Tables[1].Rows[0]["FirstName"]), " ", Convert.ToString(dataSet.Tables[1].Rows[0]["LastName"]).Trim()));
+
+
+                        emailMessage = emailMessage.Replace("$Designation$","Center Manager");
+
+                        logoImage = dataSet.Tables[1].Rows[0]["Logo"] != DBNull.Value ? (byte[])dataSet.Tables[1].Rows[0]["Logo"] : new byte[0];
+
+                        emailMessage = emailMessage.Replace("$alt$", Convert.ToString(dataSet.Tables[1].Rows[0]["AgencyName"]));
+                    }
+
+                }
+
+                if(emailType==1)
+                {
+                    emailMessage= emailMessage.Replace("$MessageBody", assignSubRole);
+
+                    subject = "Substitute teacher role has been assigned.";
+                }
+                else
+                {
+                    emailMessage= emailMessage.Replace("$MessageBody", cancelSubRole);
+
+                    subject = "Assignment of substitute teacher role has been canceled.";
+                }
+
+                if (await Task.Run(() => SendMail.SendEmailWithTask(fromEmailAddress, toEmailAddress, emailMessage, subject, logoImage)))
+                {
+
+                    return (T)Convert.ChangeType(true, typeof(T));
+                }
+                else
+                {
+                    return (T)Convert.ChangeType(false, typeof(T));
+                }
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+                return (T)Convert.ChangeType(false, typeof(T));
+            }
+         
+  
+         
+        }
     }
 }
