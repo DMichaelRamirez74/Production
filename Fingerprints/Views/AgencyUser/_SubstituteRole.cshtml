@@ -3,35 +3,30 @@
 
 
 
-
-
-
-
-
 <div class="panel with-nav-tabs panel-primary col-xs-12">
 
     <div class="panel-heading panelul col-xs-12">
         <ul id="myTab" class="nav nav-tabs navtabs1 col-xs-12">
 
-            @{
+            @*@{
 
-                var centerIDList = Model.SubsituteRoleList != null ? Model.SubsituteRoleList.Select(x => x.CenterID).Distinct().ToList() : new List<string>();
-                var centerList = new List<SelectListItem>();
+                    var centerIDList = Model.SubsituteRoleList != null ? Model.SubsituteRoleList.Select(x => x.CenterID).Distinct().ToList() : new List<string>();
+                    var centerList = new List<SelectListItem>();
 
-                foreach (var item in centerIDList)
-                {
-                    centerList.Add(new SelectListItem
+                    foreach (var item in centerIDList)
                     {
+                        centerList.Add(new SelectListItem
+                        {
 
-                        Text = Model.SubsituteRoleList.Where(x => x.CenterID == item).Select(x => x.CenterName).First(),
-                        Value = item
-                    });
-                }
+                            Text = Model.SubsituteRoleList.Where(x => x.CenterID == item).Select(x => x.CenterName).First(),
+                            Value = item
+                        });
+                    }
 
 
-            }
+                }*@
 
-            @if (centerList != null && centerList.Count() > 0)
+            @if (Model.CenterList != null && Model.CenterList.Count() > 0)
             {
                 int i = 0;
                 do
@@ -39,19 +34,19 @@
 
                     if (i == 0)
                     {
-                        <li class="active"><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@centerList[i].Value" data-toggle="tab" aria-expanded="true">@centerList[i].Text</a></li>
+                        <li class="active"><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@Model.CenterList[i].Value" data-toggle="tab" aria-expanded="true">@Model.CenterList[i].Text</a></li>
                     }
                     else
                     {
 
-                        <li><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@centerList[i].Value" data-toggle="tab" aria-expanded="true">@centerList[i].Text</a></li>
+                        <li><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@Model.CenterList[i].Value" data-toggle="tab" aria-expanded="true">@Model.CenterList[i].Text</a></li>
                     }
 
                     i++;
 
 
 
-                } while (i < centerList.Count());
+                } while (i < Model.CenterList.Count());
 
 
             }
@@ -64,15 +59,16 @@
 
     <div id="myTabContent" class="col-xs-12 tab-content">
 
-        @if (centerList != null && centerList.Count > 0)
+        @if (Model.CenterList != null && Model.CenterList.Count > 0)
         {
 
+            int j = 0;
 
-
-            for (int j = 0; j < centerList.Count; j++)
+            while (j < Model.CenterList.Count)
             {
 
-                var substituteRoleList = Model.SubsituteRoleList.Where(x => x.CenterID == centerList[j].Value).ToList();
+                var substituteRoleList = Model.SubsituteRoleList.Where(x => x.CenterID == Model.CenterList[j].Value).ToList();
+
 
                 if (substituteRoleList.Count > 0)
                 {
@@ -99,7 +95,7 @@
                                         </tr>
                                     </table>
                                 </div>
-                            </div>  
+                            </div>
 
                             @Html.Hidden("sortOrder_" + j + "", Model.SortOrder)
                             @Html.Hidden("sortColumn_" + j + "", Model.SortColumn)
@@ -112,9 +108,261 @@
 
                             <div class="col-xs-12" id="div-table_@j">
 
+
+                                @*@Html.Partial("~/Views/AgencyUser/_SubstituteRoleTable.cshtml", substituteRoleList)*@
+
+
+
+
                                 @{
-                                    Html.RenderPartial("~/Views/AgencyUser/_SubstituteRoleTable.cshtml", substituteRoleList);
+                                    var totalrecord = substituteRoleList.Select(x => x.TotalRecord).FirstOrDefault();
+
+                                    //  var isReport = Model != null && Model.Count > 0 && FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.SubstituteRoleMode>(Model[0].SubstituteRoleMode.ToString()) == FingerprintsModel.Enums.SubstituteRoleMode.Report;
+                                    var isReport = Model != null && substituteRoleList.Count > 0 && substituteRoleList[0].SubstituteRoleMode == 2;
                                 }
+
+                                <div>
+                                    @Html.Hidden("totalRecordTable", totalrecord)
+
+                                </div>
+
+
+
+                                <!--Table -->
+                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="table-substituterole">
+
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+
+                                            @if (isReport)
+                                            {
+
+                                                <th>
+                                                    @if (substituteRoleList.Count > 0 && substituteRoleList[0].SortColumn != null && substituteRoleList[0].SortColumn.ToLowerInvariant() == "month")
+                                                    {
+                                                        if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "asc")
+                                                        {
+                                                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        }
+                                                        else if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "desc")
+                                                        {
+                                                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                                                        }
+
+                                                    }
+
+                                                    else
+                                                    {
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    }
+
+                                                    <span col-name="Month">@Fingerprints.LocalResource.Resources.Month</span>
+                                                </th>
+                                            }
+
+
+
+                                            <th>
+
+                                                @if (substituteRoleList.Count > 0 && substituteRoleList[0].SortColumn != null && substituteRoleList[0].SortColumn.ToLowerInvariant() == "classroom")
+                                                {
+                                                    if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "asc")
+                                                    {
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    }
+                                                    else if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "desc")
+                                                    {
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                    }
+                                                }
+                                                else if (substituteRoleList.Count > 0 && string.IsNullOrEmpty(substituteRoleList[0].SortColumn))
+                                                {
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                }
+
+                                                <span col-name="Classroom">@Fingerprints.LocalResource.Resources.Classroom</span>
+                                            </th>
+
+
+                                            <th>
+                                                @if (substituteRoleList.Count > 0 && substituteRoleList[0].SortColumn != null && substituteRoleList[0].SortColumn.ToLowerInvariant() == "staff name")
+                                                {
+                                                    if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "asc")
+                                                    {
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    }
+                                                    else if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "desc")
+                                                    {
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                                                    }
+
+                                                }
+
+                                                else
+                                                {
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                }
+
+                                                <span col-name="Staff Name">@Fingerprints.LocalResource.Resources.StaffName</span>
+                                            </th>
+
+
+
+                                            <th>
+
+                                                @if (substituteRoleList.Count > 0 && substituteRoleList[0].SortColumn != null && substituteRoleList[0].SortColumn.ToLowerInvariant() == "from date")
+                                                {
+                                                    if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "asc")
+                                                    {
+
+
+                                                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    }
+                                                    else if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "desc")
+                                                    {
+
+
+
+                                                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                }
+
+                                                <span col-name="From Date">@Fingerprints.LocalResource.Resources.FromDate</span>
+                                            </th>
+
+
+
+                                            <th>
+                                                @if (substituteRoleList.Count > 0 && substituteRoleList[0].SortColumn != null && substituteRoleList[0].SortColumn.ToLowerInvariant() == "to date")
+                                                {
+                                                    if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "asc")
+                                                    {
+
+
+                                                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    }
+                                                    else if (substituteRoleList[0].SortOrder.ToLowerInvariant() == "desc")
+                                                    {
+
+
+
+                                                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                }
+
+                                                <span col-name="To Date">@Fingerprints.LocalResource.Resources.ToDate</span>
+                                            </th>
+
+
+                                            @if (!isReport)
+                                            {
+                                                <th>
+                                                    <span style="text-transform:none;">@Fingerprints.LocalResource.Resources.Action</span>
+                                                </th>
+                                            }
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+
+                                        @if (substituteRoleList.Count > 0)
+                                        {
+
+                                            for (int i = 0; i < substituteRoleList.Count; i++)
+                                            {
+                                                //style="background:#ffa;
+                                                <tr role="grid">
+
+                                                    @if (isReport)
+                                                    {
+
+                                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Month">
+                                                            <p data-toggle="tooltip" title="@substituteRoleList[i].Month">@substituteRoleList[i].Month</p>
+                                                        </td>
+
+                                                    }
+                                                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Classroom">
+                                                        <p data-toggle="tooltip" title="@substituteRoleList[i].ClassroomName" data-accesskey="@substituteRoleList[i].ClassroomID">@substituteRoleList[i].ClassroomName</p>
+                                                    </td>
+
+
+                                                    <td role="gridcell" data-title="Staff Name">
+                                                        <p data-toggle="tooltip" title="@substituteRoleList[i].StaffDetails.FullName">@substituteRoleList[i].StaffDetails.FullName</p>
+                                                    </td>
+
+                                                    <td role="gridcell" data-title="From Date">
+                                                        <p>@substituteRoleList[i].FromDate</p>
+                                                    </td>
+
+                                                    <td role="gridcell" data-title="To Date">
+                                                        <p>@substituteRoleList[i].ToDate</p>
+                                                    </td>
+
+
+                                                    @if (!isReport)
+                                                    {
+
+
+                                                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Action">
+                                                            @Html.Hidden("subsituteId", substituteRoleList[i].SubstituteID)
+                                                            @*<i class="fa fa-edit  btn-edit-trans" aria-hidden="true" data-toggle="tooltip" title="Edit"></i>*@
+                                                            <i class="fa fa-trash  btn-delete-trans" aria-hidden="true" data-toggle="tooltip" title="Delete"></i>
+                                                        </td>
+
+                                                    }
+
+
+                                                </tr>
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr role="grid">
+                                                <td colspan="5" style="padding:25px;text-align:center;">
+                                                  @Fingerprints.LocalResource.Resources.Recordsnotfound
+                                                </td>
+                                            </tr>
+                                        }
+
+
+
+
+                                    </tbody>
+
+                                </table>
+
                             </div>
 
 
@@ -177,124 +425,132 @@
                     </div>
 
 
+                                    }
+
+                                    else
+                                    {
+                                        <div class="tab-pane fade col-xs-12" id="@string.Concat(j.ToString(),"tab")">
+
+                                            <div class="col-xs-12">
+
+
+                                                <div class="col-xs-12 search-block-main">
+                                                    <div class="glossy-search-block col-md-12">
+                                                        <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search @Fingerprints.LocalResource.Resources.Classroom, Staff..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+                                                        <div class="glossy-search-btn-div">
+                                                            <button id="btnSearchauto">@Fingerprints.LocalResource.Resources.Search</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+
+
+                                                        <table class="col-md-12 table-striped total-details-table table-back-shadow">
+                                                            <tr>
+                                                                <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+                                                                <td id="totalCountSpan_@j">00</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                @Html.Hidden("sortOrder_" + j + "", "ASC")
+                                                @Html.Hidden("sortColumn_" + j + "", "Month")
+                                                @Html.Hidden("requestedPage_" + j + "", 1)
+                                                @Html.Hidden("startIndex" + j + "", 0)
+                                                @Html.Hidden("lastIndex_" + j + "", 1)
+                                                @Html.Hidden("pageSize_" + j + "", 10)
+                                                @Html.Hidden("pageLoadedFirst_" + j + "", 0)
+                                                @Html.Hidden("numOfPages", 0)
+
+                                                <div class="col-xs-12" id="div-table_@j">
+
+
+                                                </div>
+
+
+                                            </div>
+
+                                            <!----Pagination Section---->
+
+                                            <div class="col-xs-12" id="div-pagination-@j" style="margin-top:20px;">
+                                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                                                    <div class="pages_display">
+                                                        <ul>
+                                                            <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.Display</li>
+                                                            <li>
+                                                                <select id="ddlpagetodisplay_@j">
+                                                                    <option value="10" selected="selected">10</option>
+                                                                    <option value="20">20</option>
+                                                                    <option value="30">30</option>
+                                                                    <option value="50">50</option>
+                                                                    <option value="100">100</option>
+                                                                </select>
+                                                            </li>
+                                                            <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                                        </ul>
+                                                        <div class="clear"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                                    <div id="divPaging_@j" class="pagination_wrp">
+                                                        <ul id="ulPaging_@j" class="pagination">
+                                                            <li>
+                                                                <a href="javascript:void(0);" id="First_@j" disabled>
+                                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li title="Back">
+
+                                                                <a href="javascript:void(0);" id="Back_@j" disabled>
+                                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                </a>
+
+                                                            </li>
+                                                            <li title="Select">
+                                                                <select class="select_cl" id="ddlpaging_@j"></select>
+                                                            </li>
+                                                            <li title="Next">
+                                                                <a href="javascript:void(0);" id="Next_@j" disabled>
+                                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li title="Last">
+                                                                <a href="javascript:void(0);" id="Last_@j" disabled>
+                                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                            }
 
 
 
 
 
 
+
+                                            j++;
                                         }
-
 
 
 
 
                                     }
 
-
-
-                                }
-
-                                else
-                                {
-            <div class="col-xs-12"><label class="text-center">Search by Filter <sup style="color:red;">*</sup></label></div>
-        }
+                                    else
+                                    {
+                                        <div class="col-xs-12"><label class="text-center">@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red;">*</sup></label></div>
+                                    }
 
 
 
     </div>
 
 </div>
-
-
-
-
-
-
-
-
-
-<!--- Table Body --->
-@*<tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="family-activity-tbody">
-
-        @try
-        {
-
-            if (familyActivityList != null && familyActivityList.Count > 0)
-            {
-
-                int i = 0;
-
-                while (i < familyActivityList.Count)
-                {
-
-                    <tr>
-
-                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Center">
-                            <p title="@familyActivityList[i].CenterName" data-toggle="tooltip">@familyActivityList[i].CenterName</p>
-                        </td>
-
-                        <td role="gridcell" data-title="Month">
-                            <p>@familyActivityList[i].Month</p>
-                        </td>
-
-
-                        <td role="gridcell" data-title="FPA">
-                            <p>@familyActivityList[i].FPA</p>
-                        </td>
-
-                        <td role="gridcell" data-title="Referral">
-                            <p>@familyActivityList[i].Referral</p>
-                        </td>
-
-                        <td role="gridcell" data-title="Internal Referral">
-                            <p>@familyActivityList[i].InternalReferral</p>
-                        </td>
-
-                        <td role="gridcell" data-title="Quality of Referral">
-                            <p>@familyActivityList[i].QualityOfReferral</p>
-                        </td>
-
-                    </tr>
-                    i++;
-
-                }
-
-
-
-
-
-
-
-            }
-            else
-            {
-                <tr style="width:98.3%">
-                    <td colspan="6" style="padding: 25px;text-align:center;font-weight:bold;">
-                        @if (Model != null && Model.SortColumn == null)
-                        { <text>@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red">*</sup></text> }
-                        else
-                        { <text>@Fingerprints.LocalResource.Resources.Recordsnotfound</text>}
-                    </td>
-
-                </tr>
-
-            }
-
-        }
-        catch (Exception ex)
-        {
-            FingerprintsModel.clsError.WriteException(ex);
-        }
-
-    </tbody>*@
-
-
-
-
-
-
-
 
 
 

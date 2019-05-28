@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -43,13 +44,19 @@ namespace FingerprintsModel
 
         public string StepUpToQualityStars { get; set; }
 
+        public DateTime? MonthLastDate { get; set; }
+
         public string SearchTerm { get; set; }
 
         public bool Editable { get; set; }
 
+        public string Month { get; set; }
 
+        public int SubstituteRoleMode { get; set; }
 
         public List<SubstituteRole> SubsituteRoleList { get; set; }
+
+        public List<SelectListItem> CenterList { get; set; }
     }
 
 

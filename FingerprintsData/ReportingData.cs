@@ -18,6 +18,7 @@ using FingerprintsDataAccessHandler;
 using System.Collections;
 using Fingerprints.Common;
 using System.Globalization;
+using System.Dynamic;
 
 namespace FingerprintsData
 {
@@ -1697,5 +1698,158 @@ new DataColumn("Status",typeof(bool))
                 }
 
         #endregion UFCReport
+        #region Get Substitute Role Report
+
+        public SubstituteRole GetSubstituteRoleReport(StaffDetails staff, SubstituteRole substituteRole)
+        {
+            IDbConnection dbConnection = null;
+            IDataReader reader = null;
+            var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+            try
+            {
+                substituteRole.SubsituteRoleList = new List<SubstituteRole>();
+                substituteRole.CenterList = new List<SelectListItem>();
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@StaffRoleID",substituteRole.StaffDetails.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@Take",substituteRole.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",substituteRole.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(substituteRole.CenterID) && substituteRole.CenterID!="0"?string.Join(",",substituteRole.CenterID.Split(',').Select(x=>EncryptDecrypt.Decrypt64(x)).ToArray()) :"0",DbType.String),
+                    dbManager.CreateParameter("@Months",!string.IsNullOrEmpty(substituteRole.Month) && substituteRole.Month!="0"?substituteRole.Month:"",DbType.String),
+                    dbManager.CreateParameter("@SortOrder",substituteRole.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",substituteRole.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",substituteRole.SearchTerm,DbType.String),
+                    dbManager.CreateParameter("@Mode",substituteRole.SubstituteRoleMode,DbType.Int32)
+
+                };
+
+                reader = dbManager.GetDataReader("USP_GetSubstituteRoleReport", CommandType.StoredProcedure, parameters, out dbConnection);
+
+
+                while (reader.Read())
+                {
+                    substituteRole.SubsituteRoleList.Add(new SubstituteRole
+                    {
+                        CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])),
+                        ClassroomID = EncryptDecrypt.Encrypt64(Convert.ToString(reader["ClassroomID"])),
+                        CenterName = Convert.ToString(reader["CenterName"]),
+                        ClassroomName = Convert.ToString(reader["ClassroomName"]),
+                        StaffDetails = new StaffDetails(false)
+                        {
+                            UserId = new Guid(Convert.ToString(reader["UserID"])),
+                            FullName = string.Concat(Convert.ToString(reader["FirstName"]), " ", Convert.ToString(reader["LastName"])).Trim(),
+                            RoleId = new Guid(Convert.ToString(reader["RoleID"]))
+                        },
+                        SubstituteID = Convert.ToInt64(reader["SubstituteID"]),
+                        FromDate = Convert.ToString(reader["FromDate"]),
+                        ToDate = Convert.ToString(reader["ToDate"]),
+                        Month = Convert.ToString(reader["Month"]),
+                        StepUpToQualityStars=Convert.ToString(reader["StepUptoQualityStars"]),
+                        MonthLastDate = reader["MonthEndDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["MonthEndDate"].ToString(), new CultureInfo("en-US", true)),
+                    });
+                }
+
+                //if (substituteRole.SubstituteRoleMode == 2)
+                //{
+                //    var subRoleList = substituteRole.SubsituteRoleList;
+
+                //    var subList = new List<SubstituteRole>();
+                //    foreach (var item in subRoleList)
+                //    {
+                //        var fromDate = DateTime.Parse(item.FromDate, new CultureInfo("en-US", true));
+                //        var toDate = DateTime.Parse(item.ToDate, new CultureInfo("en-US", true));
+                //        var subRole = new SubstituteRole();
+
+                //        if (toDate.Month > fromDate.Month)
+                //        {
+                //            var firstDayOfMonth = new DateTime(fromDate.Year, fromDate.Month, 1);
+                //            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+
+                //            subRole = item;
+
+                //            subRole.ToDate = lastDayOfMonth.ToShortDateString();
+
+                //            subList.Add(subRole);
+
+                //            var firstDayOfMonth2 = new DateTime(toDate.Year, toDate.Month, 1);
+
+                //            item.FromDate = firstDayOfMonth2.ToShortDateString();
+                //            subList.Add(item);
+
+                //        }
+                //        else
+                //        {
+                //            subRole = item;
+                //            subList.Add(subRole);
+                //        }
+
+
+
+
+
+                //    }
+
+                //    substituteRole.SubsituteRoleList = subList;
+                //}
+
+
+                if (reader.NextResult())
+                {
+                    while (reader.Read())
+                    {
+                        substituteRole.SubsituteRoleList.ForEach(x =>
+                        {
+                            x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])) ? Convert.ToInt32(reader["TotalRecord"]) : x.TotalRecord;
+                            x.SortOrder = substituteRole.SortOrder;
+                            x.SortColumn = substituteRole.SortColumn;
+                            x.SubstituteRoleMode = substituteRole.SubstituteRoleMode;
+                        });
+
+                        //substituteRole.SubsituteRoleList.ForEach(x => {
+                        //    x.TotalRecord = 48;
+                        //});
+                    }
+
+
+                }
+
+
+                if(reader.NextResult())
+                {
+                    while(reader.Read())
+                    {
+                        substituteRole.CenterList.Add(new SelectListItem
+                        {
+                            Text = Convert.ToString(reader["CenterName"]),
+                            Value = EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"]))
+                        });
+                    }
+                }
+
+                reader.Close();
+                dbManager.CloseConnection(dbConnection);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+
+            }
+
+            return substituteRole;
+        }
+
+
+        #endregion
     }
 } 

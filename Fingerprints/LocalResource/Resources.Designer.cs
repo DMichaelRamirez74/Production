@@ -304,6 +304,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Assign Substitute Teacher.
+        /// </summary>
+        public static string Assign_Substitute_Teacher {
+            get {
+                return ResourceManager.GetString("Assign_Substitute_Teacher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Associate Degree.
         /// </summary>
         public static string Associate_Degree {
@@ -1434,6 +1443,15 @@ namespace Fingerprints.LocalResource {
         public static string Filter {
             get {
                 return ResourceManager.GetString("Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From Date.
+        /// </summary>
+        public static string FromDate {
+            get {
+                return ResourceManager.GetString("FromDate", resourceCulture);
             }
         }
         
@@ -2644,6 +2662,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Staff Name.
+        /// </summary>
+        public static string StaffName {
+            get {
+                return ResourceManager.GetString("StaffName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to State.
         /// </summary>
         public static string State {
@@ -2667,6 +2694,15 @@ namespace Fingerprints.LocalResource {
         public static string Submit {
             get {
                 return ResourceManager.GetString("Submit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute Teacher Report.
+        /// </summary>
+        public static string Substitute_Teacher_Report {
+            get {
+                return ResourceManager.GetString("Substitute_Teacher_Report", resourceCulture);
             }
         }
         
@@ -2730,6 +2766,15 @@ namespace Fingerprints.LocalResource {
         public static string Title {
             get {
                 return ResourceManager.GetString("Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To Date.
+        /// </summary>
+        public static string ToDate {
+            get {
+                return ResourceManager.GetString("ToDate", resourceCulture);
             }
         }
         

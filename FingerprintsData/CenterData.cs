@@ -2614,7 +2614,7 @@ namespace FingerprintsData
             try
             {
                 substituteRole.SubsituteRoleList = new List<SubstituteRole>();
-
+                substituteRole.CenterList = new List<SelectListItem>();
 
                 var parameters = new IDbDataParameter[]
                 {
@@ -2624,10 +2624,10 @@ namespace FingerprintsData
                     dbManager.CreateParameter("@StaffRoleID",substituteRole.StaffDetails.RoleId,DbType.Guid),
                     dbManager.CreateParameter("@Take",substituteRole.PageSize,DbType.Int32),
                     dbManager.CreateParameter("@Skip",substituteRole.SkipRows,DbType.Int32),
-                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(substituteRole.CenterID) && substituteRole.CenterID!="0"?Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.CenterID)):0,DbType.Int64),
+                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(substituteRole.CenterID) && substituteRole.CenterID!="0"?Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.CenterID)) :0,DbType.Int64),
                     dbManager.CreateParameter("@SortOrder",substituteRole.SortOrder,DbType.String),
                     dbManager.CreateParameter("@SortColumn",substituteRole.SortColumn,DbType.String),
-                    dbManager.CreateParameter("@SearchTerm",substituteRole.SearchTerm,DbType.String)
+                    dbManager.CreateParameter("@SearchTerm",substituteRole.SearchTerm,DbType.String),
                 };
 
                 reader = dbManager.GetDataReader("USP_GetSubstituteRole", CommandType.StoredProcedure, parameters, out dbConnection);
@@ -2653,12 +2653,7 @@ namespace FingerprintsData
                     });
                 }
 
-                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
-                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
-
-                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
-
-                //substituteRole.SubsituteRoleList.AddRange(substituteRole.SubsituteRoleList);
+               
 
 
                 if (reader.NextResult())
@@ -2670,6 +2665,7 @@ namespace FingerprintsData
                             x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"])) ? Convert.ToInt32(reader["TotalRecord"]) : x.TotalRecord;
                             x.SortOrder = substituteRole.SortOrder;
                             x.SortColumn = substituteRole.SortColumn;
+                            x.SubstituteRoleMode = substituteRole.SubstituteRoleMode;
                         });
 
                         //substituteRole.SubsituteRoleList.ForEach(x => {
@@ -2678,6 +2674,18 @@ namespace FingerprintsData
                     }
 
 
+                }
+
+                if(reader.NextResult())
+                {
+                    while(reader.Read())
+                    {
+                        substituteRole.CenterList.Add(new SelectListItem
+                        {
+                            Text = Convert.ToString(reader["CenterName"]),
+                            Value = EncryptDecrypt.Encrypt64(Convert.ToString(reader["CenterID"]))
+                        });
+                    }
                 }
 
                 reader.Close();

@@ -1,63 +1,98 @@
 ﻿@model List<FingerprintsModel.SubstituteRole>
 
-@{ 
+@{
     var totalrecord = Model.Select(x => x.TotalRecord).FirstOrDefault();
+
+    //  var isReport = Model != null && Model.Count > 0 && FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.SubstituteRoleMode>(Model[0].SubstituteRoleMode.ToString()) == FingerprintsModel.Enums.SubstituteRoleMode.Report;
+    var isReport = Model != null && Model.Count > 0 && Model[0].SubstituteRoleMode == 2;
 }
 
 <div>
-@Html.Hidden("totalRecordTable", totalrecord)
+    @Html.Hidden("totalRecordTable", totalrecord)
 
 </div>
 
 
 
- <!--Table -->
+<!--Table -->
 <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="table-substituterole">
 
     <thead class="table-hd scroll-thead">
         <tr>
+
+            @if (isReport)
+            {
+
+                <th>
+                    @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "month")
+                    {
+                        if (Model[0].SortOrder.ToLowerInvariant() == "asc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        }
+                        else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
+                        {
+                            <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                        }
+
+                    }
+
+                    else
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+
+                    <span col-name="Month">@Fingerprints.LocalResource.Resources.Month</span>
+                </th>
+            }
+
+
+
             <th>
 
-                @if (Model.Count>0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "classroom")
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "classroom")
                 {
                     if (Model[0].SortOrder.ToLowerInvariant() == "asc")
                     {
                         <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
-                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                     }
                     else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
                     {
                         <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
                     }
                 }
-                else if (Model.Count>0 && string.IsNullOrEmpty(Model[0].SortColumn))
+                else if (Model.Count > 0 && string.IsNullOrEmpty(Model[0].SortColumn))
                 {
                     <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
-                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                 }
                 else
                 {
                     <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                 }
 
-                <span>Classroom</span>
+                <span col-name="Classroom">@Fingerprints.LocalResource.Resources.Classroom</span>
             </th>
 
 
             <th>
-                @if (Model.Count>0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "staff name")
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "staff name")
                 {
                     if (Model[0].SortOrder.ToLowerInvariant() == "asc")
                     {
                         <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
-                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                     }
                     else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
                     {
                         <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
                     }
 
                 }
@@ -65,24 +100,24 @@
                 else
                 {
                     <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                 }
 
-                <span>Staff Name</span>
+                <span col-name="Staff Name">@Fingerprints.LocalResource.Resources.StaffName</span>
             </th>
 
 
 
             <th>
 
-                @if (Model.Count>0  && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "from date")
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "from date")
                 {
                     if (Model[0].SortOrder.ToLowerInvariant() == "asc")
                     {
 
 
                         <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
-                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                     }
                     else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
                     {
@@ -90,7 +125,7 @@
 
 
                         <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
-                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
                     }
                 }
                 else
@@ -99,7 +134,7 @@
                     <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
                 }
 
-                <span>From Date</span>
+                <span col-name="From Date">@Fingerprints.LocalResource.Resources.FromDate</span>
             </th>
 
 
@@ -131,50 +166,82 @@
 
                 }
 
-                <span>To Date</span>
+                <span col-name="To Date">@Fingerprints.LocalResource.Resources.ToDate</span>
             </th>
 
 
-
-            <th>
-                <span style="text-transform:none;">Action</span>
-            </th>
+            @if (!isReport)
+            {
+                <th>
+                    <span style="text-transform:none;">@Fingerprints.LocalResource.Resources.Action</span>
+                </th>
+            }
         </tr>
     </thead>
 
     <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
 
-        @for (int i = 0; i < Model.Count; i++)
+
+        @if (Model.Count > 0)
         {
-            //style="background:#ffa;
-            <tr role="grid">
 
-                <td role="gridcell" data-title="Classroom">
-                    <p data-toggle="tooltip" title="@Model[i].ClassroomName"  data-accesskey="@Model[i].ClassroomID">@Model[i].ClassroomName</p>
-                </td>
+            for (int i = 0; i < Model.Count; i++)
+            {
+                //style="background:#ffa;
+                <tr role="grid">
+
+                    @if (isReport)
+                    {
+
+                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Month">
+                            <p data-toggle="tooltip" title="@Model[i].Month">@Model[i].Month</p>
+                        </td>
+
+                    }
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Classroom">
+                        <p data-toggle="tooltip" title="@Model[i].ClassroomName" data-accesskey="@Model[i].ClassroomID">@Model[i].ClassroomName</p>
+                    </td>
 
 
-                <td role="gridcell" data-title="Staff Name">
-                    <p data-toggle="tooltip" title="@Model[i].StaffDetails.FullName">@Model[i].StaffDetails.FullName</p>
-                </td>
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.StaffName">
+                        <p data-toggle="tooltip" title="@Model[i].StaffDetails.FullName">@Model[i].StaffDetails.FullName</p>
+                    </td>
 
-                <td role="gridcell" data-title="From Date">
-                    <p>@Model[i].FromDate</p>
-                </td>
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.FromDate">
+                        <p>@Model[i].FromDate</p>
+                    </td>
 
-                <td role="gridcell" data-title="To Date">
-                    <p>@Model[i].ToDate</p>
-                </td>
+                    <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.ToDate">
+                        <p>@Model[i].ToDate</p>
+                    </td>
 
-                <td role="gridcell" data-title="Action">
-                    @Html.Hidden("subsituteId", Model[i].SubstituteID)
-                    @*<i class="fa fa-edit  btn-edit-trans" aria-hidden="true" data-toggle="tooltip" title="Edit"></i>*@
-                    <i class="fa fa-trash  btn-delete-trans" aria-hidden="true" data-toggle="tooltip" title="Delete"></i>
-                </td>
 
-            </tr>
+                    @if (!isReport)
+                    {
 
+
+                        <td role="gridcell" data-title="@Fingerprints.LocalResource.Resources.Action">
+                            @Html.Hidden("subsituteId", Model[i].SubstituteID)
+                            @*<i class="fa fa-edit  btn-edit-trans" aria-hidden="true" data-toggle="tooltip" title="Edit"></i>*@
+                            <i class="fa fa-trash  btn-delete-trans" aria-hidden="true" data-toggle="tooltip" title="Delete"></i>
+                        </td>
+
+                    }
+
+
+                </tr>
+
+            }
         }
+        else
+        {
+            <tr role="grid">
+                <td colspan="5" style="padding:25px;text-align:center;">
+                    @Fingerprints.LocalResource.Resources.Recordsnotfound
+                </td>
+            </tr>
+        }
+
 
 
 

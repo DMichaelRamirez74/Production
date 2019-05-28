@@ -644,7 +644,7 @@ namespace Fingerprints.Controllers
 
                     Session["HasHomeBased"] = hasHomeBased;
 
-                    ViewBag.RoleName = "Center Manager"; ViewBag.ViewType = "Center";
+                    ViewBag.RoleName = "Center Coordinator/Manager"; ViewBag.ViewType = "Center";
                 }
                 else if (staffDetails.RoleId.ToString().ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.Executive).ToLowerInvariant())
                 {

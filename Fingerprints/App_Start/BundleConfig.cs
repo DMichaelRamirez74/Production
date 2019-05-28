@@ -37,6 +37,11 @@ namespace Fingerprints
                "~/Scripts/CenterMonthlyReport.js"
                ));
 
+            bundles.Add(new ScriptBundle("~/bundles/substitute_role_report").Include(
+              "~/Scripts/multiselect.js",
+              "~/Scripts/SubstituteRoleReport.js"
+              ));
+
 
 
 

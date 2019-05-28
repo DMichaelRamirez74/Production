@@ -32,8 +32,7 @@ var substituteTeacher = {
     sortColumn: null,
 
 
-    init:function()
-    {
+    init: function () {
         self = this;
 
         self.initializeElements();
@@ -104,8 +103,7 @@ var substituteTeacher = {
     //},
 
     dataParameters: dataModel,
-    initializeElements:function()
-    {
+    initializeElements: function () {
         self.elements.divFilterSection = $('#div-filter-section');
         self.elements.searchStaffText = self.elements.divFilterSection.find('#searchStaff');
         self.elements.dropdownCenter = self.elements.divFilterSection.find('#selectCenter');
@@ -119,8 +117,7 @@ var substituteTeacher = {
         self.elements.divtableResponsive=$('#report-table-responsive');
 
     },
-    initializeEvents:function()
-    {
+    initializeEvents: function () {
 
         self.elements.fromDateInput.next('.datepicker-icon').on('click', function (e) {
             e.preventDefault();
@@ -186,9 +183,8 @@ var substituteTeacher = {
         });
 
         self.elements.buttonSubmitTeacher.on('click', function () {
-          
-            if(self.validateFilterInputs())
-            {
+
+            if (self.validateFilterInputs()) {
                 self.addSubstituteRole();
             }
 
@@ -204,8 +200,7 @@ var substituteTeacher = {
     },
 
 
-    resetElements:function()
-    {
+    resetElements: function () {
         self.elements.fromDateInput.datetimepicker({
             timepicker: false,
             format: 'm/d/Y',
@@ -316,8 +311,7 @@ var substituteTeacher = {
 
     bindAjaxParameters: function (mode,tabEle,index) {
 
-        switch(mode)
-        {
+        switch (mode) {
             case self.parametersMode.save:
 
                 self.dataParameters.CenterID = self.elements.dropdownCenter.val();
@@ -419,15 +413,13 @@ var substituteTeacher = {
     },
     validateFilterInputs: function () {
 
-        if(self.elements.searchStaffText.val()=='')
-        {
+        if (self.elements.searchStaffText.val() == '') {
             customAlert('Staff name is required');
             plainValidation(self.elements.searchStaffText);
             return false;
         }
 
-        if(self.elements.dropdownCenter.val()=='0')
-        {
+        if (self.elements.dropdownCenter.val() == '0') {
             customAlert('Center is required');
             plainValidation(self.elements.dropdownCenter);
             return false;
@@ -451,8 +443,7 @@ var substituteTeacher = {
             return false;
         }
 
-        if(self.elements.toDateInput.val()=='' || self.elements.toDateInput.val()=='__/__/____')
-        {
+        if (self.elements.toDateInput.val() == '' || self.elements.toDateInput.val() == '__/__/____') {
             customAlert('To Date is required');
             plainValidation(self.elements.toDateInput);
             return false;
@@ -465,8 +456,7 @@ var substituteTeacher = {
         }
 
 
-        if(new Date(self.elements.fromDateInput.val()).setHours(0,0,0,0)>new Date(self.elements.toDateInput.val()).setHours(0,0,0,0))
-        {
+        if (new Date(self.elements.fromDateInput.val()).setHours(0, 0, 0, 0) > new Date(self.elements.toDateInput.val()).setHours(0, 0, 0, 0)) {
             customAlert('From Date should be less than or equal to To Date');
             plainValidation(self.elements.fromDateInput);
             return false;
@@ -477,10 +467,9 @@ var substituteTeacher = {
 
 
     },
-    addSubstituteRole:function()
-    {
-        
-        self.bindAjaxParameters(self.parametersMode.save,null,null);
+    addSubstituteRole: function () {
+
+        self.bindAjaxParameters(self.parametersMode.save, null, null);
 
 
         self.ajaxOptions.datatype='JSON';
@@ -493,9 +482,8 @@ var substituteTeacher = {
 
 
     },
-    removeSubstituteRole:function(ele)
-    {
-      
+    removeSubstituteRole: function (ele) {
+
 
         var accesskey = $(ele).siblings('#subsituteId').val();
         var $centerId = $('#myTab li.active a').attr('accesskey');
@@ -539,11 +527,9 @@ var substituteTeacher = {
             }]
         });
     },
-    callbackAddSubstituteRole:function(data)
-    {
-       
-        switch(data)
-        {
+    callbackAddSubstituteRole: function (data) {
+
+        switch (data) {
             case 1:
                 customAlert("Record saved successfully");
 
@@ -575,8 +561,7 @@ var substituteTeacher = {
 
 
     },
-    callbackRemoveSubstituteRole:function(data)
-    {
+    callbackRemoveSubstituteRole: function (data) {
         switch (data) {
             case 1:
                 customAlert("Record deleted successfully");
@@ -606,9 +591,8 @@ var substituteTeacher = {
         }
     },
 
-    getSubsituteRole:function(ele,index,isCenter)
-    {
-        self.bindAjaxParameters(self.parametersMode.get,ele,index);
+    getSubsituteRole: function (ele, index, isCenter) {
+        self.bindAjaxParameters(self.parametersMode.get, ele, index);
 
 
         self.ajaxOptions.datatype='html';
@@ -618,11 +602,9 @@ var substituteTeacher = {
         self.ajaxOptions.async=false;
         self.ajaxCall(self.callbackGetSubsituteRole);
     },
-    callbackGetSubsituteRole:function(data)
-    {
-      
-        if(data.Data=="Login")
-        {
+    callbackGetSubsituteRole: function (data) {
+
+        if (data.Data == "Login") {
             customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
         }
         else {
@@ -630,10 +612,13 @@ var substituteTeacher = {
             var $activeTab = $('#myTab').find('li.active');
             var activeTabcontent = '';
 
-            if ($activeTab.length > 0)
-            {
-                
-                activeTabcontent = $('#myTabContent').find('.tab-pane.active');
+            if ($activeTab.length > 0) {
+
+                var index = $activeTab.index();
+
+                activeTabcontent = $('#myTabContent').find('#' + index + 'tab');
+
+                //activeTabcontent = $('#myTabContent').find('.tab-pane.active');
 
                 var index = activeTabcontent.attr('id').replace('tab', '').trim();
                 $('#myTabContent').find('#div-table_' + index + '').html(data);
@@ -647,6 +632,27 @@ var substituteTeacher = {
                 self.elements.divtableResponsive.html(data);
 
                 activeTabcontent=self.elements.divtableResponsive.find('#myTabContent').find('.tab-pane');
+
+                $('#myTab li').off('click').on('click', function () {
+
+
+                    if (!$(this).hasClass('active')) {
+                        self.dataParameters.SearchTerm = '';
+                        var index = $(this).index();
+                        var tabContent = $('#' + index + 'tab');
+
+                        self.showBusy(true);
+                        window.setTimeout(function () {
+                            self.getSubsituteRole(tabContent, index, self.getlistMode.center);
+                        }, 10);
+                    }
+
+
+
+
+
+
+                });
 
             }
 
@@ -687,7 +693,7 @@ var substituteTeacher = {
                        
                         var th = this;
                         if ($(th).find('i').length > 0) {
-                            $(tabContent).find('#sortColumn_' + index + '').val($(th).children('span').html());
+                            $(tabContent).find('#sortColumn_' + index + '').val($(th).children('span').attr('col-name'));
 
                             if ($(th).find('i').is(':visible')) {
                                 if ($(th).find('.i-asc').is(':visible')) {

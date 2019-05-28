@@ -8272,15 +8272,25 @@ namespace Fingerprints.Controllers
 
         #region Get Substitute Role for all centers
 
-        [CustAuthFilter(RoleEnum.CenterManager)]
+        [CustAuthFilter()]
         [HttpPost]
         public PartialViewResult GetSubstituteRole(SubstituteRole substituteRole)
         {
             substituteRole.SkipRows = substituteRole.GetSkipRows();
 
-            substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+            substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher));
 
-            return PartialView("~/Views/AgencyUser/_SubstituteRole.cshtml",substituteRole);
+            if(FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.SubstituteRoleMode>(substituteRole.SubstituteRoleMode.ToString())==FingerprintsModel.Enums.SubstituteRoleMode.Report)
+            {
+                substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetSubstituteRoleReport(staff, substituteRole);
+            }
+            else
+            {
+                substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+
+            }
+            return PartialView("~/Views/AgencyUser/_SubstituteRole.cshtml", substituteRole);
+
         }
 
 
@@ -8289,13 +8299,21 @@ namespace Fingerprints.Controllers
 
         #region Get Substitute Role list by Center used of Searching, sorting and pagination
 
-        [CustAuthFilter(RoleEnum.CenterManager)]
+        [CustAuthFilter()]
         [HttpPost]
         public PartialViewResult GetSubstituteRoleByCenter(SubstituteRole substituteRole)
         {
             substituteRole.SkipRows = substituteRole.GetSkipRows();
+            substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher));
 
-            substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+            if (FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.SubstituteRoleMode>(substituteRole.SubstituteRoleMode.ToString()) == FingerprintsModel.Enums.SubstituteRoleMode.Report)
+            {
+                substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetSubstituteRoleReport(staff, substituteRole);
+            }
+            else
+            {
+                substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterData>().GetSubstituteRole(staff, substituteRole);
+            }
 
             return PartialView("~/Views/AgencyUser/_SubstituteRoleTable.cshtml", substituteRole.SubsituteRoleList);
         }

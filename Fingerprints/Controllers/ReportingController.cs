@@ -675,5 +675,62 @@ namespace Fingerprints.Controllers
 
 
         #endregion UFC Report
+        #region Substitute Role Report
+
+        [CustAuthFilter()]
+        [HttpGet]
+        public ActionResult SubstituteRoleReport()
+        {
+            return View();
+        }
+
+        #endregion
+        #region Substitute Role Report
+
+
+
+
+        #region Export Substitute Role Report
+        public void ExportSubstituteRoleReport(string[] centerIds,string[] classroomIds, string[] months, int reportFormatType)
+        {
+            try
+            {
+
+                var substituteRole = new SubstituteRole();
+
+                substituteRole.CenterID = centerIds != null && centerIds.Length>0? string.Join(",",centerIds):"0";
+                substituteRole.ClassroomID =classroomIds!=null &&  classroomIds.Length>0? string.Join(",",classroomIds):"0";
+                substituteRole.Month =months!=null && months.Length>0? string.Join(",",months):"0";
+                substituteRole.StaffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>(false);
+                substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher));
+                substituteRole.SubstituteRoleMode = (int)FingerprintsModel.Enums.SubstituteRoleMode.Export;
+                #region Itextsharp PDF generation Region
+
+                string imagePath = Server.MapPath("~/Images/");
+                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+
+                substituteRole = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetSubstituteRoleReport(staff, substituteRole);
+
+
+                var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+                MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportSubstituteRoleReport(substituteRole, reportTypeEnum, imagePath);
+                string reportName = "Substitute_Teacher_Report";
+
+                DownloadReport(workStream, reportTypeEnum, reportName);
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+        }
+
+        #endregion
+
+        #endregion
     }
 }

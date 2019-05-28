@@ -57,6 +57,7 @@ namespace FingerprintsDataAccessHandler
                     {
                         foreach (var parameter in parameters)
                         {
+                            
                             command.Parameters.Add(parameter);
                         }
                     }
@@ -92,6 +93,8 @@ namespace FingerprintsDataAccessHandler
 
                     return dataset;
                 }
+
+                
             }
         }
 
