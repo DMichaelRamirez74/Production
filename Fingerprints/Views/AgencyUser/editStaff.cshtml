@@ -1502,37 +1502,48 @@
                                             {
                                                 foreach (var role in Model.rolelist)
                                                 {
-                                                    int count = 0;
-                                                    if (Model._rolelist != null && Model._rolelist.Count > 0)
+
+
+                                                    if (role.RoleId.ToLowerInvariant() != FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher).ToLowerInvariant()
+                                                                && role.RoleId.ToLowerInvariant() != FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.TeacherAssistant).ToLowerInvariant())
                                                     {
 
-                                                        foreach (var role1 in Model._rolelist)
+
+
+                                                        int count = 0;
+                                                        if (Model._rolelist != null && Model._rolelist.Count > 0)
                                                         {
-                                                            if (role1.RoleId == role.RoleId)
+
+                                                            foreach (var role1 in Model._rolelist)
+                                                            {
+                                                                if (role1.RoleId == role.RoleId &&
+                                                                    role1.RoleId.ToLowerInvariant() != FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher).ToLowerInvariant()
+                                                                    && role1.RoleId.ToLowerInvariant() != FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.TeacherAssistant).ToLowerInvariant())
+                                                                {
+                                                                    <div class="centerinhorizontal2">
+                                                                        <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" checked="checked" />
+                                                                        <label class="chk_1" for="chk_1">@role.RoleName</label>
+                                                                    </div>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                            if (count == 0)
                                                             {
                                                                 <div class="centerinhorizontal2">
-                                                                    <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" checked="checked" />
+                                                                    <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" />
                                                                     <label class="chk_1" for="chk_1">@role.RoleName</label>
                                                                 </div>
-                                                                count++;
+
                                                             }
+                                                            count = 0;
                                                         }
-                                                        if (count == 0)
+                                                        else
                                                         {
                                                             <div class="centerinhorizontal2">
                                                                 <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" />
                                                                 <label class="chk_1" for="chk_1">@role.RoleName</label>
                                                             </div>
-
                                                         }
-                                                        count = 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="centerinhorizontal2">
-                                                            <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" />
-                                                            <label class="chk_1" for="chk_1">@role.RoleName</label>
-                                                        </div>
                                                     }
                                                 }
                                             }
