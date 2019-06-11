@@ -18,6 +18,7 @@ namespace FingerprintsModel
         public string Enc_ClassRoomId { get; set; }
         public List<TeacherModel> Itemlst { get; set; }
         public List<TeacherModel> Observationlst { get; set; }
+
         public List<InkindActivity> Activitylst { get; set; }
         public List<TeacherModel> ObservationlstChecked { get; set; }
         public List<TeacherModel> Meallst { get; set; }

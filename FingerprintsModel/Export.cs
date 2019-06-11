@@ -1516,11 +1516,8 @@ namespace FingerprintsModel
                      // Sets the maximum rows per page //
                     Int32 colCount = 7; // column count //
 
-
-                    Document doc = new Document();
-
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
-
+                    Document doc = new Document(PageSize.A4.Rotate(), 50f, 50f, 50f, 50f);
+                 
                     //Create PDF Table  
 
 
@@ -2036,16 +2033,15 @@ namespace FingerprintsModel
                 Int32 colCount = 6; // column count //
 
 
-                Document doc = new Document();
+                Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 
-                doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
-
+            
                 //Create PDF Table  
 
 
                 var writer = PdfWriter.GetInstance(doc, workStream);
                 writer.CloseStream = false;
-                doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+            
 
 
 
@@ -2603,17 +2599,15 @@ namespace FingerprintsModel
                     int maxLinesPerPage = 33; // Sets the maximum rows per page //
                     Int32 colCount = 6; // column count //
 
+                    Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 
-                    Document doc = new Document();
-
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
-
+                  
                     //Create PDF Table  
 
 
                     var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+               
 
 
 
@@ -3175,17 +3169,14 @@ namespace FingerprintsModel
                     int maxLinesPerPage = 33; // Sets the maximum rows per page //
                     Int32 colCount = 11; // column count //
 
-
-                    Document doc = new Document();
-
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+                    Document doc = new Document(iTextSharp.text.PageSize.A4.Rotate(), 50f, 50f, 50f, 50f);
 
                     //Create PDF Table  
 
 
                     var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
+                 
 
 
 
@@ -3774,22 +3765,17 @@ namespace FingerprintsModel
                 if (reportFormat == Enums.ReportFormatType.Pdf)
                 {
 
-                   
+
                     Int32 colCount = 5; // column count //
 
 
-                    Document doc = new Document();
-
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
+                    Document doc = new Document(iTextSharp.text.PageSize.A4,50f,50f,50f,50f);
 
                     //Create PDF Table  
 
 
                     var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
-
-
 
                     doc.OpenDocument();
 
@@ -4400,17 +4386,14 @@ namespace FingerprintsModel
 
 
 
+                    Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 
-                    Document doc = new Document();
-
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
 
                     //Create PDF Table  
 
 
                     var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
 
 
 
@@ -5203,16 +5186,12 @@ namespace FingerprintsModel
 
 
 
-                    Document doc = new Document();
+                    Document doc = new Document(iTextSharp.text.PageSize.A4,50f,50f,50f,50f);
 
-                    doc.SetMargins(50f, 50f, 50f, 50f); // Defines margins of the page //
-
-                    //Create PDF Table  
 
 
                     var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-                    doc.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
 
 
 
@@ -5743,6 +5722,504 @@ namespace FingerprintsModel
 
         #endregion
 
+
+
+
+
+
+        #region Export UFC  Report
+
+
+        public MemoryStream ExportUFCReport(List<UFCReport> ufcReport, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+            try
+            {
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+
+
+
+                    #region Initializing Document
+
+                    Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+
+
+                    #endregion
+
+                    doc.OpenDocument();
+
+
+                    #region Binding Data to Tables
+
+                    if (ufcReport != null && ufcReport.Count > 0)
+                    {
+
+                        var centerList = ufcReport.Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+
+
+                            var ufcWithCenterList = ufcReport.OrderBy(x => x.MonthType).Where(x => x.CenterID == centerList[i]).ToList();
+                            var monthList = ufcWithCenterList.OrderBy(x=>x.MonthLastDate).Select(x => x.MonthLastDate).Distinct().ToList();
+
+                            for (int j = 0; j < monthList.Count; j++)
+                            {
+
+                                if (j > 0 || i > 0)
+                                {
+                                    doc.NewPage();
+
+                                }
+
+
+                                #region PDF table creation
+
+                                PdfPTable tableLayout = new PdfPTable(3);
+                                tableLayout.HeaderRows = 4;
+
+                                //Add Content to PDF   
+                                tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+                                #endregion
+
+                                var monthCenterList = ufcWithCenterList.Where(x => x.MonthLastDate == monthList[j]).Distinct().ToList();
+
+
+                                #region Report Heading
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("UFC Report", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    BackgroundColor = new BaseColor(255, 255, 255),
+                                    Colspan = 3,
+                                    Border=0,
+                                    PaddingBottom=10
+                                });
+
+                                #endregion
+
+
+                                #region Adding Headers for Center
+
+
+
+
+                                #region Center Details Heading
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Center", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228),
+                                });
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Star Rating", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Month", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5,
+                                    BackgroundColor = new BaseColor(240, 238, 228)
+                                });
+
+                                #endregion
+
+
+                                #region Adding rows for Star Rating image with Center Name
+
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(monthCenterList[0].CenterName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #region Adding Star Rating image 
+
+                                Paragraph p = new Paragraph();
+                                p.Alignment = Element.ALIGN_CENTER;
+
+
+                                string starImageUrl = "";
+
+                                starImageUrl = imagePath + "\\220px-Star_rating_" + monthCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                                iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                                starJpeg.ScaleToFit(40f, 40f);
+
+                                starJpeg.Alignment = Element.ALIGN_CENTER;
+
+                                p.Add(new Chunk(starJpeg, 0, 0, true));
+
+
+                                tableLayout.AddCell(new PdfPCell(p)
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+
+                                #endregion
+
+
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(monthCenterList[0].MonthType, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5
+                                });
+
+                                #endregion
+
+
+
+
+                                #endregion
+
+
+
+
+
+                                #region Inner Table Headers
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Children", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3,
+                                    BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Parents", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3,
+                                    BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Last Case Note Date", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, iTextSharp.text.BaseColor.WHITE)))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3,
+                                    BackgroundColor = new iTextSharp.text.BaseColor(105, 105, 105)
+                                });
+
+                                #endregion
+
+
+
+                                #region Inner Table Rows
+
+
+                                for (int l = 0; l < monthCenterList.Count; l++)
+
+                                {
+
+                                    Phrase childPhrase = new Phrase();
+                                    var children = monthCenterList[l].Children;
+                                    var parents = monthCenterList[l].Parents;
+
+                                    foreach (var child in children)
+                                    {
+
+                                        childPhrase.Add(new Chunk(child.ClientName.Trim(), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))
+                                        {
+                                            Color = child.EnrollmentStatus == 3 ? BaseColor.RED : BaseColor.BLACK,
+                                        }));
+
+                                        childPhrase.Add(new Chunk("\n\n",new Font(Font.FontFamily.HELVETICA,8,Font.NORMAL,new iTextSharp.text.BaseColor(0,0,0))));
+                                    }
+
+                                    Paragraph childPara = new Paragraph(childPhrase);
+
+                                    tableLayout.AddCell(new PdfPCell(childPara)
+                                    {
+
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+
+                                    Phrase parentPharse = new Phrase();
+
+
+                                    foreach (var parent in parents.Trim().Trim(',').Split(','))
+                                    {
+                                     
+
+                                        parentPharse.Add(new Chunk(parent.Trim(), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))));
+
+                                        parentPharse.Add(new Chunk("\n\n",new Font(Font.FontFamily.HELVETICA,8,Font.NORMAL,new iTextSharp.text.BaseColor(0,0,0))));
+
+                                    }
+
+                                    Paragraph parentPara = new Paragraph(parentPharse);
+
+                                    tableLayout.AddCell(new PdfPCell(parentPara)
+                                    {
+
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                        
+                                    });
+
+                                    tableLayout.AddCell(new PdfPCell(new Phrase(monthCenterList[l].LastCaseNoteDate, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, iTextSharp.text.BaseColor.BLACK)))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3,
+                                        BackgroundColor = new iTextSharp.text.BaseColor(255, 255, 255)
+                                    });
+
+                                }
+
+                                #endregion
+
+                                doc.Add(tableLayout);
+
+
+                            }
+                        }
+                    }
+
+                    #endregion
+
+                    doc.CloseDocument();
+
+
+
+                }
+
+
+
+                #endregion
+
+
+                #region Export Excel
+                else if (reportFormat == Enums.ReportFormatType.Xls)
+                {
+                    XLWorkbook wb = new XLWorkbook();
+
+
+                    if (ufcReport != null && ufcReport.Count > 0)
+                    {
+
+
+                        var centerList = ufcReport.OrderBy(x=>x.CenterName).Select(x => x.CenterID).Distinct().ToList();
+
+                        for (int i = 0; i < centerList.Count; i++)
+                        {
+                            var centerName = ufcReport.Where(x => x.CenterID == centerList[i]).Select(x => x.CenterName).FirstOrDefault();
+
+                            var vs = wb.Worksheets.Add(centerName.Length > 31 ? centerName.Substring(0, 15) : centerName);
+
+                            var ufcReportWithCenterList = ufcReport.OrderBy(x => x.MonthLastDate).Where(x => x.CenterID == centerList[i]).ToList();
+
+                            var monthList = ufcReportWithCenterList.OrderBy(x=>x.MonthLastDate).Select(x => x.MonthLastDate).Distinct().ToList();
+
+                            int ReportRow = 2;
+                            int Reportcolumn = 2;
+
+
+                            vs.Range("B" + ReportRow + ":D" + ReportRow + "").Merge();
+                            vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Font.SetBold(true);
+                          //  vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            vs.Range("B" + ReportRow + ":D" + ReportRow + "").Merge().Value = "UFC Monthly Report";
+
+                            ReportRow = ReportRow + 2;
+
+                            for (int j = 0; j < monthList.Count; j++)
+                            {
+
+                                if (j > 0 || i > 0)
+                                {
+                                    // doc.NewPage();
+
+                                    ReportRow = ReportRow + 3;
+
+                                }
+
+                                #region Adding Worksheet
+
+                                var ufcWithCenterList = ufcReportWithCenterList.Where(x => x.MonthLastDate == monthList[j]).ToList();
+
+
+                                var qualityStars = ufcWithCenterList.Select(x => x.StepUpToQualityStars).FirstOrDefault();
+
+
+
+                                #region Headers with Quality Stars
+
+
+
+                                vs.Range("B" + ReportRow + "").Merge();
+                                vs.Range("B" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.Range("B" + ReportRow + "").Style.Font.SetBold(true);
+                                vs.Range("B" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Range("B" + ReportRow + "").Merge().Value = "Center";
+
+
+
+                                vs.Cell("C" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.Cell("C" + ReportRow + "").Style.Font.SetBold(true);
+                                vs.Cell("C" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Cell("C" + ReportRow + "").Value = "Star Rating";
+
+                                vs.Cell("D" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.Cell("D" + ReportRow + "").Style.Font.SetBold(true);
+                                vs.Cell("D" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Cell("D" + ReportRow + "").Value = "Month";
+
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                                ReportRow++;
+
+                                vs.Range("B" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.Range("B" + ReportRow + "").Style.Font.SetBold(true);
+                                vs.Range("B" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Range("B" + ReportRow + "").Merge().Value = centerName;
+                                vs.Range("B" + ReportRow + "").Style.Font.FontColor = ClosedXML.Excel.XLColor.Black;
+
+                                string starImageUrl = imagePath + "\\220px-Star_rating_" + ufcWithCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                                System.Drawing.Bitmap fullImage = new System.Drawing.Bitmap(starImageUrl);
+
+                                vs.Cell("C" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.AddPicture(fullImage).MoveTo(vs.Cell("C" + ReportRow + ""), new System.Drawing.Point(70, 1)).Scale(0.3);// optional: resize picture
+
+                                vs.Cell("D" + ReportRow + "").DataType = XLDataType.Text;
+                                vs.Cell("D" + ReportRow + "").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                                vs.Cell("D" + ReportRow + "").Style.Font.SetBold(true);
+                                vs.Cell("D" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Cell("D" + ReportRow + "").SetValue<string>(Convert.ToString(ufcWithCenterList[0].MonthType));
+
+                                ReportRow++;
+
+
+                                #endregion
+
+                                #region Table Headers
+
+                                vs.Cell(ReportRow, Reportcolumn).Value = "Children";
+                                vs.Cell(ReportRow, Reportcolumn).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, Reportcolumn).WorksheetColumn().Width = 30;
+
+                                vs.Cell(ReportRow, (Reportcolumn + 1)).Value = "Parents";
+                                vs.Cell(ReportRow, (Reportcolumn + 1)).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, (Reportcolumn + 1)).WorksheetColumn().Width = 30;
+
+                                vs.Cell(ReportRow, (Reportcolumn + 2)).Value = "Last Case Note Date";
+                                vs.Cell(ReportRow, (Reportcolumn + 2)).Style.Font.SetBold(true);
+                                vs.Cell(ReportRow, (Reportcolumn + 2)).WorksheetColumn().Width = 30;
+
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.Gray;
+                                vs.Range("B" + ReportRow + ":D" + ReportRow + "").Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+                                #endregion
+
+                                ReportRow++;
+
+                                #region Table Rows
+
+                                for (int k = 0; k < ufcWithCenterList.Count; k++)
+                                {
+
+                                    var parents = ufcWithCenterList[k].Parents.Split(',');
+                                    var children = ufcWithCenterList[k].Children;
+                                    var rowSpan = 0;
+
+                                    if(parents.Length>=children.Count)
+                                    {
+                                        rowSpan = parents.Length;
+                                    }
+                                    else
+                                    {
+                                        rowSpan = children.Count;
+                                    }
+
+                                    for(int l=0;l< ufcWithCenterList[k].Children.Count;l++)
+                                    {
+
+                                        vs.Cell(ReportRow+(l+1), Reportcolumn).Value = ufcWithCenterList[k].Children[l].ClientName;
+                                        vs.Cell(ReportRow+(l+1), Reportcolumn).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                        vs.Cell(ReportRow+(l+1), Reportcolumn).Style.Font.SetBold(false);
+                                        vs.Cell(ReportRow+(l+1), Reportcolumn).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                        vs.Cell(ReportRow+(l+1), Reportcolumn).Style.Font.FontColor = ufcWithCenterList[k].Children[l].EnrollmentStatus == 3 ? XLColor.Red : XLColor.Black;
+
+                                    }
+
+                                   
+
+                                    for(int m=0;m<parents.Length;m++)
+                                    {
+                                        vs.Cell(ReportRow + (m + 1), Reportcolumn+1).Value = parents[m];
+                                        vs.Cell(ReportRow + (m + 1), Reportcolumn+1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                        vs.Cell(ReportRow + (m + 1), Reportcolumn+1).Style.Font.SetBold(false);
+                                        vs.Cell(ReportRow + (m + 1), Reportcolumn+1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                    }
+
+                                    vs.Cell(ReportRow, Reportcolumn + 2).DataType = XLDataType.Text;
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Left);
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Font.SetBold(false);
+                                    vs.Cell(ReportRow, Reportcolumn + 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                                    vs.Cell(ReportRow, Reportcolumn + 2).SetValue<string>(ufcWithCenterList[k].LastCaseNoteDate);
+
+                                    ReportRow++;
+                                }
+
+
+                                #endregion
+
+                                #endregion
+                            }
+
+
+
+                        }
+                    }
+
+                    wb.SaveAs(memoryStream);
+                }
+
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
+
+        #endregion
         public class TwoColumnHeaderFooter : PdfPageEventHelper
         {
             // This is the contentbyte object of the writer

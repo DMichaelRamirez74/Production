@@ -3,10 +3,15 @@
 
     $.fn.ApplinkPG = function (TotalRecord, params, callback) {  //[int],{PageSize:[int],RequestedPage:[int] },[function]
         console.log(TotalRecord, params, callback);
-
+        
         var _target = $(this);
         var _pageSizeDrop = _target.find(".pagesize-dropdown-ApplinkPG");
         var _pagenoDrop = _target.find(".pageno-dropdown-ApplinkPG");
+        var _first = _target.find('a#First');
+        var _back = _target.find('a#Back');
+        var _next = _target.find('a#Next');
+        var _last = _target.find('a#Last');
+
         //_target.append('<span>tttt</span>');
         // _target.html('');
         if (!_target.html().trim()) {
@@ -15,6 +20,11 @@
 
             //  _target.css("color", "green");
 
+
+            _first = _target.find('a#First');
+            _back = _target.find('a#Back');
+            _next = _target.find('a#Next');
+            _last = _target.find('a#Last');
 
             _pageSizeDrop = _target.find(".pagesize-dropdown-ApplinkPG");
             _pagenoDrop = _target.find(".pageno-dropdown-ApplinkPG");
@@ -28,14 +38,39 @@
             });
 
             $(document).on("change", ".pageno-dropdown-ApplinkPG", function (e) {
-
+              
                 var _pageno = $(this).val();
                 callback(params.PageSize, _pageno);
+
+                var noOfPages = $(this).find('option').length;
+
+                if (_pageno == 1) {
+                    _first.attr('disabled', true);
+                    _back.attr('disabled', true);
+                    _next.attr('disabled', false);
+                    _last.attr('disabled', false);
+                }
+                else if (_pageno == noOfPages) {
+
+                    _first.attr('disabled', false);
+                    _back.attr('disabled', false);
+                    _next.attr('disabled', true);
+                    _last.attr('disabled', true);
+                }
+                else {
+
+                    _first.attr('disabled', false);
+                    _back.attr('disabled', false);
+                    _next.attr('disabled', false);
+                    _last.attr('disabled', false);
+                }
+
+
             });
 
             $(document).on("click", "#First,#Back,#Next,#Last", function (e) {
                 e.preventDefault();
-
+             
                 var _type = $(this).prop('id');
                 // var _curentPg = parseInt($("#ddlpaging").val());
                 //var _lastpg = parseInt($("#ddlpaging option:last").val());
@@ -59,27 +94,50 @@
                         break;
 
                 };
+
                 // $("#ddlpaging").val(_curentPg);
 
                 // self.refreshTagReport(_curentPg, $("#page-length-drop").val());
                 _pagenoDrop.val(_curentPg);
                 callback(_pageSizeDrop.val(), _curentPg);
 
-                //if (_curentPg == 1 && _type == "Back") {
-                //    $("#Back").prop("disabled", true);
-                //};
+
+
+                var noOfPages = _pagenoDrop.find('option').length;
 
                 if (_curentPg == 1) {
-                    $("#Back").prop("disabled", true);
-                } else {
-                    $("#Back").prop("disabled", false);
+                    _first.attr('disabled', true);
+                    _back.attr('disabled', true);
+                    _next.attr('disabled', false);
+                    _last.attr('disabled', false);
+                }
+                else if (_curentPg == noOfPages) {
+
+                    _first.attr('disabled', false);
+                    _back.attr('disabled', false);
+                    _next.attr('disabled', true);
+                    _last.attr('disabled', true);
+                }
+                else {
+
+                    _first.attr('disabled', false);
+                    _back.attr('disabled', false);
+                    _next.attr('disabled', false);
+                    _last.attr('disabled', false);
                 }
 
-                if (_lastpg == _curentPg) {
-                    $("#Next").prop("disabled", true);
-                } else {
-                    $("#Next").prop("disabled", false);
-                }
+
+                //if (_curentPg == 1) {
+                //    $("#Back").attr("disabled", true);
+                //} else {
+                //    $("#Back").attr("disabled", false);
+                //}
+
+                //if (_lastpg == _curentPg) {
+                //    $("#Next").attr("disabled", true);
+                //} else {
+                //    $("#Next").attr("disabled", false);
+                //}
 
 
             });
@@ -93,15 +151,42 @@
 
         var _psize = parseInt(_pageSizeDrop.val());
 
-        var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
-        _pagenoDrop.html('');
-        for (var i = 1; i <= _pcount; i++) {
 
-            _pagenoDrop.append('<option value="' + i + '">' + i + '</option>')
+
+        _first.attr('disabled', false);
+        _back.attr('disabled', false);
+        _next.attr('disabled', false);
+        _last.attr('disabled', false);
+
+        var _totalRecord = parseInt(TotalRecord);
+        if (_totalRecord > 0) {
+
+
+
+            if (_totalRecord <= _psize) {
+
+                _first.attr('disabled', true);
+                _back.attr('disabled', true);
+                _next.attr('disabled', true);
+                _last.attr('disabled', true);
+
+            }
+
+
+            var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+            _pagenoDrop.html('');
+            for (var i = 1; i <= _pcount; i++) {
+
+                _pagenoDrop.append('<option value="' + i + '">' + i + '</option>')
+            }
+            _pagenoDrop.val(params.RequestedPage);
         }
-        _pagenoDrop.val(params.RequestedPage);
-
-
+        else {
+            _first.attr('disabled', true);
+            _back.attr('disabled', true);
+            _next.attr('disabled', true);
+            _last.attr('disabled', true);
+        }
         return this;
     };
 

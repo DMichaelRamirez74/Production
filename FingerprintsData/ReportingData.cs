@@ -1487,13 +1487,17 @@ new DataColumn("Status",typeof(bool))
 
         #region UFCReport
 
-        public List<UFCReport>  GetUFCReport(string centers,long month)
+        public UFCReport GetUFCReport(UFCReport ufcReport)
         {
-            var result = new List<UFCReport>();
 
-            IDbConnection dbConnection;
+            ufcReport.UFCReportList = new List<UFCReport>();
+            ufcReport.CenterList = new List<SelectListItem>();
+
+            //  IDbConnection dbConnection;
             try
             {
+
+                string centers = string.Join(",", ufcReport.CenterID.Split(',').Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
                 StaffDetails staff = StaffDetails.GetInstance();
                 var dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
                 var parameters = new IDbDataParameter[]
@@ -1502,44 +1506,164 @@ new DataColumn("Status",typeof(bool))
                     dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
                     dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
                     dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
-                    dbManager.CreateParameter("@mode",1,DbType.Int32),
-                    dbManager.CreateParameter("@CenterIDs",centers,DbType.String),
-                    dbManager.CreateParameter("@month",month,DbType.Int64),
-
-
-                   // dbManager.CreateParameter("@TotalRecord",int.MaxValue,0,DbType.Int32,ParameterDirection.Output)
+                    dbManager.CreateParameter("@Take",ufcReport.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",ufcReport.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(ufcReport.CenterID) && ufcReport.CenterID!="0"?string.Join(",",ufcReport.CenterID.Split(',').Select(x=>EncryptDecrypt.Decrypt64(x)).ToArray()) :"0",DbType.String),
+                    dbManager.CreateParameter("@Months",!string.IsNullOrEmpty(ufcReport.MonthType) && ufcReport.MonthType!="0"?ufcReport.MonthType:"",DbType.String),
+                    dbManager.CreateParameter("@SortOrder",ufcReport.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",ufcReport.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",ufcReport.SearchTerm,DbType.String),
+                    dbManager.CreateParameter("@Mode",(int)ufcReport.ReportMode,DbType.Int32)
                 };
 
-                IDataReader reader = dbManager.GetDataReader("USP_UFCReportDetails", CommandType.StoredProcedure, parameters, out dbConnection);
+               
+                _dataset = dbManager.GetDataSet("USP_UFCReportDetails", CommandType.StoredProcedure, parameters);
 
 
-                while (reader.Read())
+
+
+                var householdIdList = new List<Int64>();
+                var monthList = new List<string>();
+                var centerList = new List<long>();
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
                 {
-                    //modal.FamilyActivityList.Add(new FamilyActivityModel
-                    //{
-                    //    CenterID = reader["CenterID"] == DBNull.Value ? "0" : Convert.ToString(reader["CenterID"]),
-                    //}
-                    string parents = Convert.ToString(reader["Parent1Name"] ?? "");
-                    if (DBNull.Value != reader["Parent2Name"]) {
-                        parents += ", " + Convert.ToString(reader["Parent2Name"] ?? "");
-                    }
-                    result.Add(new UFCReport()
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                     {
-                         CenterId = Convert.ToInt64( reader["CenterID"] ?? 0 ),
-                         CenterName = Convert.ToString(reader["CenterName"] ?? ""),
-                         LastCaseNoteDate = Convert.ToString(reader["LastCaseNoteDate"] ?? ""),
-                          HouseholdId= Convert.ToInt64(reader["HouseholdId"] ?? 0),
-                           Month= Convert.ToInt64(reader["MonthNumber"] ?? 0),
-                        //  Parents = Convert.ToString(reader["Parent1Name"] ?? 0) +","+ Convert.ToString(reader["Parent2Name"] ?? 0),
-                        Parents= parents,
-                        MonthType = Convert.ToString(reader["MonthType"] ?? ""),
+                        householdIdList = (from DataRow dr in _dataset.Tables[0].Rows
+                                           select Convert.ToInt64(dr["HouseholdId"])
+                                         ).Distinct().ToList();
+
+                        monthList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select Convert.ToString(dr["MonthEndDate"]).Trim()
+                                         ).Distinct().ToList();
+
+
+                        centerList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select Convert.ToInt64(dr["CenterID"])
+                                         ).Distinct().ToList();
+
+                        foreach(var center in centerList)
+                        {
+                            foreach (var months in monthList)
+                            {
+                                foreach (var item in householdIdList)
+                                {
+
+
+                                    if ((from DataRow dr in _dataset.Tables[0].Rows
+                                         where Convert.ToInt32(dr["HouseholdID"]) == item
+                                            && Convert.ToString(dr["MonthEndDate"]).Trim() == months.Trim()
+                                            && Convert.ToInt64(dr["CenterID"])==center
+                                         select 1
+                                           ).Any())
+                                    {
+
+
+                                        ufcReport.UFCReportList.Add((from DataRow dr in _dataset.Tables[0].Rows
+                                                                     where Convert.ToInt32(dr["HouseholdID"]) == item
+                                                                        && Convert.ToString(dr["MonthEndDate"]).Trim() == months.Trim()
+                                                                        && Convert.ToInt64(dr["CenterID"])==center
+                                                                     select new UFCReport
+                                                                     {
+                                                                         CenterID = dr["CenterID"] != DBNull.Value ? EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])) : "0",
+                                                                         CenterName = Convert.ToString(dr["CenterName"] ?? string.Empty),
+                                                                         StepUpToQualityStars = Convert.ToString(dr["StepUpToQualityStars"]),
+                                                                         LastCaseNoteDate = Convert.ToString(dr["LastCaseNoteDate"] ?? ""),
+                                                                         HouseholdId = Convert.ToInt64(dr["HouseholdId"] ?? 0),
+                                                                         Month = Convert.ToInt64(dr["MonthNumber"] ?? 0),
+                                                                         MonthType = Convert.ToString(dr["MonthType"] ?? ""),
+                                                                         Children = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                                                                     where Convert.ToInt64(dr1["HouseholdID"]) == Convert.ToInt64(dr["HouseholdID"])
+                                                                                     && Convert.ToString(dr1["MonthEndDate"]).Trim() == Convert.ToString(dr["MonthEndDate"]).Trim()
+                                                                                     && Convert.ToInt64(dr1["CenterID"])== Convert.ToInt64(dr["CenterID"])
+                                                                                     select new UFCClientDetails
+                                                                                     {
+                                                                                         ClientName = Convert.ToString(dr1["ChildName"]),
+                                                                                         EnrollmentStatus = Convert.ToInt32(dr1["EnrollmentStatus"])
+                                                                                     }).Distinct().ToList(),
+                                                                         Parents = Convert.ToString(dr["Parent1Name"]) + ", " + Convert.ToString(dr["Parent2Name"]),
+                                                                         MonthLastDate = dr["MonthEndDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(dr["MonthEndDate"].ToString(), new CultureInfo("en-US", true)),
+
+                                                                     }).Distinct().FirstOrDefault());
+                                    }
+                                }
+                            }
+
+
+                        }
+
                         
-                    });
+
+
+
+                    }
 
                 }
 
-                reader.Close();
-                dbManager.CloseConnection(dbConnection);
+
+                if (_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                {
+                   foreach(DataRow dr2 in _dataset.Tables[1].Rows)
+                    {
+                        ufcReport.UFCReportList.ForEach(x =>
+                        {
+                            x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(dr2["CenterID"])) ? Convert.ToInt32(dr2["TotalRecord"]) : x.TotalRecord;
+                            x.SortOrder = ufcReport.SortOrder;
+                            x.SortColumn = ufcReport.SortColumn;
+                        });
+                    }
+
+                    }
+
+
+
+
+
+                if (_dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                {
+                    foreach(DataRow dr3 in _dataset.Tables[2].Rows)
+                    {
+                        ufcReport.CenterList.Add(new SelectListItem
+                        {
+                            Text = Convert.ToString(dr3["CenterName"]),
+                            Value = EncryptDecrypt.Encrypt64(Convert.ToString(dr3["CenterID"]))
+                        });
+                    }
+                }
+
+
+
+
+
+                //while (reader.Read())
+                //{
+                //    //modal.FamilyActivityList.Add(new FamilyActivityModel
+                //    //{
+                //    //    CenterID = reader["CenterID"] == DBNull.Value ? "0" : Convert.ToString(reader["CenterID"]),
+                //    //}
+                //    string parents = Convert.ToString(reader["Parent1Name"] ?? "");
+                //    if (DBNull.Value != reader["Parent2Name"]) {
+                //        parents += ", " + Convert.ToString(reader["Parent2Name"] ?? "");
+                //    }
+                //    result.Add(new UFCReport()
+                //    {
+                //        CenterId = Convert.ToInt64(reader["CenterID"] ?? 0),
+                //        CenterName = Convert.ToString(reader["CenterName"] ?? ""),
+                //        LastCaseNoteDate = Convert.ToString(reader["LastCaseNoteDate"] ?? ""),
+                //        HouseholdId = Convert.ToInt64(reader["HouseholdId"] ?? 0),
+                //        Month = Convert.ToInt64(reader["MonthNumber"] ?? 0),
+                //        //  Parents = Convert.ToString(reader["Parent1Name"] ?? 0) +","+ Convert.ToString(reader["Parent2Name"] ?? 0),
+                //      //  Parents = parents,
+                //     //   Children=Convert.ToString(reader["Children"]),
+                //        MonthType = Convert.ToString(reader["MonthType"] ?? ""),
+
+                //    });
+
+                //}
+
+                //reader.Close();
+                //dbManager.CloseConnection(dbConnection);
             }
             catch (Exception ex)
             {
@@ -1549,7 +1673,7 @@ new DataColumn("Status",typeof(bool))
             {
 
             }
-            return result;
+            return ufcReport;
         }
 
 
@@ -1567,12 +1691,12 @@ new DataColumn("Status",typeof(bool))
                     var familyActivityModel = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FamilyActivityModel>();
                     var displayNameHelper = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Fingerprints.Common.Helpers.DisplayNameHelper>();
 
-                    var centerList = dataList.Select(x => x.CenterId).Distinct().ToList();
+                    var centerList = dataList.Select(x => x.CenterID).Distinct().ToList();
                     for (int i = 0; i < centerList.Count; i++)
                     {
                         #region Adding Worksheet
 
-                        var reportWithCenterList = dataList.OrderBy(x => x.Month).Where(x => x.CenterId == centerList[i]).ToList();
+                        var reportWithCenterList = dataList.OrderBy(x => x.Month).Where(x => x.CenterID == centerList[i]).ToList();
                         var centerName = reportWithCenterList.Select(x => x.CenterName).First();
 
 
@@ -1604,7 +1728,7 @@ new DataColumn("Status",typeof(bool))
 
                         #region Table Headers
 
-                        vs.Cell(4, 2).Value =  "Month";
+                        vs.Cell(4, 2).Value = "Month";
                         vs.Cell(4, 2).Style.Font.SetBold(true);
                         vs.Cell(4, 2).WorksheetColumn().Width = 30;
 
@@ -1612,7 +1736,7 @@ new DataColumn("Status",typeof(bool))
                         vs.Cell(4, 3).Style.Font.SetBold(true);
                         vs.Cell(4, 3).WorksheetColumn().Width = 30;
 
-                        vs.Cell(4, 4).Value =  "Last Case Note Date";
+                        vs.Cell(4, 4).Value = "Last Case Note Date";
                         vs.Cell(4, 4).Style.Font.SetBold(true);
                         vs.Cell(4, 4).WorksheetColumn().Width = 30;
                         vs.Range("B4:D4").Style.Border.OutsideBorder = XLBorderStyleValues.Thin;

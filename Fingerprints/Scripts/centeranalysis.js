@@ -7,8 +7,8 @@ var LastIndex = 0;
 var numOfPages = 0;
 var searchText = '';
 var skip = 0;
-
 var totalRecords = 0;
+
 $(document).ready(function () {
 
     $('.modal').find('.childName').hover(function () {

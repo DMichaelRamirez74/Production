@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -168,20 +169,54 @@ namespace FingerprintsModel
 
     #region UFCReport
 
-    public class UFCReport
-    {
 
-        public long CenterId { get; set; }
+
+
+    public class UFCReport: Pagination,IManagerReport
+    {
+       
         public string CenterName { get; set; }
 
         public long HouseholdId { get; set; }
+
+        public List<UFCClientDetails> Children { get; set; }
+
         public string Parents { get; set; }
+       
         public string LastCaseNoteDate { get; set; }
 
         public long Month { get; set; }
 
         public string MonthType { get; set; }
 
+        public DateTime? MonthLastDate { get; set; }
+        public string EnrollmentStatus { get; set; }
+
+        public string CenterID { get; set; }
+
+        public string ClassroomName { get; set; }
+        
+        public string ClassroomID { get; set; }
+        
+        public string StepUpToQualityStars { get; set; }
+
+        public string SearchTerm { get; set; }
+
+        public List<UFCReport> UFCReportList { get; set; }
+
+        public List<SelectListItem> CenterList { get; set; }
+
+        public FingerprintsModel.Enums.UFCReportMode ReportMode { get; set; }
+
+
+    }
+
+    public class UFCClientDetails
+    {
+        public string ClientName { get; set; }
+        public int EnrollmentStatus { get; set; }
+
+            
     }
 
     #endregion UFCReport

@@ -70,7 +70,7 @@ namespace FingerprintsModel
        
 
         #region  Roles  (Private fields)
-        internal  const string agencyAdmin = "3B49B025-68EB-4059-8931-68A0577E5FA2";
+        internal const string agencyAdmin = "3B49B025-68EB-4059-8931-68A0577E5FA2";
         internal const string areaManager = "2AF7205E-87B4-4CA7-8CA8-95827C08564C";
         internal const string billingManager = "944D3851-75CC-41E9-B600-3FA904CF951F";
         internal const string busDriver = "259D2818-3832-46B0-A75C-1731F9F6ABC7";

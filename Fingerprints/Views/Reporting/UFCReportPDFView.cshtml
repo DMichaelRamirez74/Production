@@ -14,53 +14,50 @@
     <meta name="viewport" content="width=device-width" />
     <title>UFC Report</title>
     <style>
-                #main-center-table {
-         
-         font-size:12px;
-        
-        
+        #main-center-table {
+            font-size: 12px;
         }
+
             #main-center-table tr th {
-            margin-bottom:5px;
-            
+                margin-bottom: 5px;
             }
 
-             #main-center-table tr th{
-            font-weight:bold !important;
-            text-align:center;
+            #main-center-table tr th {
+                font-weight: bold !important;
+                text-align: center;
             }
 
             #main-center-table tr th,
             #main-center-table tr td {
-            
-         border:1px solid #333;
-            height:30px;
+                border: 1px solid #333;
+                height: 30px;
             }
 
-                #main-center-table tr td:nth-child(2){
-                 color:red;
+                #main-center-table tr td:nth-child(2) {
+                    color: red;
                 }
+
         .month-clmn,
         .lcndate-clmn {
-        text-align:center;
+            text-align: center;
         }
 
         .parent-clmn {
-         margin-left:10px;
+            margin-left: 10px;
         }
 
         .title-card {
-         background:#34495e;
-         text-align:center;
-         color:#ffffff;
-         height:30px;
-         margin-bottom:25px;
+            background: #34495e;
+            text-align: center;
+            color: #ffffff;
+            height: 30px;
+            margin-bottom: 25px;
         }
-        </style>
-    </head>
+    </style>
+</head>
 <body>
 
-    @{ 
+    @{
 
         var centers = Model.GroupBy(a => a.CenterName, a => a.CenterName).ToList();
 
@@ -71,70 +68,140 @@
     }
 
     <div class="title-card">
-      <span>  UFC Report </span>
+        <span>  UFC Report </span>
     </div>
     <div style="height:10px;"></div>
 
-        @helper getMonthName(long mno) {
+    @helper getMonthName(long mno)
+    {
 
-            string[] months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+string[] months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 
-           <span>@months[mno-1]</span>
-        }
-        @{long i = 1; }
-   @foreach (var center in centers)
-   {
-      
- <table id="main-center-table" border="0" cellspacing="0" cellpadding="0" style="width:1000px; repeat-header: yes; repeat-footer: yes;">
-     <thead>
-     <tr>
-         <th colspan="3" style="text-align:left;border:0px solid black;">
-             <p style="margin-left:10px;"> Center: @center.Key</p>
-         </th>
-     </tr>
-     <tr>
-                @*<th>Center Name</th>*@
-                <th>Month</th>
-                <th>Parents</th>
-                <th>Last Case Note Date</th>
+    <span>@months[mno - 1]</span>
+}
+    @{long i = 1; }
+    @foreach (var center in centers)
+    {
 
-         </tr></thead>
-     <tbody>
-        @foreach (var item in Model)
-        {
-            var parentAr = item.Parents.Split(',');
+        <table id="main-center-table" border="0" cellspacing="0" cellpadding="0" style="width:100%; repeat-header: yes; repeat-footer: yes;">
+            <thead>
+                <tr>
+                    <th colspan="3" style="text-align:left;border:0px solid black;">
+                        <p style="margin-left:10px;"> Center: @center.Key</p>
+                    </th>
+                </tr>
+                <tr>
+                    @*<th>Center Name</th>*@
+                    <th>Month</th>
+                    <th>Children</th>
+                    <th>Parents</th>
+                    <th>Last Case Note Date</th>
 
-            if (center.Key == item.CenterName)
-            {
-            <tr>
-                @*<td>@item.CenterName</td>*@
-                <td class="month-clmn"> @getMonthName(@item.Month)</td>
-                <td class="parent-clmn">
+                </tr>
+            </thead>
+            <tbody>
 
-                    @foreach (var parent in parentAr)
-                    {
-                        <p style="margin:0px;line-height: 0px !important;margin-left:10px;">
-                            @parent
-                        </p><br />
-                    }
+                @{
 
-                </td>
-                <td class="lcndate-clmn">@item.LastCaseNoteDate</td>
-         
-         </tr>
+                    var householdList = new List<Int64>();
+                    var monthList = new List<string>();
 
-            }
+                    householdList = Model.Where(x => x.CenterName.Trim() == center.Key.Trim()).Select(x => x.HouseholdId).Distinct().ToList();
+                    monthList = Model.Where(x => x.CenterName.Trim() == center.Key.Trim()).Select(x => x.MonthType.Trim()).Distinct().ToList();
 
-        }
+                }
 
-     </tbody>
- </table>
-       if (i < centers.Count)
-       {
-<div style="page-break-before:always">&nbsp;</div>
-       }
-       { i++;}
-   }
+
+
+
+
+
+                @foreach (var month in monthList)
+                {
+                   
+                        var clientList = Model.Where(x => x.MonthType.Trim() == month.Trim() && x.CenterName.Trim() == center.Key.Trim()).ToList();
+                     
+
+                            for (int j = 0; j < clientList.Count; j++)
+                            {
+
+                                <tr>
+
+                                    @if (j == 0)
+                                    {
+                                        <td class="month-clmn" rowspan="@clientList.Count">@clientList[j].MonthType</td>
+
+                                    }
+                                    <td class="child-clmn">
+                                        <div style="padding:5px;">
+
+
+
+
+                                            @for (int k = 0; k < clientList[j].Children.Count; k++)
+                                            {
+
+                                                if (clientList[j].Children[k].EnrollmentStatus == 3)
+                                                {
+                                                    <p style="margin:0px;line-height: 0px !important;padding:5px; margin-left:10px;color:red;">
+                                                        @clientList[j].Children[k].ClientName
+                                                    </p><br />
+                                                }
+                                                else
+                                                {
+                                                    <p style="margin:0px;line-height: 0px !important;padding:5px;margin-left:10px;">
+                                                        @clientList[j].Children[k].ClientName
+                                                    </p><br />
+                                                }
+
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="parent-clmn">
+
+                                        @{
+                                            var parentAr = clientList[j].Parents.Split(',');
+                                        }
+
+
+                                        <div style="padding:5px;">
+
+
+
+                                            @foreach (var parent in parentAr)
+                                            {
+                                                <p style="margin:0px;line-height: 0px !important;padding:5px;margin-left:10px;">
+                                                    @parent
+                                                </p><br />
+                                            }
+
+                                        </div>
+
+                                    </td>
+                                    <td class="lcndate-clmn">@clientList[j].LastCaseNoteDate</td>
+
+                                </tr>
+                                                        }
+
+
+
+                                                  
+
+                                                
+                                            }
+                }
+
+            </tbody>
+        </table>
+                                            if (i < centers.Count)
+                                            {
+                                                <div style="page-break-before:always">&nbsp;</div>
+                                                }
+                                                { i++; }
+                                            }
 
 
 

@@ -1,0 +1,236 @@
+﻿@model List<FingerprintsModel.UFCReport>
+
+@{
+    var totalrecord = Model.Select(x => x.TotalRecord).FirstOrDefault();
+
+
+}
+
+<div>
+    @Html.Hidden("totalRecordTable", totalrecord)
+
+</div>
+
+
+
+<!--Table -->
+<table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="table-report">
+
+    <thead class="table-hd scroll-thead">
+        <tr>
+
+
+
+            <th>
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "month")
+                {
+                    if (Model[0].SortOrder.ToLowerInvariant() == "asc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                <span col-name="Month">@Fingerprints.LocalResource.Resources.Month</span>
+            </th>
+
+
+
+
+            <th>
+
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "children")
+                {
+                    if (Model[0].SortOrder.ToLowerInvariant() == "asc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;"></i>
+                    }
+                }
+                else if (Model.Count > 0 && string.IsNullOrEmpty(Model[0].SortColumn))
+                {
+                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+                else
+                {
+                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                <span col-name="Children">Children</span>
+            </th>
+
+
+            <th>
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "parents")
+                {
+                    if (Model[0].SortOrder.ToLowerInvariant() == "asc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
+                    {
+                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block"></i>
+                    }
+
+                }
+
+                else
+                {
+                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                <span col-name="Parents">Parents</span>
+            </th>
+
+
+
+            <th>
+
+                @if (Model.Count > 0 && Model[0].SortColumn != null && Model[0].SortColumn.ToLowerInvariant() == "last case note date")
+                {
+                    if (Model[0].SortOrder.ToLowerInvariant() == "asc")
+                    {
+
+
+                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                    }
+                    else if (Model[0].SortOrder.ToLowerInvariant() == "desc")
+                    {
+
+
+
+                        <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                }
+
+                <span col-name="Last Case Note Date">Last Case Note Date</span>
+            </th>
+
+        </tr>
+    </thead>
+
+    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+
+        @if (Model.Count > 0)
+        {
+
+
+            var monthsList = Model.Select(x => x.MonthLastDate).Distinct().ToList();
+
+
+            foreach (var month in monthsList)
+            {
+                var ufcList = Model.Where(x => x.MonthLastDate == month).ToList();
+
+
+                if (ufcList.Count > 0)
+                {
+                    for (int i = 0; i < ufcList.Count; i++)
+                    {
+
+
+
+                        <tr role="grid" class="month-td">
+
+                            @if (i == 0)
+                            {
+                                <td role="gridcell" rowspan="@ufcList.Count" class="month-td" data-title="@Fingerprints.LocalResource.Resources.Month">
+                                    <p data-toggle="tooltip" title="@ufcList[i].MonthType">@ufcList[i].MonthType</p>
+                                </td>
+                            }
+
+
+
+                            <td role="gridcell" data-title="Children" class="child-td">
+
+                                @{
+                                    var titleString = string.Join(", ", ufcList[i].Children.Select(x => x.ClientName).ToArray());
+                                }
+                                <p data-toggle="tooltip" title="@titleString">
+
+
+                                    @for (int k = 0; k < ufcList[i].Children.Count; k++)
+                                    {
+                                        if (ufcList[i].Children[k].EnrollmentStatus == 3)
+                                        {
+                                            <span style="color:red;">@ufcList[i].Children[k].ClientName</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@ufcList[i].Children[k].ClientName</span>
+
+                                        }
+
+                                        if (k != (ufcList[i].Children.Count - 1))
+                                        {
+                                            <span>, </span>
+                                        }
+                                    }
+
+
+
+
+                                </p>
+                            </td>
+
+
+                            <td role="gridcell" data-title="Parents" class="parent-td">
+                                <p data-toggle="tooltip" title="@ufcList[i].Parents..Trim().Trim(',')">@ufcList[i].Parents.Trim().Trim(',')</p>
+                            </td>
+
+                            <td role="gridcell" data-title="Last Case Note Date">
+                                <p>@(string.IsNullOrEmpty(ufcList[i].LastCaseNoteDate) ? "N/A" : ufcList[i].LastCaseNoteDate)</p>
+                            </td>
+                        </tr>
+
+                                                }
+                                            }
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        <tr role="grid">
+                                            <td colspan="5" style="padding:25px;text-align:center;">
+                                                @Fingerprints.LocalResource.Resources.Recordsnotfound
+                                            </td>
+                                        </tr>
+                                    }
+
+
+
+
+    </tbody>
+
+</table>
