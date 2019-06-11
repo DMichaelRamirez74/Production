@@ -1769,6 +1769,103 @@ namespace Fingerprints.Controllers
                 return Json(false, JsonRequestBehavior.AllowGet);
             }
         }
+
+        #region Daily Health Check
+
+        [HttpGet]
+        [CustAuthFilter(RoleEnum.AgencyAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
+        public ActionResult DailyHealthCheck()
+        {
+
+          
+            return View();
+        }
+
+
+        #region Get Daily Observation Lookup
+
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.AgencyAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
+        public JsonResult GetDailyObservationLookup(DailyObservation dailyObservation,int mode)
+        {
+            var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            dailyObservation.SkipRows = dailyObservation.GetSkipRows();
+            var model = agencyData.GetDailyObservationLookup(staffDetails,dailyObservation, mode);
+
+            return Json(model,JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+
+
+        #region Check Daily Observation Lookup already Exists
+
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.AgencyAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
+        public JsonResult CheckDailyObservationLookupExists(DailyObservation dailyObservation)
+        {
+            var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            int result = 0;
+             dailyObservation = agencyData.CheckDailyObservationLookup(out result,staffDetails, dailyObservation);
+            return Json(new { Result = result, Model = dailyObservation }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+
+        #region Add /Edit/ Daily Observation Lookup
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.AgencyAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
+        public JsonResult UpsertDailyObservationLookup(DailyObservation dailyObservation, int mode)
+        {
+            var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            int statusResult;
+            var result = agencyData.UpsertDailyObservationLookup(out statusResult, staffDetails, dailyObservation);
+            dailyObservation.SkipRows = dailyObservation.GetSkipRows();
+
+            if (result)
+                dailyObservation = agencyData.GetDailyObservationLookup(staffDetails,dailyObservation, mode);
+
+            return Json(new { Result = result, StatusResult=statusResult, Model = dailyObservation }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+
+        #region Make the selected description will be available for all Agencies
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.AgencyAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.SuperAdmin)]
+        public JsonResult AvailDailyObservationLookupAllAgencies(DailyObservation dailyObservation, int mode)
+        {
+            var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            var result = agencyData.AvailDailyObservationAllAgencies(staffDetails, dailyObservation);
+
+            dailyObservation.SkipRows = dailyObservation.GetSkipRows();
+
+            if (result)
+                dailyObservation = agencyData.GetDailyObservationLookup(staffDetails, dailyObservation,mode);
+
+            return Json(new { Result = result, Model = dailyObservation }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region Remove Daily Observation Lookup
+
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.AgencyAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.SuperAdmin)]
+        public JsonResult RemoveDailyObservationLookup(DailyObservation observation)
+        {
+            //DailyObservation
+            return Json(null);
+        }
+
+        #endregion
+
+
+
+        #endregion
     }
 
 }

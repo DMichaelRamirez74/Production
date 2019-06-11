@@ -458,7 +458,7 @@ namespace FingerprintsData
             _dataset = new DataSet();
             DataAdapter.Fill(_dataset);
             DataTable dt = _dataset.Tables[0];
-
+                
 
             TeacherModel _TeacherM = new TeacherModel();
             _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
@@ -491,9 +491,19 @@ namespace FingerprintsData
                 _TeacherM.OtherNameOut = Convert.ToString(dr["OtherNotesOut"]);
                 _TeacherM.OtherNameOut2 = Convert.ToString(dr["OtherNotesOut2"]);
             }
+
+
             Connection2.Open();
             command2.Connection = Connection2;
             command2.Parameters.Add(new SqlParameter("@AgencyID",staff.AgencyId ));
+            command2.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+            command2.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+            command2.Parameters.Add(new SqlParameter("@Take", 0));
+            command2.Parameters.Add(new SqlParameter("@Skip", 0));
+            command2.Parameters.Add(new SqlParameter("@SortOrder", string.Empty));
+            command2.Parameters.Add(new SqlParameter("@SortColumn", string.Empty));
+            command2.Parameters.Add(new SqlParameter("@TotalRecord", 0)).Direction=ParameterDirection.Output;
+            command2.Parameters.Add(new SqlParameter("@Mode", FingerprintsModel.Enums.DailyHealthCheckMode.Entry.ToString()));
             command2.CommandType = CommandType.StoredProcedure;
             command2.CommandText = "SP_GetObservationLookup";
             DataAdapter2 = new SqlDataAdapter(command2);
@@ -818,7 +828,9 @@ namespace FingerprintsData
                         _TeacherM.CIFileData = (byte[])dr["profilepic"];
                         _TeacherM.CImage = dr["FileNameul"].ToString();
                         _TeacherM.ParentSig = Convert.ToString(dr["PSignature"]);
-
+                        _TeacherM.ParentCheckedIn = dr["SignedInBy"] != DBNull.Value? Convert.ToString(dr["SignedInBy"]):"0";
+                        _TeacherM.ParentCheckedOut = dr["SignedOutBy"] != DBNull.Value ? Convert.ToString(dr["SignedOutBy"]) : "0";
+                        _TeacherM.OtherName = dr["Notes"] != DBNull.Value ? Convert.ToString(dr["Notes"]) : string.Empty;
                     }
 
 
@@ -886,7 +898,7 @@ namespace FingerprintsData
 
 
 
-                    if(_dataset.Tables.Count>5 && _dataset.Tables[5]!=null && _dataset.Tables[5].Rows.Count>0)
+                    if (_dataset.Tables.Count > 5 && _dataset.Tables[5] != null && _dataset.Tables[5].Rows.Count > 0)
                     {
                         _TeacherM.InkindPeriodList = (from DataRow dr5 in _dataset.Tables[5].Rows
 
@@ -899,7 +911,7 @@ namespace FingerprintsData
 
                                                     ).ToList();
                     }
-                  
+
 
 
                 }
@@ -955,6 +967,8 @@ namespace FingerprintsData
 
 
 
+
+
                     if (Connection.State == ConnectionState.Open)
                         Connection.Close();
                     Connection.Open();
@@ -969,9 +983,6 @@ namespace FingerprintsData
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkAttendancePresent";
-                    //DataAdapter = new SqlDataAdapter(command);
-                    //_dataset = new DataSet();
-                    //DataAdapter.Fill(_dataset);
                     command.ExecuteNonQuery();
                     result = command.Parameters["@result"].Value.ToString();
                     command.Parameters.Clear();
@@ -1020,34 +1031,7 @@ namespace FingerprintsData
 
 
                         }
-                        //foreach (var act in activitylst)
-                        //{
-                        //    if (act != "false")
-                        //    {
-                        //        Connection.Close();
-                        //        command.Dispose();
-                        //        Connection.Open();
-                        //        command.Connection = Connection;
-                        //        command.Parameters.Add(new SqlParameter("@AgencyID", agencyid));
-                        //        command.Parameters.Add(new SqlParameter("@ParentID", ParentID));
-                        //        command.Parameters.Add(new SqlParameter("@ActivityDate", activityDate));
-                        //        command.Parameters.Add(new SqlParameter("@CenterID", centerid));
-                        //        command.Parameters.Add(new SqlParameter("@ClassroomID", classroomid));
-                        //        command.Parameters.Add(new SqlParameter("@ActivityID", act));
-                        //        command.Parameters.Add(new SqlParameter("@Hours", hours));
-                        //        command.Parameters.Add(new SqlParameter("@Minutes", minutes));
-                        //        command.Parameters.Add(new SqlParameter("@ActivityNotes", activitynotes));
-                        //        command.Parameters.Add(new SqlParameter("@ChildId", clientID));
-                        //        command.CommandType = CommandType.StoredProcedure;
-                        //        command.CommandText = "SP_MarkInkindActivity";
-                        //        DataAdapter = new SqlDataAdapter(command);
-                        //        _dataset = new DataSet();
-                        //        DataAdapter.Fill(_dataset);
-                        //        Connection.Close();
-                        //        command.Parameters.Clear();
-                        //        command.Dispose();
-                        //    }
-                        //}
+
 
                         if (transactionList.Count() > 0)
                         {
@@ -1064,14 +1048,15 @@ namespace FingerprintsData
                     string SignatureCode = collection.Get("SignatureCode");
                     SignatureCode = !string.IsNullOrEmpty(SignatureCode) ? EncryptDecrypt.Encrypt(SignatureCode) : SignatureCode;
                     List<string> observationlist = null;
-                    if (observation != null)
-                    {
-                        observationlist = observation.Split(',').ToList();
-                        foreach (var obs in observationlist)
-                        {
-                            if (obs != "false")
-                            {
-                                Connection.Close();
+                    //if (observation != null)
+                    //{
+                        observationlist = observation!=null? observation.Split(',').Where(x=>x!="false").ToList():new List<string>();
+                      
+                        //foreach (var obs in observationlist)
+                        //{
+                            //if (obs != "false")
+                            //{
+                            //    Connection.Close();
                                 command.Dispose();
                                 Connection.Open();
                                 command.Connection = Connection;
@@ -1081,7 +1066,7 @@ namespace FingerprintsData
                                 command.Parameters.Add(new SqlParameter("@TSignature", imgSig));
                                 command.Parameters.Add(new SqlParameter("@StaffSignatureCode", SignatureCode));
                                 command.Parameters.Add(new SqlParameter("@TeacherOther", OtherNotes));
-                                command.Parameters.Add(new SqlParameter("@Observation", obs));
+                                command.Parameters.Add(new SqlParameter("@Observation", string.Join(",",observationlist.ToArray())));
                                 command.Parameters.Add(new SqlParameter("@ObservationType", 1));
                                 command.CommandType = CommandType.StoredProcedure;
                                 command.CommandText = "SP_MarkDailyObservation";
@@ -1089,9 +1074,9 @@ namespace FingerprintsData
                                 Connection.Close();
                                 command.Parameters.Clear();
                                 command.Dispose();
-                            }
-                        }
-                    }
+                            //}
+                        //}
+                    //}
 
 
 
@@ -1126,9 +1111,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@BadgeNo", ProtectiveBadge));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_UpdateAttendanceDetails";
-                //DataAdapter = new SqlDataAdapter(command);
-                //_dataset = new DataSet();
-                //DataAdapter.Fill(_dataset);
                 Connection.Open();
                 command.ExecuteNonQuery();
                 Connection.Close();

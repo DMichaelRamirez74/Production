@@ -177,13 +177,15 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@AttendanceIssueStartDay", agencyDetails.AttendanceIssueStartDay));
                 command.Parameters.Add(new SqlParameter("@AllowCaseNoteTeacher", agencyDetails.AllowCaseNoteTeacher));
                 command.Parameters.Add(new SqlParameter("@OverIncomeAcceptance", agencyDetails.OverIncomeAcceptance));
+                command.Parameters.Add(new SqlParameter("@AvailableDailyHealthChecks", agencyDetails.AvailableDailyHealthChecks));
 
                 if (agencyDetails.InkindPeriods != null)
                 {
                     command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", agencyDetails.InkindPeriods.StartDate));
                     command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", agencyDetails.InkindPeriods.EndDate));
                 }
-                else {
+                else
+                {
                     command.Parameters.Add(new SqlParameter("@InkindEntryStartDate", ""));
                     command.Parameters.Add(new SqlParameter("@InkindEntryEndDate", ""));
                 }
@@ -587,6 +589,7 @@ namespace FingerprintsData
 
                         //if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"])))
                         //    agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
+
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
 
@@ -595,6 +598,7 @@ namespace FingerprintsData
 
                         agency.AllowCaseNoteTeacher = Convert.ToString(_dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
                         agency.OverIncomeAcceptance = Convert.ToInt32(_dataset.Tables[0].Rows[0]["OverIncomeAcceptance"]);
+                        agency.AvailableDailyHealthChecks = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["AvailableDailyHealthChecks"]);
                         agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
 
                         agency.InkindPeriods.StartDate = Convert.ToString(_dataset.Tables[0].Rows[0]["InKindStartDate"]);
@@ -7204,6 +7208,262 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
         #endregion
 
+
+        #endregion
+
+
+        #region Daily Observation Lookup
+
+        #region Add / Edit /Change Status   Daily Observation Lookup
+
+        public bool UpsertDailyObservationLookup(out int statusResult,StaffDetails staff,DailyObservation dailyObservation)
+        {
+            bool isRowsAffected = false;
+            statusResult = 0;
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3] {
+
+                new DataColumn("ObservationKey",typeof(Int32)),
+                new DataColumn("Description",typeof(string)),
+                new DataColumn("IsActive",typeof(bool))
+                });
+
+
+                foreach (var item in dailyObservation.DailyObservationList)
+                {
+                    _dataTable.Rows.Add(
+                        
+                        item.ObservationID != "" && item.ObservationID != "0" ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.ObservationID)) : 0
+                      , item.Description.Trim()
+                      , item.Status
+                      
+                      );
+                }
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ObservationTable",_dataTable,DbType.Object),
+                    dbManager.CreateParameter("@Result",10,0,DbType.Int32,ParameterDirection.Output)
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_UpsertDailyObservationLookup", CommandType.StoredProcedure, parameters);
+
+
+                statusResult = parameters.Where(x => x.ParameterName == "@Result" && x.Direction == ParameterDirection.Output).Select(x =>Convert.ToInt32( x.Value)).FirstOrDefault();
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return isRowsAffected;
+        }
+
+        #endregion
+
+        #region Make the Daily Observation Description will be available for all agencies
+
+
+        public bool AvailDailyObservationAllAgencies(StaffDetails staff, DailyObservation dailyObservation)
+        {
+            bool isRowsAffected = false;
+          
+            try
+            {
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3] {
+
+                new DataColumn("ObservationKey",typeof(Int32)),
+                new DataColumn("Description",typeof(string)),
+                new DataColumn("IsActive",typeof(bool))
+                });
+
+
+                foreach (var item in dailyObservation.DailyObservationList)
+                {
+                    _dataTable.Rows.Add(
+
+                        item.ObservationID != "" && item.ObservationID != "0" ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.ObservationID)) : 0
+                      , item.Description.Trim()
+                      , item.Status
+
+                      );
+                }
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ObservationTable",_dataTable,DbType.Object)
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_Avail_DailyObservationLookup_All_Agencies", CommandType.StoredProcedure, parameters);
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return isRowsAffected;
+        }
+
+        #endregion
+
+        #region Check Daily Observation Lookup  Exists
+
+        public DailyObservation CheckDailyObservationLookup(out int result, StaffDetails staff, DailyObservation dailyObservation)
+        {
+           
+            try
+            {
+                result = 0;
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+
+                _dataTable = new DataTable();
+
+                _dataTable.Columns.AddRange(new DataColumn[3] {
+
+                new DataColumn("ObservationKey",typeof(Int32)),
+                new DataColumn("Description",typeof(string)),
+                new DataColumn("IsActive",typeof(bool))
+                });
+
+
+                foreach (var item in dailyObservation.DailyObservationList)
+                {
+                    _dataTable.Rows.Add(
+
+                        item.ObservationID != "" && item.ObservationID != "0" ? Convert.ToInt32(EncryptDecrypt.Decrypt64(item.ObservationID)) : 0
+                      , item.Description.Trim()
+                      , item.Status
+
+                      );
+                }
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ObservationTable",_dataTable,DbType.Object)
+                };
+
+                _dataTable = dbManager.GetDataTable("USP_CheckDailyObservationLookupExists", CommandType.StoredProcedure, parameters);
+
+
+
+                if(_dataTable!=null && _dataTable.Rows.Count>0)
+                {
+                    result = 1;
+
+                    dailyObservation.DailyObservationList = (from DataRow dr in _dataTable.Rows
+                                                             select new DailyObservation
+                                                             {
+                                                                 ObservationID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ObservationKey"])),
+                                                                 Description = Convert.ToString(dr["Description"]),
+                                                                 AgencyID = dr["AgencyID"] != DBNull.Value ? new Guid(dr["AgencyID"].ToString()) : (Guid?)null
+                                                             }
+
+                                                           ).ToList();
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                result = 2;
+               
+            }
+
+            return dailyObservation;
+        }
+
+        #endregion
+
+        #region Get Daily Observation Lookup
+
+        public DailyObservation GetDailyObservationLookup(StaffDetails staff,DailyObservation observation,int mode)
+        {
+            var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+
+            try
+            {
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@Take",observation.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",observation.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@SortOrder",observation.SortOrder??string.Empty,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",observation.SortColumn??string.Empty,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",observation.SearchTerm??string.Empty,DbType.String),
+                    dbManager.CreateParameter("@TotalRecord",10,observation.TotalRecord,DbType.Int32,ParameterDirection.Output),
+                    dbManager.CreateParameter("@Mode",FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.DailyHealthCheckMode>(mode.ToString()).ToString(),DbType.String)
+
+                };
+
+
+                _dataTable = dbManager.GetDataTable("SP_GetObservationLookup", CommandType.StoredProcedure, parameters);
+
+
+                if(_dataTable != null && _dataTable.Rows.Count>0)
+                {
+                    observation.DailyObservationList = (from DataRow dr in _dataTable.Rows
+                                                        select new DailyObservation
+                                                        {
+                                                            ObservationID =EncryptDecrypt.Encrypt64(Convert.ToString(dr["ObservationKey"])),
+                                                            Description = Convert.ToString(dr["Description"]),
+                                                            IsReported = dr["IsReported"] != DBNull.Value ? Convert.ToBoolean(dr["IsReported"]) : false,
+                                                            AgencyID = dr["AgencyID"] != DBNull.Value ? new Guid(dr["AgencyID"].ToString()) : (Guid?)null,
+                                                            AgencyName=dr["AgencyName"]!=DBNull.Value?Convert.ToString(dr["AgencyName"]):string.Empty,
+                                                            Status = Convert.ToBoolean(dr["IsActive"]),
+                                                            Editable=Convert.ToBoolean(dr["Editable"])
+                                                        }).ToList();
+
+                }
+
+                observation.TotalRecord = Convert.ToInt32(parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault());
+                
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                
+            }
+
+            
+
+            return observation;
+
+
+        }
+
+        #endregion
 
         #endregion
 

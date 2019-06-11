@@ -357,8 +357,12 @@ namespace Fingerprints.Controllers
                 string Oavailable = collection.Get("OfficeAvailable");
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
+  
+
+
                 string result = "";
-                if (available == "1" && Oavailable == "0")
+				  //if (available == "1" && Oavailable == "0")
+                if ( Oavailable == "0")
                 {
                     ViewData["ActiveTabTeacher"] = 1;
                      _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);

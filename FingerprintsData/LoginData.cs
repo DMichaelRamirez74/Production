@@ -59,6 +59,7 @@ namespace FingerprintsData
                         Login.IsShowSectionB = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowSectionB"]);
                         Login.IsShowScreening = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowScreening"]);
                         Login.AllowCaseNoteTeacher = Convert.ToString(_Dataset.Tables[0].Rows[0]["AllowCaseNoteTeacher"]);
+                        Login.AvailableDailyHealthChecks = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["AvailableDailyHealthChecks"]);
                         Login.StaffSignature.Signature = Convert.ToString(_Dataset.Tables[0].Rows[0]["StaffSignature"]);
                         Login.StaffSignature.StaffSignatureID = Convert.ToInt64(_Dataset.Tables[0].Rows[0]["StaffSignatureID"]);
                     }

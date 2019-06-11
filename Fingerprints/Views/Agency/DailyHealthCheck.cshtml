@@ -1,0 +1,318 @@
+﻿
+
+@{
+    ViewBag.Title = "Daily Health Check";
+    Layout = (Session["AgencyId"] != null) ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/SuperAdminLayout.cshtml";
+
+}
+
+@section Title{
+    
+    Daily Health Check
+    
+    }
+
+@section Script{
+    
+<script type="text/javascript">
+    var dailyObservationJson=@Html.Raw(Json.Encode(new FingerprintsModel.DailyObservation()));
+    var dailyObservationMode=@(FingerprintsModel.EnumHelper.ConvertToJson(typeof(FingerprintsModel.Enums.DailyHealthCheckMode)));
+</script>
+<script src="~/Scripts/DailyHealthCheck.js"></script>
+
+    }
+
+@section Style{
+    
+   
+<link href="~/Content/css/DailyHealthCheck.css" rel="stylesheet" />
+    
+    }
+
+@section MainContentHolder{
+    
+    
+    <div class="row Zoom">
+    <div class="col-lg-12" style="padding:0;">
+        <div class="page-wrapper-change">
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-----Right Side Container Section------->
+                    <div class="glossy-right-side-container col-xs-12">
+
+                        <!----Heading Section------>
+                        <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                            <div class="col-lg-12">
+                                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                    <i class="fa fa-stethoscope" aria-hidden="true"></i>&nbsp;@ViewBag.Title
+
+                                    <span class="view-btn backto_listspan">
+
+
+
+                                    </span>
+                                </h2>
+                            </div>
+                        </div>
+
+                            <form class="col-xs-12" id="formAddDescription">
+
+                                <fieldset class="col-xs-12 glossy-panel-div activity-fieldset">
+                                    <legend class="activity-legend">Add/Edit Daily Health Check</legend>
+
+
+                                    <div class="form-group col-xs-12 col-sm-12 div-activity-add adddivspace">
+
+                                        <div class="form-group col-lg-12 col-sm-12 col-xs-12" id="div-textarea-desc-group">
+                                            <label class="lbl-text col-xs-12">Please specify description below. <small><i style="color:red;">(50 characters max.)</i></small></label>
+
+                                            <div class="col-xs-12 col-sm-12">
+                                                <textarea style="min-height:50px;max-width:734px;line-height:normal;" maxlength="50" class="col-xs-9"></textarea>
+
+                                                <div class="col-xs-3 div-a-add">
+                                                    <a href="javascript:void(0)" id="anchorAddMoreDesc" class="a-add-desc" title="Add another description"><i class="fa fa-plus-circle"></i>&nbsp;@Fingerprints.LocalResource.Resources.Add</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-xs-12 glossy_btn adddivspace text-left" style="margin-left:30px;margin-top:10px;">
+                                        <button type="button" class="glossy-button-button button-green" id="btn-add-desc">
+                                            @Fingerprints.LocalResource.Resources.Submit
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button type="button" class="glossy-button-button button-red" id="btn-reset-desc">
+                                            @Fingerprints.LocalResource.Resources.Clear
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+                                        </button>
+
+                                    </div>
+
+
+
+                                    <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+                                        <div class="col-xs-12 glossy-panel-div" id="observation-grid-responsive">
+
+
+                                            <div class="col-xs-12 search-block-main">
+
+
+                                                <div class="glossy-search-block">
+                                                    <input type="text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly="" placeholder="Search description..." id="searchText" class="form-control">
+                                                    <div class="glossy-search-btn-div">
+                                                        <button id="btnSearchauto" type="button" data-search-item="">Search</button>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-lg-5">
+                                                    <table class="col-md-12 table-bordered  table-striped total-details-table table-back-shadow">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><label>@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+                                                                <td id="totalCountSpan">00</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                
+                                            </div>
+
+                                            <div class="col-xs-12">
+
+
+
+
+                                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="daily-health-check-table">
+                                                    <thead class="table-hd scroll-thead">
+                                                        <tr>
+                                                            <th>
+                                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                                <span col-name="th1">@Fingerprints.LocalResource.Resources.Description</span>
+                                                            </th>
+
+                                                            @if (Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsModel.StaffDetails>().RoleId.ToString().ToLowerInvariant() == FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.SuperAdmin).ToLowerInvariant())
+                                                        {
+                                                                <th>
+                                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                                    <span col-name="th2">Agency Name</span>
+                                                                </th>
+
+                                                        }
+
+                                                            <th>Status</th>
+                                                            <th>@Fingerprints.LocalResource.Resources.Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="daily-health-check-tbody"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <!----Pagination Section---->
+
+                                    <div class="col-xs-12" id="div-pagination-recruitment-activities">
+                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                                            <div class="pages_display">
+                                                <ul>
+                                                    <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.Display</li>
+                                                    <li>
+                                                        <select id="ddlpagetodisplay">
+                                                            <option value="10" selected="selected">10</option>
+                                                            <option value="20">20</option>
+                                                            <option value="30">30</option>
+                                                            <option value="50">50</option>
+                                                            <option value="100">100</option>
+                                                        </select>
+                                                    </li>
+                                                    <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                                </ul>
+                                                <div class="clear"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                            <div id="divPaging" class="pagination_wrp">
+                                                <ul id="ulPaging" class="pagination">
+                                                    <li>
+                                                        <a href="javascript:void(0);" id="First" disabled>
+                                                            <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li title="Back">
+
+                                                        <a href="javascript:void(0);" id="Back" disabled>
+                                                            <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                        </a>
+
+                                                    </li>
+                                                    <li title="Select">
+                                                        <select class="select_cl" id="ddlpaging"></select>
+                                                    </li>
+                                                    <li title="Next">
+                                                        <a href="javascript:void(0);" id="Next" disabled>
+                                                            <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li title="Last">
+                                                        <a href="javascript:void(0);" id="Last" disabled>
+                                                            <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </fieldset>
+
+                            </form>
+
+                      
+
+
+
+
+                      
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+
+
+
+
+<!-------- Adding Recruitment Activity Modal ------------>
+
+
+<div class="modal fade scroll-modal custom-modal modal-lg in" style="margin:auto;" id="modal-daily-observation" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-ch">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                <h2 id="CaseNoteHeading" class="extra-title muted">Edit Daily Health Check</h2>
+                <form id="formEditInkind" enctype="multipart/form-data">
+
+                    <div class="max_items_addn popup-addn-scroll">
+
+                        <div class="form-group col-xs-12 div-activity-add">
+
+                            <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <label class="lbl-text" style="color:#1d5381;font-weight:bold;margin-top:10px;">Please specify description below <small><i style="color:red;">(50 characters max.)</i></small></label>
+                                <textarea  id="textarea-modal-desc"></textarea>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group final-btn text-center glossy_btn adddivspace" style="margin-top:10px;">
+                            <input type="hidden" id="hide-modal-obs-id" />
+
+                            <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                @Fingerprints.LocalResource.Resources.Save
+                            </button>
+                            &nbsp;&nbsp;
+                            <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                @Fingerprints.LocalResource.Resources.Exit
+                            </button>
+                        </div>
+
+
+
+
+
+
+
+                    </div>
+
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+<!---- Modal ---->
+
+
+
+
+    
+    
+    }

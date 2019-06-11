@@ -313,8 +313,16 @@
                 $('#Available').val(2);
             }
             if ('@Model.Available' == '0') {
-                $('#OfficeUse').hide();
-                $('#myTab li:eq(0) a').tab('show');
+                // $('#OfficeUse').hide();
+                $("#dailyhealth-div").hide();
+
+                if('@(ViewData["ActiveTabTeacher"])' == '0')
+                {
+                    $('#myTab li:eq(0) a').tab('show');
+
+                }
+                
+
             }
 
             $('#side-menu').hide();
@@ -334,6 +342,20 @@
             if (parentsig.length > 0) {
                 $('#sig').signature('draw', ('@Html.Raw(Model.ParentSig)'));
             }
+
+            @*if('@ViewBag.Parent1'!=null && '@ViewBag.Parent1'!='')
+            {
+                $("input:checkbox[value="+@ViewBag.Parent1+"]").prop('checked',true);
+
+                if('@ViewBag.Parent1'=='00000')
+                {
+                    $('#others').show();
+                    $('#others').find('#OtherNotes').val('@ViewBag.OtherNotes');
+                }
+
+            }*@
+
+
             $('#sig1').signature({ distance: 10 });
             var teachersig = '@Html.Raw(Model.TeacherCheckInSig)';
             if (teachersig.length > 0) {
@@ -367,7 +389,7 @@
                 }
             });
             $("input[name=Teacher]").click(function () {
-
+               
                 //alert($("input[name=Parent1]:checked").val());
                 if ($("input[name=Teacher]:checked").val() == "00000") {
 
@@ -391,7 +413,7 @@
                         $('#div-sig-code-section').show();
                         $('#div-draw-signature').hide();
                     }
-            
+
 
 
 
@@ -432,7 +454,7 @@
                 }
                 else
                 {
-                   
+
                 }
             });
 
@@ -453,7 +475,6 @@
             });
         });
     </script>
-
 
 
 }
@@ -600,10 +621,16 @@
 
                 var parentsig = '@Html.Raw(Model.ParentSig)';
 
-                if (isValid && (parentsig == '{"lines":[]})' || parentsig=='')) {
-                    customAlert("This child must be signed in prior to the Daily Health Check. ");
+                if (isValid && (parentsig == '{"lines":[]}' || parentsig=='')) {
+
+                    if($('#dailyhealth-div').is(':visible'))
+                        customAlert("This child must be signed in prior to the daily health check. ");
+                    else
+                        customAlert("This child must be signed in prior to the counter signature of teacher. ");
+
                     plainValidation('#imageSig');
                     isValid = false;
+                    $('#OfficeAvailable').val(0);
                 }
                 return isValid;
             }
@@ -934,7 +961,7 @@
                             <div class="tab-pane fade" id="OfficeUse">
                                 <div class="add-useragform">
                                     <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" id="dailyhealth-div">
                                             <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
                                                 <h4 class="page-header">Daily Health Check:</h4>
                                             </div>
@@ -979,7 +1006,7 @@
 
                                         </div>
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12" id="othersTeacher">
+                                            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12" id="othersTeacher" style="display:none;">
                                                 <h6 class="text-info">Enter Name and Sign Below: </h6>
                                                 <label> @Html.TextBox("OtherNotesTeacher", Model.OtherNameTeacher, new { @class = "text-danger" })</label>
 

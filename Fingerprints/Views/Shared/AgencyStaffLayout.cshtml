@@ -1105,7 +1105,17 @@
                             }
                             else
                             {
-                                <li><a href="#myModalPresent" data-toggle="modal"><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>
+                                if (Session["AvailableDailyHealthChecks"] == null ||
+                                   Convert.ToBoolean( Session["AvailableDailyHealthChecks"]) == false)
+                                {
+                                    <li><a href="@Url.Action("ParentCheckIn_CheckOut", "Teacher")?Available=0")" data-toggle="modal"><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>
+                                    @*@onclick = "@("window.location.href = '" + @Url.Action("ParentCheckIn_CheckOut", "Teacher") + "?Available=1'"); *@
+                                }
+                                else
+                                {
+                                    <li><a href="@Url.Action("ParentCheckIn_CheckOut", "Teacher")?Available=1" )" data-toggle="modal"><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>
+                                }
+                            @*<li><a href="#myModalPresent" data-toggle="modal"><i class="fa fa-dashboard fa-fw"></i>Parent Check In/Check Out</a></li>*@
 
                             }
 

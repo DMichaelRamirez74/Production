@@ -28,7 +28,7 @@ namespace FingerprintsModel
         public bool IsShowScreening { get; set; }
 
         public string AllowCaseNoteTeacher { get; set; }
-
+        public bool AvailableDailyHealthChecks { get; set; }
         public bool IsInAcceptanceProcess { get; set; }
 
         public List<Role> RoleList { get; set; }

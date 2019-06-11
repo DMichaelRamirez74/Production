@@ -368,7 +368,7 @@ namespace Fingerprints.Controllers
                     Session["IsShowScreening"] = UserInfo.IsShowScreening;
                     Session["IsInAcceptanceProcess"] = UserInfo.IsInAcceptanceProcess;
                     Session["AllowCaseNoteTeacher"] = UserInfo.AllowCaseNoteTeacher;
-
+                    Session["AvailableDailyHealthChecks"] = UserInfo.AvailableDailyHealthChecks;
                     Session["HasSignatureCode"] = (UserInfo.StaffSignature.StaffSignatureID > 0);
                     Session["StaffSignature"] = UserInfo.StaffSignature.Signature;
 
