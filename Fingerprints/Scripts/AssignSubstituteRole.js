@@ -1,23 +1,23 @@
 ﻿
 
 
-        $.fn.isBound = function(type, fn) {
-            var data = this.data('events')[type];
+$.fn.isBound = function (type, fn) {
+    var data = this.data('events')[type];
 
-            if (data === undefined || data.length === 0) {
-                return false;
-            }
+    if (data === undefined || data.length === 0) {
+        return false;
+    }
 
-            return (-1 !== $.inArray(fn, data));
-        };
+    return (-1 !== $.inArray(fn, data));
+};
 
-var self=null;
+var self = null;
 var substituteTeacher = {
 
     classroomsJson: null,
     addSubstituteRoleUrl: HostedDir + '/AgencyUser/AddSubstituteRole',
     getSubstituteRoleUrl: HostedDir + '/AgencyUser/GetSubstituteRole',
-    getSubstituteRoleByCenterUrl:HostedDir+'/AgencyUser/GetSubstituteRoleByCenter',
+    getSubstituteRoleByCenterUrl: HostedDir + '/AgencyUser/GetSubstituteRoleByCenter',
     removeSubstituteRoleUrl: HostedDir + '/AgencyUser/RemoveSubstituteRole',
     getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
     requestedPage: 1,
@@ -44,43 +44,43 @@ var substituteTeacher = {
         if (self.elements.dropdownCenter.find('option').length == 1) {
 
             self.elements.dropdownCenter.find('option:first-child').prop('selected', true)
-                
+
             self.getClassrooms(self.elements.dropdownCenter.val());
         }
     },
     elements: {
 
-        'divFilterSection':null,
+        'divFilterSection': null,
         'searchStaffText': null,
         'dropdownCenter': null,
-        'divdropdownCenter':null,
+        'divdropdownCenter': null,
         'dropdownClassroom': null,
-        'divdropdownClassroom':null,
+        'divdropdownClassroom': null,
         'fromDateInput': null,
         'toDateInput': null,
         'buttonSubmitTeacher': null,
-        'buttonClearTeacher':null,
-        'dropdownPageNumber':null,
-        'dropdownRecordsPerpage':null,
-        'divtableResponsive':null
+        'buttonClearTeacher': null,
+        'dropdownPageNumber': null,
+        'dropdownRecordsPerpage': null,
+        'divtableResponsive': null
 
 
     },
-    parametersMode:{
-        'save':1,
-        'get':2
+    parametersMode: {
+        'save': 1,
+        'get': 2
     },
-    getlistMode:{
-        'all':0,
-        'center':1
+    getlistMode: {
+        'all': 0,
+        'center': 1
     },
-    pageChangeType:{
-        'first':1,
-        'back':2,
-        'pageNo':3,
-        'next':4,
-        'last':5,
-        'displayPage':6
+    pageChangeType: {
+        'first': 1,
+        'back': 2,
+        'pageNo': 3,
+        'next': 4,
+        'last': 5,
+        'displayPage': 6
     },
     ajaxOptions: {
         url: null,
@@ -114,7 +114,7 @@ var substituteTeacher = {
         self.elements.toDateInput = self.elements.divFilterSection.find('#toDateDateTimePicker');
         self.elements.buttonSubmitTeacher = self.elements.divFilterSection.find('#btnSubmitTeacher');
         self.elements.buttonClearTeacher = self.elements.divFilterSection.find('#btnClearTeacher');
-        self.elements.divtableResponsive=$('#report-table-responsive');
+        self.elements.divtableResponsive = $('#report-table-responsive');
 
     },
     initializeEvents: function () {
@@ -137,7 +137,7 @@ var substituteTeacher = {
             minLength: 1,
             source: function (request, response) {
                 $.ajax({
-                    url: HostedDir +"/AgencyAdmin/AutoCompleteAgencystaff",
+                    url: HostedDir + "/AgencyAdmin/AutoCompleteAgencystaff",
                     type: "POST",
                     dataType: "json",
                     data: { term: request.term },
@@ -170,10 +170,10 @@ var substituteTeacher = {
 
 
         self.elements.dropdownCenter.on('change', function (event) {
-         
+
             var $centerId = self.elements.dropdownCenter.val();
 
-            if ($centerId!=null && $centerId != '0') {
+            if ($centerId != null && $centerId != '0') {
                 self.getClassrooms($centerId);
 
             }
@@ -264,9 +264,9 @@ var substituteTeacher = {
         self.elements.divFilterSection.find('#accesskey').val('');
 
         self.dataParameters.SearchTerm = '';
-    },  
+    },
     getClassrooms: function (cId) {
-        
+
         self.ajaxOptions.url = self.getClassroomsUrl;
         self.ajaxOptions.datatype = 'JSON';
         self.ajaxOptions.type = 'POST',
@@ -285,16 +285,16 @@ var substituteTeacher = {
             // traditional: true,
             //  contentType: "application/json; charset=utf-8",
             success: function (data) {
-               
+
                 self.callbackGetClassrooms(data);
 
             },
             error: function (data) {
-               
+
                 customAlert('Error occurred. Please, try again later.');
             },
             complete: function (data) {
-             
+
                 self.showBusy(false);
             }
 
@@ -309,7 +309,7 @@ var substituteTeacher = {
     },
 
 
-    bindAjaxParameters: function (mode,tabEle,index) {
+    bindAjaxParameters: function (mode, tabEle, index) {
 
         switch (mode) {
             case self.parametersMode.save:
@@ -319,19 +319,19 @@ var substituteTeacher = {
                 self.dataParameters.FromDate = self.elements.fromDateInput.val() == '__/__/____' ? '' : self.elements.fromDateInput.val();
 
                 self.dataParameters.ToDate = self.elements.toDateInput.val() == '__/__/____' ? '' : self.elements.toDateInput.val();
-                self.dataParameters.StaffDetails.StaffID=self.elements.searchStaffText.attr('data-accesskey');
+                self.dataParameters.StaffDetails.StaffID = self.elements.searchStaffText.attr('data-accesskey');
                 self.dataParameters.SubstituteID = 0;
                 self.dataParameters.SearchTerm = '';
 
                 break;
             case self.parametersMode.get:
-                self.dataParameters.CenterID= tabEle!=null? $('#myTab').find('li.active').children('a').attr('accesskey'):"0";
-                self.dataParameters.ClassroomID="";
-                self.dataParameters.RequestedPage =tabEle!=null?tabEle.find('#requestedPage_'+index+'').val():1;
-                self.dataParameters.PageSize =tabEle!=null? tabEle.find('#pageSize_'+index+'').val():10;
-                self.dataParameters.SortOrder =tabEle!=null? tabEle.find('#sortOrder_'+index+'').val():"ASC";
+                self.dataParameters.CenterID = tabEle != null ? $('#myTab').find('li.active').children('a').attr('accesskey') : "0";
+                self.dataParameters.ClassroomID = "";
+                self.dataParameters.RequestedPage = tabEle != null ? tabEle.find('#requestedPage_' + index + '').val() : 1;
+                self.dataParameters.PageSize = tabEle != null ? tabEle.find('#pageSize_' + index + '').val() : 10;
+                self.dataParameters.SortOrder = tabEle != null ? tabEle.find('#sortOrder_' + index + '').val() : "ASC";
                 self.dataParameters.SortColumn = tabEle != null ? tabEle.find('#sortColumn_' + index + '').val() : "Classroom";
-                self.dataParameters.SearchTerm=tabEle!=null?tabEle.find('#searchReportText').val():"";
+                self.dataParameters.SearchTerm = tabEle != null ? tabEle.find('#searchReportText').val() : "";
                 break;
         }
 
@@ -343,7 +343,7 @@ var substituteTeacher = {
 
     ajaxCall: function (callback) {
 
-    
+
         $.ajax({
             url: self.ajaxOptions.url,
             type: self.ajaxOptions.type,
@@ -356,16 +356,16 @@ var substituteTeacher = {
             traditional: true,
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-           
+
                 callback(data);
 
             },
             error: function (data) {
-              
+
                 customAlert('Error occurred. Please, try again later.');
             },
             complete: function (data) {
-              
+
                 self.showBusy(false);
             }
 
@@ -437,7 +437,7 @@ var substituteTeacher = {
             return false;
         }
 
-        if (new Date(self.elements.fromDateInput.val()).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) {
+        if (new Date(self.elements.fromDateInput.val()).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
             customAlert('From Date should be greater than or equal to today\'s date');
             plainValidation(self.elements.fromDateInput);
             return false;
@@ -472,12 +472,12 @@ var substituteTeacher = {
         self.bindAjaxParameters(self.parametersMode.save, null, null);
 
 
-        self.ajaxOptions.datatype='JSON';
-        self.ajaxOptions.type='POST';
-        self.ajaxOptions.url=self.addSubstituteRoleUrl;
+        self.ajaxOptions.datatype = 'JSON';
+        self.ajaxOptions.type = 'POST';
+        self.ajaxOptions.url = self.addSubstituteRoleUrl;
 
-        self.ajaxOptions.data=JSON.stringify(self.dataParameters);
-        self.ajaxOptions.async=true;
+        self.ajaxOptions.data = JSON.stringify(self.dataParameters);
+        self.ajaxOptions.async = true;
         self.ajaxCall(self.callbackAddSubstituteRole);
 
 
@@ -493,7 +493,7 @@ var substituteTeacher = {
         var $toDate = $(ele).parent('td').parent('tr').children('td:eq(3)').children('p').html();
         BootstrapDialog.show({
             title: 'Confirmation',
-            message: '<p>You are about to delete the substitute teacher role assigned to Classroom <strong>'+$className+'</strong>  from the date <strong>'+$fromDate+'</strong> to <strong>'+$toDate+'</strong>.</p>\
+            message: '<p>You are about to delete the substitute teacher role assigned to Classroom <strong>' + $className + '</strong>  from the date <strong>' + $fromDate + '</strong> to <strong>' + $toDate + '</strong>.</p>\
                         <p>Click <strong>OK</strong> to Proceed.</p>',
             closable: true,
             closeByBackdrop: false,
@@ -542,7 +542,7 @@ var substituteTeacher = {
                     self.getSubsituteRole($tabEle, $index, self.getlistMode.center);
 
                 }, 10);
-          
+
 
                 break;
             case 0:
@@ -554,7 +554,7 @@ var substituteTeacher = {
             case 3:
                 customAlert('Selected staff was assigned to another classroom for entered dates.');
                 break;
-            case data.Data=="Login":
+            case data.Data == "Login":
                 customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                 break;
         }
@@ -567,7 +567,7 @@ var substituteTeacher = {
                 customAlert("Record deleted successfully");
                 $('.modal').modal('hide');
 
-               
+
 
                 self.showBusy(true);
 
@@ -576,7 +576,7 @@ var substituteTeacher = {
                     var $activeEle = $('#myTabContent').find('.tab-pane.active');
                     var $index = $activeEle.attr('id').replace('tab', '').trim();
 
-                    self.getSubsituteRole($activeEle, $index,1);
+                    self.getSubsituteRole($activeEle, $index, 1);
 
                 }, 10);
 
@@ -584,7 +584,7 @@ var substituteTeacher = {
             case 0:
                 customAlert('Error occurred. Please, try again later.');
                 break;
-            
+
             case data.Data == "Login":
                 customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                 break;
@@ -595,11 +595,11 @@ var substituteTeacher = {
         self.bindAjaxParameters(self.parametersMode.get, ele, index);
 
 
-        self.ajaxOptions.datatype='html';
-        self.ajaxOptions.type='POST';
-        self.ajaxOptions.url = isCenter == self.getlistMode.center? self.getSubstituteRoleByCenterUrl : self.getSubstituteRoleUrl;
-        self.ajaxOptions.data=JSON.stringify(self.dataParameters);
-        self.ajaxOptions.async=false;
+        self.ajaxOptions.datatype = 'html';
+        self.ajaxOptions.type = 'POST';
+        self.ajaxOptions.url = isCenter == self.getlistMode.center ? self.getSubstituteRoleByCenterUrl : self.getSubstituteRoleUrl;
+        self.ajaxOptions.data = JSON.stringify(self.dataParameters);
+        self.ajaxOptions.async = false;
         self.ajaxCall(self.callbackGetSubsituteRole);
     },
     callbackGetSubsituteRole: function (data) {
@@ -631,7 +631,7 @@ var substituteTeacher = {
 
                 self.elements.divtableResponsive.html(data);
 
-                activeTabcontent=self.elements.divtableResponsive.find('#myTabContent').find('.tab-pane');
+                activeTabcontent = self.elements.divtableResponsive.find('#myTabContent').find('.tab-pane');
 
                 $('#myTab li').off('click').on('click', function () {
 
@@ -657,20 +657,20 @@ var substituteTeacher = {
             }
 
 
-            $.each(activeTabcontent, function (k,tabContent) {
+            $.each(activeTabcontent, function (k, tabContent) {
 
 
                 var index = $(tabContent).attr('id').replace('tab', "").trim();
                 var $totalRecord = parseInt($(tabContent).find('#totalCountSpan_' + index + '').html());
 
                 $(tabContent).find('#btnSearchauto').off('click').on('click', function () {
-                   
+
                     cleanValidation();
                     //if ($(this).parent('div').siblings('#searchReportText').val() != null && $(this).parent('div').siblings('#searchReportText').val() != '')
                     //{
-                        self.dataParameters.SearchTerm = $(this).parent('div').siblings('#searchReportText').val();
+                    self.dataParameters.SearchTerm = $(this).parent('div').siblings('#searchReportText').val();
 
-                        self.getSubsituteRole($(tabContent), index, self.getlistMode.center);
+                    self.getSubsituteRole($(tabContent), index, self.getlistMode.center);
 
                     //}
                     //else {
@@ -683,14 +683,14 @@ var substituteTeacher = {
                 $.each($(tabContent).find('#table-substituterole tbody tr'), function (i, tr) {
 
 
-                
+
                     var gridTable = $(tr).parent('tbody').parent('#table-substituterole');
 
 
-                
+
                     gridTable.find('thead th').off('click').on('click', function () {
 
-                       
+
                         var th = this;
                         if ($(th).find('i').length > 0) {
                             $(tabContent).find('#sortColumn_' + index + '').val($(th).children('span').attr('col-name'));
@@ -705,7 +705,7 @@ var substituteTeacher = {
 
                                     $(tabContent).find('#sortOrder_' + index + '').val("ASC");
 
-                                  
+
                                     $(th).find('.i-asc,.i-desc').toggle();
                                 }
                             }
@@ -719,9 +719,9 @@ var substituteTeacher = {
                             $(tabContent).find('#requestedPage_' + index + '').val($reqPage);
                             $(tabContent).find('#pageSize_' + index + '').val($pageSize);
 
-                          //  self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+                            //  self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
 
-                           // self.pageSize = self.elements.dropdownRecordsPerpage.val();
+                            // self.pageSize = self.elements.dropdownRecordsPerpage.val();
 
                             var $tabContent = $('#myTabContent').find('.tab-pane.active');
 
@@ -729,7 +729,7 @@ var substituteTeacher = {
 
                             self.getSubsituteRole($tabContent, $tabindex, self.getlistMode.center);
 
-                           // self.getUnscheduledClassDaysList();
+                            // self.getUnscheduledClassDaysList();
                         }
                         else {
                             return false;
@@ -748,45 +748,45 @@ var substituteTeacher = {
 
                 });
 
-              
 
 
-               
+
+
 
                 self.getTotalRecord($totalRecord, this, index);
 
             });
 
-          
 
 
-           
+
+
         }
 
     },
-    getTotalRecord: function (totalRecords,ele,index) {
+    getTotalRecord: function (totalRecords, ele, index) {
 
 
-        var paginationDiv=$(ele).find('#div-pagination-'+index+''); //records per page div//
-        var dropdownRecordsPage=paginationDiv.find('#ddlpagetodisplay_'+index+'');
+        var paginationDiv = $(ele).find('#div-pagination-' + index + ''); //records per page div//
+        var dropdownRecordsPage = paginationDiv.find('#ddlpagetodisplay_' + index + '');
 
-        var pagingDiv=paginationDiv.find('#divPaging_'+index+''); //pagination div//
-        var firstButton=pagingDiv.find('#First_'+index+'');
-        var backButton=pagingDiv.find('#Back_'+index+'');
-        var dropdownPageNumber=pagingDiv.find('#ddlpaging_'+index+'');
-        var nextButton=pagingDiv.find('#Next_'+index+'');
-        var lastButton=pagingDiv.find('#Last_'+index+'');
+        var pagingDiv = paginationDiv.find('#divPaging_' + index + ''); //pagination div//
+        var firstButton = pagingDiv.find('#First_' + index + '');
+        var backButton = pagingDiv.find('#Back_' + index + '');
+        var dropdownPageNumber = pagingDiv.find('#ddlpaging_' + index + '');
+        var nextButton = pagingDiv.find('#Next_' + index + '');
+        var lastButton = pagingDiv.find('#Last_' + index + '');
 
-        var _requestedPage=$(ele).find('#requestedPage_'+index+'');
-        var _sortOrder=$(ele).find('#sortOrder_'+index+'');
-        var _sortColumn=$(ele).find('#sortColumn_'+index+'');
+        var _requestedPage = $(ele).find('#requestedPage_' + index + '');
+        var _sortOrder = $(ele).find('#sortOrder_' + index + '');
+        var _sortColumn = $(ele).find('#sortColumn_' + index + '');
 
         firstButton.attr('disabled', false);
         backButton.attr('disabled', false);
         nextButton.attr('disabled', false);
         lastButton.attr('disabled', false);
 
-        var _pageSize=parseInt(dropdownRecordsPage.val());
+        var _pageSize = parseInt(dropdownRecordsPage.val());
 
         if (totalRecords > 0) {
 
@@ -795,13 +795,13 @@ var substituteTeacher = {
             if (totalRecords <= _pageSize) {
 
 
-                firstButton.attr('disabled',true);
+                firstButton.attr('disabled', true);
                 backButton.attr('disabled', true);
                 nextButton.attr('disabled', true);
                 lastButton.attr('disabled', true);
             }
 
-            var _numOfPages = parseInt(totalRecords / _pageSize) + ((totalRecords % _pageSize == 0) ? 0 : 1);
+            var _numOfPages = parseInt(parseInt(totalRecords / _pageSize) + ((totalRecords % _pageSize == 0) ? 0 : 1));
 
             dropdownPageNumber.empty();
 
@@ -815,7 +815,7 @@ var substituteTeacher = {
         }
         else {
 
-            firstButton.attr('disabled',true);
+            firstButton.attr('disabled', true);
             backButton.attr('disabled', true);
             nextButton.attr('disabled', true);
             lastButton.attr('disabled', true);
@@ -836,9 +836,9 @@ var substituteTeacher = {
 
 
 
-            $('#lastIndex_'+index+'').val(0);
+            $('#lastIndex_' + index + '').val(0);
 
-            tabEle.find('#pageSize_'+index+'').val($(this).val());
+            tabEle.find('#pageSize_' + index + '').val($(this).val());
 
             self.showBusy(true);
 
@@ -864,11 +864,11 @@ var substituteTeacher = {
             if ($(this).attr('disabled') == "disabled")
                 return false;
 
-            var index=$(this).attr('id').split('_')[1];
-            var tabEle=$('#ddlpagetodisplay_'+index+'').closest('#div-pagination-'+index+'').closest('.tab-pane').length;
+            var index = $(this).attr('id').split('_')[1];
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
 
-            self.fnChangePage(self.pageChangeType.first,tabEle,index);
+            self.fnChangePage(self.pageChangeType.first, tabEle, index);
 
         });
 
@@ -877,27 +877,27 @@ var substituteTeacher = {
             if ($(this).attr('disabled') == "disabled")
                 return false;
 
-            var index=$(this).attr('id').split('_')[1];
-            var tabEle=$('#ddlpagetodisplay_'+index+'').closest('#div-pagination-'+index+'').closest('.tab-pane').length;
+            var index = $(this).attr('id').split('_')[1];
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
 
 
-            self.fnChangePage(self.pageChangeType.back,tabEle,index);
+            self.fnChangePage(self.pageChangeType.back, tabEle, index);
 
         });
 
         dropdownPageNumber.off('change').on('change', function () {
-         
+
             self.showBusy(true);
 
-            var index=$(this).attr('id').split('_')[1];
-            var tabEle=$('#ddlpagetodisplay_'+index+'').closest('#div-pagination-'+index+'').closest('.tab-pane');
+            var index = $(this).attr('id').split('_')[1];
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
-            tabEle.find('#requestedPage_'+index+'').val($(this).val());
+            tabEle.find('#requestedPage_' + index + '').val($(this).val());
 
             window.setTimeout(function () {
 
-                self.getListafterupdation(tabEle,index);
+                self.getListafterupdation(tabEle, index);
 
             }, 1)
         });
@@ -907,10 +907,10 @@ var substituteTeacher = {
             if ($(this).attr('disabled') == "disabled")
                 return false;
 
-            var index=$(this).attr('id').split('_')[1];
-            var tabEle=$('#ddlpagetodisplay_'+index+'').closest('#div-pagination-'+index+'').closest('.tab-pane');
+            var index = $(this).attr('id').split('_')[1];
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
-            self.fnChangePage(self.pageChangeType.next,tabEle,index);
+            self.fnChangePage(self.pageChangeType.next, tabEle, index);
 
         });
 
@@ -918,59 +918,59 @@ var substituteTeacher = {
             if ($(this).attr('disabled') == "disabled")
                 return false;
 
-            var index=$(this).attr('id').split('_')[1];
-            var tabEle=$('#ddlpagetodisplay_'+index+'').closest('#div-pagination-'+index+'').closest('.tab-pane');
+            var index = $(this).attr('id').split('_')[1];
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
-            self.fnChangePage(self.pageChangeType.last,tabEle,index);
+            self.fnChangePage(self.pageChangeType.last, tabEle, index);
 
         });
 
     },
 
-    fnChangePage: function (val,tabEle,index) {
+    fnChangePage: function (val, tabEle, index) {
 
-     
+
         self.showBusy(true);
 
         window.setTimeout(function () {
 
 
 
-            tabEle.find('#pageLoadedFirst_'+index+'').val(0);
-            tabEle.find('#pageSize_'+index+'').val(tabEle.find('#ddlpagetodisplay_'+index+'').val());
+            tabEle.find('#pageLoadedFirst_' + index + '').val(0);
+            tabEle.find('#pageSize_' + index + '').val(tabEle.find('#ddlpagetodisplay_' + index + '').val());
 
 
             if (val == self.pageChangeType.first) {
 
-                tabEle.find('#startIndex_'+index+'').val(0);
+                tabEle.find('#startIndex_' + index + '').val(0);
 
-                var $lastindex=parseInt(tabEle.find('#pageSize_'+index).val())+(parseInt(tabEle.find('#lastIndex_'+index).val())*parseInt(tabEle.find('#requestedPage_'+index+'')));
+                var $lastindex = parseInt( parseInt(tabEle.find('#pageSize_' + index).val()) + (parseInt(tabEle.find('#lastIndex_' + index).val()) * parseInt(tabEle.find('#requestedPage_' + index + '').val())));
 
-                tabEle.find('#lastIndex'+index+'').val($lastindex);
+                tabEle.find('#lastIndex_' + index + '').val($lastindex);
 
-                tabEle.find('#requestedPage_'+index+'').val(((parseInt(tabEle.find('#lastIndex'+index+'').val()) / 10) + 1))
+                tabEle.find('#requestedPage_' + index + '').val(parseInt(((parseInt(tabEle.find('#startIndex_' + index + '').val()) / 10) + 1)));
 
 
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
 
-                tabEle.find('#First_'+index+'').attr('disabled', true);
-                tabEle.find('#Back_'+index+'').attr('disabled', true);
-                tabEle.find('#Next_'+index+'').attr('disabled', false);
-                tabEle.find('#Last'+index+'').attr('disabled', false);
+                tabEle.find('#First_' + index + '').attr('disabled', true);
+                tabEle.find('#Back_' + index + '').attr('disabled', true);
+                tabEle.find('#Next_' + index + '').attr('disabled', false);
+                tabEle.find('#Last' + index + '').attr('disabled', false);
 
-                tabEle.find('#lastIndex'+index+'').val(0);
+                tabEle.find('#lastIndex_' + index + '').val(0);
 
             }
             else if (val == self.pageChangeType.last) {
 
 
-                var $startIndex= parseInt( (parseInt(tabEle.find('#totalCountSpan_'+index).val()) - 1) / parseInt(tabEle.find('#pageSize_'+index).val())) * parseInt(tabEle.find('#pageSize_'+index).val());
-                tabEle.find('#startIndex_'+index+'').val($startIndex);
+                var $startIndex = parseInt( parseInt((parseInt(tabEle.find('#totalCountSpan_' + index).val()) - 1) / parseInt(tabEle.find('#pageSize_' + index).val())) * parseInt(tabEle.find('#pageSize_' + index).val()));
+                tabEle.find('#startIndex_' + index + '').val($startIndex);
 
 
-                tabEle.find('#lastIndex_'+index+'').val(parseInt(tabEle.find('#totalCountSpan_'+index).val()))
+                tabEle.find('#lastIndex_' + index + '').val(parseInt(tabEle.find('#totalCountSpan_' + index).val()))
 
-                tabEle.find('#requestedPage_'+index+'').val(tabEle.find('#ddlpaging_'+index+'').children('option:last-child').val());
+                tabEle.find('#requestedPage_' + index + '').val(tabEle.find('#ddlpaging_' + index + '').children('option:last-child').val());
 
 
                 //  self.gotoNextPage(self.requestedPage, self.pageSize);
@@ -978,68 +978,70 @@ var substituteTeacher = {
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
 
 
-                tabEle.find('#First_'+index+'').attr('disabled', false);
-                tabEle.find('#Back_'+index+'').attr('disabled', false);
-                tabEle.find('#Next_'+index+'').attr('disabled', true);
-                tabEle.find('#Last_'+index+'').attr('disabled', true);
+                tabEle.find('#First_' + index + '').attr('disabled', false);
+                tabEle.find('#Back_' + index + '').attr('disabled', false);
+                tabEle.find('#Next_' + index + '').attr('disabled', true);
+                tabEle.find('#Last_' + index + '').attr('disabled', true);
 
             }
-            else if (val ==self.pageChangeType.next) {
+            else if (val == self.pageChangeType.next) {
 
-                var $lastIndex=parseInt(tabEle.find('#pageSize_'+index+'').val())+parseInt(tabEle.find('#lastIndex_'+index+'').val());
+                var $lastIndex =parseInt(parseInt(tabEle.find('#pageSize_' + index + '').val()) + parseInt(tabEle.find('#lastIndex_' + index + '').val()));
 
-                tabEle.find('#lastIndex_'+index+'').val($lastIndex)
+                tabEle.find('#lastIndex_' + index + '').val($lastIndex)
 
 
-                var $reqpage=((parseInt(tabEle.find('#lastIndex_'+index+'').val())/parseInt(tabEle.find('#pageSize_'+index+'').val()))+1);
+                var $reqpage = parseInt(((parseInt(tabEle.find('#lastIndex_' + index + '').val()) / parseInt(tabEle.find('#pageSize_' + index + '').val())) + 1));
 
 
                 self.requestedPage = $reqpage;
 
+                tabEle.find('#requestedPage_' + index + '').val($reqpage);
+
                 //  self.gotoNextPage(self.requestedPage, self.pageSize);
 
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
 
-                tabEle.find('#First_'+index+'').attr('disabled', false);
-                tabEle.find('#Back_'+index+'').attr('disabled', false);
+                tabEle.find('#First_' + index + '').attr('disabled', false);
+                tabEle.find('#Back_' + index + '').attr('disabled', false);
 
-                if (parseInt(tabEle.find('#lastIndex'+index+'').val()) + parseInt(tabEle.find('#pageSize+'+index+'').val()) >= parseInt(tabEle.find('#totalCountSpan_'+index).val())) {
+                if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) + parseInt(tabEle.find('#pageSize_' + index + '').val()) >= parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
-                    tabEle.find('#Next_'+index+'').attr('disabled', true);
-                    tabEle.find('#Last_'+index+'').attr('disabled', true);
+                    tabEle.find('#Next_' + index + '').attr('disabled', true);
+                    tabEle.find('#Last_' + index + '').attr('disabled', true);
                 }
-                else if (parseInt(tabEle.find('#lastIndex'+index+'').val()) - parseInt(tabEle.find('#pageSize+'+index+'').val()) < parseInt(tabEle.find('#totalCountSpan_'+index).val())) {
+                else if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize_' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
-                    tabEle.find('#Next_'+index+'').attr('disabled', false);
-                    tabEle.find('#Last_'+index+'').attr('disabled', false);
+                    tabEle.find('#Next_' + index + '').attr('disabled', false);
+                    tabEle.find('#Last_' + index + '').attr('disabled', false);
                 }
             }
-            else if (val ==self.pageChangeType.back) {
+            else if (val == self.pageChangeType.back) {
 
 
-                tabEle.find('#requestedPage_'+index+'').val((parseInt( tabEle.find('#requestedPage_'+index+'').val())-1));
+                tabEle.find('#requestedPage_' + index + '').val((parseInt(tabEle.find('#requestedPage_' + index + '').val()) - 1));
 
-                tabEle.find('#lastIndex_'+index+'').val((parseInt(tabEle.find('#lastIndex_'+index+'').val())-parseInt(tabEle.find('#pageSize_'+index+'').val())));
+                tabEle.find('#lastIndex_' + index + '').val((parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize_' + index + '').val())));
 
 
                 //   self.gotoNextPage(self.requestedPage, self.pageSize);
 
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
 
-                if (parseInt( tabEle.find('#lastIndex_'+index+'').val()) + parseInt( tabEle.find('#pageSize'+index+'').val()) > parseInt(tabEle.find('#totalCountSpan_'+index).val())) {
+                if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) + parseInt(tabEle.find('#pageSize_' + index + '').val()) > parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
-                    tabEle.find('#Next_'+index+'').attr('disabled', true);
-                    tabEle.find('#Last_'+index+'').attr('disabled', true);
-
-                }
-                else if (parseInt(tabEle.find('#lastIndex_'+index+'').val()) - parseInt(tabEle.find('#pageSize'+index+'').val()) < parseInt(tabEle.find('#totalCountSpan_'+index).val())) {
-                    tabEle.find('#Next_'+index+'').attr('disabled', false);
-                    tabEle.find('#Last_'+index+'').attr('disabled', false);
+                    tabEle.find('#Next_' + index + '').attr('disabled', true);
+                    tabEle.find('#Last_' + index + '').attr('disabled', true);
 
                 }
-                if (self.requestedPage == 1) {
-                    tabEle.find('#First_'+index+'').attr('disabled', true);
-                    tabEle.find('#Back_'+index+'').attr('disabled', true);
+                else if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize_' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
+                    tabEle.find('#Next_' + index + '').attr('disabled', false);
+                    tabEle.find('#Last_' + index + '').attr('disabled', false);
+
+                }
+                if (parseInt(tabEle.find('#requestedPage_' + index + '').val()) == 1) {
+                    tabEle.find('#First_' + index + '').attr('disabled', true);
+                    tabEle.find('#Back_' + index + '').attr('disabled', true);
                 }
             }
             else {
@@ -1056,21 +1058,21 @@ var substituteTeacher = {
 
 
 
-    getListafterupdation: function (ele,index) {
-
-      
-        ele.find('#pageSize_'+index+'').val(ele.find('#ddlpagetodisplay_'+index+'').val())
-
-        ele.find('#requestedPage_'+index+'').val(ele.find('#ddlpaging_'+index+'').val());
-
-        var $startIndex=((parseInt(ele.find('#pageSize_'+index+'').val()) *(parseInt(ele.find('#requestedPage_'+index+'').val())-1))+1);
-
-        ele.find('#startIndex_'+index+'').val($startIndex);
-
-        var $lastIndex=(parseInt(ele.find('#pageSize_'+index+'').val()) * parseInt(ele.find('#requestedPage_'+index+'').val())) -parseInt(ele.find('#pageSize_'+index+'').val());
+    getListafterupdation: function (ele, index) {
 
 
-        ele.find('#lastIndex_'+index+'').val($lastIndex);
+        ele.find('#pageSize_' + index + '').val(ele.find('#ddlpagetodisplay_' + index + '').val())
+
+        ele.find('#requestedPage_' + index + '').val(ele.find('#ddlpaging_' + index + '').val());
+
+        var $startIndex = parseInt((parseInt(ele.find('#pageSize_' + index + '').val()) * (parseInt(ele.find('#requestedPage_' + index + '').val()) - 1)) + 1);
+
+        ele.find('#startIndex_' + index + '').val($startIndex);
+
+        var $lastIndex = parseInt((parseInt(ele.find('#pageSize_' + index + '').val()) * parseInt(ele.find('#requestedPage_' + index + '').val())) - parseInt(ele.find('#pageSize_' + index + '').val()));
+
+
+        ele.find('#lastIndex_' + index + '').val($lastIndex);
 
 
 
@@ -1079,24 +1081,24 @@ var substituteTeacher = {
 
         //self.getReport();
 
-        if (parseInt(ele.find('#requestedPage_'+index+'').val()) == 1) {
-            ele.find('#First'+index+'').attr('disabled', true);
-            ele.find('#Back'+index+'').attr('disabled', true);
-            ele.find('#Next'+index+'').attr('disabled', false);
-            ele.find('#Last'+index+'').attr('disabled', false);
+        if (parseInt(ele.find('#requestedPage_' + index + '').val()) == 1) {
+            ele.find('#First_' + index + '').attr('disabled', true);
+            ele.find('#Back_' + index + '').attr('disabled', true);
+            ele.find('#Next_' + index + '').attr('disabled', false);
+            ele.find('#Last_' + index + '').attr('disabled', false);
         }
-        else if (parseInt(ele.find('#requestedPage_'+index+'').val()) == parseInt(ele.find('#ddlpaging_'+index+'').children('option:last-child').val())) {
+        else if (parseInt(ele.find('#requestedPage_' + index + '').val()) == parseInt(ele.find('#ddlpaging_' + index + '').children('option:last-child').val())) {
 
-            ele.find('#First'+index+'').attr('disabled', false);
-            ele.find('#Back'+index+'').attr('disabled', false);
-            ele.find('#Next'+index+'').attr('disabled', true);
-            ele.find('#Last'+index+'').attr('disabled', true);
+            ele.find('#First_' + index + '').attr('disabled', false);
+            ele.find('#Back_' + index + '').attr('disabled', false);
+            ele.find('#Next_' + index + '').attr('disabled', true);
+            ele.find('#Last_' + index + '').attr('disabled', true);
         }
         else {
-            ele.find('#First'+index+'').attr('disabled', false);
-            ele.find('#Back'+index+'').attr('disabled', false);
-            ele.find('#Next'+index+'').attr('disabled', false);
-            ele.find('#Last'+index+'').attr('disabled', false);
+            ele.find('#First_' + index + '').attr('disabled', false);
+            ele.find('#Back_' + index + '').attr('disabled', false);
+            ele.find('#Next_' + index + '').attr('disabled', false);
+            ele.find('#Last_' + index + '').attr('disabled', false);
         }
 
 

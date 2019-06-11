@@ -572,6 +572,9 @@ var substituteRoleReport = {
             case self.getlistMode.all:
                 self.bindAjaxParameters(self.parametersMode.filter, ele, index);
                 self.ajaxOptions.url = self.getSubstituteRoleUrl;
+
+                $('#myTab').html('');
+
                 break;
         }  
 
@@ -626,12 +629,6 @@ var substituteRoleReport = {
                             self.getSubsituteRole(tabContent, index, self.getlistMode.center);
                         }, 10);
                     }
-                   
-
-
-                  
-              
-
                 });
 
             }
@@ -848,7 +845,7 @@ var substituteRoleReport = {
                 return false;
 
             var index = $(this).attr('id').split('_')[1];
-            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane').length;
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
 
             self.fnChangePage(self.pageChangeType.first, tabEle, index);
@@ -861,7 +858,7 @@ var substituteRoleReport = {
                 return false;
 
             var index = $(this).attr('id').split('_')[1];
-            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane').length;
+            var tabEle = $('#ddlpagetodisplay_' + index + '').closest('#div-pagination-' + index + '').closest('.tab-pane');
 
 
 
@@ -927,11 +924,11 @@ var substituteRoleReport = {
 
                 tabEle.find('#startIndex_' + index + '').val(0);
 
-                var $lastindex = parseInt(tabEle.find('#pageSize_' + index).val()) + (parseInt(tabEle.find('#lastIndex_' + index).val()) * parseInt(tabEle.find('#requestedPage_' + index + '')));
+                var $lastindex =parseInt( parseInt(tabEle.find('#pageSize_' + index).val()) + (parseInt(tabEle.find('#lastIndex_' + index).val()) * parseInt(tabEle.find('#requestedPage_' + index + '').val())));
 
-                tabEle.find('#lastIndex' + index + '').val($lastindex);
+                tabEle.find('#lastIndex_' + index + '').val($lastindex);
 
-                tabEle.find('#requestedPage_' + index + '').val(((parseInt(tabEle.find('#lastIndex' + index + '').val()) / 10) + 1))
+                tabEle.find('#requestedPage_' + index + '').val(parseInt(((parseInt(tabEle.find('#lastIndex_' + index + '').val()) / 10) + 1)));
 
 
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
@@ -941,13 +938,13 @@ var substituteRoleReport = {
                 tabEle.find('#Next_' + index + '').attr('disabled', false);
                 tabEle.find('#Last' + index + '').attr('disabled', false);
 
-                tabEle.find('#lastIndex' + index + '').val(0);
+                tabEle.find('#lastIndex_' + index + '').val(0);
 
             }
             else if (val == self.pageChangeType.last) {
 
 
-                var $startIndex = parseInt((parseInt(tabEle.find('#totalCountSpan_' + index).val()) - 1) / parseInt(tabEle.find('#pageSize_' + index).val())) * parseInt(tabEle.find('#pageSize_' + index).val());
+                var $startIndex =parseInt( parseInt((parseInt(tabEle.find('#totalCountSpan_' + index).val()) - 1) / parseInt(tabEle.find('#pageSize_' + index).val())) * parseInt(tabEle.find('#pageSize_' + index).val()));
                 tabEle.find('#startIndex_' + index + '').val($startIndex);
 
 
@@ -969,15 +966,17 @@ var substituteRoleReport = {
             }
             else if (val == self.pageChangeType.next) {
 
-                var $lastIndex = parseInt(tabEle.find('#pageSize_' + index + '').val()) + parseInt(tabEle.find('#lastIndex_' + index + '').val());
+                var $lastIndex =parseInt(parseInt(tabEle.find('#pageSize_' + index + '').val()) + parseInt(tabEle.find('#lastIndex_' + index + '').val()));
 
                 tabEle.find('#lastIndex_' + index + '').val($lastIndex)
 
 
-                var $reqpage = ((parseInt(tabEle.find('#lastIndex_' + index + '').val()) / parseInt(tabEle.find('#pageSize_' + index + '').val())) + 1);
+                var $reqpage = parseInt(((parseInt(tabEle.find('#lastIndex_' + index + '').val()) / parseInt(tabEle.find('#pageSize_' + index + '').val())) + 1));
 
 
                 self.requestedPage = $reqpage;
+
+                tabEle.find('#requestedPage_' + index + '').val($reqpage);
 
                 //  self.gotoNextPage(self.requestedPage, self.pageSize);
 
@@ -986,12 +985,12 @@ var substituteRoleReport = {
                 tabEle.find('#First_' + index + '').attr('disabled', false);
                 tabEle.find('#Back_' + index + '').attr('disabled', false);
 
-                if (parseInt(tabEle.find('#lastIndex' + index + '').val()) + parseInt(tabEle.find('#pageSize+' + index + '').val()) >= parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
+                if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) + parseInt(tabEle.find('#pageSize+' + index + '').val()) >= parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
                     tabEle.find('#Next_' + index + '').attr('disabled', true);
                     tabEle.find('#Last_' + index + '').attr('disabled', true);
                 }
-                else if (parseInt(tabEle.find('#lastIndex' + index + '').val()) - parseInt(tabEle.find('#pageSize+' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
+                else if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize+' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
                     tabEle.find('#Next_' + index + '').attr('disabled', false);
                     tabEle.find('#Last_' + index + '').attr('disabled', false);
@@ -1009,18 +1008,18 @@ var substituteRoleReport = {
 
                 self.getSubsituteRole(tabEle, index, self.getlistMode.center);
 
-                if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) + parseInt(tabEle.find('#pageSize' + index + '').val()) > parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
+                if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) + parseInt(tabEle.find('#pageSize_' + index + '').val()) > parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
 
                     tabEle.find('#Next_' + index + '').attr('disabled', true);
                     tabEle.find('#Last_' + index + '').attr('disabled', true);
 
                 }
-                else if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
+                else if (parseInt(tabEle.find('#lastIndex_' + index + '').val()) - parseInt(tabEle.find('#pageSize_' + index + '').val()) < parseInt(tabEle.find('#totalCountSpan_' + index).val())) {
                     tabEle.find('#Next_' + index + '').attr('disabled', false);
                     tabEle.find('#Last_' + index + '').attr('disabled', false);
 
                 }
-                if (self.requestedPage == 1) {
+                if (parseInt(tabEle.find('#requestedPage_' + index + '').val()) == 1) {
                     tabEle.find('#First_' + index + '').attr('disabled', true);
                     tabEle.find('#Back_' + index + '').attr('disabled', true);
                 }
@@ -1046,11 +1045,11 @@ var substituteRoleReport = {
 
         ele.find('#requestedPage_' + index + '').val(ele.find('#ddlpaging_' + index + '').val());
 
-        var $startIndex = ((parseInt(ele.find('#pageSize_' + index + '').val()) * (parseInt(ele.find('#requestedPage_' + index + '').val()) - 1)) + 1);
+        var $startIndex = parseInt(((parseInt(ele.find('#pageSize_' + index + '').val()) * (parseInt(ele.find('#requestedPage_' + index + '').val()) - 1)) + 1));
 
         ele.find('#startIndex_' + index + '').val($startIndex);
 
-        var $lastIndex = (parseInt(ele.find('#pageSize_' + index + '').val()) * parseInt(ele.find('#requestedPage_' + index + '').val())) - parseInt(ele.find('#pageSize_' + index + '').val());
+        var $lastIndex = parseInt((parseInt(ele.find('#pageSize_' + index + '').val()) * parseInt(ele.find('#requestedPage_' + index + '').val())) - parseInt(ele.find('#pageSize_' + index + '').val()));
 
 
         ele.find('#lastIndex_' + index + '').val($lastIndex);
@@ -1063,23 +1062,23 @@ var substituteRoleReport = {
         //self.getReport();
 
         if (parseInt(ele.find('#requestedPage_' + index + '').val()) == 1) {
-            ele.find('#First' + index + '').attr('disabled', true);
-            ele.find('#Back' + index + '').attr('disabled', true);
-            ele.find('#Next' + index + '').attr('disabled', false);
-            ele.find('#Last' + index + '').attr('disabled', false);
+            ele.find('#First_' + index + '').attr('disabled', true);
+            ele.find('#Back_' + index + '').attr('disabled', true);
+            ele.find('#Next_' + index + '').attr('disabled', false);
+            ele.find('#Last_' + index + '').attr('disabled', false);
         }
         else if (parseInt(ele.find('#requestedPage_' + index + '').val()) == parseInt(ele.find('#ddlpaging_' + index + '').children('option:last-child').val())) {
 
-            ele.find('#First' + index + '').attr('disabled', false);
-            ele.find('#Back' + index + '').attr('disabled', false);
-            ele.find('#Next' + index + '').attr('disabled', true);
-            ele.find('#Last' + index + '').attr('disabled', true);
+            ele.find('#First_' + index + '').attr('disabled', false);
+            ele.find('#Back_' + index + '').attr('disabled', false);
+            ele.find('#Next_' + index + '').attr('disabled', true);
+            ele.find('#Last_' + index + '').attr('disabled', true);
         }
         else {
-            ele.find('#First' + index + '').attr('disabled', false);
-            ele.find('#Back' + index + '').attr('disabled', false);
-            ele.find('#Next' + index + '').attr('disabled', false);
-            ele.find('#Last' + index + '').attr('disabled', false);
+            ele.find('#First_' + index + '').attr('disabled', false);
+            ele.find('#Back_' + index + '').attr('disabled', false);
+            ele.find('#Next_' + index + '').attr('disabled', false);
+            ele.find('#Last_' + index + '').attr('disabled', false);
         }
 
 
