@@ -1819,7 +1819,12 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public JsonResult RefreshExecutiveDashboardBySection(int sectionType)
         {
-              new ExecutiveData().RefershExecutiveDashboardBySection(sectionType, staffDetails);
+            if (FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.DashboardSectionType>(sectionType.ToString()) != FingerprintsModel.Enums.DashboardSectionType.CaseNoteAnalysis &&
+                FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.DashboardSectionType>(sectionType.ToString()) != FingerprintsModel.Enums.DashboardSectionType.ADA
+                )
+            {
+                new ExecutiveData().RefershExecutiveDashboardBySection(sectionType, staffDetails);
+            }
 
             return Json(new ExecutiveData().GetExecuteDashboardBySection(sectionType, staffDetails), JsonRequestBehavior.AllowGet);
         }

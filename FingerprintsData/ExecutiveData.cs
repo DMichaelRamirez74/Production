@@ -264,8 +264,9 @@ namespace FingerprintsData
                         {
                             executive.ADAList.Add(new ExecutiveDashBoard.ADAChart
                             {
-                                Month= FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
-                                MonthOrder=Convert.ToInt32(reader["MonthOrder"]),
+                                // Month= FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
+                                Month=Convert.ToString(reader["Month"]),
+                                MonthOrder =Convert.ToInt32(reader["MonthOrder"]),
                                 Percentage= Math.Round(Convert.ToDecimal(reader["ADA"]), 1, MidpointRounding.ToEven),
                                 MonthNumber=Convert.ToInt32(reader["MonthNumber"]),
                                 ExplanationUnderPercentage=Convert.ToString(reader["ExplanationUnderPercentage"]).Trim()
@@ -1125,7 +1126,8 @@ namespace FingerprintsData
                                     {
                                         dashboard.ADAList.Add(new ExecutiveDashBoard.ADAChart
                                         {
-                                            Month = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
+                                            // Month = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.Month>(reader["MonthNumber"].ToString()).ToString(),
+                                            Month=Convert.ToString(reader["Month"]),
                                             MonthOrder = Convert.ToInt32(reader["MonthOrder"]),
                                             Percentage = Math.Round(Convert.ToDecimal(reader["ADA"]), 1, MidpointRounding.ToEven),
                                             MonthNumber = Convert.ToInt32(reader["MonthNumber"]),
