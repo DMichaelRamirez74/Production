@@ -27,7 +27,7 @@ namespace FingerprintsModel
         public List<ReportingModel> Reportlst { get; set; }
         public List<ReportingModel> Meallst { get; set; }
         public List<ReportingModel> Monthlst { get; set; }
-      //  public string CenterName { get; set; }
+        //  public string CenterName { get; set; }
         public string MonthName { get; set; }
         public string MealCount { get; set; }
         public string AmealCount { get; set; }
@@ -48,13 +48,13 @@ namespace FingerprintsModel
         public string AttendanceMonth { get; set; }
         public string AttendanceDate { get; set; }
 
-         public string AttendanceDateMonth { get; set; }
-         public string CenterIDCenter { get; set; }
-         public string AttendanceMonthCenter { get; set; }
-         public string MonthNameCenter { get; set; }
-         public string CenterNameCenter { get; set; }
-        
-            
+        public string AttendanceDateMonth { get; set; }
+        public string CenterIDCenter { get; set; }
+        public string AttendanceMonthCenter { get; set; }
+        public string MonthNameCenter { get; set; }
+        public string CenterNameCenter { get; set; }
+
+
     }
 
 
@@ -117,7 +117,7 @@ namespace FingerprintsModel
         /// <summary>
         /// Facilitator details
         /// </summary>
-       public string FacilitatorId { get; set; }
+        public string FacilitatorId { get; set; }
         public string FacilitatorSign { get; set; }
         public int FacilitatorSignType { get; set; }
 
@@ -143,9 +143,9 @@ namespace FingerprintsModel
 
         public bool IsCompleted { get; set; }
         public bool HaveAttachment { get; set; }
-      //  public string Address1 { get; set; }
-      // public string Address2 { get; set; }
-      //  public
+        //  public string Address1 { get; set; }
+        // public string Address2 { get; set; }
+        //  public
     }
 
     public class MDTAction

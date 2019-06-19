@@ -1170,22 +1170,28 @@ namespace FingerprintsData
                         ClientID = Convert.ToString(dr["ClientID"]),
                         Programid = Convert.ToString(dr["ProgramID"]),
                         CenterID = Convert.ToString(dr["CenterID"]),
-                        CName = Convert.ToString(dr["CName"]),
+                        CName = Convert.ToString(dr["ChildName"]),
                         TimeIn = Convert.ToString(dr["TimeIn"]),
                         TimeIn2 = Convert.ToString(dr["TimeIn2"]),
                         TimeOut = Convert.ToString(dr["TimeOut"]),
                         TimeOut2 = Convert.ToString(dr["TimeOut2"]),
                         AttendanceType = Convert.ToString(dr["AttendanceType"]),
                         Breakfast = Convert.ToBoolean(dr["Breakfast"]),
+                        BreakfastServedOn = dr["BreakfastServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["BreakfastServedOn"])) : (DateTime?)null,
                         Lunch = Convert.ToBoolean(dr["Lunch"]),
-                        Snack = Convert.ToBoolean(dr["Snack"]),
+                        LunchServedOn = dr["LunchServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["LunchServedOn"])) : (DateTime?)null,
+                        Snack = Convert.ToBoolean(dr["Snacks"]),
+                        SnackServedOn = dr["SnackServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["SnackServedOn"])) : (DateTime?)null,
                         Dinner = Convert.ToBoolean(dr["Dinner"]),
-                        Snack2 = Convert.ToBoolean(dr["Snack2"]),
-                        ABreakfast = Convert.ToString(dr["ABreakfast"]),
-                        ALunch = Convert.ToString(dr["ALunch"]),
-                        ASnack = Convert.ToString(dr["ASnack"]),
-                        ADinner = Convert.ToString(dr["ADinner"]),
-                        ASnack2 = Convert.ToString(dr["ASnack2"])
+                        DinnerServedOn = dr["DinnerServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["DinnerServedOn"])) : (DateTime?)null,
+                        ABreakfast = Convert.ToString(dr["AdultBreakfast"]),
+                        ABreakfastServedOn = dr["AdultBreakfastServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["AdultBreakfastServedOn"])) : (DateTime?)null,
+                        ALunch = Convert.ToString(dr["AdultLunch"]),
+                        ALunchServedOn = dr["AdultLunchServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["AdultLunchServedOn"])) : (DateTime?)null,
+                        ASnack = Convert.ToString(dr["AdultSnacks"]),
+                        ASnackServedOn = dr["AdultSnackServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["AdultSnackServedon"])) : (DateTime?)null,
+                        ADinner = Convert.ToString(dr["AdultDinner"]),
+                        ADinnerServedOn = dr["AdultDinnerServedOn"] != DBNull.Value ? DateTime.Parse(Convert.ToString(dr["AdultDinnerServedOn"])) : (DateTime?)null
                     });
 
 
@@ -1263,93 +1269,295 @@ namespace FingerprintsData
             }
             return _TeacherM;
         }
-        public TeacherModel GetMeals(ref string result,StaffDetails staff, FormCollection collection)
+        //public TeacherModel GetMeals(ref string result,StaffDetails staff, FormCollection collection)
+        //{
+        //    try
+        //    {
+
+        //        result = "";
+        //        string ClientMeals = "";
+        //        string mealserved = collection.Get("AdultMeals");
+        //        string CenterID = collection.Get("CenterID");
+        //        string ClassroomID = collection.Get("ClassroomID");
+        //        string MealType = collection.Get("MealTypeSelected");
+        //        if (MealType == "1")
+        //        {
+        //            ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDB")) ? "false" : collection.Get("ClientIDB");
+        //        }
+        //        else if (MealType == "2")
+        //        {
+        //            ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDL")) ? "false" : collection.Get("ClientIDL");
+        //        }
+        //        else if (MealType == "3")
+        //        {
+        //            ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDS")) ? "false" : collection.Get("ClientIDS");
+        //        }
+        //        else if (MealType == "4")
+        //        {
+        //            ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDD")) ? "false" : collection.Get("ClientIDD");
+        //        }
+        //        else if (MealType == "5")
+        //        {
+        //            ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDS2")) ? "false" : collection.Get("ClientIDS2");
+        //        }
+        //        List<string> ClientIDlist = ClientMeals.Split(',').ToList();
+
+        //        if (Connection.State == ConnectionState.Open) Connection.Close();
+        //        Connection.Open();
+        //        command.Connection = Connection;
+        //        command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+        //        command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+        //        command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
+        //        command.Parameters.Add(new SqlParameter("@clientID", 1));
+        //        command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
+        //        command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
+        //        command.Parameters.Add(new SqlParameter("@ClassroomID", ClassroomID));
+        //        command.Parameters.Add(new SqlParameter("@MealType", MealType));
+        //        command.Parameters.Add(new SqlParameter("@result", string.Empty));
+        //        command.Parameters["@result"].Direction = ParameterDirection.Output;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_MarkMeals";
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        result = command.Parameters["@result"].Value.ToString();
+        //        Connection.Close();
+        //        command.Parameters.Clear();
+        //        command.Dispose();
+        //        foreach (var obs in ClientIDlist)
+        //        {
+        //            if (obs != "false")
+        //            {
+        //                if (Connection.State == ConnectionState.Open) Connection.Close();
+        //                Connection.Open();
+        //                command.Connection = Connection;
+
+        //                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+        //                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+        //                command.Parameters.Add(new SqlParameter("@clientID", obs));
+        //                command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
+        //                command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
+        //                command.Parameters.Add(new SqlParameter("@ClassroomID", ClassroomID));
+        //                command.Parameters.Add(new SqlParameter("@MealType", MealType));
+        //                command.Parameters.Add(new SqlParameter("@result", string.Empty));
+        //                command.Parameters["@result"].Direction = ParameterDirection.Output;
+        //                command.CommandType = CommandType.StoredProcedure;
+        //                command.CommandText = "SP_MarkMeals";
+        //                DataAdapter = new SqlDataAdapter(command);
+        //                _dataset = new DataSet();
+        //                DataAdapter.Fill(_dataset);
+        //                result = command.Parameters["@result"].Value.ToString();
+        //                Connection.Close();
+        //                command.Parameters.Clear();
+        //                command.Dispose();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    return GetMeals(staff);
+        //}
+
+
+
+        public TeacherModel GetMeals(out bool isRowsAffected, StaffDetails staff, FormCollection collection, TeacherModel model)
         {
             try
             {
+                isRowsAffected =false;
 
-                result = "";
-                string ClientMeals = "";
-                string mealserved = collection.Get("AdultMeals");
-                string CenterID = collection.Get("CenterID");
-                string ClassroomID = collection.Get("ClassroomID");
-                string MealType = collection.Get("MealTypeSelected");
-                if (MealType == "1")
-                {
-                    ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDB")) ? "false" : collection.Get("ClientIDB");
-                }
-                else if (MealType == "2")
-                {
-                    ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDL")) ? "false" : collection.Get("ClientIDL");
-                }
-                else if (MealType == "3")
-                {
-                    ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDS")) ? "false" : collection.Get("ClientIDS");
-                }
-                else if (MealType == "4")
-                {
-                    ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDD")) ? "false" : collection.Get("ClientIDD");
-                }
-                else if (MealType == "5")
-                {
-                    ClientMeals = string.IsNullOrEmpty(collection.Get("ClientIDS2")) ? "false" : collection.Get("ClientIDS2");
-                }
-                List<string> ClientIDlist = ClientMeals.Split(',').ToList();
-                if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                command.Connection = Connection;
+                //string mealserved = collection.Get("AdultMeals");
+                //string CenterID = collection.Get("CenterID");
+                //string ClassroomID = collection.Get("ClassroomID");
+                //string MealType = collection.Get("MealTypeSelected");
 
-                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
-                command.Parameters.Add(new SqlParameter("@clientID", 1));
-                command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
-                command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
-                command.Parameters.Add(new SqlParameter("@ClassroomID", ClassroomID));
-                command.Parameters.Add(new SqlParameter("@MealType", MealType));
-                command.Parameters.Add(new SqlParameter("@result", string.Empty));
-                command.Parameters["@result"].Direction = ParameterDirection.Output;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_MarkMeals";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                result = command.Parameters["@result"].Value.ToString();
-                Connection.Close();
-                command.Parameters.Clear();
-                command.Dispose();
-                foreach (var obs in ClientIDlist)
+
+       
+
+                model.Itemlst.ForEach(x =>
                 {
-                    if (obs != "false")
+                    x.CenterID = model.CenterID;
+                    x.ClassID = model.ClassID;
+                    x.UserId = Convert.ToString(staff.UserId);
+                    x.AgencyId = Convert.ToString(staff.AgencyId);
+                    x.MealSelected = model.MealSelected;
+                    //x.MealType = model.MealType;
+                    x.AttendanceDate = model.Tdate;
+                });
+
+             
+
+                var list = model.Itemlst.Where(x => x.Breakfast == false
+                                                 && x.Lunch == false
+                                                 && x.Snack == false
+                                                 && x.Dinner == false
+                                                 && x.Snack2 == false).ToList().ToList();
+
+                foreach (var item in list)
+                {
+                    model.Itemlst.Remove(item);
+                }
+
+                DataTable clientMealsDt = new DataTable();
+                DataTable adultMealsDt = new DataTable();
+
+
+              
+                clientMealsDt.Columns.AddRange(new DataColumn[9] {
+                      new DataColumn("AgencyID",typeof(Guid)),
+                      new DataColumn("CenterID",typeof(long)),
+                      new DataColumn("ClassroomID",typeof(long)),
+                      new DataColumn("ClientID ", typeof(long)),
+                      new DataColumn("AttendanceDate ", typeof(string)),
+                      new DataColumn("MealType",typeof(string)),
+                      new DataColumn("StaffID",typeof(Guid)),
+                      new DataColumn("MealServedOn", typeof(DateTime)),
+                      new DataColumn("IsActive",typeof(bool))
+
+                });
+                clientMealsDt.Columns["MealServedOn"].AllowDBNull = true;
+
+                adultMealsDt.Columns.AddRange(new DataColumn[9] {
+                    new DataColumn("AgencyID",typeof(Guid)),
+                    new DataColumn("StaffID",typeof(Guid)),
+                    new DataColumn("CenterID",typeof(long)),
+                    new DataColumn("ClassroomID",typeof(long)),
+                    new DataColumn("AttendanceDate ", typeof(string)),
+                    new DataColumn("MealType",typeof(string)),
+                    new DataColumn("MealsServed",typeof(int)),
+                   new DataColumn("MealServedOn", typeof(DateTime)),
+                    new DataColumn("IsActive",typeof(bool))
+
+                });
+                adultMealsDt.Columns["MealServedOn"].AllowDBNull = true;
+
+
+
+
+                foreach (var item in model.Itemlst)
+                {
+
+                    if (item.Breakfast)
                     {
-                        if (Connection.State == ConnectionState.Open) Connection.Close();
-                        Connection.Open();
-                        command.Connection = Connection;
 
-                        command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                        command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                        command.Parameters.Add(new SqlParameter("@clientID", obs));
-                        command.Parameters.Add(new SqlParameter("@MealsServed", mealserved));
-                        command.Parameters.Add(new SqlParameter("@CenterID", CenterID));
-                        command.Parameters.Add(new SqlParameter("@ClassroomID", ClassroomID));
-                        command.Parameters.Add(new SqlParameter("@MealType", MealType));
-                        command.Parameters.Add(new SqlParameter("@result", string.Empty));
-                        command.Parameters["@result"].Direction = ParameterDirection.Output;
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = "SP_MarkMeals";
-                        DataAdapter = new SqlDataAdapter(command);
-                        _dataset = new DataSet();
-                        DataAdapter.Fill(_dataset);
-                        result = command.Parameters["@result"].Value.ToString();
-                        Connection.Close();
-                        command.Parameters.Clear();
-                        command.Dispose();
+                        clientMealsDt.Rows.Add(new Guid(item.AgencyId)
+                                              , Convert.ToInt64(item.CenterID)
+                                              , Convert.ToInt64(item.ClassID)
+                                              , Convert.ToInt64(item.ClientID)
+                                              , item.AttendanceDate
+                                              , Convert.ToString(Convert.ToInt32(FingerprintsModel.Enums.MealType.Breakfast))
+                                              , new Guid(item.UserId)
+                                              , item.BreakfastServedOn
+                                              , 1);
                     }
+
+                    if (item.Lunch)
+                    {
+
+                        clientMealsDt.Rows.Add(new Guid(item.AgencyId)
+                                             , Convert.ToInt64(item.CenterID)
+                                             , Convert.ToInt64(item.ClassID)
+                                             , Convert.ToInt64(item.ClientID)
+                                             , item.AttendanceDate
+                                             , Convert.ToString(Convert.ToInt32(FingerprintsModel.Enums.MealType.Lunch))
+                                             , new Guid(item.UserId)
+                                             , item.LunchServedOn
+                                             , 1);
+                    }
+
+                    if (item.Snack)
+                    {
+                        clientMealsDt.Rows.Add(new Guid(item.AgencyId)
+                                              , Convert.ToInt64(item.CenterID)
+                                              , Convert.ToInt64(item.ClassID)
+                                              , Convert.ToInt64(item.ClientID)
+                                              , item.AttendanceDate
+                                              , Convert.ToString(Convert.ToInt32(FingerprintsModel.Enums.MealType.Snack))
+                                              , new Guid(item.UserId)
+                                              , item.SnackServedOn
+                                              , 1);
+                    }
+
+                    if (item.Dinner)
+                    {
+                        clientMealsDt.Rows.Add(new Guid(item.AgencyId)
+                                                 , Convert.ToInt64(item.CenterID)
+                                                 , Convert.ToInt64(item.ClassID)
+                                                 , Convert.ToInt64(item.ClientID)
+                                                 , item.AttendanceDate
+                                                 , Convert.ToString(Convert.ToInt32(FingerprintsModel.Enums.MealType.Dinner))
+                                                 , new Guid(item.UserId)
+                                                 , item.DinnerServedOn
+                                                 , 1);
+
+                    }
+
                 }
+
+                  
+
+
+                    if (!string.IsNullOrEmpty(model.MealSelected))
+                    {
+
+
+                    var mealtype = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.MealType>(model.MealType);
+                    DateTime? mealservedDate = (DateTime?)null;
+
+
+                    switch (mealtype)
+                    {
+                        case FingerprintsModel.Enums.MealType.Breakfast:
+                            mealservedDate = model.ABreakfastServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Lunch:
+                            mealservedDate = model.ALunchServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Snack:
+                            mealservedDate = model.ASnackServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Dinner:
+                            mealservedDate = model.ADinnerServedOn;
+                            break;
+                    }
+
+                    adultMealsDt.Rows.Add(staff.AgencyId
+                                             , staff.UserId
+                                             , Convert.ToInt64(model.CenterID)
+                                             , Convert.ToInt64(model.ClassID)
+                                             , model.Tdate
+                                             , model.MealType
+                                             , model.MealSelected
+                                             , mealservedDate
+                                             , 1);
+                    }
+
+
+                    var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                    var parameters = new IDbDataParameter[]
+                    {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientMealsTable",clientMealsDt,DbType.Object),
+                    dbManager.CreateParameter("@AdultMealsTable",adultMealsDt,DbType.Object),
+                    dbManager.CreateParameter("@Result",8,0,DbType.Int32, ParameterDirection.Output)
+
+
+                    };
+
+                     isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("SP_MarkMeals", CommandType.StoredProcedure, parameters);
+
+
+
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
+                isRowsAffected = false;
             }
             return GetMeals(staff);
         }
@@ -1834,7 +2042,7 @@ namespace FingerprintsData
                 if (isCenter)
                     command.Parameters.Add(new SqlParameter("@Status", '0'));
                 //if (objMonitoring.CenterId != null)
-                    command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
+                command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_DeleteDailySafetyCheckOpenCloseRequest";
@@ -1869,7 +2077,7 @@ namespace FingerprintsData
         public bool InsertWorkOrderDetail(Monitoring objMonitoring)
         {
             bool isInserted = false;
-           
+
             try
             {
                 command = new SqlCommand();
@@ -2007,7 +2215,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", objMonitoring.UserID));
                 command.Parameters.Add(new SqlParameter("@RouteCode", objMonitoring.RouteCode));
                 //if (objMonitoring.CenterId != null)
-                    command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
+                command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_DeleteYakkrRouting";
@@ -2805,7 +3013,9 @@ namespace FingerprintsData
             DataTable dt = new DataTable();
             try
             {
-                dt.Columns.AddRange(new DataColumn[8] {
+                var dataColumn = new DataColumn("MealServedOn", typeof(DateTime));
+                dataColumn.AllowDBNull = true;
+                dt.Columns.AddRange(new DataColumn[9] {
                       new DataColumn("AgencyID",typeof(Guid)),
                     new DataColumn("CenterID",typeof(long)),
                     new DataColumn("ClassroomID",typeof(long)),
@@ -2813,13 +3023,37 @@ namespace FingerprintsData
                     new DataColumn("AttendanceDate ", typeof(string)),
                     new DataColumn("MealType",typeof(string)),
                     new DataColumn("StaffID",typeof(Guid)),
+                   new DataColumn("MealServedOn", typeof(DateTime)),
                     new DataColumn("IsActive",typeof(bool))
 
                 });
 
 
+                dt.Columns["MealServedOn"].AllowDBNull = true;
+
                 foreach (var item in mealsList)
                 {
+
+                    var mealtype = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.MealType>(item.MealType);
+                    DateTime? mealservedDate = (DateTime?)null;
+
+
+                    switch (mealtype)
+                    {
+                        case FingerprintsModel.Enums.MealType.Breakfast:
+                            mealservedDate = item.BreakfastServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Lunch:
+                            mealservedDate = item.LunchServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Snack:
+                            mealservedDate = item.SnackServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Dinner:
+                            mealservedDate = item.DinnerServedOn;
+                            break;
+                    }
+
 
                     dt.Rows.Add(
                         new Guid(item.AgencyId),
@@ -2829,6 +3063,7 @@ namespace FingerprintsData
                        item.AttendanceDate,
                        item.MealType,
                        new Guid(item.UserId),
+                       mealservedDate,
                        1
                         );
 
@@ -2850,7 +3085,8 @@ namespace FingerprintsData
             DataTable dt = new DataTable();
             try
             {
-                dt.Columns.AddRange(new DataColumn[8] {
+
+                dt.Columns.AddRange(new DataColumn[9] {
                     new DataColumn("AgencyID",typeof(Guid)),
                     new DataColumn("StaffID",typeof(Guid)),
                     new DataColumn("CenterID",typeof(long)),
@@ -2858,13 +3094,36 @@ namespace FingerprintsData
                     new DataColumn("AttendanceDate ", typeof(string)),
                     new DataColumn("MealType",typeof(string)),
                     new DataColumn("MealsServed",typeof(int)),
+                   new DataColumn("MealServedOn", typeof(DateTime)),
                     new DataColumn("IsActive",typeof(bool))
 
                 });
 
+                dt.Columns["MealServedOn"].AllowDBNull = true;
 
                 foreach (var item in adultMealsList)
                 {
+
+
+                    var mealtype = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.MealType>(item.MealType);
+                    DateTime? mealservedDate = (DateTime?)null;
+
+
+                    switch (mealtype)
+                    {
+                        case FingerprintsModel.Enums.MealType.Breakfast:
+                            mealservedDate = item.ABreakfastServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Lunch:
+                            mealservedDate = item.ALunchServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Snack:
+                            mealservedDate = item.ASnackServedOn;
+                            break;
+                        case FingerprintsModel.Enums.MealType.Dinner:
+                            mealservedDate = item.ADinnerServedOn;
+                            break;
+                    }
 
                     dt.Rows.Add(
                         new Guid(item.AgencyId),
@@ -2874,6 +3133,7 @@ namespace FingerprintsData
                        item.AttendanceDate,
                        item.MealType,
                        Convert.ToInt32(item.MealSelected),
+                       mealservedDate,
                        1
                         );
 

@@ -67,10 +67,15 @@ namespace FingerprintsModel
         public string TeacherCheckInSig { get; set; }
         public string ObservationIDChecked { get; set; }
         public bool Breakfast { get; set; }
+        public DateTime? BreakfastServedOn { get; set; }
         public bool Lunch { get; set; }
+        public DateTime? LunchServedOn { get; set; }
         public bool Snack { get; set; }
+        public DateTime? SnackServedOn { get; set; }
         public bool Dinner { get; set; }
+        public DateTime? DinnerServedOn { get; set; }
         public bool Snack2 { get; set; }
+        public DateTime? Snack2ServedOn { get; set; }
         public string MealID { get; set; }
         public string MealType { get; set; }
         public string ClassID { get; set; }
@@ -80,10 +85,19 @@ namespace FingerprintsModel
         public string TimeOut { get; set; }
         public string TimeOut2 { get; set; }
         public string ABreakfast { get; set; }
+
+        public DateTime? ABreakfastServedOn { get; set; }
         public string ALunch { get; set; }
+        public DateTime? ALunchServedOn { get; set; }
         public string ASnack { get; set; }
+        public DateTime? ASnackServedOn { get; set; }
         public string ADinner { get; set; }
+
+        public DateTime? ADinnerServedOn { get; set; }
         public string ASnack2 { get; set; }
+
+        public DateTime? ASnack2ServedOn{get;set;}
+
         public string Available { get; set; } 
         public bool ObservationChecked { get; set; }
         public bool TeacherObservationActive { get; set; }

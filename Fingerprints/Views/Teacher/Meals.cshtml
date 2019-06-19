@@ -1,46 +1,454 @@
 ﻿@model FingerprintsModel.TeacherModel
 
 @{
-     @section Title
+    @section Title
 {
         Meals
     }
-    ViewBag.Title = "ParentCheckIn";
+    ViewBag.Title = "Meals";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 
 }
 
 
-@Scripts.Render("~/bundles/jquery")
-<script type="text/javascript" src="code.jquery.com/jquery-migrate-1.2.1.js"></script>
-<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
-<script src="jquery.signature.js"></script>
-<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/south-street/jquery-ui.css" rel="stylesheet">
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/south-street/jquery-ui.css" rel="stylesheet">
-<link href="jquery.signature.css" rel="stylesheet">
 
-@section Script{
 
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-    <style>
+
+
+
+@section Style{
+
+
+    <style type="text/css">
+        .div-filter-section {
+            margin-bottom: 10px;
+            padding: 0;
+        }
+
+        #modal-daily-observation .addapplicant {
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #295b8f;
+            color: #295b8f;
+            padding: 5px 0;
+            margin: 0 15px;
+        }
+
+        #modal-daily-observation .form-group {
+            margin-bottom: 15px !important;
+        }
+
+        #modal-daily-observation .lbl-popup-cn {
+            text-align: right;
+            color: #295b8f;
+            font-weight: bold;
+        }
+
+        #modal-daily-observation .div-popup-clients-cn, #modal-daily-observation .div-popup-dev-cn, #modal-daily-observation .div-popup-secure-cn {
+            padding-left: 0;
+        }
+
+        #modal-daily-observation #div-edit-modal-img-gallery {
+            margin-left: 17%;
+        }
+
         .kbw-signature {
             width: 400px;
             height: 200px;
         }
 
-        
+        #div-table-responsive .search-block-main table thead th {
+            background-color: #285B90 !important;
+        }
+
+        /*.page-wrapper-change {
+                background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
+                background-size: cover !important;
+                background-position: 100% 100% !important;
+            }*/
+
+
+        /*04-May-2018*/
+        .edu_class_room {
+            width: 100%;
+            float: left;
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        .edu_clrtable {
+            width: 100%;
+            float: left;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 7px;
+        }
+
+            .edu_clrtable table tbody tr td {
+                color: #163b69;
+                text-align: center;
+            }
+
+        td.edu_chk {
+            color: #27ae60 !important;
+        }
+
+        td.edu_ntchk {
+            color: #c0392b !important;
+        }
+
+        .edu_clrtable table thead tr th {
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+        }
+
+        .edu_clrm_head {
+            width: 100%;
+            float: left;
+            margin-bottom: 15px;
+        }
+
+            .edu_clrm_head h3 {
+                background-color: #f9c751;
+                color: #000;
+                padding: 15px;
+                border-radius: 7px;
+                font-weight: 600;
+            }
+
+            .edu_clrm_head small {
+                color: #000;
+            }
+
+        .edu_frm_ps label {
+            float: left;
+            width: 40%;
+        }
+
+        .edu_frm_ps label {
+            float: left;
+            width: 40%;
+            color: #163b69;
+            font-weight: 300;
+        }
+
+        .edu_meal_detail {
+            width: 100%;
+            float: left;
+            background-color: #f1f5f8;
+            padding: 30px 15px;
+            margin-bottom: 28px;
+            border-radius: 7px;
+        }
+
+        .edu_frm_chk input[type="checkbox"] {
+            float: left;
+            width: auto;
+        }
+
+        .edu_frm_chk label {
+            float: left;
+            width: auto;
+            padding-left: 9px;
+            padding-top: 2px;
+            color: #163b69;
+            font-weight: 300;
+        }
+
+        .edu_frm_ps select {
+            width: 60%;
+            -webkit-appearance: none;
+            float: left;
+            background: #fff url(../images/class-room/arr-down.png) no-repeat 97% center;
+        }
+
+        .part_edubtn {
+            width: 100%;
+            float: left;
+            text-align: center;
+        }
+
+        .btn-edu-sucess {
+            background-color: #2ecc71;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .part_edubtn button.btn-edu-sucess {
+            margin-right: 20px;
+        }
+
+        .btn-edu-exit {
+            background-color: #e74c3c;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .edu_frm_chk {
+            float: right;
+            width: 60%;
+        }
+
+        .edu_frm_ps select, .edu_frm_ps input {
+            width: 60%;
+            float: left;
+        }
+        /*start Pop-up*/
+        .modal-content.add_screen {
+            background-color: #6a51a3;
+            border: 5px solid #fff;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+            .modal-content.add_screen .modal-header {
+                border-bottom: none;
+                padding: 10px;
+            }
+
+                .modal-content.add_screen .modal-header .close {
+                    margin-top: -2px;
+                    position: absolute;
+                    top: -14px;
+                    right: -14px;
+                    background-color: #db4437;
+                    border-radius: 50%;
+                    /* padding: 12px 9px; */
+                    opacity: 1;
+                    width: 40px;
+                    height: 40px;
+                    color: #fff;
+                }
+
+        .pop_title {
+            background-color: #e67e22;
+            padding: 7px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .modal-dialog.view_pop {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .modal-content.add_screen .modal-body {
+            background-color: #f1f5f8;
+            width: 100%;
+            float: left;
+            padding: 0px;
+            border-radius: 46px 47px 0px 0px;
+        }
+
+        .nopadding {
+            padding: 0px;
+        }
+
+        .modal-content.add_screen .modal-body h4 {
+            background-color: #34495e;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .pop_list {
+            background-color: #fff;
+            padding: 10px;
+            margin: 20px;
+            max-height: 570px;
+            height: 570px;
+        }
+
+            .pop_list ul li.pink {
+                background-color: #ffcccc;
+            }
+
+            .pop_list ul li {
+                list-style: none;
+                text-align: center;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+
+        .pop_content {
+            margin: 20px;
+        }
+
+        .nopadding {
+            padding: 0px !important;
+        }
+
+            .nopadding h4 {
+                margin: 0px;
+            }
+
+        .pop_list ul {
+            margin: 10px 5px;
+        }
+
+            .pop_list ul li {
+                cursor: pointer;
+            }
+
+                .pop_list ul li.blue {
+                    background-color: #c5eff7;
+                }
+
+                .pop_list ul li.green {
+                    background-color: #b2f5a8;
+                }
+
+                .pop_list ul li.yellow {
+                    background-color: #f7d794;
+                }
+
+                .pop_list ul li.black {
+                    background-color: #34495e;
+                    color: #fff;
+                }
+
+        .file_attach {
+            margin: 5px;
+        }
+
+        .form_filed {
+            margin-top: 25px;
+        }
+
+            .form_filed label {
+                color: #164978;
+                font-size: 16px;
+                font-weight: normal;
+            }
+
+            .form_filed sup {
+                color: red;
+            }
+
+        .modal-dialog.view_pop {
+            margin: 1% auto 0 !important;
+        }
+
+        .form_filed ::placeholder {
+            color: #164978 !important;
+        }
+
+        .form_filed .form-control {
+            color: #164978 !important;
+            margin-bottom: 15px;
+            height: 40px;
+            border: 1px solid #e7e7e7;
+            box-shadow: none;
+        }
+
+        .pop_list.form_section {
+            overflow-y: scroll;
+        }
+
+        .modal-content.add_screen .modal-footer {
+            text-align: center;
+        }
+
+        .pop_footer {
+            margin-top: 30px;
+            width: 100%;
+            float: left;
+        }
+
+            .pop_footer button.btn.btn-success {
+                width: auto !important;
+                padding: 6px 25px;
+                font-weight: bold;
+            }
+
+            .pop_footer button.btn.btn-default {
+                width: auto !important;
+                padding: 6px 25px;
+                background-color: #34495e !important;
+                border: 1px solid #34495e !important;
+                font-weight: bold;
+            }
+
+        h4.right_radius {
+            border-radius: 4px 0px 0px 0px;
+        }
+
+        h4.left_radius {
+            border-radius: 0px 4px 0px 0px;
+        }
+
+        #email ::placeholder {
+            color: #164978;
+        }
+
+        select.form-control.edu_arr {
+            background: #fff url(../images/class-room/arr-down.png) no-repeat 97% center;
+            -webkit-appearance: none;
+        }
+        /*pop-up*/
+
+
+        @@media screen and (max-width:1200px) {
+            .glossy-table {
+                -webkit-box-shadow: unset;
+                -moz-box-shadow: unset;
+                box-shadow: unset;
+            }
+
+            /*.search-block-main{
+                margin-right:2%;
+            }*/
+
+            #div-table-responsive .search-block-main {
+                border: unset !important;
+            }
+
+            .div-check-all{
+                float:right!important;
+            }
+        }
+
+        @@media screen and (max-width:991px) {
+            #modal-daily-observation .lbl-popup-cn {
+                text-align: left;
+            }
+        }
+
+        @@media screen and (max-width:1199px) {
+             #modal-daily-observation .lbl-popup-cn {
+                text-align: left;
+            }
+        }
     </style>
-   
-  
+
 }
 
 
-@section MainContentHolder{
-    <form method="post" enctype="multipart/form-data">
-    <script>
+@section Script{
+
+
+
+    <script type="text/javascript">
+        var caseNoteObjData = null;
+        var videoSelect = null;
+        var screenshotButton = null;
+        var img = null;
+        var canvas = null;
+        var button = null;
+        var currentStream;
+        var video;
+        var constraints = {};
+        var front = true;
+
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -49,9 +457,428 @@
                 }
             });
 
-             if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
-                    customAlert('@TempData["message"]');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+
+
+            $.each($('#schedule-school-table tbody#classdays-tbody').find('tr'), function (i, row) {
+
+                $.each($(row).find('td:gt(0)'), function (j, td) {
+
+                   
+                    var mealtypeSelected = $('select#MealType').val();
+
+                    if (mealtypeSelected != null && mealtypeSelected != '')
+                    {
+                        switch(mealtypeSelected)
+                        {
+                            case '1':
+                                if(j==0)
+                                {
+                                    $(td).find('input:checkbox').prop('disabled', false);
+                                }
+                                else {
+                                    $(td).find('input:checkbox').prop('disabled', true);
+                                }
+                                break;
+                            case '2':
+                                if (j == 1) {
+                                    $(td).find('input:checkbox').prop('disabled', false);
+                                }
+                                else {
+                                    $(td).find('input:checkbox').prop('disabled', true);
+
+                                }
+                                break;
+
+                            case '3':
+
+                                if (j == 2) {
+                                    $(td).find('input:checkbox').prop('disabled', false);
+                                }
+                                else {
+                                    $(td).find('input:checkbox').prop('disabled', true);
+
+                                }
+                                break;
+                            case '4':
+                                if (j == 3) {
+                                    $(td).find('input:checkbox').prop('disabled', false);
+                                }
+                                else {
+                                    $(td).find('input:checkbox').prop('disabled', true);
+
+                                }
+                                break;
+                            default:
+                                $(td).find('input:checkbox').prop('disabled', false);
+                                break;
+                               
+
+
+
+                        }
+                    }
+
+
+                    $(td).find('input:checkbox').off('click').on('click', function () {
+
+                        if ($(this).is(':checked')) {
+                            $(this).siblings('.servedTime').val(new Date().toJSON());
+                        }
+                        else {
+                            $(this).siblings('.servedTime').val('');
+
+                        }
+
+
+
+                    });
+                });
+
+            });
+
+
+            CKEDITOR.replace('popup-casenote-note', {
+                language: 'en-gb',
+                uiColor: '#195180',
+                allowedContent: true,
+                disableNativeSpellChecker: false
+            });
+
+            $('#popup-casenote-tags').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                allowDuplicates: false,
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    // 'source': getTagsOnInput(),
+                    'appendTo': "#modal-daily-observation"
+                },
+                autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',
+            });
+
+            $('#popup-casenote-date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+            $('#MealSelected').on('blur', function () {
+                debugger;
+                if ($(this).val() != null && $(this).val() != '' && parseInt($(this).val()) > 0) {
+                    if ($('#MealType').val() != '') {
+                        switch ($('#MealType').val()) {
+
+                            case '1':
+                                if ($('#ABreakfastServedOn').val() == null || $('#ABreakfastServedOn').val() == '') {
+                                    $('#ABreakfastServedOn').val(new Date().toJSON());
+                                }
+                                break;
+
+                            case '2':
+                                if ($('#ALunchServedOn').val() == null || $('#ALunchServedOn').val() == '') {
+                                    $('#ALunchServedOn').val(new Date().toJSON());
+                                }
+                                break;
+
+                            case '3':
+                                if ($('#ASnackServedOn').val() == null || $('#ASnackServedOn').val() == '') {
+                                    $('#ASnackServedOn').val(new Date().toJSON());
+                                }
+                                break;
+
+                            case '4':
+                                if ($('#ADinnerServedOn').val() == null || $('#ADinnerServedOn').val() == '') {
+                                    $('#ADinnerServedOn').val(new Date().toJSON());
+                                }
+                                break;
+                        }
+                    }
                 }
+            });
+
+            $('#modal-daily-observation').find('#btn-modal-cn-submit').on('click', function () {
+                debugger;
+                var $modal = $('#modal-daily-observation');
+                var fd = new FormData();
+
+                if (validateMealsObservationCaseNote()) {
+
+
+                    if (caseNoteObjData != null) {
+
+                        if (caseNoteObjData.CaseNoteList.length > 0) {
+                            $.each(caseNoteObjData.CaseNoteList, function (i, note) {
+
+                                fd.append('CaseNoteid', 0);
+                                fd.append('ClientId', note.clientid);
+                                fd.append('ProgramId', note.ProgramID);
+                                fd.append('HouseHoldId', note.Householid);
+                                fd.append('CenterId', note.CenterId);
+                                fd.append('Classroomid', note.Classroomid);
+
+
+                            });
+                        }
+
+                        var clientIds = '';
+                        var staffIDs = '';
+
+                        $.each($modal.find('.div-popup-clients-cn').find('input:checkbox:checked'), function (i, client) {
+
+                            clientIds += $(client).val() + ',';
+                        });
+
+
+                        $.each($modal.find('.div-popup-dev-cn').find('input:checkbox:checked'), function (i, staff) {
+
+                            staffIDs += $(staff).val() + ',';
+                        });
+
+
+                        clientIds = clientIds.trim().trim(',');
+                        staffIDs = staffIDs != null ? staffIDs.trim().trim(',') : "";
+
+                        fd.append('CaseNoteDate', $modal.find('#popup-casenote-date').val().trim());
+                        fd.append('CaseNotetitle', $modal.find('#popup-casenote-title').val().trim());
+                        fd.append('Note', CKEDITOR.instances['popup-casenote-note'].getData().trim());
+                        fd.append('CaseNotetags', $modal.find('#popup-casenote-tags').val().trim());
+                        fd.append('ClientIds', clientIds);
+                        fd.append('StaffIds', staffIDs);
+                        fd.append('CaseNoteSecurity', $modal.find('#popup-casenote-secure').is(':checked'));
+
+                        $.each($modal.find('input:file'), function () {
+
+                            fd.append('fileInput', $(this)[0].files[0]);
+                        });
+
+                        //self.elements.divFileAttachment.next('#addAttachmentDiv').find('input:file').each(function () {
+
+                        //    fd.append('fileInput', $(this)[0].files[0]);
+
+                        //});
+
+
+
+                        var $cameraDocuments = $modal.find('#div-edit-modal-img-gallery').find('.setup_viewscreen');
+
+                        var cameraDocumentsArray = [];
+
+                        if ($cameraDocuments.length > 0) {
+
+                            $.each($cameraDocuments, function (j, doc) {
+
+                                var $doc = $(doc).find('img');
+                                cameraDocumentsArray.push({ 'Text': 'CaseNoteDocument', 'Value': self.getBase64Image($doc) });
+
+                            });
+                        }
+
+                        fd.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+                        //self.ajaxOptions.url = self.updateEmailUrl;
+                        //self.ajaxOptions.type = "POST";
+                        //self.ajaxOptions.datatype = "JSON";
+                        //self.ajaxOptions.data = fd;
+                        //self.ajaxOptions.processData = false;
+                        //self.ajaxOptions.contentType = false;
+                        //self.ajaxCall(self.callbackSaveParentEmailCaseNote);
+
+
+                        $.ajax({
+                            url: HostedDir + '/Teacher/SaveMealObservationNotes',
+                            type: 'POST',
+                            datatype: 'JSON',
+                            processData: false,
+                            contentType: false,
+                            async: true,
+                            beforeSend: function () {
+                                $('#spinner').show();
+                            },
+                            data: fd,
+                            success: function (data) {
+
+                                if (data == '1') {
+                                    customAlert('Record saved successfully');
+                                    $modal.modal('hide');
+                                }
+                                else {
+                                    customAlert('Error occurred. Please, try again later');
+                                }
+                            },
+                            error: function (data) {
+                                customAlert('Error occurred. Please, try again later.');
+                            },
+                            complete: function (data) {
+                                $('#spinner').hide();
+                            }
+
+                        });
+
+
+                    }
+
+                }
+            });
+
+            $('#modal-daily-observation').find('#popup-casenote-date').on('blur', function () {
+
+                checkDateCaseNote(this);
+            });
+
+
+            $('#modal-daily-observation').find('#uploadImageCamera').on('click', function () {
+                $('#modal-daily-observation').modal('hide');
+                //$('body').addClass('modal-open');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+                $('#modal-uploaddocument').modal('show');
+            });
+
+
+
+            $('#modal-daily-observation').on('shown.bs.modal', function (event) {
+
+
+                $('body').css({ 'padding-right': '0px' });
+
+            });
+
+
+
+            $('#modal-daily-observation').on('hidden.bs.modal', function () {
+
+                if ($('#modal-uploaddocument').is(':visible')) {
+
+                    return false;
+                }
+
+                var $modal = $('#modal-daily-observation');
+
+                $modal.find('#lbl-popup-client').html('');
+
+
+                $modal.find('#popup-casenote-date').val('');
+
+
+                $modal.find('#popup-casenote-title').val('');
+
+                $modal.find('#div-edit-modal-img-gallery').html('');
+
+                $modal.find('input:file').val('');
+
+                $modal.find('#div-popup-add-attach').html('');
+
+
+            });
+
+
+            $('#modal-uploaddocument').on('shown.bs.modal', function (event) {
+                $('body').addClass('modal-open');
+
+                showVideoStream();
+
+            }).on('hidden.bs.modal', function (event) {
+
+                stopIntervalUserMedia();
+                $('#modal-daily-observation').modal('show');
+            });
+
+
+            $('#modal-uploaddocument').find('#btn-modal-doc-add').on('click', function () {
+
+
+                var $imageGallerylength = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                if ($imageGallerylength == 0) {
+                    customAlert('Please capture image using camera');
+                    return false;
+                }
+
+
+                $('#modal-daily-observation').find('#div-edit-modal-img-gallery').append($('#modal-uploaddocument').find('.div-image-snap-gallery').html());
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+
+                $('#modal-uploaddocument').modal('hide');
+
+            });
+
+
+            $(document).on('click', '.delete-file-upload', function () {
+
+                $(this).closest('.setup_viewscreen').remove();
+
+            });
+
+
+            $(document).on('click', '.view-file-upload', function () {
+
+                //  window.open($(this)., 'newwindow','width=500,height=500');
+
+                var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+                //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
+
+
+                //imageAttr='<embed src='+imageAttr+'></embed>';
+                //window.open(imageAttr, 'newwindow','width=500,height=500');
+
+
+
+                var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
+
+                setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+                    w.document.body.appendChild(w.document.createElement('img'))
+                        .src = imageAttr;
+                }, 0);
+
+            });
+
+            videoSelect = document.querySelector('select#videoSource');
+            video = document.querySelector('#setup-camera-div video');
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '')
+
+            screenshotButton = document.querySelector('#anchor-capture');
+
+            screenshotButton.onclick = video.onclick = function () {
+
+                var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
+
+                var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
+                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
+                                        <div class="attach-icon-div-gallery">\
+                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
+                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
+                                        </div>\
+                                    </div>';
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                // Other browsers will fall back to image/png
+                console.log(canvas);
+                // img.src = canvas.toDataURL('image/png');
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
+
+
+
+
+                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
+            };
+
+            videoSelect.addEventListener('change', function (event) {
+
+                getStream();
+            });
+
+            navigator.mediaDevices.enumerateDevices().then(gotDevices);
+
+            canvas = document.createElement('canvas');
+
         });
         $(window).on('popstate', function () {
             var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
@@ -63,16 +890,18 @@
             isValid = true;
             var charCode = (evt.which) ? evt.which : event.keyCode;
             if (charCode != 46 && charCode > 31
-                && (charCode < 48 || charCode > 57)){
+                && (charCode < 48 || charCode > 57)) {
                 customAlert("Enter Numbers only for Adult Meals. ");
-                plainValidation('#AdultMeals');
-                isValid = false;}
+                plainValidation('#MealSelected');
+                isValid = false;
+            }
 
             return isValid;
         }
 
 
         function ValidateData() {
+
             isValid = true;
             var meals = $("#MealType").val();
             $('#MealTypeSelected').val(meals);
@@ -85,9 +914,29 @@
                 return isValid;
             }
 
+            if ($('#schedule-school-table').find('tbody tr').length > 0 && $('#schedule-school-table').find('tbody tr').find('input:checkbox:checked').length == 0) {
+
+                isValid = false;
+                customAlert("Please select clients against the meal type selected");
+                return isValid;
+            }
+            else if ($('#schedule-school-table').find('tbody tr').length == 0 && ($('#MealSelected').val() == null || $('#MealSelected').val('') || $('#MealSelected').val('0'))) {
+
+                isValid = false;
+                customAlert("Number of adult meals served is required");
+                plainValidation('#MealSelected');
+                return isValid;
+            }
+
+            if (isValid) {
+                $('#schedule-school-table').find('tbody tr').find('input:checkbox').prop('disabled', false);
+                $('#spinner').show();
+            }
+
             return isValid;
         }
         function CheckAll(element) {
+
             isValid = true;
             var chk = element.checked;
             var meals = $("#MealType").val();
@@ -97,387 +946,1436 @@
                 isValid = false;
                 customAlert("Meal Type is Required. ");
                 plainValidation('#MealType');
+
+                $(element).prop('checked', false);
                 return isValid;
             } else {
+
                 var mealtype = $("#MealType").val();
-                if (mealtype == "1") {
 
-                     if (chk) {
-                        $("input[name=ClientIDB]").attr('checked', 'checked')
-                    } else {
-                        $("input[name=ClientIDB]").removeAttr('checked');
-                    }
-                } else if (mealtype == "2") {
 
-                    if (chk) {
-                        $("input[name=ClientIDL]").attr('checked', 'checked')
-                    } else {
-                        $("input[name=ClientIDL]").removeAttr('checked');
-                    }
-                } else if (mealtype == "3") {
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
 
-                    if (chk) {
-                        $("input[name=ClientIDS]").attr('checked', 'checked')
-                    } else {
-                        $("input[name=ClientIDS]").removeAttr('checked');
+                    var $chkbox = $(tr).find('td:eq(' + mealtype + ')').find('p input:checkbox');
+                    if (chk && !$chkbox.is(':checked')) {
+                        $chkbox.prop('checked', chk).siblings('.servedTime').val(chk ? new Date().toJSON() : "");
                     }
-                } else if (mealtype == "4") {
+                    else if (!chk) {
+                        $chkbox.prop('checked', chk).siblings('.servedTime').val(chk ? new Date().toJSON() : "");
 
-                    if (chk) {
-                        $("input[name=ClientIDD]").attr('checked', 'checked')
-                    } else {
-                        $("input[name=ClientIDD]").removeAttr('checked');
                     }
-                } else if (mealtype == "5") {
 
-                    if (chk) {
-                        $("input[name=ClientIDS2]").attr('checked', 'checked')
-                    } else {
-                        $("input[name=ClientIDS2]").removeAttr('checked');
-                    }
-                }
-                isValid = true;}
+                });
+
+
+
+
+
+                isValid = true;
+            }
 
             return isValid;
 
         }
 
-        //function MealChanged() {
-        //    var mealtype = $("#MealType").val();
-        //    if (mealtype == "1") {
 
-
-        //        $("input[name=ClientIDB]").show()
-        //        $("input[name=ClientIDL]").hide()
-        //        $("input[name=ClientIDS]").hide()
-        //        $("input[name=ClientIDD]").hide()
-        //        $("input[name=ClientIDS2]").hide()
-        //        $('#AdultMeals').val($("#AdultBreakfast").val());
-        //    } else if (mealtype == "2") {
-        //        $("input[name=ClientIDB]").hide()
-        //        $("input[name=ClientIDL]").show()
-        //        $("input[name=ClientIDS]").hide()
-        //        $("input[name=ClientIDD]").hide()
-        //        $("input[name=ClientIDS2]").hide()
-        //        $('#AdultMeals').val($("#AdultLunch").val());
-        //    } else if (mealtype == "3") {
-        //        $("input[name=ClientIDB]").hide()
-        //        $("input[name=ClientIDL]").hide()
-        //        $("input[name=ClientIDS]").show()
-        //        $("input[name=ClientIDD]").hide()
-        //        $("input[name=ClientIDS2]").hide()
-        //        $('#AdultMeals').val($("#AdultSnack").val());
-        //    } else if (mealtype == "4") {
-        //    $("input[name=ClientIDB]").hide()
-        //    $("input[name=ClientIDL]").hide()
-        //    $("input[name=ClientIDS]").hide()
-        //    $("input[name=ClientIDD]").show()
-        //    $("input[name=ClientIDS2]").hide()
-        //    $('#AdultMeals').val($("#AdultDinner").val());
-        //    } else if (mealtype == "5") {
-        //        $("input[name=ClientIDB]").hide()
-        //        $("input[name=ClientIDL]").hide()
-        //        $("input[name=ClientIDS]").hide()
-        //        $("input[name=ClientIDD]").hide()
-        //        $("input[name=ClientIDS2]").show()
-        //        $('#AdultMeals').val($("#AdultSnack2").val());
-        //    } else {
-        //        $("input[name=ClientIDB]").hide()
-        //        $("input[name=ClientIDL]").hide()
-        //        $("input[name=ClientIDS]").hide()
-        //        $("input[name=ClientIDD]").hide()
-        //        $("input[name=ClientIDS2]").hide()
-        //        $('#AdultMeals').val();
-        //    }
-        //}
 
         function MealChanged() {
+            debugger;
             var mealtype = $("#MealType").val();
             if (mealtype == "1") {
 
 
-                $("input[name=ClientIDB]").removeAttr("disabled");
-                $("input[name=ClientIDL]").attr("disabled", "disabled");
-                $("input[name=ClientIDS]").attr("disabled", "disabled");
-                $("input[name=ClientIDD]").attr("disabled", "disabled");
-                $("input[name=ClientIDS2]").attr("disabled", "disabled");
-                $('#AdultMeals').val($("#AdultBreakfast").val());
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
+
+                    var $breakCheckBox = $(tr).find('td:eq(1)').find('p input:checkbox');
+                    var $breakChecked = $breakCheckBox.hasClass('breakfast-checked');
+
+                    var $lunchCheckbox = $(tr).find('td:eq(2)').find('p input:checkbox');
+                    var $lunchChecked = $lunchCheckbox.hasClass('lunch-checked');
+
+                    var $snackCheckbox = $(tr).find('td:eq(3)').find('p input:checkbox');
+                    var $snackChecked = $snackCheckbox.hasClass('snack-checked');
+
+                    var $dinnerCheckbox = $(tr).find('td:eq(4)').find('p input:checkbox');
+                    var $dinnerChecked = $dinnerCheckbox.hasClass('dinner-checked');
+
+
+                    $breakCheckBox.removeAttr("disabled");
+
+
+                    $lunchCheckbox.attr("disabled", "disabled");
+                    if (!$lunchChecked) {
+                        $lunchCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+
+
+                    if (!$snackChecked) {
+                        $snackCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+                    $snackCheckbox.attr("disabled", "disabled");
+
+                    $dinnerCheckbox.attr("disabled", "disabled");
+                    if (!$dinnerChecked) {
+                        $dinnerCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+                });
+
+
+
+
+                $('#MealSelected').val($("#AdultBreakfast").val());
+                $('#ABreakfastServedOn').val($('#AdultBreakfastServedOn').val());
+
             } else if (mealtype == "2") {
-                $("input[name=ClientIDB]").attr("disabled", "disabled");
-                $("input[name=ClientIDL]").removeAttr("disabled");
-                $("input[name=ClientIDS]").attr("disabled", "disabled");
-                $("input[name=ClientIDD]").attr("disabled", "disabled");
-                $("input[name=ClientIDS2]").attr("disabled", "disabled");
-                $('#AdultMeals').val($("#AdultLunch").val());
+
+
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
+
+                    var $breakCheckBox = $(tr).find('td:eq(1)').find('p input:checkbox');
+                    var $breakChecked = $breakCheckBox.hasClass('breakfast-checked');
+
+                    var $lunchCheckbox = $(tr).find('td:eq(2)').find('p input:checkbox');
+                    var $lunchChecked = $lunchCheckbox.hasClass('lunch-checked');
+
+                    var $snackCheckbox = $(tr).find('td:eq(3)').find('p input:checkbox');
+                    var $snackChecked = $snackCheckbox.hasClass('snack-checked');
+
+
+                    var $dinnerCheckbox = $(tr).find('td:eq(4)').find('p input:checkbox');
+                    var $dinnerChecked = $dinnerCheckbox.hasClass('dinner-checked');
+
+                    $breakCheckBox.attr("disabled", "disabled");
+                    if (!$breakChecked) {
+                        $breakCheckBox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+
+
+                    $lunchCheckbox.removeAttr("disabled");
+
+
+                    $snackCheckbox.attr("disabled", "disabled");
+                    if (!$snackChecked) {
+                        $snackCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+
+                    $dinnerCheckbox.attr("disabled", "disabled");
+                    if ($dinnerChecked) {
+                        $dinnerCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+
+                });
+
+
+                $('#MealSelected').val($("#AdultLunch").val());
+                $('#ALunchServedOn').val($('#AdultLunchServedOn').val());
+
             } else if (mealtype == "3") {
-                $("input[name=ClientIDB]").attr("disabled", "disabled");
-                $("input[name=ClientIDL]").attr("disabled", "disabled");
-                $("input[name=ClientIDS]").removeAttr("disabled");
-                $("input[name=ClientIDD]").attr("disabled", "disabled");
-                $("input[name=ClientIDS2]").attr("disabled", "disabled");
-                $('#AdultMeals').val($("#AdultSnack").val());
+
+
+
+
+
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
+
+
+
+                    var $breakCheckBox = $(tr).find('td:eq(1)').find('p input:checkbox');
+                    var $breakChecked = $breakCheckBox.hasClass('breakfast-checked');
+
+                    var $lunchCheckbox = $(tr).find('td:eq(2)').find('p input:checkbox');
+                    var $lunchChecked = $lunchCheckbox.hasClass('lunch-checked');
+
+                    var $snackCheckbox = $(tr).find('td:eq(3)').find('p input:checkbox');
+                    var $snackChecked = $snackCheckbox.hasClass('snack-checked');
+
+
+                    var $dinnerCheckbox = $(tr).find('td:eq(4)').find('p input:checkbox');
+                    var $dinnerChecked = $dinnerCheckbox.hasClass('dinner-checked');
+
+
+                    $breakCheckBox.attr("disabled", "disabled");
+                    if (!$breakChecked) {
+                        $breakCheckBox.prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                    $lunchCheckbox.attr("disabled", "disabled");
+                    if (!$lunchChecked) {
+                        $lunchCheckbox.prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                    $snackCheckbox.removeAttr("disabled");
+
+                    $dinnerCheckbox.attr("disabled", "disabled");
+                    if (!$dinnerChecked) {
+                        $dinnerCheckbox.prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                });
+
+                $('#MealSelected').val($("#AdultSnack").val());
+                $('#ASnackServedOn').val($('#AdultSnackServedOn').val());
+
+
+
             } else if (mealtype == "4") {
-                $("input[name=ClientIDB]").attr("disabled", "disabled");
-                $("input[name=ClientIDL]").attr("disabled", "disabled");
-                $("input[name=ClientIDS]").attr("disabled", "disabled");
-                $("input[name=ClientIDD]").removeAttr("disabled");
-                $("input[name=ClientIDS2]").attr("disabled", "disabled");
-                $('#AdultMeals').val($("#AdultDinner").val());
-            } else if (mealtype == "5") {
-                $("input[name=ClientIDB]").attr("disabled", "disabled");
-                $("input[name=ClientIDL]").attr("disabled", "disabled");
-                $("input[name=ClientIDS]").attr("disabled", "disabled");
-                $("input[name=ClientIDD]").attr("disabled", "disabled");
-                $("input[name=ClientIDS2]").removeAttr("disabled");
-                $('#AdultMeals').val($("#AdultSnack2").val());
-            } else {
-                $("input[name=ClientIDB]").removeAttr("disabled");
-                $("input[name=ClientIDL]").removeAttr("disabled");
-                $("input[name=ClientIDS]").removeAttr("disabled");
-                $("input[name=ClientIDD]").removeAttr("disabled");
-                $("input[name=ClientIDS2]").removeAttr("disabled");
-                $('#AdultMeals').val();
+
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
+
+
+                    var $breakCheckBox = $(tr).find('td:eq(1)').find('p input:checkbox');
+                    var $breakChecked = $breakCheckBox.hasClass('breakfast-checked');
+
+                    var $lunchCheckbox = $(tr).find('td:eq(2)').find('p input:checkbox');
+                    var $lunchChecked = $lunchCheckbox.hasClass('lunch-checked');
+
+                    var $snackCheckbox = $(tr).find('td:eq(3)').find('p input:checkbox');
+                    var $snackChecked = $snackCheckbox.hasClass('snack-checked');
+
+
+                    var $dinnerCheckbox = $(tr).find('td:eq(4)').find('p input:checkbox');
+                    var $dinnerChecked = $dinnerCheckbox.hasClass('dinner-checked');
+
+
+                    $breakCheckBox.attr("disabled", "disabled");
+                    if (!$breakChecked) {
+                        $breakCheckBox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+                    $lunchCheckbox.attr("disabled", "disabled");
+                    if (!$lunchChecked) {
+                        $lunchCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+                    $snackCheckbox.attr("disabled", "disabled");
+                    if (!$snackChecked) {
+                        $snackCheckbox.prop('checked', false).siblings('.servedTime').val('');
+                    }
+
+                    $dinnerCheckbox.removeAttr("disabled");
+
+                });
+
+                $('#MealSelected').val($("#AdultDinner").val());
+                $('#ADinnerServedOn').val($('#AdultDinnerServedOn').val());
+
             }
+
+
+
+            else {
+
+                $.each($('#schedule-school-table tbody').find('tr'), function (i, tr) {
+
+
+                    var $breakCheckBox = $(tr).find('td:eq(1)').find('p input:checkbox');
+                    var $breakChecked = $breakCheckBox.hasClass('breakfast-checked');
+
+                    var $lunchCheckbox = $(tr).find('td:eq(2)').find('p input:checkbox');
+                    var $lunchChecked = $lunchCheckbox.hasClass('lunch-checked');
+
+                    var $snackCheckbox = $(tr).find('td:eq(3)').find('p input:checkbox');
+                    var $snackChecked = $snackCheckbox.hasClass('snack-checked');
+
+
+                    var $dinnerCheckbox = $(tr).find('td:eq(4)').find('p input:checkbox');
+                    var $dinnerChecked = $dinnerCheckbox.hasClass('dinner-checked');
+
+
+                    if (!$breakChecked) {
+                        $breakCheckBox.attr("disabled", "disabled").prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                    if (!$lunchChecked) {
+                        $lunchCheckbox.attr("disabled", "disabled").prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+                    if (!$snackChecked) {
+                        $snackCheckbox.attr("disabled", "disabled").prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                    if (!$dinnerChecked) {
+                        $dinnerCheckbox.attr("disabled", "disabled").prop('checked', false).siblings('.servedTime').val('');
+
+                    }
+
+                });
+
+
+                $('#MealSelected').val();
+            }
+        }
+
+        function addAdditionalFileInput(ele) {
+
+
+            var appendString = '<div class="form-group additional-div-remove">\
+                                    <label class="col-md-4 col-lg-2 col-xs-12 hidden-sm hidden-xs hidden-md  lbl-popup-cn lbl-text" style="color:#295b8f;visibility:hidden;">Attachment</label>\
+                                    <div class="col-sm-12 col-lg-8 col-xs-12 attachment-div">\
+                                        <div class="col-lg-6 col-xs-8 no-padding" style="padding:0;">\
+                                            <input type="file" class="form-control" />\
+                                        </div>\
+                                        <div class="adddivspace col-lg-4 col-xs-4 col-sm-3 ">\
+                                            <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeAdditionalFileInput(this);"><i class ="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                        </div>\
+                                    </div>\
+                                </div>'
+
+
+
+            $('#modal-daily-observation').find('#div-popup-add-attach').append(appendString);
+
+
+        }
+
+        function removeAdditionalFileInput(ele) {
+            $(ele).closest('.additional-div-remove').remove();
+        }
+
+        function getFormattedDate(date) {
+
+            var today = new Date(date);
+            var dd = today.getDate();
+
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            today = mm + '/' + dd + '/' + yyyy;
+
+            return today;
+
+        }
+
+        function getDevelopmentalTeam(ele, clientid) {
+            $.ajax({
+                url: HostedDir + '/Roster/GetDevelopmentalTeamByClient',
+                async: true,
+                type: 'POST',
+                datatype: 'JSON',
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                data: { 'clientID': clientid, 'yakrkcode': 0 },
+                success: function (data) {
+
+                    caseNoteObjData = data;
+                    var $modal = $('#modal-daily-observation');
+                    if (data != null) {
+                        if (data.CaseNoteList != null && data.CaseNoteList.length > 0) {
+                            $modal.find('#lbl-popup-client').html(data.CaseNoteList[0].Name);
+                            $('#popup-casenote-date').val(data.CaseNoteList[0].Date);
+                        }
+
+                        if (data.Clientlist != null && data.Clientlist.length > 0) {
+                            var clientDataAppend = '';
+
+
+                            var dataClient = $.grep(data.Clientlist, function (m) {
+
+                                return m.Id == clientid || m.Name.indexOf('Child') == -1;
+                            });
+
+                            $.each(dataClient, function (i, client) {
+                                clientDataAppend += '<div class="col-sm-12 form-group">\
+                                            <input type="checkbox" name="ClientIds.IDS" value='+ client.Id + '>\
+                                            <span>'+ client.Name + '</span>\
+                                        </div>';
+                            });
+
+                            $modal.find('.div-popup-clients-cn').html(clientDataAppend);
+                            $modal.find('.div-popup-clients-cn').find('input:checkbox').prop('checked', true);
+
+                        }
+
+                        if (data.UserList != null && data.UserList.length > 0) {
+                            var userDataAppend = '';
+                            $.each(data.UserList, function (i, user) {
+
+                                userDataAppend += '<div class="col-sm-12 form-group">\
+                                            <input type="checkbox" name="Users.IDS" value='+ user.Id + '>\
+                                            <span>'+ user.Name + '</span>\
+                                        </div>';
+                            });
+
+                            $modal.find('.div-popup-dev-cn').html(userDataAppend);
+                        }
+
+
+
+                        if (CKEDITOR.instances['popup-casenote-note']) {
+                            CKEDITOR.instances['popup-casenote-note'].destroy(true);
+                        }
+
+                        $('#popup-casenote-note').val('Meal Observation');
+                        $('#popup-casenote-title').val('Meal Observation');
+
+                        CKEDITOR.replace('popup-casenote-note', {
+                            language: 'en-gb',
+                            uiColor: '#295b8f',
+                            disableNativeSpellChecker: false
+                        });
+
+                        //$('#popup-casenote-tags').tagsInput({
+                        //    width: 'auto',
+                        //    height: 'auto',
+                        //    delimiter: [',', ';'],
+                        //    autocomplete: {
+                        //        //'source': tags_array[0].split(/,\s*/)
+                        //        'source': getTagsOnInput()
+                        //    },
+                        //    autocomplete_url: '',
+                        //});
+
+
+
+                        $('#popup-casenote-tags').importTags('Meal Observation,,;');
+
+
+                        showCameraOption();
+
+                        $modal.find('#uploadImageCamera').hide();
+
+                        setIntervalUserMedia();
+
+                        $modal.modal('show');
+
+                        //window.setTimeout(function () {
+
+                        //    $('#popup-casenote-tags').siblings('#popup-casenote-tags_tagsinput').children('span').children('a[title="Removing tag"]').remove();
+
+                        //}, 100);
+
+                    }
+                    else {
+                        customAlert('Error occurred. Please, try again later.');
+                    }
+
+
+
+                },
+                error: function (data) {
+                    customAlert('Error occurred. Please, try again later.');
+
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+
+
+
+            });
+        }
+
+        function validateMealsObservationCaseNote() {
+            isValid = true;
+            cleanValidation();
+            var Clientcount = 0;
+            var Tags = '';
+            $('#popup-casenote-tags_tagsinput .tag span').each(function () {
+                Tags = Tags + $(this).text().trim() + ',';
+            });
+            $("#popup-casenote-tags").val(Tags);
+
+            $('#popup-casenote-note').val(CKEDITOR.instances['popup-casenote-note'].getData());
+
+            $('.div-popup-clients-cn input:checked').each(function () {
+                if ($(this).prop("checked")) {
+                    Clientcount = 1;
+                }
+            });
+            Tags = '';
+            if ($('#popup-casenote-date').val().trim() == "") {
+                isValid = false;
+                customAlert("Case note date is required. ");
+                plainValidation('#popup-casenote-date');
+                return isValid;
+            }
+            else if ($('#popup-casenote-title').val().trim() == "") {
+                isValid = false;
+                customAlert("Title is required.");
+                plainValidation('#popup-casenote-title');
+                return isValid;
+            }
+            else if (CKEDITOR.instances['popup-casenote-note'].getData() == "") {
+                isValid = false;
+                customAlert("Note is required.");
+                return isValid;
+            }
+            else if (Clientcount == 0) {
+                isValid = false;
+                customAlert("Clients name is required.");
+                $('.div-popup-clients-cn').focus();
+                plainValidation($('.div-popup-clients-cn'));
+                return isValid;
+            }
+            else if ($('#popup-casenote-tags').val().trim() == "") {
+                isValid = false;
+                customAlert("Tags is required.");
+                plainValidation('#popup-casenote-tags');
+                return isValid;
+            }
+
+
+            return isValid;
+
+        }
+
+
+        function checkDateCaseNote(value) {
+            isValid = true;
+            if (!$(value).attr("readonly")) {
+
+                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                    var regex = new RegExp(dateformat);
+                    if (!regex.test($(value).val())) {
+                        customAlert("Invalid date format. ");
+                        //$(value).val('');
+                        plainValidation($(value));
+                        return false;
+                    }
+                    else {
+                        var text = $(value).val();
+                        var comp = text.split('/');
+                        var m = parseInt(comp[0], 10);
+                        var d = parseInt(comp[1], 10);
+                        var y = parseInt(comp[2], 10);
+                        var date = new Date(y, m - 1, d);
+                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                        } else {
+                            customAlert("Invalid date. ");
+                            //$(value).val('');
+                            plainValidation($(value));
+
+                            return false;
+                        }
+
+
+
+                    }
+                }
+                var txtdate = $(value).val();
+                var selectedTimestampequal = new Date();
+                var year = selectedTimestampequal.getFullYear();
+                var month = selectedTimestampequal.getMonth() + 1;
+                var day = selectedTimestampequal.getDate();
+                today1 = month + '/' + day + '/' + year;
+                var newinput = today1.split("/");
+                var newday = newinput[1];
+                var str = newday.substr(0, 1);
+                var newdaynew = ('0' + newday).slice(-2);
+                var newmonth = newinput[0];
+                var str1 = newmonth.substr(0, 1);
+                var newmonthnew = ('0' + newmonth).slice(-2);
+                today = newmonthnew + '/' + newdaynew + '/' + year;
+                if (today == txtdate) {
+                    return true;
+                }
+                var testdatelocalinput = new Date(txtdate);
+                var selectedTimestamp = new Date().getTime();
+                var testdatelocalinputTS = testdatelocalinput.getTime();
+                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+                if (testdatelocalinputTS > selectedTimestamp) {
+                    customAlert("Case Note date must be less than or equal to today's date.");
+                    //$(value).val('');
+                    plainValidation($(value));
+
+                    return false;
+                }
+                else if (timestamp > testdatelocalinputTS) {
+                    customAlert("Case Note date cannot be less than 30 days from today's date.");
+                    //$(value).val('');
+                    plainValidation($(value));
+
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        function stopMediaTracks(stream) {
+
+            stream.getTracks().forEach(function (track) { track.stop(); })
+
+        }
+
+        function gotDevices(mediaDevices) {
+
+            videoSelect.innerHTML = '';
+            // videoSelect.appendChild(document.createElement('option'));
+            var count = 1;
+            mediaDevices.forEach(function (mediaDevice) {
+                if (mediaDevice.kind === 'videoinput') {
+                    const option = document.createElement('option');
+                    option.value = mediaDevice.deviceId;
+                    const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                    const textNode = document.createTextNode(label);
+                    option.appendChild(textNode);
+                    videoSelect.appendChild(option);
+                }
+            });
+
+        }
+
+        function getStream() {
+            // alert('change event');
+            if (typeof currentStream !== 'undefined') {
+                stopMediaTracks(currentStream);
+            }
+            const videoConstraints = {};
+            if (videoSelect.value === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: videoSelect.value };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+              .getUserMedia(constraints)
+              .then(function (stream) {
+                  currentStream = stream;
+                  video.srcObject = stream;
+                  return navigator.mediaDevices.enumerateDevices();
+              })
+              .then(gotDevices)
+              .catch(function (error) {
+                  console.error(error);
+                  //alert(error);
+              });
+        }
+
+        function showCameraOption(ele) {
+
+            var videoInputAvailable = 0;
+            $('#uploadImageCamera').tooltip();
+            $('#uploadImageCamera').tooltip('hide');
+            $('#uploadImageCamera').hide();
+
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+
+                console.log(devices);
+                devices.forEach(function (device) {
+
+
+                    if (device.kind == 'videoinput') {
+                        videoInputAvailable++;
+                    }
+
+                });
+
+
+                if (videoInputAvailable == 0) {
+                    $('#uploadImageCamera').hide();
+                    $('#uploadImageCamera').tooltip('hide');
+
+                }
+                else {
+                    $('#uploadImageCamera').show();
+                    // $('#uploadImageCamera').tooltip('show');
+                }
+
+                console.log(videoInputAvailable);
+
+            }).catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+
+
+            //if (videoSelect.options.length > 0) {
+            //    getStream();
+            //}
+
+
+
+
+        }
+
+        function showVideoStream() {
+            if (videoSelect.options.length > 0) {
+                getStream();
+            }
+
+        }
+
+
+        function checkUserMedia() {
+
+
+
+
+            navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia);
+
+            navigator.getMedia({ video: true }, function () {
+
+                if (!$('#uploadImageCamera').is(':visible')) {
+
+                    $('#uploadImageCamera').show();
+
+                    //$('#uploadImageCamera').tooltip('show');
+                }
+
+
+
+            }, function () {
+
+                $('#uploadImageCamera').hide();
+                $('#uploadImageCamera').tooltip('hide');
+
+
+            });
+
+
+        }
+
+        var userMediaInterval = null;
+
+        function setIntervalUserMedia() {
+
+            userMediaInterval = setInterval(function () {
+
+                checkUserMedia();
+
+            }, 1000);
+
+
+
+        }
+
+        function stopIntervalUserMedia() {
+            clearInterval(userMediaInterval);
+        }
+
+        function getBase64Image(img) {
+            //debugger;
+            //var canvas = document.createElement("canvas");
+            //canvas.width = img.width;
+            //canvas.height = img.height;
+            //var ctx = canvas.getContext("2d");
+            //ctx.drawImage(img, 0, 0);
+            //var dataURL = ctx.toDataURL("image/png");
+            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
+        }
+
+
+        function saveDocumentCamera(ele) {
+            var docImage = $('#modalScreenDoc').find('#capt-img');
+
+            if (docImage[0].src.replace('data:,', '') == '') {
+                customAlert('Please capture image using camera');
+                return false;
+            }
+            else {
+
+                saveScreeningDoc(docImage, 2);
+
+            }
+
         }
     </script>
 
-    <input type="hidden" id="profileindex" name="profileindex" />
-    <input type="hidden" id="eduindex" name="eduindex" />
-    @using (Html.BeginForm("Meals", "Teacher"))
-    {
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
-                <h2 class="page-header">
-                    Meal Detail <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
-                    <span></span>
 
-                </h2>
+}
 
-            </div>
 
-            <!-- /.col-lg-12 -->
-        </div>
-        <div class="add-useragform">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                <div class="col-lg-6 col-md-6 col-sm-12">
+@section MainContentHolder{
 
-                 
-                    <label>Meals Offered: </label>
 
-                    <select id="MealType" class="form-control" onchange="MealChanged();">
-                        @{
-                            <option value="0">
-                                -Select One-
-                            </option>
-                            foreach (var item in Model.Meallst)
+
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid" style="padding-top:15px;">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                @*<div class="col-lg-12">
+                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>&nbsp;Makeup School Days
+
+                                            <span class="view-btn backto_listspan">
+
+
+
+                                            </span>
+                                        </h2>
+                                    </div>*@
+
+                                <div class="edu_clrm_head">
+
+
+                                    <h3>
+                                        Meal Detail <small><i>for </i></small>@Model.Tdate
+
+
+                                    </h3>
+                                </div>
+
+                            </div>
+
+
+                            <!-------Children table section------->
+                            @using (Html.BeginForm("Meals", "Teacher"))
                             {
-                                <option value="@item.MealID" class="box-header" id="MealType" name="MealType">
-                                    @item.MealType
-                                </option>
-                            }
-                        }
-                    </select>
+                                <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
 
-                </div>
-
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                <div class="col-lg-6 col-md-6 col-sm-12">
-                    <label>The Number of Adult Meals Served: </label>
-                   
-
-                    <label> @Html.TextBox("AdultMeals", 0, new { @class = "form-control", onkeypress = "return isNumberKey(event);" })</label>
-
-
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
-                <div class="add-useragform student-scroll full-border full-border-margin add-useragform5">
-                    <div class="table-responsive">
-
-                        <table class="table" id="MealTable">
-
-                            <tbody style="text-align:left">
-                            <thead class="page-header">
-
-                                <tr class="page-header">
-                                    <th colspan="7">
-
-                                        <label class="alert">Check All <input type="checkbox" onchange="return CheckAll(this)" /></label>
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                @foreach (var j in Model.Itemlst)
-                                {
-                                    <tr>
-
-
-                                        @if (j.AttendanceType == "1")
-                                        {
-
-                                            <th style="text-align:left;">@Html.CheckBox("ClientIDB", j.Breakfast, new { value = j.ClientID, style = "width:auto !important;" })</th>
-                                            <th style="text-align:left;">@Html.CheckBox("ClientIDL", j.Lunch, new { value = j.ClientID, style = "width:auto !important;" })</th>
-                                            <th style="text-align:left;">@Html.CheckBox("ClientIDS", j.Snack, new { value = j.ClientID, style = "width:auto !important;" })</th>
-                                            <th style="text-align:left;">@Html.CheckBox("ClientIDD", j.Dinner, new { value = j.ClientID, style = "width:auto !important;" })</th>
-                                            <th style="text-align:left;">@Html.CheckBox("ClientIDS2", j.Snack2, new { value = j.ClientID, style = "width:auto !important;" })</th>
-                                            <th style="text-align:left;">@j.CName</th>
-
-                     <!-- THIS NEEDS TO GO TO CASE NOTES FOR MEALS OBSERVATIONS -->
-                                            <th style="color:slategrey;text-align:left;"><a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="~/Roster/CaseNotesclient/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.ClientID)&Householdid=0&centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.CenterID)&Programid=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.Programid)"><img src="~/Images/referral.png" />Meal Observation Notes</a> </th>
-
-
-                                        }
-
-                                    </tr>
-
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-   
-
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
-                <div class="add-useragform student-scroll full-border full-border-margin">
-                    <div id="sig"></div>
-
-                    <input type="hidden" id="childid" value="@Model.ClientID" />
+                                    <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
 
 
 
-                </div>
 
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
-                    <div class="add-useragform student-scroll full-border full-border-margin">
-                        <input type="hidden" name="CenterID" id="CenterID" value="@Model.CenterID" />
-                        <input type="hidden" name="ClassroomID" id="ClassroomID" value="@Model.ClassID" />
-                        <input type="hidden" name="MealTypeSelected" id="MealTypeSelected" value="" />
+                                        @Html.HiddenFor(m => m.Tdate)
 
-                        <button class="btnPassword" id="post" onclick="return ValidateData();">Submit</button>
-                        <button class="btnPassword" onclick="location.href='@Url.Action("Roster", "Teacher")';return false;">
-                            Exit
-                        </button>
-                    </div>
-                </div>
+                                        <div class="col-xs-12 div-filter-section">
+
+
+                                            <div class="col-md-3 col-xs-12 col-sm-5">
+
+                                                <div class="form-group">
+                                                    <label class="lbl-text">Meals Offered</label>
+
+
+
+                                                    @Html.DropDownListFor(m => m.MealType, new SelectList(Model.Meallst, "MealID", "MealType", Model.MealType), "-Select one-", new { @class = "glossy-select", @onchange = "MealChanged();" })
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 col-xs-12 col-sm-5">
+                                                <div class="form-group">
+                                                    <label class="lbl-text">Adult Meals Served</label>
+
+                                                    @Html.TextBoxFor(m => m.MealSelected, new { @class = "glossy-input", onkeypress = "return isNumberKey(event);", @style = "padding:0px 10px;" })
+                                                    @Html.HiddenFor(m => m.ABreakfastServedOn)
+                                                    @Html.HiddenFor(m => m.ALunchServedOn)
+                                                    @Html.HiddenFor(m => m.ASnackServedOn)
+                                                    @Html.HiddenFor(m => m.ADinnerServedOn)
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 col-sm-12 col-xs-12 div-check-all">
+
+
+                                                <div class="form-group">
+                                                    <label class="lbl-text" style="visibility:hidden">Select All Clients</label>
+
+                                                    <input type="checkbox" placeholder="0" value="" onchange="return CheckAll(this)" />&nbsp;&nbsp;<span><strong>Check All</strong></span>
+
+
+
+                                                </div>
+
+
+                                            </div>
 
 
 
 
 
 
-            </div>
-            <h2 class="page-header"></h2>
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                        @foreach (var A in Model.Itemlst)
-                        {
-                           <label class="form-area">
-                            Adult Breakfast: @A.ABreakfast 
-                            Adult Lunch: @A.ALunch 
-                            Adult Snack: @A.ASnack 
-                            Adult Dinner: @A.ADinner 
-                            Adult Snack2: @A.ASnack2</label>
-                            
-                            @Html.Hidden("AdultBreakfast", A.ABreakfast)
-                            @Html.Hidden("AdultSnack", A.ASnack)
-                            @Html.Hidden("AdultLunch", A.ALunch)
-                            @Html.Hidden("AdultDinner", A.ADinner)
-                            @Html.Hidden("AdultSnack2", A.ASnack2)
-                            break;
-                        }
-                    </div>
-                </div>
-            
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals" style="margin-bottom:20px;">
-                            <div class="add-useragform student-scroll full-border full-border-margin">
-                                <div class="table-fixed">
-                                    <table class="table" style="border:1px solid #d3d3d3;">
 
-                                        <tbody style="text-align:left">
-                                        <thead>
-                                            <tr class="main-header" style="background-color:lightgrey;">
-                                                <th>Client Name</th>
-                                                <th>Breakfast</th>
-                                                <th>Lunch</th>
-                                                <th>Snack</th>
-                                                <th>Dinner</th>
-                                                <th>Snack2</th>
-                                            </tr>
 
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var j in Model.Itemlst)
-                                            {
+                                            @*<table class="total-details-table col-md-12">
+
+                                                    <tbody>
+
+
+                                                        <tr>
+                                                            <td><label>Total Record (s)</label></td>
+                                                            <td id="totalCountSpan">29</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>*@
+
+                                        </div>
+
+
+
+
+
+
+
+                                        <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="schedule-school-table">
+                                            <thead class="table-hd scroll-thead">
                                                 <tr>
-                                                    <th style="text-align:left;">@j.CName</th>
-                                                    <!-- THIS NEEDS TO GO TO CASE NOTES FOR MEALS OBSERVATIONS -->
-                                                    @if (j.Breakfast == true)
-                                                    {
-                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th><img src="~/Images/whiteX.gif" /> </th>
-                                                    }
+                                                    <th>
+                                                        Client
 
-                                                    @if (j.Lunch == true)
-                                                    {
-                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th><img src="~/Images/whiteX.gif" /> </th>
-                                                    }
-                                                    @if (j.Snack == true)
-                                                    {
-                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th><img src="~/Images/whiteX.gif" /> </th>
-                                                    }
-                                                    @if (j.Dinner == true)
-                                                    {
-                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th><img src="~/Images/whiteX.gif" /> </th>
-                                                    }
-                                                    @if (j.Snack2 == true)
-                                                    {
-                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
-                                                    }
-                                                    else
-                                                    {
-                                                        <th><img src="~/Images/whiteX.gif" /> </th>
-                                                    }
+                                                    </th>
+
+                                                    <th>
+                                                        Breakfast
+                                                    </th>
+
+
+                                                    <th>
+                                                        Lunch
+                                                    </th>
+
+                                                    <th>
+                                                        Snack
+                                                    </th>
+
+
+
+
+
+
+                                                    <th>
+                                                        Dinner
+                                                    </th>
+
+                                                    <th>Meal Observation Notes</th>
 
                                                 </tr>
+                                            </thead>
+                                            <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="classdays-tbody">
 
-                                            }
 
-                                        </tbody>
+                                                @{
+                                                    int i = 0;
+                                                }
+                                                @foreach (var j in Model.Itemlst)
+                                                {
+                                                    <tr>
 
-                                    </table>
+
+                                                        @if (j.AttendanceType == "1")
+                                                        {
+                                                            <td style="text-align:left;" data-title="Client">
+                                                                <p>
+                                                                    @j.CName
+                                                                    @Html.HiddenFor(m => m.Itemlst[i].ClientID)
+
+
+
+                                                                </p>
+                                                            </td>
+                                                            <td style="text-align:left;" data-title="Breakfast">
+                                                                <p>
+
+                                                                    @Html.CheckBoxFor(m => m.Itemlst[i].Breakfast, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Breakfast ? "breakfast-checked" : "check-braeakfast"), @disabled= "disabled" })
+                                                                    @Html.HiddenFor(m => m.Itemlst[i].BreakfastServedOn, new { @class = "servedTime" })
+                                                                    @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
+                                                                    @* <input type="checkbox" name="ClientIDB" value="@j.ClientID" style="width:auto!important" @if (j.Breakfast) { <text> checked="checked" </text>     } />*@
+                                                                </p>
+                                                            </td>
+                                                                <td style="text-align:left;" data-title="Lunch">
+                                                                    <p>
+                                                                        @Html.CheckBoxFor(m => m.Itemlst[i].Lunch, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Lunch ? "lunch-checked" : "check-lunch"), @disabled = "disabled" })
+
+                                                                        @Html.HiddenFor(m => m.Itemlst[i].LunchServedOn, new { @class = "servedTime" })
+                                                                        @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
+
+                                                                        @*<input type="checkbox" name="ClientIDL" value="@j.ClientID" style="width:auto!important;" @if (j.Lunch) { <text> checked="checked" </text>    } />*@
+                                                                    </p>
+                                                                </td>
+
+                                                                <td style="text-align:left;" data-title="Snack">
+                                                                    <p>
+                                                                        @Html.CheckBoxFor(m => m.Itemlst[i].Snack, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Snack ? "snack-checked" : "check-snack"), @disabled = "disabled" })
+                                                                        @Html.HiddenFor(m => m.Itemlst[i].SnackServedOn, new { @class = "servedTime" })
+                                                                        @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
+
+
+
+                                                                        @*<input type="checkbox" name="ClientIDS" value="@j.ClientID" style="width:auto!important;" @if (j.Snack) { <text> checked="checked" </text>   } />*@
+
+                                                                    </p>
+
+                                                                </td>
+                                                                <td style="text-align:left;" data-title="Dinner">
+                                                                    <p>
+                                                                        @Html.CheckBoxFor(m => m.Itemlst[i].Dinner, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Dinner ? "dinner-checked" : "check-dinner"), @disabled = "disabled" })
+                                                                        @Html.HiddenFor(m => m.Itemlst[i].DinnerServedOn, new { @class = "servedTime" })
+                                                                        @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
+
+
+
+
+
+
+
+                                                                        @*<input type="checkbox" name="ClientIDD" value="@j.ClientID" style="width:auto!important;" @if (j.Dinner) { <text> checked="checked" </text>   } />*@
+                                                                    </p>
+
+                                                                </td>
+
+
+                                                                @*<td style="text-align:left;display:none;">
+                                                                        <p>
+
+                                                                            @Html.CheckBoxFor(m => m.Itemlst[i].Snack2, new { @style = "width:auto!important;" })
+
+                                                                            @Html.HiddenFor(m => m.Itemlst[i].Snack2ServedOn)
+                                                                        </p>
+                                                                    </td>*@
+
+                                                                <td style="color:slategrey;text-align:left;" data-title="Meal Observation Notes"><p><a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="javascript:void(0);" onclick="getDevelopmentalTeam(this, '@Model.Itemlst[i].ClientID');"><img src="~/Images/referral.png" /></a></p></td>
+
+
+                                                        }
+
+                                                    </tr>
+
+                                                    i++;
+                                                }
+
+
+                                            </tbody>
+
+
+
+                                        </table>
+
+
+
+
+                                    </div>
+
+
+
+
 
                                 </div>
-                            </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                    <div class="add-useragform student-scroll full-border full-border-margin">
+                                        <div id="sig"></div>
+
+                                        <input type="hidden" id="childid" value="@Model.ClientID" />
+
+
+
+                                    </div>
+
+
+
+                                    <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                                        @Html.HiddenFor(m => m.CenterID)
+                                        @Html.HiddenFor(m => m.ClassID)
+
+                                        <button class="glossy-button-button button-green" type="submit" onclick="return ValidateData();" id="post">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            Submit
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button class="glossy-button-button button-red" type="button" onclick="location.href='@Url.Action("Roster", "Teacher")';return false;">
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                            Exit
+                                        </button>
+                                    </div>
+
+
+
+
+
+
+
+
+                                </div>
+
+                                <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+                                    <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+
+
+
+
+
+                                        <div class="col-xs-12 col-md-12 col-lg-6 pull-right search-block-main table-responsive">
+
+
+                                            <table class="col-md-12 table table-condensed table-striped glossy-table total-details-table  table_size">
+
+                                                <thead>
+                                                    <tr>
+                                                        <th>Adult Breakfast</th>
+                                                        <th>Adult Lunch</th>
+                                                        <th>Adult Snack</th>
+                                                        <th>Adult Dinner</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+                                                    @foreach (var A in Model.Itemlst)
+                                                    {
+
+                                                        <tr>
+
+                                                            <td data-title="Adult Breakfast">
+                                                                <p>
+                                                                    @A.ABreakfast
+                                                                    @Html.Hidden("AdultBreakfast", A.ABreakfast)
+                                                                    @Html.Hidden("AdultBreakfastServedOn",A.ABreakfastServedOn)
+                                                                </p>
+                                                            </td>
+
+                                                            <td data-title="Adult Lunch">
+                                                                <p>
+                                                                    @A.ALunch
+                                                                    @Html.Hidden("AdultLunch", A.ALunch)
+                                                                    @Html.Hidden("AdultLunchServedOn", A.ALunchServedOn)
+
+
+                                                                </p>
+                                                            </td>
+
+                                                            <td data-title="Adult Snack">
+                                                                <p>
+                                                                    @A.ASnack
+                                                                    @Html.Hidden("AdultSnack", A.ASnack)
+                                                                    @Html.Hidden("AdultSnackServedOn", A.ASnackServedOn)
+
+
+                                                                </p>
+
+                                                            </td>
+
+                                                            <td data-title="Adult Dinner">
+                                                                <p>
+                                                                    @A.ADinner
+                                                                    @Html.Hidden("AdultDinner", A.ADinner)
+                                                                    @Html.Hidden("AdultDinnerServedOn", A.ADinnerServedOn)
+
+
+                                                                </p>
+
+                                                            </td>
+                                                        </tr>
+
+                                                        break;
+                                                    }
+
+
+
+
+
+
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+
+
+
+
+
+                                        <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="schedule-school-table-report">
+                                            <thead class="table-hd scroll-thead">
+                                                <tr>
+                                                    <th>Client</th>
+                                                    <th>Breakfast</th>
+                                                    <th>Lunch</th>
+                                                    <th>Snack</th>
+                                                    <th>Dinner</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+                                                @foreach (var j in Model.Itemlst)
+                                                {
+                                                    <tr>
+                                                        <td style="text-align:left;" data-title="Client"><p>@j.CName</p></td>
+                                                        <!-- THIS NEEDS TO GO TO CASE NOTES FOR MEALS OBSERVATIONS -->
+                                                        @if (j.Breakfast == true)
+                                                        {
+                                                            <td data-title="Breakfast">
+                                                                <p>
+                                                                    <img src="~/Images/whiteCheck.jpg" />
+
+                                                                    <span style="float:right;margin-left:15px;">@Convert.ToDateTime(j.BreakfastServedOn).ToString("hh:mm tt")</span>
+
+                                                                </p>
+
+
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td data-title="Breakfast">
+                                                                <p>
+                                                                    <img src="~/Images/whiteX.gif" />
+
+
+                                                                </p>
+                                                            </td>
+                                                        }
+
+                                                        @if (j.Lunch == true)
+                                                        {
+                                                            <td data-title="Lunch">
+                                                                <p>
+                                                                    <img src="~/Images/whiteCheck.jpg" />
+
+                                                                    <span style="float:right;margin-left:15px;">@Convert.ToDateTime(j.LunchServedOn).ToString("hh:mm tt")</span>
+                                                                </p>
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td data-title="Lunch"><p><img src="~/Images/whiteX.gif" /> </p></td>
+                                                        }
+                                                        @if (j.Snack == true)
+                                                        {
+                                                            <td data-title="Snack">
+                                                                <p>
+                                                                    <img src="~/Images/whiteCheck.jpg" />
+
+                                                                    <span style="float:right;margin-left:15px;">@Convert.ToDateTime(j.SnackServedOn).ToString("hh:mm tt")</span>
+                                                                </p>
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td data-title="Snack"><p><img src="~/Images/whiteX.gif" /> </p></td>
+                                                        }
+                                                        @if (j.Dinner == true)
+                                                        {
+                                                            <td data-title="Dinner">
+                                                                <p>
+                                                                    <img src="~/Images/whiteCheck.jpg" />
+                                                                    <span style="float:right;margin-left:15px;">@Convert.ToDateTime(j.DinnerServedOn).ToString("hh:mm tt")</span>
+                                                                </p>
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td data-title="Dinner"><p><img src="~/Images/whiteX.gif" /></p> </td>
+                                                        }
+
+                                                    </tr>
+
+                                                }
+
+                                            </tbody>
+
+
+
+                                        </table>
+
+
+
+
+                                    </div>
+
+
+
+
+
+                                </div>
+
+
+                                                    }
                         </div>
                     </div>
-                    }
-</form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        }
 
-<h2>Meal</h2>
+    <!--- Observation Notes Popup ----->
+
+
+    <div class="modal fade scroll-modal custom-modal in" id="modal-daily-observation" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h2 id="CaseNoteHeading" class="extra-title muted">Meal Observation Notes </h2>
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+
+                    <form id="formEditInkind" enctype="multipart/form-data">
+
+                        <div class="max_items_addn popup-addn-scroll">
+
+                            <div class="form-group col-xs-12">
+
+
+
+                                <label for="lbl-popup-client" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Client</label>
+                                <label id="lbl-popup-client" class="col-md-5 col-lg-8 col-xs-12" style="font-weight:normal;">Don Edwards</label>
+                            </div>
+
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
+
+                                <div class="form-group">
+                                    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
+
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-date" class="col-md-4 col-lg-2 col-xs-12 lbl-popup-cn lbl-text" style="color:#295b8f;">Date <sup style="color:red;">*</sup></label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12">
+                                        <input type="text" id="popup-casenote-date" class="form-control" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-title" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Title <sup style="color:red;">*</sup></label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12">
+                                        <input type="text" id="popup-casenote-title" class="form-control" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-note" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Note <sup style="color:red;">*</sup></label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12">
+                                        <textarea id="popup-casenote-note"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-title" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Client(s) <sup style="color:red;">*</sup></label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-clients-cn">
+                                        >
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-tags" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Tags <sup style="color:red;">*</sup></label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12">
+                                        <input type="text" id="popup-casenote-tags" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ClientIds.IDS" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Developmental Team</label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-dev-cn">
+
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="popup-casenote-secure" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Secure Note Level?</label>
+
+                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-secure-cn">
+                                        <div class="col-sm-12 form-group">
+                                            <input type="checkbox" id="popup-casenote-secure" value="true">
+                                            <span>Yes</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Attachment</label>
+
+                                    <div class="col-sm-12 col-lg-8 col-xs-12 attachment-div">
+                                        <div class="col-lg-6 col-xs-8 no-padding" style="padding:0;">
+                                            <input type="file" class="form-control" />
+                                        </div>
+                                        <div class="adddivspace col-lg-4  col-xs-4 col-sm-3 ">
+                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addAdditionalFileInput(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                                            <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="Capture using Camera" style="display:none;">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="ppopup-additional attachment-div col-sm-12" id="div-popup-add-attach" style="padding:0;">
+
+                                </div>
+
+                                <div class="col-md-12 col-xs-12 col-sm-12 adddivspace" id="div-edit-modal-img-gallery">
+
+                                </div>
+
+
+
+
+                            </div>
+
+
+
+                        </div>
+
+
+                        <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                            <button class="glossy-button-button button-green" type="button" id="btn-modal-cn-submit">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                Save
+                            </button>
+                            &nbsp;
+                            <button class="glossy-button-button button-red" type="button" id="btn-modal-cn-cancel" data-dismiss="modal">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                Exit
+                            </button>
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!----- ------>
+    <!----modal upload multiple document using camera--->
+
+
+    @{
+        Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+
+    }
+
+
+    <!------>
+
+
+
+}
+
+

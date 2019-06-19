@@ -234,18 +234,18 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        public ActionResult Meals(FormCollection collection)
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
+        public ActionResult Meals(FormCollection collection, TeacherModel model)
         {
             try
             {
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
 
-                string result = "";
+                bool isResult;
 
-                TeacherModel _teacher = new TeacherData().GetMeals(ref result, staff, collection);
-                if (result == "1")
+                TeacherModel _teacher = new TeacherData().GetMeals(out isResult, staff, collection, model);
+                if (isResult)
                     TempData["message"] = "Record saved successfully.";
                 return View(_teacher);
             }
@@ -1401,7 +1401,8 @@ namespace Fingerprints.Controllers
 
                 result = _Teacher.GetChildrenInfoForWH(1, AssDate, ClassroomId,cid);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
             return Json(result,JsonRequestBehavior.AllowGet);
@@ -1417,7 +1418,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetHistoricalRecordByChildId(string ClientId = "") {
+        public ActionResult GetHistoricalRecordByChildId(string ClientId = "")
+        {
 
             var result = new List<ClientGrowth>();
             try
@@ -1469,7 +1471,8 @@ namespace Fingerprints.Controllers
         {
             ViewBag.eClientId = client;
 
-            try {
+            try
+            {
                 long cid = 0;
                 Clientprofile cp = new Clientprofile();
                 if (!string.IsNullOrEmpty(client))
@@ -1479,12 +1482,14 @@ namespace Fingerprints.Controllers
 
                 }
                 ViewBag.ClientDetail = cp;
-                if (type == 0) {
+                if (type == 0)
+                {
                     if (cp.ProgramType == "HS")  //initial load based on program type
                     {
                         type = 2;
                     }
-                    else {
+                    else
+                    {
                         type = 1;
                     }
                 }
@@ -1606,6 +1611,75 @@ namespace Fingerprints.Controllers
 
 
         #endregion
+
+        #endregion
+
+        #region Save Meals observation Notes
+
+        [CustAuthFilter()]
+        [HttpPost]
+        [ValidateInput(false)]
+        public JsonResult SaveMealObservationNotes(RosterNew.CaseNote caseNote, string cameraUploads = "")
+        {
+            string message = string.Empty;
+
+            try
+            {
+                var files = Request.Files;
+                var keys = files.AllKeys;
+                caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    RosterNew.Attachment aatt = new RosterNew.Attachment();
+                    aatt.file = files[i];
+                    caseNote.CaseNoteAttachmentList.Add(aatt);
+                }
+
+                caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? "0" : caseNote.CaseNoteid;
+                caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
+                caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
+                caseNote.CenterId = caseNote.CenterId != null && caseNote.CenterId != "" && caseNote.CenterId != "0" ? EncryptDecrypt.Decrypt64(caseNote.CenterId) : "0";
+                caseNote.Classroomid = caseNote.Classroomid != null && caseNote.Classroomid != "" && caseNote.Classroomid != "0" ? EncryptDecrypt.Decrypt64(caseNote.Classroomid) : "0";
+                caseNote.HouseHoldId = caseNote.HouseHoldId != null && caseNote.HouseHoldId != "" && caseNote.HouseHoldId != "0" ? EncryptDecrypt.Decrypt64(caseNote.HouseHoldId) : "0";
+                caseNote.CaseNotetags = caseNote.CaseNotetags.Trim(',');
+
+
+
+                if (!string.IsNullOrEmpty(cameraUploads))
+                {
+
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+
+                    foreach (var item in cameraUplodList)
+                    {
+                        caseNote.CaseNoteAttachmentList.Add(new RosterNew.Attachment
+                        {
+                            //InkindAttachmentFile = Convert.FromBase64String(item.Value),
+                            AttachmentFileName = item.Text,
+                            AttachmentFileExtension = ".png",
+                            AttachmentFileByte = Convert.FromBase64String(item.Value)
+                        });
+                    }
+                }
+                caseNote.ClientIds = caseNote.ClientIds.Trim(',');
+                caseNote.StaffIds = caseNote.StaffIds.Trim(',');
+
+                string Name = "";
+                List<CaseNote> CaseNoteList = new List<CaseNote>();
+                RosterNew.Users Userlist = new RosterNew.Users();
+
+                message = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.TransitionMode.Others);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                message = "0";
+            }
+
+            return Json(message, JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
 
