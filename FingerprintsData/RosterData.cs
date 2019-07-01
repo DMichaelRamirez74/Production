@@ -4471,46 +4471,78 @@ namespace FingerprintsData
             return child;
         }
 
-        public AttendenceDetailsByDate GetAttendenceDetailsByDate(string selectedDate, long clientId, string agencyId)
+        public List<AttendenceDetailsByDate> GetAttendenceDetailsByDate(out int totalRecord,CenterAuditReport report,StaffDetails staff)
         {
+            List<AttendenceDetailsByDate> attendanceDetails = new List<AttendenceDetailsByDate>();
+
             AttendenceDetailsByDate attendence = null;
+            totalRecord = 0;
             try
             {
-                //string queryCommand = "GetAttendenceDetailsByDate";
+             
                 DataSet ds = new DataSet();
-                var culture = System.Globalization.CultureInfo.CurrentCulture;
-                DateTime date = DateTime.ParseExact(selectedDate, "MM/dd/yyyy", culture);
-                attendence = new AttendenceDetailsByDate();
+
+              
                 command.Connection = Connection;
                 command.CommandText = "SP_GetAttendenceDetailsByDate";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AttendanceDate", date);
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ClientId", clientId);
+                command.Parameters.AddWithValue("@AttendanceFromDate", report.FromDate);
+                command.Parameters.AddWithValue("@AttendanceToDate", report.ToDate??report.FromDate);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
+                command.Parameters.AddWithValue("@ClientId", EncryptDecrypt.Decrypt64(report.Enc_ClientID));
+                command.Parameters.AddWithValue("@Take", report.PageSize);
+                command.Parameters.AddWithValue("@Skip", report.SkipRows);
+                command.Parameters.AddWithValue("@TotalRecord", report.TotalRecord).Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = 200;
                 SqlDataAdapter da = new SqlDataAdapter(command);
                 da.Fill(ds);
+
+                totalRecord = Convert.ToInt32(command.Parameters["@TotalRecord"].Value);
+
                 if (ds.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        
-                        attendence.AttendenceDate = Convert.ToDateTime(dr["AttendanceDate"]);
-                        attendence.AttendenceStatus = dr["AttendanceType"].ToString();
-                        attendence.Center = Convert.ToString(dr["CenterName"]);
-                        attendence.Class = Convert.ToString(dr["FirstName"]);
+                        attendence = new AttendenceDetailsByDate();
+                        attendence.Enc_ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientID"]));
+                        attendence.ClientName = Convert.ToString(dr["ChildName"]);
+                        attendence.AttendanceDate = Convert.ToString(dr["AttendanceDate"]);
+                        attendence.AttendenceStatus = Convert.ToString(dr["AttendanceTypeName"]);
+                        attendence.Breakfast =dr["Breakfast"]!=DBNull.Value? Convert.ToBoolean(dr["Breakfast"]):false;
+                        attendence.BreakfastServedOn = dr["BreakfastServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["BreakfastServedOn"]) : (DateTime?)null;
+                        attendence.Lunch = dr["Lunch"] != DBNull.Value ? Convert.ToBoolean(dr["Lunch"]) : false;
+                        attendence.LunchServedOn = dr["LunchServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["LunchServedOn"]) : (DateTime?)null;
+                        attendence.Snack = dr["Snacks"] != DBNull.Value ? Convert.ToBoolean(dr["Snacks"]) : false;
+                        attendence.SnackServedOn = dr["SnackServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["SnackServedOn"]) : (DateTime?)null;
+                        attendence.Dinner = dr["Dinner"] != DBNull.Value ? Convert.ToBoolean(dr["Dinner"]) : false;
+                        attendence.DinnerServedOn = dr["DinnerServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["DinnerServedOn"]) : (DateTime?)null;
+                        attendence.TimeIn = Convert.ToString(dr["TimeIn"]);
+                        attendence.ParentSig = dr["PSignature"] != DBNull.Value ? Convert.ToString(dr["PSignature"]) : string.Empty;
+                        attendence.SignedInName = Convert.ToString(dr["SignedInName"]);
+                       // attendence.ParentCheckedIn = Convert.ToString(dr["SignedInBy"]);
+                        attendence.TimeOut = Convert.ToString(dr["TimeOut"]);
+                        attendence.ParentSigOut = dr["PSignatureOut"] != DBNull.Value ? Convert.ToString(dr["PSignatureOut"]) : string.Empty;
+                        attendence.SignedOutName = Convert.ToString(dr["SignedOutName"]);
+                      //  attendence.ParentCheckedOut = Convert.ToString(dr["SignedOutBy"]);
+                        attendence.TimeIn2 = Convert.ToString(dr["TimeIn2"]);
+                        attendence.ParentSig2 = dr["PSignature2"] != DBNull.Value ? Convert.ToString(dr["PSignature2"]) : string.Empty;
+                        attendence.SignedIn2Name = Convert.ToString(dr["SignedIn2Name"]);
+                      //  attendence.ParentCheckedIn2 = Convert.ToString(dr["SignedInBy2"]);
+                        attendence.TimeOut2 = Convert.ToString(dr["TimeOut2"]);
+                        attendence.ParentSigOut2 = dr["PSignatureOutBy2"] != DBNull.Value ? Convert.ToString(dr["PSignatureOutBy2"]) : string.Empty;
+                        attendence.SignedOut2Name = Convert.ToString(dr["SignedOut2Name"]);
+                      //  attendence.ParentCheckedOut2 = Convert.ToString(dr["SignedOutBy2"]);
+                        attendence.TeacherCheckInSig = Convert.ToString(dr["TSignatureIn"]);
+                      //  attendence.TeacherCheckedIn = Convert.ToString(dr["TeacherUserID"]);
+                        attendence.TeacherName = Convert.ToString(dr["TeacherName"]);
+                        attendence.ObservationDescription = Convert.ToString(dr["ObservationDescription"]);
+                        attendence.AbsenceReason = Convert.ToString(dr["AbsenceReason"]);
+                        attendence.ProtectiveBadge = dr["IdNo"] != DBNull.Value ? Convert.ToString(dr["IdNo"]) : string.Empty;
+                        attendence.CenterName = Convert.ToString(dr["CenterName"]);
+                        attendence.ClassroomName = Convert.ToString(dr["ClassroomName"]);
 
-                        attendence.Snacks = (dr["Snacks"] != DBNull.Value) ? Convert.ToInt32(dr["Snacks"]) : 0;
-                        attendence.Breakfast = (dr["breakfast"] != DBNull.Value) ? Convert.ToInt32(dr["breakfast"]) : 0;
-                        attendence.Lunch = (dr["Lunch"] != DBNull.Value) ? Convert.ToInt32(dr["Lunch"]) : 0;
-
-                        attendence.ClientName = dr["FirstName"].ToString() + " " + dr["LastName"].ToString();
-                        attendence.ParentName = dr["ParentName"].ToString();
-                        attendence.SignedInBy = Convert.ToString(dr["signedInBy"]);
-                        attendence.SignedOutBy = Convert.ToString(dr["signedOutBy"]);
-                        attendence.StaffName = Convert.ToString(dr["TeacherSignature"]);
-                        attendence.SignedInTime = Convert.ToString(dr["TimeIn"]);
-                        attendence.SignedOutTime = Convert.ToString(dr["Timeout"]);
+                        attendanceDetails.Add(attendence);
 
                     }
                 }
@@ -4525,7 +4557,7 @@ namespace FingerprintsData
                 Connection.Close();
                 command.Dispose();
             }
-            return attendence;
+            return attendanceDetails;
         }
 		
 		 public bool SaveProgramInformationReport(int ProgramTypeId, string ProgramType, bool FamilyAssessment, bool FamilyGoalSetting, bool ChildHS, bool PolicyCouncil, bool WorkShops, string ActiveProgramYear, string AgencyId,int EventRegCount=0)

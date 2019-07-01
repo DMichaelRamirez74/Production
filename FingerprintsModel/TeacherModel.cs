@@ -55,6 +55,7 @@ namespace FingerprintsModel
         public string OtherNameOut2 { get; set; }
         public string OtherNameTeacher { get; set; }
         public string TeacherName { get; set; }
+        public List<AgencyStaff> TeacherList { get; set; }
 
         public int TeacherTimeZoneDiff { get; set; }
         public int FSWTimeZoneDiff { get; set; }

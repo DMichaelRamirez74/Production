@@ -21,10 +21,8 @@ function ufcReport()
     var _ufcReport = {
 
         classroomsJson: null,
-        // addSubstituteRoleUrl: HostedDir + '/AgencyUser/AddSubstituteRole',
         getUFCReportUrl: HostedDir + '/Reporting/GetUFCReport',
         getUFCReportByCenterUrl: HostedDir + '/Reporting/GetUFCReportByCenter',
-        removeSubstituteRoleUrl: HostedDir + '/AgencyUser/RemoveSubstituteRole',
         getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
         exportReportUrl: HostedDir + '/Reporting/ExportSubstituteRoleReport',
         requestedPage: 1,
@@ -327,37 +325,7 @@ function ufcReport()
             })
         },
 
-        //callbackGetClassrooms: function (data) {
-
-
-
-
-        //    var bindData = '';
-        //    if (data != null && data.CenterList != null && data.CenterList.length > 0 && data.CenterList[0].Classroom != null && data.CenterList[0].Classroom.length > 0) {
-
-        //        bindData += '<option value="0">--Select--</option>';
-
-        //        self.classroomsJson = data.CenterList[0].Classroom;
-        //        $.each(data.CenterList[0].Classroom, function (i, classroom) {
-
-        //            bindData += '<option value=' + classroom.Enc_ClassRoomId + '>' + classroom.ClassName + '</option>';
-        //        });
-        //    }
-
-
-
-
-
-        //    self.elements.dropdownClassroom.html(bindData);
-
-        //    self.elements.divdropdownClassroom.show('slow');
-
-
-
-
-
-
-        //},
+     
         showBusy: function (status) {
             if (status) {
                 $('#spinner').show();
@@ -368,17 +336,7 @@ function ufcReport()
         },
         validateFilterInputs: function () {
 
-            //if (self.elements.searchStaffText.val() == '') {
-            //    customAlert('Staff name is required');
-            //    plainValidation(self.elements.searchStaffText);
-            //    return false;
-            //}
-
-            //if (self.elements.dropdownCenter.val() == '0') {
-            //    customAlertforlongtime('Center is required');
-            //    plainValidation(self.elements.dropdownCenter);
-            //    return false;
-            //}
+           
 
             if (self.elements.dropdownCenter.val() == null || self.elements.dropdownCenter.val() == '' || self.elements.dropdownCenter.val() == '0') {
                 customAlertforlongtime(_langList.Centerisrequired);
@@ -386,43 +344,7 @@ function ufcReport()
                 return false;
             }
 
-                //if (self.elements.dropdownClassroom.val() == '0') {
-                //    customAlert('Classroom is required');
-                //    plainValidation(self.elements.dropdownClassroom);
-                //    return false;
-                //}
-
-                //if (self.elements.fromDateInput.val() == '' || self.elements.fromDateInput.val() == '__/__/____') {
-                //    customAlert('From Date is required');
-                //    plainValidation(self.elements.fromDateInput);
-                //    return false;
-                //}
-
-                //if (new Date(self.elements.fromDateInput.val()).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
-                //    customAlert('From Date should be greater than or equal to today\'s date');
-                //    plainValidation(self.elements.fromDateInput);
-                //    return false;
-                //}
-
-                //if (self.elements.toDateInput.val() == '' || self.elements.toDateInput.val() == '__/__/____') {
-                //    customAlert('To Date is required');
-                //    plainValidation(self.elements.toDateInput);
-                //    return false;
-                //}
-
-                //if (new Date(self.elements.toDateInput.val()).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
-                //    customAlert('To Date should be greater than or equal to today\'s date');
-                //    plainValidation(self.elements.toDateInput);
-                //    return false;
-                //}
-
-
-                //if (new Date(self.elements.fromDateInput.val()).setHours(0, 0, 0, 0) > new Date(self.elements.toDateInput.val()).setHours(0, 0, 0, 0)) {
-                //    customAlert('From Date should be less than or equal to To Date');
-                //    plainValidation(self.elements.fromDateInput);
-                //    return false;
-                //}
-
+                
 
             else if (self.elements.dropdownMonths.val() == null || self.elements.dropdownMonths.val() == '' || self.elements.dropdownMonths.val() == '0') {
                 customAlertforlongtime("Month is required");
@@ -435,129 +357,7 @@ function ufcReport()
 
 
         },
-        //addSubstituteRole: function () {
-
-        //    self.bindAjaxParameters(self.parametersMode.save, null, null);
-
-
-        //    self.ajaxOptions.datatype = 'JSON';
-        //    self.ajaxOptions.type = 'POST';
-        //    self.ajaxOptions.url = self.addSubstituteRoleUrl;
-
-        //    self.ajaxOptions.data = JSON.stringify(self.dataParameters);
-        //    self.ajaxOptions.async = true;
-        //    self.ajaxCall(self.callbackAddSubstituteRole);
-
-
-        //},
-        //removeSubstituteRole: function (ele) {
-
-
-        //    var accesskey = $(ele).siblings('#subsituteId').val();
-        //    var $centerId = $('#myTab li.active a').attr('accesskey');
-        //    var $classroomId = $(ele).parent('td').parent('tr').children('td:eq(0)').children('p').attr('data-accesskey');
-        //    var $className = $(ele).parent('td').parent('tr').children('td:eq(0)').children('p').html();
-        //    var $fromDate = $(ele).parent('td').parent('tr').children('td:eq(2)').children('p').html();
-        //    var $toDate = $(ele).parent('td').parent('tr').children('td:eq(3)').children('p').html();
-        //    BootstrapDialog.show({
-        //        title: 'Confirmation',
-        //        message: '<p>You are about to delete the substitute teacher role assigned to Classroom <strong>' + $className + '</strong>  from the date <strong>' + $fromDate + '</strong> to <strong>' + $toDate + '</strong>.</p>\
-        //                    <p>Click <strong>OK</strong> to Proceed.</p>',
-        //        closable: true,
-        //        closeByBackdrop: false,
-        //        closeByKeyboard: false,
-        //        buttons: [{
-        //            label: '' + _langList.Cancel + ' <span class="glossy-button-before"></span><span class="glossy-button-after"></span>',
-        //            cssClass: 'glossy-button-button button-red',
-        //            action: function (dialogRef) {
-        //                dialogRef.close(true);
-        //            }
-        //        }, {
-        //            label: '' + _langList.Ok + ' <span class="glossy-button-before"></span><span class="glossy-button-after"></span>',
-        //            cssClass: 'glossy-button-button button-green',
-        //            autospin: true,
-        //            action: function (dialogRef) {
-
-        //                self.dataParameters.SubstituteID = accesskey;
-        //                self.dataParameters.CenterID = $centerId;
-        //                self.dataParameters.ClassroomID = $classroomId;
-        //                self.ajaxOptions.url = self.removeSubstituteRoleUrl;
-        //                self.ajaxOptions.type = 'POST';
-        //                self.ajaxOptions.datatype = "JSON";
-        //                self.ajaxOptions.async = true;
-        //                //self.ajaxOptions.contentType = "application/json; charset=utf-8";
-        //                self.ajaxOptions.data = JSON.stringify({ 'substituteRole': self.dataParameters });
-        //                //dialogRef.setClosable(false);
-
-        //                self.ajaxCall(self.callbackRemoveSubstituteRole);
-
-        //            }
-        //        }]
-        //    });
-        //},
-        //callbackAddSubstituteRole: function (data) {
-
-        //    switch (data) {
-        //        case 1:
-        //            customAlert("Record saved successfully");
-
-        //            $('#myTab').find('li a[accesskey="' + self.elements.dropdownCenter.val() + '"]').trigger('click');
-
-        //            window.setTimeout(function () {
-        //                var $tabEle = $('#myTabContent .tab-pane.active');
-        //                var $index = $tabEle.attr('id').replace('tab', '').trim();
-        //                self.resetElements();
-        //                self.getSubsituteRole($tabEle, $index, self.getlistMode.center);
-
-        //            }, 10);
-
-
-        //            break;
-        //        case 0:
-        //            customAlert('Error occurred. Please, try again later.');
-        //            break;
-        //        case 2:
-        //            customAlert('Entered dates falls under the existing assigned dates.');
-        //            break;
-        //        case 3:
-        //            customAlert('Selected staff was assigned to another classroom for entered dates.');
-        //            break;
-        //        case data.Data == "Login":
-        //            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-        //            break;
-        //    }
-
-
-        //},
-        //callbackRemoveSubstituteRole: function (data) {
-        //    switch (data) {
-        //        case 1:
-        //            customAlert("Record deleted successfully");
-        //            $('.modal').modal('hide');
-
-
-
-        //            self.showBusy(true);
-
-        //            window.setTimeout(function () {
-
-        //                var $activeEle = $('#myTabContent').find('.tab-pane.active');
-        //                var $index = $activeEle.attr('id').replace('tab', '').trim();
-
-        //                self.getSubsituteRole($activeEle, $index, 1);
-
-        //            }, 10);
-
-        //            break;
-        //        case 0:
-        //            customAlert('Error occurred. Please, try again later.');
-        //            break;
-
-        //        case data.Data == "Login":
-        //            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-        //            break;
-        //    }
-        //},
+    
 
         getReport: function (ele, index, isCenter) {
 

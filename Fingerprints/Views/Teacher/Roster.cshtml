@@ -6,14 +6,13 @@
 {
         Teacher  Roster
     }
-    ViewBag.Title = "CheckIn";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     string closedString = string.Empty;
     ViewBag.ClosedToday = (Model != null && Model.ClosedDetails != null) ? Model.ClosedDetails.ClosedToday : 0;
     Session["NotCheckedCount"] = Model.NotCheckedCount;
 
 
-    bool _isAccessLW = new FingerprintsData.agencyData().GetSingleAccessStatus(20);
+    bool _isAccessLW = (ViewBag.IsLWAccess != null) ? Convert.ToBoolean(ViewBag.IsLWAccess) : false;
 }
 
 
@@ -1227,8 +1226,12 @@
     </script>
 }
 
-
-@section MainContentHolder{
+@section Style
+{
+    
+    
+    
+    
 
     <style type="text/css">
         .page-wrapper-change {
@@ -1572,18 +1575,16 @@
             margin: auto;
         }
 
-            #rhv-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group, #rptc-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group {
-                margin-left: 23%;
-                padding: 10px;
-            }
-    </style>
-
-    <style>
-        @@media only screen and (min-width: 767px) and (max-width: 991px) {
-            .edu_clrtable {
-                border-radius: 0 !important;
-            }
+        #rhv-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group, #rptc-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group {
+            margin-left: 23%;
+            padding: 10px;
         }
+
+         @@media only screen and (min-width: 767px) and (max-width: 991px) {
+        .edu_clrtable {
+            border-radius: 0 !important;
+        }
+    }
 
         @@media only screen and (min-width:230px ) and (max-width:1200px) {
             #rptc-table #div-ptc-2, #rptc-table #div-ptc-1,#rhv-tabl #div-hv-1,#rhv-tabl #div-hv-2 {
@@ -1649,10 +1650,17 @@
             padding: 0;
         }
 
-        #TeacherRoster tbody th {
-            border: 1px solid #ccc;
-        }
-    </style>
+    #TeacherRoster tbody th {
+        border: 1px solid #ccc;
+    }
+</style>
+
+}
+
+
+@section MainContentHolder{
+
+
 
 
 
@@ -2169,6 +2177,9 @@
     </div>
     @* New Design *@
 
-    @Html.Partial("~/Views/Partialviews/InternalReferral.cshtml")
+    @{
+
+        Html.RenderPartial("~/Views/Partialviews/InternalReferral.cshtml");
+    }
 
 }

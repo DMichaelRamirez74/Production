@@ -124,6 +124,9 @@ namespace Fingerprints.Controllers
                     ViewBag.NotChecked = true;
                     notChecked = true;
                 }
+   
+                 ViewBag.IsLWAccess=  new FingerprintsData.agencyData().GetSingleAccessStatus(20);
+
                 return View(new TeacherData().GetChildList(notChecked));
             }
             catch (Exception Ex)

@@ -10,6 +10,7 @@ namespace FingerprintsModel.Enums
     public enum RoleEnum
     {
         [Description(Role.agencyAdmin)]
+        
         AgencyAdmin = 1,
 
         [Description(Role.areaManager)]

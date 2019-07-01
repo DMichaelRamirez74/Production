@@ -2420,30 +2420,38 @@ namespace Fingerprints.Controllers
             }
             return Json(childImage, JsonRequestBehavior.AllowGet);
         }
-        [JsonMaxLengthAttribute]
-        public JsonResult GetAttendenceByDate(string selectedDate, string clientId)
+
+        //[JsonMaxLengthAttribute]
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetAttendenceByDate(CenterAuditReport report)
         {
-            AttendenceDetailsByDate attendence = new AttendenceDetailsByDate();
+            List<AttendenceDetailsByDate> attendence;
             try
             {
-                long de_clientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
-
-                attendence = new RosterData().GetAttendenceDetailsByDate(selectedDate, de_clientId, Session["AgencyID"].ToString());
-                attendence.SignedInTime = string.IsNullOrEmpty(attendence.SignedInTime)?"": Convert.ToDateTime(attendence.SignedInTime).ToString("hh:mm tt");
-                attendence.SignedOutTime =string.IsNullOrEmpty(attendence.SignedOutTime)?"": Convert.ToDateTime(attendence.SignedOutTime).ToString("hh:mm tt");
-                
+               
+                int totalRecord;
+                report.SkipRows = report.GetSkipRows();
+                attendence = new RosterData().GetAttendenceDetailsByDate(out totalRecord,report,staff);
+                ViewBag.TotalRecord = totalRecord;
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
+                attendence = new List<AttendenceDetailsByDate>();
+                ViewBag.TotalRecord = 0;
             }
-            return Json(attendence, JsonRequestBehavior.AllowGet);
+
+         
+
+            return PartialView("~/Views/Partialviews/_AttendanceDetail.cshtml", attendence);
+           // return Json(attendence, JsonRequestBehavior.AllowGet);
         }
 
         public partial class Footer : PdfPageEventHelper
 
         {
-
+          
             public override void OnEndPage(PdfWriter writer, Document doc)
             {
                 Paragraph footer = new Paragraph("THANK YOU", FontFactory.GetFont(FontFactory.TIMES, 10, iTextSharp.text.Font.NORMAL));
@@ -2458,8 +2466,13 @@ namespace Fingerprints.Controllers
                 footerTbl.AddCell(cell);
                 footerTbl.WriteSelectedRows(0, -1, -47, 47, writer.DirectContent);
 
+             
             }
+
         }
+
+
+
         [ValidateInput(false)]
         public ActionResult SaveCaseNotes(FormCollection collection)
         {

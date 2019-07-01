@@ -167,7 +167,7 @@ namespace Fingerprints.Controllers
 
             SendMail.Sendverificationemail(email, name, path, template, imagepath);
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.HRManager)]
         public ActionResult pendingVerification()
         {
             try
@@ -181,7 +181,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.HRManager)]
         public JsonResult listpendingVerification(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try
@@ -199,8 +199,8 @@ namespace Fingerprints.Controllers
         }
 
 
-      //  [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
-      [CustAuthFilter()]
+        //  [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
+        [CustAuthFilter()]
         public JsonResult AutoCompleteAgencystaff(string term, string Active = "0")
         {
             try
@@ -214,8 +214,8 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
-        public JsonResult listEnrolementmentcode(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,string isEndOfYear="0")
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
+        public JsonResult listEnrolementmentcode(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1, string isEndOfYear = "0")
         {
             try
             {
@@ -223,7 +223,7 @@ namespace Fingerprints.Controllers
                 int skip = pageSize * (requestedPage - 1);
                 string programYear = string.Empty;
                 bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
-                var list = agencyData.enrollmentcode(out totalrecord,ref programYear, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString(),isEndYear).ToList();
+                var list = agencyData.enrollmentcode(out totalrecord, ref programYear, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString(), isEndYear).ToList();
                 return Json(new { list, totalrecord, programYear });
             }
             catch (Exception Ex)
@@ -257,7 +257,7 @@ namespace Fingerprints.Controllers
                 string link = UrlExtensions.LinkToRegistrationProcess("/AgencyUser/staffRegistration");
                 string path = Server.MapPath("~/MailTemplate/RegistrationLink.xml");
                 string agencyname = Convert.ToString(Session["AgencyName"]);
-                Thread thread = new Thread(delegate()
+                Thread thread = new Thread(delegate ()
                 {
                     sendenrolement(emailId, enrollmentCode, agencyname, expirytime, path, link, imagepath);
 
@@ -665,7 +665,7 @@ namespace Fingerprints.Controllers
                 DdlRoleList = collection["DdlRoleList"] == null ? null : collection["DdlRoleList"].ToString(); ;
                 agencystaff.SelectedAgencyId = Guid.Parse(DdlAgencyList);
                 agencystaff.SelectedRoleId = DdlRoleList;
-                if (DdlRoleList ==Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator])
+                if (DdlRoleList == Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator])
                 {
                     agencystaff.AccessDays = "0";
                 }
@@ -776,7 +776,7 @@ namespace Fingerprints.Controllers
                     string path = Server.MapPath("~/MailTemplate/EmailVerification.xml");
                     string link = UrlExtensions.LinkToRegistrationProcess("/Login/loginagency");
                     string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                    Thread thread = new Thread(delegate()
+                    Thread thread = new Thread(delegate ()
                     {
                         sendMail(agencystaff.EmailAddress, name, link, path, imagepath);
                     });

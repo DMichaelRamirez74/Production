@@ -741,22 +741,24 @@ namespace Fingerprints.Controllers
         }
 
         #endregion
+
+
         #region Substitute Role Report
 
 
 
 
         #region Export Substitute Role Report
-        public void ExportSubstituteRoleReport(string[] centerIds,string[] classroomIds, string[] months, int reportFormatType)
+        public void ExportSubstituteRoleReport(string[] centerIds, string[] classroomIds, string[] months, int reportFormatType)
         {
             try
             {
 
                 var substituteRole = new SubstituteRole();
 
-                substituteRole.CenterID = centerIds != null && centerIds.Length>0? string.Join(",",centerIds):"0";
-                substituteRole.ClassroomID =classroomIds!=null &&  classroomIds.Length>0? string.Join(",",classroomIds):"0";
-                substituteRole.Month =months!=null && months.Length>0? string.Join(",",months):"0";
+                substituteRole.CenterID = centerIds != null && centerIds.Length > 0 ? string.Join(",", centerIds) : "0";
+                substituteRole.ClassroomID = classroomIds != null && classroomIds.Length > 0 ? string.Join(",", classroomIds) : "0";
+                substituteRole.Month = months != null && months.Length > 0 ? string.Join(",", months) : "0";
                 substituteRole.StaffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>(false);
                 substituteRole.StaffDetails.RoleId = new Guid(FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher));
                 substituteRole.SubstituteRoleMode = (int)FingerprintsModel.Enums.SubstituteRoleMode.Export;
@@ -788,5 +790,78 @@ namespace Fingerprints.Controllers
         #endregion
 
         #endregion
+
+        #region Center Audit Report
+
+        [HttpGet]
+        [CustAuthFilter()]
+        //[ActionName("center-audit-report")]
+        public ActionResult CenterAuditReport()
+        {
+
+            return View();
+        }
+
+        #region GET Center Audit Report (tab section for selected centers)
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetCenterAuditReport(CenterAuditReport report)
+        {
+            report.SkipRows = report.GetSkipRows();
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetCenterAuditReport(report, staff);
+
+            return PartialView("~/Views/Reporting/_CenterAuditReport.cshtml", report);
+       
+        }
+
+        #endregion
+
+        #region Get Center Audit Report (single tab based on the selected center)
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetCenterAuditReportByCenter(CenterAuditReport report)
+        {
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            report.SkipRows = report.GetSkipRows();
+            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetCenterAuditReport(report, staff);
+
+            return PartialView("~/Views/Reporting/_CenterAuditReportTable.cshtml", report.CenterAuditReportList);
+        }
+
+        #endregion
+
+        #region Export Center Audit Report
+
+        [CustAuthFilter()]
+        public void ExportCenterAuditReport(CenterAuditReport report,int reportFormatType)
+        {
+            #region Itextsharp PDF generation Region
+
+            string imagePath = Server.MapPath("~/Images/");
+            StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            int totalRecords;
+
+            List<AttendenceDetailsByDate> attendanceDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().GetAttendenceDetailsByDate(out totalRecords,report,staff);
+
+            var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
+
+            MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportCenterAuditReport(attendanceDetails, reportTypeEnum, imagePath);
+            string reportName = "Center_Audit_Report_";
+
+            DownloadReport(workStream, reportTypeEnum, reportName);
+
+
+
+            #endregion
+        }
+        #endregion
+
+
+        #endregion
+
     }
 }

@@ -24,18 +24,15 @@ namespace FingerprintsModel
 
         public InKindTransactions InKindTransactions { get; set; }
         public InKindDonarsContact InKindDonarsContact { get; set; }
-
-
-
         public int HomeActivityCount { get; set; }
 
-      
+
 
         public long InkindPeriodID { get; set; }
 
-       public List<InkindPeriods> InkindPeriodsList { get; set; }
+        public List<InkindPeriods> InkindPeriodsList { get; set; }
 
-        
+       
     }
     public class InkindDonors
     {
@@ -114,7 +111,7 @@ namespace FingerprintsModel
     }
 
 
-    public class InKindTransactions:InkindPeriods
+    public class InKindTransactions : InkindPeriods
     {
         public string ClientID { get; set; }
         public string ParentID { get; set; }
@@ -143,7 +140,7 @@ namespace FingerprintsModel
         public decimal InKindAmount { get; set; }
         public decimal MilesDriven { get; set; }
 
-        public bool ParentType{get;set;}
+        public bool ParentType { get; set; }
         public int InkindTransactionID { get; set; }
         public string Name { get; set; }
         public string Enc_CenterID { get; set; }
@@ -208,7 +205,7 @@ namespace FingerprintsModel
         public bool InkindAttachmentStatus { get; set; }
     }
 
-    public class InkindReportModel:Pagination,IInkindPeriod
+    public class InkindReportModel : Pagination, IInkindPeriod
     {
 
         public List<InkindReport> InkindReportList { get; set; }
@@ -223,7 +220,7 @@ namespace FingerprintsModel
 
         public string DateEntered { get; set; }
         public string TotalHours { get; set; }
-        public string TotalMiles{get;set;}
+        public string TotalMiles { get; set; }
         public string TotalAmount { get; set; }
         public string SearchTerm { get; set; }
 
@@ -262,7 +259,7 @@ namespace FingerprintsModel
         public bool IsClosed { get; set; }
         public bool IsStatus { get; set; }
 
-      
+
     }
 
 
@@ -275,7 +272,7 @@ namespace FingerprintsModel
 
     public interface IInkindPeriod
     {
-         List<InkindPeriods> InkindPeriodList { get; set; }
+        List<InkindPeriods> InkindPeriodList { get; set; }
     }
 
 

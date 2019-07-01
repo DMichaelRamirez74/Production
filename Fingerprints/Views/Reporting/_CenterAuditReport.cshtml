@@ -1,0 +1,338 @@
+﻿@model FingerprintsModel.CenterAuditReport
+
+
+
+
+<div class="panel with-nav-tabs panel-primary col-xs-12">
+
+    <div class="panel-heading panelul col-xs-12">
+        <ul id="myTab" class="nav nav-tabs navtabs1 col-xs-12">
+
+
+            @if (Model.CenterList != null && Model.CenterList.Count() > 0)
+            {
+                for (int i = 0; i < Model.CenterList.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        <li class="active"><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@Model.CenterList[i].Value" data-toggle="tab" aria-expanded="true">@Model.CenterList[i].Text</a></li>
+                    }
+                    else
+                    {
+
+                        <li><a href="@string.Concat("#",i.ToString(),"tab")" accesskey="@Model.CenterList[i].Value" data-toggle="tab" aria-expanded="true">@Model.CenterList[i].Text</a></li>
+                    }
+
+
+                }
+
+            }
+
+        </ul>
+
+    </div>
+
+
+
+    <div id="myTabContent" class="col-xs-12 tab-content">
+
+        @if (Model.CenterList != null && Model.CenterList.Count > 0)
+        {
+
+
+
+            for (int j = 0; j < Model.CenterList.Count; j++)
+            {
+
+                var centerAuditReport = Model.CenterAuditReportList.Where(x => x.CenterID == Model.CenterList[j].Value).ToList();
+
+
+                if (centerAuditReport.Count > 0)
+                {
+
+                    <div class="@if (j == 0) {<text>tab-pane fade active in col-xs-12</text>} else { <text>tab-pane fade col-xs-12</text> }" id="@string.Concat(j.ToString(),"tab")">
+
+                        <div class="col-xs-12">
+
+
+                            <div class="col-xs-12 search-block-main">
+                                <div class="glossy-search-block" style="margin-left:17px;">
+
+
+                                    <div class="glossy-remove-btn-div">
+                                        <button id="btnRemoveauto" data-toggle="tooltip" title="clear search">
+                                            <i class="fa fa-times-circle" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search Children..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+                                    <div class="glossy-search-btn-div">
+                                        <button id="btnSearchauto">@Fingerprints.LocalResource.Resources.Search</button>
+                                    </div>
+                                </div>
+
+
+
+                                <table class="col-md-12 table-striped total-details-table table-back-shadow">
+                                    <tbody>
+
+
+                                        <tr>
+                                            <td><label style="text-align:right;">@Fingerprints.LocalResource.Resources.TotalRecords&nbsp;</label></td>
+                                            <td><label style="text-align:right;font-weight:normal;" id="totalCountSpan_@j">@centerAuditReport.Where(x => x.TotalRecord > 0).Select(x => x.TotalRecord).FirstOrDefault()</label></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                            @Html.Hidden("sortOrder_" + j + "", Model.SortOrder)
+                            @Html.Hidden("sortColumn_" + j + "", Model.SortColumn)
+                            @Html.Hidden("requestedPage_" + j + "", 1)
+                            @Html.Hidden("startIndex_" + j + "", 0)
+                            @Html.Hidden("lastIndex_" + j + "", 0)
+                            @Html.Hidden("pageSize_" + j + "", 10)
+                            @Html.Hidden("pageLoadedFirst_" + j + "", 0)
+                            @Html.Hidden("numOfPages", 0)
+
+                            <div class="col-xs-12" id="div-table_@j">
+
+                                @{
+                                    var totalrecord = centerAuditReport.Select(x => x.TotalRecord).FirstOrDefault();
+
+
+                                }
+
+                                <div>
+                                    @Html.Hidden("totalRecordTable", totalrecord)
+
+                                </div>
+
+
+                                @{ 
+                                    Html.RenderPartial("~/Views/Reporting/_CenterAuditReportTable.cshtml",centerAuditReport);
+                                }
+                            
+
+                            </div>
+
+
+                        </div>
+
+                        <!----Pagination Section---->
+
+                        <div class="col-xs-12" id="div-pagination-@j" style="margin-top:20px;">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                                <div class="pages_display">
+                                    <ul>
+                                        <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.Display</li>
+                                        <li>
+                                            <select id="ddlpagetodisplay_@j">
+                                                <option value="10" selected="selected">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </li>
+                                        <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                    </ul>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div id="divPaging_@j" class="pagination_wrp">
+                                    <ul id="ulPaging_@j" class="pagination">
+                                        <li>
+                                            <a href="javascript:void(0);" id="First_@j" disabled>
+                                                <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+                                        </li>
+                                        <li title="Back">
+
+                                            <a href="javascript:void(0);" id="Back_@j" disabled>
+                                                <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+
+                                        </li>
+                                        <li title="Select">
+                                            <select class="select_cl" id="ddlpaging_@j"></select>
+                                        </li>
+                                        <li title="Next">
+                                            <a href="javascript:void(0);" id="Next_@j" disabled>
+                                                <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+                                        </li>
+                                        <li title="Last">
+                                            <a href="javascript:void(0);" id="Last_@j" disabled>
+                                                <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                                                                    }
+
+                                                                    else
+                                                                    {
+                                                                        <div class="tab-pane fade col-xs-12" id="@string.Concat(j.ToString(),"tab")">
+
+                                                                            <div class="col-xs-12">
+
+
+                                                                                <div class="col-xs-12 search-block-main">
+                                                                                    <div class="glossy-search-block col-md-12">
+                                                                                        <div class="glossy-remove-btn-div">
+                                                                                            <button id="btnRemoveauto">
+                                                                                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <input type="text" autocomplete="new-text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="Search Children, Parents, Case Note Date..." id="searchReportText" class="form-control" value="@Model.SearchTerm">
+                                                                                        <div class="glossy-search-btn-div">
+                                                                                            <button id="btnSearchauto">@Fingerprints.LocalResource.Resources.Search</button>
+                                                                                        </div>
+                                                                                    </div>
+
+
+
+                                                                                    <table class="col-md-12 table-striped total-details-table table-back-shadow">
+                                                                                        <tr>
+                                                                                            <td><label style="text-align:right;">@Fingerprints.LocalResource.Resources.TotalRecords</label></td>
+                                                                                            <td><label style="text-align:right;font-weight:normal;" id="totalCountSpan_@j">00</label></td>
+                                                                                        </tr>
+                                                                                    </table>
+
+                                                                                </div>
+
+                                                                                @Html.Hidden("sortOrder_" + j + "", "ASC")
+                                                                                @Html.Hidden("sortColumn_" + j + "", "th1")
+                                                                                @Html.Hidden("requestedPage_" + j + "", 1)
+                                                                                @Html.Hidden("startIndex_" + j + "", 0)
+                                                                                @Html.Hidden("lastIndex_" + j + "", 1)
+                                                                                @Html.Hidden("pageSize_" + j + "", 10)
+                                                                                @Html.Hidden("pageLoadedFirst_" + j + "", 0)
+                                                                                @Html.Hidden("numOfPages", 0)
+
+                                                                                <div class="col-xs-12" id="div-table_@j">
+
+
+                                                                                </div>
+
+
+                                                                            </div>
+
+                                                                            <!----Pagination Section---->
+
+                                                                            <div class="col-xs-12" id="div-pagination-@j" style="margin-top:20px;">
+                                                                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                                                                                    <div class="pages_display">
+                                                                                        <ul>
+                                                                                            <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.Display</li>
+                                                                                            <li>
+                                                                                                <select id="ddlpagetodisplay_@j">
+                                                                                                    <option value="10" selected="selected">10</option>
+                                                                                                    <option value="20">20</option>
+                                                                                                    <option value="30">30</option>
+                                                                                                    <option value="50">50</option>
+                                                                                                    <option value="100">100</option>
+                                                                                                </select>
+                                                                                            </li>
+                                                                                            <li style="color:#1d5381;">@Fingerprints.LocalResource.Resources.RecordsPerPage</li>
+                                                                                        </ul>
+                                                                                        <div class="clear"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                                                                    <div id="divPaging_@j" class="pagination_wrp">
+                                                                                        <ul id="ulPaging_@j" class="pagination">
+                                                                                            <li>
+                                                                                                <a href="javascript:void(0);" id="First_@j" disabled>
+                                                                                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                            <li title="Back">
+
+                                                                                                <a href="javascript:void(0);" id="Back_@j" disabled>
+                                                                                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                                </a>
+
+                                                                                            </li>
+                                                                                            <li title="Select">
+                                                                                                <select class="select_cl" id="ddlpaging_@j"></select>
+                                                                                            </li>
+                                                                                            <li title="Next">
+                                                                                                <a href="javascript:void(0);" id="Next_@j" disabled>
+                                                                                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                            <li title="Last">
+                                                                                                <a href="javascript:void(0);" id="Last_@j" disabled>
+                                                                                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                            }
+
+
+
+                                                                        }
+
+
+
+
+                                                                    }
+
+                                                                    else
+                                                                    {
+                                                                        <div class="col-xs-12"><label class="text-center">@Fingerprints.LocalResource.Resources.SearchByFilter<sup style="color:red;">*</sup></label></div>
+                                                                    }
+
+
+
+        <div class="div-info col-xs-12">
+            <ul class="info-legend">
+                <li><span class="withdrawn"></span> Withdrawn</li>
+                <li><span class="enrolled"></span> Enrolled</li>
+              
+            </ul>
+        </div>
+        
+    </div>
+
+</div>
+
+
+
+<style type="text/css">
+    @@media(min-width:768px) and (max-width:942px) {
+
+        .glossy-search-btn-div #btnSearchauto {
+            border-top-left-radius: 5px !important;
+            border-bottom-left-radius: 5px !important;
+        }
+
+        #btnSearchauto:after {
+            content: unset !important;
+        }
+
+        .glossy-search-btn-div {
+            top: 5px;
+        }
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+</script>

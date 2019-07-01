@@ -6220,6 +6220,832 @@ namespace FingerprintsModel
         }
 
         #endregion
+
+
+        #region Export Center Audit Report
+
+        public MemoryStream ExportCenterAuditReport(List<AttendenceDetailsByDate> attendanceList, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+
+            try
+            {
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+
+
+
+                    #region Initializing Document
+
+                    Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+
+
+                    #endregion
+
+                    doc.OpenDocument();
+
+
+                    #region Binding Data to Tables
+
+                    if (attendanceList != null && attendanceList.Count > 0)
+                    {
+
+
+
+                        for (int i = 0; i < attendanceList.Count; i++)
+                        {
+
+
+
+                            if (i > 0)
+                            {
+                                doc.NewPage();
+
+                            }
+
+
+                            #region PDF table creation
+
+                            PdfPTable tableLayout = new PdfPTable(2);
+                            tableLayout.HeaderRows = 1;
+
+                            //Add Content to PDF   
+                            tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+                            float[] widths = { 30, 70 };
+                            tableLayout.SetWidths(widths);
+
+                            #endregion
+
+
+
+                            #region Report Heading
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(string.Concat("Center Audit Report", " ", "for" + " " + attendanceList[i].ClientName), new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+
+                                HorizontalAlignment = Element.ALIGN_CENTER,
+                                Colspan = 3,
+                                Border = 0,
+                                PaddingBottom = 10f
+                            });
+
+                            //PdfPTable headingtable = new PdfPTable(2);
+                            //float[] headerWidths = { 30, 70 };
+                            //headingtable.SetWidths(headerWidths);
+
+                            //headingtable.AddCell(new PdfPCell(new Phrase("Current Center", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+                            //    HorizontalAlignment = Element.ALIGN_LEFT,
+                            //    VerticalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5f
+                            //});
+
+                            //headingtable.AddCell(new PdfPCell(new Phrase("Current Center", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+                            //    HorizontalAlignment = Element.ALIGN_LEFT,
+                            //    VerticalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5f
+                            //});
+
+
+                            #endregion
+
+
+                            //#region Adding Headers for Center
+
+
+
+
+                            //#region Center Details Heading
+                            //tableLayout.AddCell(new PdfPCell(new Phrase("Center", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5,
+                            //    BackgroundColor = new BaseColor(240, 238, 228),
+                            //});
+                            //tableLayout.AddCell(new PdfPCell(new Phrase("Star Rating", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5,
+                            //    BackgroundColor = new BaseColor(240, 238, 228)
+
+                            //});
+
+                            //tableLayout.AddCell(new PdfPCell(new Phrase("Month", new Font(Font.FontFamily.HELVETICA, 10, 1, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5,
+                            //    BackgroundColor = new BaseColor(240, 238, 228)
+                            //});
+
+                            //#endregion
+
+
+                            //#region Adding rows for Star Rating image with Center Name
+
+
+                            //tableLayout.AddCell(new PdfPCell(new Phrase(monthCenterList[0].CenterName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5
+                            //});
+
+                            //#region Adding Star Rating image 
+
+                            //Paragraph p = new Paragraph();
+                            //p.Alignment = Element.ALIGN_CENTER;
+
+
+                            //string starImageUrl = "";
+
+                            //starImageUrl = imagePath + "\\220px-Star_rating_" + monthCenterList[0].StepUpToQualityStars + "_of_5.png";
+
+                            //iTextSharp.text.Image starJpeg = iTextSharp.text.Image.GetInstance(starImageUrl);
+
+                            //starJpeg.ScaleToFit(40f, 40f);
+
+                            //starJpeg.Alignment = Element.ALIGN_CENTER;
+
+                            //p.Add(new Chunk(starJpeg, 0, 0, true));
+
+
+                            //tableLayout.AddCell(new PdfPCell(p)
+                            //{
+
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5
+                            //});
+
+
+                            //#endregion
+
+
+
+                            //tableLayout.AddCell(new PdfPCell(new Phrase(monthCenterList[0].MonthType, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            //{
+
+                            //    HorizontalAlignment = Element.ALIGN_CENTER,
+                            //    Padding = 5
+                            //});
+
+                            //#endregion
+
+
+
+
+                            //#endregion
+
+
+
+
+
+
+                            #region Inner Table Headers
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Attendance Date", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                VerticalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5f
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(attendanceList[i].AttendanceDate, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                VerticalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5f
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Center", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment=Element.ALIGN_CENTER,
+                                
+                                
+                                
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(attendanceList[i].CenterName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Classroom", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+                            });
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(attendanceList[i].ClassroomName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                VerticalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5f
+                            });
+
+                            
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Attendance Type", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                VerticalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5f
+                            });
+
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase(attendanceList[i].AttendenceStatus, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                VerticalAlignment = Element.ALIGN_CENTER,
+                                Padding = 5f
+                            });
+
+
+                            if (attendanceList[i].AbsenceReason != null && attendanceList[i].AbsenceReason.Trim() != string.Empty)
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Absence Reason", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment=Element.ALIGN_CENTER
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase(attendanceList[i].AbsenceReason, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+                                });
+                            }
+                            else
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Meals", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+
+                                });
+
+                                if (attendanceList[i].AbsenceReason != null && attendanceList[i].AbsenceReason.Trim() != string.Empty)
+                                {
+                                    tableLayout.AddCell(new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER
+                                    });
+                                }
+                                else
+                                {
+                                    PdfPTable mealtable = new PdfPTable(4);
+
+                                    mealtable.WidthPercentage = 100;
+                                    mealtable.AddCell(new PdfPCell(new Phrase("Breakfast", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        BackgroundColor = new BaseColor(240, 238, 228)
+
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase("Lunch", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        BackgroundColor = new BaseColor(240, 238, 228)
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase("Snack", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        BackgroundColor = new BaseColor(240, 238, 228)
+
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase("Dinner", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        BackgroundColor = new BaseColor(240, 238, 228)
+
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase((attendanceList[i].Breakfast ? @Convert.ToDateTime(attendanceList[i].BreakfastServedOn).ToString("hh:mm tt") : "N/A"), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER
+
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase((attendanceList[i].Lunch ? @Convert.ToDateTime(attendanceList[i].LunchServedOn).ToString("hh:mm tt") : "N/A"), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER
+
+                                    });
+
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase((attendanceList[i].Snack ? @Convert.ToDateTime(attendanceList[i].SnackServedOn).ToString("hh:mm tt") : "N/A"), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER
+
+                                    });
+
+                                    mealtable.AddCell(new PdfPCell(new Phrase((attendanceList[i].Dinner ? @Convert.ToDateTime(attendanceList[i].DinnerServedOn).ToString("hh:mm tt") : "N/A"), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 5f,
+                                        VerticalAlignment = Element.ALIGN_CENTER
+
+                                    });
+
+                                    PdfPCell cell = new PdfPCell(mealtable);
+
+                                    tableLayout.AddCell(cell).Padding=10f;
+
+
+
+                                }
+
+                            }
+
+                            #region Check for Parent check-in signature 
+                            var isSignatureIn = (attendanceList[i].SignedInName != null && attendanceList[i].SignedInName.Trim() != "" && attendanceList[i].ParentSig.Trim() != "" && attendanceList[i].ParentSig.Trim() != "{\"lines\":[]}");
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Checked In by", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+                            });
+
+
+
+                            if (isSignatureIn)
+                            {
+                                var base64string = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(attendanceList[i].ParentSig, 400, 200);
+
+                                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(Convert.FromBase64String(base64string));
+                                image.ScaleAbsolute(250f, 50f);
+                                image.SetAbsolutePosition(20f, 20f);
+
+
+                                var parentInTable = new PdfPTable(1);
+                                parentInTable.AddCell(new PdfPCell(image)
+                                {
+                                    
+                                    Padding = 3f,
+                                    Border=0
+                                        
+
+                                });
+
+                                parentInTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].SignedInName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f,
+                                    Border = 0
+                                });
+
+
+                                parentInTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].TimeIn, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f,
+                                    Border=0
+                                    
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(parentInTable)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+
+
+
+                                });
+
+
+                            }
+                            else
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 5f
+                                   
+
+                                });
+
+                            }
+
+                            #endregion
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Daily Health Check", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+
+                            });
+
+
+
+                            var dailyHealthChecktable = new PdfPTable(1);
+
+                            var observationList =attendanceList[i].ObservationDescription.Trim()!=string.Empty? attendanceList[i].ObservationDescription.Trim().Split(',').ToList():null;
+
+                            if(observationList!=null && observationList.Count>0)
+                            {
+
+                                foreach(var item in observationList)
+                                {
+                                    dailyHealthChecktable.AddCell(new PdfPCell(new Phrase(item.Trim(), new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3f,
+                                        VerticalAlignment = Element.ALIGN_CENTER,
+                                        Border=0
+
+                                    });
+                                }
+                                tableLayout.AddCell(new PdfPCell(dailyHealthChecktable)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+                                });
+
+                            }
+                            else
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Border = 0
+
+                                });
+                            }
+
+                            
+
+                            #region check for Teacher Signature
+
+                            var isTeacherSignature = (!string.IsNullOrEmpty(attendanceList[i].TeacherName) && attendanceList[i].TeacherCheckInSig.Trim() != "" && attendanceList[i].TeacherCheckInSig.Trim() != "{\"lines\":[]}");
+
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Teacher Signature", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+                            });
+
+
+                            if (isTeacherSignature)
+                            {
+
+                                var base64string = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(attendanceList[i].TeacherCheckInSig, 400, 200);
+
+                                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(Convert.FromBase64String(base64string));
+                                image.ScaleAbsolute(250, 50f);
+                                image.SetAbsolutePosition(20f, 20f);
+
+                                var teacherTable = new PdfPTable(1);
+
+                                teacherTable.AddCell(new PdfPCell(image)
+                                {
+
+                                    Padding = 3f,
+                                    Border = 0
+
+
+                                });
+
+                                
+
+
+
+                                teacherTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].TeacherName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f,
+                                    Border = 0
+
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(teacherTable)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+
+
+
+                                });
+                            }
+                            else
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+
+                                });
+                            }
+                            #endregion
+
+                            #region Check for Check-out 1 Signature
+
+
+                            var isSignatureOut = attendanceList[i].SignedOutName != null && attendanceList[i].SignedOutName.Trim() != "" && attendanceList[i].ParentSigOut.Trim() != "" && attendanceList[i].ParentSigOut != "{\"lines\":[]}";
+                            tableLayout.AddCell(new PdfPCell(new Phrase("Checked Out by", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                            {
+                                HorizontalAlignment = Element.ALIGN_LEFT,
+                                Padding = 5f,
+                                VerticalAlignment = Element.ALIGN_CENTER
+                            });
+
+
+                            var parentCheckOutTable = new PdfPTable(1);
+                            if (isSignatureOut)
+                            {
+                                var base64string = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(attendanceList[i].ParentSigOut, 400, 200);
+
+                                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(Convert.FromBase64String(base64string));
+
+                                image.ScaleAbsolute(250f,50f);
+                                image.SetAbsolutePosition(20f,20f);
+
+
+                                parentCheckOutTable.AddCell(new PdfPCell(image)
+                                {
+
+                                    Padding = 3f,
+                                    Border = 0
+
+
+                                });
+                                
+
+                                parentCheckOutTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].SignedOutName, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3f,
+                                    Border=0
+
+                                });
+
+                                if(attendanceList[i].ProtectiveBadge!=null && attendanceList[i].ProtectiveBadge.Trim()!=string.Empty)
+                                {
+
+                                    parentCheckOutTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].ProtectiveBadge, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3f,
+                                        Border = 0
+
+                                    });
+                                }
+
+                                parentCheckOutTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].TimeOut, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3f,
+                                    Border=0
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(parentCheckOutTable)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+                                });
+
+
+                            }
+                            else
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+
+                                });
+                            }
+
+                            #endregion
+
+                            #region Check for Check-in 2 Signature
+                            var isSignatureIn2 = attendanceList[i].SignedIn2Name != null && attendanceList[i].ParentSig2.Trim() != "" && attendanceList[i].ParentSig2.Trim() != "" && attendanceList[i].ParentSig2 != "{\"lines\":[]}";
+
+                           
+
+                            if (isSignatureIn2)
+                            {
+
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Checked In by", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+                                });
+
+
+                                var base64string = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(attendanceList[i].ParentSig2, 400, 200);
+
+                                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(Convert.FromBase64String(base64string));
+
+                                image.ScaleAbsolute(250f, 50f);
+                                image.SetAbsolutePosition(20f, 20f);
+
+                                var parentCheckIn2Table = new PdfPTable(1);
+
+
+
+
+                                parentCheckIn2Table.AddCell(new PdfPCell(image)
+                                {
+                                   Padding= 3f,
+                                   Border=0
+                                });
+
+                                parentCheckIn2Table.AddCell(new PdfPCell(new Phrase(attendanceList[i].SignedIn2Name, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3f,
+                                    Border=0
+
+                                });
+
+                                parentCheckIn2Table.AddCell(new PdfPCell(new Phrase(attendanceList[i].TimeIn2, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding= 3f,
+                                    Border=0
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(parentCheckIn2Table)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+
+
+
+                                });
+
+
+                            }
+
+                            #endregion
+
+
+                            #region Check for Check-Out 2 Signature
+                            var isSignatureOut2 = attendanceList[i].SignedOut2Name != null && attendanceList[i].ParentSigOut2.Trim() != "" && attendanceList[i].ParentSigOut2.Trim() != "" && attendanceList[i].ParentSigOut2 != "{\"lines\":[]}";
+
+                            if(isSignatureOut2)
+                            {
+                                tableLayout.AddCell(new PdfPCell(new Phrase("Checked Out by", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 5f,
+                                    VerticalAlignment = Element.ALIGN_CENTER
+                                });
+
+
+                                var base64string = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(attendanceList[i].ParentSigOut2, 400, 200);
+
+                                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(Convert.FromBase64String(base64string));
+
+
+                                image.ScaleAbsolute(250f, 50f);
+                                image.SetAbsolutePosition(20f, 20f);
+
+                                var parentCheckOut2Table = new PdfPTable(1);
+
+                                parentCheckOut2Table.AddCell(new PdfPCell(image)
+                                {
+                                    Padding = 3f,
+                                    Border=0
+                                });
+
+                                parentCheckOut2Table.AddCell(new PdfPCell(new Phrase(attendanceList[i].SignedOut2Name, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3f,
+                                    Border=0
+
+                                });
+
+                                if (attendanceList[i].ProtectiveBadge != null && attendanceList[i].ProtectiveBadge.Trim() != string.Empty)
+                                {
+
+                                    parentCheckOutTable.AddCell(new PdfPCell(new Phrase(attendanceList[i].ProtectiveBadge, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                    {
+                                        HorizontalAlignment = Element.ALIGN_LEFT,
+                                        Padding = 3f,
+                                        Border = 0
+
+                                    });
+                                }
+
+
+                                parentCheckOut2Table.AddCell(new PdfPCell(new Phrase(attendanceList[i].TimeOut2, new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, new iTextSharp.text.BaseColor(0, 0, 0))))
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    Padding = 3f,
+                                    Border=0
+
+                                });
+
+                                tableLayout.AddCell(new PdfPCell(parentCheckOut2Table)
+                                {
+                                    HorizontalAlignment = Element.ALIGN_LEFT,
+                                    VerticalAlignment = Element.ALIGN_CENTER,
+                                    Padding = 3f
+
+
+
+                                });
+
+                            }
+
+
+                            #endregion
+
+                        
+
+
+
+                            doc.Add(tableLayout);
+
+
+
+                        }
+                    }
+
+                    #endregion
+
+                    doc.CloseDocument();
+
+
+
+                }
+
+
+
+                #endregion
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
+
+        #endregion
         public class TwoColumnHeaderFooter : PdfPageEventHelper
         {
             // This is the contentbyte object of the writer

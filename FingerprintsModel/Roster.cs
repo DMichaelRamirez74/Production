@@ -185,7 +185,7 @@ namespace FingerprintsModel
 
         public string ScreeningReferralYakkr { get; set; }
     }
-    public class AttendenceDetailsByDate
+    public class AttendenceDetailsByDate:TeacherModel
     {
         public string id { get; set; }
      
@@ -196,14 +196,20 @@ namespace FingerprintsModel
         public string Class { get; set; }
         public string AttendenceStatus { get; set; }
         public string Meals { get; set; }
-        public string SignedInBy { get; set; }
-        public string SignedOutBy { get; set; }
+        public string SignedInName { get; set; }
+        public string SignedIn2Name { get; set; }
+        public string SignedOutName { get; set; }
+        public string SignedOut2Name { get; set; }
         public string StaffName { get; set; }
-        public int? Breakfast { get; set; }
-        public int? Lunch { get; set; }
+        //public int? Breakfast { get; set; }
+        //public int? Lunch { get; set; }
         public int? Snacks { get; set; }
-        public string SignedInTime { get; set; }
-        public string SignedOutTime { get; set; }
+        public string SignedIn1Time { get; set; }
+        public string SignedIn2Time { get; set; }
+        public string SignedOut1Time { get; set; }
+        public string SignedOut2Time { get; set; }
+
+        public string ProtectiveBadge { get; set; }
 
     }
 	public class CaseNoteNew

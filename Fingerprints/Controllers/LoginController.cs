@@ -225,6 +225,10 @@ namespace Fingerprints.Controllers
             if (Session["UserID"] != null && Session["EmailID"] != null && Session["RoleName"] != null)
            {
                 string newLocation = string.Empty; 
+
+             
+
+
                 if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")&& Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                     newLocation = "~/Home/AgencyAdminDashboard";
 
@@ -423,8 +427,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/AgencystaffDashboard";
 
                 else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
-                   // newLocation = "~/Home/ApplicationApprovalDashboard";
-                newLocation = "~/Roster/Roster";
+                    // newLocation = "~/Home/ApplicationApprovalDashboard";
+                    newLocation = "~/Roster/Roster";
 
                 else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
                     newLocation = "~/Home/AgencystaffDashboard";

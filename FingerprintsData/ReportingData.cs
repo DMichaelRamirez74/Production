@@ -1975,5 +1975,123 @@ new DataColumn("Status",typeof(bool))
 
 
         #endregion
+
+
+        #region Center Audit Report
+
+        #region Get Center Audit Report List
+
+        public CenterAuditReport GetCenterAuditReport(CenterAuditReport report,StaffDetails staff)
+        {
+
+            report.CenterAuditReportList = new List<CenterAuditReport>();
+            report.CenterList = new List<SelectListItem>();
+
+            //  IDbConnection dbConnection;
+            try
+            {
+
+                string centers = string.Join(",", report.CenterID.Split(',').Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
+                
+                var dbManager = FactoryInstance.Instance.CreateInstance<DBManager>(connection.ConnectionString);
+                var parameters = new IDbDataParameter[]
+                {
+
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@Take",report.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",report.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@CenterID",!string.IsNullOrEmpty(report.CenterID) && report.CenterID!="0"?string.Join(",",report.CenterID.Split(',').Select(x=>EncryptDecrypt.Decrypt64(x)).ToArray()) :"0",DbType.String),
+                    dbManager.CreateParameter("@SortOrder",report.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",report.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchTerm",report.SearchTerm,DbType.String)
+                };
+
+
+                _dataset = dbManager.GetDataSet("USP_GetCenterAuditReport", CommandType.StoredProcedure, parameters);
+
+
+
+
+                var householdIdList = new List<Int64>();
+                var monthList = new List<string>();
+                var centerList = new List<long>();
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    report.CenterAuditReportList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                    select new CenterAuditReport
+                                                    {
+                                                        Enc_ClientID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientID"])),
+                                                        CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])),
+                                                        ClassroomID=EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClassroomID"])),
+                                                        ClassroomName =Convert.ToString(dr["ClassroomName"]),
+                                                        Dob=Convert.ToString(dr["DOB"]),
+                                                        DateOfFirstService=Convert.ToString(dr["DateOfFirstService"]),
+                                                        ClientName=Convert.ToString(dr["FirstName"])+" "+Convert.ToString(dr["MiddleName"])+" "+Convert.ToString(dr["LastName"]),
+                                                        EnrollmentStatus=Convert.ToInt32(dr["EnrollmentDetailStatus"]),
+                                                        EnrollmentDays=Convert.ToInt32(dr["EnrollmentDays"]),
+                                                        ADA=Convert.ToInt32(dr["ADA"])==Convert.ToDouble(dr["ADA"])?Math.Round(Convert.ToDouble(dr["ADA"])):Convert.ToDouble(dr["ADA"])
+
+                                                    }
+
+                                                  ).ToList();
+
+                }
+
+                if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr2 in _dataset.Tables[1].Rows)
+                    {
+                        report.CenterAuditReportList.ForEach(x =>
+                        {
+                            x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(dr2["CenterID"])) ? Convert.ToInt32(dr2["TotalRecord"]) : x.TotalRecord;
+                            x.SortOrder = report.SortOrder;
+                            x.SortColumn = report.SortColumn;
+                        });
+                    }
+
+                }
+
+                if (_dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                {
+                    foreach (DataRow dr3 in _dataset.Tables[2].Rows)
+                    {
+                        report.CenterList.Add(new SelectListItem
+                        {
+                            Text = Convert.ToString(dr3["CenterName"]),
+                            Value = EncryptDecrypt.Encrypt64(Convert.ToString(dr3["CenterID"]))
+                        });
+                    }
+                }
+
+              
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+            }
+            return report;
+        }
+
+
+
+        #endregion
+
+
+        #endregion
+
+
     }
-} 
+
+
+
+
+
+
+}

@@ -91,12 +91,12 @@
 
             var $srcModal=$('#'+sourceObjId);
 
-            debugger;
+            
             if(imageType==1)
             {
-                console.log($(ele).get(0));
+               
                 var fileName=$(ele).get(0).files[0].name;
-                console.log(fileName);
+           
 
                 $srcModal.find('#lblFileName').html(fileName);
 
@@ -622,7 +622,7 @@
         var searchTextByName = '';
         var filterOption = '';
         $(window).load(function () {
-            console.log(HostedDir);
+           
         });
 
 
@@ -1012,9 +1012,7 @@
 
         function BindCaseNotelist($modal, Data, iseditable) {
 
-            console.log('1');
-            console.log(Data);
-            console.log(iseditable);
+           
 
 
             $modal.find('#txtcasenotedate_attissue').val('');
@@ -1033,7 +1031,7 @@
             $modal.find('#div_attach_download_bind_section').html('');
             cleanValidation();
 
-            console.log(Data);
+         
 
             var outputArray = [];
             var Attachments = [];
@@ -1394,7 +1392,7 @@
             }
 
             $('#refAttendanceIssueDiv').find('#refcatagoryattenissuediv').load('@Url.Action("ReferralCategoryPartial", "Roster")', { id: _ref_EncClientId, clientName: _ref_clientName, ScreeningReferralYakkr: _ref_Yakkrid, ReferralClientId: _referral_ClientId }, function (responseTxt, statusTxt, xhr) {
-                console.log(responseTxt);
+               
 
                 if (statusTxt == 'success') {
                     $('#refcatagoryattenissuediv').html(responseTxt);
@@ -1452,7 +1450,7 @@
               , ScreeningReferralYakkr: referanceYakkrid
               , stepId:Step
             }, function (responseTxt, statusTxt, xhr) {
-                console.log(responseTxt);
+              
 
                 if (statusTxt == 'success') {
                     $('#refmathcprovidersattenissuediv').html(responseTxt);
@@ -1629,7 +1627,7 @@
 
                 },
                 error: function (data) {
-                    console.log(data);
+                   
                 }
 
             });
@@ -1668,8 +1666,7 @@
                     $modal.find('.divAppendedNotes').show();
                     $modal.find('.sub-notes-details').empty();
                     console.clear();
-                    console.log(data);
-                    debugger;
+                  
                     if (data != null && data.length > 0) {
                         $(data).each(function (i, val) {
                             debugger
@@ -1737,7 +1734,7 @@
 
                 },
                 error: function (data) {
-                    console.log(data);
+                  
                 }
             });
         }
@@ -1804,8 +1801,8 @@
         $(document).ready(function () {
 
 
-            debugger;
-            
+           
+
             $('.modal').on("hidden.bs.modal", function (e) { //fire on closing modal box
                 if ($('.modal:visible').length) { // check whether parent modal is opend after child modal close
                     $('body').addClass('modal-open'); // if open mean length is 1 then add a bootstrap css class to body of the page
@@ -2284,7 +2281,7 @@
 
             $('#Centers').on('change', function () {
 
-            
+
 
                 if ($(this).val() == '0') {
                     $('#Classroom').find('option').remove();
@@ -2430,7 +2427,10 @@
             $('#seatsDatetimePicker1').datetimepicker({
                 timepicker: false,
                 format: 'm/d/Y',
-                validateOnBlur: false
+                validateOnBlur: false,
+                mask: true,
+                minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+                maxDate: new Date(),
             });
 
 
@@ -2559,7 +2559,7 @@
 
                         },
                         error: function (data) {
-                            console.log(data);
+                         
                         }
                     });
                 }
@@ -2702,57 +2702,127 @@
 
             });
 
-            $('.btn-roster-submit').click(function () {
-                if ($('.txtseatdate').val() == "") {
-                    $('.error-message-empty').show();
-                    return;
+            $('#modal-attendance-details').find('#btnLoadAttendance').on('click',function () {
+
+                var $modal= $('#modal-attendance-details');
+
+                if($modal.find('#seatsDatetimePicker1').val()=="" || $modal.find('#seatsDatetimePicker1').val().trim()=="__/__/____")
+                {
+                    customAlert('Date is required');
+                    return false;
                 }
-                var EClientId = $(this).attr("data-clientId");
-                $('#divForMealsDetails').hide();
+
+                if(new Date($modal.find('#seatsDatetimePicker1').val()).setHours(0,0,0,0)>new Date().setHours(0,0,0,0))
+                {
+                    customAlert('Entered date should not greater than today\'s date');
+                    return false;
+                }
+
+                if (new Date($modal.find('#seatsDatetimePicker1').val()).setHours(0, 0, 0, 0) < new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setHours(0, 0, 0, 0)) {
+                    plainValidation($modal.find('#seatsDatetimePicker1'));
+                    customAlert('Entered date should not less than one year from today\'s date');
+                    return false;
+                }
+
+
+
+
+
+                var EClientId = $modal.find('#lbl-popup-client').attr('accesskey');
+                //  $('#divForMealsDetails').hide();
                 $.ajax({
                     url: HostedDir + "/Roster/GetAttendenceByDate",
                     type: "POST",
                     data: {
-                        selectedDate: $('.txtseatdate').val().trim(),
-                        clientId: EClientId,
-
+                        FromDate: new Date($modal.find('#seatsDatetimePicker1').val().trim()).toJSON(),
+                        ToDate:new Date($modal.find('#seatsDatetimePicker1').val().trim()).toJSON(),
+                        Enc_ClientID: EClientId,
                     },
-                    dataType: "json",
+                    dataType: "html",
                     secureuri: false,
                     async: false,
                     success: function (data) {
-                        if (data != null) {
-                            $('.txt-clear').val("");
-                            $('.txt-clear').text("");
 
-                            $('#divForNoRecords').hide();
-                            $('#spnCenterName').text(data.Center);
-                            $('#spnAttendenceStatus').text(data.AttendenceStatus);
-                            $('#spnClientName').text(data.ClientName);
-                            $('#spnParentName').text(data.ParentName);
-                            if (data.SignedInBy != "" && data.SignedInBy != null)
-                                $('#spnSignedInBy').text(data.SignedInBy + " (" + data.SignedInTime + ") ");
+                        $('#modal-attendance-details').find('#attendance-details-section').html(data);
 
-                            if (data.SignedOutBy != "" && data.SignedOutBy != null)
-                                $('#spnSignedOutBy').text(data.SignedOutBy + " (" + data.SignedOutTime + ") ");
+                        $('#modal-attendance-details').find('.search-block-main').hide();
 
-                            $('#spnAttendenceDate').text($('.txtseatdate').val().trim());
 
-                            (data.Breakfast != 0 && data.Breakfast != null) ? $('#spnBreakfast').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnBreakfast').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
-                            (data.Lunch != 0 && data.Lunch != null) ? $('#spnLunch').html("<i style='color:#3CB371;' class='fa fa-check' aria-hidden='true'></i>") : $('#spnLunch').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
-                            (data.Snacks != 0 && data.Snacks != null) ? $('#spnSnacks').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnSnacks').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
-                            $('#divForMealsDetails').show();
+                        $.each( $('#modal-attendance-details').find('#attendance-details-section').find('.sig-div'), function () {
+
+                            var sigString = $(this).children('input:hidden').val();
+                            $(this).signature();
+                            $(this).signature('draw', sigString);
+                            $(this).signature('disable');
+
+
+                        });
+
+                        $.each($('#modal-attendance-details').find('#attendance-details-section').find('.kbw-signature'), function () {
+
+                            $(this).css({ 'height': '94px', 'width': '260px', 'border': '1px solid #74777b' });
+                            $(this).children('canvas').css({ 'height': '90px', 'width': '250px' });
+
+                        });
+
+
+                        if($('#modal-attendance-details').find('#attendance-details-section').find('.accordion').length>0)
+                        {
+                            $('#modal-attendance-details').find('#attendance-details-section').find('.accordion:eq(0)').trigger('click');
                         }
+
+                        $('#modal-attendance-details').modal('show');
+
+
+                        //  $('#divForMealsDetails').html(data);
+                        // $('#divForMealsDetails').show();
+                        //if (data != null) {
+                        //    $('.txt-clear').val("");
+                        //    $('.txt-clear').text("");
+                        //    $('#divForNoRecords').hide();
+                        //    $('#spnCenterName').text(data.Center);
+                        //    $('#spnAttendenceStatus').text(data.AttendenceStatus);
+                        //    $('#spnClientName').text(data.ClientName);
+                        //    $('#spnParentName').text(data.ParentName);
+                        //    if (data.SignedInBy != "" && data.SignedInBy != null)
+                        //        $('#spnSignedInBy').text(data.SignedInBy + " (" + data.SignedInTime + ") ");
+                        //    if (data.SignedOutBy != "" && data.SignedOutBy != null)
+                        //        $('#spnSignedOutBy').text(data.SignedOutBy + " (" + data.SignedOutTime + ") ");
+                        //    $('#spnAttendenceDate').text($('.txtseatdate').val().trim());
+                        //    (data.Breakfast != 0 && data.Breakfast != null) ? $('#spnBreakfast').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnBreakfast').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                        //    (data.Lunch != 0 && data.Lunch != null) ? $('#spnLunch').html("<i style='color:#3CB371;' class='fa fa-check' aria-hidden='true'></i>") : $('#spnLunch').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                        //    (data.Snacks != 0 && data.Snacks != null) ? $('#spnSnacks').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnSnacks').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                        //    $('#divForMealsDetails').show();
+                        //}
                     }
                     , error: function (response) {
 
-                        $('#divForMealsDetails').hide();
-                        $('#divForNoRecords').show();
+                        //   $('#divForMealsDetails').hide();
+                        //   $('#divForNoRecords').show();
 
                     }
 
                 });
             });
+
+
+
+            $('#modal-attendance-details').on('hidden.bs.modal', function () {
+
+            
+                $(this).find('#seatsDatetimePicker1').val('');
+                $(this).find('#lbl-popup-client').html('');
+                $(this).find('#lbl-popup-client').removeAttr('accesskey');
+
+              
+
+                $(this).find('#attendance-details-section').html('<div class="col-xs-12 glossy-panel-div table-back-shadow text-center" style="padding:25px;">\
+                                                                    <span class="col-xs-12">Search by Filter <sup style="color:red;">*</sup></span>\
+                                                                    </div>');
+
+            });
+
+
 
             //changes on dec-18-17
 
@@ -3067,8 +3137,7 @@
             var data = new FormData();
             $('#divAppendCaseNoteSection').find('#att_issueattachmentsDiv').find('input:file').each(function (i, vak) {
                 var files = $(this).get(0).files;
-                console.log(files);
-                console.log($(this).val());
+              
                 if (files.length > 0) {
                     data.append("MyImages" + i + "", files[0]);
                 }
@@ -3580,11 +3649,18 @@
         function GetSelectedDateDetails(value) {
 
             var EClientId = $(value).attr("data-clientId");
-            $('.btn-roster-submit').attr("data-clientId", EClientId);
-            $('#myModalSeats').modal('show');
-            $('#divForMealsDetails').hide();
-            $('#divForNoRecords').hide();
-            $('.txtseatdate').val("");
+            //$('.btn-roster-submit').attr("data-clientId", EClientId);
+            //$('#myModalSeats').modal('show');
+            //$('#divForMealsDetails').hide();
+            //$('#divForNoRecords').hide();
+            //$('.txtseatdate').val("");
+
+
+            var clientName=$(value).parent('p').siblings('a').html();
+            var $modal=$('#modal-attendance-details');
+            $modal.find('#lbl-popup-client').html(clientName);
+            $modal.find('#lbl-popup-client').attr('accesskey',EClientId);
+            $modal.modal('show');
 
 
         }
@@ -4186,7 +4262,7 @@
                 type: 'post',
                 data: { clientId: $(arg).attr('data-clientid'),yakrkcode:601 },
                 success: function (data) {
-                    console.log(data);
+                 
 
 
 
@@ -4217,7 +4293,7 @@
                     }
                     catch (error) {
                         customAlert('Error occurred. Please, try again later');
-                        console.log(error);
+                       
                         $('#spinner').hide();
                     }
 
@@ -4562,13 +4638,14 @@
 
 
 
-<link href="~/Content/css/Transition.css" rel="stylesheet" />
+    <link href="~/Content/css/Transition.css" rel="stylesheet" />
 
-<style>
-     /*style for Append Case Note Popup*/
+    <style>
+        /*style for Append Case Note Popup*/
 
-
-
+#div-attendance-section .table-back-shadow{
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
         .select-editable {
             position: relative;
             background-color: white;
@@ -5740,16 +5817,16 @@
     </style>
 
 
-<link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
+    <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
 
 
 }
 
 @section MainContentHolder{
-  
-   
 
-   
+
+
+
     <div class="row Zoom">
 
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
@@ -5983,137 +6060,132 @@
         </div>
     </div>
 
-    <div class="modal fade" id="myModalSeats" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <input type="hidden" name="childid" id="childid" value="">
-                    <input type="hidden" name="childname" id="childname" value="">
-                    <label class="alert-dismissible" for="current_password">Attendance Details</label>
-                </div>
-                <div class="form-group-al">
-                    <div class="form-group input-container">
+    @*<div class="modal fade" id="myModalSeats" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <input type="hidden" name="childid" id="childid" value="">
+                        <input type="hidden" name="childname" id="childname" value="">
+                        <label class="alert-dismissible" for="current_password">Attendance Details</label>
+                    </div>
+                    <div class="form-group-al">
+                        <div class="form-group input-container">
 
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-4">
-                                <label class="control-label" for="current_password">Date:</label>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4">
+                                    <label class="control-label" for="current_password">Date:</label>
+                                </div>
+                                <div class='col-xs-12 col-sm-4'>
+                                    <div class="form-group">
+                                        <div class='input-group date'>
+                                            <input type='text' class="form-control txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker1' />
+                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4">
+                                    <button class="btn-roster-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
+                                </div>
+
                             </div>
-                            <div class='col-xs-12 col-sm-4'>
+
+                            <div class="err-container" style="height:15px;">
+                                <label class="control-label" for="current_password" style="width:180px;"></label>
+                                <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:none;color:red;">Date is mandatory</span>
+                                <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:none;color:red;">Invalid Date</span>
+                                <span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:none;color:red;">Future date is not allowed</span>
+                            </div>
+                        </div>
+                        <div id="divForNoRecords">
+                            <p style='text-align:center;color:red;'>Record not found</p>
+                        </div>
+                        <div id="divForMealsDetails" style="display:none;">
+                            <div class="dlf-outer">
+                                <div class="form-group" style="margin-top: 0px;">
+                                    <div class="col-xs-12" style="border: 1px solid #9B58B4; width: 100%;background:#9B58B4;margin: 0 auto;float: none;">
+                                        <label style="text-align:center;font-weight:bold;color:#fff;margin:5px;">Client Details</label>
+                                    </div>
+                                </div>
                                 <div class="form-group">
-                                    <div class='input-group date'>
-                                        <input type='text' class="form-control txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker1' />
-                                        <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Client</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnClientName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Center</label>
+                                    </div>
+                                    <div class="col-lg-8 col-sm-8" style="width:auto;display:inline-block;margin-top:10px;width:auto;">
+                                        <span id="spnCenterName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
+                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Attendance Status</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnAttendenceStatus" class="txt-clear engagement-activity sp-seatpercentage-count"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Parent Name</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnParentName" class="txt-clear engagement-minutes sp-seats-count"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Signed In By</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnSignedInBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Signed Out By</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnSignedOutBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Attendance Date</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                        <span id="spnAttendenceDate" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-sm-4">
+                                        <label class="no-padding" for="current_password">Meals Details</label>
+                                    </div>
+                                    <div style="width:auto;display:inline-block;margin-top:0px;width:auto;" class="xs-strong col-lg-8 col-sm-8">
+                                        <span id="spnBreakfast" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Breakfast</strong>
+                                        <span id="spnLunch" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Lunch</strong>
+                                        <span id="spnSnacks" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Snacks</strong>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-4">
-                                @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
-                                <button class="btn-roster-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
-                            </div>
-
-                        </div>
-
-                        @*<label class="control-label" for="current_password" style="width:180px;">Date:</label>
-                            <input name="CNotes" style="width: 30%;display:inline-block" class="form-control txtseatdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">
-                            <button class="btn-seat-submit address-btn btn btn-primary" style="width:auto;display:inline-block;">Submit</button>*@
-                        <div class="err-container" style="height:15px;">
-                            <label class="control-label" for="current_password" style="width:180px;"></label>
-                            <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:none;color:red;">Date is mandatory</span>
-                            <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:none;color:red;">Invalid Date</span>
-                            <span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:none;color:red;">Future date is not allowed</span>
                         </div>
                     </div>
-                    <div id="divForNoRecords">
-                        <p style='text-align:center;color:red;'>Record not found</p>
+                    <div class="modal-footer">
+                        <button class="btnPassword address-btn" data-dismiss="modal">Close</button>
                     </div>
-                    <div id="divForMealsDetails" style="display:none;">
-                        <div class="dlf-outer">
-                            <div class="form-group" style="margin-top: 0px;">
-                                <div class="col-xs-12" style="border: 1px solid #9B58B4; width: 100%;background:#9B58B4;margin: 0 auto;float: none;">
-                                    <label style="text-align:center;font-weight:bold;color:#fff;margin:5px;">Client Details</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Client</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnClientName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Center</label>
-                                </div>
-                                <div class="col-lg-8 col-sm-8" style="width:auto;display:inline-block;margin-top:10px;width:auto;">
-                                    <span id="spnCenterName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
-                                </div>
-
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Attendance Status</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnAttendenceStatus" class="txt-clear engagement-activity sp-seatpercentage-count"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Parent Name</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnParentName" class="txt-clear engagement-minutes sp-seats-count"></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Signed In By</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnSignedInBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Signed Out By</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnSignedOutBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Attendance Date</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
-                                    <span id="spnAttendenceDate" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-4 col-sm-4">
-                                    <label class="no-padding" for="current_password">Meals Details</label>
-                                </div>
-                                <div style="width:auto;display:inline-block;margin-top:0px;width:auto;" class="xs-strong col-lg-8 col-sm-8">
-                                    <span id="spnBreakfast" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Breakfast</strong>
-                                    <span id="spnLunch" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Lunch</strong>
-                                    <span id="spnSnacks" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Snacks</strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btnPassword address-btn" data-dismiss="modal">Close</button>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>*@
 
     @Html.Partial("~/Views/Partialviews/EnrollmentStatusChangePartial.cshtml")
 
@@ -7948,6 +8020,100 @@
     @{
         Html.RenderPartial(Url.Content("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml"));
     }
+
+
+    @*  Child Attendance info pop-up Start   *@
+
+
+    <div class="modal fade scroll-modal custom-modal in" id="modal-attendance-details" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h2 id="CaseNoteHeading" class="extra-title muted">Attendance Details </h2>
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+
+
+                    <div class="max_items_addn popup-addn-scroll">
+
+                        <div class="form-group col-xs-12">
+
+                            <h3 id="lbl-popup-client" class="addapplicant" style="padding-top:25px;color:#333;text-shadow: 2px 5px 6px #999393;"></h3>
+                        </div>
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group col-lg-3 col-sm-6 col-xs-12">
+                                <label for="fromAttendanceDate" style="color:#295b8f;text-transform:none;">Date <sup style="color:red;">*</sup></label>
+
+                                <div class='input-group date'>
+                                    <input type='text' class="form-control glossy-date-input txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="MM/DD/YYYY" id='seatsDatetimePicker1' />
+                                    <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                <label for="exampleInputPassword1" style="visibility:hidden;">Action</label>
+                                <button type="button" class="glossy-button-button button-green" id="btnLoadAttendance">
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                    Load
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
+
+
+
+
+                            <div class="col-xs-12" id="div-attendance-section">
+
+
+                                <div class="attendance-details-section col-xs-12" id="attendance-details-section">
+
+                                    <div class="col-xs-12 glossy-panel-div table-back-shadow text-center" style="padding:25px;">
+                                        <span class="col-xs-12">Search by Filter <sup style="color:red;">*</sup></span>
+                                    </div>
+
+                                </div>
+
+
+
+
+
+
+                            </div>
+
+
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    @* Child Attendance info pop-up End *@
 
 
 }

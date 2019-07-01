@@ -6165,31 +6165,86 @@ namespace FingerprintsData
         }
 
 
-        public Boolean GetSingleAccessStatus(int type)
+        //public Boolean GetSingleAccessStatus(int type)
+        //{
+        //    bool _access = false;
+
+        //    try
+        //    {
+
+        //        StaffDetails stf = StaffDetails.GetInstance();
+
+        //        if (Connection.State == ConnectionState.Open)
+        //            Connection.Close();
+
+        //        command.Parameters.Clear();
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.Text;
+        //        command.CommandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
+        //        Connection.Open();
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        Connection.Close();
+        //        if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+        //        {
+        //            _access = true;
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+
+        //    }
+        //    return _access;
+        //}
+
+
+        public bool GetSingleAccessStatus(int type)
         {
             bool _access = false;
 
-        try
-        {
+            try
+            {
 
-            StaffDetails stf = StaffDetails.GetInstance();
+                StaffDetails stf = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-            if (Connection.State == ConnectionState.Open)
-                Connection.Close();
 
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.Text;
-                command.CommandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
-                Connection.Open();
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
-                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                string sqlText = @"select top 1 id from AccessRoleList where MasterId=@MasterId and UserID=@UserID AND RoleID=@RoleID";
+
+                var parameters = new IDbDataParameter[]
                 {
-                    _access = true;
-                }
+                    dbManager.CreateParameter("@MasterID",type,DbType.Int32),
+                    dbManager.CreateParameter("@RoleID",stf.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",stf.UserId,DbType.Guid)
+                };
+
+
+                var AccessMasterId = dbManager.ExecuteWithScalar<int>(sqlText, CommandType.Text, parameters);
+
+                _access = AccessMasterId > 0;
+
+               // string commandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
+
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
+
+                //command.Parameters.Clear();
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.Text;
+                //command.CommandText =
+                //Connection.Open();
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+                //Connection.Close();
+                //if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
+                //{
+                //    _access = true;
+                //}
 
             }
             catch (Exception ex)

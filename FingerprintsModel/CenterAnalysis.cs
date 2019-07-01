@@ -142,6 +142,8 @@ namespace FingerprintsModel
         public string Gender { get; set; }
         public string AttendancePercentage { get; set; }
         public string Dob { get; set; }
+
+        public string CenterID { get; set; }
         public string CenterName { get; set; }
         public string ProgramType { get; set; }
         public string Amount1 { get; set; }

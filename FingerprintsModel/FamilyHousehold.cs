@@ -44,7 +44,7 @@ namespace FingerprintsModel
        
         public string CenterName { get; set; }
         public long CenterId { get; set; }
-        public List<WellBabyExamModel> PhysicalExamDates { get; set; }
+        //public List<WellBabyExamModel> PhysicalExamDates { get; set; }
         public string WorkshopInfo { get; set; }
         public List<WorkshopDetails> AvailableWorkshopDetails { get; set; }
         public List<WorkshopDetails> AvailableWorkshop { get; set; }

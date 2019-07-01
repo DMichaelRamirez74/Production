@@ -292,6 +292,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClientID", "1"));
                 command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
                 command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandTimeout = 120;
                 command.CommandText = "SP_GetTeacherList";
