@@ -351,6 +351,8 @@ namespace Fingerprints.Controllers
                 agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"] == null ? null : collection["DdlEarlyChildHood"].ToString();
                 agencystaff.GettingDegree = collection["DdlGettingDegree"] == null ? null : collection["DdlGettingDegree"].ToString();
                 agencystaff.Contractor = collection["DdlContractor"] == null ? null : collection["DdlContractor"].ToString();
+                agencystaff.Parent = collection["DdlParent"] == null ? null : collection["DdlParent"].ToString();
+                agencystaff.Percentage = collection["DdlPercentage"] == null ? null : collection["DdlPercentage"].ToString();
                 agencystaff.AssociatedProgram = collection["DdlAssociatedProgram"] == null ? null : collection["DdlAssociatedProgram"].ToString();
                 agencystaff.Replacement = collection["DdlReplacement"] == null ? null : collection["DdlReplacement"].ToString();
                 //agencystaff.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();
@@ -698,6 +700,8 @@ namespace Fingerprints.Controllers
                 agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"] == null ? null : collection["DdlEarlyChildHood"].ToString();
                 agencystaff.GettingDegree = collection["DdlGettingDegree"] == null ? null : collection["DdlGettingDegree"].ToString();
                 agencystaff.Contractor = collection["DdlContractor"] == null ? null : collection["DdlContractor"].ToString();
+                agencystaff.Parent = collection["DdlParent"] == null ? null : collection["DdlParent"].ToString();
+               // agencystaff.Percentage = collection["DdlPercentage"] == null ? null : collection["DdlPercentage"].ToString();
                 agencystaff.AssociatedProgram = collection["DdlAssociatedProgram"] == null ? null : collection["DdlAssociatedProgram"].ToString();
                 agencystaff.Replacement = collection["DdlReplacement"] == null ? null : collection["DdlReplacement"].ToString();
                 //agencystaff.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();

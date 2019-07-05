@@ -36,6 +36,8 @@ namespace FingerprintsModel
         public string Gender { get; set; }
         public string Salary { get; set; }
         public string Contractor { get; set; }
+        public string Parent { get; set; }
+        public string Percentage { get; set; }
         public string AssociatedProgram { get; set; }
         public string Replacement { get; set; }
         public string DOB { get; set; }

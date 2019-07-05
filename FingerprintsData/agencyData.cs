@@ -409,6 +409,8 @@ namespace FingerprintsData
                         command.Parameters.AddWithValue("@Hrly_Rate", obj.HourlyRate);
                         command.Parameters.AddWithValue("@Slry", obj.Salary);
                         command.Parameters.AddWithValue("@Cntractor", obj.Contractor);
+                        command.Parameters.AddWithValue("@Parent", obj.Parent);
+                        command.Parameters.AddWithValue("@Percentage", obj.Percentage);
                         command.Parameters.AddWithValue("@Associated_Program", obj.AssociatedProgram);
                         command.Parameters.AddWithValue("@Rplacement", obj.Replacement);
                         command.Parameters.AddWithValue("@DateOfBirth", obj.DOB);
@@ -1196,6 +1198,8 @@ namespace FingerprintsData
                     obj.AccessDays = Convert.ToString(dt.Rows[0]["AccessDays"].ToString());
                     obj.Gender = Convert.ToString(dt.Rows[0]["Gender"].ToString());
                     obj.Contractor = Convert.ToString(dt.Rows[0]["Contractor"].ToString());
+                    obj.Parent = Convert.ToString(dt.Rows[0]["Parent"].ToString());
+                    obj.Percentage = Convert.ToString(dt.Rows[0]["Percentage"].ToString());
                     obj.Replacement = Convert.ToString(dt.Rows[0]["Replacement"].ToString());
                     obj.AssociatedProgram = Convert.ToString(dt.Rows[0]["AssociatedProgram"].ToString());
                     obj.HighestEducation = Convert.ToString(dt.Rows[0]["HighestEducation"].ToString());

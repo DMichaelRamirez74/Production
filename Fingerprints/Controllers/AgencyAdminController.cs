@@ -365,6 +365,8 @@ namespace Fingerprints.Controllers
                 agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"].ToString() == "-1" ? null : collection["DdlEarlyChildHood"].ToString();
                 agencystaff.GettingDegree = collection["DdlGettingDegree"].ToString() == "-1" ? null : collection["DdlGettingDegree"].ToString();
                 agencystaff.Contractor = collection["DdlContractor"].ToString() == "-1" ? null : collection["DdlContractor"].ToString();
+                agencystaff.Parent = collection["DdlParent"] == null ? null : collection["DdlParent"].ToString();
+                agencystaff.Percentage = collection["DdlPercentage"] == null ? null : collection["DdlPercentage"].ToString();
                 agencystaff.AssociatedProgram = collection["DdlAssociatedProgram"].ToString() == "-1" ? null : collection["DdlAssociatedProgram"].ToString();
                 agencystaff.Replacement = collection["DdlReplacement"].ToString() == "-1" ? null : collection["DdlReplacement"].ToString();
                 agencystaff.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();
@@ -655,6 +657,8 @@ namespace Fingerprints.Controllers
                 agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"] == null ? null : collection["DdlEarlyChildHood"].ToString();
                 agencystaff.GettingDegree = collection["DdlGettingDegree"] == null ? null : collection["DdlGettingDegree"].ToString();
                 agencystaff.Contractor = collection["DdlContractor"] == null ? null : collection["DdlContractor"].ToString();
+                agencystaff.Parent = collection["DdlParent"] == null ? null : collection["DdlParent"].ToString();
+                agencystaff.Percentage = collection["DdlPercentage"] == null ? null : collection["DdlPercentage"].ToString();
                 agencystaff.AssociatedProgram = collection["DdlAssociatedProgram"] == null ? null : collection["DdlAssociatedProgram"].ToString();
                 agencystaff.Replacement = collection["DdlReplacement"] == null ? null : collection["DdlReplacement"].ToString();
                 agencystaff.HRCenter = collection["DdlHrCenter"] == null ? null : collection["DdlHrCenter"].ToString();
