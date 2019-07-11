@@ -545,6 +545,23 @@ namespace Fingerprints.Controllers
                 case FingerprintsModel.Enums.ReportFormatType.Pdf:
 
                     byte[] bytes = memoryStream.ToArray();
+
+                    Font blackFont = FontFactory.GetFont("Arial", 10, Font.ITALIC, BaseColor.BLACK);
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        PdfReader reader = new PdfReader(bytes);
+                        using (PdfStamper stamper = new PdfStamper(reader, stream))
+                        {
+                            int pages = reader.NumberOfPages;
+                            for (int i = 1; i <= pages; i++)
+                            {
+                                ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase(string.Concat(i.ToString()," ","of"," ",pages), blackFont), 568f, 15f, 0);
+                            }
+                        }
+                        bytes = stream.ToArray();
+                    }
+
+
                     memoryStream.Close();
                     Response.ContentType = "application/pdf";
                     Response.AddHeader("Content-Disposition", "attachment; filename=" + reportName + "" + DateTime.Now.ToString("MM/dd/yyyy") + ".pdf");
@@ -845,7 +862,7 @@ namespace Fingerprints.Controllers
             StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
             int totalRecords;
 
-            List<AttendenceDetailsByDate> attendanceDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().GetAttendenceDetailsByDate(out totalRecords,report,staff);
+            List<AttendenceDetailsByDate> attendanceDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().GetAttendenceDetailsByDate(out totalRecords, report, staff);
 
             var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
 

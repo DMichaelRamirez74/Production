@@ -11,11 +11,11 @@ namespace Fingerprints.Common.Helpers
     {
 
 
-        public static string GetBase64Png(string linesGraphicJSON, int width, int height)
+        public static string GetBase64Png(string linesGraphicJSON, int width, int height, Color backgroundColor,Color penColor )
         {
-            return Draw2DLineGraphic(new JavaScriptSerializer().Deserialize<Signature>(linesGraphicJSON), width, height);
+            return Draw2DLineGraphic(new JavaScriptSerializer().Deserialize<Signature>(linesGraphicJSON), width, height,backgroundColor, penColor);
         }
-        private static string Draw2DLineGraphic(I2DLineGraphic lineGraphic, int width, int height)
+        private static string Draw2DLineGraphic(I2DLineGraphic lineGraphic, int width, int height,Color backgroundColor, Color penColor)
         {
             //The png's bytes 
             byte[] png = null;
@@ -29,10 +29,10 @@ namespace Fingerprints.Common.Helpers
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
                     //Set the background to white 
-                    g.Clear(Color.White);
+                    g.Clear(backgroundColor);
 
                     //Create a pen to draw the signature with 
-                    Pen pen = new Pen(Color.Black, 2);
+                    Pen pen = new Pen(penColor, 2);
 
                     //Smooth out the pen, making it rounded 
                     pen.DashCap = System.Drawing.Drawing2D.DashCap.Round;

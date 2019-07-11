@@ -55,5 +55,6 @@ namespace FingerprintsModel
 
         public long HouseholdId { get; set; }
 
+
     }
 }

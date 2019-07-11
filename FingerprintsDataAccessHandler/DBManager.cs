@@ -182,7 +182,7 @@ namespace FingerprintsDataAccessHandler
 
                     object newId = command.ExecuteScalar();
 
-                    return (T)Convert.ChangeType(newId,typeof(T));
+                    return (newId==null|| DBNull.Value.Equals(newId)?default(T): (T)Convert.ChangeType(newId,typeof(T)));
                     //lastId = Convert.ToInt32(newId);
                 }
             }

@@ -10,6 +10,7 @@ namespace FingerprintsModel
     public class TeacherModel:IInkindPeriod
     {
        
+       
         public string Tdate { get; set; }
         public String ClientID { get; set; }
         public String CName { get; set; }
@@ -22,7 +23,7 @@ namespace FingerprintsModel
         public List<InkindActivity> Activitylst { get; set; }
         public List<TeacherModel> ObservationlstChecked { get; set; }
         public List<TeacherModel> Meallst { get; set; }
-
+        public int AttendanceIssuePercentage { get; set; }
         public List<FamilyHousehold> EmergencyContactList { get; set; }
 
         public string AccessDateString { get; set; }
@@ -54,18 +55,30 @@ namespace FingerprintsModel
         public string OtherNameIn2 { get; set; }
         public string OtherNameOut2 { get; set; }
         public string OtherNameTeacher { get; set; }
+        public string OtherNameTeacher2 { get; set; }
         public string TeacherName { get; set; }
+
+       // public string TeacherName1 { get; set; }
+
+        public string TeacherName2 {get;set;}
         public List<AgencyStaff> TeacherList { get; set; }
 
         public int TeacherTimeZoneDiff { get; set; }
         public int FSWTimeZoneDiff { get; set; }
         public string FSWName { get; set; }
         public string TeacherCheckedIn { get; set; }
+
+        public string TeacherCheckedIn2{get;set;}
         public string ObservationID { get; set; }
         public string ObservationDescription { get; set; }
         public string ActivityCode { get; set; }
         public string ActivityDescription { get; set; }
         public string TeacherCheckInSig { get; set; }
+        public string TeacherCheckInTime { get; set; }
+        public string TeacherCheckInSig2 { get; set; }
+        public string TeacherCheckInTime2 { get; set; }
+
+
         public string ObservationIDChecked { get; set; }
         public bool Breakfast { get; set; }
         public DateTime? BreakfastServedOn { get; set; }

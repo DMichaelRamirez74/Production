@@ -4534,11 +4534,17 @@ namespace FingerprintsData
                         attendence.SignedOut2Name = Convert.ToString(dr["SignedOut2Name"]);
                       //  attendence.ParentCheckedOut2 = Convert.ToString(dr["SignedOutBy2"]);
                         attendence.TeacherCheckInSig = Convert.ToString(dr["TSignatureIn"]);
+                        attendence.TeacherCheckInTime = Convert.ToString(dr["TeacherCheckInTime"]);
+                        attendence.TeacherCheckInTime2 = Convert.ToString(dr["TeacherCheckInTime2"]);
+                        attendence.TeacherCheckInSig2 = Convert.ToString(dr["TSignatureIn2"]);
                       //  attendence.TeacherCheckedIn = Convert.ToString(dr["TeacherUserID"]);
                         attendence.TeacherName = Convert.ToString(dr["TeacherName"]);
+                        attendence.TeacherName2 = Convert.ToString(dr["TeacherName2"]);
                         attendence.ObservationDescription = Convert.ToString(dr["ObservationDescription"]);
                         attendence.AbsenceReason = Convert.ToString(dr["AbsenceReason"]);
                         attendence.ProtectiveBadge = dr["IdNo"] != DBNull.Value ? Convert.ToString(dr["IdNo"]) : string.Empty;
+                        attendence.ProtectiveBadge2 = dr["IdNo2"] != DBNull.Value ? Convert.ToString(dr["IdNo2"]) : string.Empty;
+
                         attendence.CenterName = Convert.ToString(dr["CenterName"]);
                         attendence.ClassroomName = Convert.ToString(dr["ClassroomName"]);
 

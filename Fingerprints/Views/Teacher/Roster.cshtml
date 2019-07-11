@@ -736,8 +736,8 @@
 
 
                         }
-                       
-                      
+
+
 
                         if(yakkrFirst.length>0)
                         {
@@ -1003,9 +1003,9 @@
             var CID = childnameID.substring(0, n);
             var CN = childnameID.substring(n + 1, l);
 
-            $(".modal-header #childname").val(CN);
-            $(".modal-header #childid").val(CID);
-            $(".modal-header #childlbl").text(CN);
+            $('#myModalattendance').find(".modal-header #childname").val(CN);
+            $('#myModalattendance').find(".modal-header #childid").val(CID);
+            $('#myModalattendance').find(".modal-header #childlbl").text(CN);
             // As pointed out in comments,
             // it is superfluous to have to manually call the modal.
             // $('#addBookDialog').modal('show');
@@ -1161,8 +1161,8 @@
                         image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
                     }
 
-                    $(ele).parent('td').append(image);
-                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).parent('p').append(image);
+                    $(ele).parent('p').find('.roundimage').zoomify();
                     $(ele).remove();
                     $('#spinner').hide();
                 },
@@ -1228,10 +1228,10 @@
 
 @section Style
 {
-    
-    
-    
-    
+
+
+
+
 
     <style type="text/css">
         .page-wrapper-change {
@@ -1246,6 +1246,28 @@
             float: left;
             margin-top: 15px;
             margin-bottom: 30px;
+        }
+
+        .glossy-table.check-in-table {
+            -webkit-box-shadow: unset;
+            -moz-box-shadow: unset;
+            box-shadow: unset;
+        }
+
+        .glossy-table-body tr td p {
+            /*padding: 0;*/
+            text-align: center;
+            font-size: 14px;
+            margin: 0;
+            border-right: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: auto;
+        }
+
+        .glossy-table.check-in-table th {
+            text-shadow: unset;
         }
 
         .edu_clrtable {
@@ -1269,7 +1291,7 @@
             color: #c0392b !important;
         }
 
-        .edu_clrtable table thead tr th {
+        .edu_clrtable > table > thead > tr > th {
             background-color: #9B58B4;
             color: #fff;
             text-align: center;
@@ -1575,26 +1597,37 @@
             margin: auto;
         }
 
-        #rhv-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group, #rptc-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group {
-            margin-left: 23%;
-            padding: 10px;
-        }
+            #rhv-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group, #rptc-table tbody tr .col-lg-7.col-sm-6.col-xs-12.form-group {
+                margin-left: 23%;
+                padding: 10px;
+            }
 
-         @@media only screen and (min-width: 767px) and (max-width: 991px) {
-        .edu_clrtable {
-            border-radius: 0 !important;
+        @@media only screen and (min-width: 767px) and (max-width: 991px) {
+            .edu_clrtable {
+                border-radius: 0 !important;
+            }
         }
-    }
 
         @@media only screen and (min-width:230px ) and (max-width:1200px) {
-            #rptc-table #div-ptc-2, #rptc-table #div-ptc-1,#rhv-tabl #div-hv-1,#rhv-tabl #div-hv-2 {
+            #rptc-table #div-ptc-2, #rptc-table #div-ptc-1, #rhv-tabl #div-hv-1, #rhv-tabl #div-hv-2 {
                 margin-top: 20px;
             }
 
-            #rptc-table,#rhv-table {
+            #rptc-table, #rhv-table {
                 padding-left: 25px;
                 padding-right: 25px;
                 padding-top: 25px;
+            }
+
+            table.glossy-table {
+                border: unset;
+                -webkit-box-shadow: unset;
+                -moz-box-shadow: unset;
+                box-shadow: unset;
+            }
+
+            table.glossy-table td:before{
+                padding-top:0;
             }
         }
 
@@ -1650,10 +1683,10 @@
             padding: 0;
         }
 
-    #TeacherRoster tbody th {
-        border: 1px solid #ccc;
-    }
-</style>
+        #TeacherRoster tbody th {
+            border: 1px solid #ccc;
+        }
+    </style>
 
 }
 
@@ -1669,7 +1702,8 @@
 
     <div class="container-fuild">
 
-        <form method="post" enctype="multipart/form-data">
+        @*<form method="post" enctype="multipart/form-data">*@
+
             <input type="hidden" id="profileindex" name="profileindex" />
             <input type="hidden" id="eduindex" name="eduindex" />
 
@@ -1722,15 +1756,15 @@
                             Roster <small><i>for</i></small> <span class="attend-date"><font size="3"></font></span>  @Model.Tdate
                             <span><font size="3"><i>@(Convert.ToBoolean(ViewBag.NotChecked) ? "(Not-Checked In)" : "")</i></font></span>
 
-                            <a href="@Url.Action("GrowthAnalysis","Teacher")" class="btn pull-right"
+                            <a href="@Url.Action("GrowthAnalysis", "Teacher")" class="btn pull-right"
                                style="color:#fff;background:#9b59b6">Growth Analysis</a>
                         </h3>
                     </div>
                     <div class="edu_clrtable table-responsive">
-                        <table class="table table-bordered table-striped">
+                        <table class="table table-bordered table-striped glossy-table">
                             <thead>
                                 <tr>
-                                    <th style="text-align: left !important;">Client</th>
+                                    <th>Client</th>
                                     <th>DOB</th>
                                     <th>Profile Picture</th>
                                     <th>Class Start Date</th>
@@ -1742,7 +1776,7 @@
                                     <th>Services</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="glossy-table-body">
 
 
 
@@ -1750,48 +1784,84 @@
                                 {
                                     <tr>
 
-                                        <td EClientId="@j.Enc_ClientId" class="childName">@j.CName</td>
-                                        <td>@j.CDOB</td>
-                                        <td><a href="javascript:void(0)" onclick="showImage(this);" EClientId='@j.Enc_ClientId'>View</a></td>
-                                        <td>@j.Dateofclassstartdate</td>
+                                        <td EClientId="@j.Enc_ClientId" class="childName" data-title="Client"><p>@j.CName </p></td>
+                                        <td data-title="DOB"><p>@j.CDOB</p></td>
+                                        <td data-title="Profile Picture"><p><a href="javascript:void(0)" onclick="showImage(this);" EClientId='@j.Enc_ClientId'>View</a> </p></td>
+                                        <td data-title="Class Start Date"><p>@j.Dateofclassstartdate </p></td>
 
                                         @if (j.AttendanceType == "Not Checked In" && (j.IsLateArrival || j.IsCaseNoteEntered != 0))
                                         {
-                                            <td style="font-family:Arial;color:blueviolet;">Marked as Late Arrival<br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                            <td data-title="Check-In Status" style="font-family:Arial;color:blueviolet;"><p>>Marked as Late Arrival<br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i> </p></td>
                                         }
                                         else
                                         {
                                             if (j.AttendanceType == "Not Checked In")
                                             {
 
-                                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                                <td data-title="Check-In Status" style="font-family:Arial;color:red;"><p>@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i> </p></td>
 
                                             }
 
                                             else if (j.AttendanceType == "Present")
                                             {
-                                                <td style="font-family:Arial;color:rebeccapurple;">
+                                                //style="font-family:Arial;color:rebeccapurple;"
+                                                <td data-title="Check-In Status">
+                                                    <p>
+                                                        <label style="text-align:center;color:rebeccapurple;">
+
+                                                            <a style="color:rebeccapurple;" href="~/Teacher/CheckInCheckOutDetail?clientid=@j.Enc_ClientId&accesstype=1&attendanceDate=@Model.Tdate.ToString()" title="Present" class="links">
+                                                                @j.AttendanceType
+                                                            </a>
+
+                                                        </label>
+
+                                                    </p>
+                                                    <table class="table-bordered table glossy-table check-in-table table-condensed" style="font-size:smaller;">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="background:#ccc;color:#333;">In</th>
+                                                                <th style="background:#ccc;color:#333;">Out</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>@j.TimeIn</td>
+                                                                <td>@(j.TimeOut == "0" ? "" : j.TimeOut)</td>
+                                                            </tr>
 
 
+                                                            @if (j.TimeIn2.Trim() != string.Empty && j.TimeIn2 != "0")
+                                                            {
+                                                                <tr>
+                                                                    <td>@j.TimeIn2</td>
+                                                                    <td>@(j.TimeOut2 == "0" ? "" : j.TimeOut2)</td>
+                                                                </tr>
+                                                            }
 
-                                                    <a href="~/Teacher/CheckInCheckOutDetail?clientid=@j.ClientID&accesstype=1" title="Details" class="links">
-                                                        @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+                                                        </tbody>
 
-                                                    </a>
+                                                    </table>
+
+                                                    @*<a href="~/Teacher/CheckInCheckOutDetail?clientid=@j.ClientID&accesstype=1" title="Details" class="links">
+                                                            @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+
+                                                        </a>*@
+
                                                 </td>
 
                                             }
                                             else if (j.AttendanceType == "Absent Excused")
                                             {
-                                                <td style="font-family:Arial;color:#9c27b0;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                                <td style="font-family:Arial;color:#9c27b0;"><p> @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i> </p></td>
                                             }
                                             else if (j.AttendanceType == "Present Other")
                                             {
-                                                <td style="font-family:Arial;color:#ff5722;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                                <td style="font-family:Arial;color:#ff5722;"><p>@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></p> </td>
                                             }
                                             else
                                             {
-                                                <td style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></td>
+                                                <td style="font-family:Arial;color:red;"><p> @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></p> </td>
 
                                             }
 
@@ -1799,89 +1869,105 @@
 
                                         @if (j.ObservationChecked)
                                         {
-                                            <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                            <td data-title="Daily Health Check"><p><img src="~/Images/tick-sign.svg" style="height:15px;width:15px;" /> </p></td>
                                         }
                                         else if (j.AttendanceType == "Present")
                                         {
-                                            <th>
+                                            <td data-title="Daily Health Check">
+                                                <p>
 
+                                                    <a href="@Url.Action("ParentCheckIn", "Teacher", new { clientid = @j.ClientID, accesstype = 1, available = "1" })" class="office">
 
-                                                <a href="@Url.Action("ParentCheckIn", "Teacher" , new { clientid=@j.ClientID, accesstype=1, available="1" })" class="office">
-
-                                                    <img alt="List View" src="@Url.Content("~/Images/whiteX.gif")" />
-                                                </a>
-                                            </th>
-                                        }
-                                        else
-                                        {
-
-                                            <th><img src="~/Images/whiteX.gif" /> </th>
-
-                                        }
-
-
-                                        <td>@j.PercentAbsent %</td>
-                                        <td>@j.EnrollmentDays</td>
-
-                                        @if (j.Disability == "1")
-                                        {
-                                            <td>
-                                                <img src="~/Images/whiteCheck.jpg" title="@j.DisabilityDescription" />
+                                                        <img alt="List View" src="@Url.Content("~/Images/cross-sign.svg")" style="height:15px;width:15px;" />
+                                                    </a>
+                                                </p>
                                             </td>
                                         }
                                         else
                                         {
-                                            <td><img src="~/Images/whiteX.gif" title="No Disability Recorded" /></td>
+
+                                            <td data-title="Daily Health Check"><p>  <img src="~/Images/cross-sign.svg" style="width:15px;height:15px;" /></p> </td>
+
                                         }
 
-                                        <td style="white-space:nowrap;">
+
+                                        @if (j.PercentAbsent >= j.AttendanceIssuePercentage)
+                                        {
+                                            <td data-title="% Absent"><p style="color:red;">@j.PercentAbsent % </p></td>
+                                        }
+                                        else
+                                        {
+                                            <td data-title="% Absent"><p style="color:#3c763d;">@j.PercentAbsent % </p></td>
+                                        }
+
+                                        <td data-title="Enrollment Days"><p>@j.EnrollmentDays </p> </td>
+
+                                        @if (j.Disability == "1")
+                                        {
+                                            <td data-title="Disabilities">
+                                                <p>
+                                                    <img src="~/Images/whiteCheck.jpg" title="@j.DisabilityDescription" />
+                                                </p>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td data-title="Disabilities">
+                                                <p>
+
+                                                    <img src="~/Images/cross-sign.svg" style="height:15px;width:15px;" title="No Disability Recorded" />
+                                                </p>
+                                            </td>
+                                        }
+
+                                        <td style="white-space:nowrap;" data-title="Services">
+                                            <p>
+
+                                                @if (Model.ClosedDetails.ClosedToday > 0)
+                                                {
+                                                    <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+
+                                                }
+                                                else
+                                                {
+                                                    <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+
+                                                }
+
+                                                @* <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>*@
+
+                                                @if (Model.AllowCaseNoteTeacher == "1")
+                                                {
+                                                    <a href="@Url.Action("CaseNotesclient", "Roster", new { @id = j.Enc_ClientId, @Householdid = j.Enc_HouseholdId, @centerid = j.Enc_CenterId, @Programid = j.Enc_ProgramId })" style="text-decoration:underline;cursor:pointer;" title="Click here for case notes" data-target="tooltip" class="open-casenotes">CN&nbsp;</a>
+
+                                                }
 
 
-                                            @if (Model.ClosedDetails.ClosedToday > 0)
-                                            {
-                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+                                                <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
 
-                                            }
-                                            else
-                                            {
-                                                <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
+                                                @if (j.HasHomeVisit)
+                                                {
+                                                    <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Home Visit Report" href="javascript:void(0);" onclick="getHomeVisitReport(this);">rHV&nbsp;</a>
 
-                                            }
+                                                }
 
-                                            @* <a href="javascript:void(0);" data-target="tooltip" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>*@
+                                                @if (j.HasCenterVisit)
+                                                {
+                                                    <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Parent Center Visit Report" href="javascript:void(0);" onclick="getCenterVisitReport(this);">rPTC&nbsp;</a>
 
-                                            @if (Model.AllowCaseNoteTeacher == "1")
-                                            {
-                                                <a href="@Url.Action("CaseNotesclient","Roster",new {@id=j.Enc_ClientId,@Householdid=j.Enc_HouseholdId,@centerid=j.Enc_CenterId,@Programid=j.Enc_ProgramId })" style="text-decoration:underline;cursor:pointer;" title="Click here for case notes" data-target="tooltip" class="open-casenotes">CN&nbsp;</a>
+                                                }
 
-                                            }
+                                                <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId" data-centerid="@j.Enc_CenterId" data-classroomid="@FingerprintsModel.EncryptDecrypt.Decrypt64(j.Enc_ClassRoomId)" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" data-target="tooltip" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
 
+                                                @* <a class="referral-icon" style="text-decoration:underline;cursor:pointer;" title="Referrals for Child Developmental Team" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />xREF&nbsp;</a>*@
 
-                                            <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
+                                                <a title="Click here to get white paper on education of parents" data-target="tooltip" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED&nbsp;</a>
 
-                                            @if (j.HasHomeVisit)
-                                            {
-                                                <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Home Visit Report" href="javascript:void(0);" onclick="getHomeVisitReport(this);">rHV&nbsp;</a>
-
-                                            }
-
-                                            @if (j.HasCenterVisit)
-                                            {
-                                                <a style="text-decoration:underline;cursor:pointer;" data-target="tooltip" class="anchor-hv-report" title="Click here for Parent Center Visit Report" href="javascript:void(0);" onclick="getCenterVisitReport(this);">rPTC&nbsp;</a>
-
-                                            }
-
-                                            <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId" data-centerid="@j.Enc_CenterId" data-classroomid="@FingerprintsModel.EncryptDecrypt.Decrypt64(j.Enc_ClassRoomId)" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" data-target="tooltip" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
-
-                                            @* <a class="referral-icon" style="text-decoration:underline;cursor:pointer;" title="Referrals for Child Developmental Team" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />xREF&nbsp;</a>*@
-
-                                            <a title="Click here to get white paper on education of parents" data-target="tooltip" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED&nbsp;</a>
-
-                                            @if (_isAccessLW)
-                                            {
-                                                <a href="@Url.Action("GrowthAnalysis", "Teacher")?client=@j.Enc_ClientId" title="Individual Growth Analysis" style="text-decoration: underline; cursor: pointer;" data-toggle="tooltip">LW </a>
-                                            }
-
+                                                @if (_isAccessLW)
+                                                {
+                                                    <a href="@Url.Action("GrowthAnalysis", "Teacher")?client=@j.Enc_ClientId" title="Individual Growth Analysis" style="text-decoration: underline; cursor: pointer;" data-toggle="tooltip">LW </a>
+                                                }
+                                            </p>
                                         </td>
                                     </tr>
 
@@ -1898,13 +1984,15 @@
             </div>
 
             @using (Html.BeginForm("CheckIn", "Teacher"))
-    {
+            {
                 <div class="modal fade" id="myModalattendance" role="dialog">
                     <div class="modal-dialog">
                         <!-- Modal content-->
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h3>Attendance for <label id="childlbl" text="" /> </h3>
+                                <input type="hidden" name="childid" id="childid" value="">
+                                <input type="hidden" name="childname" id="childname" value="">
                             </div>
 
                             <div class="form-group">
@@ -1936,7 +2024,7 @@
 
 
 
-        </form>
+        @*</form>*@
 
 
         <div class="modal fade scroll-modal custom-modal in" id="modal-hv-report" role="dialog" data-backdrop="static" data-keyboard="false">

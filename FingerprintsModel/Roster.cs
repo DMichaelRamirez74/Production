@@ -211,6 +211,8 @@ namespace FingerprintsModel
 
         public string ProtectiveBadge { get; set; }
 
+        public string ProtectiveBadge2 { get; set; } 
+
     }
 	public class CaseNoteNew
     {

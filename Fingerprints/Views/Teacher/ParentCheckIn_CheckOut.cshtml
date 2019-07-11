@@ -13,107 +13,131 @@
 <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
 
 
-@section Script{
+@section Style{
+    
+    <style type="text/css">
+    .child-check {
+        color: #333;
+        text-shadow: 2px 5px 6px #999393;
+        font-size: 18px;
     }
+
+    .glossy-table-body tr td p{
+        width:auto;
+    }
+
+    @@media only screen and (min-width:230px) and (max-width:1200px)
+    {
+        .glossy-table{
+
+            -webkit-box-shadow:unset;
+            box-shadow:unset;
+            padding:0;
+        }
+    }
+</style>
+
+
+    
+    }
+
+@section Script{
+
+
+<script type="text/javascript">
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#MyModal').modal('show');
+            $('#side-menu').hide();
+            if (location.hash) {
+                $('a[href=' + location.hash + ']').tab('show');
+            }
+            $(document.body).on("click", "a[data-toggle]", function (event) {
+                location.hash = this.getAttribute("href");
+            });
+
+
+        });
+        $(window).on('popstate', function () {
+            var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+            $('a[href=' + anchor + ']').tab('show');
+        });
+
+        $(function () {
+            $('.office').click(function () {
+                var ipvalue = $("#trythis").val();
+                this.href = this.href.replace("xxx", ipvalue);
+            });
+
+            $('#menu-head').hide();
+        });
+
+
+        function TeacherView() {
+            //debugger
+            var AreThey = $("#TeacherMenu").val();
+            if (AreThey == 1971) {
+                $('#side-menu').show()
+                $('#menu-head').show();
+            } else { $('#side-menu').hide(); }
+        }
+
+
+
+
+
+
+</script>
+
+
+}
 
 
 @section MainContentHolder{
 
-    <style type="text/css">
-        .child-check {
-           
-            color: #333;
-            text-shadow: 2px 5px 6px #999393;
-            font-size: 18px;
-        }
-    </style>
-
   
-        <script>
-           
-            $(document).ready(function () {
-                $('input').keypress(function () {
-                    if ($(this).val() == 'MM/DD/YYYY') {
-                        $(this).val('');
-                        // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-                    }
-                });
-                $('#MyModal').modal('show');
-                $('#side-menu').hide();
-                  if(location.hash) {
-                     $('a[href=' + location.hash + ']').tab('show');
-                    }
-                     $(document.body).on("click", "a[data-toggle]", function(event) {
-                      location.hash = this.getAttribute("href");
-                     });
-       
-
-                 });
-    $(window).on('popstate', function() {
-        var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
-        $('a[href=' + anchor + ']').tab('show');
-    });
-
-    $(function () {
-        $('.office').click(function () {
-            var ipvalue = $("#trythis").val();
-            this.href = this.href.replace("xxx", ipvalue);
-        });
-
-       $('#menu-head').hide();
-    });
-
-
-    function TeacherView() {
-        //debugger
-        var AreThey = $("#TeacherMenu").val();
-          if (AreThey == 1971) {
-              $('#side-menu').show()
-              $('#menu-head').show();
-          }else {$('#side-menu').hide();}
-    }
 
     
 
- 
-   
-       
-        </script>
+    @*<input type="hidden" id="profileindex" name="profileindex" />
+    <input type="hidden" id="eduindex" name="eduindex" />
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+            <h2 class="page-header">
+                Parent Check In / Check Out <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
+            </h2>
 
-        <input type="hidden" id="profileindex" name="profileindex" />
-        <input type="hidden" id="eduindex" name="eduindex" />
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
-                <h2 class="page-header">
-                    Parent Check In / Check Out <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
-                </h2>
-                
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
-                <div class="add-useragform student-scroll full-border full-border-margin">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="table-striped">
-                                <tr style="background-color:#285B90;color:#ffffff">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+            <div class="add-useragform student-scroll full-border full-border-margin">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-striped">
+                            <tr style="background-color:#285B90;color:#ffffff">
                                 <th align="left">Client</th>
-                                    @*<th>Child's Picture</th>*@
-                                    <th>DOB</th>
-                                    <th>Check-In Status</th>
-                                    <th>% Absent</th>
-                                    
-                                </tr>
+                                <th>DOB</th>
+                                <th>Check-In Status</th>
+                                <th>% Absent</th>
 
-                            </thead>
-                            <tbody>
+                            </tr>
 
+                        </thead>
+                        <tbody>
 
 
-                                   @foreach (var j in Model.Itemlst)
-                {
-                                    <tr>
 
-                                        @if ((j.TimeIn == "0" || j.TimeOut != "0") && j.TimeIn2 == "0")
-{
+                            @foreach (var j in Model.Itemlst)
+                            {
+                                <tr>
+
+                                    @if ((j.TimeIn == "0" || j.TimeOut != "0") && j.TimeIn2 == "0")
+                                    {
 
 
                                         <th>
@@ -128,64 +152,304 @@
                                             <a class="office child-check" EClientId="@j.Enc_ClientId" href="~/Teacher/ParentCheckOut?clientid=@j.ClientID&accesstype=1&available=xxx">@j.CName</a>
 
 
-                                        @*@Html.ActionLink(@j.CName, "ParentCheckOut", "Teacher", new { clientid = @j.ClientID, accesstype = 1, available = "xxx" }, null)*@
-                                            
-                                            
-                                            </th>
 
 
-                                        }
-                                        @*@if (j.CImage.Length != 0)
-                                        {
-                                            <th><img src="data:image;base64,@System.Convert.ToBase64String(@j.CIFileData)" alt="image" height="70" width="50" /></th>
-                                        }
-                                        else*@
-                                        @*{
-                                            <th><img src="~/Images/ic_male.png" alt="image" height="50" width="50" /></th>
-                                        }*@
-                                        <th>@j.CDOB</th>
-                                        @if (j.AttendanceType == "Not Checked In")
-                                        {
+                                        </th>
 
-                                            <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
 
-                                        }
-                                        else
-                                        {
-                                            <th style="font-family:Arial;color:rebeccapurple;">
-                                               @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+                                    }
+                                   
 
-                                                
-                                            </th>
+                                    <th>@j.CDOB</th>
+                                    @if (j.AttendanceType == "Not Checked In")
+                                    {
 
-                                        }
-                                       
-                                        <th>@j.PercentAbsent %</th>
-                                       
-                                    </tr>
+                                        <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
 
-                                   }
+                                    }
+                                    else
+                                    {
+                                        <th style="font-family:Arial;color:rebeccapurple;">
+                                            @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
 
-                            </tbody>
 
-                            </table>
-                       
+                                        </th>
+
+                                    }
+
+                                    <th>@j.PercentAbsent %</th>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12">
+
+            <input type="hidden" class="text" id="trythis" value="@(ViewData["Available"])">
+        </div>
+        @Html.Password("TeacherMenu", "")
+        <img src="~/Images/referral.png" onclick="TeacherView();" />
+
+
+    </div>*@
+
+
+<div class="row Zoom">
+    <div class="col-lg-12" style="padding: 0;">
+        <div class="page-wrapper-change">
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-----Right Side Container Section------->
+                    <div class="glossy-right-side-container col-xs-12">
+
+                        <!----Heading Section------>
+                        <div class="col-xs-12" style="padding-top: 25px;">
+                            <div class="col-lg-12">
+                                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751 !important; color: #fff;">
+                                    <span>
+                                        <i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Parent Check-in / Check-out <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
+                                    </span>
+
+                                </h2>
+                            </div>
                         </div>
+
+
+                        <!------List  of Children----------->
+
+                        <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+                            <div class="col-xs-12 glossy-panel-div" id="activities-grid-responsive">
+
+
+
+
+
+                                @*<div class="col-xs-12 search-block-main">
+
+
+                        <table class="col-md-3 pull-right table-striped total-details-table table-back-shadow">
+                            <tbody>
+                                <tr>
+                                    <td><label>Total Record(s)</label></td>
+                                    <td id="totalCountSpan">9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>*@
+
+
+
+
+
+                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="monthly-recruitment-table">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Client</th>
+                                            <th style="text-transform:none;">Date of Birth</th>
+                                            <th style="text-transform:none;">Check-in / Check-out Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="recruitmentActivity-tbody">
+
+                                        @foreach (var j in Model.Itemlst)
+                                        {
+                                            <tr>
+
+                                                @if ((j.TimeIn == "0" || j.TimeOut != "0") && j.TimeIn2 == "0")
+                                                {
+
+
+                                                    <td data-title="Client">
+                                                        <p>
+                                                            <a class="office child-check" EClientId="@j.Enc_ClientId" href="~/Teacher/ParentCheckIn?clientid=@j.ClientID&accesstype=1&available=xxx">@j.CName</a>
+
+                                                        </p>
+                                                    </td>
+
+                                                }
+                                                else
+                                                {
+
+                                                    <td data-title="Client">
+                                                        <p>
+                                                            <a class="office child-check" EClientId="@j.Enc_ClientId" href="~/Teacher/ParentCheckOut?clientid=@j.ClientID&accesstype=1&available=xxx">@j.CName</a>
+
+                                                        </p>
+
+
+
+
+                                                    </td>
+
+
+                                                }
+
+
+                                                <td data-title="Date of Birth">
+                                                    <p>@j.CDOB</p>
+                                                </td>
+                                                @if (j.AttendanceType == "Not Checked In")
+                                                {
+
+                                                    <td style="font-family:Arial;color:red;" data-title="Check-in / Check-out Status">
+                                                        <p>
+                                                            @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+
+                                                        </p>
+
+
+                                                    </td>
+
+                                                }
+                                                else
+                                                {
+                                                    @*<td style="font-family:Arial;color:rebeccapurple;">
+                                            <p style="width:100%;">
+                                                @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+
+                                            </p>
+
+
+
+                                        </td>*@
+
+                                                    <td data-title="Check-in / Check-out Status">
+                                                        <label style="color:rebeccapurple;margin-bottom:10px;font-weight:bold;">@j.AttendanceType</label>
+                                                        <table class="table table-condensed table-bordered table-striped" style="font-size:smaller;width:50%;text-align:center;">
+                                                           
+                                                            @if (j.TimeIn.Trim() != "" && j.TimeIn.Trim() != "0")
+                                                            {
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th style="background:#ccc;">IN</th>
+                                                                        <th style="background:#ccc;">OUT</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td data-title="IN">@j.TimeIn</td>
+                                                                        <td data-title="OUT">@(j.TimeOut.Trim() == "0" ? string.Empty : j.TimeOut)</td>
+                                                                    </tr>
+                                                                    @if (j.TimeIn2.Trim() != string.Empty && j.TimeIn2.Trim() != "0")
+                                                                    {
+
+                                                                        <tr>
+                                                                            <td data-title="IN">@j.TimeIn2</td>
+                                                                            <td data-title="OUT">@(j.TimeOut2 == "0" ? string.Empty : j.TimeOut2)</td>
+                                                                        </tr>
+                                                                    }
+
+
+                                                                </tbody>
+
+
+
+                                                            }
+
+
+                                                        </table>
+                                                    </td>
+
+                                                }
+
+                                                @*<th>@j.PercentAbsent %</th>*@
+
+                                            </tr>
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    </tbody>
+                                </table>
+
+                                <script type="text/javascript">
+
+    $('[data-toggle="tooltip"]').tooltip();
+                                </script>
+
+
+
+
+
+
+
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 pull-right" style="margin-top:26px;">
+
+                                    <input type="hidden" class="text" id="trythis" value="@(ViewData["Available"])">
+                                    @Html.Password("TeacherMenu", "")
+                                  @*  <img src="~/Images/referral.png" onclick="TeacherView();" />*@
+                                    <span  onclick="TeacherView();"><i class="fa fa-edit" aria-hidden="true"></i></span>
+                                </div>
+                               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            </div>
+
+                        </div>
+
+                      
+
+
+                    </div>
+
+
+                        <!---------------------------------->
+                    
+
+                  
+
+
+                       
+
                     </div>
                 </div>
-                        <!-- /.col-lg-12 -->
-            <div class="col-lg-6 col-md-6 col-sm-12">
-    
-               <input type="hidden" class="text" id="trythis" value="@(ViewData["Available"])">
             </div>
-            @Html.Password("TeacherMenu", "")
-                <img src="~/Images/referral.png" onclick="TeacherView();" />
-
-
-            </div>
-
-
-
+        </div>
+    </div>
+</div>
 
 
 }

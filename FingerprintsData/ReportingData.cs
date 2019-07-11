@@ -1869,6 +1869,8 @@ new DataColumn("Status",typeof(bool))
                             FullName = string.Concat(Convert.ToString(reader["FirstName"]), " ", Convert.ToString(reader["LastName"])).Trim(),
                             RoleId = new Guid(Convert.ToString(reader["RoleID"]))
                         },
+                        SubstituteRoleForName = string.Concat(Convert.ToString(reader["SubstituteRoleForFirstName"]), " ", Convert.ToString(reader["SubstituteRoleForLastName"])).Trim(),
+
                         SubstituteID = Convert.ToInt64(reader["SubstituteID"]),
                         FromDate = Convert.ToString(reader["FromDate"]),
                         ToDate = Convert.ToString(reader["ToDate"]),
@@ -2023,17 +2025,16 @@ new DataColumn("Status",typeof(bool))
                     report.CenterAuditReportList = (from DataRow dr in _dataset.Tables[0].Rows
                                                     select new CenterAuditReport
                                                     {
-                                                        Enc_ClientID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientID"])),
-                                                        CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])),
-                                                        ClassroomID=EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClassroomID"])),
-                                                        ClassroomName =Convert.ToString(dr["ClassroomName"]),
-                                                        Dob=Convert.ToString(dr["DOB"]),
-                                                        DateOfFirstService=Convert.ToString(dr["DateOfFirstService"]),
+                                                        Enc_ClientID =DBNull.Value.Equals(dr["ClientID"])?"0": EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientID"])),
+                                                        CenterID = DBNull.Value.Equals(dr["CenterID"])?"0":EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])),
+                                                        ClassroomID=DBNull.Value.Equals(dr["ClassroomID"])?"0":EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClassroomID"])),
+                                                        ClassroomName =DBNull.Value.Equals(dr["ClassroomName"])?string.Empty:Convert.ToString(dr["ClassroomName"]),
+                                                        Dob=DBNull.Value.Equals(dr["DOB"])?string.Empty: Convert.ToString(dr["DOB"]),
+                                                        DateOfFirstService=DBNull.Value.Equals(dr["DateOfFirstService"])?string.Empty: Convert.ToString(dr["DateOfFirstService"]),
                                                         ClientName=Convert.ToString(dr["FirstName"])+" "+Convert.ToString(dr["MiddleName"])+" "+Convert.ToString(dr["LastName"]),
                                                         EnrollmentStatus=Convert.ToInt32(dr["EnrollmentDetailStatus"]),
-                                                        EnrollmentDays=Convert.ToInt32(dr["EnrollmentDays"]),
-                                                        ADA=Convert.ToInt32(dr["ADA"])==Convert.ToDouble(dr["ADA"])?Math.Round(Convert.ToDouble(dr["ADA"])):Convert.ToDouble(dr["ADA"])
-
+                                                        EnrollmentDays=DBNull.Value.Equals(dr["EnrollmentDays"])?0 : Convert.ToInt32(dr["EnrollmentDays"]),
+                                                        ADA= DBNull.Value.Equals(dr["ADA"])?0: Convert.ToInt32(dr["ADA"])==Convert.ToDouble(dr["ADA"])?Math.Round(Convert.ToDouble(dr["ADA"])):Convert.ToDouble(dr["ADA"])
                                                     }
 
                                                   ).ToList();
@@ -2044,8 +2045,8 @@ new DataColumn("Status",typeof(bool))
                 {
                     foreach (DataRow dr2 in _dataset.Tables[1].Rows)
                     {
-                        report.CenterAuditReportList.ForEach(x =>
-                        {
+                        report.CenterAuditReportList.ForEach(x => { 
+                      
                             x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(dr2["CenterID"])) ? Convert.ToInt32(dr2["TotalRecord"]) : x.TotalRecord;
                             x.SortOrder = report.SortOrder;
                             x.SortColumn = report.SortColumn;

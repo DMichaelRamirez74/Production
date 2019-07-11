@@ -227,6 +227,47 @@
              }
          }
          .navbar-brand{float:left;width:100%;}
+
+        .lang-choose-div {
+           /* margin-top: 15px;
+    margin-left: 10px;*/
+    position:absolute;
+    /*display:none;*/
+        }
+         a.lang-change {
+         color:#fff;
+        }
+        a.lang-change.active-lang {
+            background: #fff;
+    color: #333;
+    padding: 4px;
+        }
+
+         .lang-select-box select
+        {
+                display: inline-block;
+    background: rgba(255, 255, 255, 0.95) none repeat scroll 0 0;
+    border: medium none;
+    border-radius: 999px;
+    color: #37363e;
+    height: 32px;
+    padding-left: 32px;
+    padding-right: 36px;
+    width: 220px;
+    border-radius: 50px!important;
+        }
+
+        .lang-select-box{position:relative;width:auto;}
+       
+        .lang-select-box i
+        {
+                font-size: 27px;
+    position: absolute;
+    left: 6px;
+    z-index: 99;
+    color: #295b8f;
+    top: 3px;
+        }
     </style>
     <script type="text/javascript">
         @*if (' @Session["Roleid"].ToString()' == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
@@ -660,7 +701,7 @@
 
 
 
-    <div class="header-top">
+    <div class="header-top" id="header-mobile">
         <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
             <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 logo-place">
 
@@ -3167,6 +3208,12 @@
     <script>
 
 
+
+        function setLanguage(ele, uri) {
+            console.log(ele, uri);
+            window.location.href = '/Home/SetLanguage?id=' + $(ele).val() + '&returnurl=' + uri;
+        }
+
         function updateYakkr() {
 
             $.ajax({
@@ -3189,7 +3236,7 @@
         }
 
 
-        function CheckStaffSignature(sigCode)
+        function CheckStaffSignature(sigCodeEle,userId)
         {
             debugger;
             var returnResult = false;
@@ -3198,7 +3245,7 @@
                 type: 'post',
                 datatype: 'json',
                 async: false,
-                data: { signatureCode: sigCode.val(), id: '@FingerprintsModel.StaffDetails.GetInstance().UserId.ToString()' },
+                data: { signatureCode: sigCodeEle.val(), id: userId },
                 success: function (data) {
                     debugger;
 
@@ -3206,7 +3253,7 @@
                         case '0':
                             $('#spinner').hide();
                             customAlertforlongtime(_langList.SignatureCodeNotMatch);
-                            plainValidation(sigCode);
+                            plainValidation(sigCodeEle);
                             returnResult = false;
                             break;
                         case '2':

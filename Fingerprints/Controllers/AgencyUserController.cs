@@ -8520,7 +8520,58 @@ namespace Fingerprints.Controllers
 
 
 
+        #region Get Agency Users by Roles
+
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult GetAgencyUsersByRole(string roleIDs)
+        {
+
+
+            StaffDetails staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+         List<StaffDetails>staffList=   agencyData.GetUsersByRoleId(roleIDs, staffDetails);
+
+            return Json(staffList, JsonRequestBehavior.AllowGet);
+
+        }
+
+        #endregion
+
+
+
+        #region Get Teachers by Classroom
+
+
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult GetTeacherByClassroom(string classroomId)
+        {
+            long _classroomId = 0;
+
+            _classroomId = long.TryParse(classroomId, out _classroomId) ? _classroomId : Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
+
+            StaffDetails staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            List<StaffDetails> staffList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<TeacherData>().GetTeacherByClassroom(_classroomId,staff);
+
+            return Json(staffList, JsonRequestBehavior.AllowGet);
+
+        }
+
+        #endregion
+
+
+
+
+
+
+
 
 
     }
+
+
+
 }

@@ -23,7 +23,7 @@
 <script src="~/Scripts/multiselect.js"></script>
    <script type="text/javascript">
        var dataModel=@Html.Raw(Json.Encode(Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsModel.SubstituteRole>(true)));
-    
+
     </script>
     
 <script src="~/Scripts/AssignSubstituteRole.js"></script>
@@ -46,7 +46,7 @@
                             <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
                                 <div class="col-lg-12">
                                     <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.Assign_Substitute_Teacher
+                                        <i class="fa fa-user-plus" aria-hidden="true"></i>&nbsp;@Fingerprints.LocalResource.Resources.Assign_Substitute_Teacher
 
                                         <span class="view-btn backto_listspan">
 
@@ -62,77 +62,104 @@
 
 
                                 <!--Filter Section----->
-                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+                                <div class="col-xs-12 glossy-panel-div" id="div-filter-section" style="padding:25px;">
+
+                                    <div class="col-lg-8" style="margin:auto;float:initial;">
 
 
 
 
-                                    <div class="form-group col-lg-2 col-sm-6 col-md-6 col-xs-12" id="div-search-staff">
-                                        <label for="searchStaff" class="lbl-text">Search Staff <sup>*</sup></label>
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12" id="div-search-staff">
+                                            <label for="searchStaff" class="lbl-text">Search Staff <sup>*</sup></label>
 
-                                        <input type="text" placeholder="Search..." id="searchStaff" class="glossy-select">
+                                            <input type="text" placeholder="Search..." id="searchStaff" class="glossy-select">
 
-                                    </div>
-
-
-
-                                    <div class="form-group col-lg-2 col-sm-6 col-md-6 col-xs-12">
-                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center <sup>*</sup></label>
+                                        </div>
 
 
-                                        @{
-                                            var staffDetails = FingerprintsModel.StaffDetails.GetInstance();
 
-                                            var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString(), isCenterBasedOnly: true);
-                                            if (centerList.Count == 2)
-                                            {
-                                                centerList = centerList.Where(x => x.Value != "0").ToList();
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
+                                            <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center <sup>*</sup></label>
+
+
+                                            @{
+                                                var staffDetails = FingerprintsModel.StaffDetails.GetInstance();
+
+                                                var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(staffDetails.UserId.ToString(), staffDetails.AgencyId.ToString(), staffDetails.RoleId.ToString(), isCenterBasedOnly: true);
+                                                if (centerList.Count == 2)
+                                                {
+                                                    centerList = centerList.Where(x => x.Value != "0").ToList();
+                                                }
+                                                centerList.ForEach(x =>
+                                                {
+                                                    x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                                });
+
                                             }
-                                            centerList.ForEach(x =>
-                                            {
-                                                x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
-                                            });
 
-                                        }
-
-                                        @Html.DropDownList("selectCenter", new SelectList(centerList, "Value", "Text"), new { @class = "glossy-select" })
+                                            @Html.DropDownList("selectCenter", new SelectList(centerList, "Value", "Text"), new { @class = "glossy-select" })
 
 
 
 
 
 
-                                    </div>
-
-                                    <div class="form-group col-lg-2  col-sm-6 col-md-6col-xs-12" style="display:none;">
-                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
-
-                                        <select class="glossy-select" id="selectClassroom"></select>
-
-                                    </div>
-                                    <!---Center dropdown section-->
-                                    <!-----In-kind activity From date section-->
-                                    <div class="form-group col-lg-2  col-sm-6 col-md-6 col-xs-12">
-                                        <label for="fromDateDateTimePicker" class="lbl-text">@Fingerprints.LocalResource.Resources.FromDate <sup style="color:red;">*</sup></label>
-                                        <div class="input-group date">
-                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
-                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
                                         </div>
-                                    </div>
-                                    <!-----In-kind activity To date section-->
-                                    <div class="form-group col-lg-2  col-sm-6 col-md-6 col-xs-12">
-                                        <label for="toDateDateTimePicker" class="lbl-text">@Fingerprints.LocalResource.Resources.ToDate <sup style="color:red;">*</sup></label>
-                                        <div class="input-group date">
-                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
-                                            <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
+
+
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6col-xs-12">
+                                            <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom <sup>*</sup></label>
+
+                                            <select class="glossy-select" id="selectClassroom"></select>
+
                                         </div>
+
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
+                                            <label for="selectTeacher" class="lbl-text">Substitute Teacher for <sup>*</sup></label>
+
+                                            <select class="glossy-select" id="selectTeacher"></select>
+
+                                        </div>
+
+
+
+
+                                        <!----- From date section-->
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
+                                            <label for="fromDateDateTimePicker" class="lbl-text">@Fingerprints.LocalResource.Resources.FromDate <sup style="color:red;">*</sup></label>
+                                            <div class="input-group date">
+                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="fromDateDateTimePicker">
+                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+
+
+                                        <!-----To date section-->
+                                        <div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
+                                            <label for="toDateDateTimePicker" class="lbl-text">@Fingerprints.LocalResource.Resources.ToDate <sup style="color:red;">*</sup></label>
+                                            <div class="input-group date">
+                                                <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="toDateDateTimePicker">
+                                                <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+
+
+
+
+                                     
+
+
+
                                     </div>
+
                                     <!-----In-kind activity Search section-->
-                                    <div class="form-check col-lg-2  col-sm-12 col-md-12 col-xs-12 glossy_btn">
+                                    <div class="form-check col-lg-12 col-sm-12 col-md-12 col-xs-12 glossy_btn text-center">
                                         <label for="exampleInputPassword1" style="visibility:hidden;">Save</label>
                                         <input type="hidden" id="accesskey" value="" />
                                         <button type="button" class="glossy-button-button button-green" id="btnSubmitTeacher">
@@ -147,9 +174,6 @@
                                             @Fingerprints.LocalResource.Resources.Clear
                                         </button>
                                     </div>
-
-
-                                    <!-----In-kind activity Export section-->
 
                                 </div>
 

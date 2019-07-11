@@ -178,34 +178,39 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-        [HttpPost]
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        public ActionResult Roster(FormCollection collection)
-        {
-            try
-            {
-                int reasonid = 0; string NewReason = "";
-                string childID = collection.Get("childid");
-                string absentType = collection.Get("AbsentType");
-                string Cnotes = "";//= collection.Get("CNotes");
-                if (!string.IsNullOrEmpty(collection.Get("txtNewReason")))
-                    NewReason = collection.Get("txtNewReason");
-                if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
-                    reasonid = Convert.ToInt32(collection.Get("ReasonList"));
-                string result = "";
-                StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-                new TeacherData().MarkAbsent(ref result, childID, staff, absentType, Cnotes,  reasonid, NewReason);
-                if (result == "1")
-                    TempData["message"] = "Record saved successfully.";
-                return View(new TeacherData().GetChildList());
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return View();
-            }
-        }
+
+        //[HttpPost]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        //public ActionResult Roster(FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        int reasonid = 0; string NewReason = "";
+        //        string childID = collection.Get("childid");
+        //        string absentType = collection.Get("AbsentType");
+        //        string Cnotes = "";//= collection.Get("CNotes");
+        //        if (!string.IsNullOrEmpty(collection.Get("txtNewReason")))
+        //            NewReason = collection.Get("txtNewReason");
+        //        if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
+        //            reasonid = Convert.ToInt32(collection.Get("ReasonList"));
+        //        string result = "";
+        //        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+        //      TeacherModel model=  new TeacherData().MarkAbsent(ref result, childID, staff, absentType, Cnotes, reasonid, NewReason);
+        //        if (result == "1")
+        //            TempData["message"] = "Record saved successfully.";
+
+        //        return View(model);
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        clsError.WriteException(Ex);
+        //        return View();
+        //    }
+        //}
+
+
         [HttpGet]
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         public ActionResult ParentCheckIn_CheckOut(int available)
@@ -262,6 +267,31 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         public ActionResult CheckIn(FormCollection collection)
         {
+
+
+            //try
+            //{
+            //    StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+            //    int reasonid = 0;
+            //    string childID = collection.Get("childid");
+            //    string absentType = collection.Get("AbsentType");
+            //    string Cnotes = collection.Get("CNotes");
+            //    string NewReason = collection.Get("NewReason");
+            //    string result = "";
+            //    if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
+            //        reasonid = Convert.ToInt32(collection.Get("ReasonList"));
+            //    //string result = "";
+            //    TeacherModel _teacher = new TeacherData().MarkAbsent(ref result, childID, staff, absentType, Cnotes, reasonid, NewReason);
+            //    if (result == "1")
+            //        TempData["message"] = "Record saved successfully.";
+            //    return Redirect("~/Teacher/Roster");
+            //}
+            //catch (Exception Ex)
+            //{
+            //    clsError.WriteException(Ex);
+            //    return View();
+            //}
+
             try
             {
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
@@ -269,16 +299,20 @@ namespace Fingerprints.Controllers
                 string childID = collection.Get("childid");
                 string absentType = collection.Get("AbsentType");
                 string Cnotes = collection.Get("CNotes");
-                string NewReason = collection.Get("NewReason");
+                string NewReason = collection.Get("txtNewReason");
                 string result = "";
                 if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
                 //string result = "";
-                TeacherModel _teacher = new TeacherData().MarkAbsent(ref result, childID, staff,  absentType, Cnotes, reasonid, NewReason);
+                result = new TeacherData().MarkAbsent( childID, staff, absentType, Cnotes, reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
+                else
+                    TempData["message"] = "Error occurred. Please, try again later.";
 
-                return Redirect("~/Teacher/Roster");
+
+                // return Redirect("~/Teacher/Roster");
+                return RedirectToAction("Roster", "Teacher");
             }
             catch (Exception Ex)
             {
@@ -305,12 +339,22 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         [HttpGet]
-        public ActionResult CheckInCheckOutDetail(string clientid, int accesstype)
+        public ActionResult CheckInCheckOutDetail(string clientid, int accesstype, DateTime? attendanceDate)
         {
             try
             {
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                return View(new TeacherData().GetMainChildDisplay(clientid, 1, staff));
+                CenterAuditReport report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterAuditReport>();
+                report.FromDate = attendanceDate;
+                report.ToDate = attendanceDate;
+                report.Enc_ClientID = clientid;
+
+                int totalRecord = 0;
+
+             
+
+                return View(Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().GetAttendenceDetailsByDate(out totalRecord, report, staff));
+                //return View(new TeacherData().GetMainChildDisplay(clientid, 1, staff));
             }
             catch (Exception Ex)
             {
@@ -320,13 +364,13 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         [HttpGet]
-        public ActionResult ParentCheckOut(string clientid, int accesstype)
+        public ActionResult ParentCheckOut(string clientid, int accesstype, string available)
         {
             try
             {
                 string result = "";
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                return View(new TeacherData().GetParentList(ref result, clientid, staff,1, "0"));
+                return View(new TeacherData().GetParentList(ref result, clientid, staff, 1, available));
             }
             catch (Exception Ex)
             {

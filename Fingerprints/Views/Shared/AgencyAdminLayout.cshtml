@@ -50,11 +50,28 @@
 
     <script src="~/Scripts/jquery.signature.js"></script>
     <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
-<script src="~/Scripts/jquery.touchsupport.js"></script>
- <script src="~/Scripts/ApplinkPlugin/Pagination.js"></script>
+    <script src="~/Scripts/jquery.touchsupport.js"></script>
+
+    <script src="~/Scripts/ApplinkPlugin/Pagination.js"></script>
+
+    <style type="text/css">
+
+         .lang-choose-div {
+           /* margin-top: 15px;
+    margin-left: 10px;*/
+    position:absolute;
+    /*display:none;*/
+        }
+    </style>
     <script type="text/javascript">
         var _langList = {};
          _langList =@Html.Raw(Html.Action("GetAllLocalResoure", "Home", new { area = "" }))
+
+
+        function setLanguage(ele, uri) {
+            console.log(ele, uri);
+            window.location.href = '/Home/SetLanguage?id=' + $(ele).val() + '&returnurl=' + uri;
+        }
 
         function updateYakkr() {
 
@@ -371,6 +388,33 @@
     @RenderSection(name: "Style", required: false)
     <style>
 
+   .lang-select-box {
+    position: relative;
+    width: auto;
+}
+         .lang-select-box select
+        {
+                display: inline-block;
+    background: rgba(255, 255, 255, 0.95) none repeat scroll 0 0;
+    border: medium none;
+    border-radius: 999px;
+    color: #37363e;
+    height: 32px;
+    padding-left: 32px;
+    padding-right: 36px;
+    width: 220px;
+    border-radius: 50px!important;
+        }
+
+            .lang-select-box i
+        {
+                font-size: 27px;
+    position: absolute;
+    left: 6px;
+    z-index: 99;
+    color: #295b8f;
+    top: 3px;
+        }
 
         .top-scroll {
             position: fixed;
@@ -829,7 +873,7 @@
     }
 
 
-    <div class="header-top">
+    <div class="header-top" id="header-mobile">
         <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
             <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12 logo-place">
 
@@ -852,7 +896,7 @@
                 </div>
             </div>
             <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12 menu-place">
-                <div class="menu-head">
+                <div class="menu-head" id="menu-head">
                     <ul class="nav navbar-right navbar-top-links log_outwrp">
                         <li>
                             <form class="searchform">

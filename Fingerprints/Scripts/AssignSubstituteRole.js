@@ -20,6 +20,7 @@ var substituteTeacher = {
     getSubstituteRoleByCenterUrl: HostedDir + '/AgencyUser/GetSubstituteRoleByCenter',
     removeSubstituteRoleUrl: HostedDir + '/AgencyUser/RemoveSubstituteRole',
     getClassroomsUrl: HostedDir + '/Teacher/GetClassRoomsByCenterHistorical',
+    GetTeacherByClassroomUrl: HostedDir + '/AgencyUser/GetTeacherByClassroom',
     requestedPage: 1,
     pageSize: 10,
     firstIndex: 0,
@@ -55,6 +56,7 @@ var substituteTeacher = {
         'dropdownCenter': null,
         'divdropdownCenter': null,
         'dropdownClassroom': null,
+        'dropdownRolefor': null,
         'divdropdownClassroom': null,
         'fromDateInput': null,
         'toDateInput': null,
@@ -110,6 +112,7 @@ var substituteTeacher = {
         self.elements.divdropdownCenter = self.elements.dropdownCenter.closest('.form-group');
         self.elements.dropdownClassroom = self.elements.divFilterSection.find('#selectClassroom');
         self.elements.divdropdownClassroom = self.elements.dropdownClassroom.closest('.form-group');
+        self.elements.dropdownRolefor = self.elements.divFilterSection.find('#selectTeacher');
         self.elements.fromDateInput = self.elements.divFilterSection.find('#fromDateDateTimePicker');
         self.elements.toDateInput = self.elements.divFilterSection.find('#toDateDateTimePicker');
         self.elements.buttonSubmitTeacher = self.elements.divFilterSection.find('#btnSubmitTeacher');
@@ -178,8 +181,25 @@ var substituteTeacher = {
 
             }
             else {
-                self.elements.dropdownClassroom.closest('.form-group').hide('slow');
+                self.elements.dropdownClassroom.html('');
             }
+        });
+
+        self.elements.dropdownClassroom.on('change', function () {
+
+            var clsroomId = $(this).val();
+
+
+            if (clsroomId == null || clsroomId == '' || clsroomId == '0') {
+                self.elements.dropdownRolefor.html('');
+
+
+            }
+            else {
+                self.GetTeacherByClassroom(this);
+            }
+
+
         });
 
         self.elements.buttonSubmitTeacher.on('click', function () {
@@ -229,9 +249,7 @@ var substituteTeacher = {
         }).val('');
 
 
-
         //self.elements.dropdownCenter.multiselect({
-
         //    maxHeight: 200,
         //    includeSelectAllOption: false,
         //    enableFiltering: false,
@@ -242,9 +260,7 @@ var substituteTeacher = {
         //self.elements.divdropdownCenter.find('.multiselect').addClass('glossy-select').removeClass('btn btn-default');
         //self.elements.divdropdownCenter.find('.btn-group').css({ 'width': '100%' });
 
-
         //self.elements.dropdownClassroom.multiselect({
-
         //    maxHeight: 200,
         //    includeSelectAllOption: false,
         //    enableFiltering: false,
@@ -257,9 +273,14 @@ var substituteTeacher = {
 
         self.elements.searchStaffText.val('');
 
-        self.elements.dropdownCenter.val('0');
+
+        if (self.elements.dropdownCenter.find('option').length > 1) {
+            self.elements.dropdownCenter.val('0');
+        }
 
         self.elements.dropdownCenter.trigger('change');
+
+        self.elements.dropdownRolefor.html('');
 
         self.elements.divFilterSection.find('#accesskey').val('');
 
@@ -308,6 +329,36 @@ var substituteTeacher = {
 
     },
 
+    GetTeacherByClassroom: function (ele) {
+
+
+
+        $.ajax({
+            url: self.GetTeacherByClassroomUrl,
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function () {
+                self.showBusy(true);
+            },
+            async: true,
+            data: { 'classroomId': $(ele).val() },
+
+            success: function (data) {
+
+                self.callbackGetTeacherByClassroom(data);
+
+            },
+            error: function (data) {
+
+                customAlert('Error occurred. Please, try again later.');
+            },
+            complete: function (data) {
+
+                self.showBusy(false);
+            }
+
+        });
+    },
 
     bindAjaxParameters: function (mode, tabEle, index) {
 
@@ -315,7 +366,8 @@ var substituteTeacher = {
             case self.parametersMode.save:
 
                 self.dataParameters.CenterID = self.elements.dropdownCenter.val();
-                self.dataParameters.ClassroomID = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val() : ['0'];
+                self.dataParameters.ClassroomID = self.elements.dropdownClassroom.val();
+                self.dataParameters.SubstitueRoleFor = self.elements.dropdownRolefor.val();
                 self.dataParameters.FromDate = self.elements.fromDateInput.val() == '__/__/____' ? '' : self.elements.fromDateInput.val();
 
                 self.dataParameters.ToDate = self.elements.toDateInput.val() == '__/__/____' ? '' : self.elements.toDateInput.val();
@@ -327,10 +379,11 @@ var substituteTeacher = {
             case self.parametersMode.get:
                 self.dataParameters.CenterID = tabEle != null ? $('#myTab').find('li.active').children('a').attr('accesskey') : "0";
                 self.dataParameters.ClassroomID = "";
+                self.dataParameters.SubstitueRoleFor = null;
                 self.dataParameters.RequestedPage = tabEle != null ? tabEle.find('#requestedPage_' + index + '').val() : 1;
                 self.dataParameters.PageSize = tabEle != null ? tabEle.find('#pageSize_' + index + '').val() : 10;
                 self.dataParameters.SortOrder = tabEle != null ? tabEle.find('#sortOrder_' + index + '').val() : "ASC";
-                self.dataParameters.SortColumn = tabEle != null ? tabEle.find('#sortColumn_' + index + '').val() : "Classroom";
+                self.dataParameters.SortColumn = tabEle != null ? tabEle.find('#sortColumn_' + index + '').val() : "th2";
                 self.dataParameters.SearchTerm = tabEle != null ? tabEle.find('#searchReportText').val() : "";
                 break;
         }
@@ -380,27 +433,46 @@ var substituteTeacher = {
         var bindData = '';
         if (data != null && data.CenterList != null && data.CenterList.length > 0 && data.CenterList[0].Classroom != null && data.CenterList[0].Classroom.length > 0) {
 
-            bindData += '<option value="0">--Select--</option>';
+            if (data.CenterList[0].Classroom.length > 1) {
+                bindData += '<option value="0">--Select--</option>';
+            }
+
 
             self.classroomsJson = data.CenterList[0].Classroom;
+
             $.each(data.CenterList[0].Classroom, function (i, classroom) {
 
                 bindData += '<option value=' + classroom.Enc_ClassRoomId + '>' + classroom.ClassName + '</option>';
             });
         }
 
-
-
-
-
         self.elements.dropdownClassroom.html(bindData);
 
-        self.elements.divdropdownClassroom.show('slow');
+        if (self.elements.dropdownClassroom.find('option').length == 1) {
+            self.elements.dropdownClassroom.trigger('change');
+        }
 
 
+    },
+    callbackGetTeacherByClassroom: function (data) {
 
+        if (data.Data == "Login") {
+            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+        }
+        else if (data != null && data.length > 0) {
+            var selectAppendData = '';
 
+            selectAppendData = '<option value="0">--Select--</option>';
 
+            $.each(data, function (i, classoom) {
+
+                selectAppendData += '<option value="' + classoom.UserId + '">' + classoom.FullName + '</option>';
+
+            });
+
+            self.elements.dropdownRolefor.html(selectAppendData);
+
+        }
 
     },
     showBusy: function (status) {
@@ -428,6 +500,12 @@ var substituteTeacher = {
         if (self.elements.dropdownClassroom.val() == '0') {
             customAlert('Classroom is required');
             plainValidation(self.elements.dropdownClassroom);
+            return false;
+        }
+
+        if (self.elements.dropdownRolefor.val() == null || self.elements.dropdownRolefor.val() == '0' || self.elements.dropdownRolefor.val() == '') {
+            customAlert('Substitute teacher for is required');
+            plainValidation(self.elements.dropdownRolefor);
             return false;
         }
 
@@ -528,20 +606,36 @@ var substituteTeacher = {
         });
     },
     callbackAddSubstituteRole: function (data) {
-
+      
         switch (data) {
             case 1:
                 customAlert("Record saved successfully");
 
-                $('#myTab').find('li a[accesskey="' + self.elements.dropdownCenter.val() + '"]').trigger('click');
 
-                window.setTimeout(function () {
-                    var $tabEle = $('#myTabContent .tab-pane.active');
-                    var $index = $tabEle.attr('id').replace('tab', '').trim();
-                    self.resetElements();
-                    self.getSubsituteRole($tabEle, $index, self.getlistMode.center);
+                if ($('#myTab').find('li').length > 0) {
 
-                }, 10);
+                    $('#myTab').find('li a[accesskey="' + self.elements.dropdownCenter.val() + '"]').trigger('click');
+
+                    window.setTimeout(function () {
+                        var $tabEle = $('#myTabContent .tab-pane.active');
+                        var $index = $tabEle.attr('id').replace('tab', '').trim();
+                        self.resetElements();
+                        self.getSubsituteRole($tabEle, $index, self.getlistMode.center);
+
+                    }, 10);
+                }
+                else {
+
+                    self.showBusy(true);
+
+
+                    window.setTimeout(function () {
+
+                        self.resetElements();
+                        self.getSubsituteRole(null, null, self.getlistMode.all);
+                    }, 10);
+                }
+
 
 
                 break;
@@ -944,7 +1038,7 @@ var substituteTeacher = {
 
                 tabEle.find('#startIndex_' + index + '').val(0);
 
-                var $lastindex = parseInt( parseInt(tabEle.find('#pageSize_' + index).val()) + (parseInt(tabEle.find('#lastIndex_' + index).val()) * parseInt(tabEle.find('#requestedPage_' + index + '').val())));
+                var $lastindex = parseInt(parseInt(tabEle.find('#pageSize_' + index).val()) + (parseInt(tabEle.find('#lastIndex_' + index).val()) * parseInt(tabEle.find('#requestedPage_' + index + '').val())));
 
                 tabEle.find('#lastIndex_' + index + '').val($lastindex);
 
@@ -964,7 +1058,7 @@ var substituteTeacher = {
             else if (val == self.pageChangeType.last) {
 
 
-                var $startIndex = parseInt( parseInt((parseInt(tabEle.find('#totalCountSpan_' + index).val()) - 1) / parseInt(tabEle.find('#pageSize_' + index).val())) * parseInt(tabEle.find('#pageSize_' + index).val()));
+                var $startIndex = parseInt(parseInt((parseInt(tabEle.find('#totalCountSpan_' + index).val()) - 1) / parseInt(tabEle.find('#pageSize_' + index).val())) * parseInt(tabEle.find('#pageSize_' + index).val()));
                 tabEle.find('#startIndex_' + index + '').val($startIndex);
 
 
@@ -986,7 +1080,7 @@ var substituteTeacher = {
             }
             else if (val == self.pageChangeType.next) {
 
-                var $lastIndex =parseInt(parseInt(tabEle.find('#pageSize_' + index + '').val()) + parseInt(tabEle.find('#lastIndex_' + index + '').val()));
+                var $lastIndex = parseInt(parseInt(tabEle.find('#pageSize_' + index + '').val()) + parseInt(tabEle.find('#lastIndex_' + index + '').val()));
 
                 tabEle.find('#lastIndex_' + index + '').val($lastIndex)
 

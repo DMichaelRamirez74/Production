@@ -617,6 +617,7 @@ namespace FingerprintsModel
             public List<IncomeDocument> Documents { get; set; }
 
         }
+
         public class calculateincome1
         {
             public int IncomeID { get; set; }

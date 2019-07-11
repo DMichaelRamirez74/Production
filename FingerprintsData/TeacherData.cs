@@ -322,7 +322,8 @@ namespace FingerprintsData
                         EnrollmentDays = Convert.ToString(dr["EnrollmentDays"]),
                         PercentAbsent = Convert.ToDecimal(dr["AbsentPercent"]),
                         AttendanceType = Convert.ToString(dr["AttendanceType"]),
-                        CNotes = Convert.ToString(dr["Notes"]),
+                        AttendanceTypeId = Convert.ToInt32(dr["AttendanceTypeChecked"]),
+                        //  CNotes = Convert.ToString(dr["Notes"]),
                         Parent1ID = Convert.ToString(dr["A1ID"]),
                         Parent1Name = Convert.ToString(dr["A1Name"]),
                         //Parent2ID = Convert.ToString(dr["A2ID"]),
@@ -336,12 +337,15 @@ namespace FingerprintsData
                         DisabilityDescription = Convert.ToString(dr["DisabilityDescription"]),
                         Dateofclassstartdate = Convert.ToString(dr["Dateofclassstartdate"]),
                         IsLateArrival = Convert.ToBoolean(dr["IsLateArrival"]),
-                        NotCheckedCount = Convert.ToInt32(dr["AttendanceTypChecked"]),
+                        NotCheckedCount = Convert.ToInt32(dr["AttendanceTypeChecked"]),
                         IsCaseNoteEntered = Convert.ToInt32(dr["IsCaseNoteEntered"]),
                         CenterName = Convert.ToString(dr["CenterName"]),
                         ClassroomName = Convert.ToString(dr["ClassroomName"]),
                         HasHomeVisit = Convert.ToBoolean(dr["rHV"]),
-                        HasCenterVisit = Convert.ToBoolean(dr["rPTC"])
+                        HasCenterVisit = Convert.ToBoolean(dr["rPTC"]),
+                        AttendanceIssuePercentage=Convert.ToInt32(dr["AttendanceIssuePercentage"])
+                      
+                        
 
                     });
 
@@ -478,8 +482,12 @@ namespace FingerprintsData
                 _TeacherM.ParentCheckedOut = Convert.ToString(dr["SignedOutBy"]);
                 _TeacherM.OtherName = Convert.ToString(dr["Notes"]);
                 _TeacherM.OtherNameTeacher = Convert.ToString(dr["TeacherOtherNotes"]);
+                _TeacherM.OtherNameTeacher2 = Convert.ToString(dr["TeacherOtherNotes2"]);
+              //  _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
                 _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
+                _TeacherM.TeacherName2 = Convert.ToString(dr["TeacherName2"]);
                 _TeacherM.TeacherCheckedIn = Convert.ToString(dr["TeacherSignature"]);
+                _TeacherM.TeacherCheckedIn2 = Convert.ToString(dr["TeacherSignature2"]);
                 _TeacherM.TimeIn = Convert.ToString(dr["TimeIn"]);
                 _TeacherM.TimeIn2 = Convert.ToString(dr["TimeIn2"]);
                 _TeacherM.TimeOut = Convert.ToString(dr["TimeOut"]);
@@ -560,11 +568,15 @@ namespace FingerprintsData
 
             return _TeacherM;
         }
-        public TeacherModel MarkAbsent(ref string result, string ChildID,StaffDetails staff,  string absentType, string Cnotes, int AbsentReasonid, string NewReason)
+
+
+        public string MarkAbsent(string ChildID, StaffDetails staff, string absentType, string Cnotes, int AbsentReasonid, string NewReason)
         {
+
+            string result = "";
+
             try
             {
-                result = "";
                 if (absentType == "1")
                 {
                     if (Connection.State == ConnectionState.Open)
@@ -617,7 +629,7 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
             }
-            return GetChildList();
+            return result;
         }
 
 
@@ -819,19 +831,22 @@ namespace FingerprintsData
                 {
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                     {
+                        _TeacherM.ClientID = clientID;
                         _TeacherM.CName = Convert.ToString(dr["CName"]);
                         _TeacherM.Parent1Name = Convert.ToString(dr["A1Name"]);
                         _TeacherM.Parent2Name = Convert.ToString(dr["A2Name"]);
                         _TeacherM.Parent1ID = Convert.ToString(dr["A1ID"]);
                         _TeacherM.Parent2ID = Convert.ToString(dr["A2ID"]);
                         _TeacherM.OtherNameTeacher = Convert.ToString(dr["TeacherOtherNotes"]);
-                        _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
+                  //      _TeacherM.TeacherName = Convert.ToString(dr["TeacherName"]);
                         _TeacherM.CIFileData = (byte[])dr["profilepic"];
                         _TeacherM.CImage = dr["FileNameul"].ToString();
                         _TeacherM.ParentSig = Convert.ToString(dr["PSignature"]);
-                        _TeacherM.ParentCheckedIn = dr["SignedInBy"] != DBNull.Value? Convert.ToString(dr["SignedInBy"]):"0";
+                        _TeacherM.ParentCheckedIn = dr["SignedInBy"] != DBNull.Value ? Convert.ToString(dr["SignedInBy"]) : "0";
                         _TeacherM.ParentCheckedOut = dr["SignedOutBy"] != DBNull.Value ? Convert.ToString(dr["SignedOutBy"]) : "0";
                         _TeacherM.OtherName = dr["Notes"] != DBNull.Value ? Convert.ToString(dr["Notes"]) : string.Empty;
+                        _TeacherM.PercentAbsent = DBNull.Value.Equals(dr["AbsentPercent"]) ? 0 : Convert.ToDecimal(dr["AbsentPercent"]);
+                        _TeacherM.AttendanceIssuePercentage = Convert.ToInt32(dr["AttendanceIssuePercentage"]);
                     }
 
 
@@ -913,6 +928,24 @@ namespace FingerprintsData
                                                     ).ToList();
                     }
 
+                    if (_dataset.Tables.Count > 6 && _dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                    {
+
+
+                        _TeacherM.TeacherList = (from DataRow dr6 in _dataset.Tables[6].Rows
+
+                                                      select new AgencyStaff
+                                                      {
+                                                          Username=Convert.ToString(dr6["TeacherName"]),
+                                                          UserID = new Guid(Convert.ToString(dr6["UserID"])),
+                                                          HasSignatureCode=Convert.ToBoolean(dr6["HasSignatureCode"])
+
+                                                      }
+
+                                                   ).ToList();
+
+                    }
+
 
 
                 }
@@ -951,7 +984,7 @@ namespace FingerprintsData
         }
 
 
-        public TeacherModel GetParentList(ref string result, string clientID,StaffDetails staff,  FormCollection collection, int savetype)
+        public TeacherModel GetParentList(ref string result, string clientID, StaffDetails staff, FormCollection collection, int savetype)
         {
             result = "";
             string result1 = "";
@@ -1047,36 +1080,38 @@ namespace FingerprintsData
                     string OtherNotes = collection.Get("OtherNotesTeacher");
                     string observation = collection.Get("Observation");
                     string SignatureCode = collection.Get("SignatureCode");
+                    DateTime? teacherCheckedInTime = collection.Get("TeacherCheckedInTime") == null || collection.Get("TeacherCheckedInTime") == "" ? (DateTime?)null : Convert.ToDateTime(collection.Get("TeacherCheckedInTime"));
                     SignatureCode = !string.IsNullOrEmpty(SignatureCode) ? EncryptDecrypt.Encrypt(SignatureCode) : SignatureCode;
                     List<string> observationlist = null;
                     //if (observation != null)
                     //{
-                        observationlist = observation!=null? observation.Split(',').Where(x=>x!="false").ToList():new List<string>();
-                      
-                        //foreach (var obs in observationlist)
-                        //{
-                            //if (obs != "false")
-                            //{
-                            //    Connection.Close();
-                                command.Dispose();
-                                Connection.Open();
-                                command.Connection = Connection;
-                                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                                command.Parameters.Add(new SqlParameter("@ClientID", clientID));
-                                command.Parameters.Add(new SqlParameter("@TSignature", imgSig));
-                                command.Parameters.Add(new SqlParameter("@StaffSignatureCode", SignatureCode));
-                                command.Parameters.Add(new SqlParameter("@TeacherOther", OtherNotes));
-                                command.Parameters.Add(new SqlParameter("@Observation", string.Join(",",observationlist.ToArray())));
-                                command.Parameters.Add(new SqlParameter("@ObservationType", 1));
-                                command.CommandType = CommandType.StoredProcedure;
-                                command.CommandText = "SP_MarkDailyObservation";
-                                command.ExecuteNonQuery();
-                                Connection.Close();
-                                command.Parameters.Clear();
-                                command.Dispose();
-                            //}
-                        //}
+                    observationlist = observation != null ? observation.Split(',').Where(x => x != "false").ToList() : new List<string>();
+
+                    //foreach (var obs in observationlist)
+                    //{
+                    //if (obs != "false")
+                    //{
+                    //    Connection.Close();
+                    command.Dispose();
+                    Connection.Open();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", (string.IsNullOrEmpty(TeacherID) || TeacherID== "00000" ?staff.UserId:new Guid(TeacherID))));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientID));
+                    command.Parameters.Add(new SqlParameter("@TSignature", imgSig));
+                    command.Parameters.Add(new SqlParameter("@StaffSignatureCode", SignatureCode));
+                    command.Parameters.Add(new SqlParameter("@TeacherSignatureTime", teacherCheckedInTime));
+                    command.Parameters.Add(new SqlParameter("@TeacherOther", OtherNotes));
+                    command.Parameters.Add(new SqlParameter("@Observation", string.Join(",", observationlist.ToArray())));
+                    command.Parameters.Add(new SqlParameter("@ObservationType", 1));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_MarkDailyObservation";
+                    command.ExecuteNonQuery();
+                    Connection.Close();
+                    command.Parameters.Clear();
+                    command.Dispose();
+                    //}
+                    //}
                     //}
 
 
@@ -4111,6 +4146,57 @@ namespace FingerprintsData
         }
 
         #endregion
+
+        #endregion
+
+        #region Get Teachers by classroom
+        public List<StaffDetails> GetTeacherByClassroom(long classroomId, StaffDetails staff)
+        {
+            //  List<SelectListItem> usersList = new List<SelectListItem>();
+
+            List<StaffDetails> staffList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<StaffDetails>>();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetTeachersByClassroom";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@ClassroomID", classroomId));
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        staffList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select new StaffDetails(false)
+                                     {
+                                         FullName = string.Concat(Convert.ToString(dr["StaffName"]), " ", "(", Convert.ToString(dr["RoleName"]), ")"),
+                                         UserId = new Guid(Convert.ToString(dr["UserId"])),
+                                         RoleId = new Guid(Convert.ToString(dr["RoleID"])),
+                                     }
+                                   ).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                command.Dispose();
+            }
+            return staffList;
+        }
 
         #endregion
     }
