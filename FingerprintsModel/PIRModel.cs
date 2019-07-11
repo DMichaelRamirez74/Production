@@ -325,7 +325,41 @@ namespace FingerprintsModel
         public string B3G_1 { get; set; }
         public string B3G_2 { get; set; }
 
-        
+        public string B5_1 { get; set; }
+        public string B5_2 { get; set; }
+        public string B5A_1_1 { get; set; }
+        public string B5A_1_2 { get; set; }
+        public string B5A_2_1 { get; set; }
+        public string B5A_2_2 { get; set; }
+        public string B5B_1_1 { get; set; }
+        public string B5B_1_2 { get; set; }
+        public string B5B_2_1 { get; set; }
+        public string B5B_2_2 { get; set; }
+        public string B5B_3_1 { get; set; }
+        public string B5B_3_2 { get; set; }
+        public string B5B_4_1 { get; set; }
+        public string B5B_4_2 { get; set; }
+        public string B5C_1_1 { get; set; }
+        public string B5C_1_2 { get; set; }
+        public string B5C_2_1 { get; set; }
+        public string B5C_2_2 { get; set; }
+        public string B5C_3_1 { get; set; }
+        public string B5C_3_2 { get; set; }
+        public string B5D_1 { get; set; }
+        public string B5D_2 { get; set; }
+        public string B5D_1_1 { get; set; }
+        public string B5D_1_2 { get; set; }
+        public string B5D_2_1 { get; set; }
+        public string B5D_2_2 { get; set; }
+        public string B5D_3_1 { get; set; }
+        public string B5D_3_2 { get; set; }
+        public string B5E_1_1 { get; set; }
+        public string B5E_1_2 { get; set; }
+        public string B5E_2_1 { get; set; }
+        public string B5E_2_2 { get; set; }
+        public string B5E_3_1 { get; set; }
+        public string B5E_3_2 { get; set; }
+
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        
