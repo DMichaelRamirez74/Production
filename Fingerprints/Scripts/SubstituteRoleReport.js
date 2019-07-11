@@ -285,7 +285,7 @@ var substituteRoleReport = {
         self.dataParameters.RequestedPage = tabEle != null ? tabEle.find('#requestedPage_' + index + '').val() : 1;
         self.dataParameters.PageSize = tabEle != null ? tabEle.find('#pageSize_' + index + '').val() : 10;
         self.dataParameters.SortOrder = tabEle != null ? tabEle.find('#sortOrder_' + index + '').val() : "ASC";
-        self.dataParameters.SortColumn = tabEle != null ? tabEle.find('#sortColumn_' + index + '').val() : "Month";
+        self.dataParameters.SortColumn = tabEle != null ? tabEle.find('#sortColumn_' + index + '').val() : "th1";
         self.dataParameters.SearchTerm = tabEle != null ? tabEle.find('#searchReportText').val() : "";
         self.dataParameters.SubstituteRoleMode = self.substituteRolePageType.Report;
 

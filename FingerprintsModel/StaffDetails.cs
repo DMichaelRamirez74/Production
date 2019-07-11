@@ -54,6 +54,8 @@ namespace FingerprintsModel
            
         }
 
+      
+
         /// <summary>
         /// Default Constructor initializes and assigns Session Values to its data members.
         /// </summary>
@@ -96,6 +98,7 @@ namespace FingerprintsModel
         //    this.RoleId = roleId;
         //    this.AgencyId = agencyId;
         //}
+
         public string FullName { get; set; }
         public Guid? UserId { get; set; }
         public Guid? RoleId { get; set; }

@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Globalization;
 //using System.Web.Script.Serialization;
 
+
 namespace FingerprintsData
 {
     public class CenterData
@@ -965,7 +966,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false,bool allCenters=false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false, bool allCenters = false)
         {
             dtCenters = new DataTable();
             try
@@ -1107,9 +1108,9 @@ namespace FingerprintsData
                                                  RecordType = Convert.ToInt32(dr["RecordType"]),
                                                  //Enum.GetName(typeof(EnumDaysOff), Convert.ToInt64(dr["RecordType"]))
                                                  RecordName = (dr["RecordType"].ToString() == "1") ? "Agency Wide Closure" : (dr["RecordType"].ToString() == "2") ? "Entire Center Closure" : "Classroom Closure",
-                                               // FromDate = Convert.ToDateTime(dr["FromDate"]).ToString("MM/dd/yyyy"),
-                                                // ToDate = Convert.ToDateTime(dr["ToDate"]).ToString("MM/dd/yyyy"),
-                                                  FromDate = dr["FromDate"].ToString(),
+                                                 // FromDate = Convert.ToDateTime(dr["FromDate"]).ToString("MM/dd/yyyy"),
+                                                 // ToDate = Convert.ToDateTime(dr["ToDate"]).ToString("MM/dd/yyyy"),
+                                                 FromDate = dr["FromDate"].ToString(),
                                                  ToDate = dr["ToDate"].ToString(),
                                                  OffDayComments = string.IsNullOrEmpty(dr["OffDayComments"].ToString()) ? "" : dr["OffDayComments"].ToString(),
                                                  DaysOffID = dr["DaysOffID"].ToString(),
@@ -1214,7 +1215,7 @@ namespace FingerprintsData
                             foreach (var item in list)
                             {
                                 // model.DatesList.AddRange(GetDatesBetween(Convert.ToDateTime(item.Text), Convert.ToDateTime(item.Value)));
-                                model.DatesList.AddRange(GetDatesBetween( DateTime.Parse(item.Text, new CultureInfo("en-US", true)), DateTime.Parse(item.Value, new CultureInfo("en-US", true))));
+                                model.DatesList.AddRange(GetDatesBetween(DateTime.Parse(item.Text, new CultureInfo("en-US", true)), DateTime.Parse(item.Value, new CultureInfo("en-US", true))));
                             }
                             //model.OffDaysString = jsonSerialiser.Serialize(datesList);
                         }
@@ -1512,17 +1513,17 @@ namespace FingerprintsData
                                           {
                                               ClientId = dr["ClientId"] == DBNull.Value ? 0 : Convert.ToInt64(dr["ClientId"]),
                                               ChildName = dr["ChildName"] == DBNull.Value ? string.Empty : Convert.ToString(dr["ChildName"]),
-                                              CenterId = dr["CenterId"]==DBNull.Value?0: Convert.ToInt64(dr["CenterId"]),
-                                              ClassRoomId = dr["ClassroomID"]==DBNull.Value?0: Convert.ToInt64(dr["ClassroomID"]),
-                                              CenterName = dr["CenterName"]==DBNull.Value?string.Empty:Convert.ToString(dr["CenterName"]),
-                                              ClassRoomName = dr["CenterName"] == DBNull.Value ? string.Empty:Convert.ToString(dr["ClassRoomName"]),
-                                              PhoneType = dr["PhoneType"] == DBNull.Value ?0:Convert.ToInt32(dr["PhoneType"]),
-                                              PhoneNo = dr["Phoneno"]==DBNull.Value?string.Empty:Convert.ToString(dr["Phoneno"]),
-                                              IsSms = dr["Sms"]==DBNull.Value?false: Convert.ToBoolean(dr["Sms"]),
-                                              ParentName = dr["ParentName"]==DBNull.Value?string.Empty: dr["ParentName"].ToString().Trim(',').Replace(",", "<br>"),
-                                              EmailId = dr["EmailId"]==DBNull.Value?string.Empty: dr["EmailId"].ToString().Trim(',').Replace(",", Environment.NewLine),
-                                              NoEmail =dr["NoEmail"]==DBNull.Value?false:  Convert.ToBoolean(dr["NoEmail"]),
-                                              IsPrimary =dr["IsPrimaryContact"]==DBNull.Value?false: Convert.ToBoolean(dr["IsPrimaryContact"])
+                                              CenterId = dr["CenterId"] == DBNull.Value ? 0 : Convert.ToInt64(dr["CenterId"]),
+                                              ClassRoomId = dr["ClassroomID"] == DBNull.Value ? 0 : Convert.ToInt64(dr["ClassroomID"]),
+                                              CenterName = dr["CenterName"] == DBNull.Value ? string.Empty : Convert.ToString(dr["CenterName"]),
+                                              ClassRoomName = dr["CenterName"] == DBNull.Value ? string.Empty : Convert.ToString(dr["ClassRoomName"]),
+                                              PhoneType = dr["PhoneType"] == DBNull.Value ? 0 : Convert.ToInt32(dr["PhoneType"]),
+                                              PhoneNo = dr["Phoneno"] == DBNull.Value ? string.Empty : Convert.ToString(dr["Phoneno"]),
+                                              IsSms = dr["Sms"] == DBNull.Value ? false : Convert.ToBoolean(dr["Sms"]),
+                                              ParentName = dr["ParentName"] == DBNull.Value ? string.Empty : dr["ParentName"].ToString().Trim(',').Replace(",", "<br>"),
+                                              EmailId = dr["EmailId"] == DBNull.Value ? string.Empty : dr["EmailId"].ToString().Trim(',').Replace(",", Environment.NewLine),
+                                              NoEmail = dr["NoEmail"] == DBNull.Value ? false : Convert.ToBoolean(dr["NoEmail"]),
+                                              IsPrimary = dr["IsPrimaryContact"] == DBNull.Value ? false : Convert.ToBoolean(dr["IsPrimaryContact"])
                                           }
 
                                         ).ToList();
@@ -1856,7 +1857,7 @@ namespace FingerprintsData
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
                     Connection.Close();
-                    if (_dataset != null && _dataset.Tables.Count>0 && _dataset.Tables[0].Rows.Count > 0)
+                    if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
                     {
 
                         centerSeatsDictionary.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[0].Rows[0]["SlotPurchased"]));
@@ -2115,7 +2116,7 @@ namespace FingerprintsData
 
         #region Gets the Unscheduled School Days List
 
-        public  Task<UnscheduledSchoolDayModal> GetUnScheduledSchoolDays(UnscheduledSchoolDayModal classDaysModel, StaffDetails staff)
+        public Task<UnscheduledSchoolDayModal> GetUnScheduledSchoolDays(UnscheduledSchoolDayModal classDaysModel, StaffDetails staff)
         {
 
 
@@ -2148,7 +2149,7 @@ namespace FingerprintsData
 
                 IDbConnection dbConnection;
                 IDataReader reader;
-                reader =  dbManager.GetDataReader("USP_GetUnscheduledSchoolDays", CommandType.StoredProcedure, parameters, out dbConnection);
+                reader = dbManager.GetDataReader("USP_GetUnscheduledSchoolDays", CommandType.StoredProcedure, parameters, out dbConnection);
 
                 try
                 {
@@ -2183,8 +2184,8 @@ namespace FingerprintsData
 
                     classDaysModel.ReasonList.Add(new SelectListItem
                     {
-                        Text= "Other",
-                        Value= "Other"
+                        Text = "Other",
+                        Value = "Other"
                     });
 
                     classDaysModel.ReasonList.Insert(0, new SelectListItem
@@ -2223,7 +2224,7 @@ namespace FingerprintsData
 
             }
 
-            return Task.FromResult( classDaysModel);
+            return Task.FromResult(classDaysModel);
         }
 
         #endregion
@@ -2534,7 +2535,7 @@ namespace FingerprintsData
 
              };
 
-              isAvailable=  dbManager.ExecuteWithScalar<bool>("USP_CheckUnsentEmailParentExists", CommandType.StoredProcedure, parameters);
+                isAvailable = dbManager.ExecuteWithScalar<bool>("USP_CheckUnsentEmailParentExists", CommandType.StoredProcedure, parameters);
 
 
 
@@ -2575,6 +2576,7 @@ namespace FingerprintsData
                     dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
                     dbManager.CreateParameter("@CenterID", substituteRole.CenterID=="0"?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.CenterID)),DbType.Int64),
                     dbManager.CreateParameter("@ClassroomID",substituteRole.ClassroomID=="0"?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(substituteRole.ClassroomID)),DbType.Int64),
+                    dbManager.CreateParameter("@SubstituteRoleFor",substituteRole.SubstitueRoleFor==null?(Guid?)null:substituteRole.SubstitueRoleFor,DbType.Guid),
                     dbManager.CreateParameter("@FromDate",substituteRole.FromDate,DbType.String),
                     dbManager.CreateParameter("@ToDate",substituteRole.ToDate,DbType.String),
                     dbManager.CreateParameter("@StaffRoleID",substituteRole.StaffDetails.RoleId,DbType.Guid),
@@ -2648,6 +2650,7 @@ namespace FingerprintsData
                             RoleId = new Guid(Convert.ToString(reader["RoleID"]))
                         },
                         SubstituteID = Convert.ToInt64(reader["SubstituteID"]),
+                        SubstituteRoleForName = string.Concat(Convert.ToString(reader["SubstituteRoleForFirstName"]), " ", Convert.ToString(reader["SubstituteRoleForLastName"])).Trim(),
                         FromDate = Convert.ToString(reader["FromDate"]),
                         ToDate = Convert.ToString(reader["ToDate"])
                     });
@@ -2707,6 +2710,7 @@ namespace FingerprintsData
 
 
         #endregion
+
 
 
 

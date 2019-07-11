@@ -42,6 +42,11 @@ namespace FingerprintsModel
 
         public string ClassroomName { get; set; }
 
+        //user id
+        public Guid? SubstitueRoleFor { get; set; }
+
+        public string SubstituteRoleForName {get;set;}
+
         public string StepUpToQualityStars { get; set; }
 
         public DateTime? MonthLastDate { get; set; }

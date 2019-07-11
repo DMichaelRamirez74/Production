@@ -697,7 +697,7 @@ namespace FingerprintsData
                         }).ToList();
                     }
 
-                    if(_dataset.Tables.Count>5 && _dataset.Tables[5]!=null && _dataset.Tables[5].Rows.Count>0)
+                    if (_dataset.Tables.Count > 5 && _dataset.Tables[5] != null && _dataset.Tables[5].Rows.Count > 0)
                     {
                         agency.ProgramYearList = (from DataRow dr5 in _dataset.Tables[5].Rows
                                                   select new SelectListItem
@@ -727,7 +727,7 @@ namespace FingerprintsData
                                 VisitCount = Convert.ToInt32(dr["VisitCount"].ToString()),
                                 FromDays = Convert.ToInt32(dr["FromDay"].ToString()),
                                 ToDays = Convert.ToInt32(dr["ToDay"].ToString()),
-                                Status = Convert.ToBoolean( dr["Status"].ToString())
+                                Status = Convert.ToBoolean(dr["Status"].ToString())
 
                             });
 
@@ -921,6 +921,8 @@ namespace FingerprintsData
                             _rolelist.Add(obj);
                         }
                         _staff.rolelist = _rolelist;
+
+                      
                     }
                     catch (Exception ex)
                     {
@@ -3393,6 +3395,7 @@ namespace FingerprintsData
             List<Demographic> _DemographicList = new List<Demographic>();
             try
             {
+
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
                 command.Connection = Connection;
@@ -3477,7 +3480,7 @@ namespace FingerprintsData
                                 {
                                     obj.RoleList = new List<Role>();
                                 }
-                                
+
                             }
                             _AcceptanceProcessList.Add(obj);
                         }
@@ -3502,7 +3505,7 @@ namespace FingerprintsData
 
             try
             {
-                var stf =  StaffDetails.GetInstance();
+                var stf = StaffDetails.GetInstance();
                 command.Connection = Connection;
                 command.CommandType = CommandType.Text;
                 command.CommandText = @"select top 1 isnull(OverIncomeAcceptance,0) as OverIncomeAcceptance from AgencyInfo where 
@@ -4060,9 +4063,11 @@ namespace FingerprintsData
         }
 
 
-        public List<SelectListItem> GetUsersByRoleId(string roleId, string agencyId)
+        public List<StaffDetails> GetUsersByRoleId(string roleId, StaffDetails staff)
         {
-            List<SelectListItem> usersList = new List<SelectListItem>();
+            //  List<SelectListItem> usersList = new List<SelectListItem>();
+
+            List<StaffDetails> staffList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<StaffDetails>>();
             try
             {
                 if (Connection.State == ConnectionState.Open)
@@ -4072,7 +4077,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetUsersByRoleId";
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Agencyid", agencyId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
                 command.Parameters.Add(new SqlParameter("@RoleId", roleId));
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
@@ -4081,11 +4086,12 @@ namespace FingerprintsData
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        usersList = (from DataRow dr in _dataset.Tables[0].Rows
-                                     select new SelectListItem
+                        staffList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select new StaffDetails(false)
                                      {
-                                         Text = dr["StaffName"].ToString(),
-                                         Value = dr["UserID"].ToString()
+                                        FullName=string.Concat(Convert.ToString(dr["StaffName"])," ","(",Convert.ToString(dr["RoleName"]),")"),
+                                        UserId=new Guid(Convert.ToString(dr["UserId"])),
+                                        RoleId=new Guid(Convert.ToString(dr["RoleID"])),
                                      }
                                    ).ToList();
                     }
@@ -4102,7 +4108,7 @@ namespace FingerprintsData
                     Connection.Close();
                 command.Dispose();
             }
-            return usersList;
+            return staffList;
         }
 
         public AgencyAdditionalSlots GetAdditionalSlotDetails(string AgencyId, string UserId, string yakkrid)
@@ -6828,11 +6834,11 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                         {
                             var _t4 = _dataset.Tables[3];
 
-                             _ElD.Signature = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png( DBNull.Value == _t4.Rows[0]["Signature"] ? "" : _t4.Rows[0]["Signature"].ToString(), 400,200);
-                         //  _ElD.Signature = Encoding.ASCII.GetBytes(_t4.Rows[0]["Signature"].ToString());
-                                _ElD.StaffName = DBNull.Value == _t4.Rows[0]["StaffName"] ? "" : _t4.Rows[0]["StaffName"].ToString();
+                            _ElD.Signature = Fingerprints.Common.Helpers.ImageHelper.GetBase64Png(DBNull.Value == _t4.Rows[0]["Signature"] ? "" : _t4.Rows[0]["Signature"].ToString(), 400, 200, System.Drawing.Color.White, System.Drawing.Color.Black);
+                            //  _ElD.Signature = Encoding.ASCII.GetBytes(_t4.Rows[0]["Signature"].ToString());
+                            _ElD.StaffName = DBNull.Value == _t4.Rows[0]["StaffName"] ? "" : _t4.Rows[0]["StaffName"].ToString();
 
-                            _ElD.DateofVerification = DBNull.Value == _t4.Rows[0]["DateofVerification"] ? "" : _t4.Rows[0]["DateofVerification"].ToString(); 
+                            _ElD.DateofVerification = DBNull.Value == _t4.Rows[0]["DateofVerification"] ? "" : _t4.Rows[0]["DateofVerification"].ToString();
 
                         }
 

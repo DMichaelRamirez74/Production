@@ -1067,7 +1067,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", string.IsNullOrEmpty(AgencyId)? (Guid?)null:new Guid(AgencyId)));
                 command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
                 command.Parameters.Add(new SqlParameter("@ScreeningName", ScreeningName));
-                // command.Parameters.Add(new SqlParameter("@Screeningfor", Screeningfor));
                 command.Parameters.Add(new SqlParameter("@Programtype", Programtype));
                 command.Parameters.Add(new SqlParameter("@Document", Document == true ? 1 : 0));
                 command.Parameters.Add(new SqlParameter("@ScreeningDate", ScreeningDate));
@@ -1094,12 +1093,12 @@ namespace FingerprintsData
 
                 //if (_screeningAccessList != null && _screeningAccessList.Count > 0)
                 //{
-                    //foreach(var item2 in _screeningAccessList)
-                    //{
-                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.Enter, item2.ScreeningAccessType);
-                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.Review, item2.ScreeningAccessType);
-                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.ViewOnly, item2.ScreeningAccessType);
-                    //}
+                //    //foreach(var item2 in _screeningAccessList)
+                //    //{
+                //    //    dtAccess.Rows.Add(item2.RoleID, FingerprintsModel.Enums.ScreeningAccess.Enter, item2.ScreeningAccessType);
+                //    //    dtAccess.Rows.Add(item2.RoleID, FingerprintsModel.Enums.ScreeningAccess.Review, item2.ScreeningAccessType);
+                //    //    dtAccess.Rows.Add(item2.RoleID, FingerprintsModel.Enums.ScreeningAccess.ViewOnly, item2.ScreeningAccessType);
+                //    //}
 
                 //    foreach (var item2 in _screeningAccessList)
                 //    {
@@ -1223,7 +1222,6 @@ namespace FingerprintsData
                         addScreeningQ = new ScreeningQ();
                         addScreeningQ.ScreeningId = EncryptDecrypt.Encrypt64(_dataTable.Rows[i]["ScreeningID"].ToString());
                         addScreeningQ.ScreeningName = Convert.ToString(_dataTable.Rows[i]["ScreeningName"]);
-                        //   addScreeningQ.ScreeningFor = _dataTable.Rows[i]["Screeningfor"].ToString();
                         addScreeningQ.AgencyName = Convert.ToString(_dataTable.Rows[i]["AgencyName"]);
                         addScreeningQ.CreatedOn = Convert.ToString(_dataTable.Rows[i]["DateEntered"]);
                         addScreeningQ.ScreeningOrder = Convert.ToString(_dataTable.Rows[i]["ScreeningOrder"]);
@@ -1246,7 +1244,7 @@ namespace FingerprintsData
                     Connection.Close();
             }
         }
-        public string DeleteScreening(string id,  string userId)
+        public string DeleteScreening(string id, string userId)
         {
             try
             {
@@ -1270,9 +1268,9 @@ namespace FingerprintsData
             }
             finally
             {
-                if(Connection!=null)
-                Connection.Close();
-                
+                if (Connection != null)
+                    Connection.Close();
+
             }
         }
 
@@ -1380,6 +1378,8 @@ namespace FingerprintsData
             return _dataTable;
 
         }
+
+
         public string DeleteQuestion(string Questionid, string Screeningid, string userid)
         {
 

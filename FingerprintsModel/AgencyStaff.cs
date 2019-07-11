@@ -13,6 +13,8 @@ namespace FingerprintsModel
     public class AgencyStaff
     {
         public Guid AgencyStaffId { get; set; }
+
+        public Guid? UserID { get; set; }
         public string enrollid { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
@@ -113,6 +115,7 @@ namespace FingerprintsModel
         public string ProgramYear { get; set; }
 
         public List<SelectListItem> ProgramYearList { get; set; }
+        public bool HasSignatureCode { get; set; }
 
     }
 
@@ -122,7 +125,7 @@ namespace FingerprintsModel
         public string Name { get; set; }
     }
 
-    
+
     public class ProgInfo
     {
         public string Id { get; set; }
@@ -181,6 +184,7 @@ namespace FingerprintsModel
         public string EHouseholid { get; set; }
         public string ProgramId { get; set; }
         public string ProgramType { get; set; }
+
         [Required()]
         public string Eclientid { get; set; }
         public string Name { get; set; }
@@ -216,14 +220,14 @@ namespace FingerprintsModel
 
         public string Acronym { get; set; }
         public string SpecialService { get; set; }
-        public int  Yakkr600 { get; set; }
+        public int Yakkr600 { get; set; }
         public int Yakkr601 { get; set; }
 
         public decimal PresentCount { get; set; }
         public decimal TotalCount { get; set; }
         public int IssuePercentage { get; set; }
         public ClosedInfo ClosedDetails { get; set; }
-		 public int AbsenceReasonId { get; set; }
+        public int AbsenceReasonId { get; set; }
         public string MarkAbsenseReason { get; set; }
 
         public string LastCaseNoteDate { get; set; }
@@ -234,7 +238,7 @@ namespace FingerprintsModel
         public bool IsLateArrival { get; set; }
         public bool IsCaseNoteEntered { get; set; }
         public int IsHomeBased { get; set; }
-		public int IsAppointMentYakkr600601 { get; set; }
+        public int IsAppointMentYakkr600601 { get; set; }
         public List<SelectListItem> AbsenceReasonList { get; set; }
         public List<SelectListItem> AbsenceTypeList { get; set; }
 
@@ -257,7 +261,7 @@ namespace FingerprintsModel
         public int FamilyHomeless { get; set; }
 
         public bool IsShowTransition { get; set; }
-        public string TransitionColor{get;set;}
+        public string TransitionColor { get; set; }
 
         public int TransitionType { get; set; }
 
@@ -269,7 +273,7 @@ namespace FingerprintsModel
         public bool IsAllowAttendanceIssueReview { get; set; }
 
     }
-  public class CenterAndClassRoom
+    public class CenterAndClassRoom
     {
         public string Name { get; set; }
         public string clientenrolled { get; set; }
@@ -318,9 +322,10 @@ namespace FingerprintsModel
         public string Tagname { get; set; }
         public bool SecurityLevel { get; set; }
         public bool IsAllowSecurityCN { get; set; }
-        public string GroupCaseNote  { get; set; }
+        public string GroupCaseNote { get; set; }
         //public string SecurityRoles { get; set; }
         public bool IsEditable { get; set; }
+
         public string ProgramID { get; set; }
         public string ProgramType { get; set; }
     }
@@ -329,7 +334,7 @@ namespace FingerprintsModel
     public class SubCaseNote
     {
 
-        public  string Name { get; set; }
+        public string Name { get; set; }
         public string SubCasenoteid { get; set; }
         public List<string> Tags { get; set; }
         public List<string> Attachment { get; set; }
@@ -347,8 +352,7 @@ namespace FingerprintsModel
         public List<RosterNew.User> SecurityRolesList { get; set; }
         public List<RosterNew.User> Clientlist { get; set; }
         public List<RosterNew.User> UserList { get; set; }
-     
-    
+  
         public List<ParentInfo> ParentContactInfoList { get; set; }
 
         public string ReferenceYakkrID { get; set; }
@@ -365,7 +369,7 @@ namespace FingerprintsModel
         public string Notes { get; set; }
     }
 
-    public class Fswuserapproval :YakkrClientDetail
+    public class Fswuserapproval : YakkrClientDetail
     {
         public string StaffName { get; set; }
         public string routecode { get; set; }
@@ -433,14 +437,14 @@ namespace FingerprintsModel
         public bool IsReviewIncome { get; set; }
     }
 
-    
+
 
     public class AcceptanceProcess
     {
         public string RoleId { get; set; }
         public string RoleName { get; set; }
         public bool IsAcceptance { get; set; }
-     
+
 
 
     }
@@ -463,7 +467,7 @@ namespace FingerprintsModel
 
 
     //}
-    
+
 
     public class TimeZoneinfo
     {
@@ -477,9 +481,9 @@ namespace FingerprintsModel
         public string City { get; set; }
         public string State { get; set; }
         public string County { get; set; }
-       
+
     }
-    
+
     public class Attendance
     {
         public string TodayAttendance { get; set; }
@@ -526,24 +530,24 @@ namespace FingerprintsModel
 
     }
     //Changes 19Aug2016
-    public class ClientAcceptList :YakkrClientDetail
+    public class ClientAcceptList : YakkrClientDetail
     {
 
       
 
         public string Name { get; set; }
         public string Choice { get; set; }
-      
+
         public string DateOnList { get; set; }
         public string ProgramType { get; set; }
         public string Gender { get; set; }
-      
+
         public string TotalChoice { get; set; }
         public List<ClassRoom> Classroom = new List<ClassRoom>();
 
         public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
         //22Aug2016
-      //  public string Description { get; set; }
+        //  public string Description { get; set; }
         public string CTransport { get; set; }
         public Nullable<Boolean> ChildDisability { get; set; }
         public string ChildWeight { get; set; }
@@ -579,7 +583,7 @@ namespace FingerprintsModel
 
         public string Enc_ClassRoomId { get; set; }
     }
-    
+
     //End
     //End
     //30Aug2016
@@ -606,11 +610,13 @@ namespace FingerprintsModel
         public int MonthTotalEnroll { get; set; }
         public int YearTotalEnroll { get; set; }
     }
-    
+
 
     public interface IPagination
     {
         int GetSkipRows();
+
+       
     }
 
     public abstract class Pagination:IPagination
@@ -627,6 +633,8 @@ namespace FingerprintsModel
         {
             return (this.RequestedPage - 1) * PageSize;
         }
+
+      
     }
 
 
@@ -645,7 +653,6 @@ namespace FingerprintsModel
     }
 
   
-
 
 
 

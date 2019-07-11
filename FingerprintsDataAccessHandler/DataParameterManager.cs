@@ -56,6 +56,11 @@ namespace FingerprintsDataAccessHandler
                 Direction = direction,
                 Value = value
             };
+
+
+
+
+
         }
 
         private static IDbDataParameter CreateSqlParameter(string name, int size, object value, DbType dbType, ParameterDirection direction)
@@ -70,6 +75,8 @@ namespace FingerprintsDataAccessHandler
                 Value = value
             };
         }
+
+       
 
         //private static IDbDataParameter CreateOracleParameter(string name, object value, DbType dbType, ParameterDirection direction)
         //{

@@ -58,6 +58,8 @@ namespace FingerprintsData
                     //Seats and Slots
                     if (reader.HasRows)
                     {
+
+
                         while (reader.Read())
                         {
                             executive.AvailablePercentage = reader["AvailablePercentage"].ToString();
