@@ -473,7 +473,67 @@ namespace Fingerprints.LocalResource {
                 return ResourceManager.GetString("Casenotetitleisrequired", resourceCulture);
             }
         }
-        
+        public static string Social_Work
+        {
+            get
+            {
+                return ResourceManager.GetString("Social_Work", resourceCulture);
+            }
+        }
+
+        public static string Psychology
+        {
+            get
+            {
+                return ResourceManager.GetString("Psychology", resourceCulture);
+            }
+        }
+
+        public static string Sociology
+        {
+            get
+            {
+                return ResourceManager.GetString("Sociology", resourceCulture);
+            }
+        }
+
+        public static string Human_Services
+        {
+            get
+            {
+                return ResourceManager.GetString("Human_Services", resourceCulture);
+            }
+        }
+
+        public static string Nursing
+        {
+            get
+            {
+                return ResourceManager.GetString("Nursing", resourceCulture);
+            }
+        }
+
+        public static string Early_Childhood_Education
+        {
+            get
+            {
+                return ResourceManager.GetString("Early_Childhood_Education", resourceCulture);
+            }
+        }
+        public static string Marriage_Family
+        {
+            get
+            {
+                return ResourceManager.GetString("Marriage_Family", resourceCulture);
+            }
+        }
+        public static string Other
+        {
+            get
+            {
+                return ResourceManager.GetString("Other", resourceCulture);
+            }
+        }
         /// <summary>
         ///   Looks up a localized string similar to CDA.
         /// </summary>
@@ -2070,9 +2130,9 @@ namespace Fingerprints.LocalResource {
         /// <summary>
         ///   Looks up a localized string similar to Other.
         /// </summary>
-        public static string Other {
+        public static string Other_Education {
             get {
-                return ResourceManager.GetString("Other", resourceCulture);
+                return ResourceManager.GetString("Other_Education", resourceCulture);
             }
         }
         
