@@ -487,13 +487,18 @@ namespace FingerprintsModel
         public string ApplicationStatusParent1 { get; set; }
         public string ApplicationStatusParent2 { get; set; }
 
-
+        public EnrollmentChangeReason _EnrollmentChangeReason { get; set; }
         public string HWInput { get; set; }
         public string AssessmentDate { get; set; }
         public string AHeight { get; set; }
         public string AWeight { get; set; }
         public string HeadCircle { get; set; }
 
+        public string ReasonForAcceptance { get; set; }
+        public double ADA { get; set; }
+
+        public int TotalCaseNotesWritten {get;set;}
+        public int TotalCaseNotesWritten1 { get; set; }
 
         public class NationalityInfo
         {

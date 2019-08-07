@@ -13,6 +13,7 @@ namespace Fingerprints.Controllers
         //
         // GET: /MentalHealth/
         MentalHealthData mHealth = null;
+        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
         public ActionResult MentalHealthDashboard()
         {
             MentalHealthDashboard dash = new MentalHealthDashboard();
@@ -81,8 +82,9 @@ namespace Fingerprints.Controllers
 
                 string name = "";
                 string casenoteid = "";
-
-                List<RosterNew.Attachment> Attachments = new List<RosterNew.Attachment>();
+                RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
+            
+                _caseNote.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<RosterNew.Attachment>>();
                 var ate = Request.Files;
                 var ate2 = ate.AllKeys;
                 for (int i = 0; i < ate2.Length; i++)
@@ -90,11 +92,10 @@ namespace Fingerprints.Controllers
                     RosterNew.Attachment aatt = new RosterNew.Attachment();
                     aatt.file = ate[i];
                     if (aatt.file.ContentLength > 0)
-                        Attachments.Add(aatt);
+                        _caseNote.CaseNoteAttachmentList.Add(aatt);
                 }
-                RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
-                List<CaseNote> caseNote = new List<CaseNote>();
-                RosterNew.Users _users = new RosterNew.Users();
+              
+               
                 _caseNote.CenterId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.CenterId);
                // _caseNote.Classroomid = MentalHealthCaseNote.CaseClassroomId.ToString();
                 _caseNote.ClientId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.ClientId.ToString());
@@ -104,9 +105,9 @@ namespace Fingerprints.Controllers
                 _caseNote.Note = MentalHealthCaseNote.MHcasenote;
                 _caseNote.ClientIds = string.Join(",", MentalHealthCaseNote.ClientIds.ToArray());
               //  _caseNote.ProgramId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.CaseProgramId);
-                _caseNote.CaseNoteAttachmentList = Attachments;
+                
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(),Session["RoleID"].ToString(), Session["UserId"].ToString(), 2);
+                casenoteid = new RosterData().SaveCaseNotes(ref name, _caseNote, staff, 2);
 
 
                  res = mHealth.SaveMentalHealthClient(MentalHealthCaseNote, name);

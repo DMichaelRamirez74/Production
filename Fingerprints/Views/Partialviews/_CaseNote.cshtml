@@ -1,164 +1,58 @@
 ﻿@model FingerprintsModel.CaseNoteByClientID
 
-@*<div class="col-xs-12 col-lg-12" id="divCaseNoteSection">
-        <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i><span><span id="heading_case_note">Case Note</span></span></h3>
-        <div class="col-xs-12 col-sm-12 adddivspace">
-            <div class="col-lg-3 col-xs-5">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;font-weight:600;">Date<span class="error-notify">*</span></p>
-                        <input type="hidden" id="hid-case-note-id" value="0">
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-lg-9 col-sm-12 col-xs-12">
-                <input type="text" class="form-control" value="@DateTime.Parse(DateTime.Now.ToString("MM/dd/yyyy"), new System.Globalization.CultureInfo("en-US", true))" id="txtCaseNoteDate" onblur="checkStatusChangeDate(this);" placeholder="MM/DD/YYYY">
-            </div>
-        </div>
+<style type="text/css">
+    .tagsinput {
+        width: auto !important;
+        height: auto !important;
+        min-height: auto !important;
+    }
 
-        <div class="col-xs-12 col-sm-12 adddivspace">
-            <div class="col-lg-3 col-xs-5">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;font-weight:600;">Title<span class="error-notify">*</span></p>
-                    </div>
-                </div>
-            </div>
+    #divCaseNoteSection .txt-main-note p {
+        padding-left: 15px;
+    }
 
-            <div class="col-lg-9 col-sm-12">
-                <input type="text" class="form-control" id="txtCaseNoteTitle" placeholder="Case Note Title">
-            </div>
-        </div>
+    .fa-checkbox.all-notes-check label {
+        display: inline-block;
+        vertical-align: middle;
+        position: relative;
+        padding-left: 22px;
+        color: #163b69;
+        font-size: 15px;
+        font-weight: bold;
+    }
 
 
-        <div class="col-xs-12 col-sm-12 adddivspace">
-            <div class="col-lg-3 col-xs-5">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
-                    </div>
-                </div>
-            </div>
+    .fa-checkbox.all-notes-check input[type="checkbox"]:checked + label:before {
+        color: #3FC593;
+        width: 14px;
+        height: 14px;
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 0;
+        /* background-image: url(../../Images/checked.png); */
+        content: "\f14a";
+        font: normal normal normal 16px/1 FontAwesome;
+    }
 
-            <div class="col-lg-9 col-sm-12">
-                <textarea id="txtareaCaseNote" name="Note" style="visibility: hidden; display: none;"></textarea>
+    .fa-checkbox.all-notes-check input[type="checkbox"] + label:before {
+        position: absolute;
+        top: 3px;
+        width: 14px;
+        height: 14px;
+        left: 0;
+        /* background-image: url(../../Images/check.png); */
+        content: "\f096";
+        color: #333;
+        margin-right: 10px;
+        font: normal normal normal 16px/1 FontAwesome;
+    }
 
-            </div>
-        </div>
+    #divCaseNoteSection .form-group {
+        margin-bottom: 15px !important;
+    }
 
-        <div class="col-xs-12 col-sm-12 adddivspace">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Client(s)<span class="error-notify">*</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-12 no-padding" id="divCaseNoteClients"><div class="col-sm-12 adddivspace"><input type="checkbox" checked="checked" value="25339"><span>&nbsp;Krish23 JK (Child)</span></div></div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 adddivspace">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Tags<span class="error-notify">*</span></p>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-lg-9 col-sm-12">
-                <input type="text" id="txtCaseNoteTags" class="form-control ui-autocomplete-input" data-tagsinput-init="true" style="display: none;"><div id="casenotetags_attissue_tagsinput" class="tagsinput" style="width: auto; min-height: auto; height: auto;"><span class="tag"><span>Excessive Absences&nbsp;&nbsp;</span><a href="#" title="Removing tag">x</a></span><div id="casenotetags_attissue_addTag"><input id="casenotetags_attissue_tag" value="" data-default="" class="ui-autocomplete-input" autocomplete="off" style="color: rgb(102, 102, 102); width: 238px;"></div><div class="tags_clear"></div></div>
-
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12 adddivspace" style="margin-bottom:10px;">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Developmental Team<span class="error-notify">*</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-12 no-padding" id="divDevelopementStaffs"><div class="col-sm-12 col-lg-12 m-tp"><input type="checkbox" value="ebf675df-9468-4cd4-92b0-d97b7d49888d"><span>&nbsp;Carlie Davis (Family Service Worker)</span></div><div class="col-sm-12 col-lg-12 m-tp"><input type="checkbox" value="b05f99ac-bc3c-4e13-90b4-0b4f726048ea"><span>&nbsp;FSW 2 (Family Service Worker)</span></div></div>
-        </div>
-
-        <div class="col-xs-12 col-sm-12  adddivspace" style="margin-top:-12px;">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Secure Note Level?</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-12" style="margin-top:10px;">
-                <div class="addn-poup-div1">
-                    <input type="checkbox" id="checkboxSecureNote" value="true">
-                    <span>Yes</span>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="col-xs-12 col-sm-12  adddivspace" id="att_issueattachmentsDiv">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Attachment</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-12">
-                <div class="col-sm-9 col-lg-9 col-xs-7 no-padding">
-                    <input type="file" id="att_issue_firstfile" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
-                </div>
-                <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:2%;">
-
-                    <a href="javascript:void(0)" id="Attachmectstag_attissue" data-toggle="tooltip" title="" onclick="addMoreAttachment(this);" data-original-title="Add Attachment"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-12 col-xs-12" id="addAttachmentDiv_attissue"></div>
-
-        </div>
-
-
-
-        <div class="col-xs-12 col-sm-12  adddivspace" id="div_download_attach" style="display:none;">
-            <div class="col-lg-3 col-xs-12">
-                <div class="enroll-sec">
-                    <div class="transition-content-desc title-div-casenote" style="position: relative;">
-                        <p style="background: none;border: none;">Download Attachment(s)</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9 col-sm-7 adddivspace" id="div_attach_download_bind_section"></div>
-
-
-
-        </div>
-
-
-
-
-
-        <div style="margin-bottom: 20px;margin-top:20px;" class="text-center col-xs-12">
-
-            <button type="button" class="my-btn1" id="btn_att_issue_casenote_save" title="" data-toggle="tooltip" data-original-title="Click to save the case note">Save</button>
-            <button type="button" class="my-btn1" id="bn_att_issue_casenote_clear" title="" data-toggle="tooltip" data-original-title="Click to reset the form with default settings">Clear</button>
-
-        </div>
-
-    </div>*@
-<style>
     #divCaseNoteSection .addapplicant {
         font-size: 20px;
         font-weight: bold;
@@ -188,373 +82,898 @@
         padding: 0;
     }
 
-    .response-addicspace
-    {
-        top:4px;
+    .response-addicspace {
+        top: 4px;
     }
+
     .error-notify {
         color: red;
-            margin-left: 5px;
+        margin-left: 5px;
     }
-         @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
+
+    #divCaseNoteSection .img-camera {
+        margin-left: 20px !important;
+    }
+
+    @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
 
 
-                    #inkind-table, #inkind-table thead, #inkind-table tbody, #inkind-table th, #inkind-table td, #inkind-table tr {
-                        display: block;
-                        border: none;
-                    }
+        #inkind-table, #inkind-table thead, #inkind-table tbody, #inkind-table th, #inkind-table td, #inkind-table tr {
+            display: block;
+            border: none;
+        }
 
-                    #inkind-table {
-                        float: left;
-                        width: 100%;
-                    }
+        #inkind-table {
+            float: left;
+            width: 100%;
+        }
 
-                        #inkind-table tbody tr td:first-child a {
-                            width: initial !important;
-                            text-overflow: initial !important;
-                        }
+            #inkind-table tbody tr td:first-child a {
+                width: initial !important;
+                text-overflow: initial !important;
+            }
 
-                        #inkind-table thead tr {
-                            position: absolute;
-                            top: -9999px;
-                            left: -9999px;
-                        }
+            #inkind-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
 
-                        #inkind-table tr {
-                            margin: 0 7px 2em 0;
-                            box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
-                            float: left;
-                            width: 100%;
-                        }
+            #inkind-table tr {
+                margin: 0 7px 2em 0;
+                box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+                float: left;
+                width: 100%;
+            }
 
-                            #inkind-table tr:nth-child(odd) {
-                                background: #ffffff;
-                                border: 1px solid #ccc;
-                                border-radius: 8px;
-                            }
-
-                            #inkind-table tr:nth-child(even) {
-                                background: #f1f5f8;
-                                border: 1px solid #ccc;
-                                border-radius: 8px;
-                            }
-
-                        #inkind-table td {
-                            border: none;
-                            border-bottom: 1px solid #eee;
-                            position: relative;
-                            float: left;
-                            width: 100%;
-                        }
-
-                            #inkind-table td:before {
-                                position: relative;
-                                top: 10px;
-                                left: 0;
-                                width: 35%;
-                                padding-right: 10px;
-                                white-space: nowrap;
-                                height: auto;
-                                display: inline-block;
-                                float: left;
-                            }
-
-                    .table-div {
-                        border: none !important;
-                    }
-
-
-
-                    #inkind-table td:before {
-                        content: attr(data-title);
-                        text-align: left;
-                        padding-top: 0.6em;
-                        margin-left: 1em;
-                    }
-
-                    #inkind-table > tbody > tr > td {
-                        text-align: right !important;
-                        margin-right: 2em;
-                    }
-
-                    #inkind-tbody tr td p {
-                        padding: 10px 10px 10px 10px;
-                        text-align: right;
-                        font-size: 14px;
-                        margin: 0;
-                        border-right: 0;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        width: 55%;
-                        margin-right: 0;
-                        display: inline-block;
-                    }
-
-
+                #inkind-table tr:nth-child(odd) {
+                    background: #ffffff;
+                    border: 1px solid #ccc;
+                    border-radius: 8px;
                 }
 
-     @@media (min-width: 992px) and (max-width: 1199px) 
-    {
-        .custom-modal .modal-dialog-ch {width: 96%;}
-        .img-camera{margin-left:15px;}
-    }
-      @@media (min-width: 768px) and (max-width: 991px)
-    {
-        .custom-modal .modal-dialog-ch {width: 98%;margin:30px 0;}
-        .img-camera{margin-left:15px;}
-    }
-    @@media (max-width: 767px) 
-    {
-         .custom-modal .modal-dialog-ch {width: 98%;margin:30px 0;}
-         .img-camera{margin-left:15px;}
-         .case-float{float:left;}
-             /* Force table to not be like tables anymore */
-    #no-more-tables6 table, 
-    #no-more-tables6 thead, 
-    #no-more-tables6 tbody, 
-    #no-more-tables6 th, 
-    #no-more-tables6 td, 
-    #no-more-tables6 tr {
-        display: block;
-        padding-left: 0;
-        padding-right: 0;
-    }
+                #inkind-table tr:nth-child(even) {
+                    background: #f1f5f8;
+                    border: 1px solid #ccc;
+                    border-radius: 8px;
+                }
 
-    /* Hide table headers (but not display: none;, for accessibility) */
-    #no-more-tables6 thead tr { 
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
+            #inkind-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                float: left;
+                width: 100%;
+            }
 
-    #no-more-tables6 tr {/* border: 1px solid #ccc; */}
+                #inkind-table td:before {
+                    position: relative;
+                    top: 10px;
+                    left: 0;
+                    width: 35%;
+                    padding-right: 10px;
+                    white-space: nowrap;
+                    height: auto;
+                    display: inline-block;
+                    float: left;
+                }
 
-    #no-more-tables6 td { 
-        /* Behave  like a "row" */
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 46%;
-        white-space: normal;
-        text-align:left;
-    }
-
-    #no-more-tables6 td:before { 
-        /* Now like a table header */
-        position: absolute;
-        /* Top/left values mimic padding */
-        top: 6px;
-        left: 6px;
-        width: 45%; 
-        padding-right: 10px; 
-        white-space: nowrap;
-        text-align:left;
-        font-weight: bold;
-    }
-
-    /*
-    Label the data
-    */
-    #no-more-tables6 td:before { content: attr(data-title); }
-    
-    }
+        .table-div {
+            border: none !important;
+        }
 
 
-  
+
+        #inkind-table td:before {
+            content: attr(data-title);
+            text-align: left;
+            padding-top: 0.6em;
+            margin-left: 1em;
+        }
+
+        #inkind-table > tbody > tr > td {
+            text-align: right !important;
+            margin-right: 2em;
+        }
+
+        #inkind-tbody tr td p {
+            padding: 10px 10px 10px 10px;
+            text-align: right;
+            font-size: 14px;
+            margin: 0;
+            border-right: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 55%;
+            margin-right: 0;
+            display: inline-block;
+        }
+    }
+
+    @@media (min-width: 992px) and (max-width: 1199px) {
+        .custom-modal .modal-dialog-ch {
+            width: 96%;
+        }
+
+        .img-camera {
+            margin-left: 15px;
+        }
+    }
+
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .custom-modal .modal-dialog-ch {
+            width: 98%;
+            margin: 30px 0;
+        }
+
+        .img-camera {
+            margin-left: 15px;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .custom-modal .modal-dialog-ch {
+            width: 98%;
+            margin: 30px 0;
+        }
+
+        .img-camera {
+            margin-left: 15px;
+        }
+
+        .case-float {
+            float: left;
+        }
+        /* Force table to not be like tables anymore */
+        #no-more-tables6 table,
+        #no-more-tables6 thead,
+        #no-more-tables6 tbody,
+        #no-more-tables6 th,
+        #no-more-tables6 td,
+        #no-more-tables6 tr {
+            display: block;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+            /* Hide table headers (but not display: none;, for accessibility) */
+            #no-more-tables6 thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+        #no-more-tables6 tr { /* border: 1px solid #ccc; */
+        }
+
+        #no-more-tables6 td {
+            /* Behave  like a "row" */
+            border: none;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 46%;
+            white-space: normal;
+            text-align: left;
+        }
+
+            #no-more-tables6 td:before {
+                /* Now like a table header */
+                position: absolute;
+                /* Top/left values mimic padding */
+                top: 6px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+            }
+
+            /*
+        Label the data
+        */
+            #no-more-tables6 td:before {
+                content: attr(data-title);
+            }
+    }
 </style>
 
 
 
 
 
-<div class="col-xs-12 col-lg-12 no-padding new-casenote" id="divCaseNoteSection">
+<div class="col-xs-12 col-lg-12 no-padding new-casenote max_items_addn" id="divCaseNoteSection">
 
-    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i><span id="heading_case_note">&nbsp;Case Note</span></h3>
-    @Html.Hidden("hidden_centerId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].CenterId : "0" ))
-    @Html.Hidden("hidden_classroomId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Classroomid : "0"))
-    @Html.Hidden("hidden_householdId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Householid : "0"))
-    @Html.Hidden("hidden_programId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].ProgramID : "0"))
-    @Html.Hidden("hidden_clientId",(Model!=null && Model.CaseNoteList!=null && Model.CaseNoteList.Count>0?Model.CaseNoteList[0].clientid:"0"))
-
-
-
-
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Date<span class="error-notify">*</span></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5 col-sm-7">
-            <input type="text" class="form-control" id="txtCaseNoteDate" value="@(Model!=null && Model.CaseNoteList!=null && Model.CaseNoteList.Count>0? Model.CaseNoteList[0].Date:"")" onblur="checkStatusChangeDate(this);" placeholder="MM/DD/YYYY">
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Title<span class="error-notify">*</span></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5 col-sm-7">
-            <input type="text" class="form-control" id="txtCaseNoteTitle" placeholder="Case Note Title">
-        </div>
-    </div>
+    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i><span id="heading_case_note">&nbsp;Case Note</span>
+    
+        <a class="export-new" href="/Reporting/ExportCaseNote?caseNoteId=@(string.IsNullOrEmpty(Model.CaseNote.CaseNoteid)?"0": Model.CaseNote.CaseNoteid)&clientId=@(string.IsNullOrEmpty(Model.CaseNote.ClientId)?"0":Model.CaseNote.ClientId)&householdId=@(string.IsNullOrEmpty(Model.CaseNote.HouseHoldId)?"0":Model.CaseNote.HouseHoldId)" style="text-decoration:none;float: right;" data-toggle="tooltip" title="Export to PDF">
+            <img src="/Images/export.svg" style="height:25px;width:25px;">
+        </a>
+    
+    </h3>
+    @*@Html.Hidden("hidden_centerId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].CenterId : "0"))
+        @Html.Hidden("hidden_classroomId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Classroomid : "0"))
+        @Html.Hidden("hidden_householdId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Householid : "0"))
+        @Html.Hidden("hidden_programId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].ProgramID : "0"))
+        @Html.Hidden("hidden_clientId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].clientid : "0"))*@
 
 
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-sm-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
-                </div>
-            </div>
-        </div>
+    @Html.Hidden("hidden_centerId", (Model != null ? Model.CenterID : "0"))
+    @Html.Hidden("hidden_classroomId", (Model != null ? Model.ClassroomID : "0"))
+    @Html.Hidden("hidden_householdId", (Model != null ? Model.Enc_HouseholdID : "0"))
+    @Html.Hidden("hidden_programId", (Model != null ? Model.ProgramId : "0"))
+    @Html.Hidden("hidden_clientId", (Model != null ? Model.Enc_ClientID : "0"))
 
-        <div class="col-lg-5 col-sm-7 case-float">
-            <textarea id="txtareaCaseNote" name="Note" style="visibility: hidden; display: none;"></textarea>
 
-        </div>
-    </div>
 
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-sm-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Clients<span class="error-notify">*</span></p>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-5 col-sm-7 no-padding m-tp" id="divCaseNoteClients">
+    <div class="col-xs-12">
 
-            @if (Model != null && Model.Clientlist != null && Model.Clientlist.Count > 0)
-            {
-                foreach (var child in Model.Clientlist)
+
+
+
+        <div class="form-group col-xs-12">
+            <label for="txtCaseNoteDate" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Date&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12">
+                @*value="@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Date : "")"*@
+
+                @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
                 {
-                    <div class="col-sm-12 adddivspace">
-                        <input type="checkbox" name="ClientIds.IDS" value="@child.Id">
-                        <span>@child.Name</span>
-                    </div>
+
+                    <input type="text" id="txtCaseNoteDate" disabled name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
 
                 }
-            }
+                else
+                {
+                    <input type="text" id="txtCaseNoteDate" name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
+
+                }
+
+
+
+                <input type="hidden" id="hdn-casenoteid" value="@Model.CaseNote.CaseNoteid">
+            </div>
 
         </div>
-    </div>
 
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-sm-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Tags<span class="error-notify">*</span></p>
+
+
+
+
+
+
+        <div class="form-group col-xs-12">
+            <label for="txtCaseNoteTitle" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Title&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12">
+                @*value="@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Title : "")"*@
+
+                @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+                {
+                    <input type="text" disabled class="form-control" id="txtCaseNoteTitle" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
+
+                }
+
+                else
+                {
+                    <input type="text" class="form-control" id="txtCaseNoteTitle" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
+
+                }
+
+
+
+            </div>
+
+        </div>
+
+
+
+
+        <div class="form-group col-xs-12" @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0") { <text> style="display:none;" </text>  }>
+
+
+            <label for="txtareaCaseNote" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Note&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12">
+                <textarea id="txtareaCaseNote" name="Note" style="visibility: hidden; display: none;">
+
+                    @*@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Note : "")*@
+
+                    @Model.CaseNote.Note
+
+                </textarea>
+                <input type="hidden" name="Note" id="Note" />
+
+
+            </div>
+
+        </div>
+
+        @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+        {
+            <div class="form-group col-xs-12">
+                <label for="mainCasenotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Original Note</label>
+
+                <div id="mainCasenotes" class="txt-main-note col-md-5 col-lg-9 col-xs-12" style="line-height:1.3;padding:0;">
+                    @Html.Raw(Model.CaseNote.Note)
+                </div>
+
+            </div>
+        }
+
+
+
+        @if (Model != null && Model.CaseNote != null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+        {
+            <div class="form-group col-xs-12 divAppendedNotes">
+                <label for="mainnotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Appended Notes</label>
+
+                <div class="col-md-5 col-lg-9 col-xs-12 sub-notes-details">
+                    @if (Model.CaseNote != null && Model.CaseNote.SubCaseNoteList != null && Model.CaseNote.SubCaseNoteList.Count > 0)
+                {
+                    
+                    for (int i = 0; i < Model.CaseNote.SubCaseNoteList.Count; i++)
+                    {
+
+
+
+                        var subDate = DateTime.Parse(Model.CaseNote.SubCaseNoteList[i].WrittenDate, new System.Globalization.CultureInfo("en-US", true));
+
+                        var subDateString = subDate.ToString("MMMM dd, yyyy");
+
+
+
+                            <div class="accordion">
+                                <a href="javascript:void(0);">
+                                    <h4> Posted on <span>@subDateString</span></h4>
+                                </a>
+                            </div>
+
+                            <div class="addn-poup-div accordion-desc sub-text-block" style="display:none;">
+
+                                <table class="table" style="outline:1px solid #ddd;">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <strong>Name of the Staff, Role</strong>
+
+                                            </td>
+                                            <td>@Model.CaseNote.SubCaseNoteList[i].WrittenBy, @Model.CaseNote.SubCaseNoteList[i].RoleOfOwner</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Note</strong>
+                                            </td>
+                                            <td>@(Html.Raw(Model.CaseNote.SubCaseNoteList[i].Notes))</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Tags</strong>
+                                            </td>
+                                            <td>
+
+                                                @if (Model.CaseNote.SubCaseNoteList[i].TagList != null && Model.CaseNote.SubCaseNoteList[i].TagList.Count > 0)
+                                                {
+                                                    for (int j = 0; j < Model.CaseNote.SubCaseNoteList[i].TagList.Count; j++)
+                                                    {
+
+                                                        if (Model.CaseNote.SubCaseNoteList[i].TagList[j].Text != "")
+                                                        {
+                                                            <span id="subTags" class="tag-text">@Model.CaseNote.SubCaseNoteList[i].TagList[j].Text</span>
+
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>No tags available</span>
+
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Attachments</strong>
+                                            </td>
+
+                                            <td>
+                                                @if (Model.CaseNote.SubCaseNoteList[i].Attachment != null && Model.CaseNote.SubCaseNoteList[i].Attachment.Count > 0)
+                                                {
+
+                                                    for (int k = 0; k < Model.CaseNote.SubCaseNoteList[i].Attachment.Count; k++)
+
+                                                    {
+                                                        <a title='Click here to download' href='/Agencyuser/getpdfimage1/@Model.CaseNote.SubCaseNoteList[i].Attachment[k],CaseNote,0'><i class='fa fa-download'></i></a>
+                                                        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+
+
+                                                    }
+                                                }
+
+                                            </td>
+                                        </tr>
+
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+
+
+                        }
+                    }
+                    else
+                    {
+                        <div class="addn-poup-div col-xs-12 no-padding">
+                            <h4 style="margin-top:0;">No record found</h4>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
+        }
 
-        <div class="col-lg-5 col-sm-7">
-            <input type="text" id="txtCaseNoteTags" name="txtCaseNoteTags" class="form-control" style="display: none;">
-        </div>
-    </div>
 
-    <div class="col-xs-12 col-sm-12 adddivspace" style="margin-bottom:10px;">
-        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Developmental Team<span class="error-notify">*</span></p>
-                </div>
+
+        <div class="form-group col-xs-12">
+            <label for="txtCaseNoteTags" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Tags&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12">
+                @{
+
+                    string tagNames = "";
+
+                    if (Model.CaseNote.TagList != null && Model.CaseNote.TagList.Count > 0)
+                    {
+                        var textList = Model.CaseNote.TagList.Where(x=>x.Text!=null && x.Text.Trim()!= string.Empty).Select(x => x.Text).ToArray();
+                        tagNames = string.Join(",", textList);
+                    }
+
+                }
+
+                <input type="text" id="txtCaseNoteTags"   value="" style="display: none;">
+                <input type="hidden" id="tempTagname" value="@tagNames" />
+               @* <input type="text" class="form-control" id="txtCaseNoteTags" name="CaseNotetags" value="@tagNames" placeholder="Tags">*@
+
+
             </div>
+
         </div>
 
-        <div class="col-lg-5 col-sm-7 no-padding" id="caseNoteStaffDiv" style="margin-top:10px;">
 
-            @if (Model != null && Model.UserList != null && Model.UserList.Count > 0)
+
+        <div class="form-group col-xs-12">
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Clients&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteClients">
+                @if (Model != null && Model.CaseNote.ClientList != null && Model.CaseNote.ClientList.Count > 0)
+                {
+                    int i = 0;
+                    foreach (var child in Model.CaseNote.ClientList)
+                    {
+                        @*<div class="col-sm-12 adddivspace no-padding">
+                                <input type="checkbox" name="ClientIds.IDS" value="@child.Id">
+                                <span>@child.Name</span>
+                            </div>*@
+
+
+
+
+                        <div class="fa-checkbox all-notes-check">
+
+                            @if (child.Selected)
+                            {
+                                <input type="checkbox" checked="checked" id="check_@i" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
+
+                            }
+                            else
+                            {
+                                <input type="checkbox" id="check_@i" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
+                            }
+                            <label for="check_@i" style="font-weight:normal;width:auto;">@child.Text</label>
+
+                        </div>
+
+
+                        i++;
+
+
+                    }
+                }
+
+            </div>
+
+        </div>
+
+        <div class="form-group col-xs-12">
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Developmental Team&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteStaffs">
+                @if (Model != null && Model.CaseNote.StaffList != null && Model.CaseNote.StaffList.Count > 0)
             {
                 int i = 0;
-                foreach (var staff in Model.UserList)
+                foreach (var staff in Model.CaseNote.StaffList)
                 {
+                        <div>
+
+                            <div class="fa-checkbox all-notes-check">
+
+                                @if (staff.Selected)
+                                {
+                                    <input type="checkbox" checked="checked" id="teamId_@i" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
+
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="teamId_@i" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
+
+                                }
+
+                                <label for="teamId_@i" name="staff_@i" style="font-weight:normal;width:auto;">@staff.Text</label>
+                            </div>
 
 
 
-                    <div class="col-sm-12 col-lg-12 m-tp">
-                        <input type="checkbox" class="staff-check" name="staff-check" value="@staff.Id">
-                        <span name="staff_@i">@staff.Name</span>
-                    </div>
+                        </div>
 
-                    i++;
+                        i++;
+                    }
                 }
-            }
-        </div>
-    </div>
+            </div>
 
-    <div class="col-xs-12 col-sm-12 adddivspace">
-        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Secure Note Level?</p>
+        </div>
+
+        <div class="form-group col-xs-12">
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Secure Note Level ?</label>
+
+            @*<div class="col-md-5 col-lg-9 col-xs-12">
+                    <input type="checkbox" id="checkboxSecureNote" value="true" name="checkboxSecureNote">
+                    <span>Yes</span>
+                </div>*@
+
+
+
+            <div class="col-md-5 col-lg-9 col-xs-12">
+
+
+
+                <div class="fa-checkbox all-notes-check">
+                    @if (Model.CaseNote.SecurityLevel)
+                    {
+                        <input type="checkbox" checked="checked" id="checkboxSecureNote" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
+
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="checkboxSecureNote" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
+
+                    }
+
+                    <label for="checkboxSecureNote" style="font-weight:normal;">Yes</label>
                 </div>
             </div>
+
+
+
+
         </div>
 
-        <div class="col-lg-5 col-sm-7" style="padding: 0px 10px;margin-top:10px;">
-            <div class="addn-poup-div1">
-                <input type="checkbox" id="checkboxSecureNote" value="true" name="checkboxSecureNote" style="margin-left:5px;">
-                <span>Yes</span>
-            </div>
-        </div>
-    </div>
 
 
-    <div class="col-xs-12 col-sm-12 adddivspace" id="caseNoteAttachmentsDiv" style="margin-bottom:-13px;">
-        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-            <div class="enroll-sec" style="padding-left: 0;">
-                <div class="transition-content-desc" style="position: relative;">
-                    <p style="background: none;border: none;">Attachment</p>
-                    <small style="padding:10px;color:red;">(.pdf,.jpg,.jpeg,.bmp,.gif,.png)</small>
+
+
+
+
+
+        <div class="form-group col-xs-12" id="caseNoteAttachmentsDiv">
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">
+                Attachment <small style="padding:0;color:red;">(.pdf,.jpg,.jpeg,.bmp,.gif,.png)</small>
+            </label>
+
+            <div class="col-lg-9 col-xs-12">
+                <div class="col-sm-9 col-lg-9 no-padding">
+                    <input type="file" id="FirstFile" name="CaseNoteAttachmentList[0].file" @*name="Attachments[0].file"*@ onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
+                </div>
+                <div class="col-sm-3 col-lg-3 adddivspace response-addicspace" style="top: 0px;">
+
+                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="AddMore(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                    <img id="uploadImageCamera" class="img-camera" src="/Images/camera.png" style="margin-left: 25px; display: inline;" title="" data-original-title="Capture using Camera">
+
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-9 col-sm-7">
-            <div class="col-sm-7 col-lg-6 no-padding">
-                <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control">
+            <div class="col-lg-9 col-sm-12" id="addAttachmentDiv">
+
+
             </div>
-            <div class="col-sm-4 col-lg-4 response-addicspace">
 
-                <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreStatusAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" style="" data-original-title="Capture using Camera">
+            <div class="col-lg-9 col-sm-12 adddivspace pull-right" id="div-edit-modal-img-gallery"></div>
+
+        </div>
+
+        @if (Model != null && Model.CaseNote != null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+        {
+            <div class="form-group col-xs-12" id="div_download_attach">
+                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Download Attachment(s)</label>
+
+                <div class="col-md-5 col-lg-9 col-xs-12" id="div_attach_download_bind_section">
+
+                    @if (Model.CaseNote.CaseNoteAttachmentList != null && Model.CaseNote.CaseNoteAttachmentList.Count > 0)
+                    {
+
+                        foreach (var attachment in Model.CaseNote.CaseNoteAttachmentList)
+                        {
+                            <a title='Click here to download' style='font-size:18px;' href='/Agencyuser/getpdfimage1/@attachment.AttachmentId,CaseNote,0'><i class='fa fa-download'></i></a>
+                            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        }
+                    }
+
+                </div>
+
+            </div>
+
+        }
+
+
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="btnwrp_subcal">
+                <button type="button" class="my-btn save-casenote" onclick="return validateCaseNote(this);">Submit</button>
+                <button tabindex="17" class="my-btn cancel-casenote" data-dismiss="modal" type="button">Cancel</button>
             </div>
         </div>
-  
 
-    </div>
-
-
-
-    <div class="col-xs-12 col-sm-12 adddivspace" id="addAttachmentDiv">
-        
-
-    </div>
-
-
-    <div class="col-md-12 col-xs-12 adddivspace" id="div-edit-modal-img-gallery">
-
-    </div>
-
-
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="btnwrp_subcal">
-            <button type="button" class="my-btn save-casenote" onclick="return isValidStatusChange();">Submit</button>
-            <button tabindex="17" class="my-btn cancel-casenote" data-dismiss="modal" type="button">Cancel</button>
-        </div>
     </div>
 
 </div>
 
+
+<script>
+
+
+
+
+    var count = 1;
+
+
+    function AddMore() {
+
+
+        var appendDiv = '<div class="col-xs-12 no-padding attachment_' + count + '" style="padding-top:10px;">\
+                <div class="col-sm-9 col-lg-9 col-xs-7 no-padding">\
+                    <input type="file" name="CaseNoteAttachmentList[' + count + '].file" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">\
+                </div>\
+                <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace">\
+                    <a href="javascript:void(0)" title="Remove Attachment" onclick="RemoveAttach(this,' + count + ');">\
+                        <i class="fa fa-minus-circle"></i>&nbsp;Remove\
+                    </a>\
+                </div>\
+            </div>';
+
+
+
+
+
+        $('#addAttachmentDiv').append(appendDiv);
+
+
+        count++;
+    }
+
+
+    function RemoveAttach(_ele, count) {
+
+        $('.attachment_' + count + '').remove();
+
+
+    }
+
+    function checkCaseNoteDate(value) {
+        isValid = true;
+        if (!$(value).attr("readonly")) {
+
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+                else {
+                    var text = $(value).val();
+                    var comp = text.split('/');
+                    var m = parseInt(comp[0], 10);
+                    var d = parseInt(comp[1], 10);
+                    var y = parseInt(comp[2], 10);
+                    var date = new Date(y, m - 1, d);
+                    if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                    } else {
+                        customAlert("Invalid date. ");
+                        $(value).val('');
+                        return false;
+                    }
+
+
+
+                }
+            }
+            var txtdate = $(value).val();
+            var selectedTimestampequal = new Date();
+            var year = selectedTimestampequal.getFullYear();
+            var month = selectedTimestampequal.getMonth() + 1;
+            var day = selectedTimestampequal.getDate();
+            today1 = month + '/' + day + '/' + year;
+            var newinput = today1.split("/");
+            var newday = newinput[1];
+            var str = newday.substr(0, 1);
+            var newdaynew = ('0' + newday).slice(-2);
+            var newmonth = newinput[0];
+            var str1 = newmonth.substr(0, 1);
+            var newmonthnew = ('0' + newmonth).slice(-2);
+            today = newmonthnew + '/' + newdaynew + '/' + year;
+            if (today == txtdate) {
+                return true;
+            }
+            var testdatelocalinput = new Date(txtdate);
+            var selectedTimestamp = new Date().getTime();
+            var testdatelocalinputTS = testdatelocalinput.getTime();
+            var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+            if (testdatelocalinputTS > selectedTimestamp) {
+                customAlert("Case Note date must be less than or equal to today's date.");
+                $(value).val('');
+                return false;
+            }
+            else if (timestamp > testdatelocalinputTS) {
+                customAlert("Case Note date cannot be less than 30 days from today's date.");
+                $(value).val('');
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
+    $(function () {
+        debugger;
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        if (CKEDITOR.instances['txtareaCaseNote']) {
+            CKEDITOR.remove(CKEDITOR.instances['txtareaCaseNote']);
+        } 
+
+
+        CKEDITOR.replace('txtareaCaseNote', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+       
+
+
+
+
+
+        $('.div-add-edit-casenote').find('#divCaseNoteSection').find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+        $('#txtCaseNoteTags_tag_autosize_tester').remove();
+
+        $('#txtCaseNoteTags').tagsInput({
+            width: 'auto',
+            height: 'auto',
+            delimiter: [',', ';'],
+            autocomplete_url: '/Roster/GetCaseNoteTag',
+            autocomplete: {
+                'appendTo': "#divCaseNoteSection"
+            },
+            refresh: true
+
+        });
+
+
+
+        //}
+
+
+
+        debugger;
+
+
+
+
+
+
+        var tags = [];
+        $.each($('.div-add-edit-casenote').find('#tempTagname').val().split(','), function (i, obj) {
+            //$('#txtCaseNoteTags').addTag(obj);
+            tags.push(obj);
+        });
+
+        $('#txtCaseNoteTags').importTags(tags.join(',,;'));
+
+
+    });
+
+
+    //$(function () {
+
+
+        @*if (CKEDITOR.instances['txtareaCaseNote']) {
+            CKEDITOR.remove(CKEDITOR.instances['txtareaCaseNote']);
+        } else {
+            CKEDITOR.replace('txtareaCaseNote', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+        }
+
+
+
+
+
+        $('#divCaseNoteSection').find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+      //  $('#txtCaseNoteTags').tagsInput('destroy');
+
+        $('#divCaseNoteSection').find('#txtCaseNoteTags').tagsInput({
+            width: 'auto',
+            height: 'auto',
+            delimiter: [',', ';'],
+            autocomplete_url: '/Roster/GetCaseNoteTag',
+            autocomplete: {
+                'appendTo': "#divCaseNoteSection"
+            },
+
+        });
+
+
+        debugger;
+        var tagsInputObj=@Html.Raw(Json.Encode(Model.CaseNote.TagList));    
+
+        console.log(tagsInputObj);
+
+
+
+
+        var tags = [];
+        $.each(tagsInputObj, function (i, obj) {
+            $('#divCaseNoteSection').find('#txtCaseNoteTags').addTag(obj.Text);
+          //  tags.push(obj);
+        });
+
+      //  $('#divCaseNoteSection').find('#txtCaseNoteTags').importTags(tags.join(',,;'));
+
+
+        $(document).on('change', '#caseNoteAttachmentsDiv input:file', function (evt) {
+
+            encodeImagetoBase64(evt);
+
+        });
+
+
+        $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion-desc").fadeOut(0);
+
+        $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion").click(function () {
+
+
+
+            $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion-desc").not($(this).next()).slideUp('slow');
+            $(this).next().slideToggle(400);
+            $(this).toggleClass('active');
+
+            $('#divCaseNoteSection').find('.sub-notes-details').find('.accordion').not($(this)).removeClass('active');
+
+        });*@
+
+
+    //});
+
+</script>

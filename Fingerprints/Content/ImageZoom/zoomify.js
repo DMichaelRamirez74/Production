@@ -73,7 +73,7 @@
 		else this.zoomIn();
 	};
 	Zoomify.prototype.zoomIn = function () {
-	  //  debugger;
+	  
 		var that      = this,
 	    transform = this.$image.css('transform');
 		this.transition(this.$image, 'none');

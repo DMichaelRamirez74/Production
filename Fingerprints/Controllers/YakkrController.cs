@@ -22,6 +22,7 @@ namespace Fingerprints.Controllers
          role=e4c80fc2-8b64-447a-99b4-95d1510b01e9(Home Visitor)
          */
 
+        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
        //[CustAuthFilter()]
@@ -287,19 +288,27 @@ namespace Fingerprints.Controllers
 
 
 
-        public JsonResult GetCaseNoteDetailsByYakkr(string clientId, string yakkrId)
+        public JsonResult GetCaseNoteDetailsByYakkr(string householdid,string clientId, string yakkrId)
         {
-            InternalRefferalCaseNote caseNote = new InternalRefferalCaseNote();
+            //  InternalRefferalCaseNote caseNote = new InternalRefferalCaseNote();
+            CaseNoteByClientID casnote = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
             try
             {
-                caseNote = new YakkrData().GetCaseNoteByYakkr(clientId, yakkrId);
+                var caesNoteID = new YakkrData().GetCaseNoteByYakkr(yakkrId);
+
+                casnote.CaseNote = new CaseNote();
+                casnote.CaseNote.ClientId = clientId;
+                casnote.CaseNote.CaseNoteid =Convert.ToString(caesNoteID);
+                casnote.CaseNote.HouseHoldId = householdid;
+
+                casnote= new RosterData().GetCaseNoteByCaseNoteId(casnote, staff);
 
             }
             catch(Exception ex)
             {
                 clsError.WriteException(ex);
             }
-            return Json(caseNote,JsonRequestBehavior.AllowGet);
+            return Json(casnote, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult DeleteYakkrByYakkrId(long clientId, long yakkrId)
@@ -336,10 +345,14 @@ namespace Fingerprints.Controllers
             ViewBag.ClientId = cid;
 
             ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid,2);
+
+                CaseNoteByClientID caseNotebyClientID = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
+
             RosterNew.Users Userlist = new RosterNew.Users();
             var Rd = new RosterData();
-               
-                Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString());
+                caseNotebyClientID.Enc_HouseholdID = EncryptDecrypt.Encrypt64(hid.ToString());
+                caseNotebyClientID.Enc_ClientID = EncryptDecrypt.Decrypt64(cid.ToString());
+                Rd.GetCaseNote(ref Name, caseNotebyClientID,staff);
             ViewBag.Userlist = Userlist.UserList;
 
             }
@@ -378,7 +391,10 @@ namespace Fingerprints.Controllers
 
                 CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
             }
-            var result = new YakkrData().InsertQuestionaireForm(qsform,CaseNote,Attachments);
+
+            CaseNote.CaseNoteAttachmentList = Attachments;
+
+            var result = new YakkrData().InsertQuestionaireForm(qsform,CaseNote);
             //return View();
             if (qsform.AppointmentMaked == 0 && anotherref) {
 
@@ -396,18 +412,22 @@ namespace Fingerprints.Controllers
 
             var result = new YakkrData().GetQuestionaireByYakkrId(id, 3);
 
+            CaseNoteByClientID caseNotebyClientId = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
+
             string Name = "";
-            long Client = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientid));
-            int CenterId = Convert.ToInt32(EncryptDecrypt.Decrypt64(center));
-            int HouseHoldId = Convert.ToInt32(EncryptDecrypt.Decrypt64(household));
+
+            caseNotebyClientId.Enc_ClientID = clientid;
+            caseNotebyClientId.Enc_HouseholdID = household;
+            caseNotebyClientId.CenterID = center;
 
             ViewBag.ClientName = clientname;
-            ViewBag.ClientId = Client;
+            ViewBag.ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientid));
             RosterNew.Users Userlist = new RosterNew.Users();
+
             var Rd = new RosterData();
             var stf = StaffDetails.GetInstance();
 
-            Rd.GetCaseNote(ref Name, ref Userlist, HouseHoldId, CenterId, Client.ToString(), stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString());
+            Rd.GetCaseNote(ref Name,caseNotebyClientId,stf);
             ViewBag.Userlist = Userlist.UserList;
 
             return View(result);
@@ -436,7 +456,9 @@ namespace Fingerprints.Controllers
                 
             }
 
-            var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, CRColorCode, CommunityId, QuestionaireID, Yakkrid,MgNotes,CaseNote, Attachments);
+            CaseNote.CaseNoteAttachmentList = Attachments;
+
+            var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, CRColorCode, CommunityId, QuestionaireID, Yakkrid,MgNotes,CaseNote);
 
             return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=453");
         }

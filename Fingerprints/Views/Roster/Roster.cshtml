@@ -982,12 +982,17 @@
         }
 
 
-        function Getcasenote($modal, Casenoteid, clientId, ele) {
+        function Getcasenote($modal, Casenoteid,householdId, clientId, ele) {
+            
+            var isEditable = $(ele).attr("data-editable")=='true';
+            $modal=$('#att-issue-modal');
 
-            var isEditable = $(ele).data("editable");
+            $modal.find('#div-edit-modal-img-gallery').remove();
+            $modal.find('#divCaseNoteSection').find('#att_issueattachmentsDiv').append('<div id="div-edit-modal-img-gallery" class="col-lg-9 col-xs-12" style="float:right;"></div>');
+
             $modal.find('#hid-case-note-id').val(Casenoteid);
             $.ajax({
-                url: HostedDir + "/Roster/Getcasenotedetails",
+                url: HostedDir + "/Roster/GetcasenotedetailByCaseNoteId",
                 type: "POST",
                 data: {
                     Casenoteid: Casenoteid,
@@ -996,10 +1001,14 @@
                 dataType: "json",
                 success: function (Data) {
 
+                  //  $modal.find('#div-edit-caseNote').html(Data);
 
+                   BindCaseNotelist($modal, Data, isEditable);
+                   GetSubNotesByCaseNote($modal, Casenoteid);
 
-                    BindCaseNotelist($modal, Data, isEditable);
-                    GetSubNotesByCaseNote($modal, Casenoteid);
+                        $('#att-issue-modal').animate({
+                    scrollTop: $("#divCaseNoteSection").offset().top
+                }, 1000)
 
                 }
             , error: function (Data) {
@@ -1013,8 +1022,8 @@
         function BindCaseNotelist($modal, Data, iseditable) {
 
            
-
-
+          
+            $modal=$('#att-issue-modal');
             $modal.find('#txtcasenotedate_attissue').val('');
             $modal.find('#txtcasenotetitle_attissue').val('');
             $modal.find('#txtcasenote_attissue').val('');
@@ -1041,23 +1050,23 @@
                     debugger;
                     //    $('#CaseNoteHeading').text('Edit Case Note');
 
-                    $('#Attachmectstag').removeAttr("onclick");
-                    $('#Attachmectstag').attr("onclick", "AddMore();");
-                    $('#FirstFile').removeAttr("disabled");
-                    $('#SaveNoteSubmit').show();
-                    $('#CaseNoteDate').val('');
-                    $('#CaseNotetitle').val('');
-                    $('#CaseNotesNote').val('');
-                    $('#ClientName').val('');
-                    $('#ClientNameModel').val('');
-                    $('#CaseNoteSecurity').prop("checked", false);
-                    $('#CaseNoteSecurity').removeAttr("disabled");
+                    $modal.find('#Attachmectstag').removeAttr("onclick");
+                    $modal.find('#Attachmectstag').attr("onclick", "AddMore();");
+                    $modal.find('#FirstFile').removeAttr("disabled");
+                    $modal.find('#SaveNoteSubmit').show();
+                    $modal.find('#CaseNoteDate').val('');
+                    $modal.find('#CaseNotetitle').val('');
+                    $modal.find('#CaseNotesNote').val('');
+                    $modal.find('#ClientName').val('');
+                    $modal.find('#ClientNameModel').val('');
+                    $modal.find('#CaseNoteSecurity').prop("checked", false);
+                    $modal.find('#CaseNoteSecurity').removeAttr("disabled");
 
-                    $('#ClientDiv input[type=checkbox]').each(function () {
+                    $modal.find('#ClientDiv input[type=checkbox]').each(function () {
                         $(this).prop("checked", false);
                         $(this).removeAttr("disabled");
                     });
-                    $('#StaffDiv input[type=checkbox]').each(function () {
+                    $modal.find('#StaffDiv input[type=checkbox]').each(function () {
                         $(this).prop("checked", false);
                         $(this).removeAttr("disabled");
                     });
@@ -1106,7 +1115,7 @@
                     for (var i = 0; i < Attachments.length; i++) {
                         if (Attachments[i] != "0" && Attachments[i] != "")
                             $modal.find('#div_attach_download_bind_section').append("<div class='download-attachment col-xs-1'>\
-                                                                                                                    <a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'>\
+                                                                                                                    <a title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'>\
                                                                                                                     <i class='fa fa-download'></i></a>\
                                                                                                             &nbsp;&nbsp;&nbsp;&nbsp;</div>");
 
@@ -1142,40 +1151,41 @@
                     // $('#CaseNotetags_tag').removeAttr("disabled");
                 }
                 else if (Data[0].GroupCaseNote == 1) {
-                    $('#CaseNoteHeading').text('Group Case Note');
-                    $('#Attachmectstag').removeAttr("onclick");
-                    $('#Attachmectstag').attr("onclick", "return false;");
-                    $('#SaveNoteSubmit').hide();
-                    $('#CaseNoteDate').val('');
-                    $('#CaseNotetitle').val('');
-                    $('#CaseNotesNote').val('');
-                    $('#ClientName').val('');
-                    $('#ClientNameModel').val('');
-                    $('#CaseNoteSecurity').prop("checked", false);
-                    $('#CaseNoteSecurity').attr("disabled", "disabled");
-                    $('#CaseNotetags_tag').attr("disabled", "disabled");
-                    $('#FirstFile').attr("disabled", "disabled");
+                    $modal.find('#CaseNoteHeading').text('Group Case Note');
+                    $modal.find('#Attachmectstag').removeAttr("onclick");
+                    $modal.find('#Attachmectstag').attr("onclick", "return false;");
+                    $modal.find('#SaveNoteSubmit').hide();
+                    $modal.find('#CaseNoteDate').val('');
+                    $modal.find('#CaseNotetitle').val('');
+                    $modal.find('#CaseNotesNote').val('');
+                    $modal.find('#ClientName').val('');
+                    $modal.find('#ClientNameModel').val('');
+                    $modal.find('#CaseNoteSecurity').prop("checked", false);
+                    $modal.find('#CaseNoteSecurity').attr("disabled", "disabled");
+                    $modal.find('#CaseNotetags_tag').attr("disabled", "disabled");
+                    $modal.find('#FirstFile').attr("disabled", "disabled");
 
-                    $('#ClientDiv input[type=checkbox]').each(function () {
+                    $modal.find('#ClientDiv input[type=checkbox]').each(function () {
                         $(this).prop("checked", false);
                         $(this).attr("disabled", "disabled");
                     });
-                    $('#StaffDiv input[type=checkbox]').each(function () {
+
+                    $modal.find('#StaffDiv input[type=checkbox]').each(function () {
                         $(this).prop("checked", false);
                         $(this).attr("disabled", "disabled");
                     });
-                    $('.main-date').text(getFormattedDate(Data[0].Date));
-                    $('.main-note').empty();
-                    $('.main-note').append(Data[0].Note);
-                    $('#CaseNoteDate').val(Data[0].Date);
-                    $('#CaseNotetitle').val(Data[0].Title);
+                    $modal.find('.main-date').text(getFormattedDate(Data[0].Date));
+                    $modal.find('.main-note').empty();
+                    $modal.find('.main-note').append(Data[0].Note);
+                    $modal.find('#CaseNoteDate').val(Data[0].Date);
+                    $modal.find('#CaseNotetitle').val(Data[0].Title);
                     CKEDITOR.instances['Note'].setData(Data[0].Note);
-                    $('#ClientName').text(Data[0].Name);
-                    $('#ClientNameModel').text(Data[0].Name);
+                    $modal.find('#ClientName').text(Data[0].Name);
+                    $modal.find('#ClientNameModel').text(Data[0].Name);
                     if (Data[0].SecurityLevel)
-                        $('#CaseNoteSecurity').prop("checked", true);
+                        $modal.find('#CaseNoteSecurity').prop("checked", true);
                     for (var i = 0; i < Data.length; i++) {
-                        $('#ClientDiv input[type=checkbox]').each(function () {
+                        $modal.find('#ClientDiv input[type=checkbox]').each(function () {
                             if ($(this).val() == Data[i].clientid) {
                                 $(this).prop("checked", true);
                             }
@@ -1193,14 +1203,14 @@
                     }
                     for (var i = 0; i < Attachments.length; i++) {
                         if (Attachments[i] != "0" && Attachments[i] != "")
-                            $('#Attach').add('.download-attachment').append("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+                            $modal.find('#Attach').add('.download-attachment').append("<a  title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + Attachments[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
 
                     }
-                    if ($('#Attach').children().length < 1) {
-                        $('#Attach').append("<span>No file available</span>");
+                    if ($modal.find('#Attach').children().length < 1) {
+                        $modal.find('#Attach').append("<span>No file available</span>");
                     }
-                    if ($('.download-attachment').children().length < 1) {
-                        $('.download-attachment').append("<span>No file available</span>");
+                    if ($modal.find('.download-attachment').children().length < 1) {
+                        $modal.find('.download-attachment').append("<span>No file available</span>");
                     }
                     for (var i = 0; i < outputArray.length; i++) {
                         $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#"  title="Removing tag">x</a></span>');
@@ -1211,9 +1221,9 @@
                                 $(this).prop("checked", true);
                         });
                     }
-                    $('#StaffName').text(Data[0].BY);
-                    $('#CaseNoteDate').attr("Readonly", true);
-                    $('#CaseNotetitle').attr("Readonly", true);
+                    $modal.find('#StaffName').text(Data[0].BY);
+                    $modal.find('#CaseNoteDate').attr("Readonly", true);
+                    $modal.find('#CaseNotetitle').attr("Readonly", true);
                     //$('#CaseNoteSecurity').attr("disabled",true);
                     CKEDITOR.instances['Note'].setReadOnly(true);
                     //$('#ClientDiv input[type=checkbox]').each(function () {
@@ -1543,6 +1553,7 @@
             //requestedPage_caseNote = 1;
             //pageSize_caseNote = 5;
 
+            $('#div-edit-modal-img-gallery').html('');
 
             $('#tbl_attendanceissue_casenotes').find('#table_body').load(HostedDir + '/Roster/GetAttendanceIssueCaseNoteList', {
                 clientId: $('#hiddenatt-issue-clientid').val(),
@@ -1563,17 +1574,173 @@
                     $('#att-issue-modal').find('#caseNoteDivAttIssue').find('#div_attendance_issue_cn').show();
 
 
-                    $('#att-issue-modal').find('#caseNoteDivAttIssue').find('#div_attendance_issue_cn').find('#table_body>tr').find('td:eq(5)').find('.add-new').on('click', function () {
+                    $('#att-issue-modal').find('#caseNoteDivAttIssue').find('#div_attendance_issue_cn').find('#table_body>tr').find('td:eq(5)').find('.append-casenote').on('click', function () {
+
+                        $('#att-issue-modal').find('#div-edit-modal-img-gallery').remove();
 
                         getCaseNotesByNote(this);
+
+                        $('#att-issue-modal').find('#divAppendCaseNoteSection').find('#att_issueattachmentsDiv').append('<div id="div-edit-modal-img-gallery" class="col-lg-9 col-xs-12" style="float:right;"></div>');
 
                     });
 
                     var $modalCn = $('#div_attendance_issue_cn');
 
-                    getTotalRecord_CaseNote($modalCn.find('#spnTotalRecord').html(), $modalCn);
+                  //  getTotalRecord_CaseNote($modalCn.find('#spnTotalRecord').html(), $modalCn);
+
+                   
+
+                    $('#att-issue-modal').find('#att-issue-pagination-div').ApplinkPG({
+                        'totalRecords': $modalCn.find('#totalCountSpan_casenote').length > 0 ? $modalCn.find('#totalCountSpan_casenote').html() : 0,
+                        'sortOrder': 'DESC',
+                        'sortColumn': 'th1',
+                        'isEnableSorting': true,
+                        'getRecordUrl': HostedDir + '/Roster/GetAttendanceIssueCaseNoteList',
+                        'dataType': 'html',
+                        'data': {
+                            'clientId': $('#hiddenatt-issue-clientid').val(),
+                            'pageSize': pageSize_caseNote,
+                            'requestedPage': requestedPage_caseNote
+                          
+                        },
+                        'bindInitialLoad':false,
+                        bindData: function (events, data) {
+                            debugger;
+
+                       
+                            var tbody = $('#table_'+events.paginationIndex+'').find ('#tbody_'+events.paginationIndex+'');
+
+                            var appendText = '';
+
+                            if (events.options.dataType.toLowerCase() == 'json') {
+                                if (data != null && data.CaseNoteList != null && data.CaseNoteList.length > 0) {
+
+                                    $.each(data.CaseNoteList, function (i, caseNote) {
+
+                                        appendText += '<tr casenoteid=' + caseNote.CaseNoteid + '>\
+                                                            <td data-title="Date">\
+                                                              <p>'+ caseNote.Date + '</p>\
+                                                               </td>';
+
+                                        appendText += '<td data-title="Title">';
+                                        if (caseNote.IsAllowSecurityCN) {
+
+                                            if (caseNote.IsEditable) {
+                                                appendText += '<p data-editable="true" style="text-decoration: underline;cursor:pointer;" onclick="Getcasenote($(this).closest(".modal"), ' + caseNote.CaseNoteid + ',null,this)" data-toggle="tooltip" title=' + caseNote.Title + '>' + caseNote.Title + '</p>';
+
+                                            }
+                                            else {
+                                                appendText += '<p data-editable="false" style="text-decoration: underline;cursor:pointer;" onclick="Getcasenote($(this).closest(".modal"), ' + caseNote.CaseNoteid + ',null,this)" data-toggle="tooltip" title=' + caseNote.Title + '>' + caseNote.Title + '</p>';
+
+                                            }
+                                        }
+
+                                        else if (caseNote.WrittenBy.toLowerCase() == '@Session["UserID"].ToString().ToLowerInvariant()') {
 
 
+                                            if (caseNote.IsEditable) {
+                                                appendText += '<p data-editable="true" style="text-decoration: underline;cursor:pointer;" onclick="Getcasenote($(this).closest(".modal"), ' + caseNote.CaseNoteid + ',null,this)" data-toggle="tooltip" title=' + caseNote.Title + '>' + caseNote.Title + '</p>';
+
+                                            }
+                                            else {
+                                                appendText += '<p data-editable="false" style="text-decoration: underline;cursor:pointer;" onclick="Getcasenote($(this).closest(".modal"),' + caseNote.CaseNoteid + ',null,this)" data-toggle="tooltip" title=' + caseNote.Title + '>' + caseNote.Title + '</p>';
+
+                                            }
+
+
+                                        }
+                                        else {
+
+                                            appendText += ' <p style="text-decoration: underline;cursor:pointer;" onclick="ShowSecurityAlert()">Secured case note</p>'
+                                        }
+
+                                        appendText += '</td>';
+
+                                        appendText += '<td data-title="By">\
+                                    <p data-toggle="tooltip" title='+ caseNote.BY + '>' + caseNote.BY + '</p>\
+                                               </td>';
+
+                                        appendText += '<td data-title="Attachments">\
+                                     <p>'+ caseNote.Attachment + '</p>\
+                             </td>\
+                             <td data-title="References">\
+                                     <p>'+ caseNote.References + '</p\
+                             </td>';
+
+                                        appendText += '<td data-title="Action">';
+
+
+                                        if ((caseNote.IsAllowSecurityCN) || (caseNote.WrittenBy.toLowerCase() == '@Session["UserID"].ToString().ToLowerInvariant()' && caseNote.SecurityLevel)) {
+                                            appendText += '<p style="padding: 5px;">\
+                                                <i class="fa fa-paperclip add-new" aria-hidden="true" data-toggle="tooltip" style="cursor:pointer; font-size :18px;background :#237646;color :#fff;padding :7px 12px;border-radius: 7px;margin-right :8px;" title="Append case notes"></i>\
+                                                &nbsp;\
+                                                <i class="fa fa-print export-new" aria-hidden="true" data-toggle="tooltip" style="cursor:pointer; font-size :18px;background :#2e628d;color :#fff;padding :7px 12px;border-radius: 7px;margin-right :8px;" title="Export to pdf"></i>\
+                                            </p>';
+                                        }
+
+                                        if ('@FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.AgencyAdmin].ToLowerInvariant()' == '@Session["RoleId"].ToString().ToLowerInvariant()'
+        || '@FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator].ToLowerInvariant()' == '@Session["RoleId"].ToString()') {
+
+                                            appendText += ' <button type="button" class="btn delete-casenote" style="border-radius: 0px;color: #fff;margin-left: 8px;background: #e43838;" data-id=' + caseNote.CaseNoteid + '>Delete</button>';
+
+                                        }
+
+
+                                    });
+
+
+
+
+
+
+                                }
+
+                            }
+
+                            else if (events.options.dataType.toLowerCase() == 'html') {
+                                appendText = data;
+                            }
+
+                            $.each($('#table_' + events.paginationIndex + '').find('thead tr th span[col-name]'), function (i, span) {
+                                debugger;
+                                if($(span).attr('col-name').toLowerCase()==events.options.sortColumn.toLowerCase())
+                                {
+                                    if(events.options.sortOrder.toLowerCase()=="asc")
+                                    {
+                                        $(span).closest('th').find('.i-asc').show();
+                                        $(span).closest('th').find('.i-desc').hide();
+
+                                    }
+
+                                    if (events.options.sortOrder.toLowerCase() == "desc") {
+                                        $(span).closest('th').find('.i-asc').hide();
+                                        $(span).closest('th').find('.i-desc').show();
+
+                                    }
+                                }
+                                else
+                                {
+                                    $(span).closest('th').find('.i-asc,.i-desc').hide();
+                               
+                                }
+
+                            });
+
+
+                            tbody.html(appendText);
+
+                            if (events.options.bindInitialLoad && events.options.dataType == "json") {
+                                $('#totalCountSpan_casenote').html(data.TotalRecord);
+                                events.options.totalRecords = parseInt(data.TotalRecord);
+                            }
+                            else if (events.options.bindInitialLoad && events.options.dataType == "html") {
+                                events.options.totalRecords = parseInt($('#totalCountSpan_casenote').html());
+                            }
+
+                           // $('#case-note-list-div').show();
+                            console.log(data);
+                        }
+                    });
 
 
                 }
@@ -1645,7 +1812,7 @@
             $('#AppendCaseNotetags_tagsinput .tag ').each(function () {
                 $(this).remove();
             });
-
+            $('#divAppendCaseNoteSection').find('#div-edit-modal-img-gallery').html('');
             $('#addAttachmentDiv_AppendNote').html('');
             $('#divAppendCaseNoteSection').find('#att_issueattachmentsDiv').find('input:file').val('');
 
@@ -1674,7 +1841,7 @@
                             var tagsName = '';
                             for (var i = 0; i < val.Attachment.length; i++) {
                                 if (val.Attachment[i] != "0" && val.Attachment[i] != "")
-                                    attachments += ("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + val.Attachment[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+                                    attachments += ("<a  title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + val.Attachment[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
 
                             }
                             for (var i = 0; i < val.Tags.length; i++) {
@@ -1710,7 +1877,7 @@
                             </div>'
 
 
-
+                       
                             template = template.replace('{date}', val.WrittenDate);
                             template = template.replace('{name}', val.Name);
                             template = template.replace('{notes}', val.Notes);
@@ -1840,12 +2007,7 @@
 
 
 
-            $('#att-issue-modal').on('hidden.bs.modal', function () {
-
-                $('#homeVisitDivAttenissue').hide();
-                $("#caseNoteDivAttIssue").hide();
-                $('.ride_deta').find('li').removeClass('active');
-            });
+          
 
 
             $('#modalAppendCaseNote').on('hidden.bs.modal', function () {
@@ -1869,6 +2031,40 @@
                 }
 
                 bindAttendanceIssueCaseNote($att_issue_modal);
+
+
+                //$.ajax({
+                //    url:'/Roster/GetCaseNoteSectionPartial',
+                //    type:'post',
+                //    datatype:'html',
+                //    data:{Casenoteid:"0",householdId:$('#hiddenatt-issue-householdid').val(),ClientId:$('#hiddenatt-issue-clientid').val()},
+                //    beforeSend:function(){
+
+
+                //        $('#spinner').show();
+                //    },
+                //    success:function(data)
+                //    {
+
+                //        if(data!=null && data!='')
+                //        {
+                //            $('#caseNoteDivAttIssue').find('.div-add-edit-casenote').html(data);
+
+                //        }
+                //        else
+                //        {
+                //            customAlert('Error occurred. Please, try again later.');
+                //        }
+                //        $('#spinner').hide();
+                //    },
+                //    error:function(data)
+                //    {
+                //        customAlert('Error occurred. Please, try again later.');
+                //        $('#spinner').hide();
+                //    }
+
+                //})
+
             });
 
             $('#att-homeVisitli').on('click', function () {
@@ -1909,7 +2105,7 @@
 
 
                 //$.ajax({
-                pageSize_caseNote = 5;
+                pageSize_caseNote = 10;
                 requestedPage_caseNote = 1;
                 getAttendanceIssueCaseNote(this);
 
@@ -1955,23 +2151,23 @@
 
 
 
-                    fd.append('CaseNoteid', $caseNoteSection.find('#hid-case-note-id').val());
+                    //fd.append('CaseNoteid', $caseNoteSection.find('#hid-case-note-id').val());
 
-                    fd.append('ClientId', $('#hiddenatt-issue-clientid').val());
-                    fd.append('ProgramId', $('#hiddenatt-issue-programid').val());
+                    //fd.append('ClientId', $('#hiddenatt-issue-clientid').val());
+                    //fd.append('ProgramId', $('#hiddenatt-issue-programid').val());
 
 
-                    fd.append('HouseHoldId', $('#hiddenatt-issue-householdid').val());
-                    fd.append('CenterId', $('#hiddenatt-issue-centerid').val());
-                    fd.append('Classroomid', $('#hiddenatt-issue-classroomid').val());
+                    //fd.append('HouseHoldId', $('#hiddenatt-issue-householdid').val());
+                    //fd.append('CenterId', $('#hiddenatt-issue-centerid').val());
+                    //fd.append('Classroomid', $('#hiddenatt-issue-classroomid').val());
 
-                    fd.append('CaseNoteDate', $('#txtcasenotedate_attissue').val());
-                    fd.append('CaseNotetitle', $('#txtcasenotetitle_attissue').val());
-                    fd.append('Note', $('#txtcasenote_attissue').val());
-                    fd.append('CaseNotetags', $('#casenotetags_attissue').val().trim(','));
-                    fd.append('ClientIds', clientIDs.join(","));
-                    fd.append('StaffIds', staffIDs.join(","));
-                    fd.append('CaseNoteSecurity', $('#casenotesecurity_attissue').is(':checked'));
+                    //fd.append('CaseNoteDate', $('#txtcasenotedate_attissue').val());
+                    //fd.append('CaseNotetitle', $('#txtcasenotetitle_attissue').val());
+                    //fd.append('Note', $('#txtcasenote_attissue').val());
+                    //fd.append('CaseNotetags', $('#casenotetags_attissue').val().trim(','));
+                    //fd.append('ClientIds', clientIDs.join(","));
+                    //fd.append('StaffIds', staffIDs.join(","));
+                    //fd.append('CaseNoteSecurity', $('#casenotesecurity_attissue').is(':checked'));
 
                     $('#att-issue-modal').find('input:file').each(function () {
 
@@ -1980,28 +2176,130 @@
                     });
 
 
-                    $.ajax({
-                        url: HostedDir + "/Roster/SaveAttendanceIssueCaseNote",
-                        type: 'POST',
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        data: fd,
-                        success: function (response) {
+                    var cameraDocumentsArray = [];
+                    var fileData = new FormData();
+                    $caseNoteSection.find('#att_issueattachmentsDiv').find('input:file').each(function (a, b) {
+                     
+                        var fileInput = $(this);
 
-                            if (response == '1') {
+                        //encodeImagetoBase64(this);
+
+                        // handleFileSelect(this);
+
+                        if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                            var fileUpload = fileInput.get(0);
+                            var files = fileUpload.files;
+
+                            for (var i = 0; i < files.length; i++) {
+
+
+                     
+                                var convImage = fileInput.attr('conv-img');
+
+                                if(convImage!=null && convImage!="")
+                                    cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+                                
+                            }
+                        }
+                    });
+
+                 
+
+                    var $cameraDocuments = $caseNoteSection.find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+          
+
+                    if ($cameraDocuments.length > 0) {
+
+                        $.each($cameraDocuments, function (j, doc) {
+
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+                        });
+                    }
+
+                    fd.append('CaseNoteAttachmentList', cameraDocumentsArray);
+
+                    var CaseNote={};
+                
+                    CaseNote.CaseNoteid = $caseNoteSection.find('#hid-case-note-id').val();
+                    CaseNote.ClientId=$('#hiddenatt-issue-clientid').val();
+                    CaseNote.ProgramId= $('#hiddenatt-issue-programid').val();
+                    CaseNote.HouseHoldId = $('#hiddenatt-issue-householdid').val();
+                    CaseNote.CenterId = $('#hiddenatt-issue-centerid').val();
+                    CaseNote.Classroomid = $('#hiddenatt-issue-classroomid').val();
+                    CaseNote.CaseNoteDate = $('#txtcasenotedate_attissue').val();
+                    CaseNote.CaseNotetitle=$('#txtcasenotetitle_attissue').val();
+                    CaseNote.Note=$('#txtcasenote_attissue').val();
+                    CaseNote.CaseNotetags = $('#casenotetags_attissue').val().trim(',');
+                    CaseNote.ClientIds=clientIDs.join(",");
+                    CaseNote.StaffIds=staffIDs.join(",");
+                    CaseNote.CaseNoteSecurity=$('#casenotesecurity_attissue').is(':checked');
+                    CaseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+
+
+                    //$.ajax({
+                    //    url: HostedDir + "/Roster/SaveAttendanceIssueCaseNote",
+                    //    type: 'POST',
+                    //    cache: false,
+                    //    contentType: false,
+                    //    processData: false,
+                    //    data: fd,
+                    //    success: function (response) {
+
+                    //        if (response == '1') {
+                    //            customAlert('Record saved successfully');
+
+                    //            $caseNoteSection.find('#bn_att_issue_casenote_clear').trigger('click');
+
+                    //            if ($('#div_attendance_issue_cn').is(':visible')) {
+                    //                getAttendanceIssueCaseNote(null);
+                    //            }
+
+                    //        }
+                    //        else {
+                    //            customAlert('Error occurred. Please, try again later.');
+                    //        }
+                    //    }
+                    //});
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Roster/SaveCaseNote",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        beforeSend:function(){
+                            $('#spinner').show();
+
+                        },
+                        data: JSON.stringify(CaseNote),
+                
+                        success: function (data) {
+                            if(data=='1')
+                            {
                                 customAlert('Record saved successfully');
 
-                                $caseNoteSection.find('#bn_att_issue_casenote_clear').trigger('click');
+                                            $caseNoteSection.find('#bn_att_issue_casenote_clear').trigger('click');
 
-                                if ($('#div_attendance_issue_cn').is(':visible')) {
-                                    getAttendanceIssueCaseNote(null);
-                                }
-
+                                            if ($('#div_attendance_issue_cn').is(':visible')) {
+                                                getAttendanceIssueCaseNote(null);
+                                            }
                             }
                             else {
                                 customAlert('Error occurred. Please, try again later.');
                             }
+
+
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        },
+                        complete:function(data)
+                        {
+                            $('#spinner').hide();
                         }
                     });
                 }
@@ -2530,13 +2828,61 @@
                         Tags = Tags + $(this).text().trim() + ',';
                     });
 
+
+
+                    var cameraDocumentsArray = [];
+                    var fileData = new FormData();
+                    $('#att-issue-modal').find('#divAppendCaseNoteSection').find('#appendCaseNote_attachmentsDiv').find('input:file').each(function (a, b) {
+                       
+                        var fileInput = $(this);
+
+
+                        if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                            var fileUpload = fileInput.get(0);
+                            var files = fileUpload.files;
+
+                            for (var i = 0; i < files.length; i++) {
+
+                                var convImage = fileInput.attr('conv-img');
+
+                                if(convImage!=null && convImage!="")
+                                    cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+                            }
+                        }
+                    });
+
+
+                    var $cameraDocuments = $('#att-issue-modal').find('#divAppendCaseNoteSection').find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+          
+
+                    if ($cameraDocuments.length > 0) {
+
+                        $.each($cameraDocuments, function (j, doc) {
+
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+                        });
+                    }
+
+                    // fileData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+
+
+
+
+
+
                     CaseNote.Note = CKEDITOR.instances['subnotes_caseNote'].getData().toString().trim();
                     CaseNote.CaseNoteid = $appendCaseNoteSection.find('#hdn-casenoteid').val();
-                    CaseNote.CaseNoteDate = $appendCaseNoteSection.find('.txt-date').val();
+                    CaseNote.CaseNoteDate = $appendCaseNoteSection.find('#txtcasenotedate_attissue').val();
                     CaseNote.HouseHoldId = $('#hiddenatt-issue-householdid').val();
                     CaseNote.CenterId = $('#hiddenatt-issue-centerid').val();
                     CaseNote.Classroomid = $('#hiddenatt-issue-classroomid').val();
                     CaseNote.CaseNotetags = Tags;
+                    CaseNote.CaseNoteAttachmentList = cameraDocumentsArray;
                     CaseNote = JSON.stringify({ 'CaseNote': CaseNote });
                     $.ajax({
                         type: "POST",
@@ -2550,7 +2896,7 @@
 
                             if (data != '') {
                                 customAlert('Record saved successfully');
-                                SaveSubCaseNoteFile();
+                               // SaveSubCaseNoteFile();
                                 resetAppendCaseNote();
                                 $('#divAppendCaseNoteSection').hide();
                                 bindAttendanceIssueCaseNote($('#att-issue-modal'));
@@ -4193,7 +4539,7 @@
                 //append client list//
                 if (caseNoteData.Clientlist != null && caseNoteData.Clientlist.length > 0) {
                     $.each(caseNoteData.Clientlist, function (i, client) {
-                        appendClientDiv += '<div class="col-sm-12 adddivspace"><input type="checkbox" checked="checked" value="' + client.Id + '"><span>&nbsp;' + client.Name + '</span></div>';
+                        appendClientDiv += '<div class="col-sm-12 adddivspace"><input type="checkbox"  value="' + client.Id + '"><span>&nbsp;' + client.Name + '</span></div>';
                     });
                 }
 
@@ -4257,6 +4603,11 @@
         function ShowPopup(arg) {
 
             var $attissuemodal = $('#att-issue-modal');
+
+            $attissuemodal.find('#homeVisitDivAttenissue').hide();
+            $attissuemodal.find("#caseNoteDivAttIssue").hide();
+            $attissuemodal.find('.ride_deta').find('li').removeClass('active');
+
             $attissuemodal.find('#hiddenatt-issue-clientid').val('');
             $attissuemodal.find('#hiddenatt-issue-programid').val('');
             $attissuemodal.find('#hiddenatt-issue-householdid').val('');
@@ -4269,6 +4620,7 @@
             $.ajax({
 
                 url: HostedDir + '/Roster/GetDevelopmentalTeamByClient',
+              //  url:HostedDir+'/Roster/GetDevelopmentalTeamPartial',
                 datatype: 'application/json',
                 type: 'post',
                 data: { clientId: $(arg).attr('data-clientid'),yakrkcode:601 },
@@ -4701,7 +5053,7 @@
         }
 
         #att-issue-modal .modal-dialog-ch {
-            width: 70%;
+            width: 80%;
         }
 
         #att-issue-modal .sub-notes-details {
@@ -5824,6 +6176,16 @@
             }
         }
 
+
+        #att-issue-pagination-div #ulPaging li {
+    display: inherit;
+   
+}
+
+       #att-issue-pagination-div  .pagination_wrp .pagination > li > a, .pagination > li > span
+       {
+            line-height: 1.3!important;
+       }
         /*responsive section*/
     </style>
 
@@ -6306,7 +6668,7 @@
 
 
 
-    <div class="modal fade scroll-modal" id="att-issue-modal" role="dialog">
+    <div class="modal fade scroll-modal" id="att-issue-modal" role="dialog" style="z-index:9999;">
         <div class="modal-dialog modal-dialog-ch">
             <div class="modal-content">
 
@@ -6399,7 +6761,7 @@
 
                                     <div class="col-xs-12 col-lg-12 no-padding att-case-note-div" id="caseNoteDivAttIssue">
 
-                                        <div class="col-xs-12 row">
+                                        <div class="col-xs-12">
                                             <button type="button" class="btn btn-primary text-right btn-show-cnotes" title="Click to view the existing case notes of excessive absences" data-toggle="tooltip" id="btnShowAttendanceIssueCaseNote">Show Case Notes</button>
 
                                             <button type="button" class="btn btn-primary text-right btn-show-cnotes" title="Click to view the existing case notes of excessive absences" data-toggle="tooltip" id="btnHideAttendanceIssueCaseNote" style="display:none;">Hide Case Notes</button>
@@ -6407,7 +6769,7 @@
                                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" id="div_attendance_issue_cn" style="display:none;">
                                                 <div class="col-xs-12 pull-right" style="float: right;text-align: right;">
 
-                                                    <label class="col-xs-4 pull-right">Total Record:&nbsp;<span id="spnTotalRecord" class="col-xs-3" style="float:right;color:#295b8f;">0</span> </label>
+                                                    <label class="col-xs-4 pull-right">Total Record:&nbsp;<span id="totalCountSpan_casenote" class="col-xs-3" style="float:right;color:#295b8f;">0</span> </label>
 
 
                                                 </div>
@@ -6416,7 +6778,7 @@
 
 
                                                 <div class="table-responsive col-xs-12 no-padding">
-                                                    <table class="table table_size table-striped" id="tbl_attendanceissue_casenotes" role="table">
+                                                    <table class="table table_size table-striped" id="tbl_attendanceissue_casenotes" role="table" style="margin-bottom:20px;">
                                                         <thead style="cursor:pointer;" role="rowgroup">
                                                             <tr role="row">
                                                                 <th id="thIN" role="columnheader">Date<img id="imgthIN" style="visibility:hidden"> <input type="hidden" id="directionNA" value="Desc"></th>
@@ -6432,27 +6794,24 @@
                                                         <tbody id="table_body" role="rowgroup"></tbody>
                                                     </table>
 
-                                                    <div id="div1" style="text-align:center;display:none;">
-                                                        <label>No result found.</label>
+
+                                                    <div id="att-issue-pagination-div">
+
                                                     </div>
+
                                                 </div>
 
 
 
 
-                                                <div class="row">
+                                                @*<div class="row">
                                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
                                                         <div class="pages_display" style="display:none;">
                                                             <ul>
                                                                 <li>Display</li>
                                                                 <li>
                                                                     <select id="casenoteddlpagetodisplay" onchange="drawgrid_CaseNote();">
-                                                                        @*<option value="10">10</option>
-                                                                            <option value="20" selected="selected">20</option>
-                                                                            <option value="30">30</option>
-
-                                                                            <option value="50">50</option>
-                                                                            <option value="100">100</option>*@
+                                                                       
 
                                                                         <option value="5">5</option>
                                                                     </select>
@@ -6475,16 +6834,27 @@
                                                             </ul>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div>*@
 
 
                                             </div>
 
 
+                                            </div>
+
+                                        @*<div id="div-edit-caseNote" class="col-xs-12">
+
+                                        </div>*@
+
+                                        <div id="caseNotSection">
+
+
+
                                         </div>
 
+                                        @*<div class="div-add-edit-casenote">
 
-
+                                        </div>*@
 
 
                                         <div class="col-xs-12 col-lg-12" id="divCaseNoteSection">
@@ -6613,11 +6983,18 @@
                                                     <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace" style="margin-top:2%;">
 
                                                         <a href="javascript:void(0)" id="Attachmectstag_attissue" data-toggle="tooltip" title="Add Attachment" onclick="addMoreAttachment(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-
+                                                        <img id="uploadImageCamera" class="img-camera" src="/Images/camera.png" style="margin-left: 25px; display: inline;" title="Capture using Camera">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-9 col-sm-12 col-xs-12" id="addAttachmentDiv_attissue"></div>
+                                                <div class="col-lg-9 col-sm-12 col-xs-12" style="float:right;" id="addAttachmentDiv_attissue">
+
+
+                                                </div>
+
+                                                <div class="col-lg-9 col-sm-12 adddivspace pull-right" id="div-edit-modal-img-gallery" style="float:right;">
+
+                                                </div>
 
                                             </div>
 
@@ -6856,11 +7233,16 @@
                                                         <div class="col-sm-3 col-lg-3 adddivspace response-addicspace" style="margin-top:2%;">
 
                                                             <a href="javascript:void(0)" id="Attachmectstag_appendNote" title="Add Attachment" onclick="addMoreAttachment(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                                                            <img id="uploadImageCamera" class="img-camera" src="/Images/camera.png" style="margin-left: 25px; display: inline;" title="Capture using Camera">
 
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-lg-9 col-sm-12" id="addAttachmentDiv_AppendNote"></div>
+                                                    <div style="float:right;" class="col-lg-9 col-sm-12" id="addAttachmentDiv_AppendNote">
+
+
+
+                                                    </div>
 
                                                 </div>
 

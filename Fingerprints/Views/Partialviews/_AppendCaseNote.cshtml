@@ -1,0 +1,699 @@
+﻿
+
+<div id="divAppendCaseNoteSection" class="col-xs-12 col-lg-12  no-padding max_items_addn" style="display: block;">
+    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>&nbsp;<span>Append Case Note</span>
+        <a class="export-new" href="javascript:void(0);" style="text-decoration:none;float: right;" data-toggle="tooltip" title="Export to PDF">
+            <img src="/Images/export.svg" style="height:25px;width:25px;">
+        </a>
+    </h3>
+
+
+    <div class="col-xs-12 col-lg-12 col-sm-12">
+
+        <input type="hidden" id="hdn-householdid" value="0"/>
+        <input type="hidden" id="hdn-centerid" value="0" />
+        <input type="hidden" id="hdn-classroomid" value="0" />
+
+
+
+        <div class="form-group col-xs-12">
+            <label for="lblCaseNotetDate" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Date</label>
+            <label id="lblCaseNotetDate" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+            <input type="hidden" id="hdn-casenoteid" value="">
+        </div>
+
+
+      
+
+        <div class="form-group col-xs-12">
+            <label for="lblCaseNoteTitle" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Title</label>
+            <label id="lblCaseNoteTitle" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+        </div>
+
+
+
+
+
+        <div class="form-group col-xs-12">
+            <label  class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;"><span>Name of the staff</span>, <span>Role</span></label>
+            <label  class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"><span id="lblWrittenBy"></span>, <span id="lblWrittenByRole"></span></label>
+        </div>
+
+
+        @*<div class="form-group col-xs-12">
+            <label for="lblWrittenByRole" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Role</label>
+            <label id="lblWrittenByRole" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+        </div>*@
+
+
+      
+
+
+        <div class="form-group col-xs-12">
+            <label for="mainnotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Original Note</label>
+
+            <div id="mainnotes" class="txt-main-note col-md-5 col-lg-9 col-xs-12">
+
+            </div>
+
+        </div>
+
+
+     
+
+
+        <div class="form-group col-xs-12 divAppendedNotes">
+            <label for="mainnotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Appended Notes</label>
+
+            <div class="col-md-5 col-lg-9 col-xs-12 sub-notes-details">
+
+            </div>
+        </div>
+
+
+
+      
+
+        <div class="form-group col-xs-12">
+            <label for="txtAppendCaseNoteDate" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Append Date&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-lg-9 col-xs-12">
+                <input class="form-control ui-autocomplete-input append-casenote-date" type="text" id="txtAppendCaseNoteDate" onblur="checkAppendCaseNoteDate(this);" placeholder="MM/DD/YYYY" value="">
+            </div>
+
+        </div>
+
+       
+
+
+
+        <div class="form-group col-xs-12">
+            <label for="subnotes_caseNote" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Append Note&nbsp;<sup style="color:red;">*</sup></label>
+
+            <div class="col-lg-9 col-xs-12">
+                <textarea id="subnotes_caseNote" name="AppendedNote" style="visibility: hidden; display: none;"></textarea>
+
+
+            </div>
+
+        </div>
+
+
+      
+
+
+        <div class="form-group col-xs-12">
+            <label for="appendCaseNotetags" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Append Tags</label>
+
+            <div class="col-lg-9 col-xs-12">
+                <input type="text" id="appendCaseNotetags" style="display: none;">
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group col-xs-12"  id="appendCaseNote_attachmentsDiv">
+            <label for="appendCaseNotetags" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">
+            Attachment <small style="padding:0;color:red;">(.pdf,.jpg,.jpeg,.bmp,.gif,.png)</small></label>
+
+            <div class="col-lg-9 col-xs-12">
+                <div class="col-sm-9 col-lg-9 no-padding">
+                    <input type="file" id="append_firstfile" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
+                </div>
+                <div class="col-sm-3 col-lg-3 adddivspace response-addicspace">
+
+                    <a href="javascript:void(0)" id="Attachmectstag_appendNote" title="Add Attachment" onclick="addMoreAttachment(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                    <img id="uploadImageCamera" class="img-camera"  src="/Images/camera.png" style="display:none;margin-left:25px;" title="Capture using Camera">
+
+                </div>
+            </div>
+
+            <div class="col-lg-9 col-sm-12" id="addAttachmentDiv_AppendNote">
+
+
+            </div>
+
+            <div class="col-lg-9 col-sm-12 adddivspace pull-right" id="div-edit-modal-img-gallery">
+
+
+
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+    <div style="margin-bottom: 20px;margin-top:20px;" class="text-center col-xs-12">
+
+        <button type="button" class="my-btn1" id="btn_append_casenote_save" data-toggle="tooltip" title="" data-original-title="Click to save appended case note">Save</button>
+        @*<button type="button" class="my-btn1" id="btn_append_casenote_clear" data-toggle="tooltip" title="" data-original-title="Click to reset the form with default settings">Clear</button>*@
+        <button type="button" class="my-btn1" data-dismiss="modal" >Cancel</button>
+
+
+        @*  <button type="button" class="my-btn1" id="btn_append_casenote_back" data-toggle="tooltip" title="" data-original-title="Click to return case note section">Back</button>*@
+
+    </div>
+
+
+
+
+
+</div>
+
+
+<style>
+
+    #divAppendCaseNoteSection .form-group
+    {
+        margin-bottom:15px!important;
+    }
+    #divAppendCaseNoteSection .div-sec-right p {
+        color: #555 !important;
+        padding-left: 0 !important;
+    }
+
+    #divAppendCaseNoteSection .enroll-sec p {
+        border: none !important;
+        background: none !important;
+    }
+
+
+    div#mainnotes>div{
+        margin-left:-15px;
+    }
+    /*#divAppendCaseNoteSection .sub-notes-details {
+        padding: 0px 0px 60px 0px;
+    }*/
+
+    #divAppendCaseNoteSection .sub-text-block {
+        /*margin: 15px 0px 0px 0px;
+        padding: 5px 5px 5px 5px;*/
+        /* background: #f1e5e5; */
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12) !important;
+        background-color: #fff;
+    }
+
+        /*#divAppendCaseNoteSection .sub-text-block caption {
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            background: #295b8f;
+            color: #fff;
+            line-height: 15px;
+            text-align: center;
+        }*/
+
+            /*#divAppendCaseNoteSection .sub-text-block caption span {
+                font-weight: bold;
+            }*/
+
+    #divAppendCaseNoteSection .addn-poup-div.sub-text-block table > tbody > tr > td:nth-child(1) {
+        width: 10%;
+    }
+
+    #divAppendCaseNoteSection .tag-text {
+        border: 1px solid #fff;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
+        display: block;
+        float: left;
+        padding: 10px;
+        text-decoration: none;
+        background: #295b8f;
+        color: #fff;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-family: helvetica;
+        font-size: 13px;
+        line-height: 0;
+    }
+
+    #divAppendCaseNoteSection .txt-main-note {
+        /*padding-left: 0;*/
+        line-height: 1.3;
+        /*margin-top: 10px;*/
+        /*margin-left: -17px;*/
+    }
+
+    #divAppendCaseNoteSection .img-camera{
+        margin-left:20px!important;
+    }
+</style>
+
+
+
+<style>
+    .accordion {
+        position: relative;
+        /*background-color: #fff;*/
+        background-color: #e3ebf9;
+        /*background-color: #eff2f7;*/
+        display: inline-block;
+        width: 100%;
+        /*border-top: 1px solid #f1f4f3;
+        border-bottom: 1px solid #f1f4f3;*/
+        font-weight: 700;
+        /*color: #74777b;*/
+        color: #41454e;
+        vertical-align: middle;
+        padding-bottom: 1px;
+        border-bottom: 1px solid #fff;
+    }
+
+        .accordion:first-child, .accordion:last-child {
+            border-radius: 5px 5px 0 0;
+        }
+
+        .accordion .fa {
+            position: relative;
+            float: right;
+        }
+
+        .accordion h4 {
+            position: relative;
+            top: 0.8em;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .accordion a {
+            position: relative;
+            display: block;
+            color: #41454e;
+            padding: 1em 1em 2.5em 1em;
+            text-decoration: none;
+        }
+
+        .accordion.active a {
+            color: #fff;
+        }
+
+        .accordion:last-child {
+            border-bottom: unset;
+        }
+
+
+        .accordion:hover {
+            text-decoration: none;
+            /*color: #2cc185;*/
+            /*background-color: #e7ecea;*/
+            background-color: #41454e;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+    .accordion-desc {
+        /*background-color: #f1f4f3;*/
+        background-color: #fff;
+        color: #74777b;
+        z-index: 2;
+        padding: 20px 15px;
+        border-bottom: 1px solid #3e4770;
+        border-left: 1px solid #3e4770;
+        border-right: 1px solid #3e4770;
+        border-color: #3e4770;
+    }
+
+    .accordion h4:after {
+        content: '\002B';
+        color: #41454e;
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+    }
+
+    .accordion:hover {
+        background-color: #bfc4cd;
+        color: #fff;
+        padding-left: 25px;
+    }
+
+
+    .accordion.active {
+        background-color: #3e4770;
+        color: #fff;
+        padding-left: 25px;
+        border-bottom: unset;
+    }
+
+        .accordion.active h4:after {
+            content: "\2212";
+            color: #fff;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+    /*.kbw-signature {
+        width: 400px;
+        height: 200px;
+        border: unset;
+    }
+
+    #attendance-details-section table tbody > tr td > p {
+        width: 100%;
+    }
+
+    #attendance-details-section .search-block-main {
+        display: block;
+    }
+
+        #attendance-details-section .search-block-main table {
+            margin-right: 0px;
+        }*/
+</style>
+
+
+<script>
+    function addMoreAttachment(ele) {
+
+
+        //            var index = $('#att_issueattachmentsDiv').find('input:file').length;
+
+        var appendDiv = '<div class="col-xs-12 no-padding" style="padding-top:10px;">\
+<div class="col-sm-9 col-lg-9 col-xs-7 no-padding" >\
+                                                       <input type="file"  onchange="ValidateSingleInputpdf2(this,null)" class="form-control">\
+                                                  </div>\
+                                                  <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace">\
+                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeAttachment(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                                   </div>\
+                                                        </div>';
+        // '#appendCaseNote_attachmentsDiv';
+
+        var $attDiv = '';
+        if ($(ele).attr('id') == 'Attachmectstag_appendNote') {
+
+            $attDiv = '#addAttachmentDiv_AppendNote'
+        }
+
+        $(ele).parent('div').parent('div').siblings($attDiv).append(appendDiv);
+
+
+    }
+
+    function removeAttachment(ele) {
+        $(ele).parent('div').parent('div').remove();
+    }
+
+    function checkAppendCaseNoteDate(value) {
+        isValid = true;
+        if (!$(value).attr("readonly")) {
+
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+                else {
+                    var text = $(value).val();
+                    var comp = text.split('/');
+                    var m = parseInt(comp[0], 10);
+                    var d = parseInt(comp[1], 10);
+                    var y = parseInt(comp[2], 10);
+                    var date = new Date(y, m - 1, d);
+                    if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                    } else {
+                        customAlert("Invalid date. ");
+                        $(value).val('');
+                        return false;
+                    }
+
+
+
+                }
+            }
+            var txtdate = $(value).val();
+            var selectedTimestampequal = new Date();
+            var year = selectedTimestampequal.getFullYear();
+            var month = selectedTimestampequal.getMonth() + 1;
+            var day = selectedTimestampequal.getDate();
+            today1 = month + '/' + day + '/' + year;
+            var newinput = today1.split("/");
+            var newday = newinput[1];
+            var str = newday.substr(0, 1);
+            var newdaynew = ('0' + newday).slice(-2);
+            var newmonth = newinput[0];
+            var str1 = newmonth.substr(0, 1);
+            var newmonthnew = ('0' + newmonth).slice(-2);
+            today = newmonthnew + '/' + newdaynew + '/' + year;
+            if (today == txtdate) {
+                return true;
+            }
+            var testdatelocalinput = new Date(txtdate);
+            var selectedTimestamp = new Date().getTime();
+            var testdatelocalinputTS = testdatelocalinput.getTime();
+            var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+            if (testdatelocalinputTS > selectedTimestamp) {
+                customAlert("Case Note date must be less than or equal to today's date.");
+                $(value).val('');
+                return false;
+            }
+            else if (timestamp > testdatelocalinputTS) {
+                customAlert("Case Note date cannot be less than 30 days from today's date.");
+                $(value).val('');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    $(function () {
+
+
+        $('[data-toggle="tooltip"').tooltip();
+
+        CKEDITOR.replace('subnotes_caseNote', {
+            language: 'en-gb',
+            uiColor: '#295b8f',
+            disableNativeSpellChecker: false
+        });
+
+
+        $('#appendCaseNotetags').tagsInput({
+            width: 'auto',
+            height: 'auto',
+            delimiter: [',', ';'],
+            autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',
+            autocomplete: {
+                //'source': tags_array[0].split(/,\s*/)
+                // 'source': getTagsOnInputAll('#AppendCaseNotetags'),
+                'appendTo': "#divAppendCaseNoteSection"
+            },
+            //  autocomplete_url: '',
+            //  autocomplete_url: '',
+        });
+
+        $('#txtAppendCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+        $('#btn_append_casenote_save').on('click', function () {
+
+            debugger;
+            var cameraDocumentsArray = [];
+            var fileData = new FormData();
+            $('#divAppendCaseNoteSection').find('#appendCaseNote_attachmentsDiv').find('input:file').each(function (a, b) {
+                debugger;
+                var fileInput = $(this);
+
+                //encodeImagetoBase64(this);
+
+               // handleFileSelect(this);
+
+                if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                    var fileUpload = fileInput.get(0);
+                    var files = fileUpload.files;
+
+                    for (var i = 0; i < files.length; i++) {
+
+                        //var reader = new FileReader();
+
+                        //reader.onloadend = function () {
+
+                        //    return reader.result;
+
+                        //}
+
+                        //var readerResult = reader.readAsDataURL(files[i]);
+
+
+                     
+                        var convImage = fileInput.attr('conv-img');
+
+                        if(convImage!=null && convImage!="")
+                            cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+                       // fileData.append(files[i].name, files[i]);
+                    }
+                }
+            });
+
+          //  fileData.append('modelString', JSON.stringify(model1));
+            debugger;
+
+            var $cameraDocuments = $('#divAppendCaseNoteSection').find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+          
+
+            if ($cameraDocuments.length > 0) {
+
+                $.each($cameraDocuments, function (j, doc) {
+
+                    var $doc = $(doc).find('img');
+                    cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+                });
+            }
+
+           // fileData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+
+
+
+            if (CKEDITOR.instances['subnotes_caseNote'].getData() == "") {
+                customAlert("Sub Note is required.");
+            }
+            else {
+                var CaseNote = {};
+                var Tags = '';
+                $('#appendCaseNotetags_tagsinput .tag span').each(function () {
+                    Tags = Tags + $(this).text().trim() + ',';
+                });
+
+                CaseNote.Note = CKEDITOR.instances['subnotes_caseNote'].getData().toString().trim();
+                CaseNote.CaseNoteid = $('#divAppendCaseNoteSection').find('#hdn-casenoteid').val();
+                CaseNote.CaseNoteDate = $('#divAppendCaseNoteSection').find('#txtAppendCaseNoteDate').val();
+                CaseNote.HouseHoldId = $('#divAppendCaseNoteSection').find('#hdn-householdid').val();
+                CaseNote.CenterId = $('#divAppendCaseNoteSection').find('#hdn-centerid').val();
+                CaseNote.Classroomid = $('#divAppendCaseNoteSection').find('#hdn-classroomid').val();
+                CaseNote.CaseNotetags = Tags;
+                CaseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Roster/SaveSubNotes",
+                   dataType: "json",
+                   contentType: 'application/json; charset=utf-8',
+                   beforeSend:function(){
+                       $('#spinner').show();
+
+                   },
+                     data: JSON.stringify(CaseNote),
+                
+                    success: function (data) {
+                        if(data)
+                        {
+                            $('#divAppendCaseNoteSection').closest('.modal').modal('hide');
+                            $('#spinner').hide();
+                            customAlert('Record saved successfully');
+                        }
+                        else {
+                            $('#divAppendCaseNoteSection').closest('.modal').modal('hide');
+                            $('#spinner').hide();
+                            customAlert('Error occurred. Please, try again later');
+                        }
+
+
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+                });
+            }
+
+
+
+        });
+
+
+        $('#btn_append_casenote_clear').on('click', function () {
+
+            resetAppendCaseNote();
+
+        });
+
+      
+       
+
+        $(document).on('change', '#appendCaseNote_attachmentsDiv input:file', function (evt) {
+
+            encodeImagetoBase64(evt);
+
+        });
+
+        //$('#divAppendCaseNoteSection').find('.img-camera').on('click', function () {
+
+
+        //    $('#modal-uploaddocument').attr('target-modal', '#' + $('.modal:visible').attr('id') + '');
+
+
+
+        //    $('.modal:visible').modal('hide');
+
+        //    $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+
+        //    $('#modal-uploaddocument').modal('show');
+        //});
+
+    });
+
+    //function encodeImagetoBase64(file) {
+
+        
+    // //   var file = element.files[0];
+
+    //    var reader = new FileReader();
+
+    //    reader.onloadend = function () {
+
+    //        //$(".link").attr("href", reader.result);
+
+    //        //$(".link").text(reader.result);
+
+    //    }
+
+    //    reader.readAsDataURL(file);
+
+    //}
+
+    // Check for the File API support.
+    //if (window.File && window.FileReader && window.FileList && window.Blob) {
+    //    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    //} else {
+    //    alert('The File APIs are not fully supported in this browser.');
+    //}
+
+  
+
+
+    function resetAppendCaseNote(ele) {
+
+        $('#txtAppendCaseNoteDate').val(getFormattedDateNumber(new Date()));
+        CKEDITOR.instances['subnotes_caseNote'].setData("");
+        $('#AppendCaseNotetags_tagsinput .tag ').each(function () {
+            $(this).remove();
+        });
+
+        $('#addAttachmentDiv_AppendNote').html('');
+        $('#divAppendCaseNoteSection').find('#appendCaseNote_attachmentsDiv').find('input:file').val('').removeAttr('conv-img');
+        $('#divAppendCaseNoteSection').find('#div-edit-modal-img-gallery').html('');
+
+        $('#divAppendCaseNoteSection').find('#appendCaseNotetags_tagsinput').find('.tag').remove();
+
+    }
+
+
+
+    
+</script>

@@ -43,8 +43,27 @@
 	    }
 
 
-  };
-  $.fn.resetAutosize = function(options){
+	};
+
+
+	$.fn.destroyTagsInput = function (value) {
+	    debugger;
+	    $(this).tagsInput = null;
+	    $(this).next('.tagsinput').remove();
+	    var values = $(this).val();
+	    $(this).val('');
+
+	    $($(this).attr('id') + '_tag_autosize_tester').remove();
+	    delete delimiter[$(this).attr('id')];
+
+	    $(this).show();
+	    
+	    return values;
+	}
+
+
+
+	$.fn.resetAutosize = function (options) {
     // alert(JSON.stringify(options));
     var minWidth =  $(this).data('minwidth') || options.minInputWidth || $(this).width(),
         maxWidth = $(this).data('maxwidth') || options.maxInputWidth || ($(this).closest('.tagsinput').width() - options.inputPadding),
@@ -192,7 +211,9 @@
       placeholderColor:'#666666',
       autosize: true,
       comfortZone: 20,
-      inputPadding: 6*2
+      inputPadding: 6 * 2,
+      refresh:false
+      
     },options);
 
     	var uniqueIdCounter = 0;
@@ -205,13 +226,16 @@
 
          // Mark the field as having been initialized
          $(this).attr('data-tagsinput-init', true);
-
+      
 			if (settings.hide) {
 				$(this).hide();
 			}
 			var id = $(this).attr('id');
 			if (!id || delimiter[$(this).attr('id')]) {
-				id = $(this).attr('id', 'tags' + new Date().getTime() + (uniqueIdCounter++)).attr('id');
+
+			    if (!settings.refresh)
+               
+				 id = $(this).attr('id', 'tags' + new Date().getTime() + (uniqueIdCounter++)).attr('id');
 			}
 
 			var data = jQuery.extend({

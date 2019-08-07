@@ -88,7 +88,9 @@ $(function () {
             customAlert("Enter valid url");
             isAllow = false;
         }
-        else if (isAllow && $('.material-id').val().trim() == "") {
+        else if (isAllow
+         //  && $('.material-id').val().trim() == ""
+            && (txt == null || txt == '')) {
             $('.fileAttachments').each(function (i, val) {
                 if ($(this).val().trim() == "" && isAllow) {
                     isAllow = false;

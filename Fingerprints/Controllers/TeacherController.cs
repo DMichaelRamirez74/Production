@@ -34,6 +34,7 @@ namespace Fingerprints.Controllers
        */
         FamilyData _family = new FamilyData();
         TeacherData _Teacher = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<TeacherData>();
+        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
         string available = "3";
         [JsonMaxLengthAttribute]
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
@@ -344,7 +345,7 @@ namespace Fingerprints.Controllers
             try
             {
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                CenterAuditReport report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CenterAuditReport>();
+                AttendanceMealAuditReport report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<AttendanceMealAuditReport>();
                 report.FromDate = attendanceDate;
                 report.ToDate = attendanceDate;
                 report.Enc_ClientID = clientid;
@@ -1714,10 +1715,9 @@ namespace Fingerprints.Controllers
                 caseNote.StaffIds = caseNote.StaffIds.Trim(',');
 
                 string Name = "";
-                List<CaseNote> CaseNoteList = new List<CaseNote>();
-                RosterNew.Users Userlist = new RosterNew.Users();
+             
 
-                message = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, caseNote, caseNote.CaseNoteAttachmentList, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.TransitionMode.Others);
+                message = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().SaveCaseNotes(ref Name,caseNote,staff, (int)FingerprintsModel.Enums.TransitionMode.Others);
             }
             catch (Exception ex)
             {

@@ -1301,6 +1301,96 @@
     @{Html.RenderAction("ChangePassword", "Login", new { area = "" });}
 
     <script>
+
+        // //Video Camera Option Start//
+
+
+
+        //function saveDocumentCamera(ele) {
+        //    var docImage = $('#modalScreenDoc').find('#capt-img');
+
+        //    if (docImage[0].src.replace('data:,', '') == '') {
+        //        customAlert('Please capture image using camera');
+        //        return false;
+        //    }
+        //    else {
+
+        //        saveScreeningDoc(docImage, 2);
+
+        //    }
+
+        //}
+
+
+        function encodeImagetoBase64(evt) {
+            var f = evt.target.files[0]; // FileList object
+            //var f = file.files[0];
+            // var f = file;
+            var reader = new FileReader();
+            // Closure to capture the file information.
+            reader.onload = (function (theFile) {
+                return function (e) {
+                    var binaryData = e.target.result;
+                    //Converting Binary Data to base 64
+                    var base64String = window.btoa(binaryData);
+                    //showing file converted to base64
+                    evt.target.setAttribute('conv-img', base64String);
+                    //alert('File converted to base64 successfuly!\nCheck in Textarea');
+                };
+            })(f);
+            // Read in the image file as a data URL.
+            reader.readAsBinaryString(f);
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binary_string = window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function getFormattedDateNumber(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+
+
+        function getFormattedDate_Words(date) {
+            debugger;
+
+
+            var monthNames = ["January", "February", "March", "April", "May", "June",
+"July", "August", "September", "October", "November", "December"
+            ];
+
+            var year = date.getFullYear();
+
+            //  var month = (1 + date.getMonth()).toString();
+
+            // month = month.length > 1 ? month : '0' + month;
+
+            var month = date.getMonth();
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+            console.log('month:' + month);
+            return monthNames[month] + ' ' + day + ', ' + year;
+        }
+
+
+
         // Restricts input for each element in the set of matched elements to the given inputFilter.
         (function ($) {
             $.fn.inputFilter = function (inputFilter) {
@@ -1325,6 +1415,9 @@
             <b>Please Wait...</b>
         </div>
     </div>
+
+    <script src="~/Scripts/ApplinkCameraCapture.js"></script>
+
 
 </body>
 </html>

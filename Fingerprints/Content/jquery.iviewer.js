@@ -1217,7 +1217,7 @@ $.ui.iviewer.ImageObject = function(do_anim) {
      * @param {Function=} complete Call back will be fired when zoom will be complete.
      */
     this.setImageProps = function (disp_w, disp_h, x, y, skip_animation, complete) {
-        debugger;
+        
         complete = complete || jQuery.noop;
 
         this.display_width(disp_w);

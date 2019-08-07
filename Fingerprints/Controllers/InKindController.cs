@@ -708,8 +708,8 @@ namespace Fingerprints.Controllers
             bool isHomeBased = false;
             //if (inkind != null && inkind.InkindActivityList != null && inkind.InkindActivityList.Count > 0)
             //{
-            //    isCenterBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)InkindActivityTypeEnum.Center;
-            //    isHomeBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)InkindActivityTypeEnum.HomeBased;
+            //    isCenterBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)FingerprintsModel.Enums.InkindActivityType.Center;
+            //    isHomeBased = Convert.ToInt32(inkind.InkindActivityList[0].ActivityType) == (int)FingerprintsModel.Enums.InkindActivityType.HomeBased;
 
             //}
 

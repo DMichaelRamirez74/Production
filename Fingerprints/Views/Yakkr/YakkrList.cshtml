@@ -25,11 +25,140 @@
 
 @section MainContentHolder{
     <style>
+        #Casenotedevelopement label.col-lg-3.lbl-text {
+            width: 25% !important;
+        }
+
+        #Casenotedevelopement label.col-lg-9 {
+            width: 75% !important;
+        }
+
+        #Casenotedevelopement .tag-text {
+    border: 1px solid #fff;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    display: block;
+    float: left;
+    padding: 10px;
+    text-decoration: none;
+    background: #295b8f;
+    color: #fff;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-family: helvetica;
+    font-size: 13px;
+    line-height: 0;
+}
+
+        #Casenotedevelopement .divAppendedNotes{
+            padding-bottom:20px;
+        }
 
 
-        .lang-select-box select
-        {
-            width:220px;
+       #Casenotedevelopement .accordion {
+        position: relative;
+        /*background-color: #fff;*/
+        background-color: #e3ebf9;
+        /*background-color: #eff2f7;*/
+        display: inline-block;
+        width: 100%;
+        /*border-top: 1px solid #f1f4f3;
+        border-bottom: 1px solid #f1f4f3;*/
+        font-weight: 700;
+        /*color: #74777b;*/
+        color: #41454e;
+        vertical-align: middle;
+        padding-bottom: 1px;
+        border-bottom: 1px solid #fff;
+    }
+
+       #Casenotedevelopement  .accordion:first-child, .accordion:last-child {
+            border-radius: 5px 5px 0 0;
+        }
+
+      #Casenotedevelopement  .accordion .fa {
+            position: relative;
+            float: right;
+        }
+
+       #Casenotedevelopement .accordion h4 {
+            position: relative;
+            top: 0.8em;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+       #Casenotedevelopement .accordion a {
+            position: relative;
+            display: block;
+            color: #41454e;
+            padding: 1em 1em 2.5em 1em;
+            text-decoration: none;
+        }
+
+       #Casenotedevelopement .accordion.active a {
+            color: #fff;
+        }
+
+      #Casenotedevelopement  .accordion:last-child {
+            border-bottom: unset;
+        }
+
+
+      #Casenotedevelopement  .accordion:hover {
+            text-decoration: none;
+            /*color: #2cc185;*/
+            /*background-color: #e7ecea;*/
+            background-color: #41454e;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+   #Casenotedevelopement .accordion-desc {
+        /*background-color: #f1f4f3;*/
+        background-color: #fff;
+        color: #74777b;
+        z-index: 2;
+        padding: 20px 15px;
+        border-bottom: 1px solid #3e4770;
+        border-left: 1px solid #3e4770;
+        border-right: 1px solid #3e4770;
+        border-color: #3e4770;
+    }
+
+  #Casenotedevelopement  .accordion h4:after {
+        content: '\002B';
+        color: #41454e;
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+    }
+
+  #Casenotedevelopement  .accordion:hover {
+        background-color: #bfc4cd;
+        color: #fff;
+        padding-left: 25px;
+    }
+
+
+   #Casenotedevelopement .accordion.active {
+        background-color: #3e4770;
+        color: #fff;
+        padding-left: 25px;
+        border-bottom: unset;
+    }
+
+    #Casenotedevelopement .accordion.active h4:after {
+            content: "\2212";
+            color: #fff;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .lang-select-box select {
+            width: 220px;
         }
 
         .grn-color {
@@ -542,8 +671,6 @@
             background-color: #1ca913;
             border-color: #147b0e #11640b #11640b;
         }*/
-
-
     </style>
     <div class="row">
         <div class="col-lg-12">
@@ -579,551 +706,551 @@
 
                             foreach (var screeningName in screeningNameList)
                             {
-                    <div class="col-xs-12">
+                                <div class="col-xs-12">
 
-                        <h3>@screeningName Screening Referral</h3>
-                        <div class="table-responsive">
-
-
-                            <table class="table table_size">
-
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Client</th>
-                                        <th>DOB</th>
-                                        <th>Center Name</th>
-                                        <th>From User</th>
-                                        <th>Date on the List</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    @{
-                                                var clientList = Model.Where(x => x.Description == screeningName).ToList();
-                                    }
-
-                                    @if (clientList != null && clientList.Count > 0)
-                                            {
-                                                foreach (var client in clientList)
-                                                {
-                                        <tr>
-                                            <td class="ClientName">
-                                                <span class="YakkrID" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.YakkrID)</span>
-                                                <span class="HouseHoldId" style="display:none;">@client.HouseholdId</span>
-                                                <span class="ClientId" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.ClientId)</span>
-                                                <span class="FromUserID" style="display:none;">@client.FromUserID</span>
-
-                                                <a href="javascript:void(0);">Select</a>
+                                    <h3>@screeningName Screening Referral</h3>
+                                    <div class="table-responsive">
 
 
-                                            </td>
-                                            <td>@client.ClientName</td>
-                                            <td>@client.DOB</td>
-                                            <td>@client.CenterName</td>
-                                            <td>@client.FromUser</td>
-                                            <td>@client.Date</td>
+                                        <table class="table table_size">
 
-                                        </tr>
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Client</th>
+                                                    <th>DOB</th>
+                                                    <th>Center Name</th>
+                                                    <th>From User</th>
+                                                    <th>Date on the List</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                @{
+                                                    var clientList = Model.Where(x => x.Description == screeningName).ToList();
                                                 }
-                                            }
 
-                                </tbody>
-
-
-                            </table>
-                        </div>
-                    </div>
-                                                        }
-
-                                                    }
-
-
-
-                    </div>
-                                        }
-
-                                        //Unscheduled School Day
-                                        else if (ViewBag.YakkrCode == "904")
-                                        {
-                                            <div class="table-responsive">
-                                                
-                                         
-                                           
-
-                                                <table class="table table_size" id="Gridclient">
-                                                    <thead style="cursor:pointer;">
+                                                @if (clientList != null && clientList.Count > 0)
+                                                {
+                                                    foreach (var client in clientList)
+                                                    {
                                                         <tr>
-                                                            
-                                                            <th id="thMN">Center <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            <th id="thMN">Classroom <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            <th id="thMN">Reason<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            <th id="thMN">Class Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                            <td class="ClientName">
+                                                                <span class="YakkrID" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.YakkrID)</span>
+                                                                <span class="HouseHoldId" style="display:none;">@client.HouseholdId</span>
+                                                                <span class="ClientId" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.ClientId)</span>
+                                                                <span class="FromUserID" style="display:none;">@client.FromUserID</span>
 
-                                                            <th id="thMN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                <a href="javascript:void(0);">Select</a>
+
+
+                                                            </td>
+                                                            <td>@client.ClientName</td>
+                                                            <td>@client.DOB</td>
+                                                            <td>@client.CenterName</td>
+                                                            <td>@client.FromUser</td>
+                                                            <td>@client.Date</td>
 
                                                         </tr>
-                                                    </thead>
+                                                    }
+                                                }
 
-                                                    <tbody>
+                                            </tbody>
 
-                                                        @foreach(var item in Model.ToList())
-                                                        {
-                                                            <tr role="row">
-                                                                <td role="gridcell" title="Center">@item.CenterName</td>
-                                                                <td role="gridcell" title="Classroom">@item.ClassroomName</td>
-                                                                <td role="gridcell" title="Reason">@item.Description</td>
-                                                                <td role="gridcell" title="Class Date">@item.Date</td>
-                                                                <td role="gridcell" title="From">@item.FromUser</td>
-                                                                <td role="gridcell" title="Action"><a href="javascrip:void(0);" onclick="removeUnscheduledDay(this, '@item.YakkrID');">Remove</a></td>
-                                                            </tr>
+
+                                        </table>
+                                    </div>
+                                </div>
                                                         }
 
-
-                                                    </tbody>
-
-                                                </table>
-
-                                                    <div id="div1" style="text-align:center;display:none;">
-                                                        <label>No result found.</label>
-                                                    </div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-
-                                            <div class="table-responsive">
-                                                <table class="table table_size" id="Gridclient">
-                                                    @if (ViewBag.YakkrCode == "750")
-                                                {
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
-                                                                <th id="thMN">Slot Count<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
-
-                                                                <tbody>
-                                                                    @if (Model.Count() > 0)
-                                {
-                                                        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
-                                                        {
-                                                                    <tr>
-                                                                        <td class="ClientName">
-                                                                            <a href="/Agency/AdditionalSlots?YakkrID=@detail.YakkrID">Select</a>
-                                                                        </td>
-                                                                        <td>@detail.Slots</td>
-                                                                        <td>@detail.Date</td>
-                                                                    </tr>
-
-                                    }
-                                        }
-                                else
-                                {
-                                                                    <tr><td colspan="5">No Result Found</td></tr>
-                                }
-
-                                                                </tbody>
                                                     }
 
 
 
-                                                    else if (ViewBag.YakkrCode == "710" || ViewBag.YakkrCode == "711" || ViewBag.YakkrCode == "712")
-                                                    {
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
+                    </div>
+                                                    }
 
-                                                                <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
+                                                    //Unscheduled School Day
+                                                    else if (ViewBag.YakkrCode == "904")
+                                                    {
+                                                        <div class="table-responsive">
+
+
+
+
+                                                            <table class="table table_size" id="Gridclient">
+                                                                <thead style="cursor:pointer;">
+                                                                    <tr>
+
+                                                                        <th id="thMN">Center <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        <th id="thMN">Classroom <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        <th id="thMN">Reason<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        <th id="thMN">Class Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+
+                                                                        <th id="thMN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+
+                                                                    </tr>
+                                                                </thead>
 
                                                                 <tbody>
-                                                                    @if (Model.Count() > 0)
-                                {
-                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
-                                    {
-                                                                    <tr class="Client">
-                                                                        @if (ViewBag.YakkrCode == "712")
-                                        {
-                                    <td>
-                                        <a href="#" onclick="GetEventByEventId(@detail.YakkrID)">Select</a>
-                                    </td>
-                                            }
-                                            else
-                                            {
-                                    <td>
-                                        <a @if (detail.IsFutureApplication == true) { <text> style="color:green;" </text>   } href="/EducationManager/StaffEventInfo?YakkrId=@detail.YakkrID">Select</a>
-                                    </td>
 
-                                            }
+                                                                    @foreach (var item in Model.ToList())
+                                                                    {
+                                                                        <tr role="row">
+                                                                            <td role="gridcell" title="Center">@item.CenterName</td>
+                                                                            <td role="gridcell" title="Classroom">@item.ClassroomName</td>
+                                                                            <td role="gridcell" title="Reason">@item.Description</td>
+                                                                            <td role="gridcell" title="Class Date">@item.Date</td>
+                                                                            <td role="gridcell" title="From">@item.FromUser</td>
+                                                                            <td role="gridcell" title="Action"><a href="javascrip:void(0);" onclick="removeUnscheduledDay(this, '@item.YakkrID');">Remove</a></td>
+                                                                        </tr>
+                                                                    }
 
 
-                                                                        <td>@detail.FromUser</td>
-                                                                        <td>@detail.Date</td>
-                                                                    </tr>
+                                                                </tbody>
+
+                                                            </table>
+
+                                                            <div id="div1" style="text-align:center;display:none;">
+                                                                <label>No result found.</label>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <div class="table-responsive">
+                                                            <table class="table table_size" id="Gridclient">
+                                                                @if (ViewBag.YakkrCode == "750")
+                                                                {
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th id="thMN">Slot Count<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                    <tbody>
+                                                                        @if (Model.Count() > 0)
+                                                                        {
+                                                                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="ClientName">
+                                                                                        <a href="/Agency/AdditionalSlots?YakkrID=@detail.YakkrID">Select</a>
+                                                                                    </td>
+                                                                                    <td>@detail.Slots</td>
+                                                                                    <td>@detail.Date</td>
+                                                                                </tr>
 
                                                                             }
                                                                         }
                                                                         else
                                                                         {
-                                                                    <tr><td colspan="5">No Result Found</td></tr>
+                                                                            <tr><td colspan="5">No Result Found</td></tr>
                                                                         }
 
-                                                                </tbody>
-                                                    }
-                                                    @*else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453")*@
-                                                    else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453"
-                                                    || ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
-
-                                                    {
-                                                        @*
-                                                            * 221-Parent/Teacher Home Visit-2
-                                                            * 222-Teacher-Parent Center Visit
-                                                        *@
+                                                                    </tbody>
+                                                                }
 
 
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
-                                                                <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-                                                                <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
-                                                                <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
-                                                                <tbody>
-                                                                    @if (Model.Count() > 0)
-                                                                    {
-                                                                        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+
+                                                                else if (ViewBag.YakkrCode == "710" || ViewBag.YakkrCode == "711" || ViewBag.YakkrCode == "712")
+                                                                {
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+
+                                                                            <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                    <tbody>
+                                                                        @if (Model.Count() > 0)
                                                                         {
+                                                                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                            {
+                                                                                <tr class="Client">
+                                                                                    @if (ViewBag.YakkrCode == "712")
+                                                                                    {
+                                                                                        <td>
+                                                                                            <a href="#" onclick="GetEventByEventId(@detail.YakkrID)">Select</a>
+                                                                                        </td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td>
+                                                                                            <a @if (detail.IsFutureApplication == true) { <text> style="color:green;" </text>     } href="/EducationManager/StaffEventInfo?YakkrId=@detail.YakkrID">Select</a>
+                                                                                        </td>
 
+                                                                                    }
+
+
+                                                                                    <td>@detail.FromUser</td>
+                                                                                    <td>@detail.Date</td>
+                                                                                </tr>
+
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <tr><td colspan="5">No Result Found</td></tr>
+                                                                        }
+
+                                                                    </tbody>
+                                                                }
+                                                                @*else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453")*@
+                                                                else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451" || ViewBag.YakkrCode == "453"
+                                                                || ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
+
+                                                                {
+                                                                    @*
+                                                                        * 221-Parent/Teacher Home Visit-2
+                                                                        * 222-Teacher-Parent Center Visit
+                                                                    *@
+
+
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                                                            <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                                                            <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @if (Model.Count() > 0)
+                                                                        {
+                                                                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                            {
+
+                                                                                <tr>
+
+                                                                                    <td class="ClientName">
+                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                        @if (ViewBag.YakkrCode == "450")
+                                                                                        {
+                                                                                            <a href="@Url.Action("QuestionnaireForm", "Yakkr")?yakkrid=@detail.YakkrID&hid=@detail.HouseholdId&cid=@detail.ClientId&cn=@detail.ClientName&center=@detail.CenterId"> Select </a>
+                                                                                        }
+                                                                                        else if (ViewBag.YakkrCode == "451")
+                                                                                        {  //yakkr 451
+
+                                                                                            <a class="showpopup451" style="cursor:pointer;"
+                                                                                               href="@Url.Action("Organizationalissue", "Yakkr")?id=@detail.YakkrID&clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&center=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&household=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&clientname=@detail.ClientName">Select</a>
+
+                                                                                        }
+                                                                                        else if (ViewBag.YakkrCode == "453")
+                                                                                        { //yakkr 453
+
+                                                                                            <a class="showpopup453" style="cursor:pointer;" onclick="show453Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>
+                                                                                        }
+                                                                                        else if (ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
+                                                                                        {
+
+                                                                                            <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=@ViewBag.YakkrCode&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+
+                                                                                        }
+                                                                                        @*
+                                                                                            else if (ViewBag.YakkrCode == "221")
+                                                                                            {
+                                                                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=221&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+                                                                                                }
+                                                                                            else if (ViewBag.YakkrCode == "210")
+                                                                                            {
+                                                                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=210&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+                                                                                            }
+                                                                                            else if (ViewBag.YakkrCode == "222")
+                                                                                            {
+                                                                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=222&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+
+                                                                                            }
+                                                                                        *@
+                                                                                    </td>
+
+
+                                                                                    <td>@detail.ClientName</td>
+                                                                                    <td>@detail.DOB</td>
+                                                                                    <td>@detail.CenterName</td>
+                                                                                    <td>@detail.FromUser</td>
+                                                                                    <td>@detail.Date</td>
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+                                                                }
+                                                                else if (!YakkrExcludeFromFacility.Contains(int.Parse((ViewBag.YakkrCode).ToString().Trim())) && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                                                {
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                    {
+                                                                        if (Session["RoleID"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")
+                                                                        {
                                                                             <tr>
-
                                                                                 <td class="ClientName">
                                                                                     <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
                                                                                     <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
                                                                                     <span class="ClientId" style="display:none;">@detail.ClientId</span>
                                                                                     <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                                                    @if (ViewBag.YakkrCode == "450")
-                                        {
-                                        <a href="@Url.Action("QuestionnaireForm", "Yakkr")?yakkrid=@detail.YakkrID&hid=@detail.HouseholdId&cid=@detail.ClientId&cn=@detail.ClientName&center=@detail.CenterId"> Select </a>
-                                        }
-                                        else if (ViewBag.YakkrCode == "451")
-                                        {  //yakkr 451
 
-                                        <a class="showpopup451" style="cursor:pointer;"
-                                           href="@Url.Action("Organizationalissue", "Yakkr")?id=@detail.YakkrID&clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&center=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&household=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&clientname=@detail.ClientName">Select</a>
+                                                                                    <a href="~/Home/FacilityWorks/?YakkrID=@detail.YakkrID"> Select </a>
+                                                                                </td>
 
-                                        }
-                                        else if (ViewBag.YakkrCode == "453")
-                                        { //yakkr 453
-
-                                        <a class="showpopup453" style="cursor:pointer;" onclick="show453Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>
-                                        }
-                                        else if (ViewBag.YakkrCode == "221" || ViewBag.YakkrCode == "222" || ViewBag.YakkrCode == "210" || ViewBag.YakkrCode == "200")
-                                        {
-
-                                        <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=@ViewBag.YakkrCode&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+                                                                                <td> @detail.CenterName </td>
+                                                                                <td> @detail.FromUser </td>
+                                                                                <td> @detail.Date </td>
+                                                                            </tr>
+                                                                        }
+                                                                        else
+                                                                        {
 
 
-                                        }
-                                        @*
-                                            else if (ViewBag.YakkrCode == "221")
-                                            {
-                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=221&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
-                                                }
-                                            else if (ViewBag.YakkrCode == "210")
-                                            {
-                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=210&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+                                                                            <tr>
+                                                                                <td class="ClientName">
+                                                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
 
-                                            }
-                                            else if (ViewBag.YakkrCode == "222")
-                                            {
-                                                <a class="" style="cursor:pointer;" href="@Url.Action("TeacherScheduler", "HomeVisitor")?yakkr=222&clientid=@detail.ClientId&yakkrid=@detail.YakkrID"> Select</a>
+                                                                                    <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID"> Select </a>
+                                                                                </td>
 
-                                            }
-                                        *@
-                                    </td>
-
-
-                                    <td>@detail.ClientName</td>
-                                    <td>@detail.DOB</td>
-                                    <td>@detail.CenterName</td>
-                                    <td>@detail.FromUser</td>
-                                    <td>@detail.Date</td>
-                                </tr>
+                                                                                <td> @detail.CenterName </td>
+                                                                                <td> @detail.FromUser </td>
+                                                                                <td> @detail.Date </td>
+                                                                            </tr>
                                                                         }
                                                                     }
-                                                                </tbody>
-                                                    }
-                                                    else if (!YakkrExcludeFromFacility.Contains(int.Parse((ViewBag.YakkrCode).ToString().Trim())) && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
-                                                    {
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
-                                                                <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
-                                                        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
-                                                        {
-                                                            if (Session["RoleID"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")
-                                                            {
-                                                                <tr>
-                                                                    <td class="ClientName">
-                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                }
 
-                                                                        <a href="~/Home/FacilityWorks/?YakkrID=@detail.YakkrID"> Select </a>
-                                                                    </td>
+                                                                // New In-Kind Periods Yakkr Code //
 
-                                                                    <td> @detail.CenterName </td>
-                                                                    <td> @detail.FromUser </td>
-                                                                    <td> @detail.Date </td>
-                                                                </tr>
-                                                            }
-                                                            else
-                                                            {
-
-
-                                                                <tr>
-                                                                    <td class="ClientName">
-                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-
-                                                                        <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID"> Select </a>
-                                                                    </td>
-
-                                                                    <td> @detail.CenterName </td>
-                                                                    <td> @detail.FromUser </td>
-                                                                    <td> @detail.Date </td>
-                                                                </tr>
-                                                            }
-                                                        }
-                                                    }
-
-                                                    // New In-Kind Periods Yakkr Code //
-
-                                                    else if (ViewBag.YakkrCode == "903") 
-                                                    {
-
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
-                                                                <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
-
-                                                        <tbody id="tbody-new-inkind">
-                                                            @if (Model.Count() > 0)
-                                                            {
-                                                                foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                else if (ViewBag.YakkrCode == "903")
                                                                 {
-                                                                    <tr>
-                                                                        <td class="ClientName">
-                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                                            <a href="javascript:void(0);">Select</a>
-                                                                        </td>
-                                                                     
-                                                                        <td>@detail.FromUser</td>
-                                                                        <td>@detail.Date</td>
-                                                                    </tr>
+
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                    <tbody id="tbody-new-inkind">
+                                                                        @if (Model.Count() > 0)
+                                                                        {
+                                                                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="ClientName">
+                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                        <a href="javascript:void(0);">Select</a>
+                                                                                    </td>
+
+                                                                                    <td>@detail.FromUser</td>
+                                                                                    <td>@detail.Date</td>
+                                                                                </tr>
+                                                                            }
+
+
+                                                                        }
+
+                                                                    </tbody>
+
+
                                                                 }
 
 
-                                                            }
+                                                                else
+                                                                {
+                                                                    <thead style="cursor:pointer;">
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                                                            <th id="thCust"> DOB <img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                                                            <th id="thMN"> Center <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                            <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                                                        </tr>
+                                                                    </thead>
 
-                                                        </tbody>
-
-
-                                                    }
-
-
-                                                    else
-                                                    {
-                                                        <thead style="cursor:pointer;">
-                                                            <tr>
-                                                                <th></th>
-                                                                <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-                                                                <th id="thCust"> DOB <img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
-                                                                <th id="thMN"> Center <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN"> From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                                <th id="thMN"> Date <img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                                            </tr>
-                                                        </thead>
-
-                                                                <tbody>
-                                                                    @if (Model.Count() > 0)
-                                                                    {
-                                                                        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                                                    <tbody>
+                                                                        @if (Model.Count() > 0)
                                                                         {
-                                                                            if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                                                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
                                                                             {
-                                                                                <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }">
-                                                                                    <td class="ClientName">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { <text> style="color:green;" </text> }
-                                                                                                                                                                                                                                                                                                                                                                                   href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)&bklistUrl=yakkar100">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
-                                                                            //  else if (ViewBag.YakkrCode == "100")
-                                                                            else if (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "106")
-                                                                            {
-                                                                                <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }">
-                                                                                    <td class="ClientName">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { < text > style = "color:green;" </ text >}
+                                                                                if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                                                                {
+                                                                                    <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }">
+                                                                                        <td class="ClientName">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { <text> style="color:green;" </text>   }
+                                                                                                                                                                                                                                                                                                                                                                                       href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)&bklistUrl=yakkar100">Select</a>
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
+                                                                                }
+                                                                                //  else if (ViewBag.YakkrCode == "100")
+                                                                                else if (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "106")
+                                                                                {
+                                                                                    <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }">
+                                                                                        <td class="ClientName">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) {   < text > style = "color:green;" </ text >}
                             href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)&bklistUrl=yakkar100">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
-                                                                            else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
-                                                                            {
-                                                                                <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)"> Select </a></td><td> @detail.ClientName </td><td> @detail.DOB </td><td> @detail.CenterName </td><td> @detail.FromUser </td><td> @detail.Date </td></tr>
-                                                                                @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
-
-                                                                            }
-                                                                            else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
-                                                                            {
-                                                                                <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
-                                                                            }
-                                                                            else if (ViewBag.YakkrCode == "704")
-                                                                            {
-                                                                                <tr>
-                                                                                    <td class="ClientName">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                                                        <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
-
-                                                                            else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303" || ViewBag.YarkkrCode == "304")
-                                                                            {
-
-
-                                                                                // typeofdatacount= (@ViewBag.YakkrCode == "300")?
-                                                                                if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "304")
-                                                                                {
-                                                                                    typeofdatacount = "Indicated";
-                                                                                    mode = "Pending";
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
                                                                                 }
-                                                                                if (ViewBag.YakkrCode == "301")
+                                                                                else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
                                                                                 {
-                                                                                    typeofdatacount = "Pending";
-                                                                                    mode = "QualifyReleased";
+                                                                                    <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)"> Select </a></td><td> @detail.ClientName </td><td> @detail.DOB </td><td> @detail.CenterName </td><td> @detail.FromUser </td><td> @detail.Date </td></tr>
+                                                                                    @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
+
                                                                                 }
-                                                                                if (ViewBag.YakkrCode == "302")
+                                                                                else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
                                                                                 {
-                                                                                    typeofdatacount = "Qualified";
-                                                                                    mode = "Released";
+                                                                                    <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseholdId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                                                                 }
-                                                                                if (ViewBag.YakkrCode == "303")
+                                                                                else if (ViewBag.YakkrCode == "704")
                                                                                 {
-                                                                                    typeofdatacount = "Released";
-                                                                                    mode = "All";
+                                                                                    <tr>
+                                                                                        <td class="ClientName">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                            <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                            <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                            <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
                                                                                 }
 
-                                                                                <tr>
-                                                                                    <td class="ClientName" onclick="LoadPendingDisable(this,true);" accesskey="@detail._EncCenterId" typeofdatacount="@typeofdatacount" mode="@mode">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                                                        <a href="javascript:void(0);" id="disabilitySelect">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
-                                                                            else if (Session["RoleID"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
-                                                                            {
+                                                                                else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303" || ViewBag.YarkkrCode == "304")
+                                                                                {
 
-                                                                            }
-                                                                            else if (Session["RoleID"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
-                                                                            {
-                                                                                <tr>
-                                                                                    <td class="ClientName">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
 
-                                                                                        <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
+                                                                                    // typeofdatacount= (@ViewBag.YakkrCode == "300")?
+                                                                                    if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "304")
+                                                                                    {
+                                                                                        typeofdatacount = "Indicated";
+                                                                                        mode = "Pending";
+                                                                                    }
+                                                                                    if (ViewBag.YakkrCode == "301")
+                                                                                    {
+                                                                                        typeofdatacount = "Pending";
+                                                                                        mode = "QualifyReleased";
+                                                                                    }
+                                                                                    if (ViewBag.YakkrCode == "302")
+                                                                                    {
+                                                                                        typeofdatacount = "Qualified";
+                                                                                        mode = "Released";
+                                                                                    }
+                                                                                    if (ViewBag.YakkrCode == "303")
+                                                                                    {
+                                                                                        typeofdatacount = "Released";
+                                                                                        mode = "All";
+                                                                                    }
 
-                                                                            
-                                                                            else
-                                                                            {
-                                                                                <tr>
-                                                                                    <td class="ClientName">
-                                                                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                                                        <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
-                                                                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                                                        <a href="javascript:void(0)">Select</a>
-                                                                                    </td>
-                                                                                    <td>@detail.ClientName</td>
-                                                                                    <td>@detail.DOB</td>
-                                                                                    <td>@detail.CenterName</td>
-                                                                                    <td>@detail.FromUser</td>
-                                                                                    <td>@detail.Date</td>
-                                                                                </tr>
-                                                                            }
-                                                                    }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <tr><td colspan="5">No Result Found</td></tr>
-                                                                    }
+                                                                                    <tr>
+                                                                                        <td class="ClientName" onclick="LoadPendingDisable(this,true);" accesskey="@detail._EncCenterId" typeofdatacount="@typeofdatacount" mode="@mode">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                            <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                            <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                            <a href="javascript:void(0);" id="disabilitySelect">Select</a>
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
+                                                                                }
+                                                                                else if (Session["RoleID"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                                                                {
 
-                                                                </tbody>
+                                                                                }
+                                                                                else if (Session["RoleID"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td class="ClientName">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                            <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                            <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+
+                                                                                            <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID">Select</a>
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
+                                                                                }
+
+
+                                                                                else
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td class="ClientName">
+                                                                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                                                            <span class="HouseHoldId" style="display:none;">@detail.HouseholdId</span>
+                                                                                            <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                                                            <a href="javascript:void(0)">Select</a>
+                                                                                        </td>
+                                                                                        <td>@detail.ClientName</td>
+                                                                                        <td>@detail.DOB</td>
+                                                                                        <td>@detail.CenterName</td>
+                                                                                        <td>@detail.FromUser</td>
+                                                                                        <td>@detail.Date</td>
+                                                                                    </tr>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <tr><td colspan="5">No Result Found</td></tr>
+                                                                        }
+
+                                                                    </tbody>
+                                                                }
+
+                                                            </table>
+                                                            <div id="div1" style="text-align:center;display:none;">
+                                                                <label>No result found.</label>
+                                                            </div>
+                                                        </div>
                                                     }
-
-                                                </table>
-                                                <div id="div1" style="text-align:center;display:none;">
-                                                    <label>No result found.</label>
-                                                </div>
-                                            </div>
-                                        }
             </div>
         </div>
     </div>
@@ -1722,7 +1849,7 @@
         </div>
     </div>
 
-    <div class="modal fade scroll-modal in" id="Casenotedevelopement" role="dialog" aria-hidden="false">
+    <div class="modal fade custom-modal scroll-modal in" id="Casenotedevelopement" role="dialog" aria-hidden="false">
         <div class="modal-dialog modal-dialog-ch">
             <div class="modal-content">
 
@@ -1733,126 +1860,195 @@
                         <input type="hidden" id="case_clientId" name="caseNoteClient" />
                         <input type="hidden" id="case_yakkrId" name="caseNoteYakkr" />
 
-                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div class="col-sm-4">
-                                <div class="addn-poup-div">
-                                    <label>Client :</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="addn-poup-div1">
-                                    <p id="caseNoteClientName"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="Yakkr292" style="display:none;">
-                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                        @*<div class="col-xs-12 addn-al" style="padding: 0;">
                                 <div class="col-sm-4">
                                     <div class="addn-poup-div">
-                                        <label>Referred By:</label>
+                                        <label>Client :</label>
                                     </div>
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="addn-poup-div1">
-                                        <p id="caseNoteReferredBy"></p>
+                                        <p id="caseNoteClientName"></p>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-xs-12 addn-al" style="padding: 0;">
-                                <div class="col-sm-4">
-                                    <div class="addn-poup-div">
-                                        <label>Role:</label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-8">
-                                    <div class="addn-poup-div1">
-                                        <p id="caseNoteRole"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 addn-al" style="padding: 0;">
-                                <div class="col-sm-4">
-                                    <div class="addn-poup-div">
-                                        <label>Center:</label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-8">
-                                    <div class="addn-poup-div1">
-                                        <p id="caseNoteCenter"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 addn-al" style="padding: 0;">
-                                <div class="col-sm-4">
-                                    <div class="addn-poup-div">
-                                        <label>Classroom:</label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-8">
-                                    <div class="addn-poup-div1">
-                                        <p id="caseNoteClassroom"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div class="col-sm-4">
-                                <div class="addn-poup-div">
-                                    <label>Title :</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="addn-poup-div1">
-                                    <p id="caseNoteTitle"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div class="col-sm-4">
-                                <div class="addn-poup-div">
-                                    <label>Date :</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="addn-poup-div1">
-                                    <p id="caseNoteDate"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div class="col-sm-4">
-                                <div class="addn-poup-div">
-                                    <label>Notes :</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-8">
-                                <div class="addn-poup-div1">
-                                    <p id="caseNoteNotes"></p>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div id="Attachments">
-                                <div class="col-sm-12 adddivspace" style="padding: 0;">
+                            <div id="Yakkr292" style="display:none;">
+                                <div class="col-xs-12 addn-al" style="padding: 0;">
                                     <div class="col-sm-4">
                                         <div class="addn-poup-div">
-                                            <label>Attachment(s) :</label>
+                                            <label>Referred By:</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-8">
-                                        <div class="addn-poup-div1" id="attachements_div">
-                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
-                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
-                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                        <div class="addn-poup-div1">
+                                            <p id="caseNoteReferredBy"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 addn-al" style="padding: 0;">
+                                    <div class="col-sm-4">
+                                        <div class="addn-poup-div">
+                                            <label>Role:</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="addn-poup-div1">
+                                            <p id="caseNoteRole"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 addn-al" style="padding: 0;">
+                                    <div class="col-sm-4">
+                                        <div class="addn-poup-div">
+                                            <label>Center:</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="addn-poup-div1">
+                                            <p id="caseNoteCenter"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 addn-al" style="padding: 0;">
+                                    <div class="col-sm-4">
+                                        <div class="addn-poup-div">
+                                            <label>Classroom:</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="addn-poup-div1">
+                                            <p id="caseNoteClassroom"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Title :</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteTitle"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Date :</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteDate"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Notes :</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteNotes"></p>
+                                    </div>
+                                </div>
+                            </div>*@
+
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group col-xs-12">
+                                <label for="lblClientName" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Client</label>
+                                <label id="lblClientName" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+
+                            </div>
+
+
+                            <div class="form-group col-xs-12">
+                                <label for="lblCaseNotetDate" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Date</label>
+                                <label id="lblCaseNotetDate" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="lblCaseNoteTitle" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Title</label>
+                                <label id="lblCaseNoteTitle" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;"><label>Name of the staff</label>, <label>Role</label></label>
+                                <label class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"><label id="lblWrittenBy" style="font-weight:normal;"></label>, <label id="lblWrittenByRole" style="font-weight:normal;"></label></label>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="lblCenter" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Center</label>
+                                <label id="lblCenter" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="lblClassroom" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Classroom</label>
+                                <label id="lblClassroom" class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;"></label>
+                            </div>
+
+
+                            <div class="form-group col-xs-12">
+                                <label for="mainnotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Original Note</label>
+                                <div id="mainnotes" class="txt-main-note col-md-5 col-lg-9 col-xs-12">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Tags</label>
+                                <div id="mainTags" class="txt-main-note col-md-5 col-lg-9 col-xs-12">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12 divAppendedNotes">
+                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Appended Notes</label>
+
+                                <div class="col-md-5 col-lg-9 col-xs-12 sub-notes-details">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12" id="div_download_attach">
+                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;float:left;">Download Attachment(s)</label>
+
+                                <div class="col-md-5 col-lg-9 col-xs-12" id="div_attach_download_bind_section">
+
+
+                                </div>
+
+                            </div>
+
                         </div>
+
+
+
+                        @*<div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div id="Attachments">
+                                    <div class="col-sm-12 adddivspace" style="padding: 0;">
+                                        <div class="col-sm-4">
+                                            <div class="addn-poup-div">
+                                                <label>Attachment(s) :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="addn-poup-div1" id="attachements_div">
+                                                <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                                <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                                <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
 
                     </div>
 
@@ -1895,70 +2091,70 @@
 
     <!--- Modal New In-Kind Period created ------>
 
-<div class="modal fade custom-modal" id="modal-inkind-period" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal fade custom-modal" id="modal-inkind-period" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
-                <h2  class="extra-title muted">New In-Kind Period</h2>
-             
-                <div class="custom-modal-body-div">
-                    <div class="form-group col-xs-12">
-                        <label for="lbl-active-inkind-period" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Active In-Kind Period</label>
-                        <label id="lbl-active-inkind-period" class="col-md-5 col-lg-4 col-xs-12"></label>
-                    </div>
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                    <h2 class="extra-title muted">New In-Kind Period</h2>
 
-                    <div class="form-group col-xs-12">
-                        <label for="lbl-new-inkind-period" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">New In-Kind Period</label>
-                        <label id="lbl-new-inkind-period" class="col-md-5 col-lg-4 col-xs-12"></label>
-                    </div>
-
-                    <div class="form-group col-xs-12">
-                        <div class="col-xs-12"><p>Click on <strong>Execute,</strong> to activate New In-Kind Period.</p></div>
-                    </div>
-
-                    <div class="form-group col-xs-12">
-                        <div class="col-xs-12 alert alert-danger">
-                            <p><strong><i class="fa fa-warning" style="color:red;"></i></strong>&nbsp; Once executed, can't be revoked.</p>
-                        </div>
+                    <div class="custom-modal-body-div">
+                        <div class="form-group col-xs-12">
+                            <label for="lbl-active-inkind-period" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Active In-Kind Period</label>
+                            <label id="lbl-active-inkind-period" class="col-md-5 col-lg-4 col-xs-12"></label>
                         </div>
 
+                        <div class="form-group col-xs-12">
+                            <label for="lbl-new-inkind-period" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">New In-Kind Period</label>
+                            <label id="lbl-new-inkind-period" class="col-md-5 col-lg-4 col-xs-12"></label>
+                        </div>
 
-                    
+                        <div class="form-group col-xs-12">
+                            <div class="col-xs-12"><p>Click on <strong>Execute,</strong> to activate New In-Kind Period.</p></div>
+                        </div>
 
+                        <div class="form-group col-xs-12">
+                            <div class="col-xs-12 alert alert-danger">
+                                <p><strong><i class="fa fa-warning" style="color:red;"></i></strong>&nbsp; Once executed, can't be revoked.</p>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+
+
+                    <div class="form-group final-btn text-center glossy_btn adddivspace" style="text-align:center;">
+
+                        <button class="glossy-button-button button-red glossy-button-hover" type="button" data-dismiss="modal">
+                            <i class="glossy-button-after" style="padding-left:0;"></i>
+                            <i class="glossy-button-before" style="padding-left:0;"></i>
+                            Exit
+                        </button>
+
+                        <button class="glossy-button-button button-green glossy-button-hover" accesskey="0" type="button" id="btn-inkind-yakkr-submit">
+                            <i class="glossy-button-after" style="padding-left:0;"></i>
+                            <i class="glossy-button-before" style="padding-left:0;"></i>
+                            Execute
+                        </button>
+
+                    </div>
                 </div>
 
 
 
-                <div class="form-group final-btn text-center glossy_btn adddivspace" style="text-align:center;">
 
-                    <button class="glossy-button-button button-red glossy-button-hover" type="button" data-dismiss="modal">
-                        <i class="glossy-button-after" style="padding-left:0;"></i>
-                        <i class="glossy-button-before" style="padding-left:0;" ></i>
-                        Exit
-                    </button>
 
-                    <button class="glossy-button-button button-green glossy-button-hover" accesskey="0" type="button" id="btn-inkind-yakkr-submit">
-                        <i class="glossy-button-after" style="padding-left:0;"></i>
-                        <i class="glossy-button-before" style="padding-left:0;"></i>
-                        Execute
-                    </button>
 
-                </div>
+
+
+
             </div>
-
-
-         
-          
-          
-
-         
-              
-            
         </div>
     </div>
-</div>
 
 
 
@@ -2619,46 +2815,175 @@
                         url: '/Yakkr/GetCaseNoteDetailsByYakkr',
                         datatype: 'json',
                         type: 'post',
-                        data: { clientId: ClientId, yakkrId: YakkrID },
+                        data: { householdid: HouseHoldId, clientId: ClientId, yakkrId: YakkrID },
                         success: function (data) {
 
+                          
+
+
+
+                            //var caseNoteModal = $('#Casenotedevelopement');
+                            //var attachmentDiv = '';
+                            //if (data != null) {
+                            //    if ($('.yakkr-code').text().trim() == "292") {
+                            //        $('#CaseNoteHeading').text("Internal Referral Details");
+                            //        caseNoteModal.find('#caseNoteReferredBy').html(data.ReferredBy);
+                            //        caseNoteModal.find('#caseNoteCenter').html(data.CenterName);
+                            //        caseNoteModal.find('#caseNoteRole').html(data.RoleName);
+                            //        caseNoteModal.find('#caseNoteClassroom').html(data.ClassroomName);
+                            //        $('#Yakkr292').show();
+                            //    }
+                            //    caseNoteModal.find('#caseNoteClientName').html(data.CaseNote.ClientName);
+                            //    caseNoteModal.find('#caseNoteTitle').html(data.CaseNote.CaseNotetitle);
+                            //    caseNoteModal.find('#caseNoteDate').html(data.CaseNote.CaseNoteDate);
+                            //    caseNoteModal.find('#caseNoteNotes').html(data.CaseNote.Note);
+                            //    if (data.CaseNote.AttachmentIdArray.length > 0) {
+                            //        $.each(data.CaseNote.AttachmentIdArray, function (i, attach) {
+                            //            if (attach != '0') {
+                            //                attachmentDiv += "<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + attach + ",CaseNote,0'><i class='fa fa-download download-ic' style='font-size:18px!important;'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;"
+                            //                //attachmentDiv+='<a target="_blank" accesskey='+attach+'  title="Click here to download" href="#"><i class="fa fa-download download-ic"></i></a>'
+                            //            }
+                            //        });
+                            //    }
+                            //    else {
+                            //        attachmentDiv = '<div class="addn-poup-div1">\
+                            //    <p>Not Available</p>\
+                            //</div>';
+                            //    }
+                            //    $('#attachements_div').html(attachmentDiv)
+                            //}
+                           
+                            //$('#Casenotedevelopement').modal('show');
                             var caseNoteModal = $('#Casenotedevelopement');
-                            var attachmentDiv = '';
-                            if (data != null) {
+
+
+                            if (data != null && data.CaseNote != null) {
+
                                 if ($('.yakkr-code').text().trim() == "292") {
-                                    $('#CaseNoteHeading').text("Internal Referral Details");
-                                    caseNoteModal.find('#caseNoteReferredBy').html(data.ReferredBy);
-                                    caseNoteModal.find('#caseNoteCenter').html(data.CenterName);
-                                    caseNoteModal.find('#caseNoteRole').html(data.RoleName);
-                                    caseNoteModal.find('#caseNoteClassroom').html(data.ClassroomName);
-                                    $('#Yakkr292').show();
+                                    caseNoteModal.find('#CaseNoteHeading').text("Internal Referral Details");
                                 }
-                                caseNoteModal.find('#caseNoteClientName').html(data.CaseNote.ClientName);
-                                caseNoteModal.find('#caseNoteTitle').html(data.CaseNote.CaseNotetitle);
-                                caseNoteModal.find('#caseNoteDate').html(data.CaseNote.CaseNoteDate);
-                                caseNoteModal.find('#caseNoteNotes').html(data.CaseNote.Note);
-                                if (data.CaseNote.AttachmentIdArray.length > 0) {
-                                    $.each(data.CaseNote.AttachmentIdArray, function (i, attach) {
-                                        if (attach != '0') {
-                                            attachmentDiv += "<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + attach + ",CaseNote,0'><i class='fa fa-download download-ic' style='font-size:18px!important;'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;"
-                                            //attachmentDiv+='<a target="_blank" accesskey='+attach+'  title="Click here to download" href="#"><i class="fa fa-download download-ic"></i></a>'
-                                        }
+                                //else {
+                                //    caseNoteModal.find('#CaseNoteHeading').text('Case Note Development Team');
+                                //}
+
+
+                                var mainTagstext = '';
+
+                                if (data.CaseNote.TagList != null && data.CaseNote.TagList.length > 0) {
+                                    $.each(data.CaseNote.TagList, function (s, oTags) {
+
+                                        mainTagstext += '<span id="subTags" class="tag-text">' + oTags.Text + '</span>'
+                                    });
+                                }
+
+                                caseNoteModal.find('#lblClientName').html(ClientName);
+                                caseNoteModal.find('#lblCaseNotetDate').html(data.CaseNote.CaseNoteDate);
+                                caseNoteModal.find('#lblCaseNoteTitle').html(data.CaseNote.Title);
+                                caseNoteModal.find('#lblWrittenBy').html(data.CaseNote.BY);
+                                caseNoteModal.find('#lblWrittenByRole').html(data.CaseNote.RoleOfOwner);
+                                caseNoteModal.find('#mainnotes').html(data.CaseNote.Note);
+                                caseNoteModal.find('#lblCenter').html(data.CenterName);
+                                caseNoteModal.find('#lblClassroom').html(data.ClassroomName);
+
+                                caseNoteModal.find('#mainTags').html(mainTagstext);
+                               
+
+
+
+
+
+                                var subAppendText = '';
+                                if (data.CaseNote.SubCaseNoteList != null && data.CaseNote.SubCaseNoteList.length > 0) {
+
+                                    $.each(data.CaseNote.SubCaseNoteList, function (i, subCaseNote) {
+
+                                        var tagsappend = '';
+
+                                        $.each(subCaseNote.TagList, function (j, tag) {
+
+                                            tagsappend += '<span id="subTags" class="tag-text">' + tag.Text + '</span>';
+                                        });
+
+                                        var attachmentsAppend = '';
+
+                                        $.each(subCaseNote.Attachment, function (k, attach) {
+                                            attachmentsAppend += '<a title="Click here to download" href="/Agencyuser/getpdfimage1/' + attach + ',CaseNote,0"><i class="fa fa-download"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;'
+                                        });
+
+                                        subAppendText += '<div class="accordion">\
+                                       <a href="javascript:void(0);">\
+                                           <h4>Posted on <span>'+ subCaseNote.WrittenDate + '</span></h4>\
+                                       </a>\
+                                   </div>\
+                                   <div class="addn-poup-div accordion-desc sub-text-block" style="display:none;">\
+                                       <table class="table" style="outline:1px solid #ddd;">\
+                                           <tbody>\
+                                               <tr>\
+                                                   <td><strong>Name of the Staff, Role</strong></td>\
+                                                   <td>'+ subCaseNote.WrittenBy + ', ' + subCaseNote.RoleOfOwner + '</td>\
+                                               </tr>\
+                                               <tr></tr>\
+                                               <tr>\
+                                                   <td><strong>Note</strong></td>\
+                                                   <td>'+ subCaseNote.Notes + '</td>\
+                                               </tr>\
+                                               <tr>\
+                                                   <td>\
+                                                       <strong>Tags</strong>\
+                                                   </td>\
+                                                   <td>'+ tagsappend + '</td>\
+                                               </tr>\
+                                               <tr>\
+                                                   <td><strong>Attachments</strong></td>\
+                                                   <td>'+ attachmentsAppend + '</td>\
+                                               </tr>\
+                                           </tbody>\
+                                       </table>\
+                                   </div>';
 
                                     });
+                                }
 
+                                if (subAppendText == "")
+                                {
+                                    subAppendText = '<div class="addn-poup-div col-xs-12 no-padding" style="padding:0;"><h4 style="margin-top:0;">No record found</h4></div>';
                                 }
-                                else {
-                                    attachmentDiv = '<div class="addn-poup-div1">\
-                                <p>Not Available</p>\
-                            </div>';
+                                caseNoteModal.find('.sub-notes-details').html(subAppendText);
+
+
+                                var casenoteAttach = '';
+                                $.each(data.CaseNote.CaseNoteAttachmentList, function (l, attach) {
+
+                                    casenoteAttach += '<a title="Click here to download" style="font-size:18px;" href="/Agencyuser/getpdfimage1/' + attach.AttachmentId + ',CaseNote,0"><i class="fa fa-download"></i></a><span>&nbsp;&nbsp;</span>';
+                                });
+
+                                if (casenoteAttach == "")
+                                {
+                                    casenoteAttach = "<div>N/A</div>";
                                 }
-                                $('#attachements_div').html(attachmentDiv)
+
+
+                                caseNoteModal.find('#div_attach_download_bind_section').html(casenoteAttach);
+
+
+                                caseNoteModal.find('.sub-notes-details').find(".accordion-desc").fadeOut(0);
+
+                                caseNoteModal.find('.sub-notes-details').find(".accordion").click(function () {
+
+
+
+                                    caseNoteModal.find('.sub-notes-details').find(".accordion-desc").not($(this).next()).slideUp('slow');
+                                    $(this).next().slideToggle(400);
+                                    $(this).toggleClass('active');
+
+                                    caseNoteModal.find('.sub-notes-details').find('.accordion').not($(this)).removeClass('active');
+
+                                });
+
+                                caseNoteModal.find('#case_clientId').val(ClientId);
+                                caseNoteModal.find('#case_yakkrId').val(YakkrID);
+                                caseNoteModal.modal('show');
                             }
-
-                            $('#Casenotedevelopement').find('#case_clientId').val(ClientId);
-                            $('#Casenotedevelopement').find('#case_yakkrId').val(YakkrID);
-
-                            $('#Casenotedevelopement').modal('show');
 
                         },
                         error: function (data) {
@@ -2669,7 +2994,7 @@
 
                     //redirects to Referral Service Page for Screening Referral (Yakkr 455)//
                 else if ($('.yakkr-code').text().trim() == "455") {
-                 
+
                     $('#spinner').show();
 
 
@@ -2678,46 +3003,41 @@
                 }
 
                     // New In-Kind periods yakkr generation //
-                else if($('.yakkr-code').text().trim()=="903")
-                {
+                else if ($('.yakkr-code').text().trim() == "903") {
                     $.ajax({
                         dataType: 'json',
                         type: "POST",
                         async: true,
                         url: HostedDir + "/InKind/GetInkindPeriodYakkrMappings",
-                        beforeSend:function(){$('#spinner').show()},
+                        beforeSend: function () { $('#spinner').show() },
                         data: { 'yakkrId': YakkrID },
                         success: function (data) {
-                            debugger;
+
 
                             var $inkindYakkrModal = $('#modal-inkind-period');
 
                             $inkindYakkrModal.find('#lbl-active-inkind-period').html('');
                             $inkindYakkrModal.find('#lbl-new-inkind-period').html('');
 
-                            if(data!=null && data.length>0)
-                            {
+                            if (data != null && data.length > 0) {
 
 
                                 $.each(data, function (i, inkind) {
 
-                                    if (inkind.IsStatus)
-                                    {
+                                    if (inkind.IsStatus) {
                                         $inkindYakkrModal.find('#lbl-active-inkind-period').html(inkind.StartDate + ' <i style="font-weight:normal;">to</i> ' + inkind.EndDate);
                                     }
-                                    else
-                                    {
+                                    else {
                                         $inkindYakkrModal.find('#lbl-new-inkind-period').html(inkind.StartDate + ' <i style="font-weight:normal;">to</i> ' + inkind.EndDate);
 
                                     }
                                 });
 
                                 $inkindYakkrModal.find('#btn-inkind-yakkr-submit').attr({ 'accesskey': YakkrID });
-                           
+
                                 $inkindYakkrModal.modal('show');
                             }
-                            else
-                            {
+                            else {
                                 customAlert('Error occurred. Please, try again later');
                             }
                         },
@@ -2725,8 +3045,7 @@
 
                             customAlert('Error occurred. Please, try again later');
                         },
-                        complete:function(data)
-                        {
+                        complete: function (data) {
                             $('#spinner').hide();
                         }
                     });
@@ -2840,11 +3159,9 @@
                     type: 'post',
                     datatype: 'json',
                     data: { yakkrId: $yakkrId },
-                    beforeSend:function(){$('#spinner').show()},
-                    success:function(data)
-                    {
-                        if(data)
-                        {
+                    beforeSend: function () { $('#spinner').show() },
+                    success: function (data) {
+                        if (data) {
                             customAlert('Record saved successfully');
 
                             if ($('#tbody-new-inkind').find('tr').length <= 1) {
@@ -2857,14 +3174,13 @@
                                 }, 1000);
 
                             }
-                            else
-                            {
+                            else {
                                 window.setTimeout(function () {
 
                                     window.location.reload();
 
                                 }, 1000);
-                               
+
                             }
 
 
@@ -2880,13 +3196,11 @@
 
 
                     },
-                    error:function(data)
-                    {
+                    error: function (data) {
                         customAlert('Error occurred. Please, try again later');
                     },
-                    complete:function(data)
-                    {
-                       
+                    complete: function (data) {
+
                         $selfBtn.removeAttr('disabled');
                         $('#spinner').hide();
                     }
@@ -2900,28 +3214,27 @@
 
 
 
-        function removeUnscheduledDay(ele,yakkrID)
-        {
+        function removeUnscheduledDay(ele, yakkrID) {
 
             BootstrapDialog.show({
-               title: "Confirmation",
+                title: "Confirmation",
                 message: 'You are about to remove this record. Click OK to Proceed.',
                 closable: true,
                 closeByBackdrop: false,
                 closeByKeyboard: false,
                 buttons: [{
                     label: 'Cancel',
-                    action: function(dialogRef){
+                    action: function (dialogRef) {
                         dialogRef.close();
                     }
                 },
                 {
                     label: 'OK',
-                    action: function(dialogRef){
+                    action: function (dialogRef) {
 
-                        
+
                         $.ajax({
-                            url: HostedDir+ '/Yakkr/DeleteYakkrByYakkrId',
+                            url: HostedDir + '/Yakkr/DeleteYakkrByYakkrId',
                             type: 'post',
                             datatype: 'json',
                             data: { clientId: 0, yakkrId: parseInt(yakkrID) },
@@ -2995,7 +3308,7 @@
                 success: function (data) {
 
                     var event1 = $('#EventCancelledInfo');
-                    debugger;
+                
                     if (data != null) {
                         event1.find('#CancelledBy').html(data.CreatedBy);
                         event1.find('#EventDateTime').html(data.EventDate);

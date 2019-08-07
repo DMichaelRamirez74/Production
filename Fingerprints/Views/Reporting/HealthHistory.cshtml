@@ -1,0 +1,880 @@
+﻿@using FingerprintsModel
+@using Fingerprints.LocalResource
+
+@section Title
+{
+    Health History
+}
+
+@{
+
+
+
+    if (Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.AgencyAdmin).ToLowerInvariant()
+        || Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator).ToLowerInvariant())
+    {
+
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+}
+
+
+@section style{
+
+    <style type="text/css">
+        .anchor_yellow {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #9b59b6;
+            border-color: #9b59b6 #9b59b6 #9b59b6;
+        }
+
+        .glossy_btn button, .backto_listspan .anchor_yellow {
+            width: auto;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+            .backto_listspan .anchor_yellow:hover {
+                text-shadow: 0 1px #0d4d09;
+                background-color: #21945a;
+                border-color: #2bc577 #2bc577 #2bc577;
+                color: #fff;
+                text-shadow: 0 1px #154c86;
+                text-decoration: none;
+            }
+
+        .anchor_yellow:hover {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #21945a;
+            border-color: #2bc577 #2bc577 #2bc577;
+            color: #fff;
+            text-shadow: 0 1px #154c86;
+            text-decoration: none;
+        }
+
+        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+            width: 120%;
+            background-color: rgba(255,255,255,0);
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        @@media (min-width: 768px) {
+            #page-wrapper {
+                border-left: 1px solid #e7e7e7;
+                margin-left: 250px;
+                position: inherit;
+            }
+        }
+
+        #page-wrapper {
+            background-color: #fff;
+            min-height: 568px;
+            padding: 30px 15px 0;
+        }
+
+        #filtercontent-div label, #maincontent-div p {
+            color: #1d5381;
+        }
+    </style>
+    <style>
+        .glossy-modal-custom .modal-body {
+            background: #34495e none repeat scroll 0 0;
+            border: 6px solid #ffffff;
+            border-radius: 3px;
+            /* color: #ffffff; */
+            float: left;
+            padding: 15px 3%;
+            position: relative;
+            width: 100%;
+        }
+
+        .glossy-modal-custom .modal-dialog-ch {
+            width: 70%;
+            margin: 20px 15%;
+        }
+
+        .glossy-modal-custom .close {
+            opacity: 1;
+            position: absolute;
+            right: -14px;
+            top: -15px;
+        }
+
+        .glossy-modal-custom .modal-body > h2 {
+            margin-top: 10px;
+            float: left;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .glossy-modal-custom .max_items_addn {
+            background: #f1f5f8 none repeat scroll 0 0;
+            border: 3px solid #ffffff;
+            float: left;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .mqs {
+         font-size:15px;
+        }
+        .msq {
+         /*margin-left:15px;*/
+        }
+    </style>
+
+
+}
+
+@section MainContentHolder {
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+
+
+
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding-top: 25px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751 !important; color: #fff;">
+                                        <span>
+                                            <i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;@Resources.HealthHistoryReport
+                                        </span>
+                                        <a href="@Url.Action("Roster","Roster")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;color:#fff;">
+                                            Back to Roster
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+
+                                        </a>
+
+
+                                    </h2>
+                                </div>
+                            </div>
+
+
+                         
+
+
+                            <form class="col-xs-12" id="formReport">
+
+
+
+                                <div id="div-filter-section" class="col-xs-12 glossy-panel-div">
+
+                                    <!---Center drop-down section-->
+                                    <div class="form-group col-lg-4 col-md-4 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                        <label for="selectCenter" class="lbl-text">@Fingerprints.LocalResource.Resources.Center &nbsp;<sup>*</sup></label>
+
+                                        @{
+
+                                            FingerprintsModel.StaffDetails staff = FingerprintsModel.StaffDetails.GetInstance();
+
+                                            var centerDetails = Fingerprints.Utilities.Helper.GetCentersByUserId(staff.UserId.ToString(), staff.AgencyId.ToString(), staff.RoleId.ToString());
+
+
+                                            centerDetails.ForEach(x =>
+                                            {
+                                                x.Value = x.Value != "0" ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                            });
+                                        }
+
+
+                                        <select id="selectCenter" name="Centers" class="glossy-select">
+
+                                            @if (centerDetails != null && centerDetails.Count > 0)
+
+                                            {
+                                                <option value="0">-- Select --</option>
+
+                                                foreach (var center in centerDetails)
+                                                {
+
+                                                    if (center.Value != "0")
+                                                    {
+                                                        <option value="@center.Value">@center.Text</option>
+
+                                                    }
+
+
+                                                }
+
+
+                                            }
+
+                                        </select>
+
+                                        <input type="hidden" name="CenterID" />
+
+                                    </div>
+
+
+
+                                    <!-----Classroom drop-down Section------------------>
+
+                                    <div class="form-group col-lg-4 col-md-4 col-sm-6 col-xs-12" id="div-classroom-dropdown">
+                                        <label for="selectClassroom" class="lbl-text">@Fingerprints.LocalResource.Resources.Classroom &nbsp;<sup>*</sup></label>
+                                        <select id="selectClassroom" name="Classrooms" class="glossy-select" >
+
+                                        </select>
+                                    </div>
+
+
+                                    <!-------------->
+
+                                    <!-----Health History Report Load section-->
+                                    <div class="form-check col-lg-2 col-xs-12 col-sm-3 col-md-3 glossy_btn" style="width:127px;">
+                                        <label for="buttonLoadReport" class="hidden-xs" style="visibility:hidden;">Load</label>
+
+
+                                        <button class="glossy-button-button button-green" id="buttonLoadReport" type="button">
+                                            @Fingerprints.LocalResource.Resources.Load
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                        </button>
+                                    </div>
+
+
+                                    <!-----Health History Report Export section-->
+
+                                    <div class="form-check col-lg-2 col-xs-12 col-sm-3 col-md-3 glossy_btn" style="width:127px;">
+                                        <label for="buttonLoadReport" class="hidden-xs" style="visibility:hidden;">Export</label>
+
+
+                                        <div class="dropdown" style="float:left;margin-left: 15px;">
+                                            <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+                                                Export
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                            </ul>
+                                        </div>
+
+
+
+                                    </div>
+
+
+
+
+
+
+
+
+
+
+                                </div>
+
+                            </form>
+
+
+
+                            @*<div id="filtercontent-div" class="col-xs-12" style="display:block">
+
+                                <div class="row content-bg-main" style="margin:0px;">
+                                    <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                                        <div class="col-md-4">
+                                            <label>@Resources.Center</label>
+                                            @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input" })
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>@Resources.Classroom</label>
+                                            <select id="ClassRoom" name="ClassRoom" style="" class="form-control glossy-input">
+                                                <option value="">-Select Classroom-</option>
+
+                                            </select>
+
+
+                                        </div>
+
+                                        <div class="col-md-4" style="margin-top:22px;">
+
+                                            <button id="filter-review" class="glossy-button-button button-green" type="button" style="float:left;">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                @Resources.Filter
+                                            </button>
+
+                                            
+
+                                            <div class="dropdown" style="float:left;margin-left: 15px;">
+                                                <button class="glossy-button-button button-blue dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+                                                    Export
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
+                                                    <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
+                                                </ul>
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>*@
+
+
+
+                            <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                                @*<div class="search-block-main">
+                                        <div class="glossy-search-block">
+
+                                            <input type="text" placeholder="@Resources.Search..." id="searchText" class="form-control" autocomplete="off">
+
+                                            <div class="glossy-search-btn-div">
+                                                <button id="btnSearchauto" onclick="ClasReview.searchReview(this)">@Resources.Search</button>
+                                            </div>
+                                        </div>
+
+
+                                    </div>*@
+
+
+                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="HHTable-table">
+
+                                    <thead>
+                                        <tr>
+                                        <th style="width:45%;" >Name</th>
+                                        <th style="width:20%;" >Program</th>
+                                        <th style="width:20%;" >DOB</th>
+                                        <th style="width:15%;" ></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="HHTable-body"></tbody>
+
+
+                                </table>
+                            </div>
+
+
+
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade scroll-modal glossy-modal-custom" id="viewdetails-modal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+
+                <div class="modal-body">
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/template" id="emergency-ct" style="margin-top:10px;">
+
+        <div class="col-xs-12 col-sm-6" style="font-weight:bold;">
+            <p class=""><span style="color:#295b8f;">Name:&nbsp;</span><span style="font-weight:normal;">{NAME}</span></p>
+            <p><span style="color:#295b8f;">Phone Number(s):&nbsp; </span><span style="font-weight:normal;">{PhoneNo}</span></p>
+        </div>
+
+    </script>
+
+
+    <script type="text/template" id="viewdetail-temp">
+
+        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+        <h2 id="CaseNoteHeading" class="extra-title muted">Health History of {NAME}</h2>
+
+        <div class="max_items_addn popup-addn-scroll" id="">
+
+            <div class="col-xs-12">
+                <label class="form-group col-xs-12" style="margin-bottom:10px !important;text-decoration:underline;">Parent(s)</label>
+                <div class="form-group col-xs-12" id="parent-div">
+
+                </div>
+            </div>
+
+
+            <div class="col-xs-12">
+                <label class="form-group col-xs-12" style="margin-bottom:10px !important;text-decoration:underline;">Emergency Contact</label>
+                <div class="form-group col-xs-12" id="emd-div">
+
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <div class="col-xs-12">
+                    <label style="text-decoration:underline;">Health History </label>
+                    
+                </div>
+                <div class="table-responsive col-xs-12">
+                    <table class="table table-bordered table-condensed table-striped">
+                        <tbody class="">
+                            <tr>
+                                <td>
+                                    <p>Diagnosed Condition</p>
+                                </td>
+                                <td>
+                                    <p>
+                                        Anemia
+                                    </p>
+                                </td>
+                                <td>
+                                    <p>
+                                        Allergy
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                     <p>Is required medical treatment?</p>
+                                </td>
+                                <td>
+                                    <p>
+                                        Yes
+                                    </p>
+                                    
+                                </td>
+                                <td>
+                                    <p>
+                                        No
+                                    </p>
+                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Is Received medical Treatment?</p>
+
+                                </td>
+                                <td>
+                                    <p>Yes</p>
+                                </td>
+                                <td>
+                                    <p> Not Applicable</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+           
+
+
+
+                <div class="form-group col-xs-12 mqs" style="margin-top:20px;">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        1.Has the child been diagnosed with following conditions since last year's PIR?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Asthma<br />
+                        Cancer
+                    </label>
+                </div>
+
+
+                <div class="form-group col-xs-12 mqs">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        2.Did the child require medical treatment for the following chronic health conditions ?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Asthma<br />
+                        Cancer
+                    </label>
+                </div>
+
+                <div class="form-group col-xs-12 mqs">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        3.Did child receive treatment for any of the following chronic health conditions?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Astma<br />
+                        Cancer
+                    </label>
+                </div>
+
+                <div class="form-group col-xs-12 mqs">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        4.Is the child currently taking any medication?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Yes
+                    </label>
+                </div>
+
+                <div class="form-group col-xs-12 msq">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        4.1.What is the name of the medication?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Albuterol
+                    </label>
+                </div>
+
+                <div class="form-group col-xs-12 msq">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        4.2.What is the dosage?
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        10mg/day
+                    </label>
+                   
+                    <label for="lbl-contact-name" class="" style="color:#295b8f;width:120px;padding-left:33px;">
+                       Comment: 
+                    </label>
+                    <label style="width:500px;">Test Comment</label>
+                </div>
+
+
+                <div class="form-group col-xs-12 mqs">
+                    <label for="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12" style="color:#295b8f;">
+                        5.If the child requires a Medical/Physical Care Plan??
+                    </label>
+                    <label style="margin-left: 15px;" id="lbl-contact-name" class="col-md-12 col-lg-12 col-xs-12">
+
+                        Yes
+                    </label>
+                </div>
+
+
+            </div>
+
+    </script>
+
+
+    <script type="text/template" id="option-template">
+        <option value="{val}">{text}</option>
+    </script>
+
+    <script type="text/template" id="table-template">
+        <tr>
+            <td><p>{NAME}</p></td>
+            <td class="text-center"><p>{PROGRAM}</p></td>
+            <td class="text-center"><p>{DOB}</p></td>
+            <td class="text-center">
+                <p>
+                    <button type="button" data-cname="{NAME}" data-id="{CLIENTID}" class="glossy-button-button button-green button-blue btn-view-detail glossy-button-button-ch">
+                        <span class="glossy-button-after"></span>
+                        <span class="glossy-button-before"></span>
+                        @*<i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;View*@
+                        View
+                    </button>
+                </p>
+            </td>
+
+        </tr>
+    </script>
+}
+
+
+@section Script {
+    <script type="text/javascript">
+
+        var _url = {
+            GetClassRooms: "@Url.Action("Getclassrooms", "Roster")?Centerid=",
+            getHealthHistroyList: "@Url.Action("GetHealthHistoryList", "Reporting")",
+            getHealthHistroyById:"@Url.Action("GetHealthHistoryById","Reporting")"
+
+        };
+
+
+
+
+        function fctryHreport() {
+
+            var hhReport = {
+                _self: this,
+                cons: {
+                    centerid: 0,
+                    classroomid: 0,
+                    currentChild: 0,
+                    currentChildName: ""
+                },
+                init: function () {
+                    var self = this;
+                    self.intElements();
+                    self.intEvents();
+                },
+                dom: {
+                    centerdrop: $("#selectCenter"),
+                    classroomDrop: $("#selectClassroom"),
+                    optionTempalte: $("#option-template"),
+                    tableTemplate: $("#table-template"),
+                    filterBtn: $("#buttonLoadReport"),
+                    HHTableBody: $("#HHTable-body"),
+                    BtnView: ".btn-view-detail",
+                    viewDTModal: $("#viewdetails-modal"),
+                    viewDTModalBody: $("#viewdetails-modal .modal-body"),
+                    viewDTModalTemplate: $("#viewdetail-temp"),
+                },
+                intElements: function () {
+
+                },
+                intEvents: function () {
+                    var self = hhReport;
+
+                    self.dom.centerdrop.change(function (e) {
+
+                        self.cons.centerid = $(this).val();
+                        self.getClassRooms();
+                    });
+                    self.dom.classroomDrop.change(function (e) {
+                        self.cons.classroomid = $(this).val();
+
+                    });
+
+                    self.dom.filterBtn.click(function (e) {
+                        e.preventDefault();
+                        self.getHealthHistroyList();
+                    });
+
+
+
+                    $(document).on("click", self.dom.BtnView, function (e) {
+                        e.preventDefault();
+                        console.log(this);
+                        var _data = $(this).data();
+                        self.cons.currentChild = _data.id;
+                        self.cons.currentChildName = _data.cname;
+
+                        self.ViewDetailsModal();
+                    });
+
+
+                    //self.dom.BtnView.on("click", function () {
+                    //    console.log('sss')
+                    //})
+
+                    //self.dom.BtnView.delegate(function (e) {
+                    //    e.preventDefault();
+
+                    //    console.log(this);
+                    //});
+
+                },
+                ViewDetailsModal: function () {
+                    var self = this;
+                    console.log(self.cons.currentChild);
+
+                    self.dom.viewDTModalBody.html('');
+
+                    $.ajax({
+                        type:"GET",
+                        url: _url.getHealthHistroyById.concat("?id=", self.cons.currentChild),
+                        dataType: "json",
+                        beforeSend: function () {
+                            $("#spinner").show();
+                        },
+                        contentType: "json/application",
+                        success: function (res) {
+                            console.log(res);
+
+                            if (res && res.length) {
+                                var _data = JSON.parse(res);
+                                console.log(_data);
+                                var _str = self.dom.viewDTModalTemplate.html();
+                                _str = _str.replace(/{NAME}/g, self.cons.currentChildName);
+
+                                self.dom.viewDTModalBody.append(_str);
+
+                                if (_data.Parents.length>0)
+                                {
+                                    _data.Parents.forEach(function (obj, j) {
+
+                                        var prContact = $("#emergency-ct").html();
+                                        prContact = prContact.replace(/{NAME}/g, obj.name)
+                                        .replace(/{PhoneNo}/g, obj.ParentPhoneNo)
+                                        $("#parent-div").append(prContact);
+
+                                    });
+                                }
+
+                                if (_data.EmergencyContacts.length>0) {
+                                    _data.EmergencyContacts.forEach(function (obj, i) {
+                                        console.log(obj);
+                                        var emrcont = $("#emergency-ct").html();
+                                        emrcont = emrcont.replace(/{NAME}/g, obj.name)
+                                        .replace(/{PhoneNo}/g, obj.EmergencyContactPhoneNo)
+                                        $("#emd-div").append(emrcont);
+
+                                    });
+                                }
+                                else {
+                                    $("#emd-div").html('<div class="col-xs-12"><p><span>Not Available</span></p></div>');
+                                }
+
+
+                                self.dom.viewDTModal.modal("show");
+
+
+
+                            }
+                        },
+                        error: function () {
+                            customAlert("Something went wrong. Please try again");
+                        },
+                        complete: function () {
+                            $("#spinner").hide();
+                        }
+                    });
+
+                   
+
+
+                },
+                validateFilter: function () {
+                    var self = this, isValid = true;
+
+                    if (self.cons.centerid == "0") {
+                        customAlert("Please Select Center");
+                        isValid = false;
+                    } else if (self.cons.classroomid == "0") {
+                        customAlert("Please Select Classroom")
+                        isValid = false;
+                    }
+
+
+                    return isValid;
+                },
+                getHealthHistroyList: function () {
+                    var slf = hhReport;
+
+                    if (!slf.validateFilter()) return false;
+
+                    var _query = { classroom: slf.cons.classroomid, center: slf.cons.centerid };
+                    slf.dom.HHTableBody.html('');
+                    $.ajax({
+                        type: "GET",
+                        url: _url.getHealthHistroyList.concat("?", $.param(_query)),
+                        dataType: "json",
+                        beforeSend: function () {
+                            $("#spinner").show();
+                        },
+                        contentType: "json/application",
+                        success: function (res) {
+
+                            if (res && res.length) {
+                                res.forEach(function (obj, i) {
+                                    var _Rstr = slf.dom.tableTemplate.html();
+
+                                    _Rstr = _Rstr.replace(/{NAME}/g, obj.ChildName)
+                                                .replace(/{PROGRAM}/g, obj.ProgramType)
+                                                .replace(/{DOB}/g, obj.DOB).replace(/{CLIENTID}/g, obj.ChildId);
+
+                                    slf.dom.HHTableBody.append(_Rstr);
+                                });
+                            } else {
+                                slf.dom.HHTableBody.append('<tr><td><p>No Record Found</td><p></tr>');
+                                customAlert("No record found");
+                            }
+                            console.info("success", res);
+                        },
+                        error: function (res) {
+                            customAlert("Something went wrong. Please try again");
+                            console.info("error", res);
+                        },
+                        complete: function (res) {
+                            console.info("complete", res);
+                            $("#spinner").hide();
+                        }
+                    });
+
+
+                },
+                getClassRooms: function () {
+                    var slf = hhReport;
+
+                    $.ajax({
+                        type: "POST",
+                        url: _url.GetClassRooms.concat(slf.cons.centerid),
+                        dataType: "json",
+                        beforeSend: function () {
+                            $("#spinner").show();
+                        },
+                        contentType: "json/application",
+                        success: function (res) {
+                            console.log(res);
+
+                            slf.dom.classroomDrop.html('');
+                            res.unshift({ ClassroomID: 0, ClassName: '-- Select Classroom --' })
+                            if (res.length) {
+                                res.forEach(function (obj) {
+                                    var _str = slf.dom.optionTempalte.html();
+                                    _str = _str.replace(/{val}/g, obj.Enc_ClassRoomId).replace(/{text}/g, obj.ClassName);
+                                    slf.dom.classroomDrop.append(_str);
+                                });
+
+                            }
+                        },
+                        error: function (res) {
+
+                        },
+                        complete: function (res) {
+                            $("#spinner").hide();
+                        }
+                    });
+
+                }
+
+            };
+
+            return { //the code must in same line 'return { '
+                publicInit: function () {
+                    console.log('ddd');
+                    hhReport.init();
+                }
+            };
+        };
+
+
+        $(document).ready(function () {
+
+            fctryHreport().publicInit()
+        });
+
+    </script>;
+}

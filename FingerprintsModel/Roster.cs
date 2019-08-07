@@ -86,6 +86,8 @@ namespace FingerprintsModel
 
             public HttpPostedFileBase file { get; set; }
 
+            public long AttachmentId { get; set; }
+
             public string AttachmentJson { get; set; }
             public string AttachmentFileName { get; set; }
             public string AttachmentFileExtension { get; set; }

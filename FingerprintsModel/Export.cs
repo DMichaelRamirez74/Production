@@ -9,6 +9,8 @@ using System.Data;
 using System.Web.Mvc;
 using iTextSharp.text.pdf.languages;
 using iTextSharp.text.pdf.draw;
+using System.Collections;
+using System.Globalization;
 
 namespace FingerprintsModel
 {
@@ -6259,9 +6261,13 @@ namespace FingerprintsModel
         #endregion
 
 
-        #region Export Center Audit Report
+        #region Export Attendance Meal Audit Report
 
-        public MemoryStream ExportCenterAuditReport(List<AttendenceDetailsByDate> attendanceList, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+
+
+
+
+        public MemoryStream ExportAttendanceMealAuditReport(List<AttendenceDetailsByDate> attendanceList, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
         {
             MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
 
@@ -6280,21 +6286,9 @@ namespace FingerprintsModel
 
                     Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 
-                 
-                        var writer = PdfWriter.GetInstance(doc, memoryStream);
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
                     writer.CloseStream = false;
-
-                    //writer.ViewerPreferences = PdfWriter.PageModeUseOutlines;
-                    //// Our custom Header and Footer is done using Event Handler
-                    //TwoColumnHeaderFooter PageEventHandler = new TwoColumnHeaderFooter();
-                    //writer.PageEvent = PageEventHandler;
-                    //// Define the page header
-                    //PageEventHandler.Title = "Center Audit Report";
-
-                    //PageEventHandler.HeaderFont = FontFactory.GetFont(BaseFont.COURIER_BOLD, 14, Font.BOLD);
-
-                   
-                   
 
                     #endregion
 
@@ -6343,7 +6337,7 @@ namespace FingerprintsModel
 
                             var baseColor = new BaseColor(146, 79, 171);
 
-                            var headerCell = new PdfPCell(new Phrase(string.Concat("Center Audit Report"), new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                            var headerCell = new PdfPCell(new Phrase(string.Concat("Attendance and Meal Audit Report"), new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
                             headerCell.HorizontalAlignment = Element.ALIGN_CENTER;
                             headerCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                             headerCell.BackgroundColor = baseColor;
@@ -7715,7 +7709,1073 @@ namespace FingerprintsModel
 
                 #endregion
 
-              
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return memoryStream;
+        }
+        #endregion
+
+
+
+        #region Export Case Notes
+
+
+
+
+
+        public MemoryStream ExportCaseNote(CaseNoteByClientID caseNote, FingerprintsModel.Enums.ReportFormatType reportFormat, string imagePath)
+        {
+            MemoryStream memoryStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<MemoryStream>();
+
+            try
+            {
+                #region Export  PDF
+
+
+                if (reportFormat == Enums.ReportFormatType.Pdf)
+                {
+
+
+
+                    float innerDetailfontSize = 10.5f;  //14px;
+
+                    #region Initializing Document
+
+                    Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
+
+
+                    var writer = PdfWriter.GetInstance(doc, memoryStream);
+                    writer.CloseStream = false;
+
+                    #endregion
+
+                    doc.OpenDocument();
+
+                    #region PDF table creation
+
+                    PdfPTable tableLayout = new PdfPTable(2);
+                    tableLayout.HeaderRows = 3;
+
+                    //Add Content to PDF   
+                    tableLayout.WidthPercentage = 100; //Set the PDF File witdh percentage  
+
+                    float[] widths = { 30, 70 };
+                    tableLayout.SetWidths(widths);
+                    tableLayout.SplitLate = false;
+                    tableLayout.SplitRows = true;
+
+
+
+                    #region Report Heading
+
+
+                    var baseColor = new BaseColor(146, 79, 171);
+
+                    var headerCell = new PdfPCell(new Phrase(string.Concat("Case Note Report"), new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    headerCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    headerCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    headerCell.BackgroundColor = baseColor;
+                    headerCell.Padding = 25f;
+                    headerCell.Border = 0;
+                    headerCell.Colspan = 2;
+                    tableLayout.AddCell(headerCell);
+
+                    #region Padding between Report title and Details 
+
+                    tableLayout.AddCell(new PdfPCell(new Phrase("\n"))
+                    {
+                        Colspan = 2,
+                        FixedHeight = 28f,
+                        Padding = 5f,
+                        Border = 0
+
+                    });
+
+                    #endregion
+
+                    #endregion
+
+
+                    #region Binding Data to Tables
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    #region Child Name and Attendance Date Section
+
+                    var childTable = new PdfPTable(1);
+                    float[] childTableWidths = { 100 };
+                    childTable.SetWidths(childTableWidths);
+                    childTable.SplitLate = false;
+                    childTable.SplitRows = true;
+
+
+
+                    Paragraph para = new Paragraph();
+
+                    Chunk glue = new Chunk(new VerticalPositionMark());
+                    Phrase ph1 = new Phrase();
+                    Paragraph main = new Paragraph();
+
+                    var innerHeading = "";
+
+
+
+
+                    if (caseNote.CaseNote != null && caseNote.CaseNote.ClientList != null)
+                    {
+                        var list = caseNote.CaseNote.ClientList.Where(x => x.Text.IndexOf("(Parent/Guardian)") > 0).FirstOrDefault();
+
+                        if (list != null)
+                            innerHeading = Convert.ToString(list.Text.Replace("(Parent/Guardian)", "").Trim() + " " + "Household").ToUpperInvariant();
+
+                        else
+                        {
+                            innerHeading = Convert.ToString(caseNote.CaseNote.ClientList.Select(x => x.Text).First().Split('(')[0] + " " + "Household").ToUpperInvariant();
+                        }
+
+                    }
+
+                    //  var parentList=caseNote.CaseNote.ClientList
+
+                    ph1.Add(new Chunk(innerHeading, new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255)))); // Here I add projectname as a chunk into Phrase.    
+                    ph1.Add(glue); // Here I add special chunk to the same phrase.    
+                                   //  ph1.Add(new Chunk(attendanceList[i].AttendanceDate, new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255)))); // Here I add date as a chunk into same phrase.    
+                    main.Add(ph1);
+
+                    var phr = new Phrase(main);
+                    var childCell = new PdfPCell(phr);
+                    childCell.Border = PdfPCell.NO_BORDER;
+                    childCell.CellEvent = new RoundRectangle(new BaseColor(230, 126, 34));
+                    childCell.Padding = 11f;
+
+                    childTable.AddCell(new PdfPCell(childCell));
+
+                    var pdfPcell = new PdfPCell(childTable);
+                    pdfPcell.PaddingLeft = 4f;
+                    pdfPcell.PaddingRight = 4f;
+                    pdfPcell.Colspan = 2;
+                    pdfPcell.Border = 0;
+                    pdfPcell.Border = PdfPCell.NO_BORDER;
+                    pdfPcell.VerticalAlignment = Element.ALIGN_MIDDLE;
+
+                    tableLayout.AddCell(pdfPcell);
+
+                    #endregion
+
+                    #endregion
+
+
+
+
+                    #region Case Note Details Section 
+
+
+                    var baseColorLeftInner = new BaseColor(26, 188, 156);
+                    var baseColorRightInner = new BaseColor(219, 239, 239);
+                    var innerbackColor = new BaseColor(241, 245, 248);
+
+                    var innerTables = new PdfPTable(2);
+                    float[] innerWidthds = { 27, 73 };
+                    innerTables.SplitLate = false;
+                    innerTables.SplitRows = true;
+
+
+                    innerTables.SetWidths(innerWidthds);
+
+
+                    #region Padding between Report title and Details 
+
+                    innerTables.AddCell(new PdfPCell(new Phrase("\n"))
+                    {
+                        Colspan = 2,
+                        Padding = 5f,
+                        Border = 0,
+                        FixedHeight = 10f
+
+                    });
+
+                    #endregion
+
+
+
+                    var originalNoteHeading = new PdfPCell(new Phrase("Original Note", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    originalNoteHeading.PaddingBottom = 8f;
+                    originalNoteHeading.PaddingTop = 8f;
+                    originalNoteHeading.PaddingLeft = 4f;
+                    originalNoteHeading.PaddingRight = 4f;
+                    originalNoteHeading.BackgroundColor = new BaseColor(22, 59, 104);
+                    originalNoteHeading.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    originalNoteHeading.HorizontalAlignment = Element.ALIGN_CENTER;
+                    originalNoteHeading.Border = 1;
+                    originalNoteHeading.BorderWidth = 2f;
+                    originalNoteHeading.BorderColor = BaseColor.WHITE;
+                    originalNoteHeading.Colspan = 2;
+
+
+                    innerTables.AddCell(new PdfPCell(originalNoteHeading));
+
+
+
+                    #region Date 
+
+                    var centerCell = new PdfPCell(new Phrase("Date", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    centerCell.PaddingBottom = 8f;
+                    centerCell.PaddingTop = 8f;
+                    centerCell.PaddingLeft = 4f;
+                    centerCell.PaddingRight = 4f;
+                    centerCell.BackgroundColor = baseColorLeftInner;
+                    centerCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    centerCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    centerCell.Border = 1;
+                    centerCell.BorderWidth = 2f;
+                    centerCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(centerCell));
+
+                    var caseNoteDate = DateTime.Parse(caseNote.CaseNote.CaseNoteDate, new CultureInfo("en-US", true));
+
+                    var caseNoteDateString = caseNoteDate.ToString("MMMM dd, yyyy");
+
+                    var centerCellDetail = new PdfPCell(new Phrase(caseNoteDateString, new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    centerCellDetail.PaddingBottom = 8f;
+                    centerCellDetail.PaddingTop = 8f;
+                    centerCellDetail.PaddingLeft = 4f;
+                    centerCellDetail.PaddingRight = 4f;
+                    centerCellDetail.BackgroundColor = baseColorRightInner;
+                    centerCellDetail.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    centerCellDetail.HorizontalAlignment = Element.ALIGN_LEFT;
+                    centerCellDetail.Border = 1;
+                    centerCellDetail.BorderWidth = 2f;
+                    centerCellDetail.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(centerCellDetail));
+
+
+                    #endregion
+
+                    #region Title
+
+
+
+
+                    var classroomCell = new PdfPCell(new Phrase("Title", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    classroomCell.PaddingBottom = 8f;
+                    classroomCell.PaddingTop = 8f;
+                    classroomCell.PaddingLeft = 4f;
+                    classroomCell.PaddingRight = 4f;
+                    classroomCell.BackgroundColor = baseColorLeftInner;
+                    classroomCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    classroomCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    classroomCell.Border = 1;
+                    classroomCell.BorderWidth = 2f;
+                    classroomCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(classroomCell));
+
+                    var classroomDetailCell = new PdfPCell(new Phrase(caseNote.CaseNote.Title, new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    classroomDetailCell.PaddingBottom = 8f;
+                    classroomDetailCell.PaddingTop = 8f;
+                    classroomDetailCell.PaddingLeft = 4f;
+                    classroomDetailCell.PaddingRight = 4f;
+                    classroomDetailCell.BackgroundColor = baseColorRightInner;
+                    classroomDetailCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    classroomDetailCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    classroomDetailCell.Border = 1;
+                    classroomDetailCell.BorderWidth = 2f;
+                    classroomDetailCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(classroomDetailCell));
+
+                    #endregion
+
+                    #region Name of the Staff
+
+                    var staffNameCell = new PdfPCell(new Phrase("Name of the Staff, Role", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    staffNameCell.PaddingBottom = 8f;
+                    staffNameCell.PaddingTop = 8f;
+                    staffNameCell.PaddingLeft = 4f;
+                    staffNameCell.PaddingRight = 4f;
+                    staffNameCell.BackgroundColor = baseColorLeftInner;
+                    staffNameCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    staffNameCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    staffNameCell.Border = 1;
+                    staffNameCell.BorderWidth = 2f;
+                    staffNameCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(staffNameCell));
+
+                    var staffNameCellDetails = new PdfPCell(new Phrase(string.Concat(caseNote.CaseNote.BY, ",", " ", caseNote.CaseNote.RoleOfOwner), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    staffNameCellDetails.PaddingBottom = 8f;
+                    staffNameCellDetails.PaddingTop = 8f;
+                    staffNameCellDetails.PaddingLeft = 4f;
+                    staffNameCellDetails.PaddingRight = 4f;
+                    staffNameCellDetails.BackgroundColor = baseColorRightInner;
+                    staffNameCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    staffNameCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                    staffNameCellDetails.Border = 1;
+                    staffNameCellDetails.BorderWidth = 2f;
+                    staffNameCellDetails.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(staffNameCellDetails));
+
+                    #endregion
+
+
+
+
+
+                    //#region Role
+
+                    //var roleCell = new PdfPCell(new Phrase("Role", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    //roleCell.PaddingBottom = 8f;
+                    //roleCell.PaddingTop = 8f;
+                    //roleCell.PaddingLeft = 4f;
+                    //roleCell.PaddingRight = 4f;
+                    //roleCell.BackgroundColor = baseColorLeftInner;
+                    //roleCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    //roleCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    //roleCell.Border = 1;
+                    //roleCell.BorderWidth = 2f;
+                    //roleCell.BorderColor = BaseColor.WHITE;
+
+
+                    //innerTables.AddCell(new PdfPCell(roleCell));
+
+                    //var roleCellDetails = new PdfPCell(new Phrase(caseNote.CaseNote.RoleOfOwner, new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    //roleCellDetails.PaddingBottom = 8f;
+                    //roleCellDetails.PaddingTop = 8f;
+                    //roleCellDetails.PaddingLeft = 4f;
+                    //roleCellDetails.PaddingRight = 4f;
+                    //roleCellDetails.BackgroundColor = baseColorRightInner;
+                    //roleCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    //roleCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                    //roleCellDetails.Border = 1;
+                    //roleCellDetails.BorderWidth = 2f;
+                    //roleCellDetails.BorderColor = BaseColor.WHITE;
+
+                    //innerTables.AddCell(new PdfPCell(roleCellDetails));
+
+                    //#endregion
+
+
+                    #region Original Notes
+
+                    var notesCell = new PdfPCell(new Phrase("Original Note", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    notesCell.PaddingBottom = 8f;
+                    notesCell.PaddingTop = 8f;
+                    notesCell.PaddingLeft = 4f;
+                    notesCell.PaddingRight = 4f;
+                    notesCell.BackgroundColor = baseColorLeftInner;
+                    notesCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    notesCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    notesCell.Border = 1;
+                    notesCell.BorderWidth = 2f;
+                    notesCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(notesCell));
+
+                    var noteCellDetails = new PdfPCell(new Phrase(caseNote.CaseNote.Note.Replace("<div class='col-xs-12'>", "").Replace("</div>", "").Replace("<p>", "").Replace("</p>", "").Trim(), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    noteCellDetails.PaddingBottom = 8f;
+                    noteCellDetails.PaddingTop = 8f;
+                    noteCellDetails.PaddingLeft = 4f;
+                    noteCellDetails.PaddingRight = 4f;
+                    noteCellDetails.BackgroundColor = baseColorRightInner;
+                    noteCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    noteCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                    noteCellDetails.Border = 1;
+                    noteCellDetails.BorderWidth = 2f;
+                    noteCellDetails.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(noteCellDetails));
+
+
+
+                    var originalTagsCell = new PdfPCell(new Phrase("Tags", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    originalTagsCell.PaddingBottom = 8f;
+                    originalTagsCell.PaddingTop = 8f;
+                    originalTagsCell.PaddingLeft = 4f;
+                    originalTagsCell.PaddingRight = 4f;
+                    originalTagsCell.BackgroundColor = baseColorLeftInner;
+                    originalTagsCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    originalTagsCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    originalTagsCell.Border = 1;
+                    originalTagsCell.BorderWidth = 2f;
+                    originalTagsCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(originalTagsCell));
+
+
+
+
+
+                    //   int mainTagsWidth = 0;
+
+                    //var mainTagsWidthArray = new float[0];
+
+                    //if (caseNote.CaseNote.TagList.Count >= 4)
+                    //{
+                    //    mainTagsWidth = 4;
+
+                    //    mainTagsWidthArray = new float[] { 25, 25, 25, 25 };
+
+                    //}
+                    //else
+                    //{
+                    //    mainTagsWidth = caseNote.CaseNote.TagList.Count;
+
+                    //    switch (mainTagsWidth)
+                    //    {
+                    //        case 3:
+                    //            mainTagsWidthArray = new float[] { 33.3f, 33.3f, 33.3f };
+                    //            break;
+                    //        case 2:
+                    //            mainTagsWidthArray = new float[] { 50f, 50f };
+                    //            break;
+                    //        case 1:
+                    //            mainTagsWidthArray = new float[] { 100f };
+                    //            break;
+
+                    //    }
+
+                    //}
+
+
+                    int mainTagsWidth = 4;
+
+                    var mainTagsWidthArray = new float[] { 25f, 25f, 25f, 25f };
+
+
+
+
+
+                    var mainTagtable = new PdfPTable(mainTagsWidth);
+
+                    mainTagtable.SetWidths(mainTagsWidthArray);
+                    mainTagtable.LockedWidth = false;
+
+                    var phras = new Phrase();
+
+
+                    var mainTagsList = caseNote.CaseNote.TagList.Where(x => x.Text != null && x.Text != "").ToList();
+
+
+                    foreach (var tag in mainTagsList)
+                    {
+
+
+
+                        var tabCell = new PdfPCell(new Phrase(tag.Text, new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                        tabCell.Border = PdfPCell.NO_BORDER;
+                        tabCell.PaddingTop = 6f;
+                        tabCell.PaddingBottom = 7f;
+                        //tabCell.PaddingLeft = 1.7f;
+                        //tabCell.PaddingRight = 1.7f;
+                        tabCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        tabCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tabCell.CellEvent = new RoundRectangle(new BaseColor(22, 59, 104));
+                        mainTagtable.AddCell(tabCell);
+
+
+
+                    }
+
+                    if (mainTagsList.Count < 4)
+                    {
+                        for (int i = mainTagsList.Count; i <= mainTagsWidth; i++)
+                        {
+                            var tabCell = new PdfPCell(new Phrase(string.Empty, new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                            tabCell.Border = PdfPCell.NO_BORDER;
+                            tabCell.PaddingTop = 6f;
+                            tabCell.PaddingBottom = 7f;
+                            //tabCell.PaddingLeft = 1.7f;
+                            //tabCell.PaddingRight = 1.7f;
+                            tabCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                            tabCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            //  tabCell.CellEvent = new RoundRectangle(new BaseColor(22, 59, 104));
+                            mainTagtable.AddCell(tabCell);
+
+                        }
+                    }
+
+
+                    var mainTagCellDetails = new PdfPCell(mainTagtable);
+
+
+                    mainTagCellDetails.PaddingBottom = 8f;
+                    mainTagCellDetails.PaddingTop = 8f;
+                    mainTagCellDetails.PaddingLeft = 4f;
+                    mainTagCellDetails.PaddingRight = 4f;
+                    mainTagCellDetails.BackgroundColor = baseColorRightInner;
+                    mainTagCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    mainTagCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                    mainTagCellDetails.Border = 1;
+                    mainTagCellDetails.BorderWidth = 2f;
+                    mainTagCellDetails.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(mainTagCellDetails));
+
+
+                    #endregion
+
+
+                    #region Padding between Report title and Details 
+
+                    innerTables.AddCell(new PdfPCell(new Phrase("\n"))
+                    {
+                        Colspan = 2,
+                        FixedHeight = 18.75f,
+                        Padding = 5f,
+                        Border = 0
+
+                    });
+
+                    #endregion
+
+
+
+                    #region Appended Notes
+
+
+                    var appendedNotesHeading = new PdfPCell(new Phrase("Appended Notes", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    appendedNotesHeading.PaddingBottom = 8f;
+                    appendedNotesHeading.PaddingTop = 8f;
+                    appendedNotesHeading.PaddingLeft = 4f;
+                    appendedNotesHeading.PaddingRight = 4f;
+                    appendedNotesHeading.BackgroundColor = new BaseColor(22, 59, 104);
+                    appendedNotesHeading.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    appendedNotesHeading.HorizontalAlignment = Element.ALIGN_CENTER;
+                    appendedNotesHeading.Border = 1;
+                    appendedNotesHeading.BorderWidth = 2f;
+                    appendedNotesHeading.BorderColor = BaseColor.WHITE;
+                    appendedNotesHeading.Colspan = 2;
+
+
+                    innerTables.AddCell(new PdfPCell(appendedNotesHeading));
+
+
+                    foreach (var subNotes in caseNote.CaseNote.SubCaseNoteList)
+                    {
+                        var subcaseNoteDate = DateTime.Parse(subNotes.WrittenDate, new CultureInfo("en-US", true));
+                        var subCaseNotedateString = subcaseNoteDate.ToString("MMMM dd, yyyy");
+
+
+
+                        var subNotesEnteredby = new PdfPCell(new Phrase(string.Concat("Posted on", " ", subCaseNotedateString), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                        subNotesEnteredby.PaddingBottom = 8f;
+                        subNotesEnteredby.PaddingTop = 8f;
+                        subNotesEnteredby.PaddingLeft = 4f;
+                        subNotesEnteredby.PaddingRight = 4f;
+                        subNotesEnteredby.BackgroundColor = new BaseColor(42, 128, 185);
+                        subNotesEnteredby.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNotesEnteredby.HorizontalAlignment = Element.ALIGN_CENTER;
+                        subNotesEnteredby.Border = 1;
+                        subNotesEnteredby.BorderWidth = 2f;
+                        subNotesEnteredby.BorderColor = BaseColor.WHITE;
+                        subNotesEnteredby.Colspan = 2;
+
+
+
+                        innerTables.AddCell(new PdfPCell(subNotesEnteredby));
+
+
+                        #region Name of the Staff
+
+
+
+                        var subNoteRoleCell = new PdfPCell(new Phrase("Name of the Staff, Role", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                        subNoteRoleCell.PaddingBottom = 8f;
+                        subNoteRoleCell.PaddingTop = 8f;
+                        subNoteRoleCell.PaddingLeft = 4f;
+                        subNoteRoleCell.PaddingRight = 4f;
+                        subNoteRoleCell.BackgroundColor = baseColorLeftInner;
+                        subNoteRoleCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNoteRoleCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNoteRoleCell.Border = 1;
+                        subNoteRoleCell.BorderWidth = 2f;
+                        subNoteRoleCell.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNoteRoleCell));
+
+
+                        var subNoteRoleCellDetails = new PdfPCell(new Phrase(string.Concat(subNotes.WrittenBy, " ", ",", subNotes.RoleOfOwner), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                        subNoteRoleCellDetails.PaddingBottom = 8f;
+                        subNoteRoleCellDetails.PaddingTop = 8f;
+                        subNoteRoleCellDetails.PaddingLeft = 4f;
+                        subNoteRoleCellDetails.PaddingRight = 4f;
+                        subNoteRoleCellDetails.BackgroundColor = baseColorRightInner;
+                        subNoteRoleCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNoteRoleCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNoteRoleCellDetails.Border = 1;
+                        subNoteRoleCellDetails.BorderWidth = 2f;
+                        subNoteRoleCellDetails.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNoteRoleCellDetails));
+
+
+
+
+                        var subNotesNoteCell = new PdfPCell(new Phrase("Note", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                        subNotesNoteCell.PaddingBottom = 8f;
+                        subNotesNoteCell.PaddingTop = 8f;
+                        subNotesNoteCell.PaddingLeft = 4f;
+                        subNotesNoteCell.PaddingRight = 4f;
+                        subNotesNoteCell.BackgroundColor = baseColorLeftInner;
+                        subNotesNoteCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNotesNoteCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNotesNoteCell.Border = 1;
+                        subNotesNoteCell.BorderWidth = 2f;
+                        subNotesNoteCell.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNotesNoteCell));
+
+
+                        var subNoteCellDetails = new PdfPCell(new Phrase(subNotes.Notes.Replace("<div class='col-xs-12'>", "").Replace("</div>", "").Replace("<p>", "").Replace("</p>", "").Trim(), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                        subNoteCellDetails.PaddingBottom = 8f;
+                        subNoteCellDetails.PaddingTop = 8f;
+                        subNoteCellDetails.PaddingLeft = 4f;
+                        subNoteCellDetails.PaddingRight = 4f;
+                        subNoteCellDetails.BackgroundColor = baseColorRightInner;
+                        subNoteCellDetails.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNoteCellDetails.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNoteCellDetails.Border = 1;
+                        subNoteCellDetails.BorderWidth = 2f;
+                        subNoteCellDetails.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNoteCellDetails));
+
+
+
+                        var subNoteTagsCell = new PdfPCell(new Phrase("Tags", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                        subNoteTagsCell.PaddingBottom = 8f;
+                        subNoteTagsCell.PaddingTop = 8f;
+                        subNoteTagsCell.PaddingLeft = 4f;
+                        subNoteTagsCell.PaddingRight = 4f;
+                        subNoteTagsCell.BackgroundColor = baseColorLeftInner;
+                        subNoteTagsCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNoteTagsCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNoteTagsCell.Border = 1;
+                        subNoteTagsCell.BorderWidth = 2f;
+                        subNoteTagsCell.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNoteTagsCell));
+
+
+                        //int subtabWidth = 0;
+
+                        //var subTableWidthArray = new float[0];
+
+                        //if (subNotes.TagList.Count >= 4)
+                        //{
+                        //    subtabWidth = 4;
+
+                        //    subTableWidthArray = new float[] { 25, 25, 25, 25 };
+
+                        //}
+                        //else
+                        //{
+                        //    subtabWidth = subNotes.TagList.Count;
+
+                        //    switch (subtabWidth)
+                        //    {
+                        //        case 3:
+                        //            subTableWidthArray = new float[] { 20f, 20f, 20f };
+                        //            break;
+                        //        case 2:
+                        //            subTableWidthArray = new float[] { 20f, 20f };
+                        //            break;
+                        //        case 1:
+                        //            subTableWidthArray = new float[] { 20f };
+                        //            break;
+
+                        //    }
+
+                        //}
+
+
+                        int subtabWidth = 4;
+
+                        var subTableWidthArray = new float[] { 25f, 25f, 25f, 25f };
+
+                        var subTable = new PdfPTable(subtabWidth);
+
+                        subTable.SetWidths(subTableWidthArray);
+
+
+
+
+
+                        subTable.LockedWidth = false;
+
+                        var subTagList = subNotes.TagList.Where(x => x.Text != null && x.Text != "").ToList();
+
+                        foreach (var tag in subTagList)
+                        {
+
+
+
+
+                            var subTableCell = new PdfPCell(new Phrase(tag.Text, new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                            subTableCell.Border = PdfPCell.NO_BORDER;
+                            subTableCell.PaddingTop = 6f;
+                            subTableCell.PaddingBottom = 7f;
+                            //subTableCell.PaddingLeft = 1.7f;
+                            //subTableCell.PaddingRight = 1.7f;
+                            subTableCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                            subTableCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            subTableCell.CellEvent = new RoundRectangle(new BaseColor(22, 59, 104));
+                            subTable.AddCell(subTableCell);
+
+
+                        }
+
+                        if (subTagList.Count < subtabWidth)
+                        {
+                            for (int i = subTagList.Count; i < subtabWidth; i++)
+                            {
+                                var subTableCell = new PdfPCell(new Phrase(string.Empty, new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                                subTableCell.Border = PdfPCell.NO_BORDER;
+                                subTableCell.PaddingTop = 6f;
+                                subTableCell.PaddingBottom = 7f;
+                                //subTableCell.PaddingLeft = 1.7f;
+                                //subTableCell.PaddingRight = 1.7f;
+                                subTableCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                                subTableCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                                subTable.AddCell(subTableCell);
+
+                            }
+
+                        }
+
+
+                        var subNoteTagsDetailCell = new PdfPCell(subTable);
+                        subNoteTagsDetailCell.PaddingBottom = 8f;
+                        subNoteTagsDetailCell.PaddingTop = 8f;
+                        subNoteTagsDetailCell.PaddingLeft = 4f;
+                        subNoteTagsDetailCell.PaddingRight = 4f;
+                        subNoteTagsDetailCell.BackgroundColor = baseColorRightInner;
+                        subNoteTagsDetailCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        subNoteTagsDetailCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        subNoteTagsDetailCell.Border = 1;
+                        subNoteTagsDetailCell.BorderWidth = 2f;
+                        subNoteTagsDetailCell.BorderColor = BaseColor.WHITE;
+
+                        innerTables.AddCell(new PdfPCell(subNoteTagsDetailCell));
+
+
+
+
+                        #endregion
+
+                    }
+
+
+                    #region Padding between Report title and Details 
+
+                    innerTables.AddCell(new PdfPCell(new Phrase("\n"))
+                    {
+                        Colspan = 2,
+                        FixedHeight = 18.75f,
+                        Padding = 5f,
+                        Border = 0
+
+                    });
+
+                    #endregion
+
+
+
+
+                    var clientsCell = new PdfPCell(new Phrase("Clients", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    clientsCell.PaddingBottom = 8f;
+                    clientsCell.PaddingTop = 8f;
+                    clientsCell.PaddingLeft = 4f;
+                    clientsCell.PaddingRight = 4f;
+                    clientsCell.BackgroundColor = baseColorLeftInner;
+                    clientsCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    clientsCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    clientsCell.Border = 1;
+                    clientsCell.BorderWidth = 2f;
+                    clientsCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(clientsCell));
+
+
+
+                    var clientTable = new PdfPTable(2);
+                    var clientTableWidths = new float[] { 50, 50 };
+
+                    clientTable.SetWidths(clientTableWidths);
+
+                    var checkedClients = caseNote.CaseNote.ClientList.Where(x => x.Selected == true).ToList();
+
+                    foreach (var client in checkedClients)
+                    {
+                        var clientCell = new PdfPCell(new Phrase(client.Text, new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+
+                        //clientCell.PaddingBottom = 8f;
+                        //clientCell.PaddingTop = 8f;
+                        //clientCell.PaddingLeft = 4f;
+                        //clientCell.PaddingRight = 4f;
+                        clientCell.BackgroundColor = baseColorRightInner;
+                        clientCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        clientCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        clientCell.Border = 0;
+                        clientCell.BorderWidth = 0;
+                        clientCell.BorderColor = baseColorRightInner;
+
+                        clientTable.AddCell(clientCell);
+
+                    }
+
+
+
+
+
+                    var clientDetailCell = new PdfPCell(clientTable);
+                    clientDetailCell.PaddingBottom = 8f;
+                    clientDetailCell.PaddingTop = 8f;
+                    clientDetailCell.PaddingLeft = 4f;
+                    clientDetailCell.PaddingRight = 4f;
+                    clientDetailCell.BackgroundColor = baseColorRightInner;
+                    clientDetailCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    clientDetailCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    clientDetailCell.Border = 1;
+                    clientDetailCell.BorderWidth = 2f;
+                    clientDetailCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(clientDetailCell));
+
+                    #endregion
+
+
+
+
+                    var staffCell = new PdfPCell(new Phrase("Developmental Team", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    staffCell.PaddingBottom = 8f;
+                    staffCell.PaddingTop = 8f;
+                    staffCell.PaddingLeft = 4f;
+                    staffCell.PaddingRight = 4f;
+                    staffCell.BackgroundColor = baseColorLeftInner;
+                    staffCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    staffCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    staffCell.Border = 1;
+                    staffCell.BorderWidth = 2f;
+                    staffCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(staffCell));
+
+
+
+                    var staffTable = new PdfPTable(2);
+
+                    var staffTableWidths = new float[] { 50f, 50f };
+
+                    staffTable.SetWidths(staffTableWidths);
+
+                    var checkedStaffs = caseNote.CaseNote.StaffList.Where(x => x.Selected == true).ToList();
+
+                    foreach (var staff in checkedStaffs)
+                    {
+                        var staffCellinner = new PdfPCell(new Phrase(staff.Text, new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+
+                        //staffCellinner.PaddingBottom = 8f;
+                        //staffCellinner.PaddingTop = 8f;
+                        //staffCellinner.PaddingLeft = 4f;
+                        //staffCellinner.PaddingRight = 4f;
+                        staffCellinner.BackgroundColor = baseColorRightInner;
+                        staffCellinner.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        staffCellinner.HorizontalAlignment = Element.ALIGN_LEFT;
+                        staffCellinner.Border = 0;
+                        staffCellinner.BorderWidth = 0;
+                        staffCellinner.BorderColor = baseColorRightInner;
+                        if(checkedStaffs.Count==1)
+                        {
+                            staffCellinner.Colspan = 2;
+                        }
+
+                        staffTable.AddCell(staffCellinner);
+
+                    }
+
+
+                    var staffDetailCell = new PdfPCell(staffTable);
+                    staffDetailCell.PaddingBottom = 8f;
+                    staffDetailCell.PaddingTop = 8f;
+                    staffDetailCell.PaddingLeft = 4f;
+                    staffDetailCell.PaddingRight = 4f;
+                    staffDetailCell.BackgroundColor = baseColorRightInner;
+                    staffDetailCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    staffDetailCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    staffDetailCell.Border = 1;
+                    staffDetailCell.BorderWidth = 2f;
+                    staffDetailCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(staffDetailCell));
+
+
+
+                    #region Security Note Level
+
+                    var securityCell = new PdfPCell(new Phrase("Security Note Level ?", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    securityCell.PaddingBottom = 8f;
+                    securityCell.PaddingTop = 8f;
+                    securityCell.PaddingLeft = 4f;
+                    securityCell.PaddingRight = 4f;
+                    securityCell.BackgroundColor = baseColorLeftInner;
+                    securityCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    securityCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    securityCell.Border = 1;
+                    securityCell.BorderWidth = 2f;
+                    securityCell.BorderColor = BaseColor.WHITE;
+
+
+                    innerTables.AddCell(new PdfPCell(securityCell));
+
+                    var securityLevelDetailCell = new PdfPCell(new Phrase(caseNote.CaseNote.SecurityLevel ? "Yes" : "No", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    securityLevelDetailCell.PaddingBottom = 8f;
+                    securityLevelDetailCell.PaddingTop = 8f;
+                    securityLevelDetailCell.PaddingLeft = 4f;
+                    securityLevelDetailCell.PaddingRight = 4f;
+                    securityLevelDetailCell.BackgroundColor = baseColorRightInner;
+                    securityLevelDetailCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    securityLevelDetailCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    securityLevelDetailCell.Border = 1;
+                    securityLevelDetailCell.BorderWidth = 2f;
+                    securityLevelDetailCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(securityLevelDetailCell));
+
+
+                    var attachmentCell = new PdfPCell(new Phrase("Attachment", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255))));
+                    attachmentCell.PaddingBottom = 8f;
+                    attachmentCell.PaddingTop = 8f;
+                    attachmentCell.PaddingLeft = 4f;
+                    attachmentCell.PaddingRight = 4f;
+                    attachmentCell.BackgroundColor = baseColorLeftInner;
+                    attachmentCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    attachmentCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    attachmentCell.Border = 1;
+                    attachmentCell.BorderWidth = 2f;
+                    attachmentCell.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(attachmentCell));
+
+                    bool isAttachment = false;
+
+
+                    if (caseNote != null && caseNote.CaseNote != null)
+                    {
+                        if (caseNote.CaseNote.CaseNoteAttachmentList != null && caseNote.CaseNote.CaseNoteAttachmentList.Count > 0)
+                        {
+                            isAttachment = true;
+                        }
+
+                        if (caseNote.CaseNote.SubCaseNoteList != null && caseNote.CaseNote.SubCaseNoteList.Where(x => x.Attachment.Count > 0).Any())
+                        {
+                            isAttachment = true;
+                        }
+
+
+                    }
+
+                    // var isAttachment = (caseNote.CaseNote.CaseNoteAttachmentList.Count > 0) || caseNote.CaseNote.SubCaseNoteList.Where(x => x.Attachment.Count > 0).Any();
+
+                    var attachmentCellDetail = new PdfPCell(new Phrase(isAttachment ? "Yes" : "No", new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
+                    attachmentCellDetail.PaddingBottom = 8f;
+                    attachmentCellDetail.PaddingTop = 8f;
+                    attachmentCellDetail.PaddingLeft = 4f;
+                    attachmentCellDetail.PaddingRight = 4f;
+                    attachmentCellDetail.BackgroundColor = baseColorRightInner;
+                    attachmentCellDetail.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    attachmentCellDetail.HorizontalAlignment = Element.ALIGN_LEFT;
+                    attachmentCellDetail.Border = 1;
+                    attachmentCellDetail.BorderWidth = 2f;
+                    attachmentCellDetail.BorderColor = BaseColor.WHITE;
+
+                    innerTables.AddCell(new PdfPCell(attachmentCellDetail));
+
+
+
+                    #endregion
+
+                    var contentTable = new PdfPTable(2);
+                    float[] contentTableWidths = { 30, 70 };
+                    contentTable.SetWidths(contentTableWidths);
+                    contentTable.SplitLate = false;
+                    contentTable.SplitRows = true;
+
+
+
+                    var pdfContentCell = new PdfPCell(innerTables);
+                    pdfContentCell.BackgroundColor = innerbackColor;
+                    pdfContentCell.Padding = 10f;
+                    pdfContentCell.Border = 0;
+                    pdfContentCell.BorderColor = BaseColor.GRAY;
+                    pdfContentCell.Colspan = 2;
+
+
+
+
+                    contentTable.AddCell(new PdfPCell(pdfContentCell));
+
+                    #endregion
+
+                    var contentTableCell = new PdfPCell(contentTable);
+
+                    contentTableCell.Colspan = 2;
+                    contentTableCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    contentTableCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    contentTableCell.Border = 0;
+                    contentTableCell.PaddingLeft = 5f;
+                    contentTableCell.PaddingRight = 5f;
+
+
+                    tableLayout.AddCell(contentTableCell);
+
+
+
+                    doc.Add(tableLayout);
+
+
+
+
+
+
+                    #endregion
+
+                    doc.CloseDocument();
+
+
+
+
+
+                }
+
+                #endregion
+
+
             }
             catch (Exception ex)
             {

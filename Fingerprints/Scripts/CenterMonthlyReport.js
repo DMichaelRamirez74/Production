@@ -469,7 +469,6 @@ var centerMonthly = {
     validateReportFilter: function () {
         var result = true;
 
-        debugger;
 
 
 
@@ -497,7 +496,6 @@ var centerMonthly = {
     },
 
     //bindAjaxParameters: function () {
-    //    debugger;
     //    self.dataParameters.CenterIDs = self.elements.dropdownCenter.val();
     //    //   self.dataParameters.ClassroomIDs = self.elements.dropdownClassroom.closest('.form-group').is(':visible') ? self.elements.dropdownClassroom.val().join() : '0';
 
@@ -526,19 +524,16 @@ var centerMonthly = {
     //        // contentType: "application/json; charset=utf-8",
     //        contentType: self.ajaxOptions.contentType,
     //        success: function (data) {
-    //            debugger;
     //            callback(data);
 
     //        },
     //        error: function (data) {
-    //            debugger;
     //            console.log(data);
     //            //   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
 
     //        },
     //        complete: function (data) {
     //            console.log(data);
-    //            debugger;
     //            self.showBusy(false);
     //        }
 
@@ -547,7 +542,6 @@ var centerMonthly = {
 
     //bindReport: function (data) {
 
-    //    debugger;
 
     //    if (data != null && data.Data != null && data.Data == "Login") {
     //        // customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
@@ -594,7 +588,6 @@ var centerMonthly = {
 
     //    //self.elements.tableReport.find('thead th').on('click', function () {
 
-    //    //    debugger;
 
     //    //    if ($(this).find('i').length > 0) {
 
@@ -642,7 +635,6 @@ var centerMonthly = {
 
     //},
     //fnChangePage: function (val) {
-    //    debugger;
 
     //    if (self.elements.tbodyReport.find('tr').find('td[data-title="Center"]').length === 0) {
 
@@ -651,7 +643,6 @@ var centerMonthly = {
 
 
 
-    //    debugger;
 
     //    self.showBusy(true);
 
@@ -698,7 +689,6 @@ var centerMonthly = {
     //        }
     //        else if (val == 'Next') {
 
-    //            debugger;
     //            self.lastIndex = parseInt(self.pageSize) + parseInt(self.lastIndex);
 
     //            self.requestedPage = (parseInt(self.lastIndex / self.pageSize) + 1);
@@ -757,7 +747,6 @@ var centerMonthly = {
     //},
 
     //getTotalRecord: function (data) {
-    //    debugger;
     //    self = this;
 
     //    var $selfElements = self.elements;

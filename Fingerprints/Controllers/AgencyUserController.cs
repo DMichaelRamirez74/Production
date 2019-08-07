@@ -6670,10 +6670,9 @@ namespace Fingerprints.Controllers
         public ActionResult HouseholdDetails(FamilyHouseless homeless, string clientids="", string staffIds="" , string cameraUploads = null)
         {
             string message = "";
-            List<CaseNote> CaseNoteList = new List<CaseNote>();
-            RosterNew.Users Users = new RosterNew.Users();
+           
 
-            
+
             if (homeless.HasNewAddress && homeless.FamilyHousehold.HomeType == 1)
             {
                 homeless.FamilyHousehold.Street = homeless.NewAddressHousehold.Street;
@@ -6734,11 +6733,11 @@ namespace Fingerprints.Controllers
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
 
+                        homeless.CaseNoteDetails.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<RosterNew.Attachment>>();
                         foreach (var item in cameraUplodList)
                         {
-                            homeless.CaseNoteAttachments.Add(new RosterNew.Attachment
+                            homeless.CaseNoteDetails.CaseNoteAttachmentList.Add(new RosterNew.Attachment
                             {
-                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
                                 AttachmentFileName = item.Text,
                                 AttachmentFileExtension = ".png",
                                 AttachmentFileByte = Convert.FromBase64String(item.Value)
@@ -6747,7 +6746,9 @@ namespace Fingerprints.Controllers
                     }
 
 
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, homeless.CaseNoteDetails, homeless.CaseNoteAttachments, Session["AgencyID"].ToString(),Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
+                    
+
+                    message = new RosterData().SaveCaseNotes(ref message, homeless.CaseNoteDetails, staff, 2);
                 }
 
                  TempData["HouseholdMessage"] = "Household summary updated successfully.";
@@ -6849,10 +6850,11 @@ namespace Fingerprints.Controllers
 
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
+                        houseless.CaseNoteDetails.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance <List<RosterNew.Attachment>>();
 
                         foreach (var item in cameraUplodList)
                         {
-                            houseless.CaseNoteAttachments.Add(new RosterNew.Attachment
+                            houseless.CaseNoteDetails.CaseNoteAttachmentList.Add(new RosterNew.Attachment
                             {
                                 //InkindAttachmentFile = Convert.FromBase64String(item.Value),
                                 AttachmentFileName = item.Text,
@@ -6862,9 +6864,10 @@ namespace Fingerprints.Controllers
                         }
                     }
 
+                   
 
 
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, houseless.CaseNoteDetails, houseless.CaseNoteAttachments, Session["AgencyID"].ToString(), Session["RoleID"].ToString(), Session["UserID"].ToString(), 2);
+                    message = new RosterData().SaveCaseNotes(ref message, houseless.CaseNoteDetails,staff, 2);
                     TempData["message"] = "Record updated successfully";
 
                   
@@ -8047,7 +8050,7 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         [HttpPost]
         [ValidateInput(false)]
-        public async Task<JsonResult> ChangeParentEmail(RosterNew.CaseNote caseNote, string parentId, string email, string cameraUploads = "")
+        public async Task<JsonResult> ChangeParentEmail(string parentId, string email)
         {
 
 
@@ -8072,68 +8075,10 @@ namespace Fingerprints.Controllers
                 int isResult = await new CenterData().ChangeParentEmail(staff, parentId, email);
 
 
-                if (isResult == 1)
+                if(isResult==1)
                 {
-                    var lists = ModelState.Values;
-                    var isd = ModelState.IsValid;
-
-
-                    var files = Request.Files;
-                    var keys = files.AllKeys;
-                    caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
-
-                    for (int i = 0; i < keys.Length; i++)
-                    {
-                        RosterNew.Attachment aatt = new RosterNew.Attachment();
-                        aatt.file = files[i];
-                        caseNote.CaseNoteAttachmentList.Add(aatt);
-                    }
-
-                    caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? "0" : caseNote.CaseNoteid;
-                    caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
-                    caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
-                    caseNote.CenterId = caseNote.CenterId != null && caseNote.CenterId != "" && caseNote.CenterId != "0" ? EncryptDecrypt.Decrypt64(caseNote.CenterId) : "0";
-                    caseNote.Classroomid = caseNote.Classroomid != null && caseNote.Classroomid != "" && caseNote.Classroomid != "0" ? EncryptDecrypt.Decrypt64(caseNote.Classroomid) : "0";
-                    caseNote.HouseHoldId = caseNote.HouseHoldId != null && caseNote.HouseHoldId != "" && caseNote.HouseHoldId != "0" ? EncryptDecrypt.Decrypt64(caseNote.HouseHoldId) : "0";
-
-                    caseNote.CaseNotetags = caseNote.CaseNotetags.Trim(',');
-
-
-
-                    if (!string.IsNullOrEmpty(cameraUploads))
-                    {
-
-                        JavaScriptSerializer serializer = new JavaScriptSerializer();
-                        List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
-
-                        foreach (var item in cameraUplodList)
-                        {
-                            caseNote.CaseNoteAttachmentList.Add(new RosterNew.Attachment
-                            {
-                                //InkindAttachmentFile = Convert.FromBase64String(item.Value),
-                                AttachmentFileName = item.Text,
-                                AttachmentFileExtension = ".png",
-                                AttachmentFileByte = Convert.FromBase64String(item.Value)
-                            });
-                        }
-                    }
-
-
-                    string name = "";
-                    List<CaseNote> caseNotes = new List<CaseNote>();
-                    RosterNew.Users users = new RosterNew.Users();
-                    name = new RosterData().SaveCaseNotes(ref name, ref caseNotes, ref users, caseNote, caseNote.CaseNoteAttachmentList, staff.AgencyId.ToString(), staff.RoleId.ToString(), staff.UserId.ToString(), 0);
-
-                    if (name == "1") //email verified and sent, then case note saved //
-                    {
-                        return Json(new { resultType = 2 }, JsonRequestBehavior.AllowGet);
-                    }
-                    else // email verified and sent, but failed to save case note //
-                    {
-                        return Json(new { resultType = 3 }, JsonRequestBehavior.AllowGet);
-
-                    }
-
+                    //Email address saved successfully //
+                    return Json(new { resultType = 2 }, JsonRequestBehavior.AllowGet);
                 }
                 else if (isResult == 2)
                 {
@@ -8564,6 +8509,14 @@ namespace Fingerprints.Controllers
 
 
 
+        public ActionResult GetMultipleFileUploadHtml()
+        {
+            return PartialView("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+        }
+        public ActionResult GetSingleFileUploadHtml()
+        {
+            return PartialView("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml");
+        }
 
 
 

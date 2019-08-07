@@ -13,7 +13,7 @@ namespace FingerprintsModel
             //this.ScreeningReportPeriods =Fingerprints.Common.FactoryInstance.Instance.CreateInstance<ScreeningReportPeriods>();
             //this.ScreeningQuestion = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<ScreeningQ>();
         }
-        public string CenterID{get;set;}
+      //  public string CenterID{get;set;}
 
         public new string CenterName { get; set; }
 

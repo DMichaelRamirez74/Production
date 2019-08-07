@@ -1983,10 +1983,10 @@ new DataColumn("Status",typeof(bool))
 
         #region Get Center Audit Report List
 
-        public CenterAuditReport GetCenterAuditReport(CenterAuditReport report,StaffDetails staff)
+        public AttendanceMealAuditReport GetAttendanceMealAuditReport(AttendanceMealAuditReport report,StaffDetails staff)
         {
 
-            report.CenterAuditReportList = new List<CenterAuditReport>();
+            report.AttendanceMealAuditReportList = new List<AttendanceMealAuditReport>();
             report.CenterList = new List<SelectListItem>();
 
             //  IDbConnection dbConnection;
@@ -2011,7 +2011,7 @@ new DataColumn("Status",typeof(bool))
                 };
 
 
-                _dataset = dbManager.GetDataSet("USP_GetCenterAuditReport", CommandType.StoredProcedure, parameters);
+                _dataset = dbManager.GetDataSet("USP_GetAttendanceMealAuditReport", CommandType.StoredProcedure, parameters);
 
 
 
@@ -2022,8 +2022,8 @@ new DataColumn("Status",typeof(bool))
 
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
-                    report.CenterAuditReportList = (from DataRow dr in _dataset.Tables[0].Rows
-                                                    select new CenterAuditReport
+                    report.AttendanceMealAuditReportList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                    select new AttendanceMealAuditReport
                                                     {
                                                         Enc_ClientID =DBNull.Value.Equals(dr["ClientID"])?"0": EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientID"])),
                                                         CenterID = DBNull.Value.Equals(dr["CenterID"])?"0":EncryptDecrypt.Encrypt64(Convert.ToString(dr["CenterID"])),
@@ -2045,7 +2045,7 @@ new DataColumn("Status",typeof(bool))
                 {
                     foreach (DataRow dr2 in _dataset.Tables[1].Rows)
                     {
-                        report.CenterAuditReportList.ForEach(x => { 
+                        report.AttendanceMealAuditReportList.ForEach(x => { 
                       
                             x.TotalRecord = x.CenterID == EncryptDecrypt.Encrypt64(Convert.ToString(dr2["CenterID"])) ? Convert.ToInt32(dr2["TotalRecord"]) : x.TotalRecord;
                             x.SortOrder = report.SortOrder;

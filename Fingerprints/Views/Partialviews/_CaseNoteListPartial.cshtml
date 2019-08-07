@@ -1,134 +1,116 @@
 ﻿@model FingerprintsModel.CaseNoteByClientID
 
 
-@if (Model != null && Model.CaseNoteList!=null && Model.CaseNoteList.Count > 0)
+@if (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0)
 {
-    foreach (var item in Model.CaseNoteList)
+    foreach (var item1 in Model.CaseNoteList)
     {
-        <tr casenoteid="@item.CaseNoteid">
+        <tr casenoteid="@item1.CaseNoteid">
             <td data-title="Date">
-                <div class="addn-content-desc" style="position: relative;">
-                    <p>@item.Date</p>
-                </div>
+
+                <p>@item1.Date</p>
+
             </td>
-         
-
-
-            @if (item.IsAllowSecurityCN)
+            @if (item1.IsAllowSecurityCN)
             {
                 <td data-title="Title">
-
-
-
-                    <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
-                        <p data-editable="@(item.IsEditable ? "true":"false")" style="text-decoration: underline;" onclick="Getcasenote($('#divCaseNoteSection'), @item.CaseNoteid,'@item.clientid',this)">@item.Title</p>
-
-                    </div>
-
+                    <p data-editable="@(item1.IsEditable ? "true":"false")" style="text-decoration: underline;cursor:pointer;width:250px;" onclick="Getcasenote($('#ModalAddCasenote'), @item1.CaseNoteid,'@item1.Householid', '@item1.ClientId',this)" data-toggle="tooltip" title="@item1.Title">@item1.Title</p>
                 </td>
             }
-            else if (item.WrittenBy == FingerprintsModel.StaffDetails.GetInstance().UserId.ToString() && item.SecurityLevel)
+            else if (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel)
             {
                 <td data-title="Title">
-
-
-
-
-                    <div data-editable="@(item.IsEditable ? "true":"false")" class="addn-content-desc" style="position: relative;cursor: pointer;">
-                        <p style="text-decoration: underline;" onclick="Getcasenote($('#divCaseNoteSection'),@item.CaseNoteid,'@item.clientid',this)">@item.Title</p>
-                    </div>
-
-
+                    <p style="text-decoration: underline;cursor:pointer;width:250px;" data-editable="@(item1.IsEditable ? "true":"false")" onclick="Getcasenote($('#ModalAddCasenote'), @item1.CaseNoteid,'@item1.Householid','@item1.ClientId',this)" data-toggle="tooltip" title="@item1.Title">@item1.Title</p>
                 </td>
             }
             else
             {
                 <td data-title="Title">
-                    <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
-                        <p style="text-decoration: underline;" onclick="ShowSecurityAlert()">Secured case note</p>
-                    </div>
+                    <p style="text-decoration: underline;cursor:pointer;width:250px;" onclick="ShowSecurityAlert()">Secured case note</p>
                 </td>
             }
-
-
             <td data-title="By">
-                <div class="addn-content-desc" style="position: relative;">
-                    <p>@item.BY</p>
-                </div>
+                <p data-toggle="tooltip" style="width:200px;" title="@item1.BY">@item1.BY</p>
             </td>
             <td data-title="Attachments">
-                <div class="addn-content-desc">
-                    <p>@item.Attachment</p>
-                </div>
+                <p>@item1.Attachment</p>
             </td>
             <td data-title="References">
-                <div class="addn-content-desc">
-                    <p>@item.References</p>
-                </div>
+                <p>@item1.References</p>
             </td>
+            <td data-title="Action">
 
-            <td data-title="Actions">
-                <div class="addn-content-desc">
-                    @if (item.IsAllowSecurityCN)
+
+                <p style="padding: 5px;">
+                    @if ((item1.IsAllowSecurityCN) || (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel))
                     {
-                        <p style="padding: 5px;width:157px;display:inline-block;">
-                            <span class="Status-title-addn">
-
-                                <a href="javascript:void(0);" class="add-new" style="margin-top: 0;padding-left: 15px;">
-                                    <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
-                                    Append Case Note
-                                </a>
 
 
-                            </span>
-                        </p>
+
+                        <a class="append-casenote" href="javascript:void(0);" style="text-decoration:none;" data-toggle="tooltip" title="Append case notes">
+                            <img src="~/Images/notes.svg" style="height:25px;width:25px;" />
+
+                        </a>
+
+                        @* <i class="fa fa-paperclip append-casenote" aria-hidden="true" data-toggle="tooltip" style="cursor:pointer; font-size :18px;background :#237646;color :#fff;padding :7px 12px;border-radius: 7px;margin-right :8px;" title="Append case notes"></i>*@
+                    <span>&nbsp;</span>
+                    @* <i class="fa fa-print export-new" aria-hidden="true" data-toggle="tooltip" style="cursor:pointer; font-size :18px;background :#2e628d;color :#fff;padding :7px 12px;border-radius: 7px;margin-right :8px;" title="Export to pdf"></i>*@
+
+
+
+
+
+                        <a class="export-new" href="/Reporting/ExportCaseNote?caseNoteId=@item1.CaseNoteid&clientId=@(string.IsNullOrEmpty(item1.ClientId)?"0" :item1.ClientId) &householdId=@(string.IsNullOrEmpty(item1.Householid)?"0":item1.Householid)" style="text-decoration:none;" data-toggle="tooltip" title="Export to PDF">
+                            <img src="~/Images/export.svg" style="height:25px;width:25px;" />
+                        </a>
+                       
+
+                        @*<a class="print-new" href="/Reporting/ExportCaseNote?caseNoteId=@item1.CaseNoteid&clientId=@(string.IsNullOrEmpty(item1.clientid)?"0" :item1.clientid) &householdId=@(string.IsNullOrEmpty(item1.Householid)?"0":item1.Householid)"  style="text-decoration:none;" data-toggle="tooltip" title="Print Case Note">
+                    <img src="~/Images/Printer_2.svg" style="height:25px;width:25px;" />
+                </a>*@
+
+                        <span>&nbsp;</span>
+
+
+
+
                     }
-                    else if (item.WrittenBy == FingerprintsModel.StaffDetails.GetInstance().UserId.ToString() && item.SecurityLevel)
+
+                    @if (FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.AgencyAdmin].ToLowerInvariant() == Session["RoleId"].ToString()
+            || FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator].ToLowerInvariant() == Session["RoleId"].ToString())
                     {
-                        <p>
-                            <span class="Status-title-addn">
+                        <a class="delete-casenote" href="javascript:void(0);" style="text-decoration:none;" data-id="@item1.CaseNoteid" data-toggle="tooltip" title="Delete case note">
+                            <img src="~/Images/trash.png" style="height:25px;width:25px;" />
+                        </a>
 
-                                <a href="javascript:void(0);" class="add-new" style="margin-top: 0;padding-left: 15px;">
-                                    <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
-                                    Append Case Note
-                                </a>
-
-
-                            </span>
-                        </p>
+                        <span>&nbsp;</span>
+                            @*<button type="button" class="btn delete-casenote" style="border-radius: 0px;color: #fff;margin-left: 8px;background: #e43838;" data-id="@item1.CaseNoteid">Delete</button>*@
                     }
-                    else
-                    {
-                        <p>
 
-                        </p>
-                    }
-                    @if (FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.AgencyAdmin].ToLowerInvariant() == FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()
-                          || FingerprintsModel.Role.RolesDictionary[(int)FingerprintsModel.Enums.RoleEnum.GenesisEarthAdministrator].ToLowerInvariant() == FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString())
-                    {
-                        <button type="button" class="btn delete-casenote" style="border-radius: 0px;color: #fff;margin-left: 8px;background: #e43838;" data-id="@item.CaseNoteid">Delete</button>
-                    }
-                </div>
+                </p>
+
+
+
             </td>
-
-
 
         </tr>
     }
 }
 
+
 else
 {
-
-
-    <tr><td colspan="6">No Records Found</td></tr>
+    <tr>
+        <td colspan="6">@Fingerprints.LocalResource.Resources.Recordsnotfound </td>
+    </tr>
 }
-
-
 
 <script>
 
 
-    $('#spnTotalRecord').html('@Model.TotalRecord');
+    $('#totalCountSpan_casenote').html('@Model.TotalRecord');
+
+
+
 
 </script>

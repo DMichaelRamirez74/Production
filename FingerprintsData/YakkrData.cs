@@ -687,53 +687,68 @@ namespace FingerprintsData
         }
 
 
-        public InternalRefferalCaseNote GetCaseNoteByYakkr(string clientId, string yakkrId)
+
+
+
+        public long  GetCaseNoteByYakkr(string yakkrId)
         {
-            InternalRefferalCaseNote InternCasenote = new InternalRefferalCaseNote();
-            InternCasenote.CaseNote = new RosterNew.CaseNote();
+           // InternalRefferalCaseNote InternCasenote = new InternalRefferalCaseNote();
+          //  InternCasenote.CaseNote = new RosterNew.CaseNote();
             StaffDetails staffDetails = StaffDetails.GetInstance();
+            long caseNoteId = 0;
             try
             {
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
 
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetCaseNoteInfoByYakkrId";
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
-                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrId));
-                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
-                command.Parameters.Add(new SqlParameter("@ClientId", clientId));
-                Connection.Open();
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
-                if (_dataset != null)
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.CommandText = "USP_GetCaseNoteInfoByYakkrId";
+                //command.Parameters.Clear();
+                //command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                //command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                //command.Parameters.Add(new SqlParameter("@YakkrId", yakkrId));
+                //command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                //command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+                //Connection.Open();
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+                //Connection.Close();
+                //if (_dataset != null)
+                //{
+                //    if (_dataset.Tables[0].Rows.Count > 0)
+                //    {
+
+                //        InternCasenote.ClassroomName = _dataset.Tables[0].Rows[0]["classroomname"].ToString();
+                //        InternCasenote.CenterName = _dataset.Tables[0].Rows[0]["CenterName"].ToString();
+                //        InternCasenote.RoleName = _dataset.Tables[0].Rows[0]["RoleName"].ToString();
+                //        InternCasenote.ReferredBy = _dataset.Tables[0].Rows[0]["StaffName"].ToString();
+
+                //        InternCasenote.CaseNote.ClientId = _dataset.Tables[0].Rows[0]["ClientId"].ToString();
+                //        InternCasenote.CaseNote.ClientName = _dataset.Tables[0].Rows[0]["ClientName"].ToString();
+                //        InternCasenote.CaseNote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
+                //        InternCasenote.CaseNote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
+                //        InternCasenote.CaseNote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
+                //        InternCasenote.CaseNote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
+                //        InternCasenote.CaseNote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
+                //                                      where Convert.ToInt32(dr1["AttachmentId"].ToString()) > 0
+                //                                      select dr1["AttachmentId"].ToString()
+                //                                    ).ToArray();
+
+                //    }
+                //}
+
+                var dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
+
+                var parameters = new IDbDataParameter[]
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
+                    dbManager.CreateParameter("@YakkrId",yakkrId,DbType.String)
+                };
 
-                        InternCasenote.ClassroomName = _dataset.Tables[0].Rows[0]["classroomname"].ToString();
-                        InternCasenote.CenterName = _dataset.Tables[0].Rows[0]["CenterName"].ToString();
-                        InternCasenote.RoleName = _dataset.Tables[0].Rows[0]["RoleName"].ToString();
-                        InternCasenote.ReferredBy = _dataset.Tables[0].Rows[0]["StaffName"].ToString();
+                caseNoteId = dbManager.ExecuteWithScalar<long>("USP_GetCaseNoteInfoByYakkrId", CommandType.StoredProcedure, parameters);
 
-                        InternCasenote.CaseNote.ClientId = _dataset.Tables[0].Rows[0]["ClientId"].ToString();
-                        InternCasenote.CaseNote.ClientName = _dataset.Tables[0].Rows[0]["ClientName"].ToString();
-                        InternCasenote.CaseNote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
-                        InternCasenote.CaseNote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
-                        InternCasenote.CaseNote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
-                        InternCasenote.CaseNote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
-                        InternCasenote.CaseNote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
-                                                      where Convert.ToInt32(dr1["AttachmentId"].ToString()) > 0
-                                                      select dr1["AttachmentId"].ToString()
-                                                    ).ToArray();
 
-                    }
-                }
 
 
 
@@ -742,7 +757,7 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
             }
-            return InternCasenote;
+            return caseNoteId;
         }
 
         /// <summary>
@@ -870,7 +885,7 @@ namespace FingerprintsData
         }
 
      
-        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments)
+        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote)
         {
 
             bool _isSuccess = false;
@@ -885,9 +900,10 @@ namespace FingerprintsData
                 {
                    
                     List<CaseNote> CaseNoteList = new List<CaseNote>();
-                    FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
                     var rd = new RosterData();
-                     message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString(), 2);
+                    StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+                     message = rd.SaveCaseNotes(ref Name,  CaseNote, staff, 2);
 
                 }
 
@@ -950,7 +966,7 @@ namespace FingerprintsData
 
 
         public bool SubmitFeedBack453(int mode,int ProblemOn, int? CRColorCode,int CommunityId,int QuestionaireID,int yakkrid,
-           string MgNotes, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments
+           string MgNotes, RosterNew.CaseNote CaseNote
             ) {
             bool result = false;
 
@@ -967,7 +983,8 @@ namespace FingerprintsData
                     List<CaseNote> CaseNoteList = new List<CaseNote>();
                     FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
                     var rd = new RosterData();
-                    message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(),stf.RoleId.ToString(), stf.UserId.ToString(), 2);
+                    
+                    message = rd.SaveCaseNotes(ref Name, CaseNote,stf , 2);
 
                 }
 

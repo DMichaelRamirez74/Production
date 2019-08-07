@@ -1366,6 +1366,9 @@
                                     $caseNoteDiv.find('.save-casenote').removeAttr('onclick');
                                     $caseNoteDiv.find('.cancel-casenote').removeAttr('data-dismiss');
 
+                                    $caseNoteDiv.find('#div_download_attach').hide();
+
+
                                     $caseNoteDiv.find('#divCaseNoteClients').find('input:checkbox').each(function () {
 
                                         //if ($(this).val() != $clientId && $(this).val() != $parentId) {
@@ -1380,9 +1383,15 @@
 
                                     self.elements.txtCaseNoteDate = $caseNoteDiv.find('#txtCaseNoteDate');
 
-                                    $caseNoteDiv.find('#Attachmectstag').attr('onclick', 'self.addCaseNoteAttachment(this);');
+                             //       $caseNoteDiv.find('#Attachmectstag').attr('onclick', 'self.addCaseNoteAttachment(this);');
 
                                     $caseNoteDiv.find('#FirstFile[type="file"]').attr('onchange', 'self.ValidateSingleInputDocument(this,null);');
+
+
+                                     if (CKEDITOR.instances['txtareaCaseNote']) {
+                                        CKEDITOR.instances['txtareaCaseNote'].destroy(true);
+
+                                    }
 
 
                                     CKEDITOR.replace('txtareaCaseNote_' + index + '', {
@@ -1658,13 +1667,15 @@
                 var $td = $(ele).closest('td');
                 var $rowIndex = $td.closest('tr').prev('tr').data('row');
                 self.elements.txtParentEmail = $td.find('#txtParentEmail');
+
+
                 self.elements.divCaseNoteSection = $td.find('#divCaseNoteSection');
                 self.elements.txtCaseNoteDate = self.elements.divCaseNoteSection.find('#txtCaseNoteDate');
                 self.elements.txtCaseNoteTitle = self.elements.divCaseNoteSection.find('#txtCaseNoteTitle');
                 self.elements.txtCaseNoteBody = self.elements.divCaseNoteSection.find('#txtareaCaseNote_' + $rowIndex + '');
                 self.elements.divCaseNoteHouseholds = self.elements.divCaseNoteSection.find('#divCaseNoteClients');
-                self.elements.divDevelopmentalTeam = self.elements.divCaseNoteSection.find('#caseNoteStaffDiv');
-                self.elements.txtCaseNoteTags = self.elements.divCaseNoteSection.find('input:text[name="txtCaseNoteTags"]');
+                self.elements.divDevelopmentalTeam = self.elements.divCaseNoteSection.find('#divCaseNoteStaffs');
+                self.elements.txtCaseNoteTags = self.elements.divCaseNoteSection.find('#txtCaseNoteTags');
                 self.elements.checkboxSecuritylevel = self.elements.divCaseNoteSection.find('#checkboxSecureNote');
                 self.elements.divFileAttachment = self.elements.divCaseNoteSection.find('#caseNoteAttachmentsDiv');
 
@@ -1675,70 +1686,10 @@
 
                     var fd = new FormData();
 
-                    var staffIDs = new Array();
 
-                    self.elements.divDevelopmentalTeam.find('input:checkbox:checked').map(function () {
-
-                        staffIDs.push($(this).val());
-                    });
-
-                    var clientIDs = new Array();
-
-                    self.elements.divCaseNoteHouseholds.find('input:checkbox:checked').map(function () {
-                        clientIDs.push($(this).val());
-
-                    });
-
-
-                    var fileInput = null;
-
-
-
-                    fd.append('CaseNoteid', 0);
-                    fd.append('ClientId', self.elements.divCaseNoteSection.find('#hidden_clientId').val());
                     fd.append('parentId', $parentId);
-                    fd.append('email', self.elements.txtParentEmail.val().trim())
-                    fd.append('ProgramId', self.elements.divCaseNoteSection.find('#hidden_programId').val());
-                    fd.append('HouseHoldId', self.elements.divCaseNoteSection.find('#hidden_householdId').val());
-                    fd.append('CenterId', self.elements.divCaseNoteSection.find('#hidden_centerId').val());
-                    fd.append('Classroomid', self.elements.divCaseNoteSection.find('#hidden_classroomId').val());
-                    fd.append('CaseNoteDate', self.elements.txtCaseNoteDate.val().trim());
-                    fd.append('CaseNotetitle', self.elements.txtCaseNoteTitle.val().trim());
-                    fd.append('Note', self.elements.txtCaseNoteBody.val().trim());
-                    fd.append('CaseNotetags', self.elements.txtCaseNoteTags.val().trim());
-                    fd.append('ClientIds', clientIDs.join(","));
-                    fd.append('StaffIds', staffIDs.join(","));
-                    fd.append('CaseNoteSecurity', self.elements.checkboxSecuritylevel.is(':checked'));
-
-                    self.elements.divFileAttachment.find('input:file').each(function () {
-
-                        fd.append('fileInput', $(this)[0].files[0]);
-
-                    });
-
-                    self.elements.divFileAttachment.next('#addAttachmentDiv').find('input:file').each(function () {
-
-                        fd.append('fileInput', $(this)[0].files[0]);
-
-                    });
-
-
-
-                    var $cameraDocuments = self.elements.modalEmailReport.find('.div-edit-modal-img-gallery_' + $rowIndex + '').find('.setup_viewscreen');
-
-                    var cameraDocumentsArray = [];
-
-                    if ($cameraDocuments.length > 0) {
-
-                        $.each($cameraDocuments, function (j, doc) {
-
-                            var $doc = $(doc).find('img');
-                            cameraDocumentsArray.push({ 'Text': 'CaseNoteDocument', 'Value': self.getBase64Image($doc) });
-
-                        });
-                    }
-
-                    fd.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
+                    fd.append('email', self.elements.txtParentEmail.val().trim());
+                 
 
                     self.ajaxOptions.url = self.updateEmailUrl;
                     self.ajaxOptions.type = "POST";
@@ -1746,6 +1697,7 @@
                     self.ajaxOptions.data = fd;
                     self.ajaxOptions.processData = false;
                     self.ajaxOptions.contentType = false;
+                    self.ajaxOptions.async = true;
                     self.ajaxCall(self.callbackSaveParentEmailCaseNote);
 
                 }
@@ -1761,23 +1713,126 @@
                             plainValidation(self.elements.txtParentEmail);
                             break;
 
-                        case 2: //email verified and sent, then case note saved //
-                            customAlertforlongtime('Email address verified and saved successfully <br><br> Case note saved successfully');
-                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').html(self.elements.txtParentEmail.val());
-                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').trigger('click');
+                        case 2: //email verified and sent //
 
 
-                            if (self.elements.txtParentEmail.closest('.tab-pane').attr('id')=='Noemails')
-                            {
-                                self.getEmailReport(self.referenceId);
-                            }
+                                var caseNote = {};
+                                var clientIDs = null;
+
+                                var clientArray = [];
+                                $.each($('#divCaseNoteClients').find('input:checkbox:checked'), function () {
+
+                                    clientArray.push($(this).val());
+                                });
+
+                                var staffArray = [];
+                                $.each($('#divCaseNoteStaffs').find('input:checkbox:checked'), function () {
+
+                                    staffArray.push($(this).val());
+                                });
+
+
+                                var cameraDocumentsArray = [];
+
+                                $('#divCaseNoteSection').find('#caseNoteAttachmentsDiv').find('input:file').each(function (a, b) {
+                                    debugger;
+                                    var fileInput = $(this);
+
+                                    if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                                        var fileUpload = fileInput.get(0);
+                                        var files = fileUpload.files;
+
+                                        for (var i = 0; i < files.length; i++) {
+
+
+                                            var convImage = fileInput.attr('conv-img');
+
+                                            if (convImage != null && convImage != "")
+                                                cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+
+                                        }
+                                    }
+                                });
+
+
+
+                                var $cameraDocuments = $('#divCaseNoteSection').find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+
+
+
+                                if ($cameraDocuments.length > 0) {
+
+                                    $.each($cameraDocuments, function (j, doc) {
+
+                                        var $doc = $(doc).find('img');
+                                        cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+                                    });
+                                }
+
+                                var $index = $('#myTab').find('li.active').index();
+
+                                caseNote.ClientId = $('#hidden_clientId').val();
+                                caseNote.CenterId = $('#hidden_centerId').val();
+                                caseNote.HouseHoldId = $('#hidden_householdId').val();
+                                caseNote.CaseNoteid = $('#hdn-casenoteid').val();
+                                caseNote.ProgramId = $('#hidden_programId').val();
+                                caseNote.ClientIds = clientArray.join(',');
+                                caseNote.StaffIds = staffArray.join(',');
+                                caseNote.CaseNoteDate = $('#txtCaseNoteDate').val();
+                                caseNote.CaseNotetitle = $('#txtCaseNoteTitle').val();
+                                caseNote.CaseNotetags = $('#txtCaseNoteTags').val();
+                                caseNote.Note = $('#txtareaCaseNote_'+$index+'').val();
+                                caseNote.CaseNoteSecurity = $('#checkboxSecureNote').is(':checked');
+                                caseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+                                console.log(caseNote);
+
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/Roster/SaveCaseNote",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    data: JSON.stringify(caseNote),
+                                    success: function (data) {
+
+
+                                        if (data == '1') {
+
+                                            customAlertforlongtime('Email address verified and saved successfully <br><br> Case note saved successfully');
+                                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').html(self.elements.txtParentEmail.val());
+                                            self.elements.txtParentEmail.closest('tr').prev('tr').children('td:eq(1)').children('p').children('a').trigger('click');
+
+
+                                            if (self.elements.txtParentEmail.closest('.tab-pane').attr('id') == 'Noemails') {
+                                                self.getEmailReport(self.referenceId);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // email verified and sent, but failed to save case note //
+                                            customAlertforlongtime('Email address saved successfully, but failed to save the case note. Please, try again.');
+                                            plainValidation(self.elements.txtParentEmail);
+                                        }
+
+
+
+                                    },
+                                    error: function (data) {
+                                        console.log(data);
+                                    }
+                                });
+
+                           
+
+
+
+
 
                             break;
 
-                        case 3: // email verified and sent, but failed to save case note //
-                            customAlertforlongtime('Email address saved successfully, but failed to save the case note. Please, try again.');
-                            plainValidation(self.elements.txtParentEmail);
-                            break;
 
 
 

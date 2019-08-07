@@ -808,53 +808,53 @@ namespace Fingerprints.Controllers
 
         #endregion
 
-        #region Center Audit Report
+        #region Attendance and Meal Audit Report
 
         [HttpGet]
         [CustAuthFilter()]
         //[ActionName("center-audit-report")]
-        public ActionResult CenterAuditReport()
+        public ActionResult AttendanceMealAuditReport()
         {
 
             return View();
         }
 
-        #region GET Center Audit Report (tab section for selected centers)
+        #region GET Attendance and Meal Audit Report (tab section for selected centers)
 
 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult GetCenterAuditReport(CenterAuditReport report)
+        public PartialViewResult GetAttendanceMealAuditReport(AttendanceMealAuditReport report)
         {
             report.SkipRows = report.GetSkipRows();
             StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetCenterAuditReport(report, staff);
+            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetAttendanceMealAuditReport(report, staff);
 
-            return PartialView("~/Views/Reporting/_CenterAuditReport.cshtml", report);
+            return PartialView("~/Views/Reporting/_AttendanceMealAuditReport.cshtml", report);
        
         }
 
         #endregion
 
-        #region Get Center Audit Report (single tab based on the selected center)
+        #region Get Attendance and Meal Audit Report (single tab based on the selected center)
 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult GetCenterAuditReportByCenter(CenterAuditReport report)
+        public PartialViewResult GetAttendanceMealAuditReportByCenter(AttendanceMealAuditReport report)
         {
             StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
             report.SkipRows = report.GetSkipRows();
-            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetCenterAuditReport(report, staff);
+            report = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Reporting>().GetAttendanceMealAuditReport(report, staff);
 
-            return PartialView("~/Views/Reporting/_CenterAuditReportTable.cshtml", report.CenterAuditReportList);
+            return PartialView("~/Views/Reporting/_AttendanceMealAuditReportTable.cshtml", report.AttendanceMealAuditReportList);
         }
 
         #endregion
 
-        #region Export Center Audit Report
+        #region Export Attendance and Meal Audit Report
 
         [CustAuthFilter()]
-        public void ExportCenterAuditReport(CenterAuditReport report,int reportFormatType)
+        public void ExportAttendanceMealAuditReport(AttendanceMealAuditReport report, int reportFormatType)
         {
             #region Itextsharp PDF generation Region
 
@@ -866,8 +866,8 @@ namespace Fingerprints.Controllers
 
             var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
 
-            MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportCenterAuditReport(attendanceDetails, reportTypeEnum, imagePath);
-            string reportName = "Center_Audit_Report_";
+            MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportAttendanceMealAuditReport(attendanceDetails, reportTypeEnum, imagePath);
+            string reportName = "Attendance_Meal_Audit_Report_";
 
             DownloadReport(workStream, reportTypeEnum, reportName);
 
@@ -876,6 +876,42 @@ namespace Fingerprints.Controllers
             #endregion
         }
         #endregion
+
+        #region Export Case Note by Case Note Id
+
+
+        public void ExportCaseNote(string caseNoteId,string clientId="0", string householdId="0")
+        {
+            CaseNoteByClientID caseNoteByClientID = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
+
+
+            long _testType = 0;
+            caseNoteByClientID.CaseNote = new CaseNote
+            {
+
+                CaseNoteid = long.TryParse(caseNoteId, out _testType) ? caseNoteId : EncryptDecrypt.Decrypt64(caseNoteId),
+                ClientId = long.TryParse(clientId, out _testType) ? clientId : EncryptDecrypt.Decrypt64(clientId),
+                HouseHoldId = long.TryParse(householdId, out _testType) ? householdId : EncryptDecrypt.Decrypt64(householdId)
+            };
+
+
+            var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+
+            caseNoteByClientID = new RosterData().GetCaseNoteByCaseNoteId(caseNoteByClientID, staffDetails);
+
+
+           MemoryStream memoryStream= new Export().ExportCaseNote(caseNoteByClientID, ReportFormatType.Pdf, null);
+
+            string reportName = "Case_Note_Report_";
+
+            DownloadReport(memoryStream, ReportFormatType.Pdf, reportName);
+        }
+
+        #endregion
+
+
+
+
 
 
         #endregion

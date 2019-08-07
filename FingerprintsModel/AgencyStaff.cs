@@ -312,6 +312,9 @@ namespace FingerprintsModel
         //public string CaseNoteid { get; set; }
         public string WrittenBy { get; set; }
         public string Name { get; set; }
+
+        public string RoleOfOwner{get;set;}
+
         public string BY { get; set; }
         public string Title { get; set; }
         public string Date { get; set; }
@@ -328,6 +331,13 @@ namespace FingerprintsModel
 
         public string ProgramID { get; set; }
         public string ProgramType { get; set; }
+
+        public List<SelectListItem> TagList { get; set; }
+        public List<SubCaseNote> SubCaseNoteList { get; set; }
+
+        public List<SelectListItem> ClientList {get;set;}
+
+        public List<SelectListItem> StaffList { get; set; }
     }
 
 
@@ -343,19 +353,52 @@ namespace FingerprintsModel
         public string WrittenBy { get; set; }
         public string WrittenDate { get; set; }
 
+        public string RoleOfOwner { get; set; }
+
+        public List<SelectListItem> TagList {get;set;}
+
     }
 
-    public class CaseNoteByClientID : Pagination
+    public class CaseNoteByClientID : Pagination,IManagerReport
     {
         public string Role { get; set; }
         public List<CaseNote> CaseNoteList { get; set; }
+
+        public CaseNote CaseNote {get;set;}
+
+        
+
         public List<RosterNew.User> SecurityRolesList { get; set; }
         public List<RosterNew.User> Clientlist { get; set; }
         public List<RosterNew.User> UserList { get; set; }
   
         public List<ParentInfo> ParentContactInfoList { get; set; }
 
+        public string Enc_ClientID { get; set; }
+
+        public string Enc_HouseholdID { get;set; }
+
+        public string ProgramId { get; set; }
         public string ReferenceYakkrID { get; set; }
+
+        public bool IncludeNotesByOtherStaffs { get;set; }
+
+        public string TagNames { get; set; }
+
+
+        public string CenterName { get; set; }
+       
+
+        public string CenterID { get; set; }
+       
+        public string ClassroomName { get; set; }
+       
+
+        public string ClassroomID { get; set; }
+        
+
+        public string StepUpToQualityStars { get; set; }
+        
     }
 
 
@@ -571,7 +614,7 @@ namespace FingerprintsModel
 
         public int AcceptanceType { get; set; }
 
-        public bool IsFutureApplication { get; set; }
+        //public bool IsFutureApplication { get; set; }
 
     }
     public class ClassRoom

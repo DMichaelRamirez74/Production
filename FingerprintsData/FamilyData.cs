@@ -9004,6 +9004,8 @@ namespace FingerprintsData
                     obj.PEnrollment = _dataset.Tables[1].Rows[0]["PEnrollment"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["PEnrollment"]);
                     obj.PEnrollmentFinished = _dataset.Tables[1].Rows[0]["PEnrollmentFinished"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["PEnrollmentFinished"]);
                     // obj.IsFutureWithdrawal = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["IsFutureWithdrawal"]);
+
+                    obj.TotalCaseNotesWritten = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalCaseNotesWritten"]);
                     if (_dataset.Tables[1].Rows[0]["gender"].ToString() == "2")
                     {
                         obj.Yakkr = _dataset.Tables[1].Rows[0]["yakkr"].ToString();
@@ -9011,6 +9013,15 @@ namespace FingerprintsData
                         obj.PMDentalExam = Convert.ToInt32(_dataset.Tables[1].Rows[0]["PMDentalExam"]);
                         obj.PMDentalEntered = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["DentalEntered"]);
                         obj.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[0]["ProgramID"].ToString()));
+                        obj.ADA = _dataset.Tables[1].Rows[0]["AttendancePercentage"]!=DBNull.Value? Convert.ToDouble(_dataset.Tables[1].Rows[0]["AttendancePercentage"]):0;
+                        obj.ReasonForAcceptance = _dataset.Tables[1].Rows[0]["ReasonforAcceptance"] != DBNull.Value ? EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReasonForAcceptance>(Convert.ToString(_dataset.Tables[1].Rows[0]["ReasonforAcceptance"])).ToString() : string.Empty;
+
+
+                        obj._EnrollmentChangeReason = _dataset.Tables[1].Rows[0]["EnrollmentStatusChangeReason"] != DBNull.Value ? new FamilyHousehold.EnrollmentChangeReason
+                        {
+                            ReasonText = Convert.ToString(_dataset.Tables[1].Rows[0]["EnrollmentStatusChangeReason"])
+
+                        } : new FamilyHousehold.EnrollmentChangeReason();
 
                     }
 
@@ -9029,12 +9040,25 @@ namespace FingerprintsData
                         obj.PEnrollment1 = _dataset.Tables[1].Rows[1]["PEnrollment"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["PEnrollment"]);
                         obj.PEnrollmentFinished1 = _dataset.Tables[1].Rows[1]["PEnrollmentFinished"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["PEnrollmentFinished"]);
                         //  obj.IsFutureWithdrawal1 = Convert.ToBoolean(_dataset.Tables[1].Rows[1]["IsFutureWithdrawal"]);
+                        obj.TotalCaseNotesWritten1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["TotalCaseNotesWritten"]);
+
                         if (_dataset.Tables[1].Rows[1]["gender"].ToString() == "2")
                         {
                             obj.Yakkr1 = _dataset.Tables[1].Rows[1]["yakkr"].ToString();
                             obj.PregnantmotherenrolledP1 = Convert.ToBoolean(_dataset.Tables[1].Rows[1]["Pregnantmotherenrolled"]);
                             obj.PMDentalExam1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["PMDentalExam"]);
                             obj.ProgramTypeID1 = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[1]["ProgramID"].ToString()));
+
+                            obj.ADA = _dataset.Tables[1].Rows[1]["AttendancePercentage"] != DBNull.Value ? Convert.ToDouble(_dataset.Tables[1].Rows[1]["AttendancePercentage"]) : 0;
+                            obj.ReasonForAcceptance = _dataset.Tables[1].Rows[1]["ReasonforAcceptance"] != DBNull.Value ? EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReasonForAcceptance>(Convert.ToString(_dataset.Tables[1].Rows[1]["ReasonforAcceptance"])).ToString() : string.Empty;
+
+                            obj._EnrollmentChangeReason = _dataset.Tables[1].Rows[1]["EnrollmentStatusChangeReason"] != DBNull.Value ? new FamilyHousehold.EnrollmentChangeReason
+                            {
+                                ReasonText = Convert.ToString(_dataset.Tables[1].Rows[1]["EnrollmentStatusChangeReason"])
+
+                            } : new FamilyHousehold.EnrollmentChangeReason();
+
+
 
                         }
                     }
@@ -9068,6 +9092,18 @@ namespace FingerprintsData
                         familyinfo.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["ProgramID"].ToString()));
                         familyinfo.IsFoster = Convert.ToInt32(_dataset.Tables[2].Rows[i]["FosterChild"]);
                         familyinfo.CParentdisable = Convert.ToInt32(_dataset.Tables[2].Rows[i]["DisabilityChild"]);
+
+                        familyinfo.ADA = _dataset.Tables[2].Rows[i]["AttendancePercentage"] != DBNull.Value ? Convert.ToDouble(_dataset.Tables[2].Rows[i]["AttendancePercentage"]) : 0;
+                        familyinfo.ReasonForAcceptance = _dataset.Tables[2].Rows[i]["ReasonforAcceptance"] != DBNull.Value ? EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReasonForAcceptance>(Convert.ToString(_dataset.Tables[2].Rows[i]["ReasonforAcceptance"])).ToString() : string.Empty;
+                        familyinfo.TotalCaseNotesWritten=Convert.ToInt32(_dataset.Tables[2].Rows[i]["TotalCaseNotesWritten"]);
+
+                        familyinfo._EnrollmentChangeReason = _dataset.Tables[2].Rows[i]["EnrollmentStatusChangeReason"] != DBNull.Value ? new FamilyHousehold.EnrollmentChangeReason
+                        {
+                            ReasonText = Convert.ToString(_dataset.Tables[2].Rows[i]["EnrollmentStatusChangeReason"])
+
+                        } : new FamilyHousehold.EnrollmentChangeReason();
+
+
                         _Childlist.Add(familyinfo);
                     }
                     obj._Clist = _Childlist;
@@ -9087,7 +9123,7 @@ namespace FingerprintsData
                         familyinfo.OGender = _dataset.Tables[3].Rows[i]["gender"].ToString();
                         familyinfo.OtherEligible = Convert.ToBoolean(_dataset.Tables[3].Rows[i]["age"]);
                         familyinfo.HouseHoldImagejson = _dataset.Tables[3].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[3].Rows[i]["ProfilePic"]);
-
+                        familyinfo.TotalCaseNotesWritten = Convert.ToInt32(_dataset.Tables[3].Rows[i]["TotalCaseNotesWritten"]);
                         _Olist.Add(familyinfo);
                     }
                     obj._Olist = _Olist;

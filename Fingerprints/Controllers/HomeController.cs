@@ -1636,32 +1636,32 @@ namespace Fingerprints.Controllers
             {
                 string name = "";
                 string casenoteid = "";
-
-                List<RosterNew.Attachment> Attachments = new List<RosterNew.Attachment>();
+                RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
+                _caseNote.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance <List<RosterNew.Attachment>>();
+                
                 var ate = Request.Files;
                 var ate2 = ate.AllKeys;
                 for (int i = 0; i < ate2.Length; i++)
                 {
                     RosterNew.Attachment aatt = new RosterNew.Attachment();
                     aatt.file = ate[i];
-                    if(aatt.file.ContentLength>0)
-                       Attachments.Add(aatt);
+                    if (aatt.file.ContentLength > 0)
+                        _caseNote.CaseNoteAttachmentList.Add(aatt);
                 }
-                 RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
-                 List<CaseNote> caseNote = new List<CaseNote>();            
-                 RosterNew.Users _users = new RosterNew.Users();
-                _caseNote.CenterId =EncryptDecrypt.Decrypt64( internRef.CaseCenterId);
+                
+                _caseNote.CenterId = EncryptDecrypt.Decrypt64(internRef.CaseCenterId);
                 _caseNote.Classroomid = internRef.CaseClassroomId.ToString();
-                _caseNote.ClientId = EncryptDecrypt.Decrypt64(internRef.CaseClientId.ToString());             
+                _caseNote.ClientId = EncryptDecrypt.Decrypt64(internRef.CaseClientId.ToString());
                 _caseNote.CaseNotetags = internRef.Tags.Trim(',');
                 _caseNote.CaseNotetitle = internRef.Title;
                 _caseNote.CaseNoteDate = internRef.Date;
                 _caseNote.Note = internRef.Note;
-                _caseNote.ClientIds= string.Join(",", internRef.ClientIds.ToArray());
+                _caseNote.ClientIds = string.Join(",", internRef.ClientIds.ToArray());
                 _caseNote.ProgramId = EncryptDecrypt.Decrypt64(internRef.CaseProgramId);
-                _caseNote.CaseNoteAttachmentList = Attachments;
+                
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["RoleID"].ToString(), Session["UserId"].ToString(), 2);
+                casenoteid = new RosterData().SaveCaseNotes(ref name, _caseNote,staffDetails, 2);
+
                 if (casenoteid == "1")
                 {
                 result = fd.SaveInternalReferral(internRef, name);                       

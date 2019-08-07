@@ -38,7 +38,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@UserId", objEdu.UserId);
                 command.Parameters.AddWithValue("@AgencyId", objEdu.AgencyId);
                 Object Note = command.ExecuteScalar();
-                if (Note != null)
+                if (Note != null && objEdu.AttachmentPath!=null  && objEdu.AttachmentPath.Length>0)
                 {
                     Int64 NoteID = Convert.ToInt64(Note);
                     SaveMaterialAttachment(objEdu, NoteID);
