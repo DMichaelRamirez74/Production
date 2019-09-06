@@ -383,6 +383,56 @@
             }
         }
 
+        function CheckStaffSignature(sigCodeEle, userId) {
+           
+            var returnResult = false;
+            $.ajax({
+                url: HostedDir + '/MyProfile/CheckSignatureCode',
+                type: 'post',
+                datatype: 'json',
+                async: false,
+                data: { signatureCode: sigCodeEle.val(), id: userId },
+                success: function (data) {
+                    debugger;
+
+                    switch (data) {
+                        case '0':
+                            $('#spinner').hide();
+                            customAlertforlongtime(_langList.SignatureCodeNotMatch);
+                            plainValidation(sigCodeEle);
+                            returnResult = false;
+                            break;
+                        case '2':
+                            $('#spinner').hide();
+                            customAlertforlongtime(_langList.ErrrorOccurred);
+                            returnResult = false;
+                            break;
+                        case '1':
+                            returnResult = true;
+                            break;
+                        default:
+                            returnResult = false;
+                            break;
+
+                    }
+
+                    if (returnResult) sigCodeEle.css('background-color', '#fff');
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                    customAlertforlongtime(_langList.ErrrorOccurred);
+                    returnResult = false;
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+
+                }
+
+            });
+
+            return returnResult;
+        }
+
 
         //Cookies Section End//
 
