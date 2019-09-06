@@ -162,7 +162,7 @@ label.btn-eduupload {
 
 
                 <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
-                <h2 id="CaseNoteHeading" class="extra-title muted">Upload Document</h2>
+                <h2 id="CaseNoteHeading" class="extra-title muted">Upload Image</h2>
 
                 <div class="max_items_addn">
 
@@ -179,7 +179,7 @@ label.btn-eduupload {
                                             <span>Upload from Device</span>
                                         </label>
                                     </li>
-                                    <li onclick="showCameraOption(this);">
+                                    <li onclick="showCameraOptionforSingleUpload(this);">
                                         <button class="btn-eduupload"><i class="fa fa-camera" aria-hidden="true"></i><span>Capture using Camera</span></button>
                                     </li>
                                 </ul>
@@ -288,40 +288,67 @@ label.btn-eduupload {
 
 <script type="text/javascript">
 
-
-    const videoElement = document.querySelector('.camera-file-modal video');
-    //var audioSelect = document.querySelector('select#audioSource');
-    const videoSelect = document.querySelector('.camera-file-modal select#videoSource');
-    var constraints = {};
+   
+    var videoElementSingle;
+    var videoSelectsingle;
+    var constraintsSingle;
     var front = true;
+    var screenshotButtonSingle;
+    var imgSingle;
+    var videoSingle;
+    var canvasSingle;
+    var currentStreamSingleUpload;
+
+    $(function () {
 
 
-    const screenshotButton = document.querySelector('.camera-file-modal #anchor-capture');
-    const img = document.querySelector('.camera-file-modal #setup-camera-div #capt-img');
-    const video = document.querySelector('.camera-file-modal #setup-camera-div video');
-    video.setAttribute('autoplay', '');
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    const canvas = document.createElement('canvas');
+         videoElementSingle = document.querySelector('.camera-file-modal video');
+        //var audioSelect = document.querySelector('select#audioSource');
+         videoSelectsingle = document.querySelector('.camera-file-modal select#videoSource');
+         constraintsSingle = {};
+       
 
 
-    screenshotButton.onclick = video.onclick = function () {
+         screenshotButtonSingle = document.querySelector('.camera-file-modal #anchor-capture');
+         imgSingle = document.querySelector('.camera-file-modal #setup-camera-div #capt-img');
+         videoSingle = document.querySelector('.camera-file-modal #setup-camera-div video');
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        // Other browsers will fall back to image/png
-        console.log(canvas);
-        img.src = canvas.toDataURL('image/png');
-      
-    };
 
-    function handleSuccess(stream) {
-        screenshotButton.disabled = false;
-        video.srcObject = stream;
+
+         videoSingle.setAttribute('autoplay', '');
+         videoSingle.setAttribute('muted', '');
+         videoSingle.setAttribute('playsinline', '');
+
+         canvasSingle = document.createElement('canvas');
+
+
+         screenshotButtonSingle.onclick = videoSingle.onclick = function () {
+
+             canvasSingle.width = videoSingle.videoWidth;
+             canvasSingle.height = videoSingle.videoHeight;
+             canvasSingle.getContext('2d').drawImage(videoSingle, 0, 0);
+             // Other browsers will fall back to image/png
+
+             imgSingle.src = canvasSingle.toDataURL('image/png');
+
+         };
+         videoSelectsingle.addEventListener('change', function (event) {
+             debugger;
+             getStreamSingleUpload();
+         });
+
+       navigator.mediaDevices.enumerateDevices().then(gotDevicesSingleUpload);
+
+    });
+
+
+  
+    function handleSuccessSingle(stream) {
+        screenshotButtonSingle.disabled = false;
+        videoSingle.srcObject = stream;
     }
 
-    function stopMediaTracks(stream) {
+    function stopMediaTracksSingle(stream) {
         
         stream.getTracks().forEach(function (track) { track.stop(); })
 
@@ -336,17 +363,17 @@ label.btn-eduupload {
 
 
 
-    var currentStream;
+  
 
-    function stopMediaTracks(stream) {
+    function stopMediaTracksSingleUpload(stream) {
         stream.getTracks().forEach(function (track) {
             track.stop();
         });
     }
 
-    function gotDevices(mediaDevices) {
+    function gotDevicesSingleUpload(mediaDevices) {
         // debugger;
-        videoSelect.innerHTML = '';
+        videoSelectsingle.innerHTML = '';
         // videoSelect.appendChild(document.createElement('option'));
         var count = 1;
         mediaDevices.forEach(function (mediaDevice) {
@@ -356,64 +383,56 @@ label.btn-eduupload {
                 const label = mediaDevice.label || 'Camera ' + (count++) + '';
                 const textNode = document.createTextNode(label);
                 option.appendChild(textNode);
-                videoSelect.appendChild(option);
+                videoSelectsingle.appendChild(option);
             }
         });
 
 
+      
 
 
 
     }
 
-    function getStream() {
-        // alert('change event');
-        if (typeof currentStream !== 'undefined') {
-            stopMediaTracks(currentStream);
+    function getStreamSingleUpload() {
+        
+        if (typeof currentStreamSingleUpload !== 'undefined') {
+            stopMediaTracksSingleUpload(currentStreamSingleUpload);
         }
-        const videoConstraints = {};
-        if (videoSelect.value === '') {
-            videoConstraints.facingMode = 'environment';
+        const videoConstraintsSingle = {};
+        if (videoSelectsingle.value === '') {
+            videoConstraintsSingle.facingMode = 'environment';
         } else {
-            videoConstraints.deviceId = { exact: videoSelect.value };
+            videoConstraintsSingle.deviceId = { exact: videoSelectsingle.value };
         }
-        const constraints = {
-            video: videoConstraints,
+        const constraintsSingle = {
+            video: videoConstraintsSingle,
             audio: false
         };
         navigator.mediaDevices
-          .getUserMedia(constraints)
+          .getUserMedia(constraintsSingle)
           .then(function (stream) {
-              currentStream = stream;
-              video.srcObject = stream;
+              
+              currentStreamSingleUpload = stream;
+              videoElementSingle.srcObject = stream;
               return navigator.mediaDevices.enumerateDevices();
           })
-          .then(gotDevices)
+          .then(gotDevicesSingleUpload)
           .catch(function (error) {
               console.error(error);
-              //alert(error);
           });
     }
 
-    videoSelect.addEventListener('change', function (event) {
-
-        getStream();
-    });
-
-    navigator.mediaDevices.enumerateDevices().then(gotDevices);
 
 
 
 
-
-    function showCameraOption(ele) {
-        //  alert();
+    function showCameraOptionforSingleUpload(ele) {
         var videoInputAvailable = 0;
         navigator.mediaDevices.enumerateDevices().then(function (devices) {
 
             console.log(devices);
             devices.forEach(function (device) {
-                //  debugger;
 
                 if (device.kind == 'videoinput') {
                     videoInputAvailable++;
@@ -438,8 +457,8 @@ label.btn-eduupload {
         });
 
 
-        if (videoSelect.options.length > 0) {
-            getStream();
+        if (videoSelectsingle.options.length > 0) {
+            getStreamSingleUpload();
         }
 
 
@@ -447,5 +466,7 @@ label.btn-eduupload {
 
     }
 
+
+   
 
 </script>

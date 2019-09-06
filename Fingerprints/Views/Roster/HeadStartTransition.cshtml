@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 
 
-}
+} 
 
 @section Style{
 
@@ -210,33 +210,7 @@
             return month + '/' + day + '/' + year;
         }
 
-        function getTagsOnInput() {
-            var tagInp = $('#status_CaseNotetags').val();
-            var tagsArr = [];
-            $.ajax({
-
-                url: '/Roster/GetCaseNoteTagonInput',
-                datatype: 'json',
-                type: 'post',
-                async: true,
-                data: { searchText: tagInp },
-                success: function (data) {
-                    if (data != null) {
-                        if (data.length > 0) {
-                            $.each(data, function (i, tags) {
-                                tagsArr.push(tags.Text);
-                            });
-                        }
-                    }
-                },
-                error: function (data) {
-
-                }
-
-            });
-
-            return tagsArr;
-        }
+        
 
         function uncheckdata() {
             if ($('#NONE').prop("checked")) {
@@ -244,7 +218,7 @@
                 $('#SSI').prop("checked", false);
                 $('#WIC').prop("checked", false);
                 $('#SNAP').prop("checked", false);
-                //  $('#OGendermale').prop("checked", false);
+            
 
             }
         }
@@ -256,7 +230,7 @@
             if (($('#TANF').prop("checked")) || ($('#SSI').prop("checked")) || ($('#WIC').prop("checked")) || ($('#SNAP').prop("checked"))) {
                 $('#NONE').prop("checked", false);
 
-                //  $('#OGendermale').prop("checked", false);
+             
 
             }
 
@@ -297,25 +271,18 @@
             var center = '';
             var classroom = '';
 
+            var $caseNoteSection = $('#divCaseNoteSection');
+            var $guid = $caseNoteSection.attr('data-current-id');
 
-            if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+
+            if (CKEDITOR.instances['txtareaCaseNote_'+$guid+'']) {
+                CKEDITOR.instances['txtareaCaseNote_'+$guid+''].destroy(true);
             }
 
 
 
 
-            $('#status_CaseNotetags').tagsInput({
-                width: 'auto',
-                height: 'auto',
-                delimiter: [',', ';'],
-                autocomplete: {
-                    //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInput()
-                },
-                autocomplete_url: '',
-            });
-
+          
             switch (seleValue) {
 
                 case '1':
@@ -380,11 +347,13 @@
 
             if (seleValue != '0') {
 
-                $('#CaseNoteDetails_Note').val(noteField);
+                $('#txtareaCaseNote_'+$guid+'').val(noteField);
 
-                $('#transitionCaseNotetitle').val(caseNoteTitle);
-                $('#status_CaseNotetags').importTags(caseNoteTag);
-                CKEDITOR.replace('CaseNoteDetails_Note', {
+                $('#txtCaseNoteTitle_' + $guid + '').val(caseNoteTitle);
+
+                $('#txtCaseNoteTags_' + $guid + '').importTags(caseNoteTag);
+
+                CKEDITOR.replace('txtareaCaseNote_'+$guid+'', {
                     language: 'en-gb',
                     uiColor: '#295b8f',
                     disableNativeSpellChecker: false
@@ -392,231 +361,21 @@
             }
         }
 
-        function ValidateInput() {
-
-            var isValid = true;
-            debugger
-            $('.errorAvailableSeat').hide();
-
-            //$('.mandatory').each(function () {
-            //    if ($(this).val() == "") {
-            //        $(this).closest('div').find('.err-message').show();
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-            //    if ($(this).hasClass('txt-date') && $(this).val()=="") {
-            //        $(this).closest('div').find('.err-message').text("Transition date is required.");
-            //        $(this).closest('div').find('.err-message').show();
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-            //    if ($(this).hasClass('txt-date') && !validatedateChild(this)) {
-            //        $(this).closest('div').find('.err-message').text("Invalid transition date");
-            //        $(this).closest('div').find('.err-message').show();
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-
-            //    if ($('.errorAvailableSeat').is(":visible") == true)
-            //    {
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-
-
-            //    if ($(this).hasClass('txt-date') && $(this).val() != "") {
-
-            //        var transitionDate = new Date($(this).val());
-            //        var todayDate = new Date();
-
-            //        if (transitionDate > todayDate) {
-            //            $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
-            //            $(this).closest('div').find('.err-message').show();
-            //            if (isValid)
-            //                isValid = false;
-
-            //        }
-            //    }
-
-            //    if ($(this).hasClass('clsTransitioningType') && $(this).val() == "0") {
-            //        $(this).closest('div').find('.err-message').show();
-
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-
-            //    if ($(this).hasClass('clsTransitioningType') && $(this).val() == "1") {
-
-            //        if (($('#Centers').val() == "0" || $('#Centers').val() == "")) {
-            //            $('#Centers').closest('div').find('.err-message').show();
-
-            //            if (isValid)
-            //                isValid = false;
-            //        }
-
-            //        if (($('#Classroom').val() == "0" || $('#Classroom').val() == "" || $('#Classroom').val() == null)) {
-            //            $('#Classroom').closest('div').find('.err-message').show();
-
-            //            if (isValid)
-            //                isValid = false;
-            //        }
-
-            //    }
+       
 
 
 
-            //});
-
-
-            //$('.transition-section').each(function () {
-
-            //    //err - message - ehs
-            //    if ($(this).find('input[name="InsType"]:checked').length == 0) {
-            //        customAlert("Insurance type is required");
-
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-            //    if ($(this).find('input[name="InsType"]:checked').length > 0) {
-            //        $(this).find('.err-message-instype').hide();
-            //        if ($(this).find('input[name="InsType"]:checked').val() == "C3D1" && $('#OtherInsuranceType').val() == "") {
-
-            //               customAlert("Other insurance type is required");
-
-            //                if (isValid)
-            //                    isValid = false;
-            //        }
-
-            //    }
-
-            //    if ($(this).find('input[name="ms"]:checked').length == 0) {
-            //        $(this).find('.err-message-ms').show();
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-            //    if ($(this).find('input[name="ds"]:checked').length == 0) {
-            //        $(this).find('.err-message-ds').show();
-            //        if (isValid)
-            //            isValid = false;
-            //    }
-            //});
-
-            //$('.err-message-instype').text("");
-            //$('.err-message-instype').hide();
-
-
-            return isValid;
-        }
-
-        function addMoreStatusAtt(ele) {
-            var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
-
-
-
-            var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
-                                                   <div class="col-sm-7 col-lg-8 no-padding">\
-                                                       <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control">\
-                                                   </div>\
-                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
-                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
-                                                   </div>\
-                                               </div>';
-
-            $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
-
-
-        }
-
-
-        function removeStatusAtt(ele) {
-            $(ele).parent('div').parent('div').remove();
-        }
-
-
-        function checkStatusChangeDate(value) {
-
-
-
-            isValid = true;
-            if (!$(value).attr("readonly")) {
-
-                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
-                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
-                    var regex = new RegExp(dateformat);
-                    if (!regex.test($(value).val())) {
-                        customAlert("Invalid date format. ");
-                        $(value).val('');
-                        return false;
-                    }
-                    else {
-                        var text = $(value).val();
-                        var comp = text.split('/');
-                        var m = parseInt(comp[0], 10);
-                        var d = parseInt(comp[1], 10);
-                        var y = parseInt(comp[2], 10);
-                        var date = new Date(y, m - 1, d);
-                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
-
-                        } else {
-                            customAlert("Invalid date. ");
-                            $(value).val('');
-                            return false;
-                        }
-
-
-
-                    }
-                }
-                var txtdate = $(value).val();
-                var selectedTimestampequal = new Date();
-                var year = selectedTimestampequal.getFullYear();
-                var month = selectedTimestampequal.getMonth() + 1;
-                var day = selectedTimestampequal.getDate();
-                today1 = month + '/' + day + '/' + year;
-                var newinput = today1.split("/");
-                var newday = newinput[1];
-                var str = newday.substr(0, 1);
-                var newdaynew = ('0' + newday).slice(-2);
-                var newmonth = newinput[0];
-                var str1 = newmonth.substr(0, 1);
-                var newmonthnew = ('0' + newmonth).slice(-2);
-                today = newmonthnew + '/' + newdaynew + '/' + year;
-                if (today == txtdate) {
-                    return true;
-                }
-                var testdatelocalinput = new Date(txtdate);
-                var selectedTimestamp = new Date().getTime();
-                var testdatelocalinputTS = testdatelocalinput.getTime();
-                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
-                if (testdatelocalinputTS > selectedTimestamp) {
-                    customAlert("Case Note date must be less than or equal to today's date.");
-                    $(value).val('');
-                    return false;
-                }
-                else if (timestamp > testdatelocalinputTS) {
-                    customAlert("Case Note date cannot be less than 30 days from today's date.");
-                    $(value).val('');
-                    return false;
-                }
-            }
-            return true;
-        }
-
+      
 
         $(document).ready(function () {
 
-            //  getList();
-
+            
 
             $('#returningDiv').css('background-color', '');
 
             $('#btnTransOk').on('click', function () {
 
-                //if ($('input[name=Returning]').length > 0 && $('input[name=Returning]:checked').length == 0) {
-                //    $('#returningDiv').css('background-color', 'pink');
-                //    customAlert('Please select option for Client returning for next program year');
-                //    return false;
-                //}
+                
 
                 $('#transition-start-div').show();
             });
@@ -630,7 +389,7 @@
             $('input[name=Returning]').on('change', function () {
 
                 var returningValue = $(this, ':checked').val();
-                debugger;
+               
                 $('#returningDiv').css('background-color', '');
                 $.ajax({
 
@@ -664,7 +423,7 @@
 
             $('input[name=EHSHSEnrolled]').on('change', function () {
                 var transType = parseInt($('#transType_hide').val());
-              
+
                 $('#divEHSProgramType,#divHSProgramType').hide();
 
                 $('.divClassRoomName').find('#Classroom').find('option').remove().end();
@@ -699,10 +458,7 @@
 
 
 
-                        // $('#divEHSProgramType').find('#ehsProgramTypeRadioDiv').find('input:radio[name=radioEHSProgram]').prop('checked', false);
-                        // $('#divEHSProgramType').show('slow');
-
-                        // $('#insurancequestionDiv').hide();
+                       
                     }
                 }
 
@@ -710,10 +466,7 @@
 
                     if (transType == 1) {
 
-                        // $('#divHSProgramType').find('#hsProgramTypeRadioDiv').find('input:radio[name=radioHSProgram]').prop('checked', false);
-                        // $('#divHSProgramType').show('slow');
-
-                        //  $('#insurancequestionDiv').show();
+                       
 
                         $('#ddTransitioningType').children('option[value=7]').hide();
                         $('#ddTransitioningType').children('option[value=8]').hide();
@@ -833,22 +586,10 @@
 
             $('#submitTransition').click(function () {
 
-                var caseNotDate = $('#transitionCaseNoteDate');
-                var caseNoteTitle = $('#transitionCaseNotetitle');
-                var Note = $('#CaseNoteDetails_Note');
+               
                 $('#ehsProgramTypeRadioDiv,#hsProgramTypeRadioDiv').css('background-color', '');
-
-                var Tags = '';
-                $('#status_CaseNotetags_tagsinput .tag span').each(function () {
-                    Tags = Tags + $(this).text().trim() + ',';
-                });
-
-                $("#status_CaseNotetags").val(Tags);
-                Tags = '';
-
-
-
-
+                               
+                
                 var isValid = true;
                 if ($('#ddTransitioningType').val() == "0") {
                     isValid = false;
@@ -912,56 +653,26 @@
 
                     return isValid
                 }
+                                               
+                var result=false;
 
+                result=$('#casenoteSectionDiv').ApplinkCaseNote('caseNoteValidation');
 
-
-                if (caseNotDate.val() == '') {
-                    isValid = false;
-                    plainValidation(caseNotDate);
-                    customAlert('Please enter Case Note Date');
-                    return isValid;
+                if(!result)
+                {
+                    isValid=false;
                 }
-
-                if (caseNoteTitle.val() == '') {
-                    isValid = false;
-                    plainValidation(caseNoteTitle);
-                    customAlert('Please enter Case Note Title');
-                    return isValid;
-                }
-
-                if (Note.val().trim() == '') {
-                    isValid = false;
-                    customAlert("Please enter Note");
-                    plainValidation(Note);
-                    return isValid;
-                }
-                if ($('#statusclientsDiv').find('input[type=checkbox]:checked').length == 0) {
-                    isValid = false;
-                    customAlert('Please select Client(s)');
-                    $('#statusclientsDiv').find('input[type=checkbox]')[0].focus();
-                    return isValid;
-                }
-
-                if ($('#status_CaseNotetags').val().trim() == "") {
-                    isValid = false;
-                    customAlert("Tags are  required.");
-                    plainValidation('#status_CaseNotetags');
-                    return isValid;
-                }
-                if ($('#statusStaffDiv').find('input[type=checkbox]:checked').length == 0) {
-                    isValid = false;
-                    customAlert('Please select Development Staff(s)');
-                    ('#statusStaffDiv').find('input[type=checkbox]')[0].focus();
-                    return isValid;
-                }
-
-
-
 
 
                 if (isValid) {
 
                     var Transition = {};
+                    var casenotes = {};
+                    var clientArray = [];
+                    var staffArray = [];
+                    var cameraDocumentsArray = [];
+                    var $caseNoteSection = $('#divCaseNoteSection');
+                    var $guid = $caseNoteSection.attr('data-current-id');
 
 
                     Transition.DateOfTransition = $('#transitionDate').val();
@@ -991,30 +702,26 @@
 
                     //father//
                     Transition.ParentID = ($('#ParentID').length > 0) ? $('#ParentID').val() : "";
-                    Transition.ShoolAchievement = $('#EducationID').find('input[name=EduType]').length > 0 && $('#EducationID').find('input[name=EduType]:last').parent('div').siblings('#btnAcceptdegree').next('.fa-check').is(':visible') ? $('input[name=EduType]:checked').val() : null;
+                    Transition.SchoolAchievement = $('#EducationID').find('input[name=EduType]').length > 0 && $('#EducationID').find('input[name=EduType]:last').parent('div').siblings('#btnAcceptdegree').next('.fa-check').is(':visible') ? $('input[name=EduType]:checked').val() : null;
                     Transition.JobTrainingFinished = ($('#parentJobTrainingDiv').length > 0 && $('#parentJobTrainingDiv').find('#btnAcceptJobTraining').length > 0) ? $('#JobTrainingFinishedID').find('#btnAcceptJobTraining').next('.fa-check').is(':visible') ? $('input[name=JobTrainingFinished]:checked').val() : null : null;
                     Transition.AcceptJobTrainingFinished = ($('#parentJobTrainingDiv').length > 0 && $('#parentJobTrainingDiv').find('#btnAcceptJobTraining').length > 0) ? $('#JobTrainingFinishedID').find('#btnAcceptJobTraining').next('.fa-check').is(':visible') ? true : false : false;
 
 
                     //mother//
                     Transition.ParentID2 = ($('#ParentID2').length > 0) ? $('#ParentID2').val() : "";
-                    Transition.ShoolAchievement2 = $('#EducationID').find('input[name=EduType2]').length > 0 && $('#EducationID').find('input[name=EduType2]:last').parent('div').siblings('#btnAcceptdegree2').next('.fa-check').is(':visible') ? $('input[name=EduType2]:checked').val() : null;
+                    Transition.SchoolAchievement2 = $('#EducationID').find('input[name=EduType2]').length > 0 && $('#EducationID').find('input[name=EduType2]:last').parent('div').siblings('#btnAcceptdegree2').next('.fa-check').is(':visible') ? $('input[name=EduType2]:checked').val() : null;
                     Transition.JobTrainingFinished2 = ($('#parentJobTrainingDiv').length > 0 && $('#parentJobTrainingDiv').find('#btnAcceptJobTraining2').length > 0) ? $('#JobTrainingFinishedID').find('#btnAcceptJobTraining2').next('.fa-check').is(':visible') ? $('input[name=JobTrainingFinished2]:checked').val() : null : null;
                     Transition.AcceptJobTrainingFinished2 = ($('#parentJobTrainingDiv').length > 0 && $('#parentJobTrainingDiv').find('#btnAcceptJobTraining2').length > 0) ? $('#JobTrainingFinishedID').find('#btnAcceptJobTraining2').next('.fa-check').is(':visible') ? true : false : false;
 
-
-
-
-
-
                     Transition.TypeOfTransition = parseInt($('#transType_hide').val());
                     Transition.EHSHSEnrolled = $('#childEHSHSdiv').is(':visible') ? $('#childEHSHSdiv').find('input[name=EHSHSEnrolled]').is(':checked') ? $('#childEHSHSdiv').find('input[name=EHSHSEnrolled]:checked').val() : 0 : 0;
-
-
-
-                    // Transition.MedicalServices = $('#medicalservices:checked').val();
                     Transition.DentalCare = $('#isDental:checked').val();
                     Transition.TransProgramTypeID = '0';
+                    Transition.EClientID = $('#EClientID').val();
+                    Transition.HouseholdId = $('#HouseholdId').val();
+                    Transition.Enc_ProgID = $('#Enc_ProgID').val();
+
+
 
                     if ($('#divHSProgramType').is(':visible')) {
                         Transition.TransProgramTypeID = $('#hsProgramTypeRadioDiv').find('input:radio[name=radioHSProgram]:checked').val();
@@ -1025,73 +732,66 @@
                     }
 
 
+                    $caseNoteSection.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox:checked').each(function () {
+                        clientArray.push($(this).val());
+                    });
+
+                    $caseNoteSection.find('#divCaseNoteStaffs_' + $guid + '').find('input:checkbox:checked').each(function () {
+                        staffArray.push($(this).val());
+                    });
 
 
-
-
-                    var fileData = new FormData();
-
-
-                    $('#statusattachmentsDiv').find('input[type=file]').each(function () {
-
-                        var fileUpload = $(this).get(0);
-                        var files = fileUpload.files;
-
-                        // Create FormData object
-
-
-                        // Looping over all files and add it to FormData object
-                        for (var i = 0; i < files.length; i++) {
-                            fileData.append(files[i].name, files[i]);
+                    $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('input:file').each(function (a, b) {
+                        var fileInput = $(this);
+                        if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                            var fileUpload = fileInput.get(0);
+                            var files = fileUpload.files;
+                            for (var i = 0; i < files.length; i++) {
+                                var convImage = fileInput.attr('conv-img');
+                                if (convImage != null && convImage != "")
+                                    cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+                            }
                         }
                     });
 
+                    var $cameraDocuments = $caseNoteSection.find(".div-edit-gallery_" + $guid + "").find('.setup_viewscreen');
 
-                    // Looping over all files and add it to FormData object
+                    if ($cameraDocuments.length > 0) {
 
+                        $.each($cameraDocuments, function (j, doc) {
 
-                    var clientList = [];
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
 
-                    $('#statusclientsDiv').find('input[type=checkbox]:checked').each(function (n, cli) {
-                        clientList.push({ 'Id': $(cli).val(), 'Name': $(cli).next('span').text() });
-
-                    });
-                    var userList = [];
-
-                    $('#statusStaffDiv').find('input[type=checkbox]:checked').each(function (n, cli) {
-                        userList.push({ 'Id': $(cli).val(), 'Name': $(cli).next('span').text() });
-                    });
-
-
-                    var Users = {
-
-                        'Clientlist': clientList,
-                        'UserList': userList
+                        });
                     }
 
 
+                    casenotes.CaseNoteDate = $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val().trim();
+                    casenotes.CaseNoteTitle = $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val().trim();
+                    casenotes.Note = $caseNoteSection.find('#txtareaCaseNote_' + $guid + '').val().trim();
+                    casenotes.CaseNotetags = $caseNoteSection.find('#txtCaseNoteTags_' + $guid + '').val().trim(',');
+                    casenotes.ClientIds = clientArray.join(',');
+                    casenotes.StaffIds = staffArray.join(',');
+                    casenotes.CaseNoteSecurity = $caseNoteSection.find('#checkboxSecureNote_' + $guid + '').is(':checked');
+                    casenotes.CaseNoteAttachmentList = cameraDocumentsArray;
+                    casenotes.CenterId=$('#Centers').val();
+                    casenotes.Classroomid=$('#Classroom').val();
+                    casenotes.ClientId= $('#EClientID').val()
+                    casenotes.HouseHoldId=$('#HouseholdId').val();
+                    casenotes.ProgramId= $('#Enc_ProgID').val();
+                    casenotes.CaseNoteId = '0';
 
-                    var casenotes = {};
-                    casenotes.CaseNoteDate = caseNotDate.val();
-                    casenotes.CaseNotetitle = caseNoteTitle.val();
-                    casenotes.Note = Note.val();
-                    casenotes.CaseNotetags = $("#status_CaseNotetags").val();
-                    Transition.Users = Users;
-                    casenotes.CaseNoteSecurity = $('#CaseNoteSecurity').is(':checked');
-                    Transition.CaseNoteDetails = casenotes;
-                    Transition.EClientID = $('#EClientID').val();
-                    Transition.HouseholdId = $('#HouseholdId').val();
-                    Transition.Enc_ProgID = $('#Enc_ProgID').val();
+                
 
-                    fileData.append('transition', JSON.stringify(Transition));
+                 
                     $.ajax({
                         dataType: 'json',
                         type: 'POST',
                         url: '/Roster/SaveHeadStartTransition',
-                        contentType: false,
-                        processData: false,
+                        contentType:'application/json; charset=UTF-8',
                         beforeSend:function(){$('#spinner').show()},
-                        data: fileData,
+                        data:JSON.stringify({'transition':Transition,'caseNote':casenotes}),
                         success: function (data) {
                             $('#spinner').hide();
                             if (data == 1 || data == 3) {
@@ -1120,36 +820,59 @@
             //Bind Case Note Section//
 
             //Case Note Date//
-            $('#transitionCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-
-            $('#transitionCaseNoteDate').val(getFormattedDate(new Date()));
-
-            //Note sectopm
-            if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
-            }
 
 
-            CKEDITOR.replace('CaseNoteDetails_Note', {
-                language: 'en-gb',
-                uiColor: '#295b8f',
-                disableNativeSpellChecker: false
-            });
 
-            $('#status_CaseNotetags').tagsInput({
-                width: 'auto',
-                height: 'auto',
-                delimiter: [',', ';'],
-                autocomplete: {
-                    //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInput()
+            $('#casenoteSectionDiv').ApplinkCaseNote({
+                isPopup: false,
+                isSection: true,
+                caseNoteType: 1,   //1- New 2- Edit / 3- Append //
+                getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+                caseNoteId: 0,
+                householdId: '@Model.HouseholdId',
+                clientId: '@Model.EClientID',
+                isEditable: true,
+                isShowSubmitButton: false,
+                isShowExportIcon: false,
+                forceLoad: true,
+
+                modalOnShown: function (element) {
+
                 },
-                autocomplete_url: '',
+                ajaxComplete: function (element) {
+
+                    var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
+
+                    //element.find('#divCaseNoteSection').css('background', '#ffffff');
+
+                    element.find('#divCaseNoteSection').css({ 'border': 'unset', 'padding': '0px' });
+
+                    //element.find('#divCaseNoteStaffs_' + $guid + '').append('<input type="hidden" name="StaffIds"/>');
+                    //element.find('#divCaseNoteClients_' + $guid + '').append('<input type="hidden" name="ClientIds"/>');
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').prop('disabled', false);
+
+                  
+
+                    element.find('#divCaseNoteClients_' + $guid + '').find('input[type=checkbox]').prop('checked', true);
+                    element.find('#divCaseNoteStaffs_' + $guid + '').find('input[type=checkbox]').prop('checked', true);
+
+                    element.find('.img-camera').attr('target-id', 'casenoteSectionDiv');
+
+                    element.css('border', 'unset!important');
+
+                    showCameraOption(element);
+
+                    element.find('#uploadImageCamera').hide();
+
+                    setIntervalUserMedia(element);
+                }
+
             });
-
-            $('#statusclientsDiv').find('input[type=checkbox]').prop('checked', true);
-
-            $('input[name=staff-check]').prop('checked', true);
 
             //On change Of PIR Questions//
 
@@ -1848,7 +1571,7 @@
                                         </div>
                                         <div class="col-lg-7 col-xs-7">
                                             <div class="transition-inner" style="position: relative;">
-                                               
+
                                                 <div class="transition-radio-btn enroll-sec margin-enroll" id="hsProgramTypeRadioDiv" style="margin-left:0px;">
 @*@if (Model.EHSPrograms != null && Model.EHSPrograms.Count > 0)
 {*@
@@ -2537,7 +2260,9 @@
 
 
                                     <div class="col-xs-12 col-lg-12 casenote-section" id="casenoteSectionDiv">
-                                        <h3 class="addapplicant2"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
+                                      
+                                        
+                                          @*<h3 class="addapplicant2"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
 
                                         <div class="col-xs-12 col-sm-12 adddivspace">
                                             <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
@@ -2566,7 +2291,7 @@
 
                                             <div class="col-lg-5 col-sm-7">
 
-                                                @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNotetitle, new { @class = "form-control", id = "transitionCaseNotetitle", placeholder = "Case Note Title" })
+                                                @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNoteTitle, new { @class = "form-control", id = "transitionCaseNotetitle", placeholder = "Case Note Title" })
                                             </div>
                                         </div>
 
@@ -2675,9 +2400,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-5 col-sm-7 text-center">
+                                            <div class="col-lg-5 col-sm-7">
                                                 <div class="addn-poup-div1">
-                                                    <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" style="margin-left:5px;">
+                                                    <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity">
                                                     <span>Yes</span>
                                                 </div>
                                             </div>
@@ -2705,7 +2430,7 @@
 
                                             <div class="col-lg-9" id="addAttachmentDiv"></div>
 
-                                        </div>
+                                        </div>*@
 
 
 
@@ -2754,6 +2479,12 @@
             </div>
         </div>
     </div>
+
+@{
+    Html.RenderPartial("~/Views/partialviews/_multiplecamerauploadpartial.cshtml");
+
+}
+
 
 
 

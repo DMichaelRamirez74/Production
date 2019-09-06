@@ -730,7 +730,7 @@ namespace FingerprintsData
                 //        InternCasenote.CaseNote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
                 //        InternCasenote.CaseNote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
                 //        InternCasenote.CaseNote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
-                //        InternCasenote.CaseNote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
+                //        InternCasenote.CaseNote.CaseNoteTitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
                 //        InternCasenote.CaseNote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
                 //                                      where Convert.ToInt32(dr1["AttachmentId"].ToString()) > 0
                 //                                      select dr1["AttachmentId"].ToString()
@@ -828,6 +828,10 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
                 command.Parameters.Add(new SqlParameter("@mode", mode)); //2,3,4,5 get
                 command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
+
+               // command.Parameters.Add(new SqlParameter("@ProblemOn", 1));
+               // command.Parameters.Add(new SqlParameter("@FeedBackToClient", DBNull.Value));
+
                 DataAdapter = new SqlDataAdapter(command);
                 DataSet _ds = new DataSet();
                 DataAdapter.Fill(_ds);
@@ -885,32 +889,14 @@ namespace FingerprintsData
         }
 
      
-        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote)
+        public bool InsertQuestionaireForm(Questionaire qsform, StaffDetails staff)
         {
 
             bool _isSuccess = false;
 
             try
             {
-                var stf = StaffDetails.GetInstance();
-                string message = "";
-                string Name = "";
-                //insert casenote
-                if (qsform.AppointmentMaked == 0 && !string.IsNullOrEmpty(CaseNote.CaseNotetitle))
-                {
-                   
-                    List<CaseNote> CaseNoteList = new List<CaseNote>();
-                    var rd = new RosterData();
-                    StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-
-                     message = rd.SaveCaseNotes(ref Name,  CaseNote, staff, 2);
-
-                }
-
-                if (!string.IsNullOrEmpty(Name)) {
-                    qsform.CaseNoteId = Convert.ToInt32(Name);
-
-                }
+               
 
 
                 if (Connection.State == ConnectionState.Open)
@@ -920,9 +906,9 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_QuestionaireFormDetails";
-                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
-                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@mode", 1));
                 command.Parameters.Add(new SqlParameter("@YakkrId", qsform.YakkrId));
 
@@ -936,6 +922,10 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClientStory", qsform.ClientStory));
 
                 command.Parameters.Add(new SqlParameter("@CaseNoteId", qsform.CaseNoteId));
+
+
+                //command.Parameters.Add(new SqlParameter("@ProblemOn", null));
+                //command.Parameters.Add(new SqlParameter("@FeedBackToClient", null));
 
                 // command.Parameters.Add(new SqlParameter("@result", string.Empty));
 
@@ -965,34 +955,39 @@ namespace FingerprintsData
 
 
 
-        public bool SubmitFeedBack453(int mode,int ProblemOn, int? CRColorCode,int CommunityId,int QuestionaireID,int yakkrid,
-           string MgNotes, RosterNew.CaseNote CaseNote
-            ) {
+        //public bool SubmitFeedBack453(int mode,int ProblemOn, int? CRColorCode,int CommunityId,int QuestionaireID,int yakkrid,
+        //   string MgNotes, RosterNew.CaseNote CaseNote
+        //    )
+
+        public bool SubmitFeedBack453(int mode, ReferalDetails referralDetails,StaffDetails staff,int yakkrId,int caseNoteId)
+
+
+        {
             bool result = false;
 
 
             try
             {
-                var CaseNoteId = 0;
-                var stf = StaffDetails.GetInstance();
-                string message = "";
-                string Name = "";
-                if (ProblemOn == 1 && !string.IsNullOrEmpty(CaseNote.CaseNotetitle))
-                {
+                //var CaseNoteId = 0;
+                //var stf = StaffDetails.GetInstance();
+                //string message = "";
+                //string Name = "";
+                //if (referralDetails.ProblemOn == 1 && !string.IsNullOrEmpty(CaseNote.CaseNoteTitle))
+                //{
 
-                    List<CaseNote> CaseNoteList = new List<CaseNote>();
-                    FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
-                    var rd = new RosterData();
+                //    List<CaseNote> CaseNoteList = new List<CaseNote>();
+                //    FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
+                //    var rd = new RosterData();
                     
-                    message = rd.SaveCaseNotes(ref Name, CaseNote,stf , 2);
+                //    message = rd.SaveCaseNotes(ref Name, CaseNote,stf , 2);
 
-                }
+                //}
 
-                if (!string.IsNullOrEmpty(Name))
-                {
-                    CaseNoteId = Convert.ToInt32(Name);
+                //if (!string.IsNullOrEmpty(Name))
+                //{
+                //    CaseNoteId = Convert.ToInt32(Name);
 
-                }
+                //}
 
 
                 if (Connection.State == ConnectionState.Open)
@@ -1002,20 +997,20 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_QuestionaireFormDetails";
-                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
-                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@mode", mode)); //4 insert453
-                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrId));
 
-                command.Parameters.Add(new SqlParameter("@ProblemOn", ProblemOn));
+                command.Parameters.Add(new SqlParameter("@ProblemOn", referralDetails.ProblemOn));
                // command.Parameters.Add(new SqlParameter("@FeedBackToClient", FeedBackToClient));
-                command.Parameters.Add(new SqlParameter("@CRColorCode", CRColorCode));
+                command.Parameters.Add(new SqlParameter("@CRColorCode", referralDetails.CRColorCode));
               // command.Parameters.Add(new SqlParameter("@NoteTags", NoteTags));
-                command.Parameters.Add(new SqlParameter("@CommunityId", CommunityId));
-                command.Parameters.Add(new SqlParameter("@QuestionaireID", QuestionaireID));
-                command.Parameters.Add(new SqlParameter("@CaseNoteId", CaseNoteId));
-                command.Parameters.Add(new SqlParameter("@MgNotes", MgNotes));
+                command.Parameters.Add(new SqlParameter("@CommunityId", referralDetails.CommunityResourceID));
+                command.Parameters.Add(new SqlParameter("@QuestionaireID", referralDetails.QuestionaireID));
+                command.Parameters.Add(new SqlParameter("@CaseNoteId", caseNoteId));
+                command.Parameters.Add(new SqlParameter("@MgNotes", referralDetails.MgNotes));
 
 
 
@@ -1126,4 +1121,5 @@ namespace FingerprintsData
             return yakkrCount;
         }
     }
+
 }

@@ -29,6 +29,8 @@ namespace FingerprintsData
         //DataTable familydataTable = null;
         DataSet _dataset = null;
         //DataTable _dataTable = null;
+
+        FingerprintsDataAccessHandler.DBManager dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
         public List<DissabilityManagerDashboard> GetDissabilityStaffDashboard(ref DisabilityCumulative DisabilityCumulative ,ref int yakkrcount, ref int appointment, string Agencyid, string userid)
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();
@@ -896,18 +898,7 @@ namespace FingerprintsData
 
 
                 }
-                if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
-                {
-                   FingerprintsModel.RosterNew.User obj = null;
-                    foreach (DataRow dr in _dataset.Tables[2].Rows)
-                    {
-                        obj = new FingerprintsModel.RosterNew.User();
-                        obj.Id = dr["clientid"].ToString();
-                        obj.Name = dr["Name"].ToString();
-                        role.ClientList.Add(obj);
-                    }
-                   
-                }
+               
                 DataAdapter.Dispose();
                 command.Dispose();
              
@@ -926,32 +917,54 @@ namespace FingerprintsData
         }
 
 
-        public bool SaveInternalReferral(InternalReferral internRef,string casenoteid)
+        public bool SaveInternalReferral(InternalReferral internalReferral,StaffDetails staff)
         {
             bool result = false;
             try
             {
-                StaffDetails staff = new StaffDetails();
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_SaveInternalReferral";
-                command.Connection = Connection;
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Clientid", EncryptDecrypt.Decrypt64( internRef.CaseClientId)));
-                command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64(internRef.CaseCenterId)));
-               command.Parameters.Add(new SqlParameter("@ClassroomId", (internRef.CaseClassroomId)));
-                command.Parameters.Add(new SqlParameter("@ProgramId", EncryptDecrypt.Decrypt64((internRef.CaseProgramId))));
-                command.Parameters.Add(new SqlParameter("@SelectedRole", (internRef.RoleId)));
-                command.Parameters.Add(new SqlParameter("@CaseNoteId", casenoteid));
-                command.Parameters.Add(new SqlParameter("@YakkrCode", internRef.YakkrCode));
-                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
-                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
-                int res = command.ExecuteNonQuery();
-                if (res >= 1)
-                    result = true;
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@ClientId",EncryptDecrypt.Decrypt64<long>(internalReferral.ClientId),DbType.Int64),
+                    dbManager.CreateParameter("@CenterId",EncryptDecrypt.Decrypt64<long>(internalReferral.CenterId),DbType.Int64),
+                    dbManager.CreateParameter("@ClassroomId",EncryptDecrypt.Decrypt64<long>(internalReferral.ClassroomId),DbType.Int64),
+                    dbManager.CreateParameter("@ProgramId",EncryptDecrypt.Decrypt64<long>(internalReferral.ProgramId),DbType.Int64),
+                    dbManager.CreateParameter("@HouseholdId",EncryptDecrypt.Decrypt64<long>(internalReferral.HouseholdId),DbType.Int64),
+                    dbManager.CreateParameter("@SelectedRole",new Guid(internalReferral.RoleId),DbType.Guid),
+                    dbManager.CreateParameter("@CaseNoteId",internalReferral.CaseNoteId,DbType.Int64),
+                    dbManager.CreateParameter("@YakkrCode",internalReferral.YakkrCode,DbType.Int64),
+                    dbManager.CreateParameter("@AgencyId",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleId",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserId",staff.UserId,DbType.Guid),
+                };
+
+                 result = dbManager.ExecuteWithNonQuery<bool>("SP_SaveInternalReferral", CommandType.StoredProcedure, parameters);
+
+
+
+               // StaffDetails staff = new StaffDetails();
+               // if (Connection.State == ConnectionState.Open)
+               //     Connection.Close();
+               // Connection.Open();
+               // command.CommandType = CommandType.StoredProcedure;
+               // command.CommandText = "SP_SaveInternalReferral";
+               // command.Connection = Connection;
+               // command.Parameters.Clear();
+               // command.Parameters.Add(new SqlParameter("@Clientid",  ));
+               // command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64<long>(internalReferral.CenterId)));
+               //command.Parameters.Add(new SqlParameter("@ClassroomId", EncryptDecrypt.Decrypt64<long>(internalReferral.ClassroomId)));
+               // command.Parameters.Add(new SqlParameter("@ProgramId", EncryptDecrypt.Decrypt64<long>((internalReferral.ProgramId))));
+               // command.Parameters.Add(new SqlParameter("@HouseholdId", EncryptDecrypt.Decrypt64<long>(internalReferral.HouseholdId)));
+               // command.Parameters.Add(new SqlParameter("@SelectedRole", (internalReferral.RoleId)));
+               // command.Parameters.Add(new SqlParameter("@CaseNoteId", internalReferral.CaseNoteId));
+               // command.Parameters.Add(new SqlParameter("@YakkrCode", internalReferral.YakkrCode));
+               // command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+               // command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+               // command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+               // int res = command.ExecuteNonQuery();
+               // if (res >= 1)
+               //     result = true;
+
             }
             catch (Exception ex)
             {
@@ -959,11 +972,11 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null && Connection.State == ConnectionState.Open)
-                {
-                    Connection.Close();
-                    command.Dispose();
-                }
+                //if (Connection != null && Connection.State == ConnectionState.Open)
+                //{
+                //    Connection.Close();
+                //    command.Dispose();
+                //}
             }
             return result;
         }

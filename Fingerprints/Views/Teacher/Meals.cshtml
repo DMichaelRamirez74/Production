@@ -21,6 +21,10 @@
 
 
     <style type="text/css">
+        #modal-daily-observation #clientcasenote-div .max_items_addn {
+            border: unset;
+        }
+
         .div-filter-section {
             margin-bottom: 10px;
             padding: 0;
@@ -62,14 +66,7 @@
             background-color: #285B90 !important;
         }
 
-        /*.page-wrapper-change {
-                background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
-                background-size: cover !important;
-                background-position: 100% 100% !important;
-            }*/
 
-
-        /*04-May-2018*/
         .edu_class_room {
             width: 100%;
             float: left;
@@ -404,16 +401,14 @@
                 box-shadow: unset;
             }
 
-            /*.search-block-main{
-                margin-right:2%;
-            }*/
+
 
             #div-table-responsive .search-block-main {
                 border: unset !important;
             }
 
-            .div-check-all{
-                float:right!important;
+            .div-check-all {
+                float: right !important;
             }
         }
 
@@ -424,7 +419,7 @@
         }
 
         @@media screen and (max-width:1199px) {
-             #modal-daily-observation .lbl-popup-cn {
+            #modal-daily-observation .lbl-popup-cn {
                 text-align: left;
             }
         }
@@ -438,22 +433,14 @@
 
 
     <script type="text/javascript">
-        var caseNoteObjData = null;
-        var videoSelect = null;
-        var screenshotButton = null;
-        var img = null;
-        var canvas = null;
-        var button = null;
-        var currentStream;
-        var video;
-        var constraints = {};
+
         var front = true;
 
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
-                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
                 }
             });
 
@@ -467,16 +454,13 @@
 
                 $.each($(row).find('td:gt(0)'), function (j, td) {
 
-                   
+
                     var mealtypeSelected = $('select#MealType').val();
 
-                    if (mealtypeSelected != null && mealtypeSelected != '')
-                    {
-                        switch(mealtypeSelected)
-                        {
+                    if (mealtypeSelected != null && mealtypeSelected != '') {
+                        switch (mealtypeSelected) {
                             case '1':
-                                if(j==0)
-                                {
+                                if (j == 0) {
                                     $(td).find('input:checkbox').prop('disabled', false);
                                 }
                                 else {
@@ -515,7 +499,7 @@
                             default:
                                 $(td).find('input:checkbox').prop('disabled', false);
                                 break;
-                               
+
 
 
 
@@ -541,27 +525,6 @@
             });
 
 
-            CKEDITOR.replace('popup-casenote-note', {
-                language: 'en-gb',
-                uiColor: '#195180',
-                allowedContent: true,
-                disableNativeSpellChecker: false
-            });
-
-            $('#popup-casenote-tags').tagsInput({
-                width: 'auto',
-                height: 'auto',
-                delimiter: [',', ';'],
-                allowDuplicates: false,
-                autocomplete: {
-                    //'source': tags_array[0].split(/,\s*/)
-                    // 'source': getTagsOnInput(),
-                    'appendTo': "#modal-daily-observation"
-                },
-                autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',
-            });
-
-            $('#popup-casenote-date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
 
             $('#MealSelected').on('blur', function () {
@@ -597,142 +560,164 @@
                 }
             });
 
-            $('#modal-daily-observation').find('#btn-modal-cn-submit').on('click', function () {
+            $('#modal-daily-observation').find('#btn-modal-cn-submit').on('click', function (evt) {
+
+                evt.preventDefault();
+
                 var $modal = $('#modal-daily-observation');
-                var fd = new FormData();
+                var $caseNoteDiv = $modal.find('#clientcasenote-div');
+                var $caseNoteSection = $caseNoteDiv.find('#divCaseNoteSection');
+                var $guid = $caseNoteSection.attr('data-current-id');
 
-                if (validateMealsObservationCaseNote()) {
-
-
-                    if (caseNoteObjData != null) {
-
-                        if (caseNoteObjData.CaseNoteList.length > 0) {
-                            $.each(caseNoteObjData.CaseNoteList, function (i, note) {
-
-                                fd.append('CaseNoteid', 0);
-                                fd.append('ClientId', note.clientid);
-                                fd.append('ProgramId', note.ProgramID);
-                                fd.append('HouseHoldId', note.Householid);
-                                fd.append('CenterId', note.CenterId);
-                                fd.append('Classroomid', note.Classroomid);
+                cleanValidation();
 
 
-                            });
-                        }
-
-                        var clientIds = '';
-                        var staffIDs = '';
-
-                        $.each($modal.find('.div-popup-clients-cn').find('input:checkbox:checked'), function (i, client) {
-
-                            clientIds += $(client).val() + ',';
-                        });
+                var result = false;
 
 
-                        $.each($modal.find('.div-popup-dev-cn').find('input:checkbox:checked'), function (i, staff) {
+                result = $caseNoteDiv.ApplinkCaseNote('caseNoteValidation');
 
-                            staffIDs += $(staff).val() + ',';
-                        });
+                if (result)
+                {
+                   
+                  //  var Tags = '';
+                    var caseNote = {};
+                    var clientArray = [];
+                    var staffArray = [];
+                    var cameraDocumentsArray = [];
 
+                    //$caseNoteSection.find('#txtCaseNoteTags_'+$guid+'_tagsinput .tag span').each(function () {
+                    //    Tags = Tags + $(this).text().trim() + ',';
+                    //});
 
-                        clientIds = clientIds.trim().trim(',');
-                        staffIDs = staffIDs != null ? staffIDs.trim().trim(',') : "";
+                    //$caseNoteSection.find("#txtCaseNoteTags_"+$guid+"").val(Tags);
 
-                        fd.append('CaseNoteDate', $modal.find('#popup-casenote-date').val().trim());
-                        fd.append('CaseNotetitle', $modal.find('#popup-casenote-title').val().trim());
-                        fd.append('Note', CKEDITOR.instances['popup-casenote-note'].getData().trim());
-                        fd.append('CaseNotetags', $modal.find('#popup-casenote-tags').val().trim());
-                        fd.append('ClientIds', clientIds);
-                        fd.append('StaffIds', staffIDs);
-                        fd.append('CaseNoteSecurity', $modal.find('#popup-casenote-secure').is(':checked'));
+                    //$caseNoteSection.find('#txtareaCaseNote_'+$guid+'').val(CKEDITOR.instances['txtareaCaseNote_'+$guid+''].getData());
+                   
+                    $.each($caseNoteSection.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox:checked'), function () {
 
-                        $.each($modal.find('input:file'), function () {
+                        clientArray.push($(this).val());
+                    });
+                   
+                    $.each($caseNoteSection.find('#divCaseNoteStaffs_' + $guid + '').find('input:checkbox:checked'), function () {
 
-                            fd.append('fileInput', $(this)[0].files[0]);
-                        });
+                        staffArray.push($(this).val());
+                    });
 
-                        //self.elements.divFileAttachment.next('#addAttachmentDiv').find('input:file').each(function () {
+                    $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('input:file').each(function (a, b) {
+                        var fileInput = $(this);
+                        if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                            var fileUpload = fileInput.get(0);
+                            var files = fileUpload.files;
 
-                        //    fd.append('fileInput', $(this)[0].files[0]);
-
-                        //});
-
-
-
-                        var $cameraDocuments = $modal.find('#div-edit-modal-img-gallery').find('.setup_viewscreen');
-
-                        var cameraDocumentsArray = [];
-
-                        if ($cameraDocuments.length > 0) {
-
-                            $.each($cameraDocuments, function (j, doc) {
-
-                                var $doc = $(doc).find('img');
-                                cameraDocumentsArray.push({ 'Text': 'CaseNoteDocument', 'Value': self.getBase64Image($doc) });
-
-                            });
-                        }
-
-                        fd.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
-
-                        //self.ajaxOptions.url = self.updateEmailUrl;
-                        //self.ajaxOptions.type = "POST";
-                        //self.ajaxOptions.datatype = "JSON";
-                        //self.ajaxOptions.data = fd;
-                        //self.ajaxOptions.processData = false;
-                        //self.ajaxOptions.contentType = false;
-                        //self.ajaxCall(self.callbackSaveParentEmailCaseNote);
+                            for (var i = 0; i < files.length; i++) {
 
 
-                        $.ajax({
-                            url: HostedDir + '/Teacher/SaveMealObservationNotes',
-                            type: 'POST',
-                            datatype: 'JSON',
-                            processData: false,
-                            contentType: false,
-                            async: true,
-                            beforeSend: function () {
-                                $('#spinner').show();
-                            },
-                            data: fd,
-                            success: function (data) {
+                                var convImage = fileInput.attr('conv-img');
 
-                                if (data == '1') {
-                                    customAlert('Record saved successfully');
-                                    $modal.modal('hide');
-                                }
-                                else {
-                                    customAlert('Error occurred. Please, try again later');
-                                }
-                            },
-                            error: function (data) {
-                                customAlert('Error occurred. Please, try again later.');
-                            },
-                            complete: function (data) {
-                                $('#spinner').hide();
+                                if (convImage != null && convImage != "")
+                                    cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+
                             }
+                        }
+                    });
+
+
+
+                    var $cameraDocuments = $caseNoteSection.find(".div-edit-gallery_" + $guid + "").find('.setup_viewscreen');
+
+
+
+                    if ($cameraDocuments.length > 0) {
+
+                        $.each($cameraDocuments, function (j, doc) {
+
+                            var $doc = $(doc).find('img');
+                            cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
 
                         });
-
-
                     }
 
+
+
+                    caseNote.ClientId = $caseNoteSection.find('#hidden_clientId_' + $guid + '').val();
+                    caseNote.CenterId = $caseNoteSection.find('#hidden_centerId_' + $guid + '').val();
+                    caseNote.Classroomid = $caseNoteSection.find('#hidden_classroomId_' + $guid + '').val();
+                    caseNote.HouseHoldId = $caseNoteSection.find('#hidden_householdId_' + $guid + '').val();
+                    caseNote.CaseNoteid = $caseNoteSection.find('#hdn-casenoteid_' + $guid + '').val();
+                    caseNote.ProgramId = $caseNoteSection.find('#hidden_programId_' + $guid + '').val();
+                    caseNote.ClientIds = clientArray.join(',');
+                    caseNote.StaffIds = staffArray.join(',');
+                    caseNote.CaseNoteDate = $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val();
+                    caseNote.CaseNoteTitle = $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val();
+                    caseNote.CaseNotetags = $caseNoteSection.find('#txtCaseNoteTags_' + $guid + '').val();
+                    caseNote.Note = $caseNoteSection.find('#txtareaCaseNote_' + $guid + '').val();
+                    caseNote.CaseNoteSecurity = $caseNoteSection.find('#checkboxSecureNote_' + $guid + '').is(':checked');
+                    caseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+                    console.log(caseNote);
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Roster/SaveCaseNote",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        beforeSend: function () {
+                            $('#spinner').show();
+                        },
+                        data: JSON.stringify(caseNote),
+                        success: function (data) {
+
+
+                            if (data == '1') {
+
+                                $('#spinner').hide();
+
+                                customAlert('Record saved successfully');
+
+                                $modal.modal('hide');
+
+                            }
+
+                            else {
+                                $modal.modal('hide');
+                                $('#spinner').hide();
+                                customAlert('Error occurred. Please, try again later');
+                            }
+
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        },
+                        complete: function (data) {
+                            $('#spinner').hide();
+                        }
+                    });
+
                 }
+                else {
+                    return result;
+                }
+
+               
+
+
+              
+
+
+
+
+
+              
+
+
+
+
+
             });
 
-            $('#modal-daily-observation').find('#popup-casenote-date').on('blur', function () {
-
-                checkDateCaseNote(this);
-            });
-
-
-            $('#modal-daily-observation').find('#uploadImageCamera').on('click', function () {
-                $('#modal-daily-observation').modal('hide');
-                //$('body').addClass('modal-open');
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
-                $('#modal-uploaddocument').modal('show');
-            });
 
 
 
@@ -754,128 +739,11 @@
 
                 var $modal = $('#modal-daily-observation');
 
+                $modal.find('#clientcasenote-div').html('');
+
                 $modal.find('#lbl-popup-client').html('');
 
-
-                $modal.find('#popup-casenote-date').val('');
-
-
-                $modal.find('#popup-casenote-title').val('');
-
-                $modal.find('#div-edit-modal-img-gallery').html('');
-
-                $modal.find('input:file').val('');
-
-                $modal.find('#div-popup-add-attach').html('');
-
-
             });
-
-
-            $('#modal-uploaddocument').on('shown.bs.modal', function (event) {
-                $('body').addClass('modal-open');
-
-                showVideoStream();
-
-            }).on('hidden.bs.modal', function (event) {
-
-                stopIntervalUserMedia();
-                $('#modal-daily-observation').modal('show');
-            });
-
-
-            $('#modal-uploaddocument').find('#btn-modal-doc-add').on('click', function () {
-
-
-                var $imageGallerylength = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                if ($imageGallerylength == 0) {
-                    customAlert('Please capture image using camera');
-                    return false;
-                }
-
-
-                $('#modal-daily-observation').find('#div-edit-modal-img-gallery').append($('#modal-uploaddocument').find('.div-image-snap-gallery').html());
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
-
-                $('#modal-uploaddocument').modal('hide');
-
-            });
-
-
-            $(document).on('click', '.delete-file-upload', function () {
-
-                $(this).closest('.setup_viewscreen').remove();
-
-            });
-
-
-            $(document).on('click', '.view-file-upload', function () {
-
-                //  window.open($(this)., 'newwindow','width=500,height=500');
-
-                var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-                //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
-
-
-                //imageAttr='<embed src='+imageAttr+'></embed>';
-                //window.open(imageAttr, 'newwindow','width=500,height=500');
-
-
-
-                var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
-
-                setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
-                    w.document.body.appendChild(w.document.createElement('img'))
-                        .src = imageAttr;
-                }, 0);
-
-            });
-
-            videoSelect = document.querySelector('select#videoSource');
-            video = document.querySelector('#setup-camera-div video');
-            video.setAttribute('autoplay', '');
-            video.setAttribute('muted', '');
-            video.setAttribute('playsinline', '')
-
-            screenshotButton = document.querySelector('#anchor-capture');
-
-            screenshotButton.onclick = video.onclick = function () {
-
-                var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
-                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
-                                        <div class="attach-icon-div-gallery">\
-                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
-                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
-                                        </div>\
-                                    </div>';
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                // Other browsers will fall back to image/png
-                console.log(canvas);
-                // img.src = canvas.toDataURL('image/png');
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
-
-
-
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
-            };
-
-            videoSelect.addEventListener('change', function (event) {
-
-                getStream();
-            });
-
-            navigator.mediaDevices.enumerateDevices().then(gotDevices);
-
-            canvas = document.createElement('canvas');
 
         });
         $(window).on('popstate', function () {
@@ -1213,470 +1081,94 @@
             }
         }
 
-        function addAdditionalFileInput(ele) {
 
 
-            var appendString = '<div class="form-group additional-div-remove">\
-                                    <label class="col-md-4 col-lg-2 col-xs-12 hidden-sm hidden-xs hidden-md  lbl-popup-cn lbl-text" style="color:#295b8f;visibility:hidden;">Attachment</label>\
-                                    <div class="col-sm-12 col-lg-8 col-xs-12 attachment-div">\
-                                        <div class="col-lg-6 col-xs-8 no-padding" style="padding:0;">\
-                                            <input type="file" class="form-control" />\
-                                        </div>\
-                                        <div class="adddivspace col-lg-4 col-xs-4 col-sm-3 ">\
-                                            <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeAdditionalFileInput(this);"><i class ="fa fa-minus-circle"></i>&nbsp;Remove</a>\
-                                        </div>\
-                                    </div>\
-                                </div>'
+        function getCaseNoteSection(ele, clientId) {
 
 
-
-            $('#modal-daily-observation').find('#div-popup-add-attach').append(appendString);
-
-
-        }
-
-        function removeAdditionalFileInput(ele) {
-            $(ele).closest('.additional-div-remove').remove();
-        }
-
-        function getFormattedDate(date) {
-
-            var today = new Date(date);
-            var dd = today.getDate();
-
-            var mm = today.getMonth() + 1;
-            var yyyy = today.getFullYear();
-            if (dd < 10) {
-                dd = '0' + dd;
-            }
-
-            if (mm < 10) {
-                mm = '0' + mm;
-            }
-            today = mm + '/' + dd + '/' + yyyy;
-
-            return today;
-
-        }
-
-        function getDevelopmentalTeam(ele, clientid) {
-            $.ajax({
-                url: HostedDir + '/Roster/GetDevelopmentalTeamByClient',
-                async: true,
-                type: 'POST',
-                datatype: 'JSON',
-                beforeSend: function () {
-                    $('#spinner').show();
-                },
-                data: { 'clientID': clientid, 'yakrkcode': 0 },
-                success: function (data) {
-
-                    caseNoteObjData = data;
-                    var $modal = $('#modal-daily-observation');
-                    if (data != null) {
-                        if (data.CaseNoteList != null && data.CaseNoteList.length > 0) {
-                            $modal.find('#lbl-popup-client').html(data.CaseNoteList[0].Name);
-                            $('#popup-casenote-date').val(data.CaseNoteList[0].Date);
-                        }
-
-                        if (data.Clientlist != null && data.Clientlist.length > 0) {
-                            var clientDataAppend = '';
+            var $modal = $('#modal-daily-observation');
+            var $caseNoteDiv = $modal.find('#clientcasenote-div');
 
 
-                            var dataClient = $.grep(data.Clientlist, function (m) {
+            $caseNoteDiv.ApplinkCaseNote({
+                isPopup: false,
+                isSection: true,
+                caseNoteType: 1,   //1- New 2- Edit / 3- Append //
+                getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+                caseNoteId: 0,
+                householdId: 0,
+                clientId: clientId,
+                isEditable: true,
+                isShowSubmitButton: false,
+                isShowExportIcon: false,
+                forceLoad: true,
 
-                                return m.Id == clientid || m.Name.indexOf('Child') == -1;
-                            });
-
-                            $.each(dataClient, function (i, client) {
-                                clientDataAppend += '<div class="col-sm-12 form-group">\
-                                            <input type="checkbox" name="ClientIds.IDS" value='+ client.Id + '>\
-                                            <span>'+ client.Name + '</span>\
-                                        </div>';
-                            });
-
-                            $modal.find('.div-popup-clients-cn').html(clientDataAppend);
-                            $modal.find('.div-popup-clients-cn').find('input:checkbox').prop('checked', true);
-
-                        }
-
-                        if (data.UserList != null && data.UserList.length > 0) {
-                            var userDataAppend = '';
-                            $.each(data.UserList, function (i, user) {
-
-                                userDataAppend += '<div class="col-sm-12 form-group">\
-                                            <input type="checkbox" name="Users.IDS" value='+ user.Id + '>\
-                                            <span>'+ user.Name + '</span>\
-                                        </div>';
-                            });
-
-                            $modal.find('.div-popup-dev-cn').html(userDataAppend);
-                        }
-
-
-
-                        if (CKEDITOR.instances['popup-casenote-note']) {
-                            CKEDITOR.instances['popup-casenote-note'].destroy(true);
-                        }
-
-                        $('#popup-casenote-note').val('Meal Observation');
-                        $('#popup-casenote-title').val('Meal Observation');
-
-                        CKEDITOR.replace('popup-casenote-note', {
-                            language: 'en-gb',
-                            uiColor: '#295b8f',
-                            disableNativeSpellChecker: false
-                        });
-
-                        //$('#popup-casenote-tags').tagsInput({
-                        //    width: 'auto',
-                        //    height: 'auto',
-                        //    delimiter: [',', ';'],
-                        //    autocomplete: {
-                        //        //'source': tags_array[0].split(/,\s*/)
-                        //        'source': getTagsOnInput()
-                        //    },
-                        //    autocomplete_url: '',
-                        //});
-
-
-
-                        $('#popup-casenote-tags').importTags('Meal Observation,,;');
-
-
-                        showCameraOption();
-
-                        $modal.find('#uploadImageCamera').hide();
-
-                        setIntervalUserMedia();
-
-                        $modal.modal('show');
-
-                        //window.setTimeout(function () {
-
-                        //    $('#popup-casenote-tags').siblings('#popup-casenote-tags_tagsinput').children('span').children('a[title="Removing tag"]').remove();
-
-                        //}, 100);
-
-                    }
-                    else {
-                        customAlert('Error occurred. Please, try again later.');
-                    }
-
-
+                modalOnShown: function (element) {
 
                 },
-                error: function (data) {
-                    customAlert('Error occurred. Please, try again later.');
+                ajaxComplete: function (element) {
 
-                },
-                complete: function (data) {
-                    $('#spinner').hide();
-                }
+                    $modal.find('#lbl-popup-client').html($(ele).closest('td').parent('tr').find(' td:eq(0)').find('p').html().trim());
 
 
+                    var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
 
-            });
-        }
+                    //  element.css({ 'margin-left': '-25px', 'padding': '0px' });
 
-        function validateMealsObservationCaseNote() {
-            isValid = true;
-            cleanValidation();
-            var Clientcount = 0;
-            var Tags = '';
-            $('#popup-casenote-tags_tagsinput .tag span').each(function () {
-                Tags = Tags + $(this).text().trim() + ',';
-            });
-            $("#popup-casenote-tags").val(Tags);
+                    element.find('#txtCaseNoteTags_' + $guid + '').importTags("Meal Observation");
 
-            $('#popup-casenote-note').val(CKEDITOR.instances['popup-casenote-note'].getData());
+                    CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].setData("Meal Observation");
 
-            $('.div-popup-clients-cn input:checked').each(function () {
-                if ($(this).prop("checked")) {
-                    Clientcount = 1;
-                }
-            });
-            Tags = '';
-            if ($('#popup-casenote-date').val().trim() == "") {
-                isValid = false;
-                customAlert("Case note date is required. ");
-                plainValidation('#popup-casenote-date');
-                return isValid;
-            }
-            else if ($('#popup-casenote-title').val().trim() == "") {
-                isValid = false;
-                customAlert("Title is required.");
-                plainValidation('#popup-casenote-title');
-                return isValid;
-            }
-            else if (CKEDITOR.instances['popup-casenote-note'].getData() == "") {
-                isValid = false;
-                customAlert("Note is required.");
-                return isValid;
-            }
-            else if (Clientcount == 0) {
-                isValid = false;
-                customAlert("Clients name is required.");
-                $('.div-popup-clients-cn').focus();
-                plainValidation($('.div-popup-clients-cn'));
-                return isValid;
-            }
-            else if ($('#popup-casenote-tags').val().trim() == "") {
-                isValid = false;
-                customAlert("Tags is required.");
-                plainValidation('#popup-casenote-tags');
-                return isValid;
-            }
+                    element.find('#txtCaseNoteTitle_' + $guid + '').val("Meal Observation");
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
+
+                    element.find('#txtCaseNoteDate_' + $guid + '').prop('disabled', false);
+
+                    element.find('.img-camera').attr('target-id', 'clientcasenote-div');
+
+                    element.css('border', 'unset!important');
+
+                    //  element.find('#divCaseNoteStaffs_' + $guid + '').parent('div').hide();
 
 
-            return isValid;
-
-        }
+                    element.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox').each(function () {
 
 
-        function checkDateCaseNote(value) {
-            isValid = true;
-            if (!$(value).attr("readonly")) {
+                        if ($(this).val() == clientId || $(this).next('label').html().indexOf('Parent') > -1) {
 
-                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
-                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
-                    var regex = new RegExp(dateformat);
-                    if (!regex.test($(value).val())) {
-                        customAlert("Invalid date format. ");
-                        //$(value).val('');
-                        plainValidation($(value));
-                        return false;
-                    }
-                    else {
-                        var text = $(value).val();
-                        var comp = text.split('/');
-                        var m = parseInt(comp[0], 10);
-                        var d = parseInt(comp[1], 10);
-                        var y = parseInt(comp[2], 10);
-                        var date = new Date(y, m - 1, d);
-                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
-
-                        } else {
-                            customAlert("Invalid date. ");
-                            //$(value).val('');
-                            plainValidation($(value));
-
-                            return false;
+                            if ($(this).val() == clientId) {
+                                $(this).prop('checked', true);
+                                $(this).prop('disabled', true);
+                            }
+                        }
+                        else {
+                            $(this).parent('div').remove();
                         }
 
 
+                    });
 
-                    }
+                    showCameraOption(element);
+
+                    element.find('#uploadImageCamera').hide();
+
+                    setIntervalUserMedia(element);
+
+                    $modal.modal('show');
                 }
-                var txtdate = $(value).val();
-                var selectedTimestampequal = new Date();
-                var year = selectedTimestampequal.getFullYear();
-                var month = selectedTimestampequal.getMonth() + 1;
-                var day = selectedTimestampequal.getDate();
-                today1 = month + '/' + day + '/' + year;
-                var newinput = today1.split("/");
-                var newday = newinput[1];
-                var str = newday.substr(0, 1);
-                var newdaynew = ('0' + newday).slice(-2);
-                var newmonth = newinput[0];
-                var str1 = newmonth.substr(0, 1);
-                var newmonthnew = ('0' + newmonth).slice(-2);
-                today = newmonthnew + '/' + newdaynew + '/' + year;
-                if (today == txtdate) {
-                    return true;
-                }
-                var testdatelocalinput = new Date(txtdate);
-                var selectedTimestamp = new Date().getTime();
-                var testdatelocalinputTS = testdatelocalinput.getTime();
-                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
-                if (testdatelocalinputTS > selectedTimestamp) {
-                    customAlert("Case Note date must be less than or equal to today's date.");
-                    //$(value).val('');
-                    plainValidation($(value));
-
-                    return false;
-                }
-                else if (timestamp > testdatelocalinputTS) {
-                    customAlert("Case Note date cannot be less than 30 days from today's date.");
-                    //$(value).val('');
-                    plainValidation($(value));
-
-                    return false;
-                }
-            }
-            return true;
-        }
-
-
-        function stopMediaTracks(stream) {
-
-            stream.getTracks().forEach(function (track) { track.stop(); })
-
-        }
-
-        function gotDevices(mediaDevices) {
-
-            videoSelect.innerHTML = '';
-            // videoSelect.appendChild(document.createElement('option'));
-            var count = 1;
-            mediaDevices.forEach(function (mediaDevice) {
-                if (mediaDevice.kind === 'videoinput') {
-                    const option = document.createElement('option');
-                    option.value = mediaDevice.deviceId;
-                    const label = mediaDevice.label || 'Camera ' + (count++) + '';
-                    const textNode = document.createTextNode(label);
-                    option.appendChild(textNode);
-                    videoSelect.appendChild(option);
-                }
-            });
-
-        }
-
-        function getStream() {
-            // alert('change event');
-            if (typeof currentStream !== 'undefined') {
-                stopMediaTracks(currentStream);
-            }
-            const videoConstraints = {};
-            if (videoSelect.value === '') {
-                videoConstraints.facingMode = 'environment';
-            } else {
-                videoConstraints.deviceId = { exact: videoSelect.value };
-            }
-            const constraints = {
-                video: videoConstraints,
-                audio: false
-            };
-            navigator.mediaDevices
-              .getUserMedia(constraints)
-              .then(function (stream) {
-                  currentStream = stream;
-                  video.srcObject = stream;
-                  return navigator.mediaDevices.enumerateDevices();
-              })
-              .then(gotDevices)
-              .catch(function (error) {
-                  console.error(error);
-                  //alert(error);
-              });
-        }
-
-        function showCameraOption(ele) {
-
-            var videoInputAvailable = 0;
-            $('#uploadImageCamera').tooltip();
-            $('#uploadImageCamera').tooltip('hide');
-            $('#uploadImageCamera').hide();
-
-            navigator.mediaDevices.enumerateDevices().then(function (devices) {
-
-                console.log(devices);
-                devices.forEach(function (device) {
-
-
-                    if (device.kind == 'videoinput') {
-                        videoInputAvailable++;
-                    }
-
-                });
-
-
-                if (videoInputAvailable == 0) {
-                    $('#uploadImageCamera').hide();
-                    $('#uploadImageCamera').tooltip('hide');
-
-                }
-                else {
-                    $('#uploadImageCamera').show();
-                    // $('#uploadImageCamera').tooltip('show');
-                }
-
-                console.log(videoInputAvailable);
-
-            }).catch(function (err) {
-                console.log(err.name + ": " + err.message);
-            });
-
-
-            //if (videoSelect.options.length > 0) {
-            //    getStream();
-            //}
-
-
-
-
-        }
-
-        function showVideoStream() {
-            if (videoSelect.options.length > 0) {
-                getStream();
-            }
-
-        }
-
-
-        function checkUserMedia() {
-
-
-
-
-            navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
-                  navigator.webkitGetUserMedia ||
-                  navigator.mozGetUserMedia ||
-                  navigator.msGetUserMedia);
-
-            navigator.getMedia({ video: true }, function () {
-
-                if (!$('#uploadImageCamera').is(':visible')) {
-
-                    $('#uploadImageCamera').show();
-
-                    //$('#uploadImageCamera').tooltip('show');
-                }
-
-
-
-            }, function () {
-
-                $('#uploadImageCamera').hide();
-                $('#uploadImageCamera').tooltip('hide');
-
 
             });
 
 
-        }
-
-        var userMediaInterval = null;
-
-        function setIntervalUserMedia() {
-
-            userMediaInterval = setInterval(function () {
-
-                checkUserMedia();
-
-            }, 1000);
 
 
-
-        }
-
-        function stopIntervalUserMedia() {
-            clearInterval(userMediaInterval);
-        }
-
-        function getBase64Image(img) {
           
-            //var canvas = document.createElement("canvas");
-            //canvas.width = img.width;
-            //canvas.height = img.height;
-            //var ctx = canvas.getContext("2d");
-            //ctx.drawImage(img, 0, 0);
-            //var dataURL = ctx.toDataURL("image/png");
-            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
         }
+
+
 
 
         function saveDocumentCamera(ele) {
@@ -1716,17 +1208,6 @@
 
                             <!----Heading Section------>
                             <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
-                                @*<div class="col-lg-12">
-                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>&nbsp;Makeup School Days
-
-                                            <span class="view-btn backto_listspan">
-
-
-
-                                            </span>
-                                        </h2>
-                                    </div>*@
 
                                 <div class="edu_clrm_head">
 
@@ -1796,33 +1277,7 @@
 
 
                                             </div>
-
-
-
-
-
-
-
-
-                                            @*<table class="total-details-table col-md-12">
-
-                                                    <tbody>
-
-
-                                                        <tr>
-                                                            <td><label>Total Record (s)</label></td>
-                                                            <td id="totalCountSpan">29</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>*@
-
                                         </div>
-
-
-
-
-
-
 
                                         <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="schedule-school-table">
                                             <thead class="table-hd scroll-thead">
@@ -1844,18 +1299,10 @@
                                                     <th>
                                                         Snack
                                                     </th>
-
-
-
-
-
-
                                                     <th>
                                                         Dinner
                                                     </th>
-
                                                     <th>Meal Observation Notes</th>
-
                                                 </tr>
                                             </thead>
                                             <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="classdays-tbody">
@@ -1874,31 +1321,28 @@
                                                             <td style="text-align:left;" data-title="Client">
                                                                 <p>
                                                                     @j.CName
-                                                                    @Html.HiddenFor(m => m.Itemlst[i].ClientID)
-
-
-
                                                                 </p>
+                                                                @Html.HiddenFor(m => m.Itemlst[i].ClientID)
                                                             </td>
                                                             <td style="text-align:left;" data-title="Breakfast">
                                                                 <p>
 
-                                                                    @Html.CheckBoxFor(m => m.Itemlst[i].Breakfast, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Breakfast ? "breakfast-checked" : "check-braeakfast"), @disabled= "disabled" })
+                                                                    @Html.CheckBoxFor(m => m.Itemlst[i].Breakfast, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Breakfast ? "breakfast-checked" : "check-braeakfast"), @disabled = "disabled" })
                                                                     @Html.HiddenFor(m => m.Itemlst[i].BreakfastServedOn, new { @class = "servedTime" })
                                                                     @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
                                                                     @* <input type="checkbox" name="ClientIDB" value="@j.ClientID" style="width:auto!important" @if (j.Breakfast) { <text> checked="checked" </text>     } />*@
                                                                 </p>
                                                             </td>
-                                                                <td style="text-align:left;" data-title="Lunch">
-                                                                    <p>
-                                                                        @Html.CheckBoxFor(m => m.Itemlst[i].Lunch, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Lunch ? "lunch-checked" : "check-lunch"), @disabled = "disabled" })
+                                                            <td style="text-align:left;" data-title="Lunch">
+                                                                <p>
+                                                                    @Html.CheckBoxFor(m => m.Itemlst[i].Lunch, new { @style = "width:auto!important;", @class = (Model.Itemlst[i].Lunch ? "lunch-checked" : "check-lunch"), @disabled = "disabled" })
 
-                                                                        @Html.HiddenFor(m => m.Itemlst[i].LunchServedOn, new { @class = "servedTime" })
-                                                                        @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
+                                                                    @Html.HiddenFor(m => m.Itemlst[i].LunchServedOn, new { @class = "servedTime" })
+                                                                    @*@Html.HiddenFor(m => m.Itemlst[i].MealType)*@
 
-                                                                        @*<input type="checkbox" name="ClientIDL" value="@j.ClientID" style="width:auto!important;" @if (j.Lunch) { <text> checked="checked" </text>    } />*@
-                                                                    </p>
-                                                                </td>
+                                                                    @*<input type="checkbox" name="ClientIDL" value="@j.ClientID" style="width:auto!important;" @if (j.Lunch) { <text> checked="checked" </text>    } />*@
+                                                                </p>
+                                                            </td>
 
                                                                 <td style="text-align:left;" data-title="Snack">
                                                                     <p>
@@ -1940,7 +1384,7 @@
                                                                         </p>
                                                                     </td>*@
 
-                                                                <td style="color:slategrey;text-align:left;" data-title="Meal Observation Notes"><p><a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="javascript:void(0);" onclick="getDevelopmentalTeam(this, '@Model.Itemlst[i].ClientID');"><img src="~/Images/referral.png" /></a></p></td>
+                                                                <td style="color:slategrey;text-align:left;" data-title="Meal Observation Notes"><p><a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="javascript:void(0);" onclick="getCaseNoteSection(this, '@Model.Itemlst[i].ClientID');"><img src="~/Images/referral.png" /></a></p></td>
 
 
                                                         }
@@ -2039,7 +1483,7 @@
                                                                 <p>
                                                                     @A.ABreakfast
                                                                     @Html.Hidden("AdultBreakfast", A.ABreakfast)
-                                                                    @Html.Hidden("AdultBreakfastServedOn",A.ABreakfastServedOn)
+                                                                    @Html.Hidden("AdultBreakfastServedOn", A.ABreakfastServedOn)
                                                                 </p>
                                                             </td>
 
@@ -2114,7 +1558,7 @@
                                                         {
                                                             <td data-title="Breakfast">
                                                                 <p>
-                                                                    <img src="~/Images/tick-sign.svg"  style="height:15px;width:15px;" />
+                                                                    <img src="~/Images/tick-sign.svg" style="height:15px;width:15px;" />
 
                                                                     <span style="float:right;margin-left:15px;">@Convert.ToDateTime(j.BreakfastServedOn).ToString("hh:mm tt")</span>
 
@@ -2226,109 +1670,12 @@
 
 
                                 <label for="lbl-popup-client" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Client</label>
-                                <label id="lbl-popup-client" class="col-md-5 col-lg-8 col-xs-12" style="font-weight:normal;">Don Edwards</label>
+                                <label id="lbl-popup-client" class="col-md-5 col-lg-8 col-xs-12" style="font-weight:normal;"></label>
                             </div>
 
-
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
-
-                                <div class="form-group">
-                                    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
-
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-date" class="col-md-4 col-lg-2 col-xs-12 lbl-popup-cn lbl-text" style="color:#295b8f;">Date <sup style="color:red;">*</sup></label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12">
-                                        <input type="text" id="popup-casenote-date" class="form-control" />
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-title" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Title <sup style="color:red;">*</sup></label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12">
-                                        <input type="text" id="popup-casenote-title" class="form-control" />
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-note" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Note <sup style="color:red;">*</sup></label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12">
-                                        <textarea id="popup-casenote-note"></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-title" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Client(s) <sup style="color:red;">*</sup></label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-clients-cn">
-                                        >
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-tags" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Tags <sup style="color:red;">*</sup></label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12">
-                                        <input type="text" id="popup-casenote-tags" class="form-control" />
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="ClientIds.IDS" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Developmental Team</label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-dev-cn">
-
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label for="popup-casenote-secure" class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Secure Note Level?</label>
-
-                                    <div class="col-sm-12 col-lg-6 col-xs-12 div-popup-secure-cn">
-                                        <div class="col-sm-12 form-group">
-                                            <input type="checkbox" id="popup-casenote-secure" value="true">
-                                            <span>Yes</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-md-4 col-lg-2 col-xs-12  lbl-popup-cn lbl-text" style="color:#295b8f;">Attachment</label>
-
-                                    <div class="col-sm-12 col-lg-8 col-xs-12 attachment-div">
-                                        <div class="col-lg-6 col-xs-8 no-padding" style="padding:0;">
-                                            <input type="file" class="form-control" />
-                                        </div>
-                                        <div class="adddivspace col-lg-4  col-xs-4 col-sm-3 ">
-                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addAdditionalFileInput(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                            <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="Capture using Camera" style="display:none;">
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="ppopup-additional attachment-div col-sm-12" id="div-popup-add-attach" style="padding:0;">
-
-                                </div>
-
-                                <div class="col-md-12 col-xs-12 col-sm-12 adddivspace" id="div-edit-modal-img-gallery">
-
-                                </div>
-
-
-
+                            <div id="clientcasenote-div">
 
                             </div>
-
 
 
                         </div>

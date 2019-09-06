@@ -5,10 +5,11 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.IO;
+using System.ComponentModel;
 
 namespace FingerprintsModel
 {
-   
+
     public class EncryptDecrypt
     {
         //public static string EncryptData(string data2Encrypt)
@@ -28,7 +29,7 @@ namespace FingerprintsModel
         //    {
         //    }
         //    return EncodeNonAsciiCharacters(Convert.ToBase64String(plainBytes));
-          
+
 
         //}
         //public static string DecryptData(string data2Decrypt)
@@ -75,7 +76,35 @@ namespace FingerprintsModel
         }
         public static string Decrypt64(string clearText)
         {
+
             return Encoding.ASCII.GetString(Convert.FromBase64String(clearText));
+        }
+
+        public static T Decrypt64<T>(string clearText)
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            if (converter != null && !converter.IsValid(clearText))
+            {
+
+                try
+                {
+                    return (T)converter.ConvertFromString(Encoding.ASCII.GetString(Convert.FromBase64String(clearText)));
+
+                }
+                catch(Exception ex)
+                {
+                    clsError.WriteException(ex);
+                    return default(T);
+                }
+
+              
+            }
+            else
+            {
+                return (T)converter.ConvertFromString(clearText);
+
+            }
+
         }
 
 
@@ -122,6 +151,10 @@ namespace FingerprintsModel
             }
             return cipherText;
         }
+
+        
+
+
 
     }
 }

@@ -41,20 +41,20 @@ namespace FingerprintsModel
             public string ClientIds { get; set; }
             public string StaffIds { get; set; }
 
-            [Display(Name ="Date")]
+            [Display(Name = "Date")]
             [Required(ErrorMessage = "Case note date is required")]
             [DataType(DataType.Date)]
             public string CaseNoteDate { get; set; }
 
             [Required(ErrorMessage = "Title is required")]
-            [Display(Name ="Title")]
-            public string CaseNotetitle { get; set; }
+            [Display(Name = "Title")]
+            public string CaseNoteTitle { get; set; }
 
             [Required(ErrorMessage = "Tags are required")]
-            [Display(Name ="Tags")]
+            [Display(Name = "Tags")]
             public string CaseNotetags { get; set; }
 
-            [Required(ErrorMessage ="Note is required")]
+            [Required(ErrorMessage = "Note is required")]
             [Display(Name = "Note")]
             public string Note { get; set; }
 
@@ -62,12 +62,12 @@ namespace FingerprintsModel
             public bool CaseNoteSecurity { get; set; }
             public string Classroomid { get; set; }
             public bool IsLateArrival { get; set; }
-            public string NewReason { get; set; }
+         //   public string NewReason { get; set; }
 
             public string ClientName { get; set; }
 
-            public int ReasonID { get; set; }
-           public string DateOfTransition { get; set; }
+           // public int ReasonID { get; set; }
+            //public string DateOfTransition { get; set; }
 
             public List<RosterNew.Attachment> CaseNoteAttachmentList { get; set; }
 
@@ -104,7 +104,7 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
 
     }
-    public class REF :ReferralList
+    public class REF : ReferralList
     {
         public int? ServiceID { get; set; }
         public long? ClientID { get; set; }
@@ -139,7 +139,7 @@ namespace FingerprintsModel
 
         public List<ServiceReferences> ServiceRefernceList { get; set; }
 
-      
+
     }
 
     public class REF_ParentList
@@ -152,11 +152,11 @@ namespace FingerprintsModel
     public class ServiceReferences
     {
 
-        public string  ServicesName { get; set; }
+        public string ServicesName { get; set; }
 
-        public int  ServiceId { get; set; }
+        public int ServiceId { get; set; }
     }
- public class ListRoster 
+    public class ListRoster
     {
         public string id { get; set; }
         public string ServiceId { get; set; }
@@ -166,16 +166,16 @@ namespace FingerprintsModel
         public string ClientId { get; set; }
         public long referralClientId { get; set; }
         // public long? ReferralClientId { get; set; }
-         public int? Step { get; set; }
-       public string clientName { get; set; }
-       public string parentName { get; set; }
+        public int? Step { get; set; }
+        public string clientName { get; set; }
+        public string parentName { get; set; }
         public string ReferralDate { get; set; }
         public string Description { get; set; }
         public int ServiceResourceId { get; set; }
         public long CommunityId { get; set; }
-       // public string CommunityIds { get; set; }
+        // public string CommunityIds { get; set; }
         public long ReferralClientServiceId { get; set; }
-       public string ScreeningReferralYakkr { get; set; }
+        public string ScreeningReferralYakkr { get; set; }
     }
     public class ReferralList
     {
@@ -187,10 +187,10 @@ namespace FingerprintsModel
 
         public string ScreeningReferralYakkr { get; set; }
     }
-    public class AttendenceDetailsByDate:TeacherModel
+    public class AttendenceDetailsByDate : TeacherModel
     {
         public string id { get; set; }
-     
+
         public string ClientName { get; set; }
         public string ParentName { get; set; }
         public DateTime? AttendenceDate { get; set; }
@@ -213,27 +213,10 @@ namespace FingerprintsModel
 
         public string ProtectiveBadge { get; set; }
 
-        public string ProtectiveBadge2 { get; set; } 
+        public string ProtectiveBadge2 { get; set; }
 
     }
-	public class CaseNoteNew
-    {
-        public string ClientId { get; set; }
-        public string CenterId { get; set; }
-        public string HouseHoldId { get; set; }
-        public string CaseNoteid { get; set; }
-        public string ProgramId { get; set; }
-        public string ClientIds { get; set; }
-        public string StaffIds { get; set; }
-        public string CaseNoteDate { get; set; }
-        public string CaseNotetitle { get; set; }
-        public string CaseNotetags { get; set; }
-        public string Note { get; set; }
-        public bool CaseNoteSecurity { get; set; }
-        public string Classroomid { get; set; }
 
-        public string DateOfTransition { get; set; }
-    }
 
     public class CaseNoteTag
     {
@@ -246,7 +229,7 @@ namespace FingerprintsModel
     public class CaseNoteTagReport
     {
         public List<CaseNoteTag> TagReport { get; set; }
-        public long TotalRecord { get; set; } 
+        public long TotalRecord { get; set; }
 
     }
 
@@ -275,7 +258,7 @@ namespace FingerprintsModel
     public class ExtendSelectList
     {
         public string id { get; set; }
-        public string value { get; set;}
+        public string value { get; set; }
         public string label { get; set; }
     }
 

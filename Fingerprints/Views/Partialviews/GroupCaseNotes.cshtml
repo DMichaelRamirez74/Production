@@ -15,31 +15,8 @@
                 TempData["message"] = null;
             }
         $('#CenterId').val("");
-        $('#CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+  
         $('#casedate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-
-        //  $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',', ';'] });
-
-        CKEDITOR.replace('Note', {
-            language: 'en-gb',
-            uiColor: '#295b8f',
-            disableNativeSpellChecker: false
-        });
-
-
-
-        $('#CaseNotetags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete: {
-                //'source': tags_array[0].split(/,\s*/)
-               // 'source': getTagsOnInputAll('#CaseNotetags'),
-                'appendTo': "#ModalAddCasenote"
-            },
-           
-            autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',
-        });
 
 
         if($('select#CenterId option').length==1)
@@ -52,34 +29,7 @@
     });
 
 
-    function getTagsOnInputAll(ele) {
-        // var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
-        var tagsArr = [];
-        $.ajax({
-
-            url: '/Roster/GetCaseNoteTagonInput',
-            datatype: 'json',
-            type: 'post',
-            async: true,
-            data: { searchText: $(ele).val() },
-            success: function (data) {
-                if (data != null) {
-                    if (data.length > 0) {
-                        $.each(data, function (i, tags) {
-                            tagsArr.push(tags.Text);
-                        });
-                    }
-                }
-            },
-            error: function (data) {
-
-            }
-
-        });
-
-        return tagsArr;
-    }
-
+    
 
     function GetClassrooms(Select) {
         $('#DivclientenrolledList > tbody > tr').remove();
@@ -152,7 +102,7 @@
                }
             });
         }
-       
+
     }
     function BindClientenrolled(data) {
         if (data != null && data.length > 0) {
@@ -266,6 +216,9 @@
     function LoadGroupCaseNote() {
         var count = 0;
         cleanValidation();
+
+
+
         $('#DivclientenrolledList > tbody > tr').each(function () {
             if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
                 count = count + 1;
@@ -276,59 +229,113 @@
             plainValidation('#casedate');
             return isValid;
         }
-        else  if (count == 0) {
+        else if (count == 0) {
             customAlert("Clients is required for group case notes.");
         }
+
+      
         else {
-        
-            $('#CaseNoteDate').val($('#casedate').val());
-            $('#CaseNotetitle').val('');
-            $('#CaseNotesNote').val('');
-            $('#CaseNoteSecurity').prop("checked", false);
-            $('.tag').remove();
-            $('#ClientDiv').empty();
-            $('#StaffDiv input[type=checkbox]').each(function () {
-                $(this).prop("checked", false);
+
+
+            var $modal = $('#ModalAddCasenote');
+            var $caseNoteSection = $modal.find('#divCaseNoteSection');
+            var $guid = $caseNoteSection.attr('data-current-id');
+
+            $modal.find('#CaseNoteHeading').html('Add Group Case Note');
+            $modal.find('.export-new').parent().hide();
+            $caseNoteSection.css('padding-top', '30px');
+            $caseNoteSection.find('#txtCaseNoteDate_'+$guid+'').prop('disabled', false);
+            $caseNoteSection.find('#divCaseNoteStaffs_'+$guid+'').parent('div').hide();
+            $caseNoteSection.find('#checkboxSecureNote_'+$guid+'').closest('.form-group').hide();
+
+            $caseNoteSection.find('#txtCaseNoteDate_'+$guid+'').val($('#casedate').val());
+
+            $caseNoteSection.find('#txtCaseNoteTitle_'+$guid+'').val('');
+
+            $caseNoteSection.find('#txtareaCaseNote_'+$guid+'').val('');
+            $caseNoteSection.find('#txtCaseNoteTags_'+$guid+'').val('');
+            $caseNoteSection.find('.tag').remove();
+            CKEDITOR.instances['txtareaCaseNote_'+$guid+''].setData("");
+
+            $caseNoteSection.find('#hidden_centerId_'+$guid+'').val($('#CenterId').val());
+            $caseNoteSection.find('#hidden_classroomId_' + $guid + '').val($('#Classroomid').val());
+
+            $caseNoteSection.find('#divCaseNoteStaffs_'+$guid+'').html('');
+
+            $caseNoteSection.find('#checkboxSecureNote_'+$guid+'').prop("checked", false);
+            $caseNoteSection.find('#divCaseNoteClients_' + $guid + '').empty();
+            $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('#addAttachmentDiv_' + $guid + '').html('');
+            $caseNoteSection.find('.div-edit-gallery_' + $guid + '').html('');
+            $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('input:file').val('');
+            $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('input:file').removeAttr('conv-img');
+
+            $caseNoteSection.find('.img-camera').attr('data-guid', $guid);
+
+            //$('#StaffDiv input[type=checkbox]').each(function () {
+            //    $(this).prop("checked", false);
+            //});
+
+            $('#DivclientenrolledList > tbody > tr').each(function (i,client) {
+                if ($(client).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
+
+                    $caseNoteSection.find('#divCaseNoteClients_'+$guid+'').append('<div class="fa-checkbox all-notes-check">\
+                                <input type="checkbox" checked="checked" disabled id="check_'+i+'" name="ClientIds.IDS" value="'+ $(client).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey")+'" style="display:none;" class="allnotesChk">\
+                            <label for="check_'+i+'" style="font-weight:normal;width:auto;">' + $(client).find('td:eq(1)').text() + '</label>\
+                        </div>');
+
+                  //  $modal.find('#divCaseNoteClients').append('<div class="col-sm-12"><input type="checkbox" checked="checked" onclick="return false;"  name="ClientIds.IDS" value="' + $(this).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey") + '" /><span> ' + $(this).find('td:eq(1)').text() + '</span></div>');
             });
-            CKEDITOR.instances['Note'].setData("");
-            $('#DivclientenrolledList > tbody > tr').each(function () {
-                if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
-                    $('#ClientDiv').append('<div class="col-sm-12"><input type="checkbox" checked="checked" onclick="return false;"  name="ClientIds.IDS" value="' + $(this).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey") + '" /><span> ' + $(this).find('td:eq(1)').text() + '</span></div>');
-            });
-            $('#ModalAddCasenote').modal('toggle');
+
+            $modal.modal('show');
         }
     }
-    function Validatecasenote() {
+
+
+
+   
+
+
+    function validateCaseNote(ele) {
         isValid = true;
         cleanValidation();
         var Clientcount = 0;
         var Tags = '';
-        $('#CaseNotetags_tagsinput .tag span').each(function () {
+
+        var $modal = null;
+
+        if ($(ele).closest('.modal').length > 0) {
+            $modal = $(ele).closest('.modal');
+        }
+
+        var $caseNoteSection = $modal.find('#divCaseNoteSection');
+        var $guid = $caseNoteSection.attr('data-current-id');
+
+        $caseNoteSection.find('#txtCaseNoteTags_'+$guid+'_tagsinput .tag span').each(function () {
             Tags = Tags + $(this).text().trim() + ',';
         });
-        $("#CaseNotetags").val(Tags);
+        $caseNoteSection.find("#txtCaseNoteTags_"+$guid+"").val(Tags);
 
-        $('#Note').val(CKEDITOR.instances['Note'].getData());
+       $caseNoteSection.find('#txtareaCaseNote_'+$guid+'').val(CKEDITOR.instances['txtareaCaseNote_'+$guid+''].getData());
 
-        $('#ClientDiv input:checked').each(function () {
+       $caseNoteSection.find('#divCaseNoteClients_'+$guid+' input:checked').each(function () {
             if ($(this).prop("checked")) {
                 Clientcount = 1;
             }
         });
         Tags = '';
-        if ($('#CaseNoteDate').val().trim() == "") {
+        if ($caseNoteSection.find('#txtCaseNoteDate_'+$guid+'').val().trim() == "") {
             isValid = false;
             customAlert("Case note date is required. ");
-            plainValidation('#CaseNoteDate');
+            plainValidation($caseNoteSection.find('#txtCaseNoteDate_' + $guid + ''));
             return isValid;
         }
-        else if ($('#CaseNotetitle').val().trim() == "") {
+        else if ($caseNoteSection.find('#txtCaseNoteTitle_'+$guid+'').val().trim() == "") {
             isValid = false;
             customAlert("Title is required.");
-            plainValidation('#CaseNotetitle');
+            plainValidation($caseNoteSection.find('#txtCaseNoteTitle_' + $guid + ''));
             return isValid;
         }
-        else if (CKEDITOR.instances['Note'].getData() == "") {
+        else if (CKEDITOR.instances['txtareaCaseNote_'+$guid+''].getData() == "") {
             isValid = false;
             customAlert("Note is required.");
             return isValid;
@@ -336,22 +343,149 @@
         else if (Clientcount == 0) {
             isValid = false;
             customAlert("Clients name is required.");
-            $('#ClientDiv').focus();
+            $caseNoteSection.find('#divCaseNoteClients_'+$guid+'').focus();
             return isValid;
         }
-        else if ($('#CaseNotetags').val().trim() == "") {
+
+            
+        else if ($caseNoteSection.find('#txtCaseNoteTags_'+$guid+'').val().trim() == "") {
             isValid = false;
             customAlert("Tags is required.");
-            plainValidation('#CaseNotetags');
+            plainValidation($caseNoteSection.find('#txtCaseNoteTags_'+$guid+''));
             return isValid;
         }
+        else if ($caseNoteSection.find('#txtCaseNoteTags_'+$guid+'').val().trim() == "") {
+            isValid = false;
+            customAlert("Tags is required.");
+            plainValidation($caseNoteSection.find('#txtCaseNoteTags_'+$guid+''));
+            return isValid;
+        }
+
+
+
+        var caseNote = {};
+        var clientIDs = null;
+
+        var clientArray = [];
+        $.each($('#divCaseNoteClients_'+$guid+'').find('input:checkbox:checked'), function () {
+
+            clientArray.push($(this).val());
+        });
+
+        //var staffArray = [];
+        //$.each($('#divCaseNoteStaffs').find('input:checkbox:checked'), function () {
+
+        //    staffArray.push($(this).val());
+        //});
+
+
+        var cameraDocumentsArray = [];
+
+        $caseNoteSection.find('#caseNoteAttachmentsDiv_'+$guid+'').find('input:file').each(function (a, b) {
+            debugger;
+            var fileInput = $(this);
+
+            if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                var fileUpload = fileInput.get(0);
+                var files = fileUpload.files;
+
+                for (var i = 0; i < files.length; i++) {
+
+
+                    var convImage = fileInput.attr('conv-img');
+
+                    if (convImage != null && convImage != "")
+                        cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+
+                }
+            }
+        });
+
+
+
+        var $cameraDocuments = $caseNoteSection.find('.div-edit-gallery_'+$guid+'').find('.setup_viewscreen');
+
+
+
+        if ($cameraDocuments.length > 0) {
+
+            $.each($cameraDocuments, function (j, doc) {
+
+                var $doc = $(doc).find('img');
+                cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+            });
+        }
+
+
+
+        caseNote.ClientId = $('#hidden_clientId_'+$guid+'').val();
+        caseNote.CenterId = $('#hidden_centerId_'+$guid+'').val();
+        caseNote.Classroomid = $('#hidden_classroomId_'+$guid+'').val();
+        caseNote.HouseHoldId = $('#hidden_householdId_'+$guid+'').val();
+        caseNote.CaseNoteid = $('#hdn-casenoteid_'+$guid+'').val();
+        caseNote.ProgramId = $('#hidden_programId_'+$guid+'').val();
+        caseNote.ClientIds = clientArray.join(',');
+      //  caseNote.StaffIds = staffArray.join(',');
+        caseNote.CaseNoteDate = $('#txtCaseNoteDate_'+$guid+'').val();
+        caseNote.CaseNoteTitle = $('#txtCaseNoteTitle_'+$guid+'').val();
+        caseNote.CaseNotetags = $('#txtCaseNoteTags_'+$guid+'').val();
+        caseNote.Note = $('#txtareaCaseNote_'+$guid+'').val();
+        caseNote.CaseNoteSecurity = $('#checkboxSecureNote_'+$guid+'').is(':checked');
+        caseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+        console.log(caseNote);
+
+
+        $.ajax({
+            type: "POST",
+            url: "/AgencyUser/SaveGroupCaseNote",
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            beforeSend: function () {
+                $('#spinner').show();
+            },
+            data: JSON.stringify(caseNote),
+            success: function (data) {
+
+
+                if (data == '1') {
+
+                    $('#spinner').hide();
+
+                    customAlert('Record saved successfully');
+
+                    ClearAll();
+
+                    $('#ModalAddCasenote').modal('hide');
+
+
+                  
+
+                    
+
+                }
+
+                else {
+                    $('#ModalAddCasenote').modal('hide');
+                    $('#spinner').hide();
+                    customAlert('Error occurred. Please, try again later');
+                }
+
+            },
+            error: function (data) {
+                console.log(data);
+            },
+            complete: function (data) {
+                $('#spinner').hide();
+            }
+        });
+
+
+
         return isValid;
 
-    }
-    function AddMore() {
-        $('#Attachment').append("<div class='col-sm-12 adddivspace'><div class='col-sm-4' ><label></label>" +
-                                 "</div><div class='col-sm-5'> <input type='file'  name='Attachments[" + count + "].file' onchange='ValidateSingleInputpdf2(this)'  class='form-control' /></div></div>");
-        count++;
     }
     function ClearAll() {
 
@@ -362,56 +496,59 @@
         $('#div1').show();
         $('#checkboxtable').prop("checked", false);
 
+
+
     }
 
 
 </script>
 <style>
+    /*Add-note-popup*/
 
-    
-/*Add-note-popup*/
+    .top-header-title-addn {
+        background: #f9c751;
+        border-radius: 5px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
 
-.top-header-title-addn {
-    background: #f9c751;
-    border-radius: 5px;
-    margin-top: 20px;
-    margin-bottom: 30px;
-}
-.top-header-title-addn h1 {
-    color: #000;
-    font-size: 24px;
-    text-transform: uppercase;
-    padding: 20px 10px;
-    text-align: center;
-    display: block;
-    font-weight: bold;
-    margin: 0;
-}
-.addn-select {
-    width: 60%;
-    font-size: 19px;
-    color: #333;
-    padding: 5px;
-    resize: none;
-    background: #fff;
-    height: 40px;
-    margin-right: 10px;
-    border: 1px solid #fff!important;
-    border-radius: 0px;
-    position: relative;
-    line-height: 40px;
-}
-.addn-select::-webkit-input-placeholder { 
-    color: #333 !important;
-}
+        .top-header-title-addn h1 {
+            color: #000;
+            font-size: 24px;
+            text-transform: uppercase;
+            padding: 20px 10px;
+            text-align: center;
+            display: block;
+            font-weight: bold;
+            margin: 0;
+        }
 
-.addn-select::-moz-placeholder { 
-    color: #333 !important;
-}
+    .addn-select {
+        width: 60%;
+        font-size: 19px;
+        color: #333;
+        padding: 5px;
+        resize: none;
+        background: #fff;
+        height: 40px;
+        margin-right: 10px;
+        border: 1px solid #fff !important;
+        border-radius: 0px;
+        position: relative;
+        line-height: 40px;
+    }
 
-.addn-select:-ms-input-placeholder {
-    color: #333 !important;
-}
+        .addn-select::-webkit-input-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-select::-moz-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-select:-ms-input-placeholder {
+            color: #333 !important;
+        }
 
         .addn-select:-moz-placeholder {
             color: #333 !important;
@@ -508,124 +645,142 @@
     }
 
 
-.modal-dialog-ch {
-    width: 60%;
-}
-#matrix_addn .modal-body {
-    position: relative;
-}
-#matrix_addn .modal-body {
-    background: #34495e none repeat scroll 0 0;
-    border: 6px solid #ffffff;
-    border-radius: 3px;
-    /* color: #ffffff; */
-    float: left;
-    padding: 15px 3%;
-    position: relative;
-    width: 100%;
-}
-#matrix_addn .modal-body > h2 {
-    margin-top: 10px;
-    float: left;
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 20px;
-    color: #fff;
-}
-#matrix_addn .close {
-    opacity: 1;
-    position: absolute;
-    right: -14px;
-    top: -15px;
-}
-/*.popup-addn-scroll {
-    height: 500px;
-    overflow: auto;
-}*/
-.max_items_addn{
-    background: #f1f5f8 none repeat scroll 0 0;
-    border: 3px solid #ffffff;
-    float: left;
-    padding: 10px;
-    width: 100%;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-.addn-poup-div label {
-    color: #163b69;
-    font-size: 18px;
-    text-align: right;
-    font-weight: 400;
-    margin-top: 5px;
-    margin-bottom: 3px;
-    width: 100%;
-}
-.addn-poup-chk input[type=checkbox]{
-    color: #163b69!important;
-    font-size: 18px;
-    font-weight: 400;
-    margin-right: 10px;
-}
+    .modal-dialog-ch {
+        width: 60%;
+    }
+
+    #matrix_addn .modal-body {
+        position: relative;
+    }
+
+    #matrix_addn .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        /* color: #ffffff; */
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+    }
+
+        #matrix_addn .modal-body > h2 {
+            margin-top: 10px;
+            float: left;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+    #matrix_addn .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
+    /*.popup-addn-scroll {
+        height: 500px;
+        overflow: auto;
+    }*/
+    .max_items_addn {
+        background: #f1f5f8 none repeat scroll 0 0;
+        border: 3px solid #ffffff;
+        float: left;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .addn-poup-div label {
+        color: #163b69;
+        font-size: 18px;
+        text-align: right;
+        font-weight: 400;
+        margin-top: 5px;
+        margin-bottom: 3px;
+        width: 100%;
+    }
+
+    .addn-poup-chk input[type=checkbox] {
+        color: #163b69 !important;
+        font-size: 18px;
+        font-weight: 400;
+        margin-right: 10px;
+    }
+
     .addn-poup-chk {
         margin-top: 10px;
     }
-.addn-poup-div input {
-    position: relative;
-    color: #34495e;
-    background:#f6f3f3;
-    border: 1px solid #e8e8e8;
-    border-radius: 0;
-    box-shadow: none;
-}
-.addn-poup-div input::-webkit-input-placeholder { 
-    color: #34495e !important;
-}
-.addn-poup-div input::-moz-placeholder { 
-    color: #34495e !important;
-}
-.addn-poup-div input:-ms-input-placeholder { 
-    color: #34495e !important;
-}
-.addn-poup-div input:-moz-placeholder { 
-    color: #34495e !important;
-}
-.max_foot_btn {
-    float: left;
-    margin-top: 23px;
-    width: 95%;
-}
-.lft_btn {
-    float: left;
-    text-align: center;
-    width: 100%;
-}
-#matrix_addn .modal-body a {
-    color: #164978;
-    float: left;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    width: 100%;
-}
-.lft_btn a {
-    border: 1px solid #ffffff;
-    color: #ffffff !important;
-    float: none !important;
-    margin-right: 10px;
-    padding: 7px 13px;
-    text-transform: uppercase;
-    width: auto !important;
-    text-decoration: none;
-    display: inline-block;
-}
-.save {
-    background: #2ecc71;
-}
-.exit {
-    background: #e74c3c;
-}
+
+    .addn-poup-div input {
+        position: relative;
+        color: #34495e;
+        background: #f6f3f3;
+        border: 1px solid #e8e8e8;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+        .addn-poup-div input::-webkit-input-placeholder {
+            color: #34495e !important;
+        }
+
+        .addn-poup-div input::-moz-placeholder {
+            color: #34495e !important;
+        }
+
+        .addn-poup-div input:-ms-input-placeholder {
+            color: #34495e !important;
+        }
+
+        .addn-poup-div input:-moz-placeholder {
+            color: #34495e !important;
+        }
+
+    .max_foot_btn {
+        float: left;
+        margin-top: 23px;
+        width: 95%;
+    }
+
+    .lft_btn {
+        float: left;
+        text-align: center;
+        width: 100%;
+    }
+
+    #matrix_addn .modal-body a {
+        color: #164978;
+        float: left;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        width: 100%;
+    }
+
+    .lft_btn a {
+        border: 1px solid #ffffff;
+        color: #ffffff !important;
+        float: none !important;
+        margin-right: 10px;
+        padding: 7px 13px;
+        text-transform: uppercase;
+        width: auto !important;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .save {
+        background: #2ecc71;
+    }
+
+    .exit {
+        background: #e74c3c;
+    }
 
     .addn-poup-div h4 {
         font-style: italic;
@@ -657,122 +812,143 @@
 
 
 
-#matrix_addn2 .modal-body {
-    position: relative;
-}
-#matrix_addn2 .modal-body {
-    background: #34495e none repeat scroll 0 0;
-    border: 6px solid #ffffff;
-    border-radius: 3px;
-    /* color: #ffffff; */
-    float: left;
-    padding: 15px 3%;
-    position: relative;
-    width: 100%;
-}
-#matrix_addn2 .modal-body > h2 {
-    margin-top: 10px;
-    float: left;
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 20px;
-    color: #fff;
-}
-#matrix_addn2 .close {
-    opacity: 1;
-    position: absolute;
-    right: -14px;
-    top: -15px;
-}
-.addn-poup-div1 input,.addn-poup-div1 textarea {
-    position: relative;
-    color: #333;
-    background:#fff;
-    border: 1px solid #fff;
-    border-radius: 0;
-    font-style: italic;
-    box-shadow: none;
-}
-.addn-poup-div1 input::-webkit-input-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 input::-moz-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 input:-ms-input-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 input:-moz-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 textarea::-webkit-input-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 textarea::-moz-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 textarea:-ms-input-placeholder { 
-    color: #333 !important;
-}
-.addn-poup-div1 textarea:-moz-placeholder { 
-    color: #333 !important;
-}
+    #matrix_addn2 .modal-body {
+        position: relative;
+    }
+
+    #matrix_addn2 .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        /* color: #ffffff; */
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+    }
+
+        #matrix_addn2 .modal-body > h2 {
+            margin-top: 10px;
+            float: left;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+    #matrix_addn2 .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
+
+    .addn-poup-div1 input, .addn-poup-div1 textarea {
+        position: relative;
+        color: #333;
+        background: #fff;
+        border: 1px solid #fff;
+        border-radius: 0;
+        font-style: italic;
+        box-shadow: none;
+    }
+
+        .addn-poup-div1 input::-webkit-input-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 input::-moz-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 input:-ms-input-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 input:-moz-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 textarea::-webkit-input-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 textarea::-moz-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 textarea:-ms-input-placeholder {
+            color: #333 !important;
+        }
+
+        .addn-poup-div1 textarea:-moz-placeholder {
+            color: #333 !important;
+        }
+
     .addn-poup-div1 textarea {
         height: 150px;
         resize: none;
     }
-.addn-select1 {
-    width: 150px;
-    font-size: 14px;
-    color: #163b69;
-    padding: 5px;
-    resize: none;
-    background: #fff;
-    height: 40px;
-    margin-right: 5px;
-    border: 1px solid #fff!important;
-    border-radius: 0px;
-    position: relative;
-    line-height: 40px;
-}
-.addn-select1::-webkit-input-placeholder { 
-    color: #163b69 !important;
-}
-.addn-select1::-moz-placeholder { 
-    color: #163b69 !important;
-}
-.addn-select1:-ms-input-placeholder { 
-    color: #163b69 !important;
-}
-.addn-select1:-moz-placeholder { 
-    color: #163b69 !important;
-}
-.addn-search-btn1 {
-    display: inline-block;
-    width: auto;
-}
-.addn-search-btn1 a {
-    font-size: 16px;
-    text-transform: capitalize;
-    text-align: center;
-    display: inline-block;
-    background: #f9c751;
-    color: #212121;
-    margin: 0;
-    border-radius: 4px;
-    width: 100px;
-    padding: 9px 9px;
-    margin: auto;
-    font-weight: bold;
-}
-.addn-search-btn1 p{
-      font-size: 16px;
-    text-transform: capitalize;
-    text-align: left;
-    display: inline-block;
-    color: #959799;
+
+    .addn-select1 {
+        width: 150px;
+        font-size: 14px;
+        color: #163b69;
+        padding: 5px;
+        resize: none;
+        background: #fff;
+        height: 40px;
+        margin-right: 5px;
+        border: 1px solid #fff !important;
+        border-radius: 0px;
+        position: relative;
+        line-height: 40px;
+    }
+
+        .addn-select1::-webkit-input-placeholder {
+            color: #163b69 !important;
+        }
+
+        .addn-select1::-moz-placeholder {
+            color: #163b69 !important;
+        }
+
+        .addn-select1:-ms-input-placeholder {
+            color: #163b69 !important;
+        }
+
+        .addn-select1:-moz-placeholder {
+            color: #163b69 !important;
+        }
+
+    .addn-search-btn1 {
+        display: inline-block;
+        width: auto;
+    }
+
+        .addn-search-btn1 a {
+            font-size: 16px;
+            text-transform: capitalize;
+            text-align: center;
+            display: inline-block;
+            background: #f9c751;
+            color: #212121;
+            margin: 0;
+            border-radius: 4px;
+            width: 100px;
+            padding: 9px 9px;
+            margin: auto;
+            font-weight: bold;
+        }
+
+        .addn-search-btn1 p {
+            font-size: 16px;
+            text-transform: capitalize;
+            text-align: left;
+            display: inline-block;
+            color: #959799;
         }
 
     .bdr-popup {
@@ -793,43 +969,40 @@
 
 
 
-#ModalAddCasenote .modal-body {
-    position: relative;
-}
-#ModalAddCasenote .modal-body {
-    background: #34495e none repeat scroll 0 0;
-    border: 6px solid #ffffff;
-    border-radius: 3px;
-    /* color: #ffffff; */
-    float: left;
-    padding: 15px 3%;
-    position: relative;
-    width: 100%;
-}
-#ModalAddCasenote .modal-body > h2 {
-    margin-top: 10px;
-    float: left;
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 20px;
-    color: #fff;
-}
-#ModalAddCasenote .close {
-    opacity: 1;
-    position: absolute;
-    right: -14px;
-    top: -15px;
-}
+    #ModalAddCasenote .modal-body {
+        position: relative;
+    }
 
-/*Add-note-popup*/
+    #ModalAddCasenote .modal-body {
+        background: #34495e none repeat scroll 0 0;
+        border: 6px solid #ffffff;
+        border-radius: 3px;
+        /* color: #ffffff; */
+        float: left;
+        padding: 15px 3%;
+        position: relative;
+        width: 100%;
+    }
 
+        #ModalAddCasenote .modal-body > h2 {
+            margin-top: 10px;
+            float: left;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #fff;
+        }
 
+    #ModalAddCasenote .close {
+        opacity: 1;
+        position: absolute;
+        right: -14px;
+        top: -15px;
+    }
 
-
-
-
+    /*Add-note-popup*/
 </style>
 
 
@@ -886,7 +1059,7 @@
 
             <div class="col-sm-3">
                 <button class="my-btn" type="button" onclick="Loadallenrolledclinet();">Go</button>
-                <button  class="my-btn" type="button" onclick="ClearAll();">Clear</button>
+                <button class="my-btn" type="button" onclick="ClearAll();">Clear</button>
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
@@ -923,16 +1096,17 @@
 
 
     <div class="row qualifierdiv">
-        <div class="modal fade scroll-modal" id="ModalAddCasenote" role="dialog">
+
+        @*<div class="modal fade scroll-modal" id="ModalAddCasenote" role="dialog">
             <div class="modal-dialog modal-dialog-ch">
-                <!-- Modal content-->
+            
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
                     <h2 id="CaseNoteHeading" class="extra-title muted">Add New Group Case Note</h2>
                     <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;">
                         <div class="btnwrp_subcal" style="padding:0; margin:0;">
                             <h3 id="CaseNoteTitle" class="text-center pull-left"><span class="extra-title muted"></span></h3>
-                           
+
                             <input type="hidden" name="CaseNoteid" id="CaseNoteid" value="0" />
                             <div class="clear"></div>
                         </div>
@@ -958,7 +1132,7 @@
                             </div>
                             <div class="col-sm-8">
                                 <div class="addn-poup-div1">
-                                    <input type="text" maxlength="100" id="CaseNotetitle" name="CaseNotetitle" class="form-control ui-autocomplete-input">                    
+                                    <input type="text" maxlength="100" id="CaseNoteTitle" name="CaseNoteTitle" class="form-control ui-autocomplete-input">
                                 </div>
                             </div>
                         </div>
@@ -974,17 +1148,7 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="col-xs-12 addn-al" style="padding: 0;">
-                            <div class="col-sm-4">
-                                <div class="addn-poup-div">
-                                    <label>Clients  <sup style="color:red">*</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-sm-8" style="padding: 0;">
-                                <div id="ClientDiv" class="case-note">
-                                </div>
-                            </div>
-                        </div>*@
+                       
                         <div class="col-sm-12 adddivspace" style="display:none;">
                             <div class="col-xs-3  col-sm-2">
                                 <label>Clients  <sup style="color:red">*</sup></label>
@@ -1034,15 +1198,7 @@
                                 <span>Yes</span>
                             </div>
                         </div>
-                        @*<div class="col-sm-12 adddivspace">
-                            <div class="col-sm-2">
-                                <label>Secure Note Level?</label>
-                            </div>
-                            <div class="col-sm-2" style="margin-left:16px;">
-                                <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" />
-                                <span>Yes</span>
-                            </div>
-                        </div>*@
+                   
                         <div class="col-xs-12 addn-al" style="padding: 0;">
                             <div id="Attachment">
                                 <div class="col-sm-4">
@@ -1052,149 +1208,54 @@
                                     </div>
                                 </div>
 
-                                    <div class="col-sm-5">
-                                        <input type="file" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
-                                    </div>
-                                    <div class="col-sm-3 adddivspace">
-                                        <span>Add Attachment </span>
-                                        <a href="javascript:void(0)" title="Add Attachment " onclick="AddMore();"><i class="fa fa-plus-square"></i></a>
-                                    </div>
-                               
-                            </div> 
-                                <div id="Attachments" style="display:none;">
-                                    <div class="col-sm-4">
-                                        <div class="addn-poup-div">
-                                            <label>Download Attachment</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-8" style="padding: 0;">
-                                        <div id="Attach" class="adddivspace">
-                                        </div>
+                                <div class="col-sm-5">
+                                    <input type="file" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
+                                </div>
+                                <div class="col-sm-3 adddivspace">
+                                    <span>Add Attachment </span>
+                                    <a href="javascript:void(0)" title="Add Attachment " onclick="AddMore();"><i class="fa fa-plus-square"></i></a>
+                                </div>
+
+                            </div>
+                            <div id="Attachments" style="display:none;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Download Attachment</label>
                                     </div>
                                 </div>
+                                <div class="col-sm-8" style="padding: 0;">
+                                    <div id="Attach" class="adddivspace">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-xs-12 bdr-popup"></div>
                     <div class="col-xs-12" style="margin-top:10px;margin-bottom:15px;">
                         <div class="btnwrp_subcal" style="padding:0; margin:0;">
-                            @*<button type="submit" id="SaveNoteSubmit" onclick="return Validatecasenote();" class="my-btn pull-right" style="background:#2ecc71;">Save</button>
-                            <button type="button" class="my-btn pull-right" data-dismiss="modal" style="background:#db4437;">Exit</button>*@
-                        
+                            
                             <button type="submit" id="SaveNoteSubmit" onclick="return Validatecasenote();" style="background:#2ecc71;" class="my-btn pull-right">Save</button>
                             <button type="button" class="my-btn pull-right" data-dismiss="modal" style="background:#db4437;">Exit</button>
-                        
+
                         </div>
                     </div>
-                    </div>
-
-
-
-                    @*<div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="text-center"><span id="CaseNoteHeading" class="extra-title muted">Add New Group Case Note</span></h3>
-                         
-                        </div>
-                        <div class="control-group">
-                            <div>
-                                <div class="row qualifierdiv add-useragform1">
-                                    <div class="row" style="margin-bottom:3%;">
-                                        <div class="col-sm-12">
-                                            <div class="col-sm-2">
-                                                <label>Date <sup style="color:red">*</sup></label>
-                                            </div>
-                                            <div class="col-sm-10">
-                                                <input type="text" id="CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control" />
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 adddivspace">
-                                            <div class="col-sm-2">
-                                                <label>Title <sup style="color:red">*</sup></label>
-                                            </div>
-                                            <div class="col-sm-10">
-                                                <input type="text" maxlength="100" id="CaseNotetitle" name="CaseNotetitle" class="form-control" />
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 adddivspace">
-                                            <div class="col-sm-2">
-                                                <label>Note <sup style="color:red">*</sup></label>
-                                            </div>
-                                            <div class="col-sm-10">
-                                                <textarea id="Note" name="Note">  </textarea>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-12 adddivspace" style="display:none;">
-                                            <div class="col-xs-3  col-sm-2">
-                                                <label>Clients  <sup style="color:red">*</sup></label>
-                                            </div>
-                                            <div class="col-xs-9 col-sm-10">
-                                                <div id="ClientDiv" class="case-note">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 adddivspace">
-                                            <div class="col-sm-2">
-                                                <label>Tags <sup style="color:red">*</sup> </label>
-                                            </div>
-                                            <div class="col-sm-10">
-                                                <input type="text" id="CaseNotetags" name="CaseNotetags" class="form-control" />
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 adddivspace">
-                                            <div class="col-xs-3 col-sm-2">
-                                                <label>Developmental Team</label>
-                                            </div>
-                                            <div class="col-xs-9 col-sm-10" id="Divstaff">
-                                                <div id="StaffDiv" class="case-note">
-                                                    @if (TempData["UserList"] != null)
-                                                    {
-                                                        foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)TempData["UserList"]))
-                                                        {
-                                                            <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
-                                                        }
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 adddivspace">
-                                            <div class="col-sm-2">
-                                                <label>Secure Note Level?</label>
-                                            </div>
-                                            <div class="col-sm-2" style="margin-left:16px;">
-                                                <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" />
-                                                <span>Yes</span>
-                                            </div>
-                                        </div>
-                                        <div id="Attachment">
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Attachment</label>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <input type="file" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
-                                                </div>
-                                                <div class="col-sm-3 adddivspace">
-                                                    <span>Add Attachment </span>
-                                                    <a href="javascript:void(0)" title="Add Attachment " onclick="AddMore();"><i class="fa fa-plus-square"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="Attachments" style="display:none;">
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Download Attachment</label>
-                                                </div>
-                                                <div id="Attach" class="col-sm-10 adddivspace">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
                 </div>
-        </div>
+            </div>
+        </div>*@
 
+        @{ 
+            var caseNote =new FingerprintsModel.CaseNoteByClientID();
+
+            caseNote.CaseNote = new FingerprintsModel.CaseNote();
+
+
+            Html.RenderPartial("~/Views/Partialviews/_CaseNotePopup.cshtml", caseNote);
+        }
+
+
+        @{ 
+
+            Html.RenderPartial("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml");
+        }
     </div>
 </form>

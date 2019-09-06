@@ -79,14 +79,13 @@ namespace FingerprintsData
         {
             caseNoteByClientID.CaseNoteList = new List<CaseNote>();
 
-            var userList = new RosterNew.Users();
+            //  var userList = new RosterNew.Users();
 
             try
             {
 
-
-
                 caseNoteByClientID.SkipRows = caseNoteByClientID.GetSkipRows();
+
 
 
                 var parameters = new IDbDataParameter[]
@@ -103,17 +102,52 @@ namespace FingerprintsData
                     dbManager.CreateParameter("@SortColumn",caseNoteByClientID.SortColumn,DbType.String),
                     dbManager.CreateParameter("@TotalRecord",10,caseNoteByClientID.TotalRecord,DbType.Int32,ParameterDirection.Output),
                     dbManager.CreateParameter("@IncludeOtherStaffNotes", caseNoteByClientID.IncludeNotesByOtherStaffs,DbType.Boolean),
-                    dbManager.CreateParameter("@Tagnames",caseNoteByClientID.TagNames,DbType.String)
+                    dbManager.CreateParameter("@Tagnames",caseNoteByClientID.TagNames,DbType.String),
+                    dbManager.CreateParameter("@IsCaseNoteManager",caseNoteByClientID.IsCaseNoteManager, DbType.Boolean)
             };
 
                 _dataset = dbManager.GetDataSet("SP_Getcasenotes", CommandType.StoredProcedure, parameters);
 
                 caseNoteByClientID.TotalRecord = Convert.ToInt32(parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault());
+                caseNoteByClientID.CaseNoteList = new List<CaseNote>();
 
-                SetCaseNoteDetails(caseNoteByClientID.CaseNoteList, ref Name, ref userList, _dataset);
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        CaseNote info = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            info = new CaseNote();
+                            info.Householid = dr["householdid"].ToString();
+                            info.CaseNoteid = dr["casenoteid"].ToString();
+                            info.ClientId = Convert.ToString(dr["ClientId"]);
+                            info.BY = dr["By"].ToString();
+                            info.Title = dr["Title"].ToString();
+                            info.Attachment = dr["Attachment"].ToString();
+                            info.References = dr["References"].ToString();
+                            info.Date = !string.IsNullOrEmpty(Convert.ToString(dr["CaseNOteDate"])) ? Convert.ToDateTime(Convert.ToString(dr["CaseNoteDate"]), new CultureInfo("en-US", true)).ToString("MMMM dd, yyyy") : string.Empty;
+                            info.SecurityLevel = Convert.ToBoolean(dr["SecurityLevel"]);
+                            info.IsAllowSecurityCN = Convert.ToBoolean(dr["isAllowSecurityCN"]);
+                            info.WrittenBy = Convert.ToString(dr["WrittenBy"]);
+                            info.IsEditable = Convert.ToBoolean(dr["Editable"]);
 
-                caseNoteByClientID.UserList = userList.UserList;
-                caseNoteByClientID.Clientlist = userList.Clientlist;
+                            caseNoteByClientID.CaseNoteList.Add(info);
+                        }
+                    }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        Name = Convert.ToString(_dataset.Tables[1].Rows[0]["ClientName"]);
+                    }
+
+                }
+
+
+                //    SetCaseNoteDetails(caseNoteByClientID.CaseNoteList, ref Name, ref userList, _dataset);
+
+                //caseNoteByClientID.UserList = userList.UserList;
+                //caseNoteByClientID.Clientlist = userList.Clientlist;
             }
             catch (Exception ex)
             {
@@ -129,7 +163,7 @@ namespace FingerprintsData
         public void SetCaseNoteDetails(List<CaseNote> CaseNoteList, ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, DataSet _dataset)
         {
 
-            if (_dataset!=null && _dataset.Tables.Count>0 && _dataset.Tables[0] != null)
+            if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0] != null)
             {
                 if (_dataset.Tables[0].Rows.Count > 0)
                 {
@@ -153,59 +187,58 @@ namespace FingerprintsData
                         CaseNoteList.Add(info);
                     }
                 }
-                if (_dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count > 0)
-
-                {
-
-                    foreach (DataRow dr in _dataset.Tables[1].Rows)
-                    {
-
-                        Name = dr["Name"].ToString();
-
-                    }
-
-                }
-
-                if (_dataset != null && _dataset.Tables.Count > 2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count > 0)
-
-                {
-
-                    List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
-                    FingerprintsModel.RosterNew.User obj = null;
-                    foreach (DataRow dr in _dataset.Tables[2].Rows)
-                    {
-                        obj = new FingerprintsModel.RosterNew.User();
-                        obj.Id = dr["clientid"].ToString();
-                        obj.Name = dr["Name"].ToString();
-                        Clientlist.Add(obj);
-                    }
-                    Userlist.Clientlist = Clientlist;
-
-                    //selectList.Clientlist = (from DataRow dr1 in _dataset.Tables[2].Rows
-                    //                     where (Convert.ToInt32(dr1["IsFamily"]) == 1 || Convert.ToInt32(dr1["IsChild"]) == 1)
-                    //                     select new RosterNew.User
-                    //                     {
-                    //                         Id = Convert.ToString(dr1["clientid"]),
-                    //                         Name = Convert.ToString(dr1["Name"]).Split('(')[0]
-                    //                     }
-                    //                   ).ToList();
 
 
 
-                }
-                if (_dataset.Tables.Count > 3 && _dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
-                {
-                    List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                    FingerprintsModel.RosterNew.User obj = null;
-                    foreach (DataRow dr in _dataset.Tables[3].Rows)
-                    {
-                        obj = new FingerprintsModel.RosterNew.User();
-                        obj.Id = (dr["UserId"]).ToString();
-                        obj.Name = dr["Name"].ToString();
-                        _userlist.Add(obj);
-                    }
-                    Userlist.UserList = _userlist;
-                }
+                //if (_dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                //{
+
+                //    foreach (DataRow dr in _dataset.Tables[1].Rows)
+                //    {
+
+                //        Name = dr["Name"].ToString();
+
+                //    }
+                //}
+                //if (_dataset != null && _dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                //{
+
+                //    List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
+                //    FingerprintsModel.RosterNew.User obj = null;
+                //    foreach (DataRow dr in _dataset.Tables[2].Rows)
+                //    {
+                //        obj = new FingerprintsModel.RosterNew.User();
+                //        obj.Id = dr["clientid"].ToString();
+                //        obj.Name = dr["Name"].ToString();
+                //        Clientlist.Add(obj);
+                //    }
+                //    Userlist.Clientlist = Clientlist;
+
+                //    //selectList.Clientlist = (from DataRow dr1 in _dataset.Tables[2].Rows
+                //    //                     where (Convert.ToInt32(dr1["IsFamily"]) == 1 || Convert.ToInt32(dr1["IsChild"]) == 1)
+                //    //                     select new RosterNew.User
+                //    //                     {
+                //    //                         Id = Convert.ToString(dr1["clientid"]),
+                //    //                         Name = Convert.ToString(dr1["Name"]).Split('(')[0]
+                //    //                     }
+                //    //                   ).ToList();
+
+
+
+                //}
+                //if (_dataset.Tables.Count > 3 && _dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
+                //{
+                //    List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
+                //    FingerprintsModel.RosterNew.User obj = null;
+                //    foreach (DataRow dr in _dataset.Tables[3].Rows)
+                //    {
+                //        obj = new FingerprintsModel.RosterNew.User();
+                //        obj.Id = (dr["UserId"]).ToString();
+                //        obj.Name = dr["Name"].ToString();
+                //        _userlist.Add(obj);
+                //    }
+                //    Userlist.UserList = _userlist;
+                //}
 
 
 
@@ -214,27 +247,122 @@ namespace FingerprintsData
 
             }
         }
-        public List<CaseNote> GetCaseNoteByTags(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames, int IsFromFamilySummary)
+        //public List<CaseNote> GetCaseNoteByTags(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames, int IsFromFamilySummary)
+        //{
+        //    List<CaseNote> CaseNoteList = new List<CaseNote>();
+        //    try
+        //    {
+        //        command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+        //        command.Parameters.Add(new SqlParameter("@userid", UserId));
+        //        command.Parameters.Add(new SqlParameter("@clientid", id));
+        //        command.Parameters.Add(new SqlParameter("@centerid", centerid));
+        //        command.Parameters.Add(new SqlParameter("@Householdid", Householdid));
+        //        command.Parameters.Add(new SqlParameter("@Tagnames", Tagnames));
+        //        command.Parameters.Add(new SqlParameter("@IsFromFamilySummary", IsFromFamilySummary));
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_GetcasenotesByTags";
+        //        Connection.Open();
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        Connection.Close();
+        //        SetCaseNoteDetails(CaseNoteList, ref Name, ref Userlist, _dataset);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    finally
+        //    {
+        //        DataAdapter.Dispose();
+        //        command.Dispose();
+        //    }
+        //    return CaseNoteList;
+        //}
+
+
+        //  public CaseNoteByClientID GetoCaseNoteByTags(ref string Name, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames, int IsFromFamilySummary)
+
+        public CaseNoteByClientID GetCaseNoteByTags(CaseNoteByClientID caseNoteByClientID, StaffDetails staff, int IsFromFamilySummary)
         {
-            List<CaseNote> CaseNoteList = new List<CaseNote>();
+
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
-                command.Parameters.Add(new SqlParameter("@clientid", id));
-                command.Parameters.Add(new SqlParameter("@centerid", centerid));
-                command.Parameters.Add(new SqlParameter("@Householdid", Householdid));
-                command.Parameters.Add(new SqlParameter("@Tagnames", Tagnames));
-                command.Parameters.Add(new SqlParameter("@IsFromFamilySummary", IsFromFamilySummary));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_GetcasenotesByTags";
-                Connection.Open();
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
-                SetCaseNoteDetails(CaseNoteList, ref Name, ref Userlist, _dataset);
+
+                long _testType = 0;
+                caseNoteByClientID.SkipRows = caseNoteByClientID.GetSkipRows();
+
+                var parameters = new IDbDataParameter[]
+                {
+
+                   dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                   dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                   dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                   dbManager.CreateParameter("@HouseholdId",long.TryParse(caseNoteByClientID.Enc_HouseholdID, out _testType)?caseNoteByClientID.Enc_HouseholdID: EncryptDecrypt.Decrypt64(caseNoteByClientID.Enc_HouseholdID) ,DbType.Int64),
+                   dbManager.CreateParameter("@ClientId",long.TryParse(caseNoteByClientID.Enc_ClientID,out _testType)? caseNoteByClientID.Enc_ClientID:EncryptDecrypt.Decrypt64(caseNoteByClientID.Enc_ClientID) ,DbType.Int64),
+                   dbManager.CreateParameter("@CenterId",long.TryParse(caseNoteByClientID.CenterID, out _testType)? caseNoteByClientID.CenterID:EncryptDecrypt.Decrypt64(caseNoteByClientID.CenterID),DbType.Int64),
+                   dbManager.CreateParameter("@Tagnames",caseNoteByClientID.TagNames,DbType.String),
+                   dbManager.CreateParameter("@IsFromFamilySummary",IsFromFamilySummary,DbType.Boolean),
+                   dbManager.CreateParameter("@SortOrder",caseNoteByClientID.SortOrder,DbType.String),
+                   dbManager.CreateParameter("@SortColumn", caseNoteByClientID.SortColumn,DbType.String),
+                   dbManager.CreateParameter("@Take" ,caseNoteByClientID.PageSize,DbType.Int32),
+                   dbManager.CreateParameter("@Skip",caseNoteByClientID.SkipRows,DbType.Int32),
+                   dbManager.CreateParameter("@TotalRecord",8,caseNoteByClientID.TotalRecord,DbType.Int32,ParameterDirection.Output)
+                };
+
+                _dataset = dbManager.GetDataSet("SP_GetcasenotesByTags", CommandType.StoredProcedure, parameters);
+
+
+
+                caseNoteByClientID.TotalRecord = Convert.ToInt32(parameters.Where(x => x.ParameterName == "@TotalRecord" && x.Direction == ParameterDirection.Output).Select(x => x.Value).FirstOrDefault());
+                caseNoteByClientID.CaseNoteList = new List<CaseNote>();
+
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        CaseNote info = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            info = new CaseNote();
+                            info.Householid = dr["householdid"].ToString();
+                            info.CaseNoteid = dr["casenoteid"].ToString();
+                            info.ClientId = Convert.ToString(dr["ClientId"]);
+                            info.BY = dr["By"].ToString();
+                            info.Title = dr["Title"].ToString();
+                            info.Attachment = dr["Attachment"].ToString();
+                            info.References = dr["References"].ToString();
+                            info.Date = Convert.ToDateTime(dr["casenotedate"].ToString(), new CultureInfo("en-US", true)).ToString("MMMM dd, yyyy");
+                            info.SecurityLevel = Convert.ToBoolean(dr["SecurityLevel"]);
+                            info.IsAllowSecurityCN = Convert.ToBoolean(dr["isAllowSecurityCN"]);
+                            info.WrittenBy = Convert.ToString(dr["WrittenBy"]);
+                            info.IsEditable = Convert.ToBoolean(dr["Editable"]);
+
+                            caseNoteByClientID.CaseNoteList.Add(info);
+                        }
+                    }
+
+                }
+
+
+                //command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                //command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                //command.Parameters.Add(new SqlParameter("@clientid", casenoteByClientID.CaseNote.ClientId));
+                //command.Parameters.Add(new SqlParameter("@centerid", casenoteByClientID.CaseNote.CenterId));
+                //command.Parameters.Add(new SqlParameter("@Householdid", casenoteByClientID.CaseNote.CenterId));
+                //command.Parameters.Add(new SqlParameter("@Tagnames", casenoteByClientID.CaseNote.Tagname));
+                //command.Parameters.Add(new DailySaftyCheckImages)
+                //command.Parameters.Add(new SqlParameter("@IsFromFamilySummary", IsFromFamilySummary));
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.CommandText = "SP_GetcasenotesByTags";
+                //Connection.Open();
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+                //Connection.Close();
+                //SetCaseNoteDetails(CaseNoteList, ref Name, ref Userlist, _dataset);
             }
             catch (Exception ex)
             {
@@ -242,11 +370,12 @@ namespace FingerprintsData
             }
             finally
             {
-                DataAdapter.Dispose();
-                command.Dispose();
+                //  DataAdapter.Dispose();
+                // command.Dispose();
             }
-            return CaseNoteList;
+            return caseNoteByClientID;
         }
+
 
         public void GetCaseNotesByClient(ref DataTable dtCaseNote, string id, string householdID)
         {
@@ -381,6 +510,7 @@ namespace FingerprintsData
                                                        {
                                                            CaseNoteid = Convert.ToString(dr0["CaseNoteID"]),
                                                            CaseNoteDate = Convert.ToString(dr0["CaseNoteDate"]),
+                                                           ActualWrittenDateTime = dr0["ActualWrittenDateTime"] != DBNull.Value && Convert.ToString(dr0["ActualWrittenDateTime"]) != "" ? Convert.ToString(dr0["ActualWrittenDateTime"]) : string.Empty,
                                                            Title = Convert.ToString(dr0["Title"]),
                                                            Note = Convert.ToString(dr0["NoteField"]),
                                                            //WrittenBy=Convert.ToString(dr0["WrittenBy"]),
@@ -444,6 +574,8 @@ namespace FingerprintsData
                                                                        {
                                                                            SubCasenoteid = Convert.ToString(dr3["SubCaseNoteId"]),
                                                                            WrittenDate = Convert.ToString(dr3["SubCaseNoteDate"]),
+                                                                           ActualWrittenDateTime = dr3["ActualWrittenDateTime"] != DBNull.Value && Convert.ToString(dr3["ActualWrittenDateTime"]) != "" ? Convert.ToString(dr3["ActualWrittenDateTime"]) : string.Empty,
+
                                                                            WrittenBy = Convert.ToString(dr3["WrittenBy"]),
                                                                            RoleOfOwner = Convert.ToString(dr3["RoleOfOwner"]),
                                                                            Notes = Convert.ToString(dr3["NoteField"]),
@@ -455,7 +587,7 @@ namespace FingerprintsData
                                                                                           Value = Convert.ToString(dr4["TagKey"])
                                                                                       }).ToList(),
                                                                            Attachment = (from DataRow dr5 in _dataset.Tables[5].Rows
-                                                                                         where Convert.ToString(dr5["SubCaseNoteId"])== Convert.ToString(dr3["SubCaseNoteId"])
+                                                                                         where Convert.ToString(dr5["SubCaseNoteId"]) == Convert.ToString(dr3["SubCaseNoteId"])
                                                                                          select Convert.ToString(dr5["AttachmentId"])
                                                                                        ).ToList()
 
@@ -527,7 +659,7 @@ namespace FingerprintsData
 
         public List<SubCaseNote> GetSubNotes(string CaseNoteId)
         {
-           
+
             List<SubCaseNote> subCNList = new List<SubCaseNote>();
             string casenoteids = "";
             try
@@ -574,7 +706,7 @@ namespace FingerprintsData
                                 subCasenote.Tags = items;
 
                                 var attachments = (from DataRow dr5 in _dataset.Tables[1].Rows
-                                                   where dr5["SubCaseNoteId"].ToString() == subCasenote.SubCasenoteid && dr5["AttachmentId"].ToString()!=""
+                                                   where dr5["SubCaseNoteId"].ToString() == subCasenote.SubCasenoteid && dr5["AttachmentId"].ToString() != ""
                                                    select dr5["AttachmentId"].ToString()
                                             ).Distinct().ToList();
 
@@ -719,6 +851,8 @@ namespace FingerprintsData
             }
             return caseNoteByClientId.CaseNoteList;
         }
+
+
         public FingerprintsModel.RosterNew.Users GetClient(string ClientId, string Agencyid)
         {
             FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
@@ -825,10 +959,7 @@ namespace FingerprintsData
 
                 long _typeTest = 0;
 
-                //caseNote.ClientId = long.TryParse(caseNote.ClientId, out _typeTest) ? caseNote.ClientId : EncryptDecrypt.Decrypt64(caseNote.ClientId);
-                //caseNote.CenterId = long.TryParse(caseNote.CenterId, out _typeTest) ? caseNote.CenterId : EncryptDecrypt.Decrypt64(caseNote.CenterId);
-                //caseNote.HouseHoldId = long.TryParse(caseNote.HouseHoldId, out _typeTest) ? caseNote.HouseHoldId : EncryptDecrypt.Decrypt64(caseNote.HouseHoldId);
-
+               
                 caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? caseNote.CaseNoteid : "0";
                 caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? long.TryParse(caseNote.ClientId, out _typeTest) ? caseNote.ClientId : EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
                 caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? long.TryParse(caseNote.ProgramId, out _typeTest) ? caseNote.ProgramId : EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
@@ -853,7 +984,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CaseNoteDate", caseNote.CaseNoteDate));
                 command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", caseNote.CaseNoteSecurity));
                 command.Parameters.Add(new SqlParameter("@CaseNotetags", caseNote.CaseNotetags));
-                command.Parameters.Add(new SqlParameter("@CaseNotetitle", caseNote.CaseNotetitle));
+                command.Parameters.Add(new SqlParameter("@CaseNotetitle", caseNote.CaseNoteTitle));
                 command.Parameters.Add(new SqlParameter("@ClientIds", caseNote.ClientIds));
                 command.Parameters.Add(new SqlParameter("@StaffIds", caseNote.StaffIds));
 
@@ -884,6 +1015,10 @@ namespace FingerprintsData
                     {
                         dt.Rows.Add(Attachment.AttachmentFileByte, Attachment.AttachmentFileName, Attachment.AttachmentFileExtension);
 
+                    }
+                    else if(Attachment.AttachmentJson!=null && Attachment.AttachmentJson.Trim()!=string.Empty)
+                    {
+                        dt.Rows.Add(Convert.FromBase64String(Attachment.AttachmentJson), Attachment.AttachmentFileName, Attachment.AttachmentFileExtension);
                     }
                 }
                 command.Parameters.Add(new SqlParameter("@Attachments", dt));
@@ -970,7 +1105,7 @@ namespace FingerprintsData
                     {
 
 
-                        
+
                         int resultSet = 0;
                         do
                         {
@@ -992,9 +1127,11 @@ namespace FingerprintsData
                                                                 CenterName = dr["CenterName"].ToString(),
                                                                 CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
                                                                 ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
+                                                                classroomid = EncryptDecrypt.Encrypt64(dr["ClassroomId"].ToString()),
                                                                 RosterYakkr = dr["Yakkr"].ToString(),
                                                                 //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
                                                                 Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
+                                                                AttendanceIssueYakkrId = DBNull.Value.Equals(dr["AttendanceIssueYakkrId"]) ? "0": EncryptDecrypt.Encrypt64(Convert.ToString(dr["AttendanceIssueYakkrId"])),
                                                                 ClassroomName = dr["ClassroomName"].ToString(),
                                                                 MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
                                                                 IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
@@ -1039,14 +1176,14 @@ namespace FingerprintsData
                                                                     new SelectListItem
                                                                     {
                                                                         Text = Convert.ToString(dr["Description"]),
-                                                                        Value =Convert.ToString(dr["AttendanceTypeId"])
+                                                                        Value = Convert.ToString(dr["AttendanceTypeId"])
                                                                     });
                                         break;
                                     case 2:
                                         _roster.AbsenceReasonList.Add(new SelectListItem
                                         {
                                             Text = Convert.ToString(dr["absenseReason"]),
-                                            Value =Convert.ToString(dr["reasonid"])
+                                            Value = Convert.ToString(dr["reasonid"])
                                         });
                                         break;
 
@@ -1059,8 +1196,8 @@ namespace FingerprintsData
                                             {
                                                 ClosedToday = Convert.ToInt32(dr["TodayClosed"]),
                                                 CenterName = Convert.ToString(dr["CenterName"]),
-                                                ClassRoomName =Convert.ToString(dr["ClassRoomName"]),
-                                                AgencyName =Convert.ToString(dr["AgencyName"])
+                                                ClassRoomName = Convert.ToString(dr["ClassRoomName"]),
+                                                AgencyName = Convert.ToString(dr["AgencyName"])
                                             }
                                                  );
                                         }
@@ -1198,7 +1335,7 @@ namespace FingerprintsData
 
                 //if (_dataset.Tables[3] != null)
                 //{
-                  
+
 
                 //    closedList = (from DataRow dr5 in _dataset.Tables[3].Rows
                 //                  select new ClosedInfo
@@ -1234,7 +1371,7 @@ namespace FingerprintsData
             }
             finally
             {
-               
+
                 command.Dispose();
                 Connection.Dispose();
 
@@ -1247,7 +1384,7 @@ namespace FingerprintsData
 
 
 
-        public void MarkAbsent(ref string result, string ChildID,StaffDetails staff,  string absentType, string Cnotes,  int AbsentReasonid, string NewReason)
+        public void MarkAbsent(ref string result, string ChildID, StaffDetails staff, string absentType, string Cnotes, int AbsentReasonid, string NewReason)
         {
 
 
@@ -1364,7 +1501,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid,StaffDetails staffDetails, bool isEndOfYear = false, bool isInkind = false)
+        public List<ClassRoom> Getclassrooms(string Centerid, StaffDetails staffDetails, bool isEndOfYear = false, bool isInkind = false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -1373,7 +1510,7 @@ namespace FingerprintsData
                 int cenID = 0;
                 Centerid = int.TryParse(Centerid, out cenID) ? Centerid : EncryptDecrypt.Decrypt64(Centerid);
 
-             
+
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
                 command.Parameters.Add(new SqlParameter("@Agencyid", staffDetails.AgencyId));
                 command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
@@ -1456,9 +1593,9 @@ namespace FingerprintsData
                     command.Parameters.AddWithValue("@SignatureData", null);
                 }
 
-                if (info.GoalSteps!= null && info.GoalSteps.Count > 0)
+                if (info.GoalSteps != null && info.GoalSteps.Count > 0)
                 {
-                    
+
 
                     foreach (FPASteps steps in info.GoalSteps)
                     {
@@ -1582,6 +1719,7 @@ namespace FingerprintsData
                             matchProvider.ReferralDate = Convert.ToString(dr["ReferralDate"]);
                             matchProvider.ReferralClientServiceId = Convert.ToInt64(dr["ReferralClientServiceId"]);
                             matchProvider.ClientId = Convert.ToInt64(dr["ClientId"]);
+
                         }
                         matchProviderModel.Add(matchProvider);
                     }
@@ -1792,13 +1930,12 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@CommunityId", matchProvider.CommunityId);
                 command.Parameters.AddWithValue("@ReferralClientServiceId", matchProvider.ReferralClientServiceId);
                 command.Parameters.AddWithValue("@ScreeningReferralYakkr", EncryptDecrypt.Decrypt64(matchProvider.ScreeningReferralYakkr));
-
                 command.CommandType = CommandType.StoredProcedure;
                 var query = command.ExecuteNonQuery();
                 Connection.Close();
-                if(query>0)
+                if (query > 0)
                 {
-                     Success = true;
+                    Success = true;
                 }
 
 
@@ -1931,7 +2068,7 @@ namespace FingerprintsData
                     matchProviderModel.ZipCode = dr["ZipCode"].ToString();
                     matchProviderModel.Email = dr["Email"].ToString();
                     matchProviderModel.Phone = dr["PhoneNo"].ToString();
-                   matchProviderModel.CRColorCode = dr["CRColorCode"].ToString();
+                    matchProviderModel.CRColorCode = dr["CRColorCode"].ToString();
                 }
             }
 
@@ -3766,30 +3903,30 @@ namespace FingerprintsData
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
 
-                    catelst.Add(Convert.ToInt64(dr["AssessmentCategoryId"]));
+                        catelst.Add(Convert.ToInt64(dr["AssessmentCategoryId"]));
+                    }
+                    MatrixScore.CategoryIdList = catelst;
                 }
-                MatrixScore.CategoryIdList = catelst;
-            }
-            if (ds.Tables[1].Rows.Count > 0)
-            {
-
-
-                foreach (DataRow dr in ds.Tables[1].Rows)
+                if (ds.Tables[1].Rows.Count > 0)
                 {
 
-                    matrixScore = new MatrixScore();
-                    matrixScore.AssessmentCategoryId = Convert.ToInt64(dr["AssessmentCategoryId"]);
-                    matrixScore.AssessmentGroupId = Convert.ToInt64(dr["AssessmentGroupId"]);
-                    matrixScore.AssessmentGroupType = dr["AssessmentGroupType"].ToString();
-                    matrixScore.AnnualAssessmentType = Convert.ToInt64(dr["AnnualAssessmentType"]);
-                    matrixScore.AssessmentCategory = dr["Category"].ToString();
-                    matrixScore.ClassRoomId = Convert.ToInt64(dr["ClassroomID"]);
-                    matrixScore.ProgramType = dr["ProgramType"].ToString();
-                    matrixScore.ActiveYear = dr["ActiveProgramYear"].ToString();
-                    listMatrix.Add(matrixScore);
 
-                }
-                MatrixScore.MatrixScoreList = listMatrix;
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+
+                        matrixScore = new MatrixScore();
+                        matrixScore.AssessmentCategoryId = Convert.ToInt64(dr["AssessmentCategoryId"]);
+                        matrixScore.AssessmentGroupId = Convert.ToInt64(dr["AssessmentGroupId"]);
+                        matrixScore.AssessmentGroupType = dr["AssessmentGroupType"].ToString();
+                        matrixScore.AnnualAssessmentType = Convert.ToInt64(dr["AnnualAssessmentType"]);
+                        matrixScore.AssessmentCategory = dr["Category"].ToString();
+                        matrixScore.ClassRoomId = Convert.ToInt64(dr["ClassroomID"]);
+                        matrixScore.ProgramType = dr["ProgramType"].ToString();
+                        matrixScore.ActiveYear = dr["ActiveProgramYear"].ToString();
+                        listMatrix.Add(matrixScore);
+
+                    }
+                    MatrixScore.MatrixScoreList = listMatrix;
 
                 }
                 if (ds.Tables[2] != null && ds.Tables[2].Rows.Count > 0)
@@ -3868,7 +4005,7 @@ namespace FingerprintsData
                             activeYearList.Add(new SelectListItem
                             {
                                 Text = dr["ActiveProgramYear"].ToString(),
-                                Selected=Convert.ToBoolean(dr["Selected"])
+                                Selected = Convert.ToBoolean(dr["Selected"])
                             });
                         }
                     }
@@ -4216,9 +4353,9 @@ namespace FingerprintsData
                         assess.Assessment1To = string.IsNullOrEmpty(dr["Assessment1ToDays"].ToString()) ? "0" : dr["Assessment1ToDays"].ToString();
                         assess.Assessment2From = string.IsNullOrEmpty(dr["Assessment2FromDays"].ToString()) ? "0" : dr["Assessment2FromDays"].ToString();
                         assess.Assessment2To = string.IsNullOrEmpty(dr["Assessment2ToDays"].ToString()) ? "0" : dr["Assessment2ToDays"].ToString();
-                        assess.Assessment3From = string.IsNullOrEmpty(dr["Assessment3FromDays"].ToString())?"0": dr["Assessment3FromDays"].ToString();
-                        assess.Assessment3To =string.IsNullOrEmpty(dr["Assessment3ToDays"].ToString())?"0" : dr["Assessment3ToDays"].ToString();
-                        assess.EnrollmentDays = string.IsNullOrEmpty(Convert.ToString(dr["EnrollmentDays"]))?"0": Convert.ToString(dr["EnrollmentDays"]);
+                        assess.Assessment3From = string.IsNullOrEmpty(dr["Assessment3FromDays"].ToString()) ? "0" : dr["Assessment3FromDays"].ToString();
+                        assess.Assessment3To = string.IsNullOrEmpty(dr["Assessment3ToDays"].ToString()) ? "0" : dr["Assessment3ToDays"].ToString();
+                        assess.EnrollmentDays = string.IsNullOrEmpty(Convert.ToString(dr["EnrollmentDays"])) ? "0" : Convert.ToString(dr["EnrollmentDays"]);
                         assessment = assess;
                     }
                 }
@@ -4670,7 +4807,7 @@ namespace FingerprintsData
         }
 
 
-        public SelectListItem GetChildrenImageData(long ClientId,int mode=1)
+        public SelectListItem GetChildrenImageData(long ClientId, int mode = 1)
         {
             SelectListItem child = new SelectListItem();
             try
@@ -4719,15 +4856,15 @@ namespace FingerprintsData
             totalRecord = 0;
             try
             {
-             
+
                 DataSet ds = new DataSet();
 
-              
+
                 command.Connection = Connection;
                 command.CommandText = "SP_GetAttendenceDetailsByDate";
                 command.Parameters.Clear();
                 command.Parameters.AddWithValue("@AttendanceFromDate", report.FromDate);
-                command.Parameters.AddWithValue("@AttendanceToDate", report.ToDate??report.FromDate);
+                command.Parameters.AddWithValue("@AttendanceToDate", report.ToDate ?? report.FromDate);
                 command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@ClientId", EncryptDecrypt.Decrypt64(report.Enc_ClientID));
                 command.Parameters.AddWithValue("@Take", report.PageSize);
@@ -4749,7 +4886,7 @@ namespace FingerprintsData
                         attendence.ClientName = Convert.ToString(dr["ChildName"]);
                         attendence.AttendanceDate = Convert.ToString(dr["AttendanceDate"]);
                         attendence.AttendenceStatus = Convert.ToString(dr["AttendanceTypeName"]);
-                        attendence.Breakfast =dr["Breakfast"]!=DBNull.Value? Convert.ToBoolean(dr["Breakfast"]):false;
+                        attendence.Breakfast = dr["Breakfast"] != DBNull.Value ? Convert.ToBoolean(dr["Breakfast"]) : false;
                         attendence.BreakfastServedOn = dr["BreakfastServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["BreakfastServedOn"]) : (DateTime?)null;
                         attendence.Lunch = dr["Lunch"] != DBNull.Value ? Convert.ToBoolean(dr["Lunch"]) : false;
                         attendence.LunchServedOn = dr["LunchServedOn"] != DBNull.Value ? Convert.ToDateTime(dr["LunchServedOn"]) : (DateTime?)null;
@@ -4760,24 +4897,24 @@ namespace FingerprintsData
                         attendence.TimeIn = Convert.ToString(dr["TimeIn"]);
                         attendence.ParentSig = dr["PSignature"] != DBNull.Value ? Convert.ToString(dr["PSignature"]) : string.Empty;
                         attendence.SignedInName = Convert.ToString(dr["SignedInName"]);
-                       // attendence.ParentCheckedIn = Convert.ToString(dr["SignedInBy"]);
+                        // attendence.ParentCheckedIn = Convert.ToString(dr["SignedInBy"]);
                         attendence.TimeOut = Convert.ToString(dr["TimeOut"]);
                         attendence.ParentSigOut = dr["PSignatureOut"] != DBNull.Value ? Convert.ToString(dr["PSignatureOut"]) : string.Empty;
                         attendence.SignedOutName = Convert.ToString(dr["SignedOutName"]);
-                      //  attendence.ParentCheckedOut = Convert.ToString(dr["SignedOutBy"]);
+                        //  attendence.ParentCheckedOut = Convert.ToString(dr["SignedOutBy"]);
                         attendence.TimeIn2 = Convert.ToString(dr["TimeIn2"]);
                         attendence.ParentSig2 = dr["PSignature2"] != DBNull.Value ? Convert.ToString(dr["PSignature2"]) : string.Empty;
                         attendence.SignedIn2Name = Convert.ToString(dr["SignedIn2Name"]);
-                      //  attendence.ParentCheckedIn2 = Convert.ToString(dr["SignedInBy2"]);
+                        //  attendence.ParentCheckedIn2 = Convert.ToString(dr["SignedInBy2"]);
                         attendence.TimeOut2 = Convert.ToString(dr["TimeOut2"]);
                         attendence.ParentSigOut2 = dr["PSignatureOutBy2"] != DBNull.Value ? Convert.ToString(dr["PSignatureOutBy2"]) : string.Empty;
                         attendence.SignedOut2Name = Convert.ToString(dr["SignedOut2Name"]);
-                      //  attendence.ParentCheckedOut2 = Convert.ToString(dr["SignedOutBy2"]);
+                        //  attendence.ParentCheckedOut2 = Convert.ToString(dr["SignedOutBy2"]);
                         attendence.TeacherCheckInSig = Convert.ToString(dr["TSignatureIn"]);
                         attendence.TeacherCheckInTime = Convert.ToString(dr["TeacherCheckInTime"]);
                         attendence.TeacherCheckInTime2 = Convert.ToString(dr["TeacherCheckInTime2"]);
                         attendence.TeacherCheckInSig2 = Convert.ToString(dr["TSignatureIn2"]);
-                      //  attendence.TeacherCheckedIn = Convert.ToString(dr["TeacherUserID"]);
+                        //  attendence.TeacherCheckedIn = Convert.ToString(dr["TeacherUserID"]);
                         attendence.TeacherName = Convert.ToString(dr["TeacherName"]);
                         attendence.TeacherName2 = Convert.ToString(dr["TeacherName2"]);
                         attendence.ObservationDescription = Convert.ToString(dr["ObservationDescription"]);
@@ -4805,8 +4942,8 @@ namespace FingerprintsData
             }
             return attendanceDetails;
         }
-		
-		 public bool SaveProgramInformationReport(int ProgramTypeId, string ProgramType, bool FamilyAssessment, bool FamilyGoalSetting, bool ChildHS, bool PolicyCouncil, bool WorkShops, string ActiveProgramYear, string AgencyId,int EventRegCount=0)
+
+        public bool SaveProgramInformationReport(int ProgramTypeId, string ProgramType, bool FamilyAssessment, bool FamilyGoalSetting, bool ChildHS, bool PolicyCouncil, bool WorkShops, string ActiveProgramYear, string AgencyId, int EventRegCount = 0)
         {
             bool isInserted = false;
             try
@@ -4930,7 +5067,7 @@ namespace FingerprintsData
             return _roster;
 
         }
-        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, string AgencyId, string UserId, string RoleId,bool isStatusChange=false)
+        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, StaffDetails staff, bool isStatusChange = false)
         {
             List<SeatAvailability> AvailabilityList = new List<SeatAvailability>();
             try
@@ -4942,24 +5079,38 @@ namespace FingerprintsData
                       new DataColumn("AttachmentName",typeof(string)),
                         new DataColumn("Attachmentextension",typeof(string))
                     });
-                foreach (RosterNew.Attachment Attachment in Transition.Transition.CaseNoteDetails.CaseNoteAttachmentList)
-                {
-                    if (Attachment != null && Attachment.file != null)
-                    {
-                        dt.Rows.Add(new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName));
 
+                if (Transition.Transition.CaseNoteDetails.CaseNoteAttachmentList != null && Transition.Transition.CaseNoteDetails.CaseNoteAttachmentList.Count > 0)
+                {
+
+                    foreach (RosterNew.Attachment Attachment in Transition.Transition.CaseNoteDetails.CaseNoteAttachmentList)
+                    {
+                        if (Attachment != null && Attachment.file != null)
+                        {
+                            dt.Rows.Add(new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName));
+
+                        }
+
+                        else if (Attachment != null && Attachment.AttachmentJson != null && Attachment.AttachmentJson.Trim() != string.Empty)
+                        {
+                            dt.Rows.Add(Convert.FromBase64String(Attachment.AttachmentJson), Attachment.AttachmentFileName, Attachment.AttachmentFileExtension);
+
+                        }
                     }
                 }
 
 
+
+
+
                 int i = 1;
 
-                if (((Transition.Transition.TypeOfTransition==10 ||Transition.Transition.TypeOfTransition==9) && Transition.Transition.NewProgramYearTransition == false) || (isStatusChange))
+                if (((Transition.Transition.TypeOfTransition == 10 || Transition.Transition.TypeOfTransition == 9) && Transition.Transition.NewProgramYearTransition == false) || (isStatusChange))
                 {
 
                     foreach (PregMomChilds objChild in Transition.PregMomChilds)
                     {
-                        
+
                         SeatAvailability seats = new SeatAvailability();
                         Connection.Open();
                         command.Connection = Connection;
@@ -4969,14 +5120,13 @@ namespace FingerprintsData
 
                         command.CommandType = CommandType.StoredProcedure;
 
-                        //if (!string.IsNullOrEmpty(objChild.DOB))
-                        //    dateOfBirth = Convert.ToDateTime(objChild.DOB).ToString("yyyy-MM-dd");
+                     
 
 
                         command.Parameters.Add(new SqlParameter("@ClientId", Transition.Transition.ClientId));
                         command.Parameters.Add(new SqlParameter("@ProgramTypeId", Transition.Transition.ProgramTypeId));
                         command.Parameters.Add(new SqlParameter("@DateOfTransition", Transition.Transition.DateOfTransition));
-                      
+
                         command.Parameters.Add(new SqlParameter("@BirthType", Transition.Transition.BirthType));
                         command.Parameters.Add(new SqlParameter("@UpdatePregMom", (i == 1)));
                         command.Parameters.Add(new SqlParameter("@Name", objChild.Name));
@@ -4986,11 +5136,11 @@ namespace FingerprintsData
                         command.Parameters.Add(new SqlParameter("@Gender", objChild.Gender));
                         command.Parameters.Add(new SqlParameter("@IsEHS", objChild.IsEHS));
                         command.Parameters.Add(new SqlParameter("@IsFirstChild", i == 1 ? true : false));
-                        command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                        command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                        command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                        command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                        command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                        command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
 
-                       
+
                         //parameters for insurance type
                         command.Parameters.Add(new SqlParameter("@ChildInsuranceType", Transition.Transition.ChildInsuranceType));
                         command.Parameters.Add(new SqlParameter("@ChildOtherInsuranceDescription", Transition.Transition.ChildOtherInsuranceTypeDesc));
@@ -5003,24 +5153,24 @@ namespace FingerprintsData
 
                         command.Parameters.Add(new SqlParameter("@Result", string.Empty));
                         command.Parameters.Add(new SqlParameter("@SlotCount", 0));
-                        command.Parameters.Add(new SqlParameter("@SeatCount",0));
+                        command.Parameters.Add(new SqlParameter("@SeatCount", 0));
                         command.Parameters["@Result"].Direction = ParameterDirection.Output;
                         command.Parameters["@SlotCount"].Direction = ParameterDirection.Output;
                         command.Parameters["@SeatCount"].Direction = ParameterDirection.Output;
 
                         command.Parameters.Add(new SqlParameter("@Attachments", dt));
                         command.Parameters.Add(new SqlParameter("@CaseNoteDate", Transition.Transition.CaseNoteDetails.CaseNoteDate));
-                        command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.Transition.CaseNoteDetails.CaseNotetitle));
+                        command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.Transition.CaseNoteDetails.CaseNoteTitle));
                         command.Parameters.Add(new SqlParameter("@Note", Transition.Transition.CaseNoteDetails.Note));
-                        command.Parameters.Add(new SqlParameter("@CaseNotetags", Transition.Transition.CaseNoteDetails.CaseNotetags));
+                        command.Parameters.Add(new SqlParameter("@CaseNotetags", Transition.Transition.CaseNoteDetails.CaseNotetags.Trim(',')));
                         command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", Transition.Transition.CaseNoteDetails.CaseNoteSecurity));
                         command.Parameters.Add(new SqlParameter("@Reason", Transition.Transition.Reason));
                         command.Parameters.Add(new SqlParameter("@StatusText", Transition.Transition.StatusText));
                         command.Parameters.Add(new SqlParameter("@status", Transition.Transition.Status));
                         command.Parameters.Add(new SqlParameter("@ddlreason", Transition.Transition.ddlreason));
                         command.Parameters.Add(new SqlParameter("@ddlreasontext", Transition.Transition.ddlreasontext));
-                        command.Parameters.Add(new SqlParameter("@ClientIds", string.Join(",", Transition.Transition.Users.Clientlist.Select(x => x.Id).ToArray())));
-                        command.Parameters.Add(new SqlParameter("@StaffIds", string.Join(",", Transition.Transition.Users.UserList.Select(x => x.Id).ToArray())));
+                        command.Parameters.Add(new SqlParameter("@ClientIds", Transition.Transition.CaseNoteDetails.ClientIds));
+                        command.Parameters.Add(new SqlParameter("@StaffIds", Transition.Transition.CaseNoteDetails.StaffIds));
                         command.Parameters.Add(new SqlParameter("@MedicalServices", Transition.Transition.MedicalServices));
                         command.Parameters.Add(new SqlParameter("@DentalService", Transition.Transition.DentalServices));
 
@@ -5056,20 +5206,20 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@BirthType", Transition.Transition.BirthType));
                     command.Parameters.Add(new SqlParameter("@PregMomInsuranceType", Transition.Transition.TrnsInsuranceType));
                     command.Parameters.Add(new SqlParameter("@ParentOtherInsuranceDescription", Transition.Transition.OtherInsuranceTypeDesc));
-                    command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                    command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                    command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                     //parameters for insurance type
-                    command.Parameters.Add(new SqlParameter("@UpdatePregMom", (i==1)));
+                    command.Parameters.Add(new SqlParameter("@UpdatePregMom", (i == 1)));
                     command.Parameters.Add(new SqlParameter("@Result", string.Empty));
-                    command.Parameters.Add(new SqlParameter("@SlotCount",0));
+                    command.Parameters.Add(new SqlParameter("@SlotCount", 0));
                     command.Parameters.Add(new SqlParameter("@SeatCount", 0));
                     command.Parameters["@Result"].Direction = ParameterDirection.Output;
                     command.Parameters["@SlotCount"].Direction = ParameterDirection.Output;
                     command.Parameters["@SeatCount"].Direction = ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@Attachments", dt));
                     command.Parameters.Add(new SqlParameter("@CaseNoteDate", Transition.Transition.CaseNoteDetails.CaseNoteDate));
-                    command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.Transition.CaseNoteDetails.CaseNotetitle));
+                    command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.Transition.CaseNoteDetails.CaseNoteTitle));
                     command.Parameters.Add(new SqlParameter("@Note", Transition.Transition.CaseNoteDetails.Note));
                     command.Parameters.Add(new SqlParameter("@CaseNotetags", Transition.Transition.CaseNoteDetails.CaseNotetags.Trim(',')));
                     command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", Transition.Transition.CaseNoteDetails.CaseNoteSecurity));
@@ -5078,8 +5228,8 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@status", Transition.Transition.Status));
                     command.Parameters.Add(new SqlParameter("@ddlreason", Transition.Transition.ddlreason));
                     command.Parameters.Add(new SqlParameter("@ddlreasontext", Transition.Transition.ddlreasontext));
-                    command.Parameters.Add(new SqlParameter("@ClientIds", string.Join(",", Transition.Transition.Users.Clientlist.Select(x => x.Id).ToArray())));
-                    command.Parameters.Add(new SqlParameter("@StaffIds", string.Join(",", Transition.Transition.Users.UserList.Select(x => x.Id).ToArray())));
+                    command.Parameters.Add(new SqlParameter("@ClientIds", Transition.Transition.CaseNoteDetails.ClientIds));
+                    command.Parameters.Add(new SqlParameter("@StaffIds", Transition.Transition.CaseNoteDetails.StaffIds));
                     command.Parameters.Add(new SqlParameter("@MedicalServices", Transition.Transition.MedicalServices));
                     command.Parameters.Add(new SqlParameter("@IsWaiting", string.IsNullOrEmpty(Transition.Transition.IsWaiting) ? false : Transition.Transition.IsWaiting == "1" ? true : false));
                     command.Parameters.Add(new SqlParameter("@NewProgramYearTransition", Transition.Transition.NewProgramYearTransition));
@@ -5099,7 +5249,7 @@ namespace FingerprintsData
             }
             catch (Exception ex)
             {
-                 clsError.WriteException(ex);
+                clsError.WriteException(ex);
             }
             finally
             {
@@ -5156,14 +5306,14 @@ namespace FingerprintsData
 
         }
 
-        public int SaveHeadStartTranstion(Transition Transition, string AgencyId, string UserId)
+        public int SaveHeadStartTranstion(Transition Transition, StaffDetails staff)
         {
-            
+
             int resultValue = 0;
             try
             {
-                
-                
+
+
 
 
                 if (Connection.State == ConnectionState.Open)
@@ -5173,8 +5323,8 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@ClientId", Transition.ClientId));
-                command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@DateOfTransition", Transition.DateOfTransition));
                 command.Parameters.Add(new SqlParameter("@TransitionType", Transition.TransitioningType));
                 command.Parameters.Add(new SqlParameter("@TypeOfTransition", Transition.TypeOfTransition));
@@ -5194,14 +5344,14 @@ namespace FingerprintsData
 
                 //Father//
                 command.Parameters.Add(new SqlParameter("@ParentID", Transition.ParentID));
-                command.Parameters.Add(new SqlParameter("@ShoolAchievement", Transition.ShoolAchievement));
+                command.Parameters.Add(new SqlParameter("@SchoolAchievement", Transition.SchoolAchievement));
                 command.Parameters.Add(new SqlParameter("@JobTrainingFinished", Transition.JobTrainingFinished));
                 command.Parameters.Add(new SqlParameter("@AcceptJobTrainingFinished", Transition.AcceptJobTrainingFinished));
-                
-                
+
+
                 //Mother//
                 command.Parameters.Add(new SqlParameter("@ParentID2", Transition.ParentID2));
-                command.Parameters.Add(new SqlParameter("@ShoolAchievement2", Transition.ShoolAchievement2));
+                command.Parameters.Add(new SqlParameter("@SchoolAchievement2", Transition.SchoolAchievement2));
                 command.Parameters.Add(new SqlParameter("@JobTrainingFinished2", Transition.JobTrainingFinished2));
                 command.Parameters.Add(new SqlParameter("@AcceptJobTrainingFinished2", Transition.AcceptJobTrainingFinished2));
 
@@ -5293,12 +5443,12 @@ namespace FingerprintsData
         }
 
 
-        public Roster GetCenterAndClassRoomsByCenter(string centerid, string Classroom, string householdid ,string ChildId,string userid, string agencyid)
+        public Roster GetCenterAndClassRoomsByCenter(string centerid, string Classroom, string householdid, string ChildId, string userid, string agencyid)
         {
-           Roster RosterList = new Roster();
-           List<CenterAndClassRoom> CenterAndClassRoom = new List<CenterAndClassRoom>();
-           List<CaseNoteDetails> CaseNoteDetails = new List<CaseNoteDetails>();
-          
+            Roster RosterList = new Roster();
+            List<CenterAndClassRoom> CenterAndClassRoom = new List<CenterAndClassRoom>();
+            List<CaseNoteDetails> CaseNoteDetails = new List<CaseNoteDetails>();
+
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", agencyid));
@@ -5324,7 +5474,7 @@ namespace FingerprintsData
                             centerAndClassRoom = new CenterAndClassRoom();
                             centerAndClassRoom.Name = dr["ClientName"].ToString();
                             centerAndClassRoom.Eclientid = dr["ClientID"].ToString();
-                            
+
                             if (dr["IsChild"].ToString() == "True")
                             {
                                 centerAndClassRoom.clientenrolled = "Child";
@@ -5370,45 +5520,64 @@ namespace FingerprintsData
         }
 
 
-        public bool SaveCenterAndClassRoom(string ClientId, string DateOfTransition,string CenterId,string ClassRoomId, string AgencyId, string UserId,int ReasonID,string NewReason)
+        public bool SaveCenterOrClassroomChange(string clientId, string dateOfTransition, string centerId, string classroomId, StaffDetails staff, int? reasonId, string newReason)
         {
             bool isInserted = false;
-            int resultValue = 0;
+            //  int resultValue = 0;
             try
             {
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
 
-                command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
-                command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
-                command.Parameters.Add(new SqlParameter("@ReasonID", ReasonID));
-                command.Parameters.Add(new SqlParameter("@NewReason", NewReason));
-                command.Parameters.Add(new SqlParameter("@DateOfTransition", DateOfTransition));
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientId",clientId,DbType.Int64),
+                    dbManager.CreateParameter("@DateOfTransition",dateOfTransition,DbType.String),
+                    dbManager.CreateParameter("@ReasonId",reasonId??0,DbType.Int32),
+                    dbManager.CreateParameter("@NewReason",newReason,DbType.String),
+                    dbManager.CreateParameter("@CenterId",centerId,DbType.Int64),
+                    dbManager.CreateParameter("@ClassroomId",classroomId,DbType.Int64)
+                };
 
+                var result = dbManager.ExecuteWithScalar<int>("USP_InsertCenterAndClassRoom", CommandType.StoredProcedure, parameters);
 
-                command.Parameters.Add(new SqlParameter("@CenterId", CenterId));
-                command.Parameters.Add(new SqlParameter("@ClassRoomId", ClassRoomId));
-
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_InsertCenterAndClassRoom";
-
-                Object Result = command.ExecuteScalar();
-                if (Result != null)
-                    resultValue = Convert.ToInt32(Result);
-
-                if (resultValue > 0)
+                if (result > 0)
                     isInserted = true;
 
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
 
-                command.Parameters.Clear();
-           
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
+                //Connection.Open();
+
+                //command.Connection = Connection;
+                //command.Parameters.Add(new SqlParameter("@ClientId", ));
+                //command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
+                //command.Parameters.Add(new SqlParameter("@userid", UserId));
+                //command.Parameters.Add(new SqlParameter("@ReasonID", ReasonID));
+                //command.Parameters.Add(new SqlParameter("@NewReason", NewReason));
+                //command.Parameters.Add(new SqlParameter("@DateOfTransition", DateOfTransition));
+
+
+                //command.Parameters.Add(new SqlParameter("@CenterId", CenterId));
+                //command.Parameters.Add(new SqlParameter("@ClassRoomId", ClassRoomId));
+
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.CommandText = "USP_InsertCenterAndClassRoom";
+
+                //Object Result = command.ExecuteScalar();
+                //if (Result != null)
+                //    resultValue = Convert.ToInt32(Result);
+
+                //if (resultValue > 0)
+                //    isInserted = true;
+
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
+                //Connection.Open();
+
+                //command.Parameters.Clear();
+
 
             }
             catch (Exception ex)
@@ -5417,139 +5586,16 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null)
-                    Connection.Close();
-                command.Dispose();
+                //if (Connection != null)
+                //    Connection.Close();
+                //command.Dispose();
             }
             return isInserted;
         }
 
-        public string SaveCaseNotes1(ref string Name, ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist, CaseNoteNew CaseNote, List<RosterNew.Attachment> Attachments, string Agencyid, string UserID)
-        {
-            string result = string.Empty;
-
-            try
-            {
-                string HouseholdId = string.Empty;
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@ClientId", CaseNote.ClientId));
-                command.Parameters.Add(new SqlParameter("@CenterId", CaseNote.CenterId));
-                command.Parameters.Add(new SqlParameter("@CNoteid", CaseNote.CaseNoteid));
-                command.Parameters.Add(new SqlParameter("@ProgramId", CaseNote.ProgramId));
-                command.Parameters.Add(new SqlParameter("@HouseHoldIdnew", CaseNote.HouseHoldId));
-                command.Parameters.Add(new SqlParameter("@Note", CaseNote.Note));
-                command.Parameters.Add(new SqlParameter("@CaseNoteDate", CaseNote.CaseNoteDate));
-                command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", CaseNote.CaseNoteSecurity));
-                command.Parameters.Add(new SqlParameter("@CaseNotetags", CaseNote.CaseNotetags));
-                command.Parameters.Add(new SqlParameter("@CaseNotetitle", CaseNote.CaseNotetitle));
-                command.Parameters.Add(new SqlParameter("@ClientIds", CaseNote.ClientIds));
-                command.Parameters.Add(new SqlParameter("@StaffIds", CaseNote.StaffIds));
-                command.Parameters.Add(new SqlParameter("@userid", UserID));
-                command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@result", string.Empty));
-                command.Parameters["@result"].Direction = ParameterDirection.Output;
-                DataTable dt = new DataTable();
-                dt.Columns.AddRange(new DataColumn[3] {
-                    new DataColumn("Attachment", typeof(byte[])),
-                      new DataColumn("AttachmentName",typeof(string)),
-                        new DataColumn("Attachmentextension",typeof(string))
-                    });
-                foreach (RosterNew.Attachment Attachment in Attachments)
-                {
-                    if (Attachment != null && Attachment.file != null)
-                    {
-                        dt.Rows.Add(new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName));
-
-                    }
-                }
-                command.Parameters.Add(new SqlParameter("@Attachments", dt));
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_SaveCaseNote";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
-                        CaseNote info = null;
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            info = new CaseNote();
-                            info.Householid = dr["householdid"].ToString();
-                            info.CaseNoteid = dr["casenoteid"].ToString();
-                            info.BY = dr["By"].ToString();
-                            info.Title = dr["Title"].ToString();
-                            info.Attachment = dr["Attachment"].ToString();
-                            info.References = dr["References"].ToString();
-                            info.Date = Convert.ToDateTime(dr["casenotedate"]).ToString("MM/dd/yyyy");
-                            CaseNoteList.Add(info);
-                        }
-                    }
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-
-                        foreach (DataRow dr in _dataset.Tables[1].Rows)
-                        {
-
-                            Name = dr["Name"].ToString();
-
-                        }
-                    }
-
-                    if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
-                    {
-
-                        List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = dr["clientid"].ToString();
-                            obj.Name = dr["Name"].ToString();
-                            Clientlist.Add(obj);
-                        }
-                        Userlist.Clientlist = Clientlist;
-                    }
-                    if (_dataset != null && _dataset.Tables[3].Rows.Count > 0)
-                    {
-                        List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = (dr["UserId"]).ToString();
-                            obj.Name = dr["Name"].ToString();
-                            _userlist.Add(obj);
-                        }
-                        Userlist.UserList = _userlist;
-                    }
-
-                }
 
 
-
-                result = command.Parameters["@result"].Value.ToString();
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-
-            }
-            finally
-            {
-                Connection.Close();
-                command.Dispose();
-            }
-            return result;
-
-        }
-
-        public int InsertParentDetailsMatrixScore(MatrixScore matrixScore,string agencyid,string userid)
+        public int InsertParentDetailsMatrixScore(MatrixScore matrixScore, string agencyid, string userid)
         {
             int isaffected = 0;
             try
@@ -5568,16 +5614,16 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ProgramType", matrixScore.ProgramType));
                 command.Parameters.Add(new SqlParameter("@TableID", matrixScore.Id));
                 command.Parameters.Add(new SqlParameter("@ParentID", matrixScore.ParentId));
-                command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64( matrixScore.@ClientId)));
+                command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(matrixScore.@ClientId)));
                 command.Parameters.Add(new SqlParameter("@UserId", userid));
                 command.Parameters.Add(new SqlParameter("@ProgramId", matrixScore.Dec_ProgramId));
                 command.Parameters.Add(new SqlParameter("@IsChecked", matrixScore.IsChecked));
                 command.CommandText = "SP_InsertParentDetails_Assessmnt";
                 // SqlDataAdapter da = new SqlDataAdapter(command);
-                isaffected=command.ExecuteNonQuery();
-                
+                isaffected = command.ExecuteNonQuery();
 
-               
+
+
 
             }
             catch (Exception ex)
@@ -5625,6 +5671,7 @@ namespace FingerprintsData
 
                 if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
                 {
+
                     tagsList = (from DataRow dr1 in _dataset.Tables[0].Rows
                                 select new SelectListItem
                                 {
@@ -5632,6 +5679,8 @@ namespace FingerprintsData
                                     Value = dr1["TagKey"].ToString()
                                 }
                               ).ToList();
+
+
                 }
             }
             catch (Exception ex)
@@ -5899,7 +5948,7 @@ namespace FingerprintsData
         //}
 
 
-        public bool UpdateReturningTransitionClient(int returnValue,string clientID)
+        public bool UpdateReturningTransitionClient(int returnValue, string clientID)
         {
 
             bool isRowsAffected = false;
@@ -5989,25 +6038,25 @@ namespace FingerprintsData
                                 string casenoteids = string.Join(",", items);
 
                                 List<string> list = (from DataRow dr5 in _dataset.Tables[1].Rows
-                                                                where casenoteids.Contains(dr5["CasenoteId"].ToString()) &&
-                                                                HouseholdTags.TagName != dr5["TagName"].ToString()
+                                                     where casenoteids.Contains(dr5["CasenoteId"].ToString()) &&
+                                                     HouseholdTags.TagName != dr5["TagName"].ToString()
 
                                                      select dr5["TagName"].ToString()).Distinct().ToList();
                                 string str = "";
                                 HouseholdTags.AssociatedTags = new List<AssociatedTags>();
                                 foreach (var item in list)
                                 {
-                                   
-                                    if(!str.Contains(item))
+
+                                    if (!str.Contains(item))
                                     {
-                                        AssociatedTags t= new AssociatedTags();
+                                        AssociatedTags t = new AssociatedTags();
                                         t.TagName = item;
                                         t.TagId = item;
                                         HouseholdTags.AssociatedTags.Add(t);
                                     }
                                     str += item;
                                 }
-                               
+
 
                                 HouseholdTagsList.Add(HouseholdTags);
                             }
@@ -6036,7 +6085,7 @@ namespace FingerprintsData
 
         #region ReferalReviewList
 
-        public List<ReferalDetails> GetOrganizationListWithCount(int ServiceId, string AgencyId,int mode)
+        public List<ReferalDetails> GetOrganizationListWithCount(int ServiceId, string AgencyId, int mode)
         {
 
             List<ReferalDetails> OrgList = new List<ReferalDetails>();
@@ -6044,7 +6093,7 @@ namespace FingerprintsData
             try
             {
                 StaffDetails staffDetails = StaffDetails.GetInstance();
-               
+
 
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
@@ -6075,17 +6124,17 @@ namespace FingerprintsData
                     {
                         if (_dataset.Tables[0].Rows.Count > 0)
                         {
-                           
+
                             foreach (DataRow dr in _dataset.Tables[0].Rows)
                             {
                                 var Org = new ReferalDetails()
                                 {
 
-                              CompanyName = dr["OrganizationName"].ToString(),
-                              CommunityResourceID = Convert.ToInt32( dr["CommunityId"].ToString()),
-                              CRColorCode = DBNull.Value == dr["ColorCode"] ? 0 : Convert.ToInt32(dr["ColorCode"].ToString()),
-                              ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
-                                    
+                                    CompanyName = dr["OrganizationName"].ToString(),
+                                    CommunityResourceID = Convert.ToInt32(dr["CommunityId"].ToString()),
+                                    CRColorCode = DBNull.Value == dr["ColorCode"] ? 0 : Convert.ToInt32(dr["ColorCode"].ToString()),
+                                    ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
+
                                 };
                                 OrgList.Add(Org);
 
@@ -6108,7 +6157,7 @@ namespace FingerprintsData
         }
 
 
-        public List<ReferalDetails> GetReviewList(int communityid,int mode)
+        public List<ReferalDetails> GetReviewList(int communityid, int mode)
         {
 
             List<ReferalDetails> OrgList = new List<ReferalDetails>();
@@ -6154,14 +6203,14 @@ namespace FingerprintsData
                                 var Org = new ReferalDetails()
                                 {
 
-                                   // CompanyName = dr["OrganizationName"].ToString(),
-               
-                                     QuestionaireID = Convert.ToInt32(dr["QuestionaireId"].ToString()),
-                                      MgNotes = dr["MgNotes"].ToString(),
+                                    // CompanyName = dr["OrganizationName"].ToString(),
+
+                                    QuestionaireID = Convert.ToInt32(dr["QuestionaireId"].ToString()),
+                                    MgNotes = dr["MgNotes"].ToString(),
                                     CRColorCode = DBNull.Value == dr["ColorCode"] ? 0 : Convert.ToInt32(dr["ColorCode"].ToString()),
-                                   // ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
-                                     ModifiedBy = dr["ModifiedBy"].ToString(),
-                                       ModifiedDate = dr["ModifiedDate"].ToString()
+                                    // ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
+                                    ModifiedBy = dr["ModifiedBy"].ToString(),
+                                    ModifiedDate = dr["ModifiedDate"].ToString()
 
                                 };
                                 OrgList.Add(Org);
@@ -6190,7 +6239,7 @@ namespace FingerprintsData
 
 
 
-        public bool DeleteCaseNote(int casenoteid,int[] appendcid,bool deletemain,int mode)
+        public bool DeleteCaseNote(int casenoteid, int[] appendcid, bool deletemain, int mode)
         {
             var success = false;
             try
@@ -6246,7 +6295,7 @@ namespace FingerprintsData
 
         #region CaseNote_Tag_Report
 
-        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize,string search, string sortclmn, string sortdir, int mode = 1)
+        public CaseNoteTagReport GetCaseNoteTagReport(long pno, long psize, string search, string sortclmn, string sortdir, int mode = 1)
         {
 
             CaseNoteTagReport TagReport = new CaseNoteTagReport();
@@ -6285,11 +6334,11 @@ namespace FingerprintsData
                     if (_dataset != null && _dataset.Tables.Count > 1)
                     {
 
-                            if (_dataset.Tables[0].Rows.Count > 0)
-                            {
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
 
-                                foreach (DataRow dr in _dataset.Tables[0].Rows)
-                                {
+                            foreach (DataRow dr in _dataset.Tables[0].Rows)
+                            {
 
                                 var tagrow = new CaseNoteTag()
                                 {
@@ -6301,28 +6350,28 @@ namespace FingerprintsData
 
                                 TagReport.TagReport.Add(tagrow);
 
-                                }
                             }
+                        }
 
                         if (_dataset.Tables[1].Rows.Count > 0)
                         {
                             TagReport.TotalRecord = Convert.ToInt64(_dataset.Tables[1].Rows[0]["TotalRecord"].ToString());
                         }
 
-                        }
+                    }
 
 
 
-                                }
+                }
 
-                            }
+            }
             catch (Exception ex)
             {
 
                 clsError.WriteException(ex);
             }
             return TagReport;
-            }
+        }
 
         public List<CaseNote> GetCaseNotesByTagId(long tagid, int mode)
         {
@@ -6373,7 +6422,7 @@ namespace FingerprintsData
                                     CaseNoteid = dr["CaseNoteID"].ToString(),
                                     Name = dr["Title"].ToString(),
                                     Date = dr["CaseNoteDate"].ToString(),
-                                    WrittenBy= dr["Name"].ToString(),
+                                    WrittenBy = dr["Name"].ToString(),
                                     //Tagname=
                                 };
 
@@ -6392,7 +6441,7 @@ namespace FingerprintsData
         }
 
 
-        public bool EditDeleteCNTag(long tagid, string tagname, int mode,long ExistsTagId, ref long availableTag)
+        public bool EditDeleteCNTag(long tagid, string tagname, int mode, long ExistsTagId, ref long availableTag)
         {
             var success = false;
 
@@ -6413,7 +6462,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@TagId", tagid));
                     command.Parameters.Add(new SqlParameter("@Mode", mode));
                     command.Parameters.Add(new SqlParameter("@TagName", tagname));
-                    command.Parameters.Add(new SqlParameter("@ExistsTagId", ExistsTagId)); 
+                    command.Parameters.Add(new SqlParameter("@ExistsTagId", ExistsTagId));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_ModifyCNTag";
                     DataAdapter = new SqlDataAdapter(command);
@@ -6424,7 +6473,7 @@ namespace FingerprintsData
                     if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
                     {
 
-                        success = Convert.ToBoolean( _dataset.Tables[0].Rows[0]["Result"].ToString());
+                        success = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Result"].ToString());
                     }
 
                     if (!success && _dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
@@ -6477,7 +6526,7 @@ namespace FingerprintsData
                     //     " on C.ClientID = ED.ClientID and C.Status = 1 and ED.Status in (0,1,4,5) and ED.IsActive = 0" +
                     //     " inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID where ED.ClientID = " + clientid + " ";
 
-                    string query=  @"select Name = (Firstname + ' ' + Lastname), DOB = (convert(varchar(10), DOB, 101)), ProfilePic,
+                    string query = @"select Name = (Firstname + ' ' + Lastname), DOB = (convert(varchar(10), DOB, 101)), ProfilePic,
                          ED.ProgramID,PD.ProgramType from Client C inner join EnrollmentDetail ED
                           on C.ClientID = ED.ClientID and C.Status = 1 and ED.Status in (0,1,4,5) and ED.IsActive = 0
                           inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID 
@@ -6513,12 +6562,12 @@ group by PD.ProgramType, ED.ProgramID
                         foreach (DataRow dr1 in _dataset.Tables[1].Rows)
                         {
 
-                            result.ProgramHistroy.Add( dr1["ProgramType"].ToString());
+                            result.ProgramHistroy.Add(dr1["ProgramType"].ToString());
                         }
                     }
 
 
-                    }
+                }
             }
             catch (Exception ex)
             {
@@ -6526,9 +6575,9 @@ group by PD.ProgramType, ED.ProgramID
             }
 
             return result;
-                }
+        }
 
-        public List<ClientTimeLineModel> GetClientTimeLine(long clientid,int Mode,string stepIds)
+        public List<ClientTimeLineModel> GetClientTimeLine(long clientid, int Mode, string stepIds)
         {
 
             var result = new List<ClientTimeLineModel>();
@@ -6552,7 +6601,7 @@ group by PD.ProgramType, ED.ProgramID
                     command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                     command.Parameters.Add(new SqlParameter("@Mode", Mode));
                     command.Parameters.Add(new SqlParameter("@Clientid", clientid));
-                    command.Parameters.Add(new SqlParameter("@StepIds", stepIds)); 
+                    command.Parameters.Add(new SqlParameter("@StepIds", stepIds));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_TimeLineDetails";
                     DataAdapter = new SqlDataAdapter(command);
@@ -6587,13 +6636,13 @@ group by PD.ProgramType, ED.ProgramID
 
                                 };
 
-                               // var devId = new long[] {2,5,6,8,9 };
+                                // var devId = new long[] {2,5,6,8,9 };
                                 //if (devId.Contains(row.StepType)) {
-                                    XmlDocument doc = new XmlDocument();
-                                    doc.LoadXml(row.EventBodyJson);
+                                XmlDocument doc = new XmlDocument();
+                                doc.LoadXml(row.EventBodyJson);
 
-                                    row.EventBodyJson =  JsonConvert.SerializeXmlNode(doc);
-                               // }
+                                row.EventBodyJson = JsonConvert.SerializeXmlNode(doc);
+                                // }
 
                                 result.Add(row);
                             }
@@ -6609,7 +6658,7 @@ group by PD.ProgramType, ED.ProgramID
                                 };
                                 result.Add(row);
                             }
-                           
+
                         }
                     }
                 }
@@ -6645,13 +6694,13 @@ group by PD.ProgramType, ED.ProgramID
 
                     command.Connection = Connection;
                     command.Parameters.Clear();
-                   // command.Parameters.Add(new SqlParameter("@Clientid", 1));
+                    // command.Parameters.Add(new SqlParameter("@Clientid", 1));
                     command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@Role", staff.RoleId));
                     //command.Parameters.Add(new SqlParameter("@Mode", 3));
-                   
-                   // command.Parameters.Add(new SqlParameter("@StepIds", ""));
+
+                    // command.Parameters.Add(new SqlParameter("@StepIds", ""));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_ChildofTheDayDetails";
                     DataAdapter = new SqlDataAdapter(command);
@@ -6675,7 +6724,7 @@ group by PD.ProgramType, ED.ProgramID
             }
 
 
-                        return _child;
+            return _child;
         }
         #endregion TimeLine
 
@@ -6707,6 +6756,12 @@ group by PD.ProgramType, ED.ProgramID
                     DataAdapter.Fill(_dataset);
                 }
 
+                clientCaseNote.CaseNote = new CaseNote();
+                clientCaseNote.CaseNoteList = new List<CaseNote>();
+                clientCaseNote.UserList = new List<RosterNew.User>();
+                clientCaseNote.Clientlist = new List<RosterNew.User>();
+                clientCaseNote.ParentContactInfoList = new List<ParentInfo>();
+
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
 
@@ -6718,14 +6773,14 @@ group by PD.ProgramType, ED.ProgramID
                                                        {
                                                            clientid = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClientID"])),
                                                            Name = Convert.ToString(dr0["ClientName"]),
-                                                           Householid = EncryptDecrypt.Encrypt64( Convert.ToString(dr0["HouseholdID"])),
+                                                           Householid = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["HouseholdID"])),
                                                            Date = Convert.ToString(dr0["CaseNoteDate"]),
                                                            ProgramID = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ProgramID"])),
-                                                           ProgramType=Convert.ToString(dr0["ProgramType"]),
-                                                           CenterId= EncryptDecrypt.Encrypt64(Convert.ToString(dr0["CenterID"])),
-                                                           Classroomid= EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClassroomID"]))
-                                                          
-                                                           
+                                                           ProgramType = Convert.ToString(dr0["ProgramType"]),
+                                                           CenterId = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["CenterID"])),
+                                                           Classroomid = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClassroomID"]))
+
+
                                                        }
 
                                          ).ToList();
@@ -6755,7 +6810,7 @@ group by PD.ProgramType, ED.ProgramID
                     if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
                     {
                         clientCaseNote.Clientlist = (from DataRow dr2 in _dataset.Tables[2].Rows
-                                                     //where dr2["ClientID"].ToString() == Convert.ToString(clientId)
+                                                         //where dr2["ClientID"].ToString() == Convert.ToString(clientId)
                                                      select new RosterNew.User
                                                      {
                                                          Id = Convert.ToString(dr2["clientID"]),
@@ -6816,7 +6871,7 @@ group by PD.ProgramType, ED.ProgramID
 
 
                     //Reference YAkkr Code//
-                    if(yakkrcode>0 && _dataset.Tables.Count>4 && _dataset.Tables[4]!=null && _dataset.Tables[4].Rows.Count>0)
+                    if (yakkrcode > 0 && _dataset.Tables.Count > 4 && _dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
                     {
                         clientCaseNote.ReferenceYakkrID = EncryptDecrypt.Encrypt64(_dataset.Tables[4].Rows[0]["YakkrID"].ToString());
                     }
@@ -6844,6 +6899,74 @@ group by PD.ProgramType, ED.ProgramID
 
 
         #endregion
+
+
+        public List<ParentInfo> GetParentInformationByClient(out ChildrenInfo childInfo,string clientId,StaffDetails staff)
+        {
+            List<ParentInfo> parentContactInfoList = new List<ParentInfo>();
+            childInfo = new ChildrenInfo();
+            try
+            {
+                
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientId",EncryptDecrypt.Decrypt64<long>(clientId),DbType.Int64)
+
+                };
+
+                _dataset = dbManager.GetDataSet("USP_GetParent_Client_InformationByClientId", CommandType.StoredProcedure, parameters);
+
+
+                if(_dataset!=null && _dataset.Tables.Count>0)
+                {
+                    if(_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count>0)
+                    {
+                        parentContactInfoList = (from DataRow dr0 in _dataset.Tables[0].Rows
+
+                                                 orderby dr0["ParentName"].ToString()
+
+                                                 select new ParentInfo
+                                                 {
+                                                     ParentName = DBNull.Value == dr0["ParentName"] ? string.Empty : Convert.ToString(dr0["ParentName"]),
+                                                     PhoneNo = Convert.ToString(dr0["PhoneNumber"]),
+                                                     EmailId = DBNull.Value == dr0["EmailId"] ? string.Empty : Convert.ToString(dr0["EmailId"])
+
+                                                 }
+
+
+                                                       ).Distinct().ToList();
+
+
+                    }
+
+                    if(_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                    {
+
+
+                        childInfo.Enc_ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ClientID"]));
+                        childInfo.ClientName = Convert.ToString(_dataset.Tables[1].Rows[0]["ClientName"]);
+                        childInfo.CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["CenterId"]));
+                        childInfo.CenterName = Convert.ToString(_dataset.Tables[1].Rows[0]["CenterName"]);
+                        childInfo.ClassRoomID = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ClassroomId"]));
+                        childInfo.ClassRoomName = Convert.ToString(_dataset.Tables[1].Rows[0]["ClassroomName"]);
+                        childInfo.ProgramType =EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ProgramID"]));
+                        childInfo.Enc_HouseholdId = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["HouseholdID"]));
+
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return parentContactInfoList;
+        }
 
 
         #region caseNotes List for Attendance issue
@@ -6890,7 +7013,7 @@ group by PD.ProgramType, ED.ProgramID
                                                              Householid = Convert.ToString(dr0["HouseholdID"]),
                                                              CaseNoteid = Convert.ToString(dr0["CaseNoteID"]),
                                                              Title = Convert.ToString(dr0["Title"]),
-                                                             Date = Convert.ToString(dr0["CaseNoteDate"]),
+                                                             Date = DateTime.Parse(Convert.ToString(dr0["CaseNoteDate"]),new CultureInfo("en-US",true)).ToString("MMMM dd, yyyy"),
                                                              BY = Convert.ToString(dr0["By"]),
                                                              Attachment = Convert.ToString(dr0["Attachment"]),
                                                              References = Convert.ToString(dr0["References"]),
@@ -6898,7 +7021,7 @@ group by PD.ProgramType, ED.ProgramID
                                                              WrittenBy = Convert.ToString(dr0["WrittenBy"]),
                                                              IsAllowSecurityCN = Convert.ToBoolean(dr0["IsAllowSecurityCN"]),
                                                              IsEditable = Convert.ToBoolean(dr0["Editable"]),
-                                                             clientid= clientID
+                                                             clientid = clientID
                                                          }
                                                         ).ToList();
                     }
@@ -6915,7 +7038,7 @@ group by PD.ProgramType, ED.ProgramID
                                                      ).ToList();
                     }
 
-                    if(_dataset.Tables.Count>2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
                     {
                         caseNoteByClient.UserList = (from DataRow dr2 in _dataset.Tables[2].Rows
                                                      select new RosterNew.User
@@ -6955,7 +7078,7 @@ group by PD.ProgramType, ED.ProgramID
         #region Reset Attendance issues
 
 
-        public bool ResetExcessiveAbsence(StaffDetails staff,int clientId, int yakkrId)
+        public bool ResetExcessiveAbsence(StaffDetails staff, int clientId, int yakkrId)
         {
 
             bool isRowsAffected = false;
@@ -6973,10 +7096,10 @@ group by PD.ProgramType, ED.ProgramID
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_ResetAttendanceIssues";
                     Connection.Open();
-                    isRowsAffected= Convert.ToBoolean(command.ExecuteNonQuery());
+                    isRowsAffected = Convert.ToBoolean(command.ExecuteNonQuery());
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
                 isRowsAffected = false;
@@ -6986,5 +7109,40 @@ group by PD.ProgramType, ED.ProgramID
 
         #endregion
 
+        public RosterNew.Users GetAdditionalStaffCenterClassroomChange(string clientId, string centerId, string classroomId, StaffDetails staff)
+        {
+            long _trytest = 0;
+
+            RosterNew.Users users = new RosterNew.Users();
+            users.UserList = new List<RosterNew.User>();
+
+            var parameters = new IDbDataParameter[]
+            {
+                dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid),
+                dbManager.CreateParameter("@ClientID",long.TryParse(clientId,out _trytest)?clientId:EncryptDecrypt.Decrypt64(clientId),DbType.Int64),
+                dbManager.CreateParameter("@CenterId",long.TryParse(centerId,out _trytest)?centerId:EncryptDecrypt.Decrypt64(centerId),DbType.Int64),
+                dbManager.CreateParameter("@ClassroomId",long.TryParse(classroomId,out _trytest)?classroomId:EncryptDecrypt.Decrypt64(classroomId),DbType.Int64)
+            };
+
+            _dataset = dbManager.GetDataSet("USP_GetAdditionalStaff_Center_Classroom_Change", CommandType.StoredProcedure, parameters);
+
+
+            if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+            {
+                users.UserList = (from DataRow dr in _dataset.Tables[0].Rows
+                                  select new RosterNew.User
+                                  {
+                                      Id = Convert.ToString(dr["UserID"]),
+                                      Name = string.Concat(Convert.ToString(dr["StaffName"]), " ", "(", Convert.ToString(dr["RoleName"]), ")")
+                                  }
+
+                                ).ToList();
+            }
+
+
+            return users;
+        }
     }
 }

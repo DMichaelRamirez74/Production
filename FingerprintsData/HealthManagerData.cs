@@ -66,7 +66,7 @@ namespace FingerprintsData
                     screeningList.Add(
 
 
-                                         new ScreeningMatrix
+                    new ScreeningMatrix
                     {
                         ScreeningID =reader["ScreeningID"]==DBNull.Value?0: Convert.ToInt32(reader["ScreeningID"]),
                         ScreeningName = reader["ScreeningName"]==DBNull.Value?string.Empty:Convert.ToString(reader["ScreeningName"]),
@@ -111,7 +111,6 @@ namespace FingerprintsData
                 }
 
                 
-
 
                 healthManagerDashboard.ScreeningMatrix = screeningList.AsEnumerable();
                 healthManagerDashboard.ScreeningReview = screeningReviewList.AsEnumerable();

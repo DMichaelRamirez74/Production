@@ -335,25 +335,25 @@ namespace Fingerprints.Controllers
         {
             try
             {
-          //  int centerid = 75;
-           // string id = "0";
-            //int Householdid = 0;
-            string Name = "";
-            ViewBag.Name = cn;
-            ViewBag.YakkarId = yakkrid;
-            ViewBag.HouseHoldId = hid;
-            ViewBag.ClientId = cid;
+                //  int centerid = 75;
+                // string id = "0";
+                //int Householdid = 0;
+                //string Name = "";
+                ViewBag.Name = cn;
+                ViewBag.YakkarId = yakkrid;
+                ViewBag.HouseHoldId = hid;
+                ViewBag.ClientId = cid;
 
-            ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid,2);
+                ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid, 2);
 
                 CaseNoteByClientID caseNotebyClientID = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
 
-            RosterNew.Users Userlist = new RosterNew.Users();
-            var Rd = new RosterData();
-                caseNotebyClientID.Enc_HouseholdID = EncryptDecrypt.Encrypt64(hid.ToString());
-                caseNotebyClientID.Enc_ClientID = EncryptDecrypt.Decrypt64(cid.ToString());
-                Rd.GetCaseNote(ref Name, caseNotebyClientID,staff);
-            ViewBag.Userlist = Userlist.UserList;
+                //RosterNew.Users Userlist = new RosterNew.Users();
+                //var Rd = new RosterData();
+                //    caseNotebyClientID.Enc_HouseholdID = EncryptDecrypt.Encrypt64(hid.ToString());
+                //    caseNotebyClientID.Enc_ClientID = EncryptDecrypt.Encrypt64(cid.ToString());
+                //    Rd.GetCaseNote(ref Name, caseNotebyClientID,staff);
+                //ViewBag.Userlist = Userlist.UserList;
 
             }
             catch (Exception ex)
@@ -365,7 +365,8 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public JsonResult GetYakkr451DetailsById(int id) {
+        public JsonResult GetYakkr451DetailsById(int id)
+        {
 
            var result =  new YakkrData().GetQuestionaireByYakkrId(id,3);
             return Json(result, JsonRequestBehavior.AllowGet);
@@ -374,93 +375,189 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        [ValidateInput(false)]
-        public ActionResult QuestionnaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds, bool anotherref=false)
+        //[ValidateInput(false)]
+        public ActionResult InsertQuestionnaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote)
         {
+
+            bool caseNoteResult = true;
+            bool questionnaireResult = false;
+
             if (qsform.AppointmentMaked == 0)
             {
-                StringBuilder _Ids = new StringBuilder();
-                if (TeamIds.IDS != null)
+
+                string message = "";
+                string Name = "";
+
+                //insert casenote
+
+                CaseNote.CaseNoteAttachmentList.ForEach(x =>
                 {
-                    foreach (string str in TeamIds.IDS)
+                    x.AttachmentFileName = string.IsNullOrEmpty(x.AttachmentFileName) ? "CaseNoteAttachment" : x.AttachmentFileName;
+
+                    if (!string.IsNullOrEmpty(x.AttachmentJson))
                     {
-                        _Ids.Append(str + ",");
+                        x.AttachmentFileByte = Convert.FromBase64String(x.AttachmentJson);
                     }
-                    CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
+
+                });
+
+                message = new RosterData().SaveCaseNotes(ref Name, CaseNote, staff, 2);
+
+                if (message != "1")
+                    caseNoteResult = false;
+
+
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    qsform.CaseNoteId = Convert.ToInt32(Name);
                 }
 
-                CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
+
             }
 
-            CaseNote.CaseNoteAttachmentList = Attachments;
-
-            var result = new YakkrData().InsertQuestionaireForm(qsform,CaseNote);
-            //return View();
-            if (qsform.AppointmentMaked == 0 && anotherref) {
-
-                string ID = EncryptDecrypt.Encrypt64(CaseNote.ClientId);
-                return new RedirectResult("~/Roster/ReferralService?id="+ID+"&ClientName="+CaseNote.ClientName+"");
-            }
-            else
+            if (caseNoteResult)
             {
-                return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=450");
+                questionnaireResult = new YakkrData().InsertQuestionaireForm(qsform, staff);
+
+                if (!questionnaireResult)
+                {
+                    new RosterData().DeleteCaseNote(casenoteid:Convert.ToInt32(CaseNote.CaseNoteid), appendcid:new int[] { }, deletemain: true, mode:1);
+                }
+
             }
+
+
+
+
+
+            ////return View();
+            //if (qsform.AppointmentMaked == 0 && qsform.ReceiveAnotherReferral)
+            //{
+
+            //    string ID = EncryptDecrypt.Encrypt64(CaseNote.ClientId);
+            //    return new RedirectResult("~/Roster/ReferralService?id=" + ID + "&ClientName=" + CaseNote.ClientName + "");
+            //}
+            //else
+            //{
+            //    return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=450");
+            //}
+
+
+            return Json(new { result= questionnaireResult, encClientId = EncryptDecrypt.Encrypt64(CaseNote.ClientId) }, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter()]
-        public ActionResult Organizationalissue(int id, string clientid, string center, string household,string clientname) {
+        public ActionResult Organizationalissue(int id, string clientid, string center, string household, string clientname)
+        {
 
             var result = new YakkrData().GetQuestionaireByYakkrId(id, 3);
 
-            CaseNoteByClientID caseNotebyClientId = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
-
-            string Name = "";
-
-            caseNotebyClientId.Enc_ClientID = clientid;
-            caseNotebyClientId.Enc_HouseholdID = household;
-            caseNotebyClientId.CenterID = center;
+          
 
             ViewBag.ClientName = clientname;
             ViewBag.ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientid));
-            RosterNew.Users Userlist = new RosterNew.Users();
 
-            var Rd = new RosterData();
-            var stf = StaffDetails.GetInstance();
 
-            Rd.GetCaseNote(ref Name,caseNotebyClientId,stf);
-            ViewBag.Userlist = Userlist.UserList;
+            //CaseNoteByClientID caseNotebyClientId = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
+            //string Name = "";
+            //caseNotebyClientId.Enc_ClientID = clientid;
+            //caseNotebyClientId.Enc_HouseholdID = household;
+            //caseNotebyClientId.CenterID = center;
+            //RosterNew.Users Userlist = new RosterNew.Users();
+            //var Rd = new RosterData();
+            //var stf = StaffDetails.GetInstance();
+            //Rd.GetCaseNote(ref Name, caseNotebyClientId, stf);
+            //ViewBag.Userlist = Userlist.UserList;
 
             return View(result);
         }
 
         [HttpPost]
         [CustAuthFilter()]
-        [ValidateInput(false)]
-        public ActionResult Organizationalissue(int ProblemOn, int? CRColorCode, int QuestionaireID, int CommunityId, int Yakkrid,
-           string MgNotes, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds)
+       // [ValidateInput(false)]
+        //public ActionResult InsertOrganizationalissue(int ProblemOn, int? CRColorCode, int QuestionaireID, int CommunityId, int Yakkrid,
+        //   string MgNotes, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds)
+        public ActionResult InsertOrganizationalIssue(ReferalDetails referralDetails, RosterNew.CaseNote caseNote, int yakkrId)
         {
 
-            if (ProblemOn == 1) {
-               
-                    StringBuilder _Ids = new StringBuilder();
-                    if (TeamIds.IDS != null)
-                    {
-                        foreach (string str in TeamIds.IDS)
-                        {
-                            _Ids.Append(str + ",");
-                        }
-                        CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
-                    }
+            bool caseNoteResult = true;
+            bool questionnaireResult = false;
+            int caseNoteId = 0;
 
-                    CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
-                
+            if (referralDetails.ProblemOn==1)
+            {
+                string message = "";
+                string Name = "";
+
+                //insert casenote
+
+
+                if(caseNote != null )
+                {
+
+                    if(caseNote.CaseNoteAttachmentList != null)
+                    {
+                        caseNote.CaseNoteAttachmentList.ForEach(x =>
+                        {
+                            x.AttachmentFileName = string.IsNullOrEmpty(x.AttachmentFileName) ? "OrganizationalIssue_CaseNoteAttachment" : x.AttachmentFileName;
+
+                            if (!string.IsNullOrEmpty(x.AttachmentJson))
+                            {
+                                x.AttachmentFileByte = Convert.FromBase64String(x.AttachmentJson);
+                            }
+
+                        });
+
+                    }
+                   
+
+                    message = new RosterData().SaveCaseNotes(ref Name, caseNote, staff, 2);
+
+                }
+
+
+                if (message != "1")
+                    caseNoteResult = false;
+
+
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    caseNoteId = Convert.ToInt32(Name);
+                }
+
             }
 
-            CaseNote.CaseNoteAttachmentList = Attachments;
 
-            var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, CRColorCode, CommunityId, QuestionaireID, Yakkrid,MgNotes,CaseNote);
 
-            return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=453");
+            if (caseNoteResult)
+            {
+                questionnaireResult = new YakkrData().SubmitFeedBack453(4, referralDetails, staff, yakkrId, caseNoteId);
+
+                if (!questionnaireResult)
+                {
+                    new RosterData().DeleteCaseNote(casenoteid: caseNoteId, appendcid: new int[] { }, deletemain: true, mode: 1);
+                }
+
+            }
+
+            //if (ProblemOn == 1)
+            //{
+            //    StringBuilder _Ids = new StringBuilder();
+            //    if (TeamIds.IDS != null)
+            //    {
+            //        foreach (string str in TeamIds.IDS)
+            //        {
+            //            _Ids.Append(str + ",");
+            //        }
+            //        CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
+            //    }
+            //    CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
+            //}
+            //CaseNote.CaseNoteAttachmentList = Attachments;
+            //var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, CRColorCode, CommunityId, QuestionaireID, Yakkrid, MgNotes, CaseNote);
+
+
+            return Json(new { result=questionnaireResult }, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter()]
@@ -481,9 +578,10 @@ namespace Fingerprints.Controllers
             var result = false;
             try
             {
-                 result = new YakkrData().ClearYakkrOfReferralIssueSummary(yakkrid);
+                result = new YakkrData().ClearYakkrOfReferralIssueSummary(yakkrid);
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
             }
 

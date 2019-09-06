@@ -26,7 +26,7 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
         HttpContext context = HttpContext.Current;
-       
+
 
         public List<Nurse.NurseScreening> Getchildscreeningcenter(string centerid, string userid, string agencyid)
         {
@@ -456,14 +456,14 @@ namespace FingerprintsData
             command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
             command.Parameters.Add(new SqlParameter("@ClientID", clientID));
             command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-            command.Parameters.Add(new SqlParameter("@SubstituteID",staff.SubstituteID));
+            command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_GetTeacherList1";
             DataAdapter = new SqlDataAdapter(command);
             _dataset = new DataSet();
             DataAdapter.Fill(_dataset);
             DataTable dt = _dataset.Tables[0];
-                
+
 
             TeacherModel _TeacherM = new TeacherModel();
             _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
@@ -504,14 +504,14 @@ namespace FingerprintsData
 
             Connection2.Open();
             command2.Connection = Connection2;
-            command2.Parameters.Add(new SqlParameter("@AgencyID",staff.AgencyId ));
+            command2.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
             command2.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
             command2.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
             command2.Parameters.Add(new SqlParameter("@Take", 0));
             command2.Parameters.Add(new SqlParameter("@Skip", 0));
             command2.Parameters.Add(new SqlParameter("@SortOrder", string.Empty));
             command2.Parameters.Add(new SqlParameter("@SortColumn", string.Empty));
-            command2.Parameters.Add(new SqlParameter("@TotalRecord", 0)).Direction=ParameterDirection.Output;
+            command2.Parameters.Add(new SqlParameter("@TotalRecord", 0)).Direction = ParameterDirection.Output;
             command2.Parameters.Add(new SqlParameter("@Mode", FingerprintsModel.Enums.DailyHealthCheckMode.Entry.ToString()));
             command2.CommandType = CommandType.StoredProcedure;
             command2.CommandText = "SP_GetObservationLookup";
@@ -798,7 +798,7 @@ namespace FingerprintsData
         //}
 
 
-        public TeacherModel GetParentList(ref string result, string clientID,StaffDetails staff, int accesstype, string available)
+        public TeacherModel GetParentList(ref string result, string clientID, StaffDetails staff, int accesstype, string available)
         {
 
             TeacherModel _TeacherM = new TeacherModel();
@@ -1118,7 +1118,7 @@ namespace FingerprintsData
 
                 }
 
-                return GetParentList(ref result1, clientID,staff, 2,  TAvailable);
+                return GetParentList(ref result1, clientID, staff, 2, TAvailable);
 
 
             }
@@ -1151,7 +1151,7 @@ namespace FingerprintsData
                 command.ExecuteNonQuery();
                 Connection.Close();
                 command.Dispose();
-                return GetParentList(ref result1, clientID,staff, 2, TAvailable);
+                return GetParentList(ref result1, clientID, staff, 2, TAvailable);
 
             }
         }
@@ -1597,6 +1597,7 @@ namespace FingerprintsData
             }
             return GetMeals(staff);
         }
+
         public void ExecutiveDashboard(ref DataTable Screeninglist, string Agencyid, string userid)
         {
             Screeninglist = new DataTable();
@@ -2487,7 +2488,7 @@ namespace FingerprintsData
                 {
                     Connection.Close();
                 }
-                using (Connection=connection.returnConnection())
+                using (Connection = connection.returnConnection())
                 {
                     Connection.Open();
                     command.Connection = Connection;
@@ -2629,81 +2630,254 @@ namespace FingerprintsData
                     }
 
                 }
+
+                //DataTable dt = new DataTable();
+                //dt = _dataset.Tables[0];
+
+                //Child Information//
+
+                //if (_dataset != null)
+                //{
+                //    if (_dataset.Tables[0].Rows.Count > 0)
+                //    {
+                //        chList = (from DataRow dr1 in _dataset.Tables[0].Rows
+                //                  select new TeacherModel
+                //                  {
+                //                      ClientID = Convert.ToString(dr1["ClientID"]),
+                //                      Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
+                //                      CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
+                //                      CDOB = Convert.ToString(dr1["DOB"]),
+                //                      CenterID = (ishistorical) ? centerId.ToString() : dr1["CenterId"].ToString(),
+                //                      Enc_CenterId = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr1["CenterID"].ToString()),
+                //                      ClassID = (ishistorical) ? classroomId.ToString() : dr1["ClassRoomId"].ToString(),
+                //                      Enc_ClassRoomId = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr1["ClassRoomId"].ToString()),
+                //                      Parent1ID = dr1["Parent1ID"].ToString(),
+                //                      Parent2ID = dr1["Parent2ID"].ToString(),
+                //                      Parent1Name = dr1["Parent1Name"].ToString(),
+                //                      Parent2Name = dr1["Parent2Name"].ToString(),
+                //                      //AccessDateString = dr1["AccessDateString"].ToString(),
+                //                      //Dateofclassstartdate = Convert.ToString(dr1["DateOfClassStartDate"])
+                //                      AccessDateString = string.Empty,
+                //                      Dateofclassstartdate = string.Empty
+                //    }
+
+
+
+                //                ).ToList();
+                //    }
+                //}
+
+                //teacherList = (from DataRow dr in _dataset.Tables[1].Rows
+                //               select new OfflineAttendance
+                //               {
+                //                   ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                //                   CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                //                   ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
+                //                   AttendanceType = dr["AttendanceType"].ToString(),
+                //                   AttendanceDate = dr["AttendanceDate"].ToString(),
+                //                   TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
+                //                   TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
+                //                   BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                //                   Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
+                //                   Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
+                //                   AdultBreakFast = dr["AdultBreakFast"].ToString(),
+                //                   AdultLunch = dr["AdultLunch"].ToString(),
+                //                   AdultSnacks = dr["AdultSnacks"].ToString(),
+                //                   PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                //                   PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                //                   SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                //                   SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                //                   TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                //                   TSignatureOut = "",
+                //                   AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
+                //               }
+                //           ).ToList();
+
+                //_TeacherM.AbsenceReasonList = new List<SelectListItem>();
+                //if (_dataset.Tables[2] != null)
+                //{
+                //    if (_dataset.Tables[2].Rows.Count > 0)
+                //    {
+                //        _TeacherM.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[2].Rows
+                //                                       select new SelectListItem
+                //                                       {
+                //                                           Text = dr5["Reason"].ToString(),
+                //                                           Value = dr5["ReasonId"].ToString()
+                //                                       }).ToList();
+
+                //    }
+                //}
+
+                //if (_dataset.Tables[3] != null)
+                //{
+                //    if (_dataset.Tables[3].Rows.Count > 0)
+                //    {
+                //        _TeacherM.ClosedDetails = new ClosedInfo
+                //        {
+                //            ClosedToday = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]),
+                //            CenterName = _dataset.Tables[3].Rows[0]["ClosedCenterName"].ToString(),
+                //            ClassRoomName = _dataset.Tables[3].Rows[0]["ClosedClassRoomName"].ToString(),
+                //            AgencyName = _dataset.Tables[3].Rows[0]["ClosedAgencyName"].ToString()
+                //        };
+                //    }
+
+                //}
+
+
+                //List<Tuple<int, DateTime, long, DateTime>> classStartDateList = new List<Tuple<int, DateTime, long, DateTime>>();
+                //List<Tuple<int, DateTime, long, DateTime>> droppedList = new List<Tuple<int, DateTime, long, DateTime>>();
+                //List<Tuple<int, DateTime, long, DateTime>> withdrawnList = new List<Tuple<int, DateTime, long, DateTime>>();
+                //var inputDatesString = attendanceDate.Split(',').OrderBy(x => DateTime.Parse(x
+                //                                  , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
+
+                //var inputDates = inputDatesString.Select(x => DateTime.Parse(x
+                //                                    , new CultureInfo("en-US", true))).OrderBy(x => x).ToList();
+
+
+                //if (_dataset.Tables.Count > 4 && _dataset.Tables[4].Rows.Count > 0)
+                //{
+                //    classStartDateList = (from DataRow dr4 in _dataset.Tables[4].Rows
+                //                          select
+                //                                  Tuple.Create(1, DateTime.Parse(Convert.ToString(dr4["ClassStartDate"])
+                //                                  , new CultureInfo("en-US", true))
+                //                                  , Convert.ToInt64(dr4["ClientID"])
+                //                                  , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                //                                  , new CultureInfo("en-US", true)))
+
+
+                //        ).OrderBy(x => x.Item2).ToList();
+
+
+
+
+                //}
+
+                //if (_dataset.Tables.Count > 5 && _dataset.Tables[5].Rows.Count > 0)
+                //{
+                //    droppedList = (from DataRow dr4 in _dataset.Tables[5].Rows
+                //                   select
+                //                           Tuple.Create(2, DateTime.Parse(Convert.ToString(dr4["DateDropped"])
+                //                           , new CultureInfo("en-US", true))
+                //                           , Convert.ToInt64(dr4["ClientID"])
+                //                             , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                //                                  , new CultureInfo("en-US", true)))
+
+
+                //        ).OrderBy(x => x.Item2).ToList();
+
+
+                //}
+
+                //if (_dataset.Tables.Count > 5 && _dataset.Tables[6].Rows.Count > 0)
+                //{
+                //    withdrawnList = (from DataRow dr4 in _dataset.Tables[6].Rows
+                //                     select
+                //                             Tuple.Create(3, DateTime.Parse(Convert.ToString(dr4["DateWithDrawn"])
+                //                             , new CultureInfo("en-US", true))
+                //                             , Convert.ToInt64(dr4["ClientID"])
+                //                               , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                //                                  , new CultureInfo("en-US", true)))
+
+
+                //       ).OrderBy(x => x.Item2).ToList();
+
+
+                //}
+
+
                 if (chList.Count > 0)
                 {
-                    Parallel.ForEach(chList,(child,loopState,index)=>
-                     {
-                         var dateList = new List<DateTime>();
-                         var _clientClassStartDateList = classStartDateList.Where(x => x.Item3.ToString() == child.ClientID).ToList();
-                         var finalEnrolledList = _clientClassStartDateList
-                           .Union(droppedList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
-                           .Union(withdrawnList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
-                           .OrderBy(x => x.Item2).ThenBy(x => x.Item4).ToList();
+                    Parallel.ForEach(chList, (child, loopState, index) =>
+                      {
+
+                          var dateList = new List<DateTime>();
+                          var _clientClassStartDateList = classStartDateList.Where(x => x.Item3.ToString() == child.ClientID).ToList();
+                          var finalEnrolledList = _clientClassStartDateList
+                            .Union(droppedList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
+                            .Union(withdrawnList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
+                            .OrderBy(x => x.Item2).ThenBy(x => x.Item4).ToList();
 
 
 
-                         if (finalEnrolledList!=null && finalEnrolledList.Count>0 && finalEnrolledList.Select(x => x.Item1).Last() == 1)
-                         {
-                             var allDays = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
-               .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset))
-               .Intersect(inputDates).ToList();
-                             dateList.AddRange(
-                                 allDays
-                                 );
-
-                           
-                         }
+                          if (finalEnrolledList != null && finalEnrolledList.Count > 0 && finalEnrolledList.Select(x => x.Item1).Last() == 1)
+                          {
+                              var allDays = Enumerable.Range(0, (1 + Math.Abs(inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)))
+                .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset))
+                .Intersect(inputDates).ToList();
+                              dateList.AddRange(
+                                  allDays
+                                  );
 
 
-                         int i = 0;
-
-                         while (i < finalEnrolledList.Count - 1)
-                         {
-                             var status1 = finalEnrolledList[i].Item1;
-                             var date1 = finalEnrolledList[i].Item2;
+                          }
 
 
-                             var status2 = finalEnrolledList[i + 1].Item1;
-                             var date2 = finalEnrolledList[i + 1].Item2;
+                          int i = 0;
 
-                             if (status1 == 1)
-                             {
-                                 var allDays2 = Enumerable.Range(0, 1 + date2.Subtract(date1).Days)
-              .Select(offset => date1.AddDays(offset)).Intersect(inputDates)
-              .ToList();
-                                 dateList.AddRange(allDays2);
+                          while (i < finalEnrolledList.Count - 1)
+                          {
+                              var status1 = finalEnrolledList[i].Item1;
+                              var date1 = finalEnrolledList[i].Item2;
 
 
-                             }
-                             else
-                             {
-                                 date1 = date1.AddDays(1);
-                                 if (status2 == 1)
-                                 {
-                                     if (inputDates.Where(x => x == date2).Any())
-                                     {
-                                         dateList.Add(date2);
-                                     }
-                                     date2 = date2.AddDays(-1);
-                                 }
-                                 if (status2 == 3)
-                                 {
-                                     if (inputDates.Where(x => x == date2).Any())
-                                     {
-                                         dateList.Add(date2);
-                                     }
-                                 }
-                             }
-                             i += 1;
-                         }
-                         chList[Convert.ToInt32(index)].Dateofclassstartdate = string.Join(",", _clientClassStartDateList.Select(x => String.Format("{0:MM/dd/yyyy}", x.Item2).Replace('-', '/')));
-                         chList[Convert.ToInt32(index)].AccessDateString = string.Join(",", dateList.Select(x => String.Format("{0:MM/dd/yyyy}", x).Replace('-', '/')));
-                     });
+                              var status2 = finalEnrolledList[i + 1].Item1;
+                              var date2 = finalEnrolledList[i + 1].Item2;
+
+                              if (status1 == 1)
+                              {
+                                  var allDays2 = Enumerable.Range(0, 1 + date2.Subtract(date1).Days)
+               .Select(offset => date1.AddDays(offset)).Intersect(inputDates)
+               .ToList();
+                                  dateList.AddRange(allDays2);
+
+
+                              }
+                              else
+                              {
+                                  date1 = date1.AddDays(1);
+
+                                  if (status2 == 1)
+                                  {
+                                      if (inputDates.Where(x => x == date2).Any())
+                                      {
+                                          dateList.Add(date2);
+                                      }
+
+                                      date2 = date2.AddDays(-1);
+                                  }
+
+                                  if (status2 == 3)
+                                  {
+                                      if (inputDates.Where(x => x == date2).Any())
+                                      {
+                                          dateList.Add(date2);
+                                      }
+                                  }
+                              }
+
+
+                              i += 1;
+                          }
+
+
+
+                          chList[Convert.ToInt32(index)].Dateofclassstartdate = string.Join(",", _clientClassStartDateList.Select(x => String.Format("{0:MM/dd/yyyy}", x.Item2).Replace('-', '/')));
+                          chList[Convert.ToInt32(index)].AccessDateString = string.Join(",", dateList.Select(x => String.Format("{0:MM/dd/yyyy}", x).Replace('-', '/')));
+
+                      });
+
+
+
                 }
+
+
+
                 _TeacherM.CenterList = _centerList;
                 _TeacherM.Itemlst = chList;
                 _TeacherM.WeeklyAttendance = teacherList;
+
                 var lsits = chList.Where(x => x.AccessDateString != "").ToList();
+
             }
             catch (Exception ex)
             {
@@ -2791,21 +2965,16 @@ namespace FingerprintsData
                                          Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
                                          CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
                                          CDOB = Convert.ToString(dr1["DOB"]),
-                                         CenterID = (isHistorical) ? centerId.ToString(): dr1["CenterId"].ToString(),
-                                         Enc_CenterId = EncryptDecrypt.Encrypt64((isHistorical)?centerId.ToString(): dr1["CenterID"].ToString()),
-                                         ClassID = (isHistorical) ? classRoomId.ToString(): dr1["ClassRoomId"].ToString(),
-                                         Enc_ClassRoomId = EncryptDecrypt.Encrypt64((isHistorical)?classRoomId.ToString(): dr1["ClassRoomId"].ToString()),
+                                         CenterID = (isHistorical) ? centerId.ToString() : dr1["CenterId"].ToString(),
+                                         Enc_CenterId = EncryptDecrypt.Encrypt64((isHistorical) ? centerId.ToString() : dr1["CenterID"].ToString()),
+                                         ClassID = (isHistorical) ? classRoomId.ToString() : dr1["ClassRoomId"].ToString(),
+                                         Enc_ClassRoomId = EncryptDecrypt.Encrypt64((isHistorical) ? classRoomId.ToString() : dr1["ClassRoomId"].ToString()),
                                          Parent1ID = dr1["FatherId"].ToString(),
                                          Parent2ID = dr1["MotherId"].ToString(),
                                          Parent1Name = dr1["FatherName"].ToString(),
                                          Parent2Name = dr1["MotherName"].ToString(),
                                          AccessDateString = dr1["AccessDateString"].ToString(),
-                                         //RestrictedDateString = dr1["RestrictedDateString"].ToString()
-                                       Dateofclassstartdate=Convert.ToString(dr1["DateOfClassStartDate"])
-
-                                       //Dateofclassstartdate=string.Join(",",_dataset.Tables[1].AsEnumerable().
-                                       //                      Where(x=>x.Field<long>("ClientID")==Convert.ToInt64(dr1["ClientID"])).
-                                       //                      Select(x=>x.Field<string>("DateOfClassStartDate")).ToArray())
+                                         Dateofclassstartdate = Convert.ToString(dr1["DateOfClassStartDate"])
                                      }
 
                             ).Distinct().ToList();
@@ -3006,7 +3175,7 @@ namespace FingerprintsData
 
                 foreach (var item in offlineAttendance)
                 {
-                    inTime = (string.IsNullOrEmpty(item.TimeIn.Trim())) ?null : DateTime.ParseExact(item.TimeIn,
+                    inTime = (string.IsNullOrEmpty(item.TimeIn.Trim())) ? null : DateTime.ParseExact(item.TimeIn,
                                     "hh:mm tt", CultureInfo.InvariantCulture).TimeOfDay.ToString();
                     outTime = (string.IsNullOrEmpty(item.TimeOut.Trim()) ? null : DateTime.ParseExact(item.TimeOut,
                                     "hh:mm tt", CultureInfo.InvariantCulture).TimeOfDay.ToString());
@@ -3624,7 +3793,8 @@ namespace FingerprintsData
 
         #region GrowthAnalysis
 
-        public List<ClientGrowth> GetChildrenInfoForWH(int mode,string AssDate,long classroomid,long ClientId)
+
+        public List<ClientGrowth> GetChildrenInfoForWH(int mode, string AssDate, long classroomid, long ClientId)
         {
 
             var _clientGrowth = new List<ClientGrowth>();
@@ -3645,9 +3815,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
 
                 command.Parameters.Add(new SqlParameter("@mode", mode)); //1
-                command.Parameters.Add(new SqlParameter("@AssessmentDate", AssDate)); 
+                command.Parameters.Add(new SqlParameter("@AssessmentDate", AssDate));
                 command.Parameters.Add(new SqlParameter("@ClassroomId", classroomid));
-                command.Parameters.Add(new SqlParameter("@ClientId", ClientId)); 
+                command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
 
                 DataAdapter = new SqlDataAdapter(command);
                 DataSet _ds = new DataSet();
@@ -3656,10 +3826,10 @@ namespace FingerprintsData
                 if (_ds != null && _ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
                 {
                     var encryField = new List<string>();
-                   encryField.Add("ClientID");
+                    encryField.Add("ClientID");
 
-                    _clientGrowth= _ds.Tables[0].DataTableToList<ClientGrowth>(encryField);
-                   // _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>();
+                    _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(encryField);
+                    // _clientGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>();
                 }
 
             }
@@ -3696,7 +3866,7 @@ namespace FingerprintsData
                 var _GrowthTable = new List<string>()
                 { "ClientID","AssessmentDate","Height","Weight","BMI","HeadCirc","InputType" };
                 var _decrypted = new List<string>() { "ClientID" };
-                DataTable dt = Fingerprints.Common.DbHelper.ToUserDefinedDataTable(data, _GrowthTable,_decrypted);
+                DataTable dt = Fingerprints.Common.DbHelper.ToUserDefinedDataTable(data, _GrowthTable, _decrypted);
                 command.Parameters.AddWithValue("@data", dt);
 
                 int res = command.ExecuteNonQuery();
@@ -3755,9 +3925,9 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
             }
             return _clientGrowth;
-            }
+        }
 
-        public bool DeleteHistoricalRecordById(long indexid,long clientid)
+        public bool DeleteHistoricalRecordById(long indexid, long clientid)
         {
             var success = false;
             try
@@ -3831,14 +4001,14 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Mode", mode)); //1
                 command.Parameters.Add(new SqlParameter("@ClientId", clientid));
                 command.Parameters.Add(new SqlParameter("@type", type));
-                
+
 
                 DataAdapter = new SqlDataAdapter(command);
                 DataSet _ds = new DataSet();
                 DataAdapter.Fill(_ds);
                 if (_ds != null)
                 {
-                    
+
 
                     if (_ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
                     {
@@ -3846,23 +4016,23 @@ namespace FingerprintsData
                         result.ChildGrowth = _ds.Tables[0];
 
                     }
-                    
+
                     //Standard Datatables
                     if (_ds.Tables.Count > 1 && _ds.Tables[1].Rows.Count > 0)
                     {
-                        //  result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+                        //result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
 
                         result.DTHeadCircuGrowth = _ds.Tables[1];
                     }
-                    
-                    if ( _ds.Tables.Count > 2 && _ds.Tables[2].Rows.Count > 0)
+
+                    if (_ds.Tables.Count > 2 && _ds.Tables[2].Rows.Count > 0)
                     {
-                        //  result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
+                        // result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
                         result.DTLengthGrowth = _ds.Tables[2];
                     }
                     if (_ds.Tables.Count > 3 && _ds.Tables[3].Rows.Count > 0)
                     {
-                        //result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
+                        // result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
                         result.DTWeightGrowth = _ds.Tables[3];
                     }
                     if (_ds.Tables.Count > 4 && _ds.Tables[4].Rows.Count > 0)
@@ -3879,6 +4049,62 @@ namespace FingerprintsData
                         }
                     }
 
+
+
+
+                    /*
+                    if (_ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
+                    {
+                        Parallel.Invoke(() =>
+                        {
+                            result.ChildGrowth = _ds.Tables[0].DataTableToList<ClientGrowth>(new List<string>());
+                            //  result.ChildGrowth = _ds.Tables[0];
+                        },
+                        () =>
+                        {
+                            if (_ds.Tables.Count > 1 && _ds.Tables[1].Rows.Count > 0)
+                            {
+                                result.DTHeadCircuGrowth = _ds.Tables[1].DataTableToList<STDTable>(new List<string>());
+                            }
+                        },
+                         () =>
+                        {
+                            if (_ds.Tables.Count > 2 && _ds.Tables[2].Rows.Count > 0)
+                            {
+                                result.DTLengthGrowth = _ds.Tables[2].DataTableToList<STDTable>(new List<string>());
+                            }
+                        },
+                         () => {
+
+                             if (_ds.Tables.Count > 3 && _ds.Tables[3].Rows.Count > 0)
+                             {
+                                     result.DTWeightGrowth = _ds.Tables[3].DataTableToList<STDTable>(new List<string>());
+                                 
+                             }
+                         },
+                         () => {
+
+                             if (type == 1)
+                             {
+
+                                 result.DTWeightLengthGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
+                                 //result.DTWeightLengthGrowth = _ds.Tables[4];
+                             }
+                             else if (type == 2)
+                             {
+                                 result.DTBMIGrowth = _ds.Tables[4].DataTableToList<STDTable>(new List<string>());
+                                 // result.DTBMIGrowth = _ds.Tables[4];
+                             }
+                         }
+
+
+                        );
+                    }
+                    */
+
+
+
+
                 }
 
 
@@ -3893,7 +4119,7 @@ namespace FingerprintsData
         }
 
 
-            #endregion GrowthAnalysis
+        #endregion GrowthAnalysis
 
 
 
@@ -3925,24 +4151,24 @@ namespace FingerprintsData
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
                     hvClient = (from DataRow dr in _dataset.Tables[0].Rows
-                                 select new TeacherVisit
-                                 {
+                                select new TeacherVisit
+                                {
 
-                                     VisitCount = Convert.ToInt32(dr["VisitCount"]),
-                                     YakkrID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["YakkrID"])),
-                                     YakkrCode = Convert.ToString(dr["YakkrCode"]),
-                                     Date = dr["Date"] == DBNull.Value ? string.Empty : Convert.ToString(dr["Date"]),
-                                     Editable = Convert.ToBoolean(dr["Editable"]),
-                                     ParentDetailsList = (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
-                                                                                                                                                           select new ParentDetails
-                                                                                                                                                           {
-                                                                                                                                                               ParentName = dr1["ParentName"].ToString(),
-                                                                                                                                                               ParentRole = dr1["ParentRole"].ToString(),
-                                                                                                                                                               ClientId = dr1["ClientId"].ToString(),
-                                                                                                                                                               ProfilePicture = dr1["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["ProfilePic"])
-                                                                                                                                                           }).ToList() : new List<ParentDetails>()
+                                    VisitCount = Convert.ToInt32(dr["VisitCount"]),
+                                    YakkrID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["YakkrID"])),
+                                    YakkrCode = Convert.ToString(dr["YakkrCode"]),
+                                    Date = dr["Date"] == DBNull.Value ? string.Empty : Convert.ToString(dr["Date"]),
+                                    Editable = Convert.ToBoolean(dr["Editable"]),
+                                    ParentDetailsList = (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                                                                                                                          select new ParentDetails
+                                                                                                                                                          {
+                                                                                                                                                              ParentName = dr1["ParentName"].ToString(),
+                                                                                                                                                              ParentRole = dr1["ParentRole"].ToString(),
+                                                                                                                                                              ClientId = dr1["ClientId"].ToString(),
+                                                                                                                                                              ProfilePicture = dr1["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["ProfilePic"])
+                                                                                                                                                          }).ToList() : new List<ParentDetails>()
 
-                                 }
+                                }
 
                                  ).ToList();
                 }
@@ -4056,8 +4282,8 @@ namespace FingerprintsData
                                      VisitCount = Convert.ToInt32(dr["VisitCount"]),
                                      YakkrID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["YakkrID"])),
                                      YakkrCode = Convert.ToString(dr["YakkrCode"]),
-                                     Date=dr["Date"]==DBNull.Value?string.Empty:Convert.ToString(dr["Date"]),
-                                     Editable=Convert.ToBoolean(dr["Editable"]),
+                                     Date = dr["Date"] == DBNull.Value ? string.Empty : Convert.ToString(dr["Date"]),
+                                     Editable = Convert.ToBoolean(dr["Editable"]),
                                      ParentDetailsList = (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0) ? (from DataRow dr1 in _dataset.Tables[1].Rows
                                                                                                                                                            select new ParentDetails
                                                                                                                                                            {

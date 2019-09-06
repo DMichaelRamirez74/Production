@@ -12,6 +12,7 @@ using iTextSharp.text.pdf.draw;
 using System.Collections;
 using System.Globalization;
 
+
 namespace FingerprintsModel
 {
     public class Export
@@ -6379,7 +6380,7 @@ namespace FingerprintsModel
                             ph1.Add(glue); // Here I add special chunk to the same phrase.    
                             ph1.Add(new Chunk(attendanceList[i].AttendanceDate, new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, new iTextSharp.text.BaseColor(255, 255, 255)))); // Here I add date as a chunk into same phrase.    
                             main.Add(ph1);
-                            
+
                             var phr = new Phrase(main);
                             var childCell = new PdfPCell(phr);
                             childCell.Border = PdfPCell.NO_BORDER;
@@ -6527,7 +6528,7 @@ namespace FingerprintsModel
 
                             #region Absence Reason
 
-                            if (attendanceList[i].AbsenceReason != null && (attendanceList[i].AbsenceReason!=null && attendanceList[i].AbsenceReason.Trim() != string.Empty))
+                            if (attendanceList[i].AbsenceReason != null && (attendanceList[i].AbsenceReason != null && attendanceList[i].AbsenceReason.Trim() != string.Empty))
                             {
 
 
@@ -6568,7 +6569,7 @@ namespace FingerprintsModel
 
                             #region Meals
 
-                            if (attendanceList[i].AbsenceReason == null || (attendanceList[i].AbsenceReason!=null && attendanceList[i].AbsenceReason.Trim() == string.Empty))
+                            if (attendanceList[i].AbsenceReason == null || (attendanceList[i].AbsenceReason != null && attendanceList[i].AbsenceReason.Trim() == string.Empty))
                             {
 
                                 #region Meals Heading
@@ -6595,7 +6596,7 @@ namespace FingerprintsModel
                                 float[] mealWidths = { 20, 20, 20, 20 };
                                 mealTable.SetWidths(mealWidths);
 
-                                if (attendanceList[i].AbsenceReason == null || (attendanceList[i].AbsenceReason!=null && attendanceList[i].AbsenceReason.Trim() == string.Empty))
+                                if (attendanceList[i].AbsenceReason == null || (attendanceList[i].AbsenceReason != null && attendanceList[i].AbsenceReason.Trim() == string.Empty))
                                 {
 
                                     #region Meals Headings ,{Breakfast, Lunch, Snack, Dinner}
@@ -6901,7 +6902,7 @@ namespace FingerprintsModel
 
                                     }
 
-                                    
+
                                     dinnerImageTable.AddCell(new PdfPCell(dinnerTimePhrase)
                                     {
 
@@ -6927,7 +6928,7 @@ namespace FingerprintsModel
                                     var mealsNaCell = new PdfPCell(new Phrase("N/A", new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
                                     mealsNaCell.HorizontalAlignment = Element.ALIGN_LEFT;
                                     mealsNaCell.Padding = 0;
-                              
+
                                     mealsNaCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                                     mealsNaCell.Colspan = 4;
                                     mealsNaCell.Border = PdfPCell.NO_BORDER;
@@ -7128,7 +7129,7 @@ namespace FingerprintsModel
                                 dailyHealthCheckCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                                 dailyHealthCheckCell.Border = PdfPCell.NO_BORDER;
                                 dailyHealthChecktable.AddCell(dailyHealthCheckCell);
-                               
+
                             }
 
 
@@ -7652,7 +7653,7 @@ namespace FingerprintsModel
                             }
                             #endregion
 
-                          
+
 
                             var contentTable = new PdfPTable(2);
                             float[] contentTableWidths = { 30, 70 };
@@ -7688,7 +7689,7 @@ namespace FingerprintsModel
 
                             tableLayout.AddCell(contentTableCell);
 
-                            
+
 
                             doc.Add(tableLayout);
 
@@ -7736,6 +7737,8 @@ namespace FingerprintsModel
             {
                 #region Export  PDF
 
+
+        
 
                 if (reportFormat == Enums.ReportFormatType.Pdf)
                 {
@@ -8095,6 +8098,9 @@ namespace FingerprintsModel
 
                     innerTables.AddCell(new PdfPCell(notesCell));
 
+
+                  
+
                     var noteCellDetails = new PdfPCell(new Phrase(caseNote.CaseNote.Note.Replace("<div class='col-xs-12'>", "").Replace("</div>", "").Replace("<p>", "").Replace("</p>", "").Trim(), new Font(Font.FontFamily.HELVETICA, innerDetailfontSize, Font.BOLD, new iTextSharp.text.BaseColor(22, 59, 105))));
                     noteCellDetails.PaddingBottom = 8f;
                     noteCellDetails.PaddingTop = 8f;
@@ -8277,7 +8283,7 @@ namespace FingerprintsModel
 
                     foreach (var subNotes in caseNote.CaseNote.SubCaseNoteList)
                     {
-                        var subcaseNoteDate = DateTime.Parse(subNotes.WrittenDate, new CultureInfo("en-US", true));
+                        var subcaseNoteDate = DateTime.Parse( string.IsNullOrEmpty(subNotes.WrittenDate)?subNotes.ActualWrittenDateTime:subNotes.WrittenDate, new CultureInfo("en-US", true));
                         var subCaseNotedateString = subcaseNoteDate.ToString("MMMM dd, yyyy");
 
 
@@ -8913,7 +8919,7 @@ namespace FingerprintsModel
             }
         }
 
-   
+
 
 
         class RoundRectangle : IPdfPCellEvent
@@ -8952,6 +8958,8 @@ namespace FingerprintsModel
 
 
         }
+
+
 
 
 

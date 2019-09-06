@@ -582,20 +582,25 @@ function stopMediaTracks(stream) {
 
 function gotDevices(mediaDevices) {
 
+    if (multipleDoc_videoSelect.options.length == 0)
+    {
+        multipleDoc_videoSelect.innerHTML = "";
 
-    multipleDoc_videoSelect.innerHTML = "";
+        var count = 1;
+        mediaDevices.forEach(function (mediaDevice) {
+            if (mediaDevice.kind === 'videoinput') {
+                const option = document.createElement('option');
+                option.value = mediaDevice.deviceId;
+                const label = mediaDevice.label || 'Camera ' + (count++) + '';
+                const textNode = document.createTextNode(label);
+                option.appendChild(textNode);
+                multipleDoc_videoSelect.appendChild(option);
+            }
+        });
+    }
 
-    var count = 1;
-    mediaDevices.forEach(function (mediaDevice) {
-        if (mediaDevice.kind === 'videoinput') {
-            const option = document.createElement('option');
-            option.value = mediaDevice.deviceId;
-            const label = mediaDevice.label || 'Camera ' + (count++) + '';
-            const textNode = document.createTextNode(label);
-            option.appendChild(textNode);
-            multipleDoc_videoSelect.appendChild(option);
-        }
-    });
+   
+   
 }
 
 function getStream() {
@@ -622,8 +627,7 @@ function getStream() {
       })
       .then(gotDevices)
       .catch(function (error) {
-          console.log(error);
-          //alert(error);
+       
       });
 }
 
@@ -636,7 +640,7 @@ function showCameraOption(ele) {
 
     navigator.mediaDevices.enumerateDevices().then(function (devices) {
 
-        console.log(devices);
+       
         devices.forEach(function (device) {
 
 
@@ -659,7 +663,7 @@ function showCameraOption(ele) {
 
         }
 
-        console.log(videoInputAvailable);
+   
 
     }).catch(function (err) {
         console.log(err.name + ": " + err.message);
@@ -747,7 +751,7 @@ $(function () {
     multipleDoc_videoSelect = document.querySelector('#modal-uploaddocument select#videoSource');
     multipleDoc_video = document.querySelector('#modal-uploaddocument #setup-camera-div video');
 
-
+   
     if (multipleDoc_video) {
 
 
@@ -775,7 +779,7 @@ $(function () {
             multipleDoc_canvas.height = multipleDoc_video.videoHeight;
             multipleDoc_canvas.getContext('2d').drawImage(multipleDoc_video, 0, 0);
             // Other browsers will fall back to image/png
-            console.log(multipleDoc_canvas);
+    
 
             $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
 
@@ -803,94 +807,125 @@ $(function () {
 
 
 
-        $(document).on('click', '.view-file', function () {
-
-            var $attchmentId = $(this).closest('.attachment-icons-block').data('attach-id');
-            var $inkindtransactionId = self.elements.modalhiddenTransID.val();
-            self.getInkindAttachment($attchmentId, $inkindtransactionId);
-        });
-
-
-        $(document).on('click', '.delete-file', function () {
-
-
-            $(this).attr({ 'data-toggle': 'popover', 'title': 'Confirmation', 'data-placement': 'top' });
-
-            $(this).popover('show');
-
-        });
-
-
-
-        $(document).on('click', '.delete-file-upload', function () {
-
-            $(this).closest('.setup_viewscreen').remove();
-
-        });
-
-
-
-        $(document).on('click', '.view-file-upload', function () {
-
-            //  window.open($(this)., 'newwindow','width=500,height=500');
-
-            var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-            //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
-            console.log(imageAttr);
-
-            //imageAttr='<embed src='+imageAttr+'></embed>';
-            //window.open(imageAttr, 'newwindow','width=500,height=500');
-
-
-
-            var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
-
-            setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
-                w.document.body.appendChild(w.document.createElement('img'))
-                    .src = imageAttr;
-            }, 0);
-
-        });
-
-
-    
-        $(document).on('shown.bs.modal', '#modal-uploaddocument', function () {
-          
-            $('body').addClass('modal-open');
-
-
-
-
-            showVideoStream();
-        }).on('hidden.bs.modal', function (event) {
-
-            stopIntervalUserMedia();
-            //   $selfElements.modalEditInkind.modal('show');
-        });
-
-
-       $(document).on('click', '.img-camera', function () {
-
-        
-            $('#modal-uploaddocument').attr('target-modal', '#' + $('.modal:visible').attr('id') + '');
-
-            $('.modal:visible').modal('hide');
-
-            $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
-
-            $('#modal-uploaddocument').modal('show');
-        });
+      
 
     }
 
 
-    $('#modal-uploaddocument').on('hidden.bs.modal', function () {
+    //$(document).on('click', '.view-file', function () {
+
+    //    var $attchmentId = $(this).closest('.attachment-icons-block').data('attach-id');
+    //    var $inkindtransactionId = self.elements.modalhiddenTransID.val();
+    //    //  self.getInkindAttachment($attchmentId, $inkindtransactionId);
+    //});
+
+
+    //$(document).on('click', '.delete-file', function () {
+
+
+    //    $(this).attr({ 'data-toggle': 'popover', 'title': 'Confirmation', 'data-placement': 'top' });
+
+    //    $(this).popover('show');
+
+    //});
+
+
+
+    $(document).on('click', '.delete-file-upload', function () {
+
+        $(this).closest('.setup_viewscreen').remove();
+
+    });
+
+
+
+    $(document).on('click', '.view-file-upload', function () {
+
+        //  window.open($(this)., 'newwindow','width=500,height=500');
+
+        var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
+        //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
+        console.log(imageAttr);
+
+        //imageAttr='<embed src='+imageAttr+'></embed>';
+        //window.open(imageAttr, 'newwindow','width=500,height=500');
+
+
+
+        var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
+
+        setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
+            w.document.body.appendChild(w.document.createElement('img'))
+                .src = imageAttr;
+        }, 0);
+
+    });
+
+
+    $(document).on('show.bs.modal', '#modal-uploaddocument', function () {
+        $('.modal:visible').modal('hide');
+
+
+    });
+
+    $(document).on('shown.bs.modal', '#modal-uploaddocument', function () {
+
+      $('body').addClass('modal-open');
+
+
+
+
+        showVideoStream();
+    }).on('hidden.bs.modal', function (event) {
+
+        stopIntervalUserMedia();
+        //   $selfElements.modalEditInkind.modal('show');
+    });
+
+
+    $(document).on('click', '.img-camera', function () {
+
+     
+
+        var $dateIndex=$(this).attr('data-guid')
+
+
 
        
-        $(''+ $(this).attr('target-modal')+'').modal('show');
+
+
+
+        if ($('.modal:visible').length > 0) {
+            $('#modal-uploaddocument').attr({ 'target-modal': '#' + $('.modal:visible').attr('id') + '', 'target-index': $dateIndex });
+            $('.modal:visible').modal('hide');
+
+        }
+        else {
+            $('#modal-uploaddocument').attr({ 'target-modal': '#' + $(this).attr('target-id') + '', 'target-index': $dateIndex });
+
+        }
+
+
+
+        $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
+
+        $('#modal-uploaddocument').modal('show');
+    });
+
+
+    $('#modal-uploaddocument').on('hidden.bs.modal', function () {
+
+        if ($('' + $(this).attr('target-modal') + '').hasClass('modal'))
+        {
+            $('' + $(this).attr('target-modal') + '').modal('show');
+            $('body').addClass('modal-open');
+        }
+
+       
+     
 
         $('body').css('padding-right', '0px');
-        $('body').addClass('modal-open');
+       
         //$('#ModalAddCasenote').modal('show');
     });
 
@@ -909,14 +944,28 @@ $(function () {
 
 
         var targetMode = $('#modal-uploaddocument').attr('target-modal');
+        var $guid = $('#modal-uploaddocument').attr('target-index');
 
-        $( targetMode + ' #div-edit-modal-img-gallery').append($('#modal-uploaddocument .div-image-snap-gallery').html());
+
+        if ($(targetMode + ' .div-edit-gallery_' + $guid + '').length > 0)
+        {
+            $(targetMode + ' .div-edit-gallery_' + $guid + '').append($('#modal-uploaddocument .div-image-snap-gallery').html());
+
+        }
+        else {
+            $(targetMode + ' .div_append_image_gallery_' + $guid + '').append($('#modal-uploaddocument .div-image-snap-gallery').html());
+
+        }
 
         $('#modal-uploaddocument .div-image-snap-gallery').html('');
 
         $('#modal-uploaddocument').modal('hide');
 
-        $('body').addClass('modal-open');
+        if ($(targetMode).hasClass('modal'))
+        {
+            $('body').addClass('modal-open');
+
+        }
 
 
     });

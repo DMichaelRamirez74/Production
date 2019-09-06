@@ -20,6 +20,8 @@ namespace FingerprintsModel
         static string subject = string.Empty;
         static string footer = string.Empty;
         static string body = string.Empty;
+
+
         public static string SendEmail(string Emailid, string Password, string username, string path, string imagepath, string link = "", string code = "", string SuperAdmin = "")
         {
             try

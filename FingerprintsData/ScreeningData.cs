@@ -143,6 +143,7 @@ namespace FingerprintsData
                     dbManager.CreateParameter("@RoleID",staffDetails.RoleId,DbType.Guid)
                 };
 
+               
 
                var _dataTable = dbManager.GetDataTable(parameterString, CommandType.Text, parameters);
 

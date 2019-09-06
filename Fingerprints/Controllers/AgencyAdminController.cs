@@ -20,13 +20,7 @@ namespace Fingerprints.Controllers
 {
     public class AgencyAdminController : Controller
     {
-        /*role=f87b4a71-f0a8-43c3-aea7-267e5e37a59d(Super Admin)
-         role=a65bb7c2-e320-42a2-aed4-409a321c08a5(GenesisEarth Administrator)
-         role=a31b1716-b042-46b7-acc0-95794e378b26(Health/Nurse)
-         role=2d9822cd-85a3-4269-9609-9aabb914d792(HR Manager)
-         role=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
-         roleid=3b49b025-68eb-4059-8931-68a0577e5fa2 (Agency Admin)
-         */
+        
         agencyData agencyData = new agencyData();
         Center _center = new Center();
         RaceSubcategoryData _raceSubcategoryData = new RaceSubcategoryData();
@@ -199,7 +193,6 @@ namespace Fingerprints.Controllers
         }
 
 
-        //  [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         [CustAuthFilter()]
         public JsonResult AutoCompleteAgencystaff(string term, string Active = "0")
         {
@@ -577,7 +570,7 @@ namespace Fingerprints.Controllers
                 string message = string.Empty;
                 message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "1", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode);
                 res = message;
-                // return View(agencystaff);
+               
             }
             catch (Exception Ex)
             {
@@ -829,13 +822,13 @@ namespace Fingerprints.Controllers
             }
             return View(_staffList);
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public ActionResult RaceSubcategory()
         {
             RaceSubcategory _race = (new RaceSubcategoryData()).GetData_AllDropdown();
             return View(_race);
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult RaceSubcategory(RaceSubcategory info, FormCollection collection)
         {
@@ -885,7 +878,7 @@ namespace Fingerprints.Controllers
             }
             return View(_race);
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public JsonResult RaceSubcategorydetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -901,7 +894,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public ActionResult Center(string id = "0", string ak = "0")
         {
             try
@@ -933,9 +926,9 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
-        public ActionResult Center(string Command, Center info, FormCollection collection, List<FingerprintsModel.Center.ClassRoom> Classroom, string endOfYear="0")
+        public ActionResult Center(string Command, Center info, FormCollection collection, List<FingerprintsModel.Center.ClassRoom> Classroom, string endOfYear = "0")
         {
             try
             {
@@ -967,7 +960,7 @@ namespace Fingerprints.Controllers
                     if (message == "1")
                     {
                         TempData["message"] = "Record added successfully.";
-                        return Redirect("~/AgencyAdmin/centerlist?ak="+endOfYear+"");
+                        return Redirect("~/AgencyAdmin/centerlist?ak=" + endOfYear + "");
                     }
                     else if (message == "2")
                     {
@@ -1058,8 +1051,8 @@ namespace Fingerprints.Controllers
             }
 
         }
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
-        public ActionResult centerlist(string ak="")
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
+        public ActionResult centerlist(string ak = "")
         {
             try
             {
@@ -1073,8 +1066,8 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
-        public JsonResult listcenter(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,bool isEndOfYear=false)
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
+        public JsonResult listcenter(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1, bool isEndOfYear = false)
         {
             try
             {
@@ -1090,113 +1083,20 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        public JsonResult updatecenter(string id, int mode,bool isEndOfYear=false)
+        public JsonResult updatecenter(string id, int mode, bool isEndOfYear = false)
         {
             try
             {
-                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"])), isEndOfYear),JsonRequestBehavior.AllowGet);
+                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"])), isEndOfYear), JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
                 return Json(Ex.Message);
             }
         }
-        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        //public ActionResult CommunityResource()
-        //{
-        //    return View();
-        //}
-        //[HttpPost]
-        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        //public ActionResult CommunityResource(CommunityResource info, FormCollection collection, string id)
-        //{
-        //    try
-        //    {
-        //        CommunityResource objdata = new CommunityResource();
-        //        TempData.Keep();
-        //        string message = "";
-        //        CommunityResourceData obj = new CommunityResourceData();
-        //        if (info.CommunityID == 0)
-        //        {
-        //            info.Community = (collection["DdlCommunityList"].ToString() == "-1") ? null : collection["DdlCommunityList"];
-        //            message = obj.AddCommunity(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
 
-        //        }
-        //        else
-        //        {
-        //            info.Community = (collection["DdlCommunityList"].ToString() == "-1") ? null : collection["DdlCommunityList"];
-        //            message = obj.AddCommunity(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
-        //            ViewBag.result = "Sucess";
-        //        }
-        //        if (message == "1")
-        //        {
-        //            ViewBag.result = "Sucess";
-        //            //   TempData["message"] = "Record added successfully.";
-        //            ViewBag.message = "Record added successfully.";
-        //        }
-        //        else if (message == "2")
-        //        {
-        //            ViewBag.result = "Sucess";
-        //            ViewBag.message = "Record updated successfully.";
-        //        }
-        //        else if (message == "3")
-        //        {
-        //            ViewBag.message = "Community resource already exist.";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        clsError.WriteException(ex);
-        //    }
-        //    return View(info);
 
-        //}
-        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        //public JsonResult Communitydetails(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
-        //{
-        //    try
-        //    {
-        //        CommunityResourceData info = new CommunityResourceData();
-        //        string totalrecord;
-        //        int skip = pageSize * (requestedPage - 1);
-        //        var list = info.Communitydetails(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString());
-        //        return Json(new { list, totalrecord });
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //        return Json(Ex.Message);
-        //    }
-        //    // return View();
-        //}
-        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        //public JsonResult Getcommunity(string CommunityID = "0")
-        //{
-        //    CommunityResourceData obj = new CommunityResourceData();
-        //    try
-        //    {
-        //        return Json(obj.GetcommunityDetails(CommunityID, Session["AgencyID"].ToString()));
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //        return Json("Error occured please try again.");
-        //    }
-        //}
-        //[CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        //public JsonResult Deletecommunity(string CommunityID = "0")
-        //{
-        //    CommunityResourceData obj = new CommunityResourceData();
-        //    try
-        //    {
-        //        return Json(obj.Deletecommunity(CommunityID, Session["AgencyID"].ToString()));
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //        return Json("Error occured please try again.");
-        //    }
-        //}
+        
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public ActionResult CommunityResource()
         {
@@ -1300,7 +1200,6 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
                 return Json(Ex.Message);
             }
-            // return View();
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         public JsonResult Getcommunity(string CommunityID = "0")
@@ -1327,7 +1226,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1359,7 +1258,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1381,13 +1280,13 @@ namespace Fingerprints.Controllers
                 {
 
                     message = obj.AddSchool(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 else
                 {
 
                     message = obj.AddSchool(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 if (message == "1")
                 {
@@ -1439,7 +1338,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1453,7 +1352,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter()]
@@ -1467,7 +1366,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1507,12 +1406,12 @@ namespace Fingerprints.Controllers
                 {
                     // TempData["message"] = "Record added successfully.";
                     ViewBag.message = "Record added successfully.";
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 else if (message == "2")
                 {
                     ViewBag.message = "Record updated successfully.";
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 else if (message == "3")
                 {
@@ -1559,7 +1458,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1639,7 +1538,7 @@ namespace Fingerprints.Controllers
                     else
                     {
                         ViewBag.message = "Record already locked.";
-                        ViewBag.result = "Sucess";
+                        ViewBag.result = "Success";
                     }
                     //info.ReferenceProg = (collection["DdlProgRefList"].ToString() == "-1") ? null : collection["DdlProgRefList"];
                     //message = obj.AddEditSelectPoint(info, 1, Guid.Parse(Session["UserID"].ToString()), CustomQues);
@@ -1649,17 +1548,17 @@ namespace Fingerprints.Controllers
                 {
                     // TempData["message"] = "Record added successfully.";
                     ViewBag.message = "Record added successfully.";
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 else if (message == "2")
                 {
                     ViewBag.message = "Record updated successfully.";
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 else if (message == "3")
                 {
                     ViewBag.message = "Record already locked.";
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                 }
                 ViewBag.RefList = TempData["RefList"];
                 TempData.Keep();
@@ -1685,7 +1584,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1699,7 +1598,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1730,7 +1629,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter()]
@@ -1750,18 +1649,18 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
         //Changes on 8Feb2017
         [CustAuthFilter(RoleEnum.FacilitiesManager, RoleEnum.HealthManager,
                         RoleEnum.DisabilitiesManager, RoleEnum.BillingManager,
-                        RoleEnum.AreaManager,RoleEnum.HRManager,RoleEnum.FamilyServiceWorker,
+                        RoleEnum.AreaManager, RoleEnum.HRManager, RoleEnum.FamilyServiceWorker,
                         RoleEnum.TransportManager, RoleEnum.GenesisEarthAdministrator, RoleEnum.SuperAdmin,
-                        RoleEnum.HealthNurse,RoleEnum.SocialServiceManager,RoleEnum.SocialServiceManager,
-                        RoleEnum.Executive,RoleEnum.ERSEAManager,RoleEnum.EducationManager,
-                        RoleEnum.GenesisEarthAdministrator,RoleEnum.CenterManager,RoleEnum.HealthNurse,
+                        RoleEnum.HealthNurse, RoleEnum.SocialServiceManager, RoleEnum.SocialServiceManager,
+                        RoleEnum.Executive, RoleEnum.ERSEAManager, RoleEnum.EducationManager,
+                        RoleEnum.GenesisEarthAdministrator, RoleEnum.CenterManager, RoleEnum.HealthNurse,
                         RoleEnum.HomeVisitor)]
 
         [JsonMaxLengthAttribute]
@@ -1777,11 +1676,11 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.SuperAdmin)]
-        public JsonResult Deleteclass(string classId = "0",string isEndOfYear="0")
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.SuperAdmin)]
+        public JsonResult Deleteclass(string classId = "0", string isEndOfYear = "0")
         {
             CenterData obj = new CenterData();
             try
@@ -1794,7 +1693,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -1854,7 +1753,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         [HttpGet]
         public ViewResult PIRAccessRoles()
         {
@@ -1862,9 +1761,9 @@ namespace Fingerprints.Controllers
             try
             {
                 ViewBag.Message = "";
-               accessRolesList=  new agencyData().GetPIRAccessRoles();
+                accessRolesList = new agencyData().GetPIRAccessRoles();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1881,9 +1780,9 @@ namespace Fingerprints.Controllers
                 accessRolesList = new agencyData().InsertPIRAccessRoles(out rowsAffected, PIRAccessRoles);
 
                 ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Please try again";
-               
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1918,7 +1817,7 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        public ActionResult AcceptanceRole(string ak="0")
+        public ActionResult AcceptanceRole(string ak = "0")
         {
 
 
@@ -1945,7 +1844,7 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter()]
-        public JsonResult GetAcceptanceRole(string isEndofYear="0")
+        public JsonResult GetAcceptanceRole(string isEndofYear = "0")
         {
             bool isEndYear = string.IsNullOrEmpty(isEndofYear) ? false : isEndofYear == "1" ? true : false;
 
@@ -1995,7 +1894,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -2011,11 +1910,11 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
-        public ActionResult Slots(string ak="0")
+        public ActionResult Slots(string ak = "0")
         {
             AgencySlots agencySlot = new AgencySlots();
             try
@@ -2036,7 +1935,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
-        public ActionResult Slots(AgencySlots Slot, List<ClassRoom> ClassSlot,string isEndOfYear="")
+        public ActionResult Slots(AgencySlots Slot, List<ClassRoom> ClassSlot, string isEndOfYear = "")
         {
 
             try
@@ -2088,7 +1987,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -2101,12 +2000,12 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
         [HttpGet]
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
 
         public ViewResult IncomeReviewRoles()
         {
@@ -2129,7 +2028,7 @@ namespace Fingerprints.Controllers
         /// <param name="IncomeReviewRoles"></param>
         /// <returns>List<IncomeReviewRoles></returns>
         [HttpPost]
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         public ActionResult IncomeReviewRoles(List<IncomeReviewRoles> IncomeReviewRoles)
         {
             List<IncomeReviewRoles> incomeReviewRolesList = new List<IncomeReviewRoles>();
@@ -2149,10 +2048,10 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
 
-       [HttpGet]
-        public ActionResult AccessRoles(string id="0")
+        [HttpGet]
+        public ActionResult AccessRoles(string id = "0")
         {
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             try
@@ -2160,14 +2059,14 @@ namespace Fingerprints.Controllers
                 int titleID = 0;
                 titleID = int.TryParse(id, out titleID) == true ? titleID : 0;
                 accessRoles = new agencyData().SP_AccessRole(titleID, Session["AgencyID"].ToString());
-                if (accessRoles!=null 
-                    && accessRoles.RoleList!=null 
-                    && accessRoles.RoleList.Count>0 
+                if (accessRoles != null
+                    && accessRoles.RoleList != null
+                    && accessRoles.RoleList.Count > 0
                     && accessRoles.RoleList.Where(x => x.RoleId.ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.Parent)).Any())
                 {
                     accessRoles.RoleList.Remove(accessRoles.RoleList.Where(x => x.RoleId.ToLowerInvariant() == EnumHelper.GetEnumDescription(RoleEnum.Parent).ToString().ToLowerInvariant()).First());
                 }
-                ViewBag.Titleid = titleID ==0 ? accessRoles.TitleList[0].TitleId : titleID;
+                ViewBag.Titleid = titleID == 0 ? accessRoles.TitleList[0].TitleId : titleID;
                 accessRoles.TitleId = ViewBag.Titleid;
                 ViewBag.Result = (TempData["Result"] != null) ? Convert.ToInt32(TempData["Result"]) : 0;
             }
@@ -2178,51 +2077,47 @@ namespace Fingerprints.Controllers
             return View(accessRoles);
         }
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         [HttpPost]
-        public ActionResult AccessRoles(List<Role> Role,int TitleId,string Command,string screeningIDSelect)
+        public ActionResult AccessRoles(List<Role> Role, int TitleId, string Command, string screeningIDSelect)
         {
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             bool isResult = false;
             try
             {
                 StaffDetails staff = StaffDetails.GetInstance();
-                isResult = new agencyData().SaveAccessRoles(Role, staff.AgencyId.ToString(), staff.UserId.ToString(), TitleId,screeningIDSelect);
-              
-                //    accessRoles = agencyData.SP_AccessRole(TitleId, staff.AgencyId.ToString(), screeningIDSelect);
 
-                
-                //accessRoles.TitleId = TitleId;
+                isResult = new agencyData().SaveAccessRoles(Role, staff.AgencyId.ToString(), staff.UserId.ToString(), TitleId, screeningIDSelect);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             ViewBag.Titleid = TitleId;
-           TempData["Result"] = Convert.ToInt32(isResult);
+            TempData["Result"] = Convert.ToInt32(isResult);
             TempData["ScreeningID"] = screeningIDSelect;
-            //return View(accessRoles);
+          
             return RedirectToAction("AccessRoles", "AgencyAdmin", new { @id = TitleId.ToString() });
-           // return RedirectToAction(Request.Url.AbsoluteUri);
+           
         }
 
 
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
-        public ActionResult MoveSeats(string ak="")
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+        public ActionResult MoveSeats(string ak = "")
         {
             ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
 
             MoveSeats moveSeats = new FingerprintsModel.MoveSeats();
-            moveSeats.IsEndOfYear= string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
+            moveSeats.IsEndOfYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
             moveSeats = new agencyData().GetCenterandClassRoomSeats(moveSeats);
             return View(moveSeats);
 
         }
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
-        public JsonResult GetClassroomsByCenter(string centerId = "0",string isEndOfYear="0")
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+        public JsonResult GetClassroomsByCenter(string centerId = "0", string isEndOfYear = "0")
         {
             try
             {
@@ -2239,7 +2134,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency,string isEndOfYear="0")
+        public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency, string isEndOfYear = "0")
         {
 
             try
@@ -2297,18 +2192,18 @@ namespace Fingerprints.Controllers
             }
 
 
-            return Json(result,JsonRequestBehavior.AllowGet);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
 
         [CustAuthFilter()]
-        public ActionResult GetCenterWithSeats(string agencyId,int reqPage,int skip,int take, string searchText,string isEndOfYear="0")
+        public ActionResult GetCenterWithSeats(string agencyId, int reqPage, int skip, int take, string searchText, string isEndOfYear = "0")
         {
             MoveSeats seatsDis = new FingerprintsModel.MoveSeats();
             try
             {
 
-                seatsDis.IsEndOfYear= string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                seatsDis.IsEndOfYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
                 skip = (take * (reqPage - 1));
 
                 seatsDis.AgencyID = new Guid(agencyId);
@@ -2318,9 +2213,9 @@ namespace Fingerprints.Controllers
                 seatsDis.Take = take;
                 seatsDis = new agencyData().GetCenterandClassRoomSeats(seatsDis);
                 seatsDis.AgencyCenterList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), agencyId, Session["RoleID"].ToString(), false);
-                seatsDis.AgencyCenterList.ForEach(x => x.Value =(x.Value=="0")?x.Value: EncryptDecrypt.Encrypt64(x.Value));
+                seatsDis.AgencyCenterList.ForEach(x => x.Value = (x.Value == "0") ? x.Value : EncryptDecrypt.Encrypt64(x.Value));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -2329,13 +2224,13 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public JsonResult AutoCompleteCenter(string searchText,string agencyId)
+        public JsonResult AutoCompleteCenter(string searchText, string agencyId)
         {
             try
             {
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -2351,7 +2246,7 @@ namespace Fingerprints.Controllers
             {
                 access = new agencyData().GetStaffsByRole(roleID);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -2360,17 +2255,17 @@ namespace Fingerprints.Controllers
 
 
         }
-   
+
 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult AccessRoleList(int type,string screeningID="0")
+        public PartialViewResult AccessRoleList(int type, string screeningID = "0")
         {
 
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             try
             {
-               accessRoles = new agencyData().SP_AccessRole(type, Session["AgencyID"].ToString(), screeningID);
+                accessRoles = new agencyData().SP_AccessRole(type, Session["AgencyID"].ToString(), screeningID);
                 accessRoles.TitleId = type;
             }
             catch (Exception ex)
@@ -2395,7 +2290,7 @@ namespace Fingerprints.Controllers
 
             NewProgramYearTransition newProgramYear = new NewProgramYearTransition();
 
-            newProgramYear=  new agencyData().EndOfProgramYear();
+            newProgramYear = new agencyData().EndOfProgramYear();
 
             return View(newProgramYear);
         }
@@ -2409,17 +2304,11 @@ namespace Fingerprints.Controllers
 
             try
             {
-
-             //   AgencyStaff _staff = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
-
-             //   agency = agencyData.editAgency(Session["AgencyID"].ToString());
-               // ViewBag.RefList = _staff.refList;
+               
                 agency = agencyData.GetEndOfYearFunds_Programs();
-               // ViewBag.NextProgramYear = agency.ActiveProgYear.Split('-')[1] + "-" + (int.Parse(agency.ActiveProgYear.Split('-')[1]) + 1).ToString();
-
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -2432,19 +2321,19 @@ namespace Fingerprints.Controllers
         {
             string result = "";
 
-            result= new agencyData().InsertEndOfYearFundsPrograms(agencyinfo,agencyinfo.FundSourcedata);
+            result = new agencyData().InsertEndOfYearFundsPrograms(agencyinfo, agencyinfo.FundSourcedata);
 
 
-             if (result == "1")
+            if (result == "1")
                 ViewBag.message = "Record updated successfully";
-            else if(result=="")
+            else if (result == "")
 
                 ViewBag.message = "Error Occured.Please, try again later.";
 
             agencyinfo = agencyData.GetEndOfYearFunds_Programs();
 
             //return RedirectToAction("EndOfYearProgramTypes");
-           return View(agencyinfo);
+            return View(agencyinfo);
         }
 
 
@@ -2465,7 +2354,7 @@ namespace Fingerprints.Controllers
 
             List<HrCenterInfo> hrCenterList = new List<HrCenterInfo>();
 
-            agencyData.GetCentersByProgramYear(hrCenterList,programYear);
+            agencyData.GetCentersByProgramYear(hrCenterList, programYear);
 
             return Json(hrCenterList, JsonRequestBehavior.AllowGet);
         }
@@ -2473,43 +2362,43 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
 
-        public JsonResult ChangeAgencySlots(string slotNumber,string changeType)
+        public JsonResult ChangeAgencySlots(string slotNumber, string changeType)
         {
             string result = "0";
-            
+
             try
             {
                 String EMailTemplate = string.Empty;
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
                 System.Data.DataSet ds = new System.Data.DataSet();
-                agencyData.ChangeAgencySlots(ref result, ref ds, slotNumber, changeType,true);
+                agencyData.ChangeAgencySlots(ref result, ref ds, slotNumber, changeType, true);
 
-                if(result=="1" && changeType!="0")
+                if (result == "1" && changeType != "0")
                 {
-                  
-                     
-                   
-                      
-                        string siteURI = Request.Url.OriginalString;
-                        Uri uriResource = new Uri(siteURI);
-                        StreamReader reader = new StreamReader(Server.MapPath("~/MailTemplate/ChangeAgencySlotsTemplate.xml"));
-                        EMailTemplate = reader.ReadToEnd();
+
+
+
+
+                    string siteURI = Request.Url.OriginalString;
+                    Uri uriResource = new Uri(siteURI);
+                    StreamReader reader = new StreamReader(Server.MapPath("~/MailTemplate/ChangeAgencySlotsTemplate.xml"));
+                    EMailTemplate = reader.ReadToEnd();
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        string imagePath = "http://" + uriResource.Authority + "/Content/img/ge_logo_banner_left2.png";
+                        EMailTemplate = EMailTemplate.Replace("{image}", imagePath);
+                        //string Email = "", cc = "";
+
                         if (ds.Tables[0].Rows.Count > 0)
                         {
-                            string imagePath = "http://" + uriResource.Authority + "/Content/img/ge_logo_banner_left2.png";
-                            EMailTemplate = EMailTemplate.Replace("{image}", imagePath);
-                            //string Email = "", cc = "";
-                           
-                            if (ds.Tables[0].Rows.Count > 0)
-                            {
                             string content = string.Empty;
                             string agencyEmail = string.Empty;
                             string subject = string.Empty;
 
-                            if(changeType == "1")
+                            if (changeType == "1")
                             {
                                 content = ds.Tables[0].Rows[0]["AgencyName"].ToString() + " " + "incremented their slots count from " +
-                                    ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString()+". ";
+                                    ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString() + ". ";
 
                                 agencyEmail = "Kindly, send an invoice to " + ds.Tables[0].Rows[0]["PrimaryEmail"].ToString() + "(" + ds.Tables[0].Rows[0]["AgencyAdminName"].ToString() + ")";
                                 subject = "Increment of Agency Slots";
@@ -2517,55 +2406,55 @@ namespace Fingerprints.Controllers
                             else
                             {
                                 content = ds.Tables[0].Rows[0]["AgencyName"].ToString() + " " + "decremented their slots count from " +
-                                  ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString()+". ";
+                                  ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString() + ". ";
 
                                 agencyEmail = "Kindly, follow-up with " + ds.Tables[0].Rows[0]["AgencyAdminName"].ToString() + "(" + ds.Tables[0].Rows[0]["PrimaryEmail"].ToString() + ")";
                                 subject = "Decrement of Agency Slots";
                             }
 
-                            EMailTemplate = EMailTemplate.Replace("$BodyHeading$", (changeType=="1")?"Increment of Agency Slots":"Decrement of Agency Slots");
-                                EMailTemplate = EMailTemplate.Replace("$SlotInformation$", content);
-                                EMailTemplate = EMailTemplate.Replace("$agencyEmail$", agencyEmail);
-                                //EMailTemplate = EMailTemplate.Replace("$SubjectContent$", subject);
-                                //EMailTemplate = EMailTemplate.Replace("{URLNote}", !string.IsNullOrEmpty(ds.Tables[2].Rows[0]["URLNote"].ToString()) ? ds.Tables[2].Rows[0]["URLNote"].ToString() : "");
-                                //EMailTemplate = EMailTemplate.Replace("{AssignedBy}", Session["EmailID"].ToString());
-                            }
-                           
-                           
-                            string isSent = SendMail.SendEmailForChangeInAgencySlots(EMailTemplate, ds.Tables[0].Rows[0]["AgencyName"].ToString());
-                                
-                           
-
-
+                            EMailTemplate = EMailTemplate.Replace("$BodyHeading$", (changeType == "1") ? "Increment of Agency Slots" : "Decrement of Agency Slots");
+                            EMailTemplate = EMailTemplate.Replace("$SlotInformation$", content);
+                            EMailTemplate = EMailTemplate.Replace("$agencyEmail$", agencyEmail);
+                            //EMailTemplate = EMailTemplate.Replace("$SubjectContent$", subject);
+                            //EMailTemplate = EMailTemplate.Replace("{URLNote}", !string.IsNullOrEmpty(ds.Tables[2].Rows[0]["URLNote"].ToString()) ? ds.Tables[2].Rows[0]["URLNote"].ToString() : "");
+                            //EMailTemplate = EMailTemplate.Replace("{AssignedBy}", Session["EmailID"].ToString());
                         }
 
-                        if(ds.Tables.Count>1 && ds.Tables[1].Rows.Count>0)
+
+                        string isSent = SendMail.SendEmailForChangeInAgencySlots(EMailTemplate, ds.Tables[0].Rows[0]["AgencyName"].ToString());
+
+
+
+
+                    }
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         slotNumber = ds.Tables[1].Rows[0]["SlotNumber"].ToString();
                     }
 
-                   
+
                 }
 
-                
-                
+
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-            return Json(new{ result,slotNumber}, JsonRequestBehavior.AllowGet);
+            return Json(new { result, slotNumber }, JsonRequestBehavior.AllowGet);
         }
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         public ActionResult ScreeningList()
         {
 
             return View();
         }
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         public JsonResult listScreening(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -2585,8 +2474,8 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
-        public ActionResult ScreeningAgencyAdmin(string id="")
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+        public ActionResult ScreeningAgencyAdmin(string id = "")
         {
 
             StaffDetails staffDetails = new StaffDetails();
@@ -2594,7 +2483,7 @@ namespace Fingerprints.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 ViewBag.mode = 1;
-                ViewBag.screening = agencyData.EditScreening(EncryptDecrypt.Decrypt64(id),staffDetails);
+                ViewBag.screening = agencyData.EditScreening(EncryptDecrypt.Decrypt64(id), staffDetails);
 
             }
 
@@ -2605,15 +2494,15 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
-        public JsonResult ActiveDeactiveScreening(string id,string mode="")
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+        public JsonResult ActiveDeactiveScreening(string id, string mode = "")
         {
             try
             {
 
                 ScreeningStatus enumStatus = EnumHelper.GetEnumByStringValue<ScreeningStatus>(mode);
 
-                return Json(agencyData.ActiveDeactiveScreening(id,StaffDetails.GetInstance(), enumStatus));
+                return Json(agencyData.ActiveDeactiveScreening(id, StaffDetails.GetInstance(), enumStatus));
             }
             catch (Exception Ex)
             {
@@ -2622,11 +2511,10 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
         public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
            string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear
-           //,List<ScreeningAccess> screeningAccessList
-             ,int ScreeningReportPerioidID, bool Report
+             , int ScreeningReportPerioidID, bool Report
            )
         {
             try
@@ -2634,7 +2522,7 @@ namespace Fingerprints.Controllers
 
                 var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-                string message = agencyData.UpdateScreening(ScreeningId, ScreeningName, Questionlist, AgencyId, staffDetails.UserId.ToString(), Programtype, Document, Inintake, expiredPeriod, expireIn, screeningsYear,ScreeningReportPerioidID,Report);
+                string message = agencyData.UpdateScreening(ScreeningId, ScreeningName, Questionlist, AgencyId, staffDetails.UserId.ToString(), Programtype, Document, Inintake, expiredPeriod, expireIn, screeningsYear, ScreeningReportPerioidID, Report);
 
 
 

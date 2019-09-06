@@ -5,6 +5,7 @@
         strong.pir-Q-lbl {
             min-height: 0 !important;
             float: left;
+            color: #333;
         }
 
         .title-fixed {
@@ -83,6 +84,7 @@
     strong.pir-Q-lbl {
         min-height: 60px;
         float: left;
+        color: #333;
     }
 
 
@@ -165,11 +167,12 @@
         border-radius: 0;
     }
 
-    #btnAcceptImmune {
-        margin-left: 25px;
-        margin-top: 5px;
+    
+
+    .transition-radio-btn .radio.radio-info {
+        margin-right: 25px;
     }
-    .transition-radio-btn .radio.radio-info{margin-right:25px;}
+
     @@media only screen and (min-width: 1024px) and (max-width: 1290px) {
         .response-mtop {
             margin-top: 10px !important;
@@ -385,9 +388,12 @@
 
         $('#ChangeclientStatus').find('#WithdrawnTypeDiv').find('select').val('0');
 
+
+        BindReason(object, _clientid);
+        EnrolledObject = object;
+
         if ($(object).attr("accesskey") == "5") {
-            BindReason(object, _clientid);
-            EnrolledObject = object;
+
             $('#lblCurrentStatus').css('color', 'green').text("Accepted");
             $('#lblNewStatus').text("Dropped");
             $('#Divwaitinglist').show();
@@ -395,15 +401,15 @@
             $('#ClientNameAll').text($(object).attr("name"));
             $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#dateOfWithdrawnDiv,#divSelectDate,#WithdrawnTypeDiv').hide();
 
-            bindStatusCaseNoteDetails();
+            bindStatusCaseNoteDetails(_clientid);
 
 
 
             $('#ChangeclientStatus').modal('show');
         }
         if ($(object).attr("accesskey") == "6") {
-            BindReason(object, _clientid);
-            EnrolledObject = object;
+            //BindReason(object, _clientid);
+            //EnrolledObject = object;
             $('#lblCurrentStatus').css('color', 'red').text("Dropped");
 
             $('#lblNewStatus').css('color', 'green').text("Accepted");
@@ -411,25 +417,25 @@
             $('#ClientNameAll').text($(object).attr("name"));
             $('#ChangeclientStatus').find('#dateOfWithdrawnDiv,#WithdrawnTypeDiv,#Divwaitinglist').hide();
             $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').show();
-            bindStatusCaseNoteDetails();
+            bindStatusCaseNoteDetails(_clientid);
             $('#ChangeclientStatus').modal('show');
         }
         if ($(object).attr("accesskey") == "7") {
-            BindReason(object, _clientid);
-            EnrolledObject = object;
-            $('#lblCurrentStatus').css('color', 'rgb(51, 122, 189)').text("Withdrawn");
-            $('#lblNewStatus').text("Re-enrolled");
+            //BindReason(object, _clientid);
+            //EnrolledObject = object;
+            $('#lblCurrentStatus').css('color', 'red').text("Withdrawn");
+            $('#lblNewStatus').css('color', 'rgb(51, 122, 189)').text("Re-enrolled");
             $('#ddlreason').val('');
 
             $('#ClientNameAll').text($(object).attr("name"));
             $('#ChangeclientStatus').find('#dateOfWithdrawnDiv,#WithdrawnTypeDiv,#Divwaitinglist').hide();
             $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').show();
-            bindStatusCaseNoteDetails();
+            bindStatusCaseNoteDetails(_clientid);
             $('#ChangeclientStatus').modal('show');
         }
         if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9" || $(object).attr('accesskey') == "10") {
-            BindReason(object, _clientid);
-            EnrolledObject = object;
+            //BindReason(object, _clientid);
+            //EnrolledObject = object;
             if ($(object).attr("accesskey") == "8") {
                 $('#lblCurrentStatus').css('color', 'rgb(51, 122, 189)').text("Enrolled");
 
@@ -446,7 +452,7 @@
                 $('#lblCurrentStatus').css('color', 'rgb(51, 122, 189)').text("Transitioned");
                 $('#lblNewStatus').text("Withdrawn");
             }
-            
+
 
 
             $('#ddlreason').val('');
@@ -468,26 +474,9 @@
             $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').hide();
             $('#ClientNameAll').text($(object).attr("name"));
 
-            //switch (Insurance) {
-            //    case "1":
-            //        $('#MedicareInsurance').prop('checked', true);
-            //        break;
-            //    case "2":
-            //        $('#NoInsurance').prop('checked', true);
-            //        break;
-            //    case "3":
-            //        $('#OtherInsurance').prop('checked', true);
-            //        break;
-            //    case "4":
-            //        $('#PrivateInsurance').prop('checked', true);
-            //        break;
-            //    case "5":
-            //        $('#StateInsurance').prop('checked', true);
-            //        break;
-            //}
+            bindStatusCaseNoteDetails(_clientid);
 
-            bindStatusCaseNoteDetails();
-            $('#ChangeclientStatus').modal({backdrop:'static',keyboard:false},'show');
+            $('#ChangeclientStatus').modal({ backdrop: 'static', keyboard: false }, 'show');
         }
 
 
@@ -503,50 +492,109 @@
         }
         return true;
     }
-    function bindStatusCaseNoteDetails() {
-        var list = '';
-
-        list += "<div class='col-xs-12'>";
-        list += "Change Status from " + $('#lblCurrentStatus').text() + ' ' + "to " + $('#lblNewStatus').text() + '</div>';
-
-        $('#ChangeclientStatus').find('#statusNote').val(list);
-
-        if (CKEDITOR.instances['statusNote']) {
-            CKEDITOR.instances['statusNote'].destroy(true);
-        }
+    function bindStatusCaseNoteDetails(_clientid) {
 
 
-        CKEDITOR.replace('statusNote', {
-            language: 'en-gb',
-            uiColor: '#295b8f',
-            disableNativeSpellChecker: false
-        });
 
-        $('#status_CaseNotetags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete: {
-                //'source': tags_array[0].split(/,\s*/)
-               // 'source': getTagsOnInput(),
-                'appendTo': "#ChangeclientStatus"
+
+        $('#caseNoteStatDiv').ApplinkCaseNote({
+            isPopup: false,
+            isSection: true,
+            caseNoteType: 1,   //1- New 2- Edit / 3- Append //
+            getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+            caseNoteId: 0,
+            householdId: 0,
+            clientId: _clientid,
+            isEditable: true,
+            isShowSubmitButton: false,
+            isShowExportIcon: false,
+            forceLoad: true,
+
+            modalOnShown: function (element) {
+
             },
-            autocomplete_url: '@Url.Action("GetCaseNoteTag", "Roster")',
+            ajaxComplete: function (element) {
+
+                var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
+
+                //element.find('#divCaseNoteSection').css('background', '#ffffff');
+
+                element.find('#divCaseNoteSection').css({ 'border': 'unset', 'padding': '0px' });
+
+                element.find('#divCaseNoteStaffs_' + $guid + '').append('<input type="hidden" name="StaffIds"/>');
+                element.find('#divCaseNoteClients_' + $guid + '').append('<input type="hidden" name="ClientIds"/>');
+
+
+                element.find('#txtCaseNoteTitle_' + $guid + '').val('Enrollment Status Change');
+
+
+
+
+
+                var list = '';
+
+                list += "<div class='col-xs-12'>";
+                list += "Change Status from " + $('#lblCurrentStatus').text() + ' ' + "to " + $('#lblNewStatus').text() + '</div>';
+
+
+
+                if (CKEDITOR.instances['txtareaCaseNote_' + $guid + '']) {
+                    CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].destroy(true);
+                }
+
+
+                CKEDITOR.replace('txtareaCaseNote_' + $guid + '', {
+                    language: 'en-gb',
+                    uiColor: '#295b8f',
+                    disableNativeSpellChecker: false
+                });
+
+                CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].setData(list);
+
+                element.find('#txtareaCaseNote_' + $guid + '').val(list);
+
+                $('#txtCaseNoteTags_' + $guid + '').importTags($('#lblNewStatus').html().toString() + ',,;');
+
+
+
+
+
+
+                element.find('#txtCaseNoteDate_' + $guid + '').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                element.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
+
+                element.find('#txtCaseNoteDate_' + $guid + '').prop('disabled', false);
+
+                element.find('.img-camera').attr('target-id', 'caseNoteStatDiv');
+
+                element.css('border', 'unset!important');
+
+                showCameraOption(element);
+
+                element.find('#uploadImageCamera').hide();
+
+                setIntervalUserMedia(element);
+            }
+
         });
 
-        $('#status_CaseNotetags').importTags($('#lblNewStatus').html().toString() + ',,;');
+
+
 
     }
 
 
     function bindStatusCaseNoteDetailsPregMom(birthOption) {
-       
+
         var list = '';
 
 
 
         var prgtags = "";
         var reasonTags = "";
+
+        var $guid = $('#ChangeclientStatus').find('#divCaseNoteSection').attr('data-current-id');
 
         if ($('#ddlreason').val() != null && $('#ddlreason').val() != '' && $('#ddlreason').val() != undefined) {
             reasonTags = ($('#ddlreason option:selected').text().indexOf(':') > 0) ? $('#ddlreason option:selected').text().split(':')[0] : "";
@@ -576,49 +624,43 @@
 
 
 
-        $('#ChangeclientStatus').find('#statusNote').val(list);
+        $('#ChangeclientStatus').find('#txtareaCaseNote_'+$guid+'').val(list);
 
-        if (CKEDITOR.instances['statusNote']) {
-            CKEDITOR.instances['statusNote'].destroy(true);
+        if (CKEDITOR.instances['txtareaCaseNote_'+$guid+'']) {
+            CKEDITOR.instances['txtareaCaseNote_'+$guid+''].destroy(true);
         }
 
 
-        CKEDITOR.replace('statusNote', {
+        CKEDITOR.replace('txtareaCaseNote_'+$guid+'', {
             language: 'en-gb',
             uiColor: '#295b8f',
             disableNativeSpellChecker: false
         });
 
-        $('#status_CaseNotetags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete: {
-                //'source': tags_array[0].split(/,\s*/)
-                'source': getTagsOnInput()
-            },
-            autocomplete_url: '',
-        });
 
-        $('#status_CaseNotetags').importTags(prgtags);
+       
+
+
+        $('#txtCaseNoteTags_'+$guid+'').importTags(prgtags);
 
     }
 
 
-    $.fn.destroyTagsInput = function (value) {
-        $(this).tagsInput = null;
+    $.fn.destroyTagsInput = function () {
+       // $(this).tagsInput = null;
         $(this).next('.tagsinput').find('.tag').remove();
-        // $(this).show();
     }
 
     function Showreason(object) {
-      
+
         cleanValidation();
         var isPregnant = $('#ChangeclientStatus').find('#isclientPreg').val() == 'true' ? true : false;
         var tp = '';
         var wttag = '';
         var reasonTag = "";
-
+        var $guid = $('#ChangeclientStatus').find('#divCaseNoteSection').attr('data-current-id');
+        var caseNoteTags = $('#txtCaseNoteTags_' + $guid + '');
+       
         if (isPregnant && $('#childBirthTypeDiv').is(':visible')) {
             if ($('input[name=BirthType]:checked').length > 0) {
                 var birOp = $('input[name=BirthType]:checked').val();
@@ -692,39 +734,43 @@
         if ($(object).val() == "0") {
             $('#Divreason').show();
 
+
+   
             if (prevTag != '') {
-                if ($('#status_CaseNotetags').val() != '') {
-                    $('#status_CaseNotetags').val($('#status_CaseNotetags').val().replace(prevTag, ""));
-                    reasonTag = $('#status_CaseNotetags').val().trim() + wttag;
+
+            
+                if (caseNoteTags.val() != '') {
+                    caseNoteTags.val(caseNoteTags.val().replace(prevTag, ""));
+                    reasonTag = caseNoteTags.val().trim() + wttag;
                 }
                 else if (isPregnant && $('#childBirthTypeDiv').is(':visible')) {
 
 
 
                     if (tp != '') {
-                        $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + tp + wttag);
+                        caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + tp + wttag);
 
                     }
                     else {
-                        $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
+                        caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
 
                     }
 
                 }
                 else {
-                    $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
+                    caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
 
                 }
-                // $('#status_CaseNotetags').val($('#status_CaseNotetags').val().replace(prevTag, reasonTag));
-                reasonTag = $('#status_CaseNotetags').val();
+                reasonTag = caseNoteTags.val();
             }
             else {
 
-                reasonTag = $('#status_CaseNotetags').val() + ',,;' + reasonTag + ',,;' + wttag;
+                reasonTag = caseNoteTags.val() + ',,;' + reasonTag + ',,;' + wttag;
             }
 
             prevTag = '';
-            $('#status_CaseNotetags').importTags(reasonTag);
+            caseNoteTags.destroyTagsInput();
+            caseNoteTags.importTags(reasonTag);
 
         }
 
@@ -736,50 +782,44 @@
                 reasonTag = reasonTag.split(':')[0].trim();
 
                 if (prevTag != '') {
-                    if ($('#status_CaseNotetags').val() != '') {
-                        $('#status_CaseNotetags').val($('#status_CaseNotetags').val().replace(prevTag, reasonTag));
-                        reasonTag = $('#status_CaseNotetags').val() + wttag;
+                    if (caseNoteTags.val() != '') {
+                        caseNoteTags.val(caseNoteTags.val().replace(prevTag, reasonTag));
+                        reasonTag = caseNoteTags.val() + wttag;
                     }
                     else if (isPregnant && $('#childBirthTypeDiv').is(':visible')) {
 
                         if (tp != '') {
-                            $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + tp + wttag);
+                            caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + tp + wttag);
 
                         }
                         else {
-                            $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
+                            caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
 
                         }
                     }
                     else {
-                        $('#status_CaseNotetags').val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
+                        caseNoteTags.val($('#lblNewStatus').html().toString() + ',,;' + reasonTag + ',,;' + wttag);
                     }
 
 
-                    reasonTag = $('#status_CaseNotetags').val();
+                    reasonTag = caseNoteTags.val();
+                    caseNoteTags.destroyTagsInput();
+                    caseNoteTags.importTags(reasonTag);
+
                 }
                 else {
 
-                    reasonTag = $('#status_CaseNotetags').val() + ',,;' + reasonTag + ',,;' + wttag;
+                    //  reasonTag = caseNoteTags.val() + ',,;' + reasonTag + ',,;' + wttag;
+                    caseNoteTags.addTag(reasonTag);
                 }
                 prevTag = $('#ddlreason option:selected').text().split(':')[0].trim();
 
-                $('#status_CaseNotetags').destroyTagsInput();
 
 
-                $('#status_CaseNotetags').importTags(reasonTag);
+               
             }
 
-            $('#status_CaseNotetags').tagsInput({
-                width: 'auto',
-                height: 'auto',
-                delimiter: [',', ';'],
-                autocomplete: {
-                    //'source': tags_array[0].split(/,\s*/)
-                    'source': getTagsOnInput()
-                },
-                autocomplete_url: '',
-            });
+            
 
             $('#Divreason').hide();
 
@@ -793,8 +833,6 @@
             cModel.find('#SSIStatus').prop("checked", false);
             cModel.find('#WICStatus').prop("checked", false);
             cModel.find('#SNAPStatus').prop("checked", false);
-            //  $('#OGendermale').prop("checked", false);
-
         }
     }
 
@@ -804,9 +842,6 @@
         var cModel = $('#ChangeclientStatus');
         if ((cModel.find('#TANFStatus').prop("checked")) || (cModel.find('#SSIStatus').prop("checked")) || (cModel.find('#WICStatus').prop("checked")) || (cModel.find('#SNAPStatus').prop("checked"))) {
             cModel.find('#NONEStatus').prop("checked", false);
-
-            //  $('#OGendermale').prop("checked", false);
-
         }
     }
 
@@ -832,7 +867,7 @@
     }
 
     function isValidStatusChange() {
-       
+
         var isValid = true;
         cleanValidation();
 
@@ -861,8 +896,7 @@
         $changeModal.find('#childBirthTypeDiv').find('.transition-radio-btn').removeClass('err-bg');
         $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').removeClass('err-bg');
 
-        //  var birthCheckedValue = '0';
-        if ((ackey == '8' || ackey == '9'|| ackey=='10') && newStat == 'Withdrawn' && $('#dateOfWithdrawnDiv').is(':visible')) {
+        if ((ackey == '8' || ackey == '9' || ackey == '10') && newStat == 'Withdrawn' && $('#dateOfWithdrawnDiv').is(':visible')) {
             if (dateWithdrawn.val() == null || dateWithdrawn.val() == '') {
                 isValid = false;
                 plainValidation(dateWithdrawn);
@@ -919,7 +953,7 @@
             return isValid;
         }
 
-        if ((ackey == '5' || ackey == '8' || ackey == '9' || ackey=='10') && $('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
+        if ((ackey == '5' || ackey == '8' || ackey == '9' || ackey == '10') && $('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
             isValid = false;
             customAlert("Please select Yes or No for Place on Waiting List");
             $("input:radio[name='waitinglist']")[0].focus();
@@ -934,7 +968,7 @@
             if ($changeModal.find('input[name=BirthType]:checked').length == 0) {
                 isValid = false;
                 customAlert("Please select type of birth");
-                //  plainValidation('#rblwaitinglist');
+
                 $changeModal.find('input[name=BirthType]')[0].focus();
                 $changeModal.find('#childBirthTypeDiv').find('.transition-radio-btn').addClass('err-bg');
 
@@ -944,7 +978,7 @@
             if ($changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').is(':visible') && $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('input[name=newChildInstype]:checked').length == 0) {
                 isValid = false;
                 customAlert("Please select insurance type for new born child");
-                //  plainValidation('#rblwaitinglist');
+
                 $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('input[name=newChildInstype]')[0].focus();
 
                 $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').addClass('err-bg');
@@ -952,8 +986,7 @@
             }
 
             if ($changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').is(':visible') && $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('input[name=newChildInstype]:checked').val() == '3' &&
-                $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('#OtherInsuranceType').val()=='')
-            {
+                $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('#OtherInsuranceType').val() == '') {
                 isValid = false;
                 customAlert('Please enter other insurance type');
                 plainValidation('#OtherInsuranceType');
@@ -965,8 +998,7 @@
 
                 if (birthChecked == '3' && ($('#MultiChildBirth').val() == "" || $('#MultiChildBirth').val() == null)) {
                     isValid = false;
-                    //  $('#spnMultiChildBirthErr').text("Please enter number of child.");
-                    //$('#spnMultiChildBirthErr').show();
+
                     plainValidation('#MultiChildBirth');
                     customAlert('Please select number of child(s)');
                     return isValid;
@@ -974,21 +1006,12 @@
 
                 if (birthChecked == '3' && $('#MultiChildBirth').val() != '' && !$('#newChildInfoDiv').is(':visible')) {
                     isValid = false;
-                    //plainValidation('#MultiChildBirth');
+
                     customAlert('Please click on Load Forms button, to get the child information form(s)');
                     return isValid;
                 }
 
-                //if ((birthChecked == '2' || birthChecked == '3') && $('#newChildInfoDiv').is(':visible') == true
-                //    && $('#newChildInfoDiv').find('#allowFutureApplicationDiv').is(':visible') == true &&
-                //     $('#newChildInfoDiv').find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').is(':visible')==true &&
-                //   $('#newChildInfoDiv').find('#allowFutureApplicationDiv').find('input:radio[name=radioFutureApp]:checked').length==0)
-                //{
-                //    isValid = false;
-                //    plainValidation('#allowFutureRadioDiv');
-                //    customAlert('Please select Yes or No for accept as future application.');
-                //    return isValid;
-                //}
+
 
                 if (birthChecked == '2' || birthChecked == '3') {
 
@@ -1057,7 +1080,7 @@
 
 
                         if ($(child).find('input[name=yn]:checked').length == 0) {
-                            // plainValidation($(child).find('.dob'));
+
                             $(child).find('input[name=yn]')[0].focus();
                             $(child).find('input[name=yn]').parent('div').parent('.transition-radio-btn').find('.err-message').show();
                             errorCount++;
@@ -1074,7 +1097,7 @@
 
 
                         if ($(child).find('input[name=yn1]:checked').length == 0) {
-                            // plainValidation($(child).find('.dob'));
+
                             $(child).find('input[name=yn1]')[0].focus();
                             $(child).find('input[name=yn1]').parent('div').parent('.transition-radio-btn').find('.err-message').show();
                             errorCount++;
@@ -1099,119 +1122,65 @@
 
         //Case Note Section//
 
+        var caseNoteResult = false;
 
-        if ($changeModal.find('#txtStatusCaseNoteDate').val() == '') {
-            isValid = false;
-            plainValidation('#txtStatusCaseNoteDate');
-            customAlert('Please enter Case Note Date');
-            return isValid;
+
+        caseNoteResult = $changeModal.find('#caseNoteStatDiv').ApplinkCaseNote('caseNoteValidation');
+
+        if (!caseNoteResult)
+        {
+            return false;
         }
 
-        if ($changeModal.find('#txtStatusCaseNoteTitle').val() == '') {
-            isValid = false;
-            plainValidation('#txtStatusCaseNoteTitle');
-            customAlert('Please enter Case Note Title');
-            return isValid;
-        }
-
-        if ($changeModal.find('#statusNote').val().trim() == '') {
-            isValid = false;
-            customAlert("Please enter Note");
-            plainValidation('#statusNote');
-            return isValid;
-        }
-        if ($changeModal.find('#statusclientsDiv').find('input[type=checkbox]:checked').length == 0) {
-            isValid = false;
-            customAlert('Please select Clients');
-            return isValid;
-        }
-
-
-        var Tags = '';
-        $('#status_CaseNotetags_tagsinput .tag span').each(function () {
-            Tags = Tags + $(this).text().trim() + ',';
-        });
-
-        $("#status_CaseNotetags").val(Tags);
-        Tags = '';
-
-        if ($('#status_CaseNotetags').val().trim() == "") {
-            isValid = false;
-            customAlert("Tags are  required.");
-            plainValidation('#status_CaseNotetags');
-            return isValid;
-        }
-        if ($changeModal.find('#statusStaffDiv').find('input[type=checkbox]:checked').length == 0) {
-            isValid = false;
-            customAlert('Please select Development Staff(s)');
-            return isValid;
-        }
-
-
-        //if ($('#lblNewStatus').text() == "Withdrawn" && (ackey == '6' || ackey == '7')) {
-        //    if ($('.InsuranceType').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Insurance Type is required");
-        //        plainValidation('#InsuranceTypeID');
-        //        return isValid;
-        //    }
-        //    else if ($('.MedicalHome').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Ongoing source continuous, accessible health care is required.");
-        //        plainValidation('#MedicalHomeID');
-        //        return isValid;
-        //    }
-        //    else if ($('.MedicalServices').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.");
-        //        plainValidation('#MedicalServicesID');
-        //        return isValid;
-        //    }
-        //    else if ($('.DentalHome').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert(" Child have continual accessible dental care provided by a dentist is required.");
-        //        plainValidation('#DentalHomeID');
-        //        return isValid;
-        //    }
-        //    else if ($('.DentalServices').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule is required.");
-        //        plainValidation('#DentalServicesID');
-        //        return isValid;
-        //    }
-        //    else if ($('#ddImmunizationType').val() == "" || $('#ddImmunizationType').val() == null) {
-        //        isValid = false;
-        //        customAlert("Child up-to-date on all immunizations appropriate for their age is required.");
-        //        plainValidation('#ddImmunizationType');
-        //        return isValid;
-        //    }
-        //    else if ($('.services').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Family receiving services is required");
-        //        plainValidation('#statusServicesDiv');
-        //        return isValid;
-        //    }
-        //    else if ($('.Education').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Parent/guardian education details is required");
-        //        plainValidation('#EducationID');
-        //        return isValid;
-        //    }
-        //    else if ($('.JobTrainingFinished').is(':checked') == false) {
-        //        isValid = false;
-        //        customAlert("Parent/guardian completed Job Training is required");
-        //        plainValidation('#JobTrainingFinishedID');
-        //        return isValid;
-        //    }
+        //if ($changeModal.find('#txtStatusCaseNoteDate').val() == '') {
+        //    isValid = false;
+        //    plainValidation('#txtStatusCaseNoteDate');
+        //    customAlert('Please enter Case Note Date');
+        //    return isValid;
         //}
-        //else {
-        //    if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
-        //        isValid = false;
-        //        customAlert("Waiting list is required.");
-        //        plainValidation('#rblwaitinglist');
-        //        return isValid;
-        //    }
+
+        //if ($changeModal.find('#txtStatusCaseNoteTitle').val() == '') {
+        //    isValid = false;
+        //    plainValidation('#txtStatusCaseNoteTitle');
+        //    customAlert('Please enter Case Note Title');
+        //    return isValid;
         //}
+
+        //if ($changeModal.find('#statusNote').val().trim() == '') {
+        //    isValid = false;
+        //    customAlert("Please enter Note");
+        //    plainValidation('#statusNote');
+        //    return isValid;
+        //}
+        //if ($changeModal.find('#statusclientsDiv').find('input[type=checkbox]:checked').length == 0) {
+        //    isValid = false;
+        //    customAlert('Please select Clients');
+        //    return isValid;
+        //}
+
+
+        //var Tags = '';
+        //$('#status_CaseNotetags_tagsinput .tag span').each(function () {
+        //    Tags = Tags + $(this).text().trim() + ',';
+        //});
+
+        //$("#status_CaseNotetags").val(Tags);
+        //Tags = '';
+
+        //if ($('#status_CaseNotetags').val().trim() == "") {
+        //    isValid = false;
+        //    customAlert("Tags are  required.");
+        //    plainValidation('#status_CaseNotetags');
+        //    return isValid;
+        //}
+        //if ($changeModal.find('#statusStaffDiv').find('input[type=checkbox]:checked').length == 0) {
+        //    isValid = false;
+        //    customAlert('Please select Development Staff(s)');
+        //    return isValid;
+        //}
+
+
+
 
         if (isValid) {
 
@@ -1220,7 +1189,14 @@
                 if (result) {
                     if (EnrolledObject != null) {
                         var Transition = {};
-                     
+                        var fileData = new FormData();
+                        var clientArray = [];
+                        var staffArray = [];
+                        var cameraDocumentsArray = [];
+                        var casenotes = {};
+                        var $caseNoteSection = $changeModal.find('#divCaseNoteSection');
+                        var $guid = $caseNoteSection.attr('data-current-id');
+
 
                         var ispregClient = $changeModal.find('#isclientPreg').val() == 'true' ? true : false;
                         var isbirthDivVis = $changeModal.find('#childBirthTypeDiv').is(':visible');
@@ -1248,76 +1224,61 @@
                         Transition.IsPreg = ispregClient;
                         Transition.ClientId = 0;
                         Transition.TransitioningType = 0;
-                     
 
+                        $caseNoteSection.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox:checked').each(function () {
+                            clientArray.push($(this).val());
+                        });
 
-                        var fileData = new FormData();
+                        $caseNoteSection.find('#divCaseNoteStaffs_' + $guid + '').find('input:checkbox:checked').each(function () {
+                            staffArray.push($(this).val());
+                        });
 
-
-                        $changeModal.find('input[type=file]').each(function () {
-
-                            var fileUpload = $(this).get(0);
-                            var files = fileUpload.files;
-
-                            // Create FormData object
-
-
-                            // Looping over all files and add it to FormData object
-                            for (var i = 0; i < files.length; i++) {
-                                fileData.append(files[i].name, files[i]);
+                        $caseNoteSection.find('#caseNoteAttachmentsDiv_' + $guid + '').find('input:file').each(function (a, b) {
+                            var fileInput = $(this);
+                            if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                                var fileUpload = fileInput.get(0);
+                                var files = fileUpload.files;
+                                for (var i = 0; i < files.length; i++) {
+                                    var convImage = fileInput.attr('conv-img');
+                                    if (convImage != null && convImage != "")
+                                        cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+                                }
                             }
                         });
 
+                        var $cameraDocuments = $caseNoteSection.find(".div-edit-gallery_" + $guid + "").find('.setup_viewscreen');
 
-                        // Looping over all files and add it to FormData object
+                        if ($cameraDocuments.length > 0) {
 
-                        var arr = [];
+                            $.each($cameraDocuments, function (j, doc) {
 
-                        $changeModal.find('#statusattachmentsDiv').find('input[type=file]').each(function (m, file) {
-                          
+                                var $doc = $(doc).find('img');
+                                cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
 
-                            var fileUpload = $(file).get(0);
-                            var files = fileUpload.files;
-                            arr.push({ 'Attachment': files[0] });
-                        });
-
-
-
-                        var casenotes = {};
-                        casenotes.CaseNoteDate = $changeModal.find('#txtStatusCaseNoteDate').val();
-                        casenotes.CaseNotetitle = $changeModal.find('#txtStatusCaseNoteTitle').val();
-
-                        casenotes.Note = $changeModal.find('#statusNote').val();
-                        casenotes.CaseNotetags = $changeModal.find('#status_CaseNotetags').val();
-                        casenotes.CaseNoteSecurity = $changeModal.find('#CaseNoteSecurity').is(':checked');
-                        casenotes.CaseNoteAttachmentList = arr;
-
-                        var clientList = [];
-
-                        $changeModal.find('#statusclientsDiv').find('input[type=checkbox]:checked').each(function (n, cli) {
-                            clientList.push({ 'Id': $(cli).val(), 'Name': $(cli).next('span').text() });
-
-                        });
-                        var userList = [];
-
-                        $changeModal.find('#statusStaffDiv').find('input[type=checkbox]:checked').each(function (n, cli) {
-                            userList.push({ 'Id': $(cli).val(), 'Name': $(cli).next('span').text() });
-                        });
-
-
-                        var Users = {
-
-                            'Clientlist': clientList,
-                            'UserList': userList
+                            });
                         }
 
+
+                     
+
+                        casenotes.CaseNoteDate = $caseNoteSection.find('#txtCaseNoteDate_'+$guid+'').val().trim();
+                        casenotes.CaseNoteTitle = $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val().trim();
+                        casenotes.Note = $caseNoteSection.find('#txtareaCaseNote_'+$guid+'').val().trim();
+                        casenotes.CaseNotetags = $changeModal.find('#txtCaseNoteTags_'+$guid+'').val().trim(',');
+                        casenotes.ClientIds = clientArray.join(',');
+                        casenotes.StaffIds = staffArray.join(',');
+                        casenotes.CaseNoteSecurity = $changeModal.find('#checkboxSecureNote_' + $guid + '').is(':checked');
+                        casenotes.CaseNoteAttachmentList = cameraDocumentsArray;
+                        casenotes.CaseNoteId = '0';
+
+
                         Transition.CaseNoteDetails = casenotes;
-                        Transition.Users = Users;
+                        //Transition.Users = Users;
 
                         Transition.Enc_CenterID = ($changeModal.find('#divSelectCenter').is(':visible')) ? reenrollCenter.val() : null;
                         Transition.Enc_ClassroomID = ($changeModal.find('#divSelectClassroom').is(':visible')) ? reenrollClassroom.val() : null;
                         Transition.ClassStartDate = ($changeModal.find('#divSelectDate').is(':visible')) ? clasStartDate.val() : null;
-
+                      
 
 
                         Transition.ParentID = $changeModal.find('#fatherEducationDiv').is(':visible') ? $changeModal.find('#fatherEducationDiv').find('#ParentID').val() : "";
@@ -1337,11 +1298,11 @@
                         Transition.SNAP = (familyservice) ? $changeModal.find('#SNAPStatus').is(':checked') : null;
                         Transition.NONE = (familyservice) ? $changeModal.find('#NONEStatus').is(':checked') : null;
 
-                        Transition.ShoolAchievement = null;
+                        Transition.SchoolAchievement = null;
                         Transition.JobTrainingFinished = null;
                         Transition.AcceptJobTrainingFinished = false;
 
-                        Transition.ShoolAchievement2 = null;
+                        Transition.SchoolAchievement2 = null;
                         Transition.JobTrainingFinished2 = null;
                         Transition.AcceptJobTrainingFinished2 = false;
                         Transition.EHSHSEnrolled = 0;
@@ -1366,17 +1327,7 @@
                             Transition.ChildInsuranceType = $changeModal.find('input[name=newChildInstype]:checked').val();
                             Transition.ChildOtherInsuranceTypeDesc = ($changeModal.find('input[name=newChildInstype]:checked').val() == '3') ? $changeModal.find('#OtherInsuranceType').val() : '';
                             Transition.IsFutureApplication = false;
-                            //if ($changeModal.find('#allowFutureApplicationDiv').is(':visible') && $changeModal.find('#allowFutureInput').val() == '1' && $changeModal.find('#allowCurrentInput') == '1' && $changeModal.find('#allowFutureApplicationLbl').is(':visible')==false)
-                            //{
-                            //    if($changeModal.find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').is(':visible'))
-                            //    {
-                            //        Transition.IsFutureApplication= $changeModal.find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').find('input:radio[name=radioFutureApp]:checked').val() == '1' ? true : false;
-                            //    }
-                            //}
-                            //else if ($changeModal.find('#allowFutureApplicationLbl').is(':visible') && $changeModal.find('#allowFutureInput').val() == '1' && $changeModal.find('#allowCurrentInput').val() == '0' && $changeModal.find('#allowFutureApplicationDiv').is(':visible')==false)
-                            //{
-                            //    Transition.IsFutureApplication = true;
-                            //}
+
 
                             var child = [];
                             $changeModal.find('#additionalChildDiv').find('.addInnerChildContent').each(function () {
@@ -1385,7 +1336,6 @@
                                 Child.LastName = $(this).find('.childLastName').val();
                                 Child.Name = $(this).find('.childFirstName').val() + ' ' + $(this).find('.childLastName').val();
                                 Child.DOB = $(this).find('.dob').val(); Child.Gender = $(this).find('input[name="yn"]:checked').val();
-                                // Child.InsuranceType = $('input[name=newChildInstype]:checked').val();
                                 Child.IsEHS = $(this).find('input[name="yn1"]:checked').val() == "true" ? true : false;
                                 child.push(Child);
                             });
@@ -1400,10 +1350,11 @@
                                 url: HostedDir + "/AgencyUser/UpdatePregMomEnrollmentStatus",
                                 type: "POST",
                                 async: true,
-                                contentType: false,
-                                processData: false,
-                                data: fileData,
-
+                                //contentType: false,
+                                //processData: false,
+                                //data: fileData,
+                                contentType: 'application/json',
+                                data: JSON.stringify({ 'Transition': Transition, 'pregChilds': child }),
                                 success: function (data) {
                                     var names = "";
 
@@ -1423,7 +1374,6 @@
                                         $('#SeatsAvailability').modal('show');
                                     }
 
-                                    //$changeModal.modal('hide');
                                 },
                                 error: function () {
 
@@ -1436,7 +1386,7 @@
                             Transition.MedicalServices = $changeModal.find('#MedicalServicesID').find('#btnacceptSchedule').next('.fa-check').is(':visible') ? $changeModal.find('.MedicalServices:checked').val() : null;
                             Transition.DentalHome = $changeModal.find('#DentalHomeID').find('#btnAcceptDental').next('.fa-check').is(':visible') ? $changeModal.find('.DentalHome:checked').val() : null;
                             Transition.ImmunizationService = $changeModal.find('#immunizationTypeDiv').children('div :last-child').find('#btnAcceptImmune').next('.fa-check').is(':visible') ? $changeModal.find('input[name=ddImmunizationType]:checked').val() : null;
-                            var familyservice = $changeModal.find('#statusServicesDiv').next('div').find('#btnAcceptServices').next('.fa-check').is(':visible');
+                            var familyservice = $changeModal.find('#statusServicesDiv').find('#btnAcceptServices').next('.fa-check').is(':visible');
                             Transition.TANF = (familyservice) ? $changeModal.find('#TANFStatus').is(':checked') : null;
                             Transition.SSI = (familyservice) ? $changeModal.find('#SSIStatus').is(':checked') : null;
                             Transition.WIC = (familyservice) ? $changeModal.find('#WICStatus').is(':checked') : null;
@@ -1445,13 +1395,13 @@
 
 
                             if ($changeModal.find("#EducationID").find('#fatherEducationDiv').is(':visible')) {
-                                Transition.ShoolAchievement = $changeModal.find("#EducationID").find('#fatherEducationDiv').find('#btnAcceptdegree').next('.fa-check').is(':visible') ? $changeModal.find("#EducationID").find('#fatherEducationDiv').find('input[name=EduType]:checked').val() : null;
+                                Transition.SchoolAchievement = $changeModal.find("#EducationID").find('#fatherEducationDiv').find('#btnAcceptdegree').next('.fa-check').is(':visible') ? $changeModal.find("#EducationID").find('#fatherEducationDiv').find('input[name=EduType]:checked').val() : null;
                                 Transition.JobTrainingFinished = $changeModal.find('#parentJobDiv').is(':visible') && $changeModal.find('#parentJobDiv').find('#fatherJobTrainingDiv').is(':visible') && $changeModal.find('input[name=JobTrainingFinished]').is(':checked') ? $changeModal.find('input[name=JobTrainingFinished]:checked').val() : null;
                                 Transition.AcceptJobTrainingFinished = $changeModal.find('#JobTrainingFinishedID').find('#btnAcceptJobTraining').next('.fa-check').is(':visible') ? true : false;
                             }
 
                             if ($changeModal.find("#EducationID").find('#motherEducationDiv').is(':visible')) {
-                                Transition.ShoolAchievement2 = $changeModal.find("#EducationID").find('#motherEducationDiv').find('#btnAcceptdegree2').next('.fa-check').is(':visible') ? $changeModal.find("#EducationID").find('#motherEducationDiv').find('input[name=EduType2]:checked').val() : null;
+                                Transition.SchoolAchievement2 = $changeModal.find("#EducationID").find('#motherEducationDiv').find('#btnAcceptdegree2').next('.fa-check').is(':visible') ? $changeModal.find("#EducationID").find('#motherEducationDiv').find('input[name=EduType2]:checked').val() : null;
                                 Transition.JobTrainingFinished2 = $changeModal.find('#parentJobDiv').is(':visible') && $changeModal.find('#parentJobDiv').find('#motherJobTrainingDiv').is(':visible') && $changeModal.find('input[name=JobTrainingFinished2]').is(':checked') ? $changeModal.find('input[name=JobTrainingFinished2]:checked').val() : null;
                                 Transition.AcceptJobTrainingFinished2 = $changeModal.find('#JobTrainingFinishedID').find('#btnAcceptJobTraining2').next('.fa-check').is(':visible') ? true : false;
                             }
@@ -1460,15 +1410,20 @@
 
 
 
-                            fileData.append('Transition', JSON.stringify(Transition));
+                           // fileData.append('Transition', JSON.stringify(Transition));
 
                             $.ajax({
                                 url: HostedDir + "/AgencyUser/DropClient",
                                 type: "POST",
+                                dataType: 'JSON',
+                                contentType:'application/json',
                                 //async: true,
-                                contentType: false,
-                                processData: false,
-                                data: fileData,
+                                //contentType: false,
+                                //processData: false,
+                                beforeSend:function(){
+                                    $('#spinner').show();
+                                },
+                                data: JSON.stringify({'transition':Transition}),
 
                                 success: function (result) {
                                     if (result == 0) {
@@ -1477,7 +1432,6 @@
                                     if (result == 1) {
                                         customAlert("Client status changed successfully.");
                                         setTimeout(function () {
-                                            //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
                                             window.location.href = HostedDir + "/Roster/Roster";
                                         }, 300);
                                     }
@@ -1521,7 +1475,7 @@
             secureuri: false,
             async: false,
             success: function (response) {
-            
+
                 var $modal = $('#ChangeclientStatus');
 
                 $modal.find('#accesskey').val($(object).attr("accesskey"));
@@ -1583,7 +1537,7 @@
                         $modal.find('#accessHealth,#uptodateMedical,#contdentalchild,#immunizationDiv,#familyServiceDiv,#parentEducationDiv,#parentJobDiv').hide();
                         $modal.find('#childBirthTypeDiv').show();
 
-                        $modal.find('#DentaldivPrgChild').find('p').html('<strong class="pir-Q-lbl">Q2.</strong>&nbsp;Has pregnant mother had a professional dental exam since last year\'s PIR?');
+                        $modal.find('#DentaldivPrgChild').find('label:first-child').html('<strong class="pir-Q-lbl">Q2.</strong>&nbsp;Has pregnant mother had a professional dental exam since last year\'s PIR?');
 
 
 
@@ -1602,43 +1556,6 @@
 
                         var newChildInfo = $('#ChangeclientStatus').find('#newChildInfoDiv');
 
-                        //newChildInfo.find('#allowFutureApplicationDiv').hide().find('input:radio').prop('checked', false);
-                        //newChildInfo.find('#allowFutureApplicationLbl').hide();
-
-
-                        //if(response.TransitionProgramType !=null && response.TransitionProgramType!=undefined)
-                        //{
-
-                        //    var isCurrent =(response.TransitionProgramType.AllowCurrentApplication == true)?1: 0;
-                        //    var isFuture = (response.TransitionProgramType.AllowFutureApplication == true) ? 1 : 0;
-                          
-                        //    newChildInfo.find('#allowCurrentInput').val(isCurrent);
-
-                        //    newChildInfo.find('#allowFutureInput').val(isFuture);
-
-
-                        //    if(isCurrent==1 && isFuture==1 )
-                        //    {
-                        //        newChildInfo.find('#allowFutureApplicationDiv').find('#spanYear').html('(' + response.TransitionProgramType.FutureProgramYear + ')');
-
-                        //        newChildInfo.find('#allowFutureApplicationDiv').show().find('input:radio').prop('checked', false);
-                        //        newChildInfo.find('#allowFutureApplicationLbl').hide();
-                        //    }
-                        //    else if(isFuture==1)
-                        //    {
-                        //        newChildInfo.find('#allowFutureApplicationDiv').hide().find('input:radio').prop('checked', false);
-                        //        newChildInfo.find('#allowFutureApplicationLbl').find('#strongYear').html('(' + response.TransitionProgramType.FutureProgramYear + ')');
-
-                        //        newChildInfo.find('#allowFutureApplicationLbl').show();
-                        //    }
-
-                        //}
-
-
-
-
-
-
                     }
                     else {
 
@@ -1654,7 +1571,6 @@
                         $modal.find('#isclientPreg').val(false);
                         $modal.find('#childBirthTypeDiv').hide();
 
-                        //$modal.find('#accessHealth').show();
                         $modal.find('#accessHealth,#uptodateMedical,#contdentalchild,#immunizationDiv,#familyServiceDiv,#parentEducationDiv,#parentJobDiv').show();
 
                         $modal.find('#DentaldivPrgChild').find('p').html('<strong class="pir-Q-lbl">Q5.</strong>&nbsp;Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?');
@@ -1858,53 +1774,20 @@
                     }
 
 
-                    //bindClients//
-                    var clientAppend = '';
-                    if (response.Users != null && response.Users.Clientlist != null && response.Users.Clientlist.length > 0) {
+                
 
-                        $.each(response.Users.Clientlist, function (k, clients) {
+                    $modal.find("#HouseholdId").val(response.HouseholdId);
 
-                            clientAppend += '<div class="col-sm-12 adddivspace">\
-                                                    <input type="checkbox" name="ClientIds.IDS" value='+ clients.Id + '>\
-                                                    <span>'+ clients.Name + '</span>\
-                                                </div>';
-
-                        });
-
-                    }
-
-
-                    $modal.find('#statusclientsDiv').html(clientAppend);
                 }
 
-                //bind DevelopmentStatffs//
-                var staffAppend = '';
-                if (response.Users != null && response.Users.UserList != null && response.Users.UserList.length > 0) {
-                    $.each(response.Users.UserList, function (l, staffs) {
-
-                        staffAppend += '  <div class="col-sm-12 col-lg-12 m-tp">\
-                                                    <input type="checkbox" class="staff-check" name="staff-check" value='+ staffs.Id + '>\
-                                                    <span name="UsersList.UserList[0].Name">' + staffs.Name + '</span>\
-                                                    </div>';
-
-                    });
-                }
-
-                $modal.find('#statusStaffDiv').html(staffAppend);
-
-                $modal.find('#statusStaffDiv').find('input[type=checkbox]').prop('checked', true);
-                $modal.find('#statusclientsDiv').find('input[type=checkbox]').prop('checked', true);
-
-
-                $modal.find("#HouseholdId").val(response.HouseholdId);
 
             }
             , error: function (response) {
-              
+
                 // customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
             },
             complete: function (data) {
-                
+
 
                 if (data.statusText == 'OK' && data.responseJSON != null) {
                     $.ajax({
@@ -1913,7 +1796,7 @@
                         type: 'post',
                         data: { mode: '0', homebased: (data.responseJSON.IsPreg == true) },
                         success: function (data) {
-                        
+
                             var appendText = '';
                             appendText += '<option value="0">-Select Center-</option>';
 
@@ -1943,60 +1826,15 @@
             }
         });
 
-    }
 
-    function getTagsOnInput() {
-        var tagInp = $('#status_CaseNotetags').val();
-        var tagsArr = [];
-        $.ajax({
-
-            url: '/Roster/GetCaseNoteTagonInput',
-            datatype: 'json',
-            type: 'post',
-            async: true,
-            data: { searchText: tagInp },
-            success: function (data) {
-                if (data != null) {
-                    if (data.length > 0) {
-                        $.each(data, function (i, tags) {
-                            tagsArr.push(tags.Text);
-                        });
-                    }
-                }
-            },
-            error: function (data) {
-
-            }
-
-        });
-
-        return tagsArr;
-    }
-
-
-    function addMoreStatusAtt(ele) {
-        var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
-
-
-
-        var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
-                                                   <div class="col-sm-7 col-lg-8 no-padding">\
-                                                       <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control">\
-                                                   </div>\
-                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
-                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
-                                                   </div>\
-                                               </div>';
-
-        $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
 
 
     }
 
+  
 
-    function removeStatusAtt(ele) {
-        $(ele).parent('div').parent('div').remove();
-    }
+
+    
 
     $(function () {
 
@@ -2031,7 +1869,10 @@
 
             }
 
-            $('#status_CaseNotetags').importTags(withtags);
+
+            var $guid = $('#ChangeclientStatus').find('#divCaseNoteSection').attr('data-current-id');
+
+            $('#txtCaseNoteTags_'+$guid+'').importTags(withtags);
 
 
 
@@ -2043,7 +1884,9 @@
 
             $('#newChildInfoDiv').find('input[name=newChildInstype]').prop('checked', false);
             $('.err-message').hide();
+
             //addNewChild
+
             var val = "0";
             if ($(this).is(":checked")) {
                 val = $(this).val();
@@ -2059,7 +1902,9 @@
                 $('.divBirthType').hide();
             }
             else if (val == "2") {
+
                 // $('#InsTypeHeading').text("Insurance Type For Child");
+
                 $('#newChildInfoDiv').show();
                 $('.divBirthType').hide();
 
@@ -2070,10 +1915,11 @@
                 //        $(this).remove();
                 //    });
                 //}
+
+
             }
             else if (val == "3") {
                 $('#newChildInfoDiv').hide();
-                // $('.addNewChildBody').addClass('childcontainer');
                 $(this).closest('div').find('.divBirthType').show();
             }
             else {
@@ -2087,11 +1933,13 @@
 
         $('#spnMultiChildBirth').on('click', function () {
 
-        
+
             $('.err-message-birthtype').hide();
             if ($('#MultiChildBirth').val() == "" || $('#MultiChildBirth').val() == null) {
+
                 //  $('#spnMultiChildBirthErr').text("Please enter number of child.");
                 //$('#spnMultiChildBirthErr').show();
+
                 plainValidation('#MultiChildBirth');
                 customAlert('Please select number of child(s)');
                 return false;
@@ -2250,11 +2098,7 @@
 
 
 
-        $('#txtStatusCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-
-        $('#txtStatusCaseNoteDate').val(getFormattedDate(new Date()));
-
-        $('#txtStatusCaseNoteTitle').val('Enrollment Status Change');
+    
 
 
 
@@ -2266,24 +2110,10 @@
 
 
 
-        CKEDITOR.replace('statusNote', {
-            language: 'en-gb',
-            uiColor: '#295b8f',
-            disableNativeSpellChecker: false
-        });
 
 
 
-        //$('#status_CaseNotetags').tagsInput({
-        //    width: 'auto',
-        //    height: '38px',
-        //    delimiter: [',', ';'],
-        //    autocomplete: {
-        //        //'source': tags_array[0].split(/,\s*/)
-        //        //'source': getTagsOnInput()
-        //    },
-        //    autocomplete_url: '',
-        //});
+        
 
     });
 
@@ -2294,1184 +2124,867 @@
 
 
 
-<div class="modal fade" id="ChangeclientStatus" role="dialog">
-    <div class="modal-dialog income-popup width-auto">
+<div class="modal fade custom-modal" id="ChangeclientStatus" role="dialog">
+    <div class="modal-dialog modal-dialog-ch">
+
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">x</button>
-                <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
-            </div>
 
-
-            @*@using (Html.BeginForm("DropClient", "AgencyUser", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {*@
-
-
-            <div class="control-group">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                        <div class="add-useragform1">
-
-                            <div class="col-sm-12">
-                                <fieldset style="border: 1px solid #295b8f; ">
-                                    <legend class="legend1"></legend>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <input type="hidden" name="HouseholdId" id="HouseholdId" />
-                                                    <p style="background: none;border: none;">Name</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                            <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                <div class="col-sm-12">
-                                                    <label style="width: 100%; font-size: 15px; padding-top:10px; color: #337ab7;" id="ClientNameAll"></label>
-                                                    <input type="hidden" id="accesskey" />
-                                                    <input type="hidden" id="isclientPreg" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Current Status</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px; color: #337ab7;padding-top:10px" id="lblCurrentStatus"></label>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">New Status</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px; color: #337ab7; padding-top:5px;" id="lblNewStatus"></label>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;" id="dateOfWithdrawnDiv">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Date of Withrawn<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-5 col-sm-5">
-                                            <div class="form-group">
-                                                <div class="input-group date">
-                                                    <input type="text" class="form-control txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="MM/DD/YYYY" id="txtdatewithdrawn">
-                                                    <span class="input-group-addon datepicker-icon withdrawn-date-icon" id="1" style="cursor:pointer;">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 6px;" id="WithdrawnTypeDiv">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Withdrawn Type<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-5 col-sm-5">
-                                            <select class="form-control" id="withdrawalTypeSelect">
-
-                                                <option value="0">--Select--</option>
-                                                <option value="2">Enroll in “ANOTHER” Head Start Program</option>
-                                                <option value="3">Enrolled in “OTHER” Childhood Program</option>
-                                                <option value="4">Did not enter into another Childhood Program</option>
-                                                <option value="8">Enroll in “ANOTHER” Early Head Start Program</option>
-
-                                            </select>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="divSelectCenter">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Center<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            @*@{
-                                                    List<SelectListItem> centerList = new List<SelectListItem>();
-                                                    centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString(), false, true);
-                                                    centerList.ForEach(x =>
-                                                    {
-                                                        x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
-                                                    });
-
-                                                }
-                                                @Html.DropDownList("centerList", centerList, new { @class = "form-control" })*@
-
-
-                                            <select class="form-control" id="centerList" name="centerList"></select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="divSelectClassroom">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Classroom<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            <select class="form-control" id="classroomSelect"></select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="divSelectDate">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Class Start Date<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            <input id="statusClassStart" style="width: 100%;" type="text" placeholder="MM/DD/YYYY" class="form-control">
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Reason<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-5 col-sm-5 col-xs-12">
-                                            <select id="ddlreason" onchange="Showreason(this);" class="form-control">
-                                                <option>Others</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divreason">
-                                        <div class="col-sm-3">
-                                            <label style="width:100%;"></label>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divwaitinglist">
-                                        <div class="col-sm-5 col-md-5 col-lg-3" style="padding:0;">
-                                            <div class="transition-content-desc" style="position: relative;">
-                                                <p style="background: none;border: none;">Place on Waiting List<span class="error-notify">*</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-7 col-md-7 col-lg-9" id="rblwaitinglist">
-
-
-                                            <div class="transition-radio-btn enroll-sec">
-
-                                                <div class="radio radio-info">
-                                                    <input id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">
-
-                                                    <label>Yes</label>
-                                                </div>
-                                                <div class="radio radio-info">
-                                                    <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
-
-                                                    <label>No</label>
-                                                </div>
-
-
-                                                <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                    <span class="err-message err-message-ms">Medical Home is required</span>
-                                                </div>
-
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-
-
-                                    <div id="divForWithdrawn" class="col-lg-12 col-xs-12 col-md-12 col-sm-12" style="display:none;">
-
-
-                                        <div class="alert alert-info col-xs-12" role="alert" style="border-radius:unset;line-height:25px;">
-                                            <div class="col-lg-1 col-xs-2" style="font-weight:bold;margin-top:5px;">Note!&nbsp;</div>
-                                            <div class="col-lg-11 col-xs-10">
-                                                Options are selected default based on the Start of Enrollement of Client. In case, same as followed or change on option,
-                                                <br>Please, click on <button class="btn btn-primary">Accept</button> to see the effect of changes.
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q1.</strong>&nbsp;Insurance Type</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="MedicareInsurance" class="InsuranceType" value="1">
-                                                            <label>Medicare / Chip</label>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="NoInsurance" class="InsuranceType" value="2">
-                                                            <label>No Insurance</label>
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="OtherInsurance" class="InsuranceType" value="3">
-                                                            <label>Other Insurance</label>
-                                                        </div>
-                                                        <div class="col-lg-6" style="display:none;">
-                                                            <label style="color: #163b69;font-size: 14px;font-weight: normal;"><i>Please Specify</i></label>
-                                                            <input type="text" class="form-control" id="PregOtherInsuranceType" value="">
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="PrivateInsurance" class="InsuranceType" value="4">
-                                                            <label>Private Health Insurance</label>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="StateInsurance" class="InsuranceType" value="5">
-                                                            <label>State Insurance</label>
-                                                        </div>
-
-                                                        <button type="button" class="btn btn-primary btn-accept" id="btnAcceptInsurance">Accept</button>
-                                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                                    </div>
-
-
-
-                                                </div>
-
-                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                    <span class="err-message err-message-instype">Insurance type is required</span>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        @*<div class="col-lg-12">
-                                                <div class="form-group edu-boxmade">
-                                                    <label for="email" class="col-md-2 col-xs-12" style="padding: 0;width: 15%;"><strong class="pir-Q-lbl">Q1.</strong>Insurance Type</label>
-                                                    <div class="col-md-9 parent-solid" style="padding: 0;">
-
-                                                        <div class="protype-solid">
-                                                            <label><input type="checkbox">Medicaid/Chip</label>
-                                                            <span><textarea class="form-control"></textarea></span>
-                                                        </div>
-                                                        <div class="protype-solid">
-                                                            <label><input type="checkbox">No Insurance</label>
-                                                            <span><textarea class="form-control"></textarea></span>
-                                                        </div>
-                                                        <div class="protype-solid">
-                                                            <label><input type="checkbox">Other Insurance</label>
-                                                            <span><textarea class="form-control"></textarea></span>
-                                                        </div>
-                                                        <div class="protype-solid">
-                                                            <label><input type="checkbox">Private Health Insurance</label>
-                                                            <span><textarea class="form-control"></textarea></span>
-                                                        </div>
-                                                        <div class="protype-solid">
-                                                            <label><input type="checkbox">State Funded</label>
-                                                            <span><textarea class="form-control"></textarea></span>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-
-
-                                            </div>
-                                            <div class="col-lg-12 col-xs-12 edu-boxmade">
-                                                <div class="form-group edu-protextarea edu_new_child">
-                                                    <label for="email" class="col-md-2 col-xs-12" style="width:15%;">Insurance Notes </label>
-                                                    <textarea class="form-control" cols="20" id="MedicalNote" maxlength="100" name="MedicalNote" placeholder="Insurance Notes" rows="2" tabindex="25"></textarea>
-                                                    <span><button type="button" class="btn btn-primary btn-accept" id="btnAcceptInsurance">Accept</button>
-                                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i></span>
-                                                </div>
-                                            </div>*@
-
-                                        <div class="col-xs-12 no-padding" id="accessHealth" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q2.</strong>&nbsp;Ongoing source continuous, accessible health care?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12">
-                                                <div class="transition-radio-btn enroll-sec" id="MedicalHomeID">
-
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical Home is required</span>
-                                                    </div>
-
-                                                    <button type="button" class="btn btn-primary btn-accept" id="btnacceptmedical">Accept</button>
-                                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="uptodateMedical" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q3.</strong>&nbsp;Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12" id="MedicalServicesID">
-                                                <div class="transition-radio-btn enroll-sec">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalServices" class="MedicalServices" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalServices" class="MedicalServices" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-                                                <button type="button" class="btn btn-primary btn-accept" id="btnacceptSchedule">Accept</button>
-                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="contdentalchild" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q4.</strong>&nbsp;Did child have continual accessible dental care provided by a dentist?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12" id="DentalHomeID">
-                                                <div class="transition-radio-btn enroll-sec">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalHome" class="DentalHome" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalHome" class="DentalHome" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                                <button type="button" class="btn btn-primary btn-accept" id="btnAcceptDental">Accept</button>
-                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="DentaldivPrgChild" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p" id="pregchild-p"><strong class="pir-Q-lbl">Q5.</strong>&nbsp;Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12" id="DentalServicesID">
-                                                <div class="transition-radio-btn enroll-sec">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalServices" class="DentalServices" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalServices" class="DentalServices" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                                <button type="button" class="btn btn-primary btn-accept" id="btnAcceptOral">Accept</button>
-                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:  8px;font-size:  15px;color:  green;display:none;"></i>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="immunizationDiv" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q6.</strong>&nbsp;Is Child up-to-date on all immunizations appropriate for their age?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12" id="immunizationTypeDiv">
-
-
-                                                <div class="col-xs-12 no-padding">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="ddImmunizationType" id="ddimmuniztion-iyes" class="InsuranceType" value="1">
-                                                        <label for="ddimmuniztion-iyes">Yes</label>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding">
-                                                    <div class="radio radio-info">
-                                                        <input id="ddimmuniztion-ino" type="radio" name="ddImmunizationType" class="InsuranceType" value="2">
-                                                        <label for="ddimmuniztion-ino">Exempt</label>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding">
-                                                    <div class="radio radio-info col-lg-7">
-
-                                                        <input type="radio" name="ddImmunizationType" id="ddimunication-icc" class="InsuranceType" value="3">
-
-
-                                                        <label class="col-md-9 col-lg-9" for="ddimunication-icc">Child has not received all immunizations appropriate for their age</label>
-
-                                                        <button type="button" class="btn btn-primary btn-accept" id="btnAcceptImmune">Accept</button>
-                                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-
-                                                    </div>
-                                                </div>
-
-
-
-
-                                                @*<div class="transition-inner21" style="position: relative;">
-                                                        <select id="ddImmunizationType" style="height:45px !important;width:350px;" class="form-control  mandatory clsTransitioningType">
-                                                            <option value="">--Select--</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="2">No</option>
-                                                            <option value="3">Child has not received all immunizations appropriate for their age</option>
-                                                        </select>
-
-                                                    </div>*@
-
-
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 no-padding" id="familyServiceDiv" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q7.</strong>&nbsp;Is the family receiving any of the following services?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5 col-xs-12 col-sm-12 no-padding" id="statusServicesDiv">
-                                                <div class="transition-radio-btn enroll-sec">
-
-
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="TANFStatus" name="TANF" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>TANF</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="SSIStatus" name="SSI" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>SSI</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="SNAPStatus" name="SNAP" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>SNAP</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="WICStatus" name="WIC" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>WIC</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="NONEStatus" onchange="uncheckdata();" name="NONE" class="services" value="true" />
-                                                            <span>NONE</span>
-                                                        </label>
-
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-2 col-lg-2">
-                                                <button type="button" style="margin-top:-10px;" class="btn btn-primary btn-accept response-mtop" id="btnAcceptServices">Accept</button>
-                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="parentEducationDiv" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q8.</strong>&nbsp;Has any parent/guardian completed the following (education)?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12">
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="EducationID" style="margin-left:0px;">
-
-                                                    <div class="col-xs-12 col-lg-12" id="fatherEducationDiv">
-                                                        <label id="fatherNameLbl" style="font-weight:bold;"></label>
-                                                        <input type="hidden" name="ParentID" id="ParentID" />
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType" class="Education" value="1">
-                                                                <label>Advanced Degree or Baccalaureate</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType" class="Education" value="2">
-                                                                <label>Associate, Vocational, or some College</label>
-                                                            </div>
-                                                        </div>
-
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType" class="Education" value="3">
-                                                                <label>High School Graduate or GED</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType" class="Education" value="4">
-                                                                <label>Less than High school</label>
-                                                            </div>
-                                                            <button type="button" class="btn btn-primary btn-accept" id="btnAcceptdegree">Accept</button>
-                                                            <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                                        </div>
-
-                                                    </div>
-                                                    <hr style="margin-top:10px;border: 1px solid #295b8f;" class="status-hr-line">
-
-                                                    <div class="col-xs-12 col-lg-12" id="motherEducationDiv">
-                                                        <label id="motherNameLbl" style="font-weight:bold;"></label>
-                                                        <input type="hidden" name="ParentID" id="ParentID2" />
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType2" class="Education" value="1">
-                                                                <label>Advanced Degree or Baccalaureate</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType2" class="Education" value="2">
-                                                                <label>Associate, Vocational, or some College</label>
-                                                            </div>
-                                                        </div>
-
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType2" class="Education" value="3">
-                                                                <label>High School Graduate or GED</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="EduType2" class="Education" value="4">
-                                                                <label>Less than High school</label>
-                                                            </div>
-                                                            <button type="button" class="btn btn-primary btn-accept" id="btnAcceptdegree2">Accept</button>
-                                                            <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" id="parentJobDiv" style="margin-bottom: 10px;margin-top:20px;">
-                                            <div class="col-lg-5 col-xs-12 col-sm-12">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p class="pir-q-p"><strong class="pir-Q-lbl">Q9.</strong>&nbsp;Has parent/guardian completed Job Training?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-12 col-sm-12" id="JobTrainingFinishedID">
-
-                                                <div class="col-xs-12 col-lg-12" id="fatherJobTrainingDiv">
-
-                                                    <label id="fatherJobNameLbl" style="font-weight:bold;"></label>
-
-                                                    <div class="transition-radio-btn enroll-sec">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="true">
-                                                            <label>Yes</label>
-                                                        </div>
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="false">
-                                                            <label>No</label>
-                                                        </div>
-                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                            <span class="err-message err-message-ms">Medical services is required</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <button type="button" class="btn btn-primary btn-accept" id="btnAcceptJobTraining">Accept</button>
-                                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                                </div>
-
-                                                <hr style="margin-top:10px;border: 1px solid #295b8f;" class="status-hr-line">
-
-                                                <div class="col-xs-12 col-lg-12" id="motherJobTrainingDiv">
-
-                                                    <label id="motherJobNameLbl" style="font-weight:bold;"></label>
-
-                                                    <div class="transition-radio-btn enroll-sec">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="JobTrainingFinished2" class="JobTrainingFinished" value="true">
-                                                            <label>Yes</label>
-                                                        </div>
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="JobTrainingFinished2" class="JobTrainingFinished" value="false">
-                                                            <label>No</label>
-                                                        </div>
-                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                            <span class="err-message err-message-ms">Medical services is required</span>
-                                                        </div>
-                                                    </div>
-                                                    <button type="button" class="btn btn-primary btn-accept" id="btnAcceptJobTraining2">Accept</button>
-                                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                        @* new changes *@
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;" id="childBirthTypeDiv">
-                                            <div class="col-lg-5 col-sm-5 col-xs-12">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none">Type of Birth<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-
-
-                                            <div class="col-lg-7 col-sm-7 col-xs-12">
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="0">
-                                                            <label>No Birth</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="1">
-                                                            <label>Left Before Birth of Child</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="2">
-                                                            <label>Single Child Birth</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info" style="width:100%;">
-                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="3">
-                                                            <label>Multi Child Birth</label>
-                                                            <div class="divBirthType col-xs-12 no-padding" style="position: relative;display: none;">
-                                                                <span class="transition-field-style"></span>
-                                                                <input type="text" class="form-control" id="MultiChildBirth" value="" style="width: 80px;display:inline-block;height: 36px;margin-top: 3px;" onkeypress="return isNumber(event)">
-                                                                <span id="spnMultiChildBirth" style="display:inline-block;background: #1e5482;/* width: 42px; *//* height: 42px; */text-align: center;line-height: 32px;color: #fff;font-size: 24px;cursor: pointer;font-size: 15px;padding: 0 10px;border-radius: 5px;margin-left: 10px;margin-top: 6px;">Load Forms</span>
-
-                                                            </div>
-                                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                                <span id="spnMultiChildBirthErr" class="err-message"></span>
-
-                                                            </div>
-                                                        </div>
-
-
-
-
-                                                    </div>
-
-                                                </div>
-
-                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                    <span class="err-message err-message-birthtype" style="display: none;">Type of child birth is required</span>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="col-xs-12 addNewChildBody edu_header" id="newChildInfoDiv">
-                                            <input type="hidden" id="allowFutureInput" value="0" />
-                                            <input type="hidden" id="allowCurrentInput" value="0"/>
-
-                                            <h3><i class="fa fa-child" aria-hidden="true"></i> Child Information</h3>
-
-
-                                            <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                <div class="col-lg-5 col-sm-5 col-xs-12">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none">Insurance Type<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-7 col-sm-7 col-xs-12" id="newChildInsuranceDiv">
-                                                    <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="newChildInstype" class="InsuranceType" value="1">
-                                                                <label>Medicare / Chip</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="newChildInstype" class="InsuranceType" value="2">
-                                                                <label>No Insurance</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="newChildInstype" class="InsuranceType" value="3">
-                                                                <label>Other Insurance</label>
-                                                            </div>
-                                                            <div class="col-lg-6" style="display:none;">
-                                                                <label style="color: #163b69;font-size: 14px;font-weight: normal;"><i>Please Specify</i></label>
-                                                                <input type="text" class="form-control optional" id="OtherInsuranceType" value="">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="newChildInstype" class="InsuranceType" value="4">
-                                                                <label>Private Health Insurance</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 no-padding">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="InsType" class="newChildInstype" value="5">
-                                                                <label>State Funded</label>
-                                                            </div>
-
-
-
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                        <span class="err-message err-message-instype">Insurance type is required</span>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-
-
-
-                                            @*<div class="col-xs-12 no-padding" id="allowFutureApplicationDiv" style="margin-bottom: 10px;display:none;">
-                                                <div class="col-lg-5 col-xs-12 col-sm-8">
-                                                    <div class="enroll-sec">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p class="pir-q-p">Accept Application for Next Program Year <span id="spanYear"></span> ? <span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-7 col-xs-12 col-sm-4" id="allowFutureRadioDiv">
-                                                    <div class="transition-radio-btn enroll-sec">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="radioFutureApp"  value="1">
-                                                            <label>Yes</label>
-                                                        </div>
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="radioFutureApp" value="0">
-                                                            <label>No</label>
-                                                        </div>
-
-                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                            <span class="err-message err-message-ms" style="display: none;">This field is required</span>
-                                                        </div>
-
-
-                                                    </div>
-                                                </div>
-                                            </div>*@
-
-
-                                            @*<div class="col-xs-12 no-padding" id="allowFutureApplicationLbl" style="margin-bottom: 15px; padding: 4px 12px;display:none;">
-
-                                                <div class="info" style="background-color: #e7f3fe; border-left: 6px solid #2196F3;padding:10px;">
-                                                    <p><strong>Note! </strong>This Application will be accepted to the Program Year <strong id="strongYear"></strong></p>
-                                                </div>
-                                            </div>*@
-
-
-
-
-
-                                            <div class="col-xs-12" id="additionalChildDiv">
-                                                @*<div class="col-xs-12 addInnerChildContent">
-                                                        <form role="form">
-                                                            <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;margin-top:15px;">
-                                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <p style="background: none;border: none">First Name<span class="error-notify">*</span></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-9 col-xs-7 no-padding">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childName">
-
-                                                                        <div class="err-container irr-error">
-                                                                            <span class="err-message">Child name is required</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;margin-top:15px;">
-                                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <p style="background: none;border: none">Last Name<span class="error-notify">*</span></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-9 col-xs-7 no-padding">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childName">
-
-                                                                        <div class="err-container irr-error">
-                                                                            <span class="err-message">Child name is required</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 col-md-6 no-padding">
-                                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <p style="background: none;border: none">DOB<span class="error-notify">*</span></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-9 col-xs-7 no-padding">
-                                                                    <div class="transition-inner" style="position: relative;">
-                                                                        <span class="transition-field-style"></span>
-                                                                        <input type="text" maxlength="10" class="form-control txt-date childmandatory dob" style="margin-bottom: 5px;" placeholder="MM/DD/YYYY" value="">
-                                                                        <div class="err-container  irr-error">
-                                                                            <span class="err-message">Date of birth is required</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;">
-                                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <p style="background: none;border: none">Gender<span class="error-notify">*</span></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-9 col-xs-7 no-padding transition-radio-btn">
-                                                                    <div class="radio radio-info">
-                                                                        <input type="radio" name="yn" class="gender" value="1">
-                                                                        <label>Male</label>
-                                                                    </div>
-                                                                    <div class="radio radio-info">
-                                                                        <input type="radio" name="yn" class="gender" value="2">
-                                                                        <label>Female</label>
-                                                                    </div>
-
-                                                                    <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                                        <span class="err-message err-message-gender">Gender is required</span>
-                                                                    </div>
-                                                                </div>
-
-
-
-                                                            </div>
-
-
-                                                            <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;">
-                                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                                    <div class="transition-content-desc" style="position: relative;">
-                                                                        <p style="background: none;border: none;">Will the newborn be enrolled into the EHS program?<span class="error-notify">*</span></p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="transition-radio-btn enroll-sec margin-enroll">
-                                                                    <div class="radio radio-info">
-                                                                        <input type="radio" name="yn1" class="IsEHS" value="true">
-                                                                        <label>Yes</label>
-                                                                    </div>
-                                                                    <div class="radio radio-info">
-                                                                        <input type="radio" name="yn1" class="IsEHS" value="false">
-                                                                        <label>No</label>
-                                                                    </div>
-
-                                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                        <span class="err-message err-message-ehs">EHS program is required</span>
-                                                                    </div>
-                                                                </div>
-
-
-                                                            </div>
-                                                        </form>
-                                                    </div>*@
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-
-
-                                    @* case note *@
-
-
-                                    <div class="col-xs-12 col-lg-12 no-padding new-casenote" id="caseNoteStatDiv">
-                                        <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Date<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" class="form-control" id="txtStatusCaseNoteDate" onblur="checkStatusChangeDate(this);" placeholder="MM/DD/YYYY" />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Title<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" class="form-control" id="txtStatusCaseNoteTitle" placeholder="Case Note Title" />
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <textarea id="statusNote" name="Note" style="visibility: hidden; display: none;"></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Clients<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7 no-padding" id="statusclientsDiv">
-
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Tags<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" id="status_CaseNotetags" name="status_CaseNotetags" class="form-control ui-autocomplete-input" />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace" style="margin-bottom:10px;">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Development Team<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7 no-padding" id="statusStaffDiv">
-
-
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Secure Note Level?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7 text-center">
-                                                <div class="addn-poup-div1">
-                                                    <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" style="margin-left:5px;">
-                                                    <span>Yes</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace" id="statusattachmentsDiv">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Attachment</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-9 col-sm-7">
-                                                <div class="col-sm-7 col-lg-6 no-padding">
-                                                    <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control">
-                                                </div>
-                                                <div class="col-sm-3 col-lg-3 adddivspace response-addicspace">
-
-                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreStatusAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-9" id="addAttachmentDiv">
-
-                                            </div>
-
-                                        </div>
-
-
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace" id="additionalAttachDiv">
-
-
-                                        </div>
-
-
-
-                                    </div>
-
-                                    @* case note *@
-                                </fieldset>
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                <h2 class="extra-title muted">Change Status</h2>
+                <form id="formEnrollmentStatusChange">
+
+                    <div class="max_items_addn popup-addn-scroll col-xs-12">
+                        <div class="col-xs-12">
+
+                            <div class="form-group col-xs-12">
+                                <label for="ClientNameAll" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Client</label>
+                                <label class="col-md-5 col-lg-9 col-xs-12" style="text-shadow:2px 5px 6px #999393;" id="ClientNameAll"></label>
+                                <input type="hidden" id="accesskey" />
+                                <input type="hidden" id="isclientPreg" />
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="btnwrp_subcal">
-                            <button type="button" class="my-btn" onclick="return isValidStatusChange();">Submit</button>
-                            <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <div class="form-group col-xs-12">
+                                <label for="lblCurrentStatus" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Current Status</label>
+                                <label class="col-md-5 col-lg-9 col-xs-12" style="color: #337ab7;" id="lblCurrentStatus"></label>
+                            </div>
 
-            @*}*@
+                            <div class="form-group col-xs-12">
+                                <label for="lblNewStatus" class="col-md-4 col-lg-3 col-xs-12 lbl-text">New Status</label>
+                                <label class="col-md-5 col-lg-9 col-xs-12" style="color: #337ab7;" id="lblNewStatus"></label>
+                            </div>
+
+                            <div class="form-group col-xs-12" id="dateOfWithdrawnDiv">
+
+                                <label for="lblNewStatus" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Date of Withdrawn&nbsp;<sup style="color:red;">*</sup></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="MM/DD/YYYY" id="txtdatewithdrawn">
+                                        <span class="input-group-addon datepicker-icon withdrawn-date-icon" id="1" style="cursor:pointer;">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group col-xs-12" id="WithdrawnTypeDiv">
+
+                                <label for="withdrawalTypeSelect" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Withdrawn Type&nbsp;<sup style="color:red;">*</sup></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <select class="form-control" id="withdrawalTypeSelect">
+
+                                        <option value="0">--Select--</option>
+                                        <option value="2">Enroll in “ANOTHER” Head Start Program</option>
+                                        <option value="3">Enrolled in “OTHER” Childhood Program</option>
+                                        <option value="4">Did not enter into another Childhood Program</option>
+                                        <option value="8">Enroll in “ANOTHER” Early Head Start Program</option>
+
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group col-xs-12" style="display:none;" id="divSelectCenter">
+
+                                <label for="centerList" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Center&nbsp;<sup style="color:red;">*</sup></label>
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <select class="form-control" id="centerList" name="centerList"></select>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group col-xs-12" style="display:none;" id="divSelectClassroom">
+
+                                <label for="classroomSelect" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Classroom&nbsp;<sup style="color:red;">*</sup></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <select class="form-control" id="classroomSelect" name="classroomSelect"></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12" id="divSelectDate" style="display:none;">
+                                <label for="statusClassStart" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Class Start Date&nbsp;<sup style="color:red;">*</sup></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <input id="statusClassStart" style="width: 100%;" type="text" placeholder="MM/DD/YYYY" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+
+                                <label for="statusClassStart" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Reason&nbsp;<sup style="color:red;">*</sup></label>
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <select id="ddlreason" onchange="Showreason(this);" class="form-control">
+                                        <option>Others</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12" style="display:none;" id="Divreason">
+                                <label for="txtreason" class="col-md-4 col-lg-3 col-xs-12 lbl-text" ></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12">
+                                    <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12" style="display:none;" id="Divwaitinglist">
+
+                                <label for="rdWaintingList" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Place on Waiting List&nbsp;<sup style="color:red;">*</sup></label>
+
+                                <div class="col-md-5 col-lg-6 col-xs-12" id="rblwaitinglist">
+                                    <div class="transition-radio-btn enroll-sec">
+                                        <div class="radio radio-info" style="margin-top:0;">
+                                            <input id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">
+
+                                            <label>Yes</label>
+                                        </div>
+                                        <div class="radio radio-info" style="margin-top:0;">
+                                            <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
+
+                                            <label>No</label>
+                                        </div>
+
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Waiting list is required</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="divForWithdrawn" class="col-lg-12 col-xs-12 col-md-12 col-sm-12" style="display:none;">
+                            <div class="alert alert-info col-xs-12" role="alert" style="border-radius:unset;line-height:25px;">
+                                <div class="col-lg-1 col-xs-2" style="font-weight:bold;margin-top:5px;">Note!&nbsp;</div>
+                                <div class="col-lg-11 col-xs-10">
+                                    Options are selected default based on the Start of Enrollment of Client. In case, same as followed or change on option,
+                                    <br>Please, click on <button class="btn btn-primary">Accept</button> to see the effect of changes.
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+
+                                <label for="MedicareInsurance" class="col-md-5 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q1.</strong>&nbsp;Insurance Type</label>
+
+                                <div class="col-md-5 col-lg-7 col-xs-12">
+
+                                    <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="InsType" id="MedicareInsurance" class="InsuranceType" value="1">
+                                                <label>Medicare / Chip</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="InsType" id="NoInsurance" class="InsuranceType" value="2">
+                                                <label>No Insurance</label>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="InsType" id="OtherInsurance" class="InsuranceType" value="3">
+                                                <label>Other Insurance</label>
+                                            </div>
+                                            <div class="col-lg-6" style="display:none;">
+                                                <label style="color: #163b69;font-size: 14px;font-weight: normal;"><i>Please Specify</i></label>
+                                                <input type="text" class="form-control" id="PregOtherInsuranceType" value="">
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="InsType" id="PrivateInsurance" class="InsuranceType" value="4">
+                                                <label>Private Health Insurance</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="InsType" id="StateInsurance" class="InsuranceType" value="5">
+                                                <label>State Insurance</label>
+                                            </div>
+
+                                            <button type="button" class="btn btn-primary btn-accept" id="btnAcceptInsurance">Accept</button>
+                                            <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                        </div>
+
+
+
+                                    </div>
+
+                                    <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                        <span class="err-message err-message-instype">Insurance type is required</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="form-group col-xs-12" id="accessHealth">
+                                <label for="MedicalHome" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q2.</strong>&nbsp;Ongoing source continuous, accessible health care?</label>
+                                <div class="col-md-5 col-lg-7 col-xs-12">
+                                    <div class="transition-radio-btn enroll-sec" id="MedicalHomeID">
+
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
+                                            <label>Yes</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
+                                            <label>No</label>
+                                        </div>
+
+
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Medical Home is required</span>
+                                        </div>
+
+                                        <button type="button" class="btn btn-primary btn-accept" id="btnacceptmedical">Accept</button>
+                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="uptodateMedical">
+                                <label for="MedicalServices" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q3.</strong>&nbsp;Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?</label>
+
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="MedicalServicesID">
+                                    <div class="transition-radio-btn enroll-sec">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="MedicalServices" class="MedicalServices" value="true">
+                                            <label>Yes</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="MedicalServices" class="MedicalServices" value="false">
+                                            <label>No</label>
+                                        </div>
+
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Medical services is required</span>
+                                        </div>
+
+
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-accept" id="btnacceptSchedule">Accept</button>
+                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+
+
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-xs-12" id="contdentalchild">
+
+                                <label for="DentalHome" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q4.</strong>&nbsp;Did child have continual accessible dental care provided by a dentist?</label>
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="DentalHomeID">
+                                    <div class="transition-radio-btn enroll-sec">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="DentalHome" class="DentalHome" value="true">
+                                            <label>Yes</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="DentalHome" class="DentalHome" value="false">
+                                            <label>No</label>
+                                        </div>
+
+
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Medical services is required</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary btn-accept" id="btnAcceptDental">Accept</button>
+                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="DentaldivPrgChild">
+                                <label for="DentalHome" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q5.</strong>&nbsp;Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?</label>
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="DentalServicesID">
+                                    <div class="transition-radio-btn enroll-sec">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="DentalServices" class="DentalServices" value="true">
+                                            <label>Yes</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="DentalServices" class="DentalServices" value="false">
+                                            <label>No</label>
+                                        </div>
+
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Medical services is required</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary btn-accept" id="btnAcceptOral">Accept</button>
+                                    <i class="fa fa-check" aria-hidden="true" style="padding-left:  8px;font-size:  15px;color:  green;display:none;"></i>
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="immunizationDiv">
+
+                                <label for="immunizationTypeDiv" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q6.</strong>&nbsp;Is Child up-to-date on all immunizations appropriate for their age?</label>
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="immunizationTypeDiv">
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="ddImmunizationType" id="ddimmuniztion-iyes" class="InsuranceType" value="1">
+                                            <label for="ddimmuniztion-iyes">Yes</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input id="ddimmuniztion-ino" type="radio" name="ddImmunizationType" class="InsuranceType" value="2">
+                                            <label for="ddimmuniztion-ino">Exempt</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info col-lg-7">
+
+                                            <input type="radio" name="ddImmunizationType" id="ddimunication-icc" class="InsuranceType" value="3">
+
+
+                                            <label class="col-md-9 col-lg-9" for="ddimunication-icc">Child has not received all immunizations appropriate for their age</label>
+
+                                            <button type="button" class="btn btn-primary btn-accept" id="btnAcceptImmune">Accept</button>
+                                            <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="form-group col-xs-12" id="familyServiceDiv">
+
+                                <label for="statusServicesDiv" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q7.</strong>&nbsp;Is the family receiving any of the following services?</label>
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="statusServicesDiv" style="padding:0;">
+
+
+
+                                    <div class="transition-radio-btn enroll-sec col-xs-7" style="padding:0;">
+
+
+                                        <div class="col-xs-2" style="padding:0;">
+
+
+
+                                            <div class="col-xs-12 form-group" style="padding:0;">
+
+                                                <div class="checkbox-inline fa-checkbox all-notes-check">
+                                                    <input type="checkbox" id="TANFStatus" name="TANF" class="services allnotesChk" onchange="uncheckdataNone();" value="true" style="display:none;" />
+                                                    <label for="TANFStatus" style="font-weight:normal;">TANF</label>
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-xs-12 form-group" style="padding:0;">
+                                                <div class="checkbox-inline fa-checkbox all-notes-check">
+                                                    <input type="checkbox" id="SSIStatus" name="SSI" class="services" onchange="uncheckdataNone();" value="true" style="display:none;"/>
+                                                    <label for="SSIStatus" style="font-weight:normal;">SSI</label>
+                                                </div>
+                                            </div>
+                                          
+
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <div class="col-xs-12 form-group" style="padding:0;">
+                                                <div class="checkbox-inline fa-checkbox all-notes-check">
+                                                    <input type="checkbox" id="SNAPStatus" name="SNAP" class="services" onchange="uncheckdataNone();" value="true" style="display:none;" />
+                                                    <label for="SNAPStatus" style="font-weight:normal;">SNAP</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 form-group" style="padding:0;">
+                                                <div class="checkbox-inline fa-checkbox all-notes-check">
+                                                    <input type="checkbox" id="WICStatus" name="WIC" class="services" onchange="uncheckdataNone();" value="true" style="display:none;" />
+                                                    <label for="WICStatus" style="font-weight:normal;">WIC</label>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xs-2">
+
+                                            <div class="col-xs-12 form-group" style="padding:0;">
+                                                <label class="checkbox-inline fa-checkbox all-notes-check">
+                                                    <input type="checkbox" id="NONEStatus" onchange="uncheckdata();" name="NONE" class="services" value="true" style="display:none;" />
+                                                    <label for="NONEStatus" style="font-weight:normal;">NONE</label>
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-lg-4" style="float:right;">
+                                            <button type="button" style="margin-top:-10px;" class="btn btn-primary btn-accept response-mtop" id="btnAcceptServices">Accept</button>
+                                            <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                        </div>
+
+
+
+
+                                    </div>
+
+
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="parentEducationDiv">
+
+                                <label for="statusServicesDiv" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q8.</strong>&nbsp;Has any parent/guardian completed the following (education)?</label>
+
+                                <div class="col-md-5 col-lg-7 col-xs-12">
+
+                                    <div class="transition-radio-btn enroll-sec margin-enroll" id="EducationID" style="margin-left:0px;">
+
+                                        <div class="col-xs-12 col-lg-12" id="fatherEducationDiv" style="padding:0;">
+                                            <label id="fatherNameLbl" style="font-weight:bold;"></label>
+                                            <input type="hidden" name="ParentID" id="ParentID" />
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="1">
+                                                    <label>Advanced Degree or Baccalaureate</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="2">
+                                                    <label>Associate, Vocational, or some College</label>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="3">
+                                                    <label>High School Graduate or GED</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="4">
+                                                    <label>Less than High school</label>
+                                                </div>
+                                                <button type="button" class="btn btn-primary btn-accept" id="btnAcceptdegree">Accept</button>
+                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                            </div>
+
+                                        </div>
+                                        <hr style="margin-top:10px;border: 1px solid #295b8f;" class="status-hr-line">
+
+                                        <div class="col-xs-12 col-lg-12" id="motherEducationDiv" style="padding:0;">
+                                            <label id="motherNameLbl" style="font-weight:bold;"></label>
+                                            <input type="hidden" name="ParentID" id="ParentID2" />
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType2" class="Education" value="1">
+                                                    <label>Advanced Degree or Baccalaureate</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType2" class="Education" value="2">
+                                                    <label>Associate, Vocational, or some College</label>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType2" class="Education" value="3">
+                                                    <label>High School Graduate or GED</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType2" class="Education" value="4">
+                                                    <label>Less than High school</label>
+                                                </div>
+                                                <button type="button" class="btn btn-primary btn-accept" id="btnAcceptdegree2">Accept</button>
+                                                <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group col-xs-12" id="parentJobDiv">
+                                <label for="statusServicesDiv" class="col-md-4 col-lg-5 col-xs-12 lbl-text"><strong class="pir-Q-lbl">Q9.</strong>&nbsp;Has parent/guardian completed Job Training?</label>
+
+                                <div class="col-md-5 col-lg-7 col-xs-12" id="JobTrainingFinishedID" style="padding:0;">
+                                    <div class="col-xs-12 col-lg-12" id="fatherJobTrainingDiv">
+
+                                        <label id="fatherJobNameLbl" style="font-weight:bold;"></label>
+
+                                        <div class="transition-radio-btn enroll-sec">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="true">
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="false">
+                                                <label>No</label>
+                                            </div>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="btn btn-primary btn-accept" id="btnAcceptJobTraining">Accept</button>
+                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                    </div>
+
+                                    <hr style="margin-top:10px;border: 1px solid #295b8f;" class="status-hr-line">
+
+                                    <div class="col-xs-12 col-lg-12" id="motherJobTrainingDiv">
+
+                                        <label id="motherJobNameLbl" style="font-weight:bold;"></label>
+
+                                        <div class="transition-radio-btn enroll-sec">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="JobTrainingFinished2" class="JobTrainingFinished" value="true">
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="JobTrainingFinished2" class="JobTrainingFinished" value="false">
+                                                <label>No</label>
+                                            </div>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary btn-accept" id="btnAcceptJobTraining2">Accept</button>
+                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-xs-12 form-group" id="childBirthTypeDiv">
+
+                                <label for="" class="col-md-4 col-lg-5 col-xs-12 lbl-text">Type of Birth&nbsp;<sup style="color:red;">*</sup></label>
+
+
+                                <div class="col-md-5 col-lg-7 col-xs-12">
+                                    <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="BirthType" class="ClsBirthType" value="0">
+                                                <label>No Birth</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="BirthType" class="ClsBirthType" value="1">
+                                                <label>Left Before Birth of Child</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="BirthType" class="ClsBirthType" value="2">
+                                                <label>Single Child Birth</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 no-padding">
+                                            <div class="radio radio-info" style="width:100%;">
+                                                <input type="radio" name="BirthType" class="ClsBirthType" value="3">
+                                                <label>Multi Child Birth</label>
+                                                <div class="divBirthType col-xs-12 no-padding" style="position: relative;display: none;">
+                                                    <span class="transition-field-style"></span>
+                                                    <input type="text" class="form-control" id="MultiChildBirth" value="" style="width: 80px;display:inline-block;height: 36px;margin-top: 3px;" onkeypress="return isNumber(event)">
+                                                    <span id="spnMultiChildBirth" style="display:inline-block;background: #1e5482;/* width: 42px; *//* height: 42px; */text-align: center;line-height: 32px;color: #fff;font-size: 24px;cursor: pointer;font-size: 15px;padding: 0 10px;border-radius: 5px;margin-left: 10px;margin-top: 6px;">Load Forms</span>
+
+                                                </div>
+                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                    <span id="spnMultiChildBirthErr" class="err-message"></span>
+
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                        <span class="err-message err-message-birthtype" style="display: none;">Type of child birth is required</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+
+
+
+                            <div class="col-xs-12 form-group addNewChildBody edu_header" id="newChildInfoDiv">
+                                <input type="hidden" id="allowFutureInput" value="0" />
+                                <input type="hidden" id="allowCurrentInput" value="0" />
+
+                                <h3><i class="fa fa-child" aria-hidden="true"></i> Child Information</h3>
+
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+
+                                    <div class="col-xs-12 form-group" style="padding:0;">
+                                        <label class="col-md-5 col-lg-5 col-xs-12 lbl-text">&nbsp;Insurance Type<sup style="color:red;">*</sup></label>
+
+                                        <div class="col-lg-7 col-sm-7 col-xs-12" id="newChildInsuranceDiv">
+                                            <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="newChildInstype" class="InsuranceType" value="1">
+                                                        <label>Medicare / Chip</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="newChildInstype" class="InsuranceType" value="2">
+                                                        <label>No Insurance</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="newChildInstype" class="InsuranceType" value="3">
+                                                        <label>Other Insurance</label>
+                                                    </div>
+                                                    <div class="col-lg-6" style="display:none;">
+                                                        <label style="color: #163b69;font-size: 14px;font-weight: normal;"><i>Please Specify</i></label>
+                                                        <input type="text" class="form-control optional" id="OtherInsuranceType" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="newChildInstype" class="InsuranceType" value="4">
+                                                        <label>Private Health Insurance</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="newChildInstype" value="5">
+                                                        <label>State Funded</label>
+                                                    </div>
+
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                <span class="err-message err-message-instype">Insurance type is required</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    
+
+                                    
+                                </div>
+
+
+
+
+
+
+
+
+
+
+                                <div class="col-xs-12" id="additionalChildDiv">
+
+                                </div>
+                            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+
+                        <div class="col-xs-12 col-lg-12 no-padding new-casenote" id="caseNoteStatDiv">
+
+
+
+
+
+
+                        </div>
+
+
+
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal glossy_btn">
+                                    <button type="button" class="glossy-button-button button-green" onclick="return isValidStatusChange();">Submit
+                                    <span class="glossy-button-before"></span>
+                                    <span class="glossy-button-after"></span>
+                                    
+                                    </button>
+                                    &nbsp;
+                                    &nbsp;
+                                    <button tabindex="17" class="glossy-button-button button-red" data-dismiss="modal" type="button">Exit
+                                    <span class="glossy-button-before"></span>
+                                    <span class="glossy-button-after"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </form>
+
+
+
+            </div>
         </div>
+
+
+        @*<div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                    <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
+                </div>
+
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                            <div class="add-useragform1">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+
+
+
+                                        <div id="divForWithdrawn" class="col-lg-12 col-xs-12 col-md-12 col-sm-12" style="display:none;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        </div>
+
+
+
+
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return isValidStatusChange();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>*@
+
+
+
     </div>
 </div>
 

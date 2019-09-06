@@ -40,20 +40,7 @@ namespace Fingerprints.Controllers
 {
     public class AgencyUserController : Controller
     {
-        /*roleid=f87b4a71-f0a8-43c3-aea7-267e5e37a59d(Super Admin)
-         roleid=a65bb7c2-e320-42a2-aed4-409a321c08a5(GenesisEarth Administrator)
-         roleid=a31b1716-b042-46b7-acc0-95794e378b26(Health/Nurse)
-         roleid=2d9822cd-85a3-4269-9609-9aabb914d792(HR Manager)
-         roleid=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
-         roleid=e4c80fc2-8b64-447a-99b4-95d1510b01e9(Home Visitor)
-         roleid=82b862e6-1a0f-46d2-aad4-34f89f72369a(teacvher)
-         roleid=b4d86d72-0b86-41b2-adc4-5ccce7e9775b(CenterManager)
-         roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
-         roleid=c352f959-cfd5-4902-a529-71de1f4824cc(Social Service Manager)
-         roleid= 7c2422ba-7bd4-4278-99af-b694dcab7367(Executive)
-         roleid=2af7205e-87b4-4ca7-8ca8-95827c08564c(Area Manager)
-         roleid=047c02fe-b8f1-4a9b-b01f-539d6a238d80 (Disabilities Manager)
-         */
+       
         agencyData agencyData = new agencyData();
         FamilyData familyData = new FamilyData();
         CommunityResourceData communitydata = new CommunityResourceData();
@@ -4149,7 +4136,7 @@ namespace Fingerprints.Controllers
                 string message = message = familyData.AddParent(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, Income1);
                 //string UpdateParameter = "UPDATE";
                 //int Mode = 4;
-               // familyData.CheckByClient(UpdateParameter, Mode);
+                // familyData.CheckByClient(UpdateParameter, Mode);
 
                 if (message == "1")
                 {
@@ -4181,43 +4168,23 @@ namespace Fingerprints.Controllers
         }
        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
         [HttpPost]
-        [ValidateInput(false)]
+        
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
-        public ActionResult DropClient(string Transition)
+        public ActionResult DropClient(Transition transition)
         {
             try
             {
-
-                Transition transition = new Transition();
-
-
-                List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
-                var ate = Request.Files;
-                var ate2 = ate.AllKeys;
-
-                for (int i = 0; i < ate2.Length; i++)
-                {
-                    RosterNew.Attachment aatt = new RosterNew.Attachment();
-                    aatt.file = ate[i];
-                    attach.Add(aatt);
-                }
-
-
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-
-                transition = serializer.Deserialize<Transition>(Transition);
-                transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
-                transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
-                transition.ParentID2 = (transition.ParentID2 == "0" || transition.ParentID2 == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID2);
-                var id = familyData.DropClient(transition);
+                transition.ParentID = EncryptDecrypt.Decrypt64<long>(transition.ParentID).ToString();
+                transition.ParentID2 = EncryptDecrypt.Decrypt64<long>(transition.ParentID2).ToString();
+                var id = familyData.DropClient(transition,staff);
                 return Json(id, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occurred please try again.");
+                return Json("Error occurred. Please try again.");
             }
         }
 
@@ -4233,8 +4200,9 @@ namespace Fingerprints.Controllers
             }
             catch (Exception Ex)
             {
+
                 clsError.WriteException(Ex);
-                return Json("Error occurred please try again.");
+                return Json("Error occurred. Please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -4247,7 +4215,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occurred please try again.");
+                return Json("Error occurred. Please try again.");
             }
         }
         public ActionResult BMIStatus()
@@ -4406,46 +4374,33 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [ValidateInput(false)]
         [HttpPost]
-        public ActionResult GroupCaseNotes(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments)
+        public ActionResult SaveGroupCaseNote(RosterNew.CaseNote caseNote)
         {
-            try
-            {
 
-                StringBuilder _Ids = new StringBuilder();
-                if (ClientIds.IDS != null)
-                {
-                    foreach (string str in ClientIds.IDS)
-                    {
-                        _Ids.Append(EncryptDecrypt.Decrypt64(str) + ",");
-                    }
-                    CaseNote.ClientIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
-                }
-                _Ids.Clear();
-                if (TeamIds.IDS != null)
-                {
-                    foreach (string str in TeamIds.IDS)
-                    {
-                        _Ids.Append(str + ",");
-                    }
-                    CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
-                }
-                CaseNote.CaseNotetags = CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1);
-                string message = familyData.SaveGroupCaseNotes(CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
-                if (message == "1")
-                {
-                    TempData["message"] = "Record saved successfully.";
-                    return Redirect("~/AgencyUser/GroupCaseNotes");
-                }
-                else
-                    TempData["message"] = "Error occurred please try again later.";
-            }
-            catch (Exception Ex)
+            bool isResult = false;
+            if (caseNote.CaseNoteAttachmentList != null)
             {
-                clsError.WriteException(Ex);
+                caseNote.CaseNoteAttachmentList.ForEach(x =>
+                {
+                    x.AttachmentFileByte = (x.AttachmentJson != null && x.AttachmentJson.Trim() != string.Empty) ? Convert.FromBase64String(x.AttachmentJson) : null;
+                });
             }
-            return View();
+
+            caseNote.ClientIds = string.Join(",", caseNote.ClientIds.Split(',').Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
+            caseNote.CaseNotetags = caseNote.CaseNotetags.Trim().Trim(',');
+
+            string message = familyData.SaveGroupCaseNotes(caseNote, staff);
+
+            if(message=="1")
+            {
+                isResult = true;
+            }
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker,RoleEnum.SocialServiceManager,RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult ViewGroupCaseNotes()
         {
             try
@@ -4490,7 +4445,11 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+
+        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter(RoleEnum.FamilyServiceWorker, RoleEnum.SocialServiceManager, RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
+
         [ValidateInput(false)]
         [HttpPost]
         public ActionResult ViewGroupCaseNotes(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments)
@@ -4517,8 +4476,8 @@ namespace Fingerprints.Controllers
                     CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
                 }
                 CaseNote.CaseNotetags = CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1);
-                string message = familyData.SaveGroupCaseNotes(CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
-                if (message == "1")
+              //  string message = familyData.SaveGroupCaseNotes(CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
+                if ("!"== "1")
                 {
                     TempData["message"] = "Record saved successfully.";
                     return Redirect("~/AgencyUser/ViewGroupCaseNotes");
@@ -6667,7 +6626,7 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public ActionResult HouseholdDetails(FamilyHouseless homeless, string clientids="", string staffIds="" , string cameraUploads = null)
+        public ActionResult HouseholdDetails(FamilyHouseless homeless, RosterNew.CaseNote caseNote, string cameraUploads)
         {
             string message = "";
            
@@ -6713,19 +6672,18 @@ namespace Fingerprints.Controllers
                 if (homeless.HasCaseNoteDetails)
                 {
 
-                    homeless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(homeless.CaseNoteDetails.CaseNotetags) ? "" : homeless.CaseNoteDetails.CaseNotetags.Substring(0, homeless.CaseNoteDetails.CaseNotetags.Length - 1);
-                    /*
-                      homeless.CaseNoteDetails.ClientIds = (homeless.UsersList.Clientlist != null && homeless.UsersList.Clientlist.Count > 0) ? string.Join(",", homeless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => EncryptDecrypt.Decrypt64(x.Id)).ToArray()) : "";
-                     homeless.CaseNoteDetails.StaffIds = (homeless.UsersList.UserList != null && homeless.UsersList.UserList.Count > 0) ? string.Join(",", homeless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
-                     */
-                    homeless.CaseNoteDetails.ClientIds = clientids;
-                    homeless.CaseNoteDetails.StaffIds = staffIds;
-                    homeless.CaseNoteDetails.HouseHoldId = homeless.FamilyHousehold.HouseholdId.ToString();
-                    homeless.CaseNoteDetails.IsLateArrival = false;
-                    //homeless.CaseNoteDetails.ClientId = EncryptDecrypt.Decrypt64(homeless.FamilyHousehold.clientIdnew);
-                    //homeless.CaseNoteDetails.ProgramId = homeless.FamilyHousehold.CProgramType;
-                    //homeless.CaseNoteDetails.CenterId = homeless.FamilyHousehold.CenterId.ToString();
-                    homeless.CaseNoteDetails.CaseNoteid = "0";
+                    //homeless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(homeless.CaseNoteDetails.CaseNotetags) ? "" : homeless.CaseNoteDetails.CaseNotetags.Substring(0, homeless.CaseNoteDetails.CaseNotetags.Length - 1);
+
+                    //homeless.CaseNoteDetails.ClientIds = clientids;
+                    //homeless.CaseNoteDetails.StaffIds = staffIds;
+                    //homeless.CaseNoteDetails.HouseHoldId = homeless.FamilyHousehold.HouseholdId.ToString();
+                    //homeless.CaseNoteDetails.IsLateArrival = false;
+                  
+                    //homeless.CaseNoteDetails.CaseNoteid = "0";
+
+                    caseNote.CaseNotetags=string.IsNullOrEmpty(caseNote.CaseNotetags)?"": caseNote.CaseNotetags.Substring(0,caseNote.CaseNotetags.Length - 1);
+                    caseNote.IsLateArrival = false;
+                    caseNote.CaseNoteid = "0";
 
                     if (!string.IsNullOrEmpty(cameraUploads))
                     {
@@ -6733,10 +6691,14 @@ namespace Fingerprints.Controllers
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         List<SelectListItem> cameraUplodList = serializer.Deserialize<List<SelectListItem>>(cameraUploads);
 
-                        homeless.CaseNoteDetails.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<RosterNew.Attachment>>();
+                       
+                        if(caseNote!=null && caseNote.CaseNoteAttachmentList==null)
+                        {
+                            caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+                        }
                         foreach (var item in cameraUplodList)
                         {
-                            homeless.CaseNoteDetails.CaseNoteAttachmentList.Add(new RosterNew.Attachment
+                            caseNote.CaseNoteAttachmentList.Add(new RosterNew.Attachment
                             {
                                 AttachmentFileName = item.Text,
                                 AttachmentFileExtension = ".png",
@@ -6748,7 +6710,7 @@ namespace Fingerprints.Controllers
 
                     
 
-                    message = new RosterData().SaveCaseNotes(ref message, homeless.CaseNoteDetails, staff, 2);
+                    message = new RosterData().SaveCaseNotes(ref message, caseNote, staff, 2);
                 }
 
                  TempData["HouseholdMessage"] = "Household summary updated successfully.";
@@ -7408,34 +7370,35 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public JsonResult UpdatePregMomEnrollmentStatus(string Transition, string PregMomChilds)
+        public JsonResult UpdatePregMomEnrollmentStatus( Transition transition, List<PregMomChilds> pregChilds)
         {
 
             List<SeatAvailability> results = new List<SeatAvailability>();
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
+           // JavaScriptSerializer serializer = new JavaScriptSerializer();
 
             TransitionDetails transitionDetails = new TransitionDetails();
 
-            List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
-            Transition transition = new FingerprintsModel.Transition();
-            List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
-            var ate = Request.Files;
-            var ate2 = ate.AllKeys;
+           // List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
+           // Transition transition = new FingerprintsModel.Transition();
+            //List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
+            //var ate = Request.Files;
+            //var ate2 = ate.AllKeys;
 
-            for (int i = 0; i < ate2.Length; i++)
-            {
-                RosterNew.Attachment aatt = new RosterNew.Attachment();
-                aatt.file = ate[i];
-                attach.Add(aatt);
-            }
+            //for (int i = 0; i < ate2.Length; i++)
+            //{
+            //    RosterNew.Attachment aatt = new RosterNew.Attachment();
+            //    aatt.file = ate[i];
+            //    attach.Add(aatt);
+            //}
 
 
-            transition = serializer.Deserialize<Transition>(Transition);
-            pregChilds = serializer.Deserialize<List<PregMomChilds>>(PregMomChilds);
-            transition.CaseNoteDetails.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+            //transition = serializer.Deserialize<Transition>(Transition);
+            //pregChilds = serializer.Deserialize<List<PregMomChilds>>(PregMomChilds);
+            //transition.CaseNoteDetails.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
 
-            transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
-            transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
+            //transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+
+            transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "" || transition.ParentID==null) ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
             transitionDetails.Transition = transition;
             transitionDetails.PregMomChilds = pregChilds;
 
@@ -7443,7 +7406,7 @@ namespace Fingerprints.Controllers
             transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
             transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
 
-            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, Session["AgencyId"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString(),true);
+            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, staff, true);
 
             return Json(results);
         }
@@ -7915,7 +7878,7 @@ namespace Fingerprints.Controllers
             return View(model);
         }
 
-        [HttpPost]
+       
         [CustAuthFilter()]
 
         public PartialViewResult GetUnscheduledClassDayPartial(UnscheduledSchoolDayModal modal)

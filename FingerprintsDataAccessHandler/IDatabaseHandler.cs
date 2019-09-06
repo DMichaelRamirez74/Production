@@ -15,8 +15,10 @@ namespace FingerprintsDataAccessHandler
 
         IDbCommand CreateCommand(string commandText, CommandType commandType, IDbConnection connection);
 
+        IDbDataParameter CreateParameter(IDbCommand command);
+
         IDataAdapter CreateAdapter(IDbCommand command);
 
-        IDbDataParameter CreateParameter(IDbCommand command);
+        
     }
 }

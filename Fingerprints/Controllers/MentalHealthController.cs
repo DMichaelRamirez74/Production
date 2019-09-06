@@ -100,7 +100,7 @@ namespace Fingerprints.Controllers
                // _caseNote.Classroomid = MentalHealthCaseNote.CaseClassroomId.ToString();
                 _caseNote.ClientId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.ClientId.ToString());
                 _caseNote.CaseNotetags = MentalHealthCaseNote.Tags.Trim(',');
-                _caseNote.CaseNotetitle = MentalHealthCaseNote.Title;
+                _caseNote.CaseNoteTitle = MentalHealthCaseNote.Title;
                 _caseNote.CaseNoteDate = MentalHealthCaseNote.Date;
                 _caseNote.Note = MentalHealthCaseNote.MHcasenote;
                 _caseNote.ClientIds = string.Join(",", MentalHealthCaseNote.ClientIds.ToArray());

@@ -58,7 +58,6 @@
         font-weight: bold;
         border-bottom: 2px solid #295b8f;
         color: #295b8f;
-        padding: 15px 0;
         margin: 0 15px;
         margin-bottom: 10px;
     }
@@ -94,6 +93,101 @@
     #divCaseNoteSection .img-camera {
         margin-left: 20px !important;
     }
+
+
+        .accordion {
+        position: relative;
+        background-color: #e3ebf9;
+        display: inline-block;
+        width: 100%;
+        font-weight: 700;
+        color: #41454e;
+        vertical-align: middle;
+        padding-bottom: 1px;
+        border-bottom: 1px solid #fff;
+    }
+
+        .accordion:first-child, .accordion:last-child {
+            border-radius: 5px 5px 0 0;
+        }
+
+        .accordion .fa {
+            position: relative;
+            float: right;
+        }
+
+        .accordion h4 {
+            position: relative;
+            top: 0.8em;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .accordion a {
+            position: relative;
+            display: block;
+            color: #41454e;
+            padding: 1em 1em 2.5em 1em;
+            text-decoration: none;
+        }
+
+        .accordion.active a {
+            color: #fff;
+        }
+
+        .accordion:last-child {
+            border-bottom: unset;
+        }
+
+
+        .accordion:hover {
+            text-decoration: none;
+            background-color: #41454e;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+    .accordion-desc {
+        background-color: #fff;
+        color: #74777b;
+        z-index: 2;
+        padding: 20px 15px;
+        border-bottom: 1px solid #3e4770;
+        border-left: 1px solid #3e4770;
+        border-right: 1px solid #3e4770;
+        border-color: #3e4770;
+    }
+
+    .accordion h4:after {
+        content: '\002B';
+        color: #41454e;
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+    }
+
+    .accordion:hover {
+        background-color: #bfc4cd;
+        color: #fff;
+        padding-left: 25px;
+    }
+
+
+    .accordion.active {
+        background-color: #3e4770;
+        color: #fff;
+        padding-left: 25px;
+        border-bottom: unset;
+    }
+
+        .accordion.active h4:after {
+            content: "\2212";
+            color: #fff;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
 
     @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
 
@@ -277,33 +371,50 @@
                 content: attr(data-title);
             }
     }
+
+
+    @@media only screen and (max-width: 768px)
+    {
+        #divCaseNoteSection .form-group {
+    padding: 0px;
+}
+
+        .camimgs 
+        {
+            float:left!important;
+        }
+
+        .attach-icon-div-gallery
+        {
+            opacity: 1!important;
+        }
+    }
 </style>
 
 
+@{ 
+
+    var guid = Guid.NewGuid().ToString();
+}
+
+<div class="col-xs-12 col-lg-12 no-padding new-casenote max_items_addn caseNoteSection_@guid" id="divCaseNoteSection" data-current-id="@guid">
 
 
+    <h3 class="addapplicant" style="padding:0;padding-bottom:5px;">
+        <i class="fa fa-book" aria-hidden="true"></i><span id="heading_case_note">&nbsp;Case Note</span>
 
-<div class="col-xs-12 col-lg-12 no-padding new-casenote max_items_addn" id="divCaseNoteSection">
-
-    <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i><span id="heading_case_note">&nbsp;Case Note</span>
-    
         <a class="export-new" href="/Reporting/ExportCaseNote?caseNoteId=@(string.IsNullOrEmpty(Model.CaseNote.CaseNoteid)?"0": Model.CaseNote.CaseNoteid)&clientId=@(string.IsNullOrEmpty(Model.CaseNote.ClientId)?"0":Model.CaseNote.ClientId)&householdId=@(string.IsNullOrEmpty(Model.CaseNote.HouseHoldId)?"0":Model.CaseNote.HouseHoldId)" style="text-decoration:none;float: right;" data-toggle="tooltip" title="Export to PDF">
             <img src="/Images/export.svg" style="height:25px;width:25px;">
         </a>
-    
+
     </h3>
-    @*@Html.Hidden("hidden_centerId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].CenterId : "0"))
-        @Html.Hidden("hidden_classroomId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Classroomid : "0"))
-        @Html.Hidden("hidden_householdId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Householid : "0"))
-        @Html.Hidden("hidden_programId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].ProgramID : "0"))
-        @Html.Hidden("hidden_clientId", (Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].clientid : "0"))*@
+   
 
-
-    @Html.Hidden("hidden_centerId", (Model != null ? Model.CenterID : "0"))
-    @Html.Hidden("hidden_classroomId", (Model != null ? Model.ClassroomID : "0"))
-    @Html.Hidden("hidden_householdId", (Model != null ? Model.Enc_HouseholdID : "0"))
-    @Html.Hidden("hidden_programId", (Model != null ? Model.ProgramId : "0"))
-    @Html.Hidden("hidden_clientId", (Model != null ? Model.Enc_ClientID : "0"))
+    @Html.Hidden("hidden_centerId_"+guid, (Model != null ? Model.CenterID : "0"))
+    @Html.Hidden("hidden_classroomId_"+guid, (Model != null ? Model.ClassroomID : "0"))
+    @Html.Hidden("hidden_householdId_"+guid, (Model != null ? Model.Enc_HouseholdID : "0"))
+    @Html.Hidden("hidden_programId_"+guid, (Model != null ? Model.ProgramId : "0"))
+    @Html.Hidden("hidden_clientId_"+guid, (Model != null ? Model.Enc_ClientID : "0"))
 
 
 
@@ -314,77 +425,69 @@
 
 
         <div class="form-group col-xs-12">
-            <label for="txtCaseNoteDate" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Date&nbsp;<sup style="color:red;">*</sup></label>
-
-            <div class="col-md-5 col-lg-9 col-xs-12">
-                @*value="@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Date : "")"*@
-
-                @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
-                {
-
-                    <input type="text" id="txtCaseNoteDate" disabled name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
-
-                }
-                else
-                {
-                    <input type="text" id="txtCaseNoteDate" name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
-
-                }
 
 
 
-                <input type="hidden" id="hdn-casenoteid" value="@Model.CaseNote.CaseNoteid">
-            </div>
+            @if (Model!=null && Model.CaseNote!=null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+            {
 
+                <label for="txtCaseNoteDate_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Date</label>
+                <label class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;">@(string.Concat(!string.IsNullOrEmpty(Model.CaseNote.CaseNoteDate) ? Convert.ToDateTime(Model.CaseNote.CaseNoteDate, new System.Globalization.CultureInfo("en-US", true)).ToString("MMMM dd, yyyy") : string.Empty, " ")) <i style="color:red;">(Written on, @Model.CaseNote.ActualWrittenDateTime)</i> </label>
+                <input type="hidden" id="hdn-casenoteid_@guid" value="@Model.CaseNote.CaseNoteid">
+                <input type="text" id="txtCaseNoteDate_@guid" style="display:none;" disabled name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
+            }
+            else
+            {
+                <label for="txtCaseNoteDate_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Date&nbsp;<sup style="color:red;">*</sup></label>
+
+                <div class="col-md-5 col-lg-9 col-xs-12">
+                    <input type="text" id="txtCaseNoteDate_@guid" disabled name="CaseNoteDate" class="form-control" onblur="checkCaseNoteDate(this);" value="@(Model!=null && Model.CaseNote!=null ?Model.CaseNote.CaseNoteDate:string.Empty)" placeholder="MM/DD/YYYY">
+                    <input type="hidden" id="hdn-casenoteid_@guid" value="@Model.CaseNote.CaseNoteid">
+                </div>
+            }
         </div>
-
-
-
-
-
-
 
         <div class="form-group col-xs-12">
-            <label for="txtCaseNoteTitle" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Title&nbsp;<sup style="color:red;">*</sup></label>
-
-            <div class="col-md-5 col-lg-9 col-xs-12">
-                @*value="@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Title : "")"*@
-
-                @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
-                {
-                    <input type="text" disabled class="form-control" id="txtCaseNoteTitle" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
-
-                }
-
-                else
-                {
-                    <input type="text" class="form-control" id="txtCaseNoteTitle" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
-
-                }
 
 
+            @if (Model!=null && Model.CaseNote!=null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
+            {
+                <label for="txtCaseNoteTitle_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Title</label>
+                <label class="col-md-5 col-lg-9 col-xs-12" style="font-weight:normal;">@Model.CaseNote.Title</label>
 
-            </div>
+                <input type="text" disabled style="display:none;" class="form-control" id="txtCaseNoteTitle_@guid" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
+
+            }
+            else
+            {
+                <label for="txtCaseNoteTitle_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Title&nbsp;<sup style="color:red;">*</sup></label>
+
+                <div class="col-md-5 col-lg-9 col-xs-12">
+                    <input type="text" class="form-control" id="txtCaseNoteTitle_@guid" name="CaseNoteTitle" value="@Model.CaseNote.Title" placeholder="Case Note Title">
+                </div>
+            }
+
+
+
 
         </div>
 
 
 
 
-        <div class="form-group col-xs-12" @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0") { <text> style="display:none;" </text>  }>
+        <div class="form-group col-xs-12" @if (Model!=null && Model.CaseNote!=null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0") { <text> style="display:none;" </text>    }>
 
 
-            <label for="txtareaCaseNote" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Note&nbsp;<sup style="color:red;">*</sup></label>
+            <label for="txtareaCaseNote_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Note&nbsp;<sup style="color:red;">*</sup></label>
 
             <div class="col-md-5 col-lg-9 col-xs-12">
-                <textarea id="txtareaCaseNote" name="Note" style="visibility: hidden; display: none;">
+                <textarea id="txtareaCaseNote_@guid" name="Note" style="visibility: hidden; display: none;">
 
-                    @*@(Model != null && Model.CaseNoteList != null && Model.CaseNoteList.Count > 0 ? Model.CaseNoteList[0].Note : "")*@
 
                     @Model.CaseNote.Note
 
                 </textarea>
-                <input type="hidden" name="Note" id="Note" />
+                <input type="hidden" name="Note" id="Note_@guid" />
 
 
             </div>
@@ -394,9 +497,9 @@
         @if (Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
         {
             <div class="form-group col-xs-12">
-                <label for="mainCasenotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Original Note</label>
+                <label for="mainCasenotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Original Note</label>
 
-                <div id="mainCasenotes" class="txt-main-note col-md-5 col-lg-9 col-xs-12" style="line-height:1.3;padding:0;">
+                <div id="mainCasenotes" class="txt-main-note col-md-5 col-lg-9 col-xs-12" style="line-height:1.3;padding:0;background-color:yellow;">
                     @Html.Raw(Model.CaseNote.Note)
                 </div>
 
@@ -408,20 +511,21 @@
         @if (Model != null && Model.CaseNote != null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
         {
             <div class="form-group col-xs-12 divAppendedNotes">
-                <label for="mainnotes" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Appended Notes</label>
+                <label for="sub-notes-details" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Appended Notes</label>
 
                 <div class="col-md-5 col-lg-9 col-xs-12 sub-notes-details">
                     @if (Model.CaseNote != null && Model.CaseNote.SubCaseNoteList != null && Model.CaseNote.SubCaseNoteList.Count > 0)
-                {
-                    
-                    for (int i = 0; i < Model.CaseNote.SubCaseNoteList.Count; i++)
                     {
 
+                        for (int i = 0; i < Model.CaseNote.SubCaseNoteList.Count; i++)
+                        {
 
 
-                        var subDate = DateTime.Parse(Model.CaseNote.SubCaseNoteList[i].WrittenDate, new System.Globalization.CultureInfo("en-US", true));
 
-                        var subDateString = subDate.ToString("MMMM dd, yyyy");
+
+                            var subDate = DateTime.Parse( string.IsNullOrEmpty(Model.CaseNote.SubCaseNoteList[i].WrittenDate)?Model.CaseNote.SubCaseNoteList[i].ActualWrittenDateTime:Model.CaseNote.SubCaseNoteList[i].WrittenDate, new System.Globalization.CultureInfo("en-US", true));
+
+                            var subDateString = subDate.ToString("MMMM dd, yyyy");
 
 
 
@@ -446,7 +550,7 @@
                                             <td>
                                                 <strong>Note</strong>
                                             </td>
-                                            <td>@(Html.Raw(Model.CaseNote.SubCaseNoteList[i].Notes))</td>
+                                            <td style="background-color:yellow;">@(Html.Raw(Model.CaseNote.SubCaseNoteList[i].Notes))</td>
                                         </tr>
                                         <tr>
                                             <td>
@@ -510,7 +614,7 @@
                     else
                     {
                         <div class="addn-poup-div col-xs-12 no-padding">
-                            <h4 style="margin-top:0;">No record found</h4>
+                            <h4 style="margin-top:0;">N/A</h4>
                         </div>
                     }
                 </div>
@@ -520,7 +624,7 @@
 
 
         <div class="form-group col-xs-12">
-            <label for="txtCaseNoteTags" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Tags&nbsp;<sup style="color:red;">*</sup></label>
+            <label for="txtCaseNoteTags_@guid" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Tags&nbsp;<sup style="color:red;">*</sup></label>
 
             <div class="col-md-5 col-lg-9 col-xs-12">
                 @{
@@ -529,15 +633,14 @@
 
                     if (Model.CaseNote.TagList != null && Model.CaseNote.TagList.Count > 0)
                     {
-                        var textList = Model.CaseNote.TagList.Where(x=>x.Text!=null && x.Text.Trim()!= string.Empty).Select(x => x.Text).ToArray();
+                        var textList = Model.CaseNote.TagList.Where(x => x.Text != null && x.Text.Trim() != string.Empty).Select(x => x.Text).ToArray();
                         tagNames = string.Join(",", textList);
                     }
 
                 }
 
-                <input type="text" id="txtCaseNoteTags"   value="" style="display: none;">
-                <input type="hidden" id="tempTagname" value="@tagNames" />
-               @* <input type="text" class="form-control" id="txtCaseNoteTags" name="CaseNotetags" value="@tagNames" placeholder="Tags">*@
+                <input type="text" id="txtCaseNoteTags_@guid" name="CaseNotetags" value="" style="display: none;">
+                <input type="hidden" id="tempTagname_@guid" value="@tagNames" />
 
 
             </div>
@@ -547,34 +650,27 @@
 
 
         <div class="form-group col-xs-12">
-            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Clients&nbsp;<sup style="color:red;">*</sup></label>
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Clients&nbsp;<sup style="color:red;">*</sup></label>
 
-            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteClients">
+            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteClients_@guid">
                 @if (Model != null && Model.CaseNote.ClientList != null && Model.CaseNote.ClientList.Count > 0)
                 {
                     int i = 0;
                     foreach (var child in Model.CaseNote.ClientList)
                     {
-                        @*<div class="col-sm-12 adddivspace no-padding">
-                                <input type="checkbox" name="ClientIds.IDS" value="@child.Id">
-                                <span>@child.Name</span>
-                            </div>*@
-
-
-
 
                         <div class="fa-checkbox all-notes-check">
 
                             @if (child.Selected)
                             {
-                                <input type="checkbox" checked="checked" id="check_@i" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
+                                <input type="checkbox" checked="checked" id="@string.Concat("check_",i,"_",guid)" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
 
                             }
                             else
                             {
-                                <input type="checkbox" id="check_@i" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
+                                <input type="checkbox" id="@string.Concat("check_",i,"_",guid)" name="ClientIds.IDS" value="@child.Value" style="display:none;" class="allnotesChk">
                             }
-                            <label for="check_@i" style="font-weight:normal;width:auto;">@child.Text</label>
+                            <label for="@string.Concat("check_",i,"_",guid)" style="font-weight:normal;">@child.Text</label>
 
                         </div>
 
@@ -590,9 +686,9 @@
         </div>
 
         <div class="form-group col-xs-12">
-            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Developmental Team&nbsp;<sup style="color:red;">*</sup></label>
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Developmental Team</label>
 
-            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteStaffs">
+            <div class="col-md-5 col-lg-9 col-xs-12" id="divCaseNoteStaffs_@guid">
                 @if (Model != null && Model.CaseNote.StaffList != null && Model.CaseNote.StaffList.Count > 0)
             {
                 int i = 0;
@@ -604,16 +700,16 @@
 
                                 @if (staff.Selected)
                                 {
-                                    <input type="checkbox" checked="checked" id="teamId_@i" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
+                                    <input type="checkbox" checked="checked" id="@string.Concat("teamId_",i,"_",guid)" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
 
                                 }
                                 else
                                 {
-                                    <input type="checkbox" id="teamId_@i" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
+                                    <input type="checkbox" id="@string.Concat("teamId_",i,"_",guid)" name="TeamIds.IDS" value="@staff.Value" style="display:none;" class="allnotesChk">
 
                                 }
 
-                                <label for="teamId_@i" name="staff_@i" style="font-weight:normal;width:auto;">@staff.Text</label>
+                                <label for="@string.Concat("teamId_",i,"_",guid)" name="@string.Concat("teamId_",i,"_",guid)" style="font-weight:normal;">@staff.Text</label>
                             </div>
 
 
@@ -628,14 +724,7 @@
         </div>
 
         <div class="form-group col-xs-12">
-            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Secure Note Level ?</label>
-
-            @*<div class="col-md-5 col-lg-9 col-xs-12">
-                    <input type="checkbox" id="checkboxSecureNote" value="true" name="checkboxSecureNote">
-                    <span>Yes</span>
-                </div>*@
-
-
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Secure Note Level ?</label>
 
             <div class="col-md-5 col-lg-9 col-xs-12">
 
@@ -644,16 +733,16 @@
                 <div class="fa-checkbox all-notes-check">
                     @if (Model.CaseNote.SecurityLevel)
                     {
-                        <input type="checkbox" checked="checked" id="checkboxSecureNote" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
+                        <input type="checkbox" checked="checked" id="checkboxSecureNote_@guid" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
 
                     }
                     else
                     {
-                        <input type="checkbox" id="checkboxSecureNote" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
+                        <input type="checkbox" id="checkboxSecureNote_@guid" name="CaseNoteSecurity" style="display:none;" value="true" class="allnotesChk">
 
                     }
 
-                    <label for="checkboxSecureNote" style="font-weight:normal;">Yes</label>
+                    <label for="checkboxSecureNote_@guid" style="font-weight:normal;">Yes</label>
                 </div>
             </div>
 
@@ -669,38 +758,38 @@
 
 
 
-        <div class="form-group col-xs-12" id="caseNoteAttachmentsDiv">
-            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">
+        <div class="form-group col-xs-12" id="caseNoteAttachmentsDiv_@guid">
+            <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >
                 Attachment <small style="padding:0;color:red;">(.pdf,.jpg,.jpeg,.bmp,.gif,.png)</small>
             </label>
 
             <div class="col-lg-9 col-xs-12">
-                <div class="col-sm-9 col-lg-9 no-padding">
-                    <input type="file" id="FirstFile" name="CaseNoteAttachmentList[0].file" @*name="Attachments[0].file"*@ onchange="ValidateSingleInputpdf2(this,null)" class="form-control">
+                <div class="col-xs-7 col-sm-9 col-lg-9 no-padding">
+                    <input type="file" id="FirstFile" name="CaseNoteAttachmentList[0].file" @*name="Attachments[0].file"*@ class="form-control">
                 </div>
-                <div class="col-sm-3 col-lg-3 adddivspace response-addicspace" style="top: 0px;">
+                <div class="col-xs-5 col-sm-3 col-lg-3 adddivspace response-addicspace" style="top: 0px;">
 
                     <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="AddMore(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                    <img id="uploadImageCamera" class="img-camera" src="/Images/camera.png" style="margin-left: 25px; display: inline;" title="" data-original-title="Capture using Camera">
+                    <img id="uploadImageCamera" class="img-camera" data-guid="@guid" src="/Images/camera.png" style="margin-left: 25px; display: inline;"  />
 
                 </div>
             </div>
 
-            <div class="col-lg-9 col-sm-12" id="addAttachmentDiv">
+            <div class="col-lg-9 col-sm-12" id="addAttachmentDiv_@guid">
 
 
             </div>
 
-            <div class="col-lg-9 col-sm-12 adddivspace pull-right" id="div-edit-modal-img-gallery"></div>
+            <div class="col-lg-9 col-sm-12 adddivspace pull-right camimgs div-edit-gallery_@guid" id="div-edit-modal-img-gallery"></div>
 
         </div>
 
         @if (Model != null && Model.CaseNote != null && Model.CaseNote.CaseNoteid != null && Model.CaseNote.CaseNoteid != "" && Model.CaseNote.CaseNoteid != "0")
         {
-            <div class="form-group col-xs-12" id="div_download_attach">
-                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" style="color:#295b8f;text-transform:none;">Download Attachment(s)</label>
+            <div class="form-group col-xs-12" id="div_download_attach_@guid">
+                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text">Download Attachment(s)</label>
 
-                <div class="col-md-5 col-lg-9 col-xs-12" id="div_attach_download_bind_section">
+                <div class="col-md-5 col-lg-9 col-xs-12" id="div_attach_download_bind_section_@guid">
 
                     @if (Model.CaseNote.CaseNoteAttachmentList != null && Model.CaseNote.CaseNoteAttachmentList.Count > 0)
                     {
@@ -710,6 +799,10 @@
                             <a title='Click here to download' style='font-size:18px;' href='/Agencyuser/getpdfimage1/@attachment.AttachmentId,CaseNote,0'><i class='fa fa-download'></i></a>
                             <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         }
+                    }
+                    else
+                    {
+                        <label style="font-weight:normal;">N/A</label>
                     }
 
                 </div>
@@ -722,8 +815,19 @@
 
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="btnwrp_subcal">
-                <button type="button" class="my-btn save-casenote" onclick="return validateCaseNote(this);">Submit</button>
-                <button tabindex="17" class="my-btn cancel-casenote" data-dismiss="modal" type="button">Cancel</button>
+                <button type="button" class="save-casenote save_casenote_@guid glossy-button-button button-green" onclick="return validateCaseNote(this);">
+                    Submit
+
+                    <span class="glossy-button-before"></span>
+                    <span class="glossy-button-after"></span>
+
+                </button>
+                &nbsp;&nbsp;
+                <button tabindex="17" class="cancel-casenote glossy-button-button button-red" data-dismiss="modal" type="button">
+                    Cancel
+                    <span class="glossy-button-before"></span>
+                    <span class="glossy-button-after"></span>
+                </button>
             </div>
         </div>
 
@@ -740,12 +844,14 @@
     var count = 1;
 
 
-    function AddMore() {
+    function AddMore(ele) {
+       
 
+        var currentsectionId = $(ele).closest('#divCaseNoteSection').attr('data-current-id');
 
         var appendDiv = '<div class="col-xs-12 no-padding attachment_' + count + '" style="padding-top:10px;">\
                 <div class="col-sm-9 col-lg-9 col-xs-7 no-padding">\
-                    <input type="file" name="CaseNoteAttachmentList[' + count + '].file" onchange="ValidateSingleInputpdf2(this,null)" class="form-control">\
+                    <input type="file" name="CaseNoteAttachmentList[' + count + '].file"  class="form-control">\
                 </div>\
                 <div class="col-sm-3 col-lg-3 col-xs-4 adddivspace response-addicspace">\
                     <a href="javascript:void(0)" title="Remove Attachment" onclick="RemoveAttach(this,' + count + ');">\
@@ -757,8 +863,7 @@
 
 
 
-
-        $('#addAttachmentDiv').append(appendDiv);
+        $(ele).closest('#caseNoteAttachmentsDiv_'+currentsectionId+'').find('#addAttachmentDiv_'+currentsectionId+'').append(appendDiv);
 
 
         count++;
@@ -767,7 +872,7 @@
 
     function RemoveAttach(_ele, count) {
 
-        $('.attachment_' + count + '').remove();
+        $(_ele).closest('.attachment_' + count + '').remove();
 
 
     }
@@ -845,33 +950,39 @@
 
         $('[data-toggle="tooltip"]').tooltip();
 
-        if (CKEDITOR.instances['txtareaCaseNote']) {
-            CKEDITOR.remove(CKEDITOR.instances['txtareaCaseNote']);
-        } 
+        var currentSectionId='@guid';
+
+        if (CKEDITOR.instances['txtareaCaseNote_' + currentSectionId + '']) {
+            CKEDITOR.remove(CKEDITOR.instances['txtareaCaseNote_' + currentSectionId + '']);
+        }
 
 
-        CKEDITOR.replace('txtareaCaseNote', {
-                language: 'en-gb',
-                uiColor: '#295b8f',
-                disableNativeSpellChecker: false
-            });
-       
+        CKEDITOR.replace('txtareaCaseNote_'+currentSectionId+'', {
+            language: 'en-gb',
+            uiColor: '#295b8f',
+            disableNativeSpellChecker: false
+        });
 
 
 
 
 
-        $('.div-add-edit-casenote').find('#divCaseNoteSection').find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
-        $('#txtCaseNoteTags_tag_autosize_tester').remove();
+        $('#txtCaseNoteDate_'+currentSectionId+'').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
-        $('#txtCaseNoteTags').tagsInput({
+
+
+        $('#txtCaseNoteTags_'+currentSectionId+'_tag_autosize_tester').remove();
+
+
+        var divSection='.caseNoteSection_'+currentSectionId+'';
+        $('#txtCaseNoteTags_'+currentSectionId+'').tagsInput({
             width: 'auto',
             height: 'auto',
             delimiter: [',', ';'],
             autocomplete_url: '/Roster/GetCaseNoteTag',
             autocomplete: {
-                'appendTo': "#divCaseNoteSection"
+                'appendTo': divSection
             },
             refresh: true
 
@@ -891,89 +1002,37 @@
 
 
         var tags = [];
-        $.each($('.div-add-edit-casenote').find('#tempTagname').val().split(','), function (i, obj) {
-            //$('#txtCaseNoteTags').addTag(obj);
-            tags.push(obj);
-        });
-
-        $('#txtCaseNoteTags').importTags(tags.join(',,;'));
 
 
-    });
 
+        if ($('#tempTagname_'+currentSectionId+'').val() != undefined && $('#tempTagname_'+currentSectionId+'') != null && $('#tempTagname_'+currentSectionId+'') != "") {
 
-    //$(function () {
-
-
-        @*if (CKEDITOR.instances['txtareaCaseNote']) {
-            CKEDITOR.remove(CKEDITOR.instances['txtareaCaseNote']);
-        } else {
-            CKEDITOR.replace('txtareaCaseNote', {
-                language: 'en-gb',
-                uiColor: '#295b8f',
-                disableNativeSpellChecker: false
+            $.each($('#tempTagname_'+currentSectionId+'').val().split(','), function (i, obj) {
+                //$('#txtCaseNoteTags').addTag(obj);
+                tags.push(obj);
             });
+
+            $('#txtCaseNoteTags_'+currentSectionId+'').importTags(tags.join(',,;'));
         }
 
 
 
 
+        $(document).on('change', '#caseNoteAttachmentsDiv_'+currentSectionId+' input:file', function (evt) {
+           
+            if (ValidateSingleInputpdf2(evt.target, null)) {
+                encodeImagetoBase64(evt);
 
-        $('#divCaseNoteSection').find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
 
-      //  $('#txtCaseNoteTags').tagsInput('destroy');
 
-        $('#divCaseNoteSection').find('#txtCaseNoteTags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete_url: '/Roster/GetCaseNoteTag',
-            autocomplete: {
-                'appendTo': "#divCaseNoteSection"
-            },
 
         });
 
-
-        debugger;
-        var tagsInputObj=@Html.Raw(Json.Encode(Model.CaseNote.TagList));    
-
-        console.log(tagsInputObj);
+    });
 
 
 
 
-        var tags = [];
-        $.each(tagsInputObj, function (i, obj) {
-            $('#divCaseNoteSection').find('#txtCaseNoteTags').addTag(obj.Text);
-          //  tags.push(obj);
-        });
-
-      //  $('#divCaseNoteSection').find('#txtCaseNoteTags').importTags(tags.join(',,;'));
-
-
-        $(document).on('change', '#caseNoteAttachmentsDiv input:file', function (evt) {
-
-            encodeImagetoBase64(evt);
-
-        });
-
-
-        $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion-desc").fadeOut(0);
-
-        $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion").click(function () {
-
-
-
-            $('#divCaseNoteSection').find('.sub-notes-details').find(".accordion-desc").not($(this).next()).slideUp('slow');
-            $(this).next().slideToggle(400);
-            $(this).toggleClass('active');
-
-            $('#divCaseNoteSection').find('.sub-notes-details').find('.accordion').not($(this)).removeClass('active');
-
-        });*@
-
-
-    //});
 
 </script>

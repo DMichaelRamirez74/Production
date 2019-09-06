@@ -53,6 +53,7 @@
     <script src="~/Scripts/jquery.touchsupport.js"></script>
 
     <script src="~/Scripts/ApplinkPlugin/Pagination.js"></script>
+    <script src="~/Scripts/ApplinkPlugin/ApplinkCaseNote.js"></script>
 
     <style type="text/css">
 
@@ -167,6 +168,8 @@
             });
 
 
+
+           
 
             
 
@@ -966,7 +969,7 @@
            
             <!-- /.navbar-top-links -->
             <div class="navbar-default sidebar" role="navigation">
-                <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
+                <div class="sidebar-nav navbar-collapse collapse" aria-expanded="false" style="height: 1px;">
                     <ul id="side-menu" class="nav in">
                      
                         <li><a id="li2" onclick="AgencyAgencyProfile();" href="#"><i class="fa fa-user fa-fw"></i> Agency Profile</a></li>
@@ -1332,10 +1335,18 @@
                 return function (e) {
                     var binaryData = e.target.result;
                     //Converting Binary Data to base 64
-                    var base64String = window.btoa(binaryData);
-                    //showing file converted to base64
-                    evt.target.setAttribute('conv-img', base64String);
-                    //alert('File converted to base64 successfuly!\nCheck in Textarea');
+
+                    try {
+
+                        var base64String = window.btoa(binaryData);
+                        //showing file converted to base64
+                        evt.target.setAttribute('conv-img', base64String);
+                        //alert('File converted to base64 successfuly!\nCheck in Textarea');
+                    }
+                    catch (error) {
+                        evt.target.removeAttribute('conv-img');
+                    }
+
                 };
             })(f);
             // Read in the image file as a data URL.
@@ -1390,6 +1401,76 @@
         }
 
 
+        var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInputpdf2(oInput, callback) {
+        
+
+            var isValid = true;
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    var valid_size = 3 * 1000 * 1000;
+                    var v = oInput.files[0].size;
+                    if (v <= valid_size) {
+                        for (var j = 0; j < _validFileExtensions1.length; j++) {
+                            var sCurExtension = _validFileExtensions1[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                $('#DobverificationinPaper').prop("checked", false);
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            customAlertforlongtime("Please upload valid file.");
+                            $(oInput).removeAttr('conv-img');
+                            isValid = false;
+
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 3 MB. ");
+                        $(oInput).removeAttr('conv-img');
+                        isValid = false;
+
+
+                    }
+
+                }
+            }
+            else {
+                customAlertforlongtime("Please upload valid file.");
+                oInput.value = "";
+                $(oInput).removeAttr('conv-img');
+                isValid = false;
+
+            }
+
+            if (callback != null) {
+
+                var $scrId = $(oInput).closest('.contact-entry-div').attr('id');
+
+                //if (window.File && window.FileReader && window.FileList && window.Blob)
+                //{
+                //    handleFileSelect(oInput, $scrId);
+                //}
+
+                var imagetype = 1;
+
+
+                callback(oInput, imagetype, $scrId);
+
+                var targId = $(oInput).attr('data-target-id');
+                $('#' + targId).modal('hide');
+
+            }
+
+
+
+            return isValid;
+        }
 
         // Restricts input for each element in the set of matched elements to the given inputFilter.
         (function ($) {

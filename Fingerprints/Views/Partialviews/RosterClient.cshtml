@@ -599,7 +599,7 @@
         if ($('.roletype:checked').length == 0) {
             isValid = false;
             plainValidation('#RolesDiv');
-            customAlert('Please select development team role');
+            customAlert('Please select developmental team role');
            
         }
         if ($('#txtNotes').val() == "") {
@@ -697,73 +697,7 @@
         }
     }
 
-    function AddCaseNote(arg) {
-        $('.divReferTo').hide();
-        $('#Modalclientenrolled').modal('hide');
-        $('.internal_reference').css("overflow", 'auto');
-        $('#lblClientName').text($(arg).attr('data-CName'));
-        $('#lblCenterName').text($(arg).attr('data-centername'));
-        $('#lblClassroom').text($(arg).attr('data-classroom'));
-        cid = $(arg).attr('EClientId');
-        $('#ClassroomId').val($(arg).attr('data-classroomid'));
-        $('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
-        $('#CaseNoteClientId').val($(arg).attr('eclientid'));
-        $('#HouseholdId').val($(arg).attr('data-householdid'));
-        $('#CaseNoteProgramId').val($(arg).attr('data-programid'));
-        $.ajax({
-            url: HostedDir + "/Home/GetInternalRefDetails",
-            type: "POST",
-            dataType: "json",
-            data: {
-                ClientId: $(arg).attr('eclientid')
-            },
-            secureuri: false,
-            async: false,
-            success: function (data) {
-                console.log(data);
-                // customAlert("Record saved successfully");
-                if (data != null) {
-                    debugger;
-                    $('#DivAppendRoles').empty();
-
-                    var divContent = '  <div class=" col-lg-6 col-xs-12 internal_reference_radiobtn no-padding">\
-                                                            <div class="radio radio-info">\
-                                                                <input type="radio" name="RoleId"  onchange="OnSelectRoles(this);" class="roletype" value="NewValue">\
-                                                                <label>LabelContent</label>\
-                                                            </div>\
-                                                        </div>';
-                    for (var i = 0; i < data.RoleList.length; i++) {
-                        var result = "";
-                        result = result + divContent;
-                        result = result.replace("LabelContent", data.RoleList[i].RoleName);
-                        result = result.replace("NewValue", data.RoleList[i].RoleId);
-                        $('#DivAppendRoles').append(result);
-                    }
-                    if (data.AssignedRoles != null && data.AssignedRoles != "") {
-                        $('.divReferTo').show();
-                        $('#spnReferTo').text('This client already refered to ' + data.AssignedRoles)
-                    }
-                    //bindClients//
-                    var clientAppend = '';
-                    if (data.ClientList != null && data.ClientList.length > 0) {
-                        $.each(data.ClientList, function (k, clients) {
-                            clientAppend += '<div class="col-sm-12 adddivspace">\
-                                                    <input type="checkbox" name="ClientIds" value=' + clients.Id + '>\
-                                                    <span style="color:#295b8f;">' + clients.Name + '</span>\
-                                                </div>';
-                        });
-                    }
-                    $('#statusclientsDiv').html(clientAppend);
-
-                }
-            }
-   , error: function (data) {
-       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-   }
-        });
-        $('#ModalAddCasenote').modal('show');
-      // $('#Modalclientenrolled').modal('toggle');
-    }
+   
 
 
     function addMoreStatusAtt(ele) {

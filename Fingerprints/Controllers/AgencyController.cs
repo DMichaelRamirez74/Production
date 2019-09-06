@@ -19,12 +19,7 @@ namespace Fingerprints.Controllers
 {
     public class AgencyController : Controller
     {
-        /*role=f87b4a71-f0a8-43c3-aea7-267e5e37a59d(Super Admin)
-         role=a65bb7c2-e320-42a2-aed4-409a321c08a5(GenesisEarth Administrator)
-         role=a31b1716-b042-46b7-acc0-95794e378b26(Health/Nurse)
-         role=2d9822cd-85a3-4269-9609-9aabb914d792(HR Manager)
-         role=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
-         */
+       
         agencyData agencyData = new agencyData();
         [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult viewAgency(string id = "0")
@@ -33,7 +28,7 @@ namespace Fingerprints.Controllers
             ViewBag.id = id;
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult addAgency(string id = "0", string SuperAdmin = "")
         {
             Agency agencyDetail = new Agency();
@@ -153,6 +148,10 @@ namespace Fingerprints.Controllers
             }
             return View(agencyDetail);
         }
+      
+
+
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
         public ActionResult addAgency(Agency agencyinfo, FormCollection collection)
@@ -234,11 +233,11 @@ namespace Fingerprints.Controllers
                     ViewData["Title"] = "Agency Profile";
                 else
                     if (agencyinfo.agencyId == "00000000-0000-0000-0000-000000000000")
-                        ViewData["Title"] = "Add Agency";
-                    else
-                        ViewData["Title"] = "Edit Agency";
+                    ViewData["Title"] = "Add Agency";
+                else
+                    ViewData["Title"] = "Edit Agency";
                 ViewBag.RefList = TempData["RefList"];
-             
+
                 TempData.Keep();
                 return View(agencyinfo);
             }
@@ -271,7 +270,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult updateAgency(Guid id, int mode)
         {
             try
@@ -283,7 +282,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult viewagencyuser(string id = "0")
         {
             TempData["status"] = id;
@@ -298,7 +297,7 @@ namespace Fingerprints.Controllers
             ViewBag.Agency = items;
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult listagencyUser(Guid? agencyId, string sortOrder, bool agencyuserAll, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
         {
             try
@@ -316,7 +315,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult updateagency_User(Guid id, int mode)
         {
             try
@@ -328,7 +327,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult addAgencyuser(string id = "0")
         {
             if (id.Equals("0"))
@@ -343,13 +342,13 @@ namespace Fingerprints.Controllers
             {
                 ViewBag.mode = 1;
                 ViewData["Title"] = "Edit Agency User";
-                AgencyStaff _staffList = agencyData.GetData_AllDropdown("",1, Guid.Parse(id));
+                AgencyStaff _staffList = agencyData.GetData_AllDropdown("", 1, Guid.Parse(id));
                 Session["oldemailid"] = _staffList.EmailAddress;
                 _staffList.LoginAllowed = true;
                 return View(_staffList);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         [HttpPost]
         public ActionResult addAgencyuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist)
         {
@@ -362,7 +361,7 @@ namespace Fingerprints.Controllers
                 {
                     _string.Append(str + ",");
                 }
-               agencystaff.centerlist = _string.ToString().Substring(0, _string.Length - 1);
+                agencystaff.centerlist = _string.ToString().Substring(0, _string.Length - 1);
             }
             _string.Clear();
             if (Rolelist.RoleID != null)
@@ -384,7 +383,7 @@ namespace Fingerprints.Controllers
                     ViewBag.mode = 0;
                     agencystaff.UpdatedBy = agencystaff.CreatedBy = Session["UserId"].ToString();
                     agencystaff.Race = collection["DdlRaceList"] == null ? null : collection["DdlRaceList"].ToString();
-                    agencystaff.Natinality = collection["DdlNationList"] == null  ? null : collection["DdlNationList"].ToString();
+                    agencystaff.Natinality = collection["DdlNationList"] == null ? null : collection["DdlNationList"].ToString();
                     agencystaff.HighestEducation = collection["DdlHighestEducation"] == null ? null : collection["DdlHighestEducation"].ToString();
                     agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"] == null ? null : collection["DdlEarlyChildHood"].ToString();
                     agencystaff.GettingDegree = collection["DdlGettingDegree"] == null ? null : collection["DdlGettingDegree"].ToString();
@@ -394,7 +393,7 @@ namespace Fingerprints.Controllers
                     agencystaff.AccessDays = collection["DdlAccessType"] == null ? null : collection["DdlAccessType"].ToString();
                     agencystaff.HRCenter = collection["DdlHrCenter"] == null ? null : collection["DdlHrCenter"].ToString();
                     agencystaff.Gender = collection["DdlGender"] == null ? null : collection["DdlGender"].ToString();
-                   // agencystaff.Classrooms = collection["DdlClassList"] == null ? null : collection["DdlClassList"].ToString();//Changes
+                    // agencystaff.Classrooms = collection["DdlClassList"] == null ? null : collection["DdlClassList"].ToString();//Changes
 
                     agencystaff.PirRoleid = collection["DdlpirList"] == null ? null : collection["DdlpirList"].ToString();
 
@@ -582,7 +581,7 @@ namespace Fingerprints.Controllers
                             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
                             agency = textInfo.ToTitleCase(agency);
                             string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                            Thread thread = new Thread(delegate()
+                            Thread thread = new Thread(delegate ()
                             {
                                 sendMail(oldemailid, agencystaff.EmailAddress, agency, oldemailid + "," + agencystaff.EmailAddress, Server.MapPath("~/MailTemplate"), imagepath);
 
@@ -597,13 +596,13 @@ namespace Fingerprints.Controllers
                 }
                 else if (message == "2")
                     ViewBag.message = "Email already exist.";
-               else if (message == "4")
-                        ViewBag.message = "Selected agency might be disabled. Please select another agency.";
-               else if (message == "8")
-                        ViewBag.message = "User role already exists in center. Please select another center.";
+                else if (message == "4")
+                    ViewBag.message = "Selected agency might be disabled. Please select another agency.";
+                else if (message == "8")
+                    ViewBag.message = "User role already exists in center. Please select another center.";
                 else
                     ViewBag.message = message;
-                _staffList = agencyData.GetData_AllDropdown("",1, agencystaff.AgencyStaffId);
+                _staffList = agencyData.GetData_AllDropdown("", 1, agencystaff.AgencyStaffId);
                 ViewData["Title"] = "Edit Agency User";
                 return View(_staffList);
             }
@@ -617,7 +616,7 @@ namespace Fingerprints.Controllers
             {
                 agencystaff.AgencyStaffId = Guid.Parse(collection["AgencyStaffId"].ToString());
                 agencystaff.UpdatedBy = agencystaff.CreatedBy = Session["UserId"].ToString();
-                agencystaff.Race = collection["DdlRaceList"] ==null ? null : collection["DdlRaceList"].ToString();
+                agencystaff.Race = collection["DdlRaceList"] == null ? null : collection["DdlRaceList"].ToString();
                 agencystaff.Natinality = collection["DdlNationList"] == null ? null : collection["DdlNationList"].ToString();
                 agencystaff.HighestEducation = collection["DdlHighestEducation"] == null ? null : collection["DdlHighestEducation"].ToString();
                 agencystaff.EarlyChildHood = collection["DdlEarlyChildHood"] == null ? null : collection["DdlEarlyChildHood"].ToString();
@@ -845,13 +844,13 @@ namespace Fingerprints.Controllers
 
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public ActionResult editAgencyUser(Guid id)
         {
 
             try
             {
-                AgencyStaff _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(),1, id);
+                AgencyStaff _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, id);
                 return View(_staffList);
             }
             catch (Exception Ex)
@@ -861,7 +860,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         [HttpPost]
         public ActionResult editAgencyUser(AgencyStaff agencystaff, FormCollection collection)
         {
@@ -1188,6 +1187,7 @@ namespace Fingerprints.Controllers
             SendMail.SendEmailoldnew(emailold, emailidnew, name, emailcombine, path, imagepath);
 
         }
+   
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public ActionResult AgencyProfile(string id = "0", string SuperAdmin = "")
         {
@@ -1269,13 +1269,15 @@ namespace Fingerprints.Controllers
             }
             return View(agencyDetail);
         }
+
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
         public ActionResult AgencyProfile(Agency agencyinfo, FormCollection collection)
         {
             try
             {
-
+               
                 agencyinfo.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();
                 if (agencyinfo.agencyId == null)
                 {
@@ -1322,7 +1324,7 @@ namespace Fingerprints.Controllers
                                 agency = textInfo.ToTitleCase(agency);
                                 string oldemailid = Session["oldemailid"].ToString();
                                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                                Thread thread = new Thread(delegate()
+                                Thread thread = new Thread(delegate ()
                                 {
                                     sendMail(oldemailid, agencyinfo.primaryEmail, agency, oldemailid + "," + agencyinfo.primaryEmail, Server.MapPath("~/MailTemplate"), imagepath);
 
@@ -1354,9 +1356,9 @@ namespace Fingerprints.Controllers
                     ViewData["Title"] = "Agency Profile";
                 else
                     if (agencyinfo.agencyId == "00000000-0000-0000-0000-000000000000")
-                        ViewData["Title"] = "Add Agency";
-                    else
-                        ViewData["Title"] = "Edit Agency";
+                    ViewData["Title"] = "Add Agency";
+                else
+                    ViewData["Title"] = "Edit Agency";
                 TempData.Keep();
                 return View(agencyinfo);
             }
@@ -1367,7 +1369,12 @@ namespace Fingerprints.Controllers
             }
         }
 
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
+
+
+
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public JsonResult listProgDetails(string FundId = "0")//string ProgramID = "0",
         {
             try
@@ -1464,12 +1471,12 @@ namespace Fingerprints.Controllers
             }
         }
         //29Aug2016
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getClassroomCenterAssign(string Type, string CenterId = "0", string Agencyid="")
-         {
-             try
-             {
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getClassroomCenterAssign(string Type, string CenterId = "0", string Agencyid = "")
+        {
+            try
+            {
 
                 if (String.IsNullOrEmpty(Agencyid))
                 {
@@ -1487,29 +1494,29 @@ namespace Fingerprints.Controllers
 
 
 
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-         public JsonResult ResendEmail(string emailid, string agencyname, string Username)
-         {
-             try
-             {
-                 string agency = agencyname;
-                 TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                 agency = textInfo.ToTitleCase(agency);
-                 string link = UrlExtensions.LinkToRegistrationProcess("/login/Loginagency");
-                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                 Thread thread = new Thread(delegate()
-                 {
-                     SendMail.SendEmail(emailid,Username, agencyname, Server.MapPath("~/MailTemplate"), imagepath, link);
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        public JsonResult ResendEmail(string emailid, string agencyname, string Username)
+        {
+            try
+            {
+                string agency = agencyname;
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                agency = textInfo.ToTitleCase(agency);
+                string link = UrlExtensions.LinkToRegistrationProcess("/login/Loginagency");
+                string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
+                Thread thread = new Thread(delegate ()
+                {
+                    SendMail.SendEmail(emailid, Username, agencyname, Server.MapPath("~/MailTemplate"), imagepath, link);
 
-                 });
-                 thread.Start();
-                 return Json("1");
-             }
-             catch (Exception Ex)
-             {
-                 return Json(Ex.Message);
-             }
-         }
+                });
+                thread.Start();
+                return Json("1");
+            }
+            catch (Exception Ex)
+            {
+                return Json(Ex.Message);
+            }
+        }
 
         public ActionResult AdditionalSlots(string YakkrID = "")
         {
@@ -1527,26 +1534,6 @@ namespace Fingerprints.Controllers
             return Json(agencyData.SaveAdditionalSeats(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Seats, YakkrID));
 
         }
-
-
-        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
-        //public JsonResult GetFamiliesUnderUser(string userId, string roleId)
-        //{
-        //    List<SelectListItem> familyList = new List<SelectListItem>();
-        //    try
-        //    {
-        //        string agencyId = Session["AgencyId"].ToString();
-        //        familyList = new agencyData().GetFamiliesUnderUserId(userId, agencyId, roleId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        clsError.WriteException(ex);
-        //    }
-
-        //    return Json(familyList, JsonRequestBehavior.AllowGet);
-        //}
-
-
 
         /// <summary>
         /// Gets the Area breakdowns list from the table.
@@ -1850,6 +1837,8 @@ namespace Fingerprints.Controllers
             return Json(new { Result = result, Model = dailyObservation }, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
+
 
         #region Remove Daily Observation Lookup
 

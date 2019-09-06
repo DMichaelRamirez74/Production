@@ -251,7 +251,7 @@ namespace FingerprintsData
                                     new DataColumn("ImmunizationType", typeof(string)),
                                     new DataColumn("Number_of_Doses",typeof(int)),
                                     new DataColumn("High_Risk_Group",typeof(bool)),
-                                    new DataColumn("Recurring",typeof(bool)), 
+                                    new DataColumn("Recurring",typeof(bool)),
                                     new DataColumn("Dose1To",typeof(int)),
                                     new DataColumn("Dose1From",typeof(int)),
                                     new DataColumn("Dose1_Wait_Period",typeof(int)),

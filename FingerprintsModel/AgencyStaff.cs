@@ -222,6 +222,7 @@ namespace FingerprintsModel
         public string SpecialService { get; set; }
         public int Yakkr600 { get; set; }
         public int Yakkr601 { get; set; }
+        public string AttendanceIssueYakkrId { get; set; }
 
         public decimal PresentCount { get; set; }
         public decimal TotalCount { get; set; }
@@ -318,6 +319,10 @@ namespace FingerprintsModel
         public string BY { get; set; }
         public string Title { get; set; }
         public string Date { get; set; }
+
+        public string ActualWrittenDateTime { get; set; }
+        
+        
         public string Attachment { get; set; }
         public string References { get; set; }
         public string Programyear { get; set; }
@@ -354,6 +359,8 @@ namespace FingerprintsModel
         public string WrittenDate { get; set; }
 
         public string RoleOfOwner { get; set; }
+
+        public string ActualWrittenDateTime { get; set; }
 
         public List<SelectListItem> TagList {get;set;}
 
@@ -398,6 +405,8 @@ namespace FingerprintsModel
         
 
         public string StepUpToQualityStars { get; set; }
+
+        public bool IsCaseNoteManager { get; set; }
         
     }
 

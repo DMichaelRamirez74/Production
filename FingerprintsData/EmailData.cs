@@ -18,7 +18,7 @@ namespace FingerprintsData
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
         SqlDataAdapter DataAdapter = null;
-        DataTable _dataTable = null;
+        //DataTable _dataTable = null;
         DataSet _dataset = null;
         System.Web.HttpContext context = System.Web.HttpContext.Current;
         public async Task<int> SendEmailParentsStaffs(StaffDetails staff, FingerprintsModel.Enums.EmailType emailType, bool isStaff, long centerId=0, long classRoomId=0, params object[] list)

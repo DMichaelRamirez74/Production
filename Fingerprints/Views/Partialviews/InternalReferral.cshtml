@@ -2,138 +2,239 @@
 
     // for nREF internal referral
     var cid;
-    function SetDataForNREF() {
+    function SetDataForNREF(ele) {
+    
         cleanValidation();
-        var isValid = true;
-      //  $('#ClientId').val(clientid);
+      
+        var $modal = $(ele).closest('.modal');
 
-        var Tags = '';
-        $('#nREF_status_CaseNotetags_tagsinput .tag span').each(function () {
-            Tags = Tags + $(this).text().trim() + ',';
-        });
-        $('#nREF_Tags').val(Tags);
-        Tags = '';
+        var currentId = $modal.find('#nREF_caseNote_div').find('#divCaseNoteSection').attr('data-current-id');
 
         $('#RolesDiv').css("background-color", "");
 
 
         //Case Note Section//
-        if ($('.roletype:checked').length == 0) {
-            isValid = false;
-            plainValidation('#RolesDiv');
-            customAlert('Please select development team role');
+        if ($modal.find('.roletype:checked').length == 0) {
+            plainValidation($modal.find('#RolesDiv'));
+            customAlert('Please select developmental team role');
+            return false;
 
         }
-        if ($('#txtNotes').val() == "") {
-            isValid = false;
-            plainValidation('#txtNotes');
+        if ($modal.find('#txtNotes').val() == "") {
+       
+            plainValidation($modal.find('#txtNotes'));
             customAlert('Please enter notes');
-
-        }
-        if ($('#txtStatusCaseNoteDate').val() == '') {
-            isValid = false;
-            plainValidation('#txtStatusCaseNoteDate');
-            customAlert('Please enter Case Note Date');
-
+            return false;
         }
 
-        if ($('#txtStatusCaseNoteTitle').val() == '') {
-            isValid = false;
-            plainValidation('#txtStatusCaseNoteTitle');
-            customAlert('Please enter Case Note Title');
+        var result = $('#ModalInternalReferral').find('#nREF_caseNote_div').ApplinkCaseNote("caseNoteValidation");
 
+        if (!result)
+        {
+            return false
         }
 
-        //if ($('#nREFNote').val().trim() == '') {
-        //    isValid = false;
-        //    customAlert("Please enter Note");
-        //    plainValidation('#statusNote');
-
-        //}
-        if ($('#nREF_statusclientsDiv').find('input[type=checkbox]:checked').length === 0) {
-
-            isValid = false;
-            customAlert('Please select Clients');
-
-        }
-
-        if ($('#nREF_status_CaseNotetags').val().trim() == "") {
-            isValid = false;
-            customAlert("Tags are  required.");
-            plainValidation('#status_CaseNotetags');
-
-        }
-        if (isValid && $('#yakkrcode').val() == "700") {
+        if ($('#yakkrcode').val() == "700") {
             saveTransportation();
         }
+        var clientArray = [];
 
-        return isValid;
+        $.each($modal.find('#divCaseNoteClients_'+currentId+'').find('input[type=checkbox]:checked'), function () {
+
+            clientArray.push($(this).val());
+
+        });
+
+
+        /
+
+        var cameraDocumentsArray = [];
+
+        $modal.find('#divCaseNoteSection').find('#caseNoteAttachmentsDiv_' + currentId + '').find('input:file').each(function (a, b) {
+            var fileInput = $(this);
+
+            if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                var fileUpload = fileInput.get(0);
+                var files = fileUpload.files;
+
+                for (var i = 0; i < files.length; i++) {
+
+
+                    var convImage = fileInput.attr('conv-img');
+
+                    if (convImage != null && convImage != "")
+                        cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+
+                }
+            }
+        });
+
+
+
+        var $cameraDocuments = $modal.find('#divCaseNoteSection').find(".div-edit-gallery_"+currentId+"").find('.setup_viewscreen');
+
+
+
+        if ($cameraDocuments.length > 0) {
+
+            $.each($cameraDocuments, function (j, doc) {
+
+                var $doc = $(doc).find('img');
+                cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+            });
+        }
+
+
+        $modal.find('input:hidden[name="cameraUploads"]').val(JSON.stringify(cameraDocumentsArray));
+
+
+
+        var internalReferral={
+            ClientId:$modal.find('input:hidden[name="ClientId"]').val(),
+            CenterId:$modal.find('input:hidden[name="CenterId"]').val(),
+            ClassroomId: $modal.find('input:hidden[name="ClassroomId"]').val(),
+            HouseholdId:$modal.find('input:hidden[name="HouseholdId"]').val(),
+            CaseNoteId:'0',
+            YakkrCode:$modal.find('#yakkrcode').val() ,
+            RoleId:$modal.find('.roletype:checked').val(),
+            ProgramId:$modal.find('input:hidden[name="ProgramId"]').val()
+        }
+
+        var caseNote={
+
+            ClientId:$modal.find('input:hidden[name="ClientId"]').val(),
+            CenterId: $modal.find('input:hidden[name="CenterId"]').val(),
+            Classroomid:$modal.find('input:hidden[name="ClassroomId"]').val(),
+            CaseNoteid:'0',
+            ProgramId:$modal.find('input:hidden[name="ProgramId"]').val(),
+            HouseHoldId:$modal.find('input:hidden[name="HouseholdId"]').val(),
+            Note:$modal.find('#txtareaCaseNote_'+currentId+'').val(),
+            CaseNoteDate:$modal.find('#txtCaseNoteDate_'+currentId+'').val(),
+            CaseNoteSecurity:$modal.find('#checkboxSecureNote_'+currentId+'').is(':checked'),
+            CaseNotetags:$modal.find('#txtCaseNoteTags_'+currentId+'').val().trim(','),
+            CaseNoteTitle:$modal.find('#txtCaseNoteTitle_'+currentId+'').val(),
+            ClientIds:clientArray.join(','),
+            StaffIds:'',
+            IsLateArrival:false,
+            CaseNoteAttachmentList:cameraDocumentsArray
+            
+        }
+
+
+        $.ajax({
+
+            url: '/Home/SaveInternalReferral',
+            dataType: 'JSON',
+            type: 'POST',
+            contentType: 'application/json',
+            beforeSend:function(){
+                $('#spinner').show();
+            
+            },
+            data: JSON.stringify({ internalReferral: internalReferral, caseNote: caseNote }),
+            success:function(data)
+            {
+
+                if(data)
+                {
+                    customAlert('Record saved successfully');
+                    $modal.modal('hide');
+                }
+                else {
+                    customAlert('Error occurred. Please, try again later.')
+                }
+
+            },
+            error:function(data)
+            {
+                customAlert('Error occurred. Please, try again later.')
+
+            },
+            complete:function(data)
+            {
+                $('#spinner').hide();
+            }
+
+
+        });
 
     }
 
     function OnSelectRoles(arg) {
+
+        var $modal = $(arg).closest('.modal');
+
         $('#transportation').modal('hide');
         $('.check1').prop('checked', false);
-        $('#nREF_status_CaseNotetags_tagsinput').find('.tag').remove();
-        $('#nREF_status_CaseNotetags').importTags("nREF,,;");
-        $("#txtStatusCaseNoteTitle").val("Internal Referral")
-        $('#chkYakkrDiv').show();
-      //  $('#disablity').hide();
+
+        var $guid = $modal.find('#divCaseNoteSection').attr('data-current-id');
+
+        $modal.find('#txtCaseNoteTags_'+$guid+'_tagsinput').find('.tag').remove();
+        $modal.find('#txtCaseNoteTags_'+$guid+'').importTags("nREF,,;");
+        $modal.find("#txtCaseNoteTitle_"+$guid+"").val("Internal Referral");
+        $modal.find('#chkYakkrDiv').show();
         Closetransportaion();
-        if ($('.roletype:checked').val() == '699168ac-ad2d-48ac-b9de-9855d5dc9af8') {
-            $('#yakkrcode').prop('checked', true);
-            $('#yakkrcode').val("310");
-            $('#lblyakkrcode').text("Yakkr - 310 (Child has suspected mental health issue)");
-            $('#nREF_status_CaseNotetags').addTag('Y310');
-            $("#txtStatusCaseNoteTitle").val("Mental Health Referral")
+        if ($modal.find('.roletype:checked').val() == '699168ac-ad2d-48ac-b9de-9855d5dc9af8') {
+            $modal.find('#yakkrcode').prop('checked', true);
+            $modal.find('#yakkrcode').val("310");
+            $modal.find('#lblyakkrcode').text("Yakkr - 310 (Child has suspected mental health issue)");
+            $modal.find('#txtCaseNoteTags_'+$guid+'').addTag('Y310');
+            $modal.find("#txtCaseNoteTitle_"+$guid+"").val("Mental Health Referral")
         }
 
-        else if ($('.roletype:checked').val() == '6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba') {
-            $('#yakkrcode').prop('checked', true);
-            $('#yakkrcode').val("700");
-            $('#lblyakkrcode').text("Yakkr - 700 (Child request transportation)");
-            $('#nREF_status_CaseNotetags').addTag('Y700');
+        else if ($modal.find('.roletype:checked').val() == '6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba') {
+            $modal.find('#yakkrcode').prop('checked', true);
+            $modal.find('#yakkrcode').val("700");
+            $modal.find('#lblyakkrcode').text("Yakkr - 700 (Child request transportation)");
+            $modal.find('#txtCaseNoteTags_'+$guid+'').addTag('Y700');
             $('#transportation').modal('show');
             TransportationNeeded();
-            //  $('#ModalAddCasenote').modal('hide');
         }
-        else if ($('.roletype:checked').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80') {
-            $('#yakkrcode').prop('checked', true);
-            $('#yakkrcode').val("304");
-            $('#lblyakkrcode').text("Yakkr - 304 (Child has an indicated disability after Enrollment)");
-            $('#nREF_status_CaseNotetags').addTag('Y304');
-           // $('#disablity').show();
+        else if ($modal.find('.roletype:checked').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80') {
+            $modal.find('#yakkrcode').val("304");
+            $modal.find('#lblyakkrcode').text("Yakkr - 304 (Child has an indicated disability after Enrollment)");
+            $modal.find('#txtCaseNoteTags_'+$guid+'').addTag('Y304');
+            $modal.find('#yakkrcode').prop('checked', true);
         }
         else {
-            $('#yakkrcode').prop('checked', true);
-            $('#yakkrcode').val("292");
-            $('#lblyakkrcode').text("Yakkr - 292 (Internal Referral)");
-            $('#nREF_status_CaseNotetags').addTag('Y292');
+            $modal.find('#yakkrcode').prop('checked', true);
+            $modal.find('#yakkrcode').val("292");
+            $modal.find('#lblyakkrcode').text("Yakkr - 292 (Internal Referral)");
+            $modal.find('#txtCaseNoteTags_'+$guid+'').addTag('Y292');
         }
     }
+
+
     function AddTags(arg) {
+
+        var $modal = $(arg).closest('.modal');
+
         if ($(arg).prop('checked') == true) {
-            $('#nREF_status_CaseNotetags').addTag($(arg).val());
+            $modal.find('#txtCaseNoteTags').addTag($(arg).val());
         }
         else {
-            $('#nREF_status_CaseNotetags').removeTag($(arg).val());
+            $modal.find('#txtCaseNoteTags').removeTag($(arg).val());
         }
+
     }
 
     function AddCaseNote(arg) {
         $('.divReferTo').hide();
         $('#Modalclientenrolled').modal('hide');
         $('.internal_reference').css("overflow", 'auto');
-        $('#ModalAddCasenote')
-        $('#ModalAddCasenote').find('#lblClientName').text($(arg).attr('data-CName'));
-        $('#ModalAddCasenote').find('#lblCenterName').text($(arg).attr('data-centername'));
-        $('#ModalAddCasenote').find('#lblClassroom').text($(arg).attr('data-classroom'));
         cid = $(arg).attr('EClientId');
-        $('#ModalAddCasenote').find('#ClassroomId').val($(arg).attr('data-classroomid'));
-        $('#ModalAddCasenote').find('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
-        $('#ModalAddCasenote').find('#nREF_CaseNoteClientId').val($(arg).attr('eclientid'));
-        $('#ModalAddCasenote').find('#HouseholdId').val($(arg).attr('data-householdid'));
-        $('#ModalAddCasenote').find('#CaseNoteProgramId').val($(arg).attr('data-programid'));
+
+        var $modal = $('#ModalInternalReferral');
+        $modal.find('#lblClientName').text($(arg).attr('data-CName'));
+        $modal.find('#lblCenterName').text($(arg).attr('data-centername'));
+        $modal.find('#lblClassroom').text($(arg).attr('data-classroom'));
+        $modal.find('input:hidden[name="ClassroomId"]').val($(arg).attr('data-classroomid'));
+        $modal.find('input:hidden[name="CenterId"]').val($(arg).attr('data-centerid'));
+        $modal.find('input:hidden[name="ClientId"]').val($(arg).attr('eclientid'));
+        $modal.find('input:hidden[name="HouseholdId"]').val($(arg).attr('data-householdid'));
+        $modal.find('input:hidden[name="ProgramId"]').val($(arg).attr('data-programid'));
         $.ajax({
             url: HostedDir + "/Home/GetInternalRefDetails",
             type: "POST",
@@ -144,40 +245,31 @@
             secureuri: false,
             async: false,
             success: function (data) {
-                console.log(data);
-                // customAlert("Record saved successfully");
                 if (data != null) {
-                    debugger;
-                    $('#ModalAddCasenote').find('#DivAppendRoles').empty();
+                    $modal.find('#DivAppendRoles').empty();
 
                     var divContent = '  <div class=" col-lg-6 col-xs-12 internal_reference_radiobtn no-padding">\
                                                             <div class="radio radio-info">\
-                                                                <input type="radio" name="RoleId"  onchange="OnSelectRoles(this);" class="roletype" value="NewValue">\
-                                                                <label>LabelContent</label>\
+                                                                <input type="radio" id=idinput name="RoleId"  onchange="OnSelectRoles(this);" class="roletype" value="NewValue">\
+                                                                <label for=forlabel>LabelContent</label>\
                                                             </div>\
                                                         </div>';
                     for (var i = 0; i < data.RoleList.length; i++) {
                         var result = "";
                         result = result + divContent;
                         result = result.replace("LabelContent", data.RoleList[i].RoleName);
+                        result = result.replace("idinput", 'input_' + i.toString());
+                        result = result.replace("forlabel", 'input_' + i.toString());
                         result = result.replace("NewValue", data.RoleList[i].RoleId);
-                        $('#ModalAddCasenote').find('#DivAppendRoles').append(result);
+                        $modal.find('#DivAppendRoles').append(result);
                     }
                     if (data.AssignedRoles != null && data.AssignedRoles != "") {
-                        $('#ModalAddCasenote').find('.divReferTo').show();
-                        $('#ModalAddCasenote').find('#spnReferTo').text('This client already referred to ' + data.AssignedRoles)
+                        $modal.find('.divReferTo').show();
+                        $modal.find('#spnReferTo').text('This client already referred to ' + data.AssignedRoles)
                     }
-                    //bindClients//
-                    var clientAppend = '';
-                    if (data.ClientList != null && data.ClientList.length > 0) {
-                        $.each(data.ClientList, function (k, clients) {
-                            clientAppend += '<div class="col-sm-12 adddivspace">\
-                                                    <input type="checkbox" name="ClientIds" value=' + clients.Id + '>\
-                                                    <span style="color:#295b8f;">' + clients.Name + '</span>\
-                                                </div>';
-                        });
-                    }
-                    $('#ModalAddCasenote').find('#nREF_statusclientsDiv').html(clientAppend);
+
+
+                    getCaseNoteSectionPartial($modal, $(arg).attr('eclientid'));
 
                 }
             }
@@ -185,56 +277,100 @@
        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
    }
         });
-        $('#ModalAddCasenote').find('#yakkrcode').find('input:checkbox').prop('checked', false);
-        $('#ModalAddCasenote').find('#chkYakkrDiv').hide();
-        $('#ModalAddCasenote').find('#FirstFile').val('');
-        $('#ModalAddCasenote').find('#txtNotes').val('');
-        $('#ModalAddCasenote').find('#addAttachmentDiv').html('');
-        if (CKEDITOR.instances['nREFNote']) {
-            CKEDITOR.instances['nREFNote'].destroy(true);
-        }
-        CKEDITOR.replace('nREFNote', {
-            language: 'en-gb',
-            uiColor: '#295b8f',
-            disableNativeSpellChecker: false
-        });
-        $('#ModalAddCasenote').find('#txtStatusCaseNoteTitle').val('Internal Referral');
-        $('#ModalAddCasenote').find('#txtStatusCaseNoteDate').val(getFormattedDate(new Date()));
-        $('#ModalAddCasenote').find('#nREF_status_CaseNotetags').importTags("nREF,,;");
-        $('#ModalAddCasenote').modal({
+
+
+        $modal.find('#yakkrcode').find('input:checkbox').prop('checked', false);
+        $modal.find('#chkYakkrDiv').hide();
+        $modal.find('#FirstFile').val('');
+        $modal.find('#txtNotes').val('');
+
+        $modal.modal({
             backdrop: 'static',
             keyboard: false
         });
-        // $('#Modalclientenrolled').modal('toggle');
     }
 
-
-    function addMoreStatusAtt(ele) {
-        var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+    function getCaseNoteSectionPartial($modal, clientId) {
 
 
+        var $caseNoteDiv = $modal.find('#nREF_caseNote_div');
+       
 
-        var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
-                                                   <div class="col-sm-7 col-lg-8 no-padding">\
-                                                       <input type="file" id="FirstFile" name="Attachments"  class="form-control">\
-                                                   </div>\
-                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
-                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
-                                                   </div>\
-                                               </div>';
+     
+        $caseNoteDiv.ApplinkCaseNote({
+            isPopup: false,
+            isSection: true,
+            caseNoteType: 1,   //1- New 2- Edit / 3- Append //
+            getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+            caseNoteId: 0,
+            householdId: 0,
+            clientId: clientId,
+            isEditable: true,
+            isShowSubmitButton: false,
+            isShowExportIcon: false,
+            forceLoad: true,
 
-        $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
+            modalOnShown: function (element) {
+
+            },
+            ajaxComplete: function (element) {
+               
+                var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
+
+                element.css({ 'margin-left': '-25px', 'padding': '0px' });
+
+                element.find('#txtCaseNoteTags_'+$guid+'').importTags('nREF');
+
+                CKEDITOR.instances['txtareaCaseNote_'+$guid+''].setData('');
+
+                element.find('#txtCaseNoteTitle_' + $guid + '').val('Internal Referral');
+
+                element.find('#txtCaseNoteDate_' +$guid+ '').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                element.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
+
+                element.find('#txtCaseNoteDate_' + $guid + '').prop('disabled', false);
+
+                element.find('.img-camera').attr('target-id', 'nREF_caseNote_div');
+
+                element.css('border', 'unset!important');
+
+                element.find('#divCaseNoteStaffs_'+$guid+'').parent('div').hide();
+            
+
+                element.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox').each(function () {
 
 
+                
+                    if ($(this).next('label').html().indexOf($('#ModalInternalReferral').find('#lblClientName').html()) > -1 || $(this).next('label').html().indexOf('Parent') > -1) {
+                        $(this).prop('checked', true);
+                    }
+                    else {
+                        $(this).parent('div').hide();
+                    }
+                });
+
+                showCameraOption(element);
+
+                element.find('#uploadImageCamera').hide();
+
+                setIntervalUserMedia(element);
+            }
+
+        });
+
+       
+
+
+      
     }
 
-
-    function removeStatusAtt(ele) {
-        $(ele).parent('div').parent('div').remove();
-    }
+  
 
     function UpdateCaseNoteContent(arg) {
-        CKEDITOR.instances['nREFNote'].setData($(arg).val());
+
+      var $guid=  $(arg).closest('.modal').find('#divCaseNoteSection').attr('data-current-id');
+      CKEDITOR.instances['txtareaCaseNote_'+$guid+''].setData($(arg).val());
     }
 
     // nREF End
@@ -242,9 +378,7 @@
     //transpotation
 
     function TransportationNeeded() {
-        //if (arg.value == "True") {
-
-        //}
+       
         $.ajax({
             dataType: 'json',
             type: "POST",
@@ -252,7 +386,7 @@
             url: "/AgencyUser/GetTransportationDetails",
             data: { 'ClientId': cid },
             success: function (data) {
-                console.log(data);
+               
                 var result = JSON.parse(data);
                 if (result.length > 0) {
                     $('.transportation-id').val(result[0].Id);
@@ -359,12 +493,8 @@
 
             $('.internal_reference').css("overflow", 'auto');
             $('#transportation').modal('hide');
-            //$('#txtPickupAddress').val("");
-            //$('#txtPickupZipcode').val("");
-            //$('#txtDropAddress').val("");
-            //$('#txtDropZipcode').val("");
-            //$('#rdEmailYes').prop('checked', true);
-            //$('#rdPrintYes').prop('checked', true);
+           
+
         }
 
     }
@@ -391,7 +521,7 @@
             data: Trasportation,
             success: function (data) {
                 if (data) {
-                    // customAlertSuccess("Record Saved Successfully");
+                   
 
 
                 }
@@ -406,740 +536,629 @@
     //end
 </script>
 <style type="text/css">
-      .billing-inner-label label, .billing-inner-label span {
-             color: #333;
-             font-weight: normal !important;
-             font-size: 15px;
-             margin-bottom: 0;
-             margin-top: 10px;
-         }
 
-         .bill-radio {
-             margin: 0.5rem;
-             display: inline-block;
-         }
+    #divCaseNoteSection{
+        border:unset!important;
+    }
 
-             .bill-radio input[type="radio"] {
-                 position: absolute;
-                 opacity: 0;
-             }
+    #divCaseNoteSection .lbl-text{
+        font-weight:bold!important;
+    }
 
-         .billing-inner input {
-             background: transparent;
-             color: #333;
-             border: 1px solid #333;
-             border-radius: 8px !important;
-             height: 40px;
-         }
 
-         .bill-radio label {
-             padding-left: 0;
-             color: #333;
-         }
-
-         .bill-radio input[type="radio"]:checked + .radio-label:before {
-             background-color: #295b8f;
-             box-shadow: inset 0 0 0 4px #fff;
-         }
-
-         .bill-radio input[type="radio"] + .radio-label:before {
-             content: '';
-             background: none;
-             border-radius: 100%;
-             border: 1px solid #333;
-             display: inline-block;
-             width: 1.4em;
-             height: 1.4em;
-             position: relative;
-             top: -0.2em;
-             margin-right: 1em;
-             vertical-align: top;
-             cursor: pointer;
-             text-align: center;
-             -webkit-transition: all 250ms ease;
-             transition: all 250ms ease;
-         }
-
-    @@media only screen and (min-width:768px) and (max-width:1200px) {
-        strong.pir-Q-lbl {
-            min-height: 0 !important;
-            float: left;
+        .billing-inner-label label, .billing-inner-label span {
+            color: #333;
+            font-weight: normal !important;
+            font-size: 15px;
+            margin-bottom: 0;
+            margin-top: 10px;
         }
-   
-        .title-fixed {
-            position: static;
+
+        .bill-radio {
+            margin: 0.5rem;
+            display: inline-block;
+        }
+
+            .bill-radio input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+            }
+
+        .billing-inner input {
+            background: transparent;
+            color: #333;
+            border: 1px solid #333;
+            border-radius: 8px !important;
+            height: 40px;
+        }
+
+        .bill-radio label {
             padding-left: 0;
+            color: #333;
+        }
+
+        .bill-radio input[type="radio"]:checked + .radio-label:before {
+            background-color: #295b8f;
+            box-shadow: inset 0 0 0 4px #fff;
+        }
+
+        .bill-radio input[type="radio"] + .radio-label:before {
+            content: '';
+            background: none;
+            border-radius: 100%;
+            border: 1px solid #333;
+            display: inline-block;
+            width: 1.4em;
+            height: 1.4em;
+            position: relative;
+            top: -0.2em;
+            margin-right: 1em;
+            vertical-align: top;
+            cursor: pointer;
+            text-align: center;
+            -webkit-transition: all 250ms ease;
+            transition: all 250ms ease;
+        }
+
+        @@media only screen and (min-width:768px) and (max-width:1200px) {
+            strong.pir-Q-lbl {
+                min-height: 0 !important;
+                float: left;
+            }
+
+            .title-fixed {
+                position: static;
+                padding-left: 0;
+            }
+
+            .protype-solid span textarea {
+                height: 50px;
+                width: 100% !important;
+            }
+
+            .protype-solid span {
+                width: 55% !important;
+                float: left;
+            }
+
+            .protype-solid label {
+                width: 45% !important;
+                float: left;
+            }
+
+                .protype-solid label input {
+                    width: 30px !important;
+                    float: left;
+                }
+        }
+
+        .alert-info {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .edu-protextarea textarea {
+            width: 65%;
+            float: left;
+            height: 60px;
+            margin-bottom: 15px;
+            max-width: 65%;
+        }
+
+        .error-notify {
+            color: red;
         }
 
         .protype-solid span textarea {
             height: 50px;
-            width: 100% !important;
+            width: 60%;
         }
 
-        .protype-solid span {
-            width: 55% !important;
+        .parent-solid .protype-solid label input {
+            margin-right: 8px;
+        }
+
+        .protype-solid {
+            width: 100%;
             float: left;
+            margin-bottom: 15px;
+        }
+
+        .edu-protextarea.edu_new_child textarea {
+            width: 54%;
+            margin-right: 15px;
+        }
+
+        .edu_new_child span {
+            margin-top: 13px;
+            float: left;
+        }
+
+        .edu-boxmade label {
+            color: #163b69 !important;
         }
 
         .protype-solid label {
-            width: 45% !important;
+            width: 30%;
             float: left;
         }
 
-            .protype-solid label input {
-                width: 30px !important;
-                float: left;
+        .protype-solid span {
+            width: 70%;
+            float: left;
+        }
+
+        strong.pir-Q-lbl {
+            min-height: 60px;
+            float: left;
+        }
+
+
+
+
+
+
+
+        @@media only screen and (min-width: 767px) and (max-width: 991px) {
+            .response-addicspace {
+                margin-top: 12px;
             }
-    }
-
-    .alert-info {
-    color: #31708f;
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-}
-    .alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-}
-    .edu-protextarea textarea {
-        width: 65%;
-        float: left;
-        height: 60px;
-        margin-bottom: 15px;
-        max-width: 65%;
-    }
-     .error-notify{
-        color:red;
-    }
-    .protype-solid span textarea {
-        height: 50px;
-        width: 60%;
-    }
-
-    .parent-solid .protype-solid label input {
-        margin-right: 8px;
-    }
-
-    .protype-solid {
-        width: 100%;
-        float: left;
-        margin-bottom: 15px;
-    }
-
-    .edu-protextarea.edu_new_child textarea {
-        width: 54%;
-        margin-right: 15px;
-    }
-
-    .edu_new_child span {
-        margin-top: 13px;
-        float: left;
-    }
-
-    .edu-boxmade label {
-        color: #163b69 !important;
-    }
-
-    .protype-solid label {
-        width: 30%;
-        float: left;
-    }
-
-    .protype-solid span {
-        width: 70%;
-        float: left;
-    }
-
-    strong.pir-Q-lbl {
-        min-height: 60px;
-        float: left;
-    }
-
-
-
-
-
-
-
-    @@media only screen and (min-width: 767px) and (max-width: 991px) {
-        .response-addicspace {
-            margin-top: 12px;
         }
-    }
 
-    .err-bg {
-        background-color: pink !important;
-    }
-
-    .pir-q-p {
-        background: none !important;
-        border: none !important;
-        display: inline-block;
-    }
-
-    .pir-Q-lbl {
-        display: inline-block;
-    }
-
-    .m-tp {
-        margin-bottom: 5px;
-    }
-
-    .btn-accept {
-        border-radius: 4px;
-    }
-
-    .addapplicant {
-        font-size: 20px;
-        font-weight: bold;
-        border-bottom: 2px solid #295b8f;
-        color: #295b8f;
-        padding: 15px 0;
-        margin: 0 15px;
-    }
-
-    .new-casenote {
-        width: 100%;
-        float: left;
-    }
-
-    .edu_header .addInnerChildContent {
-        border: 1px solid #ccc;
-        background-color: #f7f7f7;
-        box-shadow: 0 0 10px 1px #ccc;
-        margin-bottom: 15px;
-    }
-
-    .edu_header h3 {
-        font-size: 20px;
-        font-weight: bold;
-        border-bottom: 2px solid #295b8f;
-        color: #295b8f;
-        padding: 15px 0;
-        text-transform: capitalize;
-    }
-
-    .transition-inner21 .form-control {
-        background: #fff;
-        border: 1px solid #e7e7e7;
-        padding: 10px 10px;
-        color: #163b69;
-        text-align: left;
-        font-size: 15px;
-        margin: 0;
-        text-transform: none;
-        width: 100%;
-        float: left;
-        height: 43px;
-        box-shadow: none;
-        border-radius: 0;
-    }
-
-    #btnAcceptImmune {
-        margin-left: 25px;
-        margin-top: 5px;
-    }
-
-    @@media only screen and (min-width: 1024px) and (max-width: 1290px) {
-        .response-mtop {
-            margin-top: 10px !important;
+        .err-bg {
+            background-color: pink !important;
         }
-    }
 
-    @@media only screen and (min-width: 768px) and (max-width: 991px) {
-        .response-mtop {
-            margin-top: 10px !important;
+        .pir-q-p {
+            background: none !important;
+            border: none !important;
+            display: inline-block;
         }
-    }
+
+        .pir-Q-lbl {
+            display: inline-block;
+        }
+
+        .m-tp {
+            margin-bottom: 5px;
+        }
+
+        .btn-accept {
+            border-radius: 4px;
+        }
+
+        .addapplicant {
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #295b8f;
+            color: #295b8f;
+            padding: 15px 0;
+            margin: 0 15px;
+        }
+
+        .new-casenote {
+            width: 100%;
+            float: left;
+        }
+
+        .edu_header .addInnerChildContent {
+            border: 1px solid #ccc;
+            background-color: #f7f7f7;
+            box-shadow: 0 0 10px 1px #ccc;
+            margin-bottom: 15px;
+        }
+
+        .edu_header h3 {
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #295b8f;
+            color: #295b8f;
+            padding: 15px 0;
+            text-transform: capitalize;
+        }
+
+        .transition-inner21 .form-control {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            padding: 10px 10px;
+            color: #163b69;
+            text-align: left;
+            font-size: 15px;
+            margin: 0;
+            text-transform: none;
+            width: 100%;
+            float: left;
+            height: 43px;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+       
+
+        @@media only screen and (min-width: 1024px) and (max-width: 1290px) {
+            .response-mtop {
+                margin-top: 10px !important;
+            }
+        }
+
+        @@media only screen and (min-width: 768px) and (max-width: 991px) {
+            .response-mtop {
+                margin-top: 10px !important;
+            }
+        }
 
 
-.internal_reference .modal-content {
-    background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
-    background-size: cover !important;
-    background-position: 100% 100% !important;
-    /* background-color: #74c2e1; */
-    color: #fff;
-}
-.internal_reference_setup {
-    width: 100%;
-    float: left;
-    background-color: #fff;
-    border-radius: 7px;
-    padding: 15px;
-}
+        .internal_reference .modal-content {
+            background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+         
+            color: #fff;
+        }
+       
 
-.internal_reference .enroll-sec p{
-        float: left;
-    font-weight: 600;
-    color: #1b5c96;
-}
-.internal_reference .addapplicant
-{
-        border-bottom: 2px solid #f9c751!important;
-    margin: 8px 0 12px !important;
-    color: #1b5c96;
-    padding-bottom: 5px;
+        .internal_reference .enroll-sec p {
+            float: left;
+            font-weight: 600;
+            color: #1b5c96;
+        }
 
-}
-.internal_reference .my-btn,.internal_reference .my-btn:hover {
-    background-color: #4CAF50;
-}
-.internal_reference .my-btn-exit,.internal_reference .my-btn-exit:hover{background: #db4437 !important;}
+        .internal_reference .addapplicant {
+            border-bottom: 2px solid #f9c751 !important;
+            margin: 8px 0 12px !important;
+            color: #1b5c96;
+            padding-bottom: 5px;
+        }
 
-.enroll-sec {
-    width: auto;
-    display: inline-block;
-    float: left;
-}
-.internal_reference_radiobtn .radio.radio-info {
-    /* float: left; */
-    margin-top: 0px;
-    width: auto;
-    margin-right: 30px;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-.internal_reference_radiobtn .radio {
-    padding-left: 20px;
-    /* text-align: center; */
-}
-.internal_reference_radiobtn .radio-info input[type="radio"]:checked + label {
-    color: #163b69;
-}
-.internal_reference_radiobtn .radio label {
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
-    padding-left: 5px;
-    color: #163b69;
-    font-size: 15px;
-}
-.internal_reference_radiobtn .radio-info input[type="radio"]:checked + label::before {
-    border-color: #163b69;
-    color: #163b69;
-}
-.internal_reference_radiobtn .radio label::before {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    left: 0;
-    margin-left: -20px;
-    border: 1px solid #163b69;
-    border-radius: 50%;
-    background-color: transparent;
-    -webkit-transition: border 0.15s ease-in-out;
-    -o-transition: border 0.15s ease-in-out;
-    transition: border 0.15s ease-in-out;
-    top: 2px;
-}
-.internal_reference_radiobtn .radio-info input[type="radio"]:checked + label::after {
-    background-color: #163b69;
-    color: #163b69;
-}
-.internal_reference_radiobtn .radio input[type="radio"]:checked + label::after {
-    -webkit-transform: scale(1, 1);
-    -ms-transform: scale(1, 1);
-    -o-transform: scale(1, 1);
-    transform: scale(1, 1);
-}
-.internal_reference_radiobtn .radio-info input[type="radio"] + label::after {
-    background-color: #163b69;
-    color: #163b69;
-}
-.internal_reference_radiobtn .radio label::after {
-    display: inline-block;
-    position: absolute;
-    content: " ";
-    width: 8px;
-    height: 8px;
-    left: 4px;
-    top: 6px;
-    margin-left: -20px;
-    border-radius: 50%;
-    background-color: transparent;
-    -webkit-transform: scale(0, 0);
-    -ms-transform: scale(0, 0);
-    -o-transform: scale(0, 0);
-    transform: scale(0, 0);
-    -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
-    -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
-    -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
-    transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
-}
-.internal_reference_radiobtn .radio input[type="radio"] {
-    opacity: 0;
-    z-index: 1;
-    cursor: pointer;
-}
-.chk-box-ch .fa-checkbox input[type='checkbox'] {
-    display: none !important;
-}
-.fa-checkbox input[type="checkbox"] + label:before {
-    color: #163a68;
-}
+        .internal_reference .my-btn, .internal_reference .my-btn:hover {
+            background-color: #4CAF50;
+        }
 
-.fa-checkbox input[type='checkbox'] + label:before, .chk-box-ch .fa-radio input[type='radio'] + label:before {
-    display: inline-block;
-    font-family: FontAwesome;
-    font-size: 21px;
-    font-style: normal;
-    font-weight: normal;
-    line-height: 32px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    padding-right: 8px;
-    width: 20px;
-    position: relative;
-    top: 3px;
-}
-.fa-checkbox input[type="checkbox"] + label:before {
-    content: "\f096";
-    position: relative;
-    top: 0px;
-    margin-right: 10px;
-}
-.fa-checkbox input[type="checkbox"]:checked + label:before {
-    top: 3px;
-}
+        .internal_reference .my-btn-exit, .internal_reference .my-btn-exit:hover {
+            background: #db4437 !important;
+        }
 
-.fa-checkbox input[type="checkbox"]:checked + label:before {
-    color: #3FC593;
-    content: "\f14a";
-    position: relative;
-    top: 0px;
-}
-.fa-checkbox input[type="checkbox"] + label:before {
-    color: #163a68;
-}
-.fa-checkbox input[type='checkbox'] + label:before, .chk-box-ch .fa-radio input[type='radio'] + label:before {
-    display: inline-block;
-    font-family: FontAwesome;
-    font-size: 21px;
-    font-style: normal;
-    font-weight: normal;
-    line-height: 32px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    padding-right: 8px;
-    width: 20px;
-    position: relative;
-    top: 3px;
-}
-.fa-checkbox input[type="checkbox"] + label:before {
-    content: "\f096";
-    position: relative;
-    top: 0px;
-    color: #163a68;
-    margin-right: 10px;
-}
-.ersea-detl-title h3{font-weight:bold;}
+        .enroll-sec {
+            width: auto;
+            display: inline-block;
+            float: left;
+        }
+
+        .internal_reference_radiobtn .radio.radio-info {
+           
+            margin-top: 0px;
+            width: auto;
+            margin-right: 30px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .internal_reference_radiobtn .radio {
+            padding-left: 20px;
+            
+        }
+
+        .internal_reference_radiobtn .radio-info input[type="radio"]:checked + label {
+            color: #163b69;
+        }
+
+        .internal_reference_radiobtn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #163b69;
+            font-size: 15px;
+        }
+
+        .internal_reference_radiobtn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #163b69;
+            color: #163b69;
+        }
+
+        .internal_reference_radiobtn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .internal_reference_radiobtn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .internal_reference_radiobtn .radio input[type="radio"]:checked + label::after {
+            -webkit-transform: scale(1, 1);
+            -ms-transform: scale(1, 1);
+            -o-transform: scale(1, 1);
+            transform: scale(1, 1);
+        }
+
+        .internal_reference_radiobtn .radio-info input[type="radio"] + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .internal_reference_radiobtn .radio label::after {
+            display: inline-block;
+            position: absolute;
+            content: " ";
+            width: 8px;
+            height: 8px;
+            left: 4px;
+            top: 6px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transform: scale(0, 0);
+            -ms-transform: scale(0, 0);
+            -o-transform: scale(0, 0);
+            transform: scale(0, 0);
+            -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        }
+
+        .internal_reference_radiobtn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .chk-box-ch .fa-checkbox input[type='checkbox'] {
+            display: none !important;
+        }
+
+        .fa-checkbox input[type="checkbox"] + label:before {
+            color: #163a68;
+        }
+
+        .fa-checkbox input[type='checkbox'] + label:before, .chk-box-ch .fa-radio input[type='radio'] + label:before {
+            display: inline-block;
+            font-family: FontAwesome;
+            font-size: 21px;
+            font-style: normal;
+            font-weight: normal;
+            line-height: 32px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-right: 8px;
+            width: 20px;
+            position: relative;
+            top: 3px;
+        }
+
+        .fa-checkbox input[type="checkbox"] + label:before {
+            content: "\f096";
+            position: relative;
+            top: 0px;
+            margin-right: 10px;
+        }
+
+        .fa-checkbox input[type="checkbox"]:checked + label:before {
+            top: 3px;
+        }
+
+        .fa-checkbox input[type="checkbox"]:checked + label:before {
+            color: #3FC593;
+            content: "\f14a";
+            position: relative;
+            top: 0px;
+        }
+
+        .fa-checkbox input[type="checkbox"] + label:before {
+            color: #163a68;
+        }
+
+        .fa-checkbox input[type='checkbox'] + label:before, .chk-box-ch .fa-radio input[type='radio'] + label:before {
+            display: inline-block;
+            font-family: FontAwesome;
+            font-size: 21px;
+            font-style: normal;
+            font-weight: normal;
+            line-height: 32px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-right: 8px;
+            width: 20px;
+            position: relative;
+            top: 3px;
+        }
+
+        .fa-checkbox input[type="checkbox"] + label:before {
+            content: "\f096";
+            position: relative;
+            top: 0px;
+            color: #163a68;
+            margin-right: 10px;
+        }
+
+        .ersea-detl-title h3 {
+            font-weight: bold;
+        }
 
 
-#ModalAddCasenote .close {
-    opacity: 1;
-    position: absolute;
-    right: -14px;
-    top: -12px;
-}
+        #ModalInternalReferral .close {
+            opacity: 1;
+            position: absolute;
+            right: -14px;
+            top: -12px;
+        }
 </style>
 
 
 
 
-@using (Html.BeginForm("SaveInternalReferral", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-<div class="modal fade internal_reference" id="ModalAddCasenote" role="dialog">
-    <div class="modal-dialog income-popup width-auto">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
-                <div class="col-xs-12 ersea-detl-title">
-                    <h3>Internal Referral</h3>
-                    <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="row divReferTo" style="display:none!important;">
-                    <div class="alert alert-info col-xs-12" role="alert" style="border-radius:unset;line-height:25px;width:50%;margin-left:25%">
-                        <div class="col-lg-1 col-xs-2" style="font-weight:bold;margin-top:0px;">Note!&nbsp;</div>
-                        <div class="col-lg-11 col-xs-10">
-                            <span id="spnReferTo"> No internal referral found   </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                        <div class="add-useragform1">
-                            <div class="col-sm-12">
-                                <fieldset class="internal_reference_setup">
-                                    <legend class="legend1"></legend>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">                          
-                                                    <p style="background: none;border: none;">Name</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                            <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                <div class="col-sm-12">
-                                                    <label style="width: 100%; font-size: 15px;font-weight:600;" id="lblClientName">Test</label>
-                                                
-                                                </div>
-                                            </div>
-                                        </div>
+
+    <div class="modal fade scroll-modal custom-modal internal_reference scr" id="ModalInternalReferral" role="dialog">
+        <div class="modal-dialog modal-dialog-ch income-popup width-auto">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                    <h2 id="modalHeading" class="extra-title muted">Internal Referral</h2>
+
+                    <div class="max_items_addn popup-addn-scroll">
+                        <div class="col-xs-12">
+                            <div class="row divReferTo" style="display:none!important;">
+                                <div class="alert alert-info col-xs-12" role="alert" style="border-radius:unset;line-height:25px;width:50%;margin-left:25%">
+                                    <div class="col-lg-1 col-xs-2" style="font-weight:bold;margin-top:0px;">Note!&nbsp;</div>
+                                    <div class="col-lg-11 col-xs-10">
+                                        <span id="spnReferTo"> No internal referral found   </span>
                                     </div>
-                             
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Center</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px;font-weight:600;" id="lblCenterName">Test</label>
-                                        </div>
-                                    </div>   
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Classroom</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px;font-weight:600;" id="lblClassroom">Test</label>
-                                        </div>
-                                    </div>    
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Developmental Team<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-7" style="padding:0;">
-                                            <div class="col-xs-12" id="RolesDiv" style="border: 1px solid #ddd;padding: 10px 0;margin-left: 15px;width: 85%;">
-                                             <input type="hidden" name="CaseClientId" id="nREF_CaseNoteClientId" />
-                                                <input type="hidden" name="CaseCenterId" id="CaseNoteCenterId" />
-                                                <input type="hidden" name="CaseClassroomId" id="ClassroomId" />
-                                                <input type="hidden" name="Tags" id="nREF_Tags" />
-                                                <input type="hidden" name="CaseHouseholdId" id="HouseholdId" />
-                                                <input type="hidden" name="CaseProgramId" id="CaseNoteProgramId" />
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                    <div id="DivAppendRoles"></div>
-                                                    <div class="col-lg-6 col-xs-12">
-  
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                    </div>
-                                    </div>     
-                                    
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;margin-top:10px;display:none;" id="chkYakkrDiv">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Send Yakkr</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-7" style="padding:0;">
-
-                                            <div class="col-lg-12 col-xs-12">
-
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding" style="width:auto;display:inline-block;margin-right: 15px;">
-                     
-                                                        <div class="fa-checkbox">
-                                                            <input type="checkbox" id="yakkrcode" name="YakkrCode" value="" style="display:none;" class="check1">
-                                                            <label for="yakkrcode"id="lblyakkrcode" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
-                                                        </div>
-                                                    </div>
-
-                            
-                                                </div>
-                                            </div>
-
-                                           
-                                        </div>
-                                    </div> 
-                        
-                                    <div class="col-xs-12 col-sm-12 adddivspace">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-sm-7">
-                                            <textarea type="text" onblur="UpdateCaseNoteContent(this)" class="form-control" id="txtNotes" name="Note" value="" placeholder="Note" style="resize: none;"></textarea>
-                                        </div>
-                                    </div>   
-                                    <div id="divTransportation" style="display:none;" >
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Pickup details</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5 col-sm-7">
-                                                <textarea type="text" readonly class="form-control" id="txtPickup" name="Note" value="" placeholder="Pickup Details" style="resize: none;"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Drop Details</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5 col-sm-7">
-                                                <textarea type="text"  readonly class="form-control" id="txtDrop" name="Note" value="" placeholder="Drop Details" style="resize: none;"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>                              
-                                    @* case note *@
-                                    <div class="col-xs-12 col-lg-12 no-padding new-casenote" id="caseNoteStatDiv">
-                                        <h3 class="addapplicant"><i class="fa fa-book" aria-hidden="true"></i>  Case Note</h3>
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Date<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" class="form-control" id="txtStatusCaseNoteDate" name="Date" value="@String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/')" placeholder="MM/DD/YYYY" />
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Title<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" class="form-control" name="Title" id="txtStatusCaseNoteTitle" value="Internal Referral" placeholder="Case Note Title" />
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Note<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <textarea id="nREFNote" name="CaseNote" style="visibility: hidden; display: none;"></textarea>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Tags<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7">
-                                                <input type="text" id="nREF_status_CaseNotetags" name="Tags" class="form-control ui-autocomplete-input" />
-                                              </div>
-                                        </div>    
-
-                                        <div class="col-xs-12 col-sm-12 adddivspace">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Clients<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-5 col-sm-7 no-padding" id="nREF_statusclientsDiv">
-
-
-                                            </div>
-                                        </div>   
-                                        <div class="col-xs-12 col-sm-12 adddivspace" id="statusattachmentsDiv">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Attachment</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-9 col-sm-7">
-                                                <div class="col-sm-7 col-lg-6 no-padding">
-                                                    <input type="file" id="FirstFile" name="Attachments"  class="form-control">
-                                                </div>
-                                                <div class="col-sm-3 col-lg-3 adddivspace response-addicspace">
-
-                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreStatusAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-9" id="addAttachmentDiv" style="margin-left:25%">
-
-                                            </div>
-
-                                        </div>
-                                                                                               
-                                    </div>
-                                    @* case note *@
-                                </fieldset>
+                                </div>
                             </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                    <div class="add-useragform1">
+                                        <div class="col-xs-12">
 
+                                            <div class="form-group col-xs-12">
+                                                <label for="lblClientName" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Client</label>
+                                                <label class="col-md-5 col-lg-9 col-xs-12" style="text-transform:none;font-weight:normal;padding:2.5px;width:68.5%;" id="lblClientName"></label>
+                                            </div>
+
+
+                                            <div class="form-group col-xs-12">
+                                                <label for="lblCenterName" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Center</label>
+                                                <label class="col-md-5 col-lg-9 col-xs-12" style="text-transform:none;font-weight:normal;padding:2.5px;width:68.5%;" id="lblCenterName"></label>
+                                            </div>
+
+
+
+                                            <div class="form-group col-xs-12">
+                                                <label for="lblClassroom" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Classroom</label>
+                                                <label class="col-md-5 col-lg-9 col-xs-12" style="text-transform:none;font-weight:normal;padding:2.5px;width:68.5%;" id="lblClassroom"></label>
+                                            </div>
+
+                                            <div class="form-group col-xs-12">
+                                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Developmental Team&nbsp;<sup style="color:red;">*</sup></label>
+
+                                                <div class="col-md-5 col-lg-9 col-xs-12" id="RolesDiv" style="padding:2.5px;width:68.5%;">
+                                                        <input type="hidden" name="ClientId" id="nREF_CaseNoteClientId" />
+                                                        <input type="hidden" name="CenterId" id="CaseNoteCenterId" />
+                                                        <input type="hidden" name="ClassroomId" id="ClassroomId" />
+                                                        <input type="hidden" name="HouseholdId" id="HouseholdId" />
+                                                        <input type="hidden" name="ProgramId" id="CaseNoteProgramId" />
+                                                            <div id="DivAppendRoles"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-xs-12"  id="chkYakkrDiv">
+                                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Send Yakkr</label>
+                                                <div class="col-md-5 col-lg-9 col-xs-12" style="padding:2.5px;width:68.5%;">
+                                                    <div class="fa-checkbox">
+                                                        <input type="checkbox" id="yakkrcode" name="YakkrCode" value="" style="display:none;" class="check1">
+                                                        <label for="yakkrcode" id="lblyakkrcode" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                                                    </div>
+
+                                                    </div>
+
+                                                </div>
+
+
+
+                                            <div class="form-group col-xs-12">
+                                                <label for="" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Note&nbsp;<sup style="color:red;">*</sup></label>
+                                                <div class="col-md-5 col-lg-9 col-xs-12" style="padding:2.5px;width:68.5%;">
+                                                    <textarea type="text" onblur="UpdateCaseNoteContent(this)" class="form-control" id="txtNotes" name="Note" value="" placeholder="Note" style="resize: none;"></textarea>
+                                                </div>
+
+                                            </div>
+
+
+                                            <div id="divTransportation" style="display:none;">
+
+                                                <div class="form-group col-xs-12">
+                                                    <label for="txtPickup" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Pickup Details</label>
+                                                    <div class="col-md-5 col-lg-9 col-xs-12">
+                                                        <textarea type="text" readonly class="form-control" id="txtPickup" name="Note" value="" placeholder="Pickup Details" style="resize: none;"></textarea>
+                                                        
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-group col-xs-12">
+                                                    <label for="txtDrop" class="col-md-4 col-lg-3 col-xs-12 lbl-text" >Pickup Details</label>
+                                                    <div class="col-md-5 col-lg-9 col-xs-12">
+                                                        <textarea type="text" readonly class="form-control" id="txtDrop" name="Note" value="" placeholder="Drop Details" style="resize: none;"></textarea>
+                                                    </div>
+
+                                                </div>
+
+                                               
+
+
+                                            </div>
+
+
+                                            <div class="col-xs-12 col-lg-12 no-padding new-casenote" id="nREF_caseNote_div">
+                                               
+
+                                            </div>
+
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="btnwrp_subcal">
+                                        <button type="button" onclick="SetDataForNREF(this);" class="glossy-button-button button-green">
+                                            Submit
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button tabindex="17" class="glossy-button-button button-red" data-dismiss="modal" type="button">
+                                            Exit
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="btnwrp_subcal">
-                            <button type="submit" onclick="return SetDataForNREF()" class="my-btn" >Submit</button>
-                            <button tabindex="17" class="my-btn my-btn-exit" data-dismiss="modal" type="button">Exit</button>
-                        </div>
-                    </div>
-                </div>
+
+
+              
+
+
+
             </div>
-
-        
         </div>
     </div>
-</div>
-}
+
 
 
 <div class="modal fade in" id="transportation" role="dialog" style="display: none;background: rgba(0,0,0,0.4);" aria-hidden="false">
     <div class="modal-dialog">
-        <!-- Modal content-->
         <div class="modal-content col-xs-12">
             <div class="modal-header col-xs-12">
                 <input type="hidden" name="childid" id="childid" value="">
@@ -1195,11 +1214,11 @@
                                 </div>
 
                                 <div class="bill-radio">
-                                    <input id="rdPrintNo" name="Drop"  onchange="Drop(this);" class="rd-print Drop" value="0" type="radio">
+                                    <input id="rdPrintNo" name="Drop" onchange="Drop(this);" class="rd-print Drop" value="0" type="radio">
                                     <label for="rdPrintNo" class="radio-label">No</label>
                                 </div>
                                 <div class="bill-radio">
-                                    <input id="rdPrintNA" name="Drop"  onchange="Drop(this);" class="rd-print Drop" value="2" type="radio">
+                                    <input id="rdPrintNA" name="Drop" onchange="Drop(this);" class="rd-print Drop" value="2" type="radio">
                                     <label for="rdPrintNA" class="radio-label">Not Needed</label>
                                 </div>
                             </div>

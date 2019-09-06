@@ -110,6 +110,8 @@ namespace FingerprintsData
 
                                                  ).ToList();
 
+
+
                     }
 
                 }
@@ -134,7 +136,7 @@ namespace FingerprintsData
         /// <param name="details"></param>
         /// <returns>Inkind class</returns>
 
-        public Inkind GetInkindActivities(StaffDetails details,int activityCode=0,int amountType=0,bool getVolunteerBased =false,int activityType=0)
+        public Inkind GetInkindActivities(StaffDetails details, int activityCode = 0, int amountType = 0, bool getVolunteerBased = false, int activityType = 0)
         {
 
             Inkind inkindDetails = new Inkind();
@@ -197,7 +199,7 @@ namespace FingerprintsData
                         inkindDetails.HomeActivityCount = Convert.ToInt32(dataset.Tables[2].Rows[0]["HomeActivityCount"]);
                     }
 
-                    if(dataset.Tables.Count>3 && dataset.Tables[3]!=null && dataset.Tables[3].Rows.Count>0)
+                    if (dataset.Tables.Count > 3 && dataset.Tables[3] != null && dataset.Tables[3].Rows.Count > 0)
                     {
                         inkindDetails.InkindPeriodsList = (from DataRow dr3 in dataset.Tables[3].Rows
                                                            select new InkindPeriods
@@ -435,10 +437,10 @@ new DataColumn("Status",typeof(bool))
                 });
 
 
-                if (inkindTransactions.InkindAttachmentsList!=null && inkindTransactions.InkindAttachmentsList.Count > 0)
+                if (inkindTransactions.InkindAttachmentsList != null && inkindTransactions.InkindAttachmentsList.Count > 0)
                 {
 
-                    foreach(var item in inkindTransactions.InkindAttachmentsList)
+                    foreach (var item in inkindTransactions.InkindAttachmentsList)
                     {
                         attachmentdt.Rows.Add(item.InkindAttachmentID,
                                                   item.InkindAttachmentFileByte,
@@ -893,6 +895,7 @@ new DataColumn("Status",typeof(bool))
                                 Text = reader["Name"].ToString(),
                                 Value = reader["ID"].ToString()
                             });
+                           
                         }
                         reader.Close();
                     }
@@ -959,12 +962,12 @@ new DataColumn("Status",typeof(bool))
                                                              ActivityDate = Convert.ToString(dr["ActivityDate"]),
                                                              InkindAttachmentsList = (dataset.Tables.Count > 1 && dataset.Tables[1] != null && dataset.Tables[1].Rows.Count > 0) ?
                                                              (from DataRow dr1 in dataset.Tables[1].Rows
-                                                              where Convert.ToInt32(dr["InKindTransactionID"])==Convert.ToInt32(dr1["InKindTransactionID"])
+                                                              where Convert.ToInt32(dr["InKindTransactionID"]) == Convert.ToInt32(dr1["InKindTransactionID"])
                                                               select new InkindAttachments
                                                               {
                                                                   InkindAttachmentID = Convert.ToInt32(dr1["InkindAttachmentID"]),
-                                                                  InkindAttachmentFileExtension=Convert.ToString(dr1["AttachmentExtension"]),
-                                                                  InkindAttachmentFileName=Convert.ToString(dr1["AttachmentName"])
+                                                                  InkindAttachmentFileExtension = Convert.ToString(dr1["AttachmentExtension"]),
+                                                                  InkindAttachmentFileName = Convert.ToString(dr1["AttachmentName"])
                                                               }).ToList() : new List<InkindAttachments>()
                                                          }
 
@@ -973,7 +976,7 @@ new DataColumn("Status",typeof(bool))
 
 
                             inkind.InkindActivityList = (from DataRow dr1 in dataset.Tables[0].Rows
-                                                    
+
                                                          select new InkindActivity
                                                          {
                                                              ActivityCode = Convert.ToString(dr1["ActivityID"]),
@@ -988,7 +991,7 @@ new DataColumn("Status",typeof(bool))
                         }
 
 
-                        if(dataset.Tables.Count>2 && dataset.Tables[2]!=null && dataset.Tables[2].Rows.Count>0)
+                        if (dataset.Tables.Count > 2 && dataset.Tables[2] != null && dataset.Tables[2].Rows.Count > 0)
                         {
                             inkind.InkindPeriodsList = (from DataRow dr2 in dataset.Tables[2].Rows
                                                         select new InkindPeriods
@@ -1140,7 +1143,7 @@ new DataColumn("Status",typeof(bool))
 
         }
 
-        public List<InkindPeriods> GetInkindPeriodsDate(StaffDetails staff,Guid? _targetAgencyID)
+        public List<InkindPeriods> GetInkindPeriodsDate(StaffDetails staff, Guid? _targetAgencyID)
         {
 
             List<InkindPeriods> inkindPeriodList = new List<InkindPeriods>();
@@ -1168,7 +1171,7 @@ new DataColumn("Status",typeof(bool))
                                 InkindPeriodID = Convert.ToInt64(reader["InkindPeriodID"]),
                                 StartDate = Convert.ToString(reader["InkindEntryStartDate"]),
                                 EndDate = Convert.ToString(reader["InKindEntryEndDate"]),
-                                IsClosed=Convert.ToBoolean(reader["IsClosed"])
+                                IsClosed = Convert.ToBoolean(reader["IsClosed"])
                             });
                         }
 
@@ -1188,7 +1191,7 @@ new DataColumn("Status",typeof(bool))
             return inkindPeriodList;
         }
 
-        public bool ModifyInkindEntryPeriodData(StaffDetails staff, List<InkindPeriods> inkindPeriodList,Guid? targetAgencyID)
+        public bool ModifyInkindEntryPeriodData(StaffDetails staff, List<InkindPeriods> inkindPeriodList, Guid? targetAgencyID)
         {
             bool isRowsAffected = false;
             try
@@ -1236,7 +1239,7 @@ new DataColumn("Status",typeof(bool))
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_ModifyInkindPeriods";
                     _connection.Open();
-                 isRowsAffected= command.ExecuteNonQuery() >0;
+                    isRowsAffected = command.ExecuteNonQuery() > 0;
 
                 }
 
@@ -1257,7 +1260,7 @@ new DataColumn("Status",typeof(bool))
         }
 
 
-        public bool CheckInKindRecordExistsData(StaffDetails _staff,string _startDate,string _endDate,Guid?_targetAgencyId,long _inkindPeriodID)
+        public bool CheckInKindRecordExistsData(StaffDetails _staff, string _startDate, string _endDate, Guid? _targetAgencyId, long _inkindPeriodID)
         {
             bool isExists = false;
             try
@@ -1280,7 +1283,7 @@ new DataColumn("Status",typeof(bool))
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1294,7 +1297,7 @@ new DataColumn("Status",typeof(bool))
         }
 
 
-        public InkindAttachments GetInkindAttachmentData(StaffDetails _staff,int attachmentId,int inkindTransactionId)
+        public InkindAttachments GetInkindAttachmentData(StaffDetails _staff, int attachmentId, int inkindTransactionId)
         {
 
             InkindAttachments inkindAttachments = new InkindAttachments();
@@ -1327,7 +1330,7 @@ new DataColumn("Status",typeof(bool))
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1340,7 +1343,7 @@ new DataColumn("Status",typeof(bool))
 
         }
 
-        public bool DeleteInkindAttachments(StaffDetails _staff,int attachmentId,int inkindTranactionId)
+        public bool DeleteInkindAttachments(StaffDetails _staff, int attachmentId, int inkindTranactionId)
         {
             bool isRowsAffected = false;
             try
@@ -1361,7 +1364,7 @@ new DataColumn("Status",typeof(bool))
                     isRowsAffected = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }

@@ -20,40 +20,23 @@
 
     <style>
         /**** Multiple Documents upload  ****/
+     
+     
 
-        .multiple-camera-modal video {
-            background: #222;
-            margin: 0 0 20px 0;
-            width: 100%;
-            height: 100%;
+        .glossy-right-side-container{
+            padding-top:30px;
         }
+
 
         .mob-div-pad {
             height: 260px;
             margin-bottom: 30px;
         }
 
-        .multiple-camera-modal .setup-snap {
-            position: absolute;
-            bottom: 19px;
-            left: 0;
-            right: 0;
-            margin: auto;
-            text-align: center;
-        }
 
-            .multiple-camera-modal .setup-snap a {
-                color: #fff;
-                width: 100px;
-                height: 100px;
-                border: 2px solid #fff;
-                padding: 11px 12px;
-                border-radius: 46px;
-                font-size: 24px;
-                cursor: pointer;
-            }
+          
 
-        .multiple-camera-modal .setup_viewscreen, #caseNoteDiv .setup_viewscreen {
+        #caseNoteDiv .setup_viewscreen {
             width: 130px;
             float: left;
             display: inline-block;
@@ -66,8 +49,7 @@
             margin-right: 10px;
         }
 
-        .multiple-camera-modal .setup_viewscreen-camera, #caseNoteDiv .setup_viewscreen-camera {
-            /* height: 350px; */
+         #caseNoteDiv .setup_viewscreen-camera {
             max-width: 100%;
             max-height: 100%;
             width: 100%;
@@ -263,15 +245,6 @@
     <script type="text/javascript">
 
 
-        var _multiple_multiplevideoSelect = null;
-        var _multiple_multiplescreenshotButton = null;
-        var _multipleimg = null;
-        var _multiplecanvas = null;
-        var _multiplebutton = null;
-        var _multiplecurrentStream;
-        var _multiplevideo;
-        var _multipleconstraints = {};
-        var front = true;
         $(document).ready(function () {
 
 
@@ -292,122 +265,111 @@
 
 
 
-            _multiplevideoSelect = document.querySelector('.multiple-camera-modal select#videoSource');
-            _multiplevideo = document.querySelector('.multiple-camera-modal #setup-camera-div video');
-            _multiplevideo.setAttribute('autoplay', '');
-            _multiplevideo.setAttribute('muted', '');
-            _multiplevideo.setAttribute('playsinline', '')
+            /**************** Multiple Camera Uploads *****************/
 
 
-            _multiplescreenshotButton = document.querySelector('.multiple-camera-modal #anchor-capture');
+            $('#clientcasenote-div').ApplinkCaseNote({
+                isPopup: false,
+                isSection: true,
+                caseNoteType: 1,   //1- New 2- Edit / 3- Append //
+                getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+                caseNoteId: 0,
+                householdId: $('#householdId').val(),
+                clientId: 0,
+                isEditable: true,
+                isShowSubmitButton: false,
+                isShowExportIcon: false,
+                forceLoad: true,
 
+                modalOnShown: function (element) {
 
+                },
+                ajaxComplete: function (element) {
 
+                    var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
 
+                    
+                    element.find('#heading_case_note').parent().hide();
 
-
-
-
-            _multiplescreenshotButton.onclick = _multiplevideo.onclick = function () {
-
-                var $index = $('.multiple-camera-modal').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
-                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
-                                        <div class="attach-icon-div-gallery">\
-                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
-                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
-                                        </div>\
-                                    </div>';
-
-                _multiplecanvas.width = _multiplevideo.videoWidth;
-                _multiplecanvas.height = _multiplevideo.videoHeight;
-                _multiplecanvas.getContext('2d').drawImage(_multiplevideo, 0, 0);
-                // Other browsers will fall back to image/png
-                console.log(_multiplecanvas);
-                // img.src = canvas.toDataURL('image/png');
-
-                $('.multiple-camera-modal').find('.div-image-snap-gallery').append($imageQuery);
+                    element.find('#divCaseNoteStaffs_'+$guid+'').append('<input type="hidden" name="StaffIds"/>');
+                    element.find('#divCaseNoteClients_'+$guid+'').append('<input type="hidden" name="ClientIds"/>');
 
 
 
+                    CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].setData('');
 
-                $('.multiple-camera-modal').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', _multiplecanvas.toDataURL('image/png'));
-            };
+                  
 
+                    element.find('#txtCaseNoteDate_' + $guid + '').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
+                    element.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
 
+                    element.find('#txtCaseNoteDate_' + $guid + '').prop('disabled', false);
 
-            //new code//
+                    element.find('.img-camera').attr('target-id', 'clientcasenote-div');
 
+                    element.css('border', 'unset!important');
 
+                    showCameraOption(element);
 
+                    element.find('#uploadImageCamera').hide();
 
-            _multiplevideoSelect.addEventListener('change', function (event) {
-
-                _multiplegetStream();
-            });
-
-            navigator.mediaDevices.enumerateDevices().then(_multiplegotDevices);
-
-            _multiplecanvas = document.createElement('canvas');
-
-
-
-            setIntervalUserMedia();
-
-
-            $(document).on('click', '.delete-file-upload', function () {
-
-                $(this).closest('.setup_viewscreen').remove();
-
-            });
-
-
-
-            $(document).on('click', '.view-file-upload', function () {
-
-                //  window.open($(this)., 'newwindow','width=500,height=500');
-
-                var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-                //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
-                console.log(imageAttr);
-
-                //imageAttr='<embed src='+imageAttr+'></embed>';
-                //window.open(imageAttr, 'newwindow','width=500,height=500');
-
-
-
-                var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
-
-                setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
-                    w.document.body.appendChild(w.document.createElement('img'))
-                        .src = imageAttr;
-                }, 0);
-
-            });
-
-
-            $('.multiple-camera-modal #btn-modal-doc-add').on('click', function () {
-
-
-                var $imageGallerylength = $('.multiple-camera-modal .div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                if ($imageGallerylength == 0) {
-                    customAlert('Please capture image using camera');
-                    return false;
+                    setIntervalUserMedia(element);
                 }
 
-
-                $('#div-edit-modal-img-gallery').append($('.multiple-camera-modal .div-image-snap-gallery').html());
-
-                $('.multiple-camera-modal .div-image-snap-gallery').html('');
-
-                $('.multiple-camera-modal').modal('hide');
-
             });
 
-            /**************** Multiple Camera Uploads *****************/
+
+
+
+
+
+
+            //$.ajax({
+
+            //    url: '/Roster/GetCaseNoteSectionPartial',
+            //    type: 'Post',
+            //    datatype: 'html',
+            //    data: { Casenoteid: "0", ClientId: '0', householdId: $('#householdId').val() },
+            //    success: function (data) {
+            //        // alert('1');
+            //        debugger;
+
+            //        var $caseNoteDiv = $('#clientcasenote-div');
+
+            //        $caseNoteDiv.html(data);
+
+            //        $caseNoteDiv.find('#heading_case_note').parent().hide()
+
+
+            //        $caseNoteDiv.find('#divCaseNoteStaffs').append('<input type="hidden" name="StaffIds"/>');
+            //        $caseNoteDiv.find('#divCaseNoteClients').append('<input type="hidden" name="ClientIds"/>');
+
+
+            //        $caseNoteDiv.find('a.export-new').remove();
+            //        $caseNoteDiv.find('.save-casenote').parent('div').hide();
+            //        $caseNoteDiv.find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            //        $caseNoteDiv.find('#txtCaseNoteDate').val(getFormattedDateNumber(new Date()));
+            //        $caseNoteDiv.find('.img-camera').attr('target-id', 'clientcasenote-div');
+            //        showCameraOption($caseNoteDiv);
+            //        $caseNoteDiv.find('#uploadImageCamera').hide();
+            //        setIntervalUserMedia($caseNoteDiv);
+
+
+
+
+            //    },
+            //    error: function (data) {
+            //        // alert('2');
+
+            //        debugger;
+            //    },
+            //    complete: function (data) {
+
+            //    }
+            //});
+
+
 
 
             $(document).on("change", ".client-check", function (e) {
@@ -415,7 +377,7 @@
                 var _ids = [];
 
                 $.each($(".client-check:checked"), function (ind, obj) {
-                    //console.log(obj);
+               
                     _ids.push(obj.value);
 
                 });
@@ -458,11 +420,7 @@
 
             }
 
-            CKEDITOR.replace('CaseNoteDetails_Note', {
-                language: 'en-gb',
-                uiColor: '#295b8f',
-                disableNativeSpellChecker: false
-            });
+            
 
 
             $(document).on("click", "#householdExit", function (e) {
@@ -495,11 +453,11 @@
             });
 
 
-            $('#caseNoteDetails_CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+      
 
             $('input[name="FamilyHousehold.FamilyHasAddress"]').on('click', function () {
 
-              
+
                 $('#newAddressDiv').find('input[type=text]').val('');
                 $('#newAddressDiv').find('select').find('option').remove().end();
                 $('#newAddressDiv').find('input[type=file]').val('');
@@ -521,28 +479,7 @@
             });
 
 
-            $('#uploadImageCamera').on('click', function () {
-
-
-                $('.multiple-camera-modal').find('.div-image-snap-gallery').html('');
-                $('.multiple-camera-modal').modal('show');
-            });
-
-            $('.multiple-camera-modal').on('shown.bs.modal', function (event) {
-                $('body').addClass('modal-open');
-
-                showVideoStream();
-
-
-
-
-
-                //$selfElements.modalEditInkind.modal('hide');
-            }).on('hidden.bs.modal', function (event) {
-
-                stopIntervalUserMedia();
-                //$selfElements.modalEditInkind.modal('show');
-            });
+            
 
         });
 
@@ -552,175 +489,7 @@
 
 
 
-        function handleSuccess(stream) {
-            _multiplescreenshotButton.disabled = false;
-            _multiplevideo.srcObject = stream;
-        }
-
-        function _multiplestopMediaTracks(stream) {
-
-            stream.getTracks().forEach(function (track) { track.stop(); })
-
-        }
-
-        function _multiplestopMediaTracks(stream) {
-            stream.getTracks().forEach(function (track) {
-                track.stop();
-            });
-        }
-
-        function _multiplegotDevices(mediaDevices) {
-
-            _multiplevideoSelect.innerHTML = '';
-            // videoSelect.appendChild(document.createElement('option'));
-            var count = 1;
-            mediaDevices.forEach(function (mediaDevice) {
-                if (mediaDevice.kind === 'videoinput') {
-                    const option = document.createElement('option');
-                    option.value = mediaDevice.deviceId;
-                    const label = mediaDevice.label || 'Camera ' + (count++) + '';
-                    const textNode = document.createTextNode(label);
-                    option.appendChild(textNode);
-                    _multiplevideoSelect.appendChild(option);
-                }
-            });
-
-
-
-
-
-        }
-
-        function _multiplegetStream() {
-            // alert('change event');
-            if (typeof currentStream !== 'undefined') {
-                _multiplestopMediaTracks(currentStream);
-            }
-            const videoConstraints = {};
-            if (_multiplevideoSelect.value === '') {
-                videoConstraints.facingMode = 'environment';
-            } else {
-                videoConstraints.deviceId = { exact: _multiplevideoSelect.value };
-            }
-            const constraints = {
-                video: videoConstraints,
-                audio: false
-            };
-            navigator.mediaDevices
-              .getUserMedia(constraints)
-              .then(function (stream) {
-                  currentStream = stream;
-                  _multiplevideo.srcObject = stream;
-                  return navigator.mediaDevices.enumerateDevices();
-              })
-              .then(_multiplegotDevices)
-              .catch(function (error) {
-                  console.error(error);
-                  //alert(error);
-              });
-        }
-
-        function _multipleshowCameraOption(ele) {
-
-            var videoInputAvailable = 0;
-            $('#uploadImageCamera').tooltip('hide');
-            $('#uploadImageCamera').hide();
-
-            navigator.mediaDevices.enumerateDevices().then(function (devices) {
-
-                console.log(devices);
-                devices.forEach(function (device) {
-
-
-                    if (device.kind == 'videoinput') {
-                        videoInputAvailable++;
-                    }
-
-                });
-
-
-                if (videoInputAvailable == 0) {
-                    $('#uploadImageCamera').hide();
-                    $('#uploadImageCamera').tooltip('hide');
-
-                }
-                else {
-                    $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
-                }
-
-                console.log(videoInputAvailable);
-
-            }).catch(function (err) {
-                console.log(err.name + ": " + err.message);
-            });
-
-
-            //if (videoSelect.options.length > 0) {
-            //    _multiplegetStream();
-            //}
-
-
-
-
-        }
-
-        function showVideoStream() {
-            if (_multiplevideoSelect.options.length > 0) {
-                _multiplegetStream();
-            }
-
-        }
-
-
-        function checkUserMedia() {
-
-
-
-
-            navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
-                  navigator.webkitGetUserMedia ||
-                  navigator.mozGetUserMedia ||
-                  navigator.msGetUserMedia);
-
-            navigator.getMedia({ video: true }, function () {
-
-                if (!$('#uploadImageCamera').is(':visible')) {
-
-                    $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
-                }
-
-
-
-            }, function () {
-
-                $('#uploadImageCamera').hide();
-                $('#uploadImageCamera').tooltip('hide');
-
-
-            });
-
-
-        }
-
-        var userMediaInterval = null;
-
-        function setIntervalUserMedia() {
-
-            userMediaInterval = setInterval(function () {
-
-                checkUserMedia();
-
-            }, 1000);
-
-
-
-        }
-
-        function stopIntervalUserMedia() {
-            clearInterval(userMediaInterval);
-        }
+      
 
 
 
@@ -729,7 +498,7 @@
         //method to convert file to convert to base 64 string/
 
         function handleFileSelect(evt, $srcId) {
-            debugger;
+           
             var f = evt.target.files[0]; // FileList object
             var reader = new FileReader();
             // Closure to capture the file information.
@@ -865,10 +634,10 @@
 
             var $srcModal = $('#' + sourceObjId);
 
-            debugger;
+           
             if (imageType == 1) {
 
-                console.log($(ele).get(0));
+                
 
                 var fileName = $(ele).get(0).files[0].name;
 
@@ -890,7 +659,7 @@
             }
             else if (imageType == 2) {
 
-                $srcModal.find('#cap-img').attr({ 'src': $(img)[0].src });
+                $srcModal.find('#cap-img').attr({ 'src': $(imgSingle)[0].src });
 
                 $srcModal.find('#cap-img').show();
 
@@ -907,7 +676,7 @@
 
 
 
-                $srcModal.find('#hFileString').val(getBase64Image(img));
+                $srcModal.find('#hFileString').val(getBase64Image(imgSingle));
 
                 $srcModal.find('#hFileName').val("AddressVerificationForm");
 
@@ -922,40 +691,7 @@
 
         }
 
-        //Returns the converted base 64 string image //
-        function getBase64Image(img) {
-            //debugger;
-            //var canvas = document.createElement("canvas");
-            //canvas.width = img.width;
-            //canvas.height = img.height;
-            //var ctx = canvas.getContext("2d");
-            //ctx.drawImage(img, 0, 0);
-            //var dataURL = ctx.toDataURL("image/png");
-            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
-        }
-
-        //function to add More Attachments//
-        function addMore(ele) {
-            var index = $(ele).closest('#section_attachment_div').find('.houseless-attach').length;
-
-
-            var appendDiv = '<div class="remove-div-block" style="width: 100%;margin-bottom: 10px;float: left;margin-left:16px;" >\
-                                            <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach"  onchange="ValidateSingleInputpdf2(this,null);" id="CaseNoteAttachments_' + index + '_file"  style="width:56%;display:inline-block;" tabindex="6" type="file" value="">\
-                                            <div class="some_attach" style="display:inline-block;padding-left:15px;">\
-                                                <a href="javascript:void(0);" style="display:inline-block;" title="Remove Attachment" onclick="removeAttachment(this);"><i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;Remove</a>\
-                                            </div>\
-                                        </div>';
-
-            $(ele).closest('#section_attachment_div').find('.import_ft_files').append(appendDiv);
-
-        }
-
-        //function to remove additional Attachments//
-        function removeAttachment(ele) {
-            $(ele).parent('.some_attach').parent('div').remove();
-        }
+       
 
         //function to Check ZipCode Availability//
         function checkZipCode(inputTextObject) {
@@ -1128,7 +864,7 @@
                                     $('#County').val('');
                                     bindCaseNoteForAddressChange();*/
                                 }
-                                if (result) {
+                               else if (result) {
                                     bindCaseNoteForAddressChange();
                                 }
                             });
@@ -1144,7 +880,7 @@
 
 
             }
-            else {
+            else if(value==1) {
                 if ($('#ZipCode').val().trim() != "") {
 
                     $.ajax({
@@ -1195,12 +931,14 @@
                                         $('#County').val('');
                                         bindCaseNoteForAddressChange();
                                     }
+                                    if (result) {
+                                        bindCaseNoteForAddressChange();
+
+                                    }
+
                                 });
                             }
-                            if (result) {
-                                bindCaseNoteForAddressChange();
-
-                            }
+                            
                         }
                             , error: function (response) {
                                 customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
@@ -1208,6 +946,24 @@
                     });
                 }
 
+
+            }
+
+            else if(value==2)
+            {
+                if($('select[name="FamilyHousehold.City"]').val()!=$('input:hidden[name="old_city"]').val())
+                {
+                    if ('@homeFound' == 'True')
+                    {
+                        bindCaseNoteforNoHome(1);
+
+                    }
+                    else {
+                        bindCaseNoteForAddressChange();
+
+                    }
+
+                }
 
             }
 
@@ -1263,7 +1019,7 @@
 
 
             }
-            else {
+            else if(value==1) {
                 if ($('#ZipCode1').val().trim() != "") {
 
                     $.ajax({
@@ -1314,9 +1070,13 @@
                                         $('#County1').val('');
                                         bindCaseNoteforNoHome(1);
                                     }
+                                    if (result) {
+                                        bindCaseNoteforNoHome(1);
+
+                                    }
                                 });
                             }
-                            if (result) {
+                            else{
                                 bindCaseNoteforNoHome(1);
 
                             }
@@ -1326,8 +1086,10 @@
                             }
                     });
                 }
-
-
+            }
+            else if(value==2)
+            {
+                bindCaseNoteforNoHome(1);
             }
 
 
@@ -1355,10 +1117,17 @@
             var current_county = ($('#County1').val() == undefined || $('#County1').val() == null) ? "" : $('#County1').val().trim();
             var current_familyhomeless = $('input:radio[name="FamilyHousehold.HomeType"]:checked').val();
 
+
+            var $caseNoteDiv = $('#caseNoteDiv');
+            var $caseNoteClientDiv = $caseNoteDiv.find('#clientcasenote-div');
+            var $caseNoteSection = $caseNoteDiv.find('#divCaseNoteSection');
+            var $guid = $caseNoteSection.attr('data-current-id');
+
             if (old_familyhomeless == '2') {
                 var noteSection = '';
 
-                var caseNoteDiv = $('#caseNoteDiv');
+         
+
 
                 noteSection += (old_homeType == '1' && current_familyhomeless == '2') ? '<h2>Contact Address</h2>' : '<h2>Old Address</h2>';
 
@@ -1382,47 +1151,38 @@
                     noteSection += '<h2>Contact Address - <span>Homeless</span></h2>';
                 }
 
-             
-
-                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
-
-                caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Family Homeless");
-                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
 
 
-                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+                $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
+
+                $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val("Family Homeless");
+                $caseNoteSection.find('#txtareaCaseNote_' + $guid + '').val(noteSection);
+
+
+                if (CKEDITOR.instances['txtareaCaseNote_'+$guid+'']) {
+                    CKEDITOR.instances['txtareaCaseNote_'+$guid+''].destroy(true);
 
                 }
 
-                CKEDITOR.replace('CaseNoteDetails_Note', {
+                CKEDITOR.replace('txtareaCaseNote_'+$guid+'', {
                     language: 'en-gb',
                     uiColor: '#295b8f',
                     disableNativeSpellChecker: false
                 });
 
 
-                $('#CaseNoteDetails_CaseNotetags').tagsInput({
-                    width: 'auto',
-                    height: 'auto',
-                    delimiter: [',', ';'],
-                    autocomplete: {
-                        //'source': tags_array[0].split(/,\s*/)
-                        'source': getTagsOnInput()
-                    },
-                    autocomplete_url: '',
-                });
+               
 
                 if (current_familyhomeless == '1' && $('input:radio[name="FamilyHousehold.FamilyHasAddress"]:checked').val() == '1') {
-                    $('#CaseNoteDetails_CaseNotetags').importTags(',,;Family Homeless,,;Contact Address');
+                    $('#txtCaseNoteTags_'+$guid+'').importTags(',,;Family Homeless,,;Contact Address');
 
                 }
                 else {
-                    $('#CaseNoteDetails_CaseNotetags').importTags(',,;Family Homeless');
+                    $('#txtCaseNoteTags_' + $guid + '').importTags(',,;Family Homeless');
 
                 }
 
-                caseNoteDiv.show('slow');
+                $caseNoteDiv.show('slow');
             }
 
             else {
@@ -1430,7 +1190,7 @@
 
                 var noteSection = '';
 
-                var caseNoteDiv = $('#caseNoteDiv');
+              
 
 
                 if (old_zipcode != null && old_zipcode != "") {
@@ -1442,7 +1202,7 @@
                     noteSection += old_state + '-' + old_zipcode + '<br>';
                 }
                 else {
-                    noteSection += '<h2>Contact Address</h2> <span> Homeless</span>';
+                    noteSection += '<h2>Current Address</h2> <span> Homeless</span>';
                 }
 
 
@@ -1474,53 +1234,44 @@
 
 
 
-                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
+                $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
 
                 if (current_familyhomeless == '1') {
-                    caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Contact Address Updated");
+                    $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val("Contact Address Updated");
                 }
                 else {
-                    caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
+                    $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val("Home Found");
 
                 }
 
-                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
+                $caseNoteSection.find('#txtareaCaseNote_' + $guid + '').val(noteSection);
 
 
-                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+                if (CKEDITOR.instances['txtareaCaseNote_'+$guid+'']) {
+                    CKEDITOR.instances['txtareaCaseNote_'+$guid+''].destroy(true);
 
                 }
 
-                CKEDITOR.replace('CaseNoteDetails_Note', {
+                CKEDITOR.replace('txtareaCaseNote_'+$guid+'', {
                     language: 'en-gb',
                     uiColor: '#295b8f',
                     disableNativeSpellChecker: false
                 });
 
 
-                $('#CaseNoteDetails_CaseNotetags').tagsInput({
-                    width: 'auto',
-                    height: 'auto',
-                    delimiter: [',', ';'],
-                    autocomplete: {
-                        //'source': tags_array[0].split(/,\s*/)
-                        'source': getTagsOnInput()
-                    },
-                    autocomplete_url: '',
-                });
+                
 
                 if (current_familyhomeless == '1') {
-                    $('#CaseNoteDetails_CaseNotetags').importTags(',,;Contact Address');
+                    $('#txtCaseNoteTags_'+$guid+'').importTags(',,;Contact Address');
 
                 }
                 else {
-                    $('#CaseNoteDetails_CaseNotetags').importTags(',,;Home Found,,;Address Change');
+                    $('#txtCaseNoteTags_' + $guid + '').importTags(',,;Home Found,,;Address Change');
 
                 }
 
 
-                caseNoteDiv.show('slow');
+                $caseNoteDiv.show('slow');
             }
 
 
@@ -1531,7 +1282,7 @@
 
         function bindCaseNoteForAddressChange() {
 
-            // debugger;
+          
             var old_address = $('#old_address').val().trim();
             var old_apartment = $('#old_apartment').val().trim();
             var old_zipcode = $('#old_zipcode').val().trim();
@@ -1600,36 +1351,30 @@
                 noteSection += current_county + '<br>';
                 noteSection += current_state + '-' + current_zipcode + '<br>';
 
-                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
 
-                caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Address Change");
-                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
+                var $guid = caseNoteDiv.find('#divCaseNoteSection').attr('data-current-id');
+
+                caseNoteDiv.find('#txtCaseNoteDate_'+$guid+'').val(getFormattedDateNumber(new Date()));
+
+                caseNoteDiv.find('#txtCaseNoteTitle_'+$guid+'').val("Address Change");
+                caseNoteDiv.find('#txtareaCaseNote_'+$guid+'').val(noteSection);
 
 
-                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
-                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+                if (CKEDITOR.instances['txtareaCaseNote_'+$guid+'']) {
+                    CKEDITOR.instances['txtareaCaseNote_'+$guid+''].destroy(true);
 
                 }
 
-                CKEDITOR.replace('CaseNoteDetails_Note', {
+                CKEDITOR.replace('txtareaCaseNote_'+$guid+'', {
                     language: 'en-gb',
                     uiColor: '#295b8f',
                     disableNativeSpellChecker: false
                 });
 
 
-                $('#CaseNoteDetails_CaseNotetags').tagsInput({
-                    width: 'auto',
-                    height: 'auto',
-                    delimiter: [',', ';'],
-                    autocomplete: {
-                        //'source': tags_array[0].split(/,\s*/)
-                        'source': getTagsOnInput()
-                    },
-                    autocomplete_url: '',
-                });
 
-                $('#CaseNoteDetails_CaseNotetags').importTags(',,;Address Change');
+
+                $('#txtCaseNoteTags_'+$guid+'').importTags('Address Change');
 
                 caseNoteDiv.show('slow');
 
@@ -1646,77 +1391,7 @@
         }
 
 
-        function getTagsOnInput() {
-            var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
-            var tagsArr = [];
-            $.ajax({
-
-                url: '/Roster/GetCaseNoteTagonInput',
-                datatype: 'json',
-                type: 'post',
-                async: true,
-                data: { searchText: tagInp },
-                success: function (data) {
-                    if (data != null) {
-                        if (data.length > 0) {
-                            $.each(data, function (i, tags) {
-                                tagsArr.push(tags.Text);
-                            });
-                        }
-                    }
-                },
-                error: function (data) {
-
-                }
-
-            });
-
-            return tagsArr;
-        }
-
-        function getFormattedDate(date) {
-            date = new Date(date);
-            var year = date.getFullYear();
-
-            var month = (1 + date.getMonth()).toString();
-            month = month.length > 1 ? month : '0' + month;
-
-            var day = date.getDate().toString();
-            day = day.length > 1 ? day : '0' + day;
-
-            return month + '/' + day + '/' + year;
-        }
-
-
-        function bindCaseNoteArea(mode) {
-            debugger;
-            var houselessModal = $('#Houselessmodal');
-            var oldAddress = houselessModal.find('#oldAddress').val();
-            var newAddress = '';
-            var street = houselessModal.find('#FamilyHousehold_Street').val() == null ? '' : $('#FamilyHousehold_Street').val();
-            var appartment = houselessModal.find('#FamilyHousehold_StreetName').val() == null ? '' : houselessModal.find('#FamilyHousehold_StreetName').val();
-            var city = houselessModal.find('#FamilyHousehold_City').val() == null ? '' : houselessModal.find('#FamilyHousehold_City').val();
-            var county = houselessModal.find('#FamilyHousehold_County').val() == null ? '' : houselessModal.find('#FamilyHousehold_County').val();
-            var state = houselessModal.find('#FamilyHousehold_State').val() == null ? '' : houselessModal.find('#FamilyHousehold_State').val();
-            var zipcode = houselessModal.find('#FamilyHousehold_ZipCode').val() == null ? '' : houselessModal.find('#FamilyHousehold_ZipCode').val();
-
-            //  CKEDITOR.instances['CaseNoteDetails_Note'].setData('');
-
-            if (mode == 1) {
-                newAddress += oldAddress + '<h2>New Address</h2>';
-
-                newAddress += street + '<br>';
-                newAddress += appartment == '' ? '' : appartment + '</br>';
-                newAddress += city + '<br>';
-                newAddress += county + '<br>';
-                newAddress += state + '-' + zipcode;
-                CKEDITOR.instances['CaseNoteDetails_Note'].setData(newAddress);
-            }
-            else {
-                CKEDITOR.instances['CaseNoteDetails_Note'].setData(oldAddress);
-            }
-
-        }
+       
 
         function ShowHideDivParentTwo1() {
             $('#divParentrelatioship').hide();
@@ -1926,17 +1601,13 @@
 
 
 
-            debugger;
+         
             var isValid = true;
             cleanValidation();
-            var ishaveHome=false;
-            
+            var ishaveHome = false;
 
-            var Tags = '';
-            $('#caseNoteDiv').find('#CaseNoteDetails_CaseNotetags_tagsinput .tag span').each(function () {
-                Tags = Tags + $(this).text().trim() + ',';
-            });
-            $('#caseNoteDiv').find("#CaseNoteDetails_CaseNotetags").val(Tags);
+
+           
 
             $('#HasCaseNoteDetails').val('False');
             $('#HasNewAddress').val('False');
@@ -2065,57 +1736,58 @@
 
             if ($('#caseNoteDiv').is(':visible')) {
 
+                var $caseNoteDiv = $('#caseNoteDiv');
+                var $caseNoteClientdiv = $caseNoteDiv.find('#clientcasenote-div');
+                var $caseNoteSection = $caseNoteClientdiv.find('#divCaseNoteSection');
+                var $guid=$caseNoteSection.attr('data-current-id');
 
-                var caseNoteDiv = $('#caseNoteDiv');
-                if (caseNoteDiv.find('#CaseNoteDetails_caseNoteDate').val() == '') {
-                    plainValidation('#CaseNoteDetails_caseNoteDate');
-                    customAlert("Please enter Case Note Date");
-                    return false;
-                }
-                else {
-                    if (!CheckdateHouseless(caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate'))) {
-                        plainValidation('#CaseNoteDetails_caseNoteDate');
-                        // customAlert("Please enter valid date");
-                        return false;
-                    }
-                }
+                //var Tags = '';
+                //$caseNoteSection.find('#txtCaseNoteTags_'+$guid+'_tagsinput .tag span').each(function () {
+                //    Tags = Tags + $(this).text().trim() + ',';
+                //});
 
-                if (caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val() == '') {
-                    plainValidation('#CaseNoteDetails_CaseNotetitle');
-                    customAlert("Please enter Case Note Title");
+                //$caseNoteSection.find("#txtCaseNoteTags_"+$guid+"").val(Tags);
+                //$caseNoteSection.find("#txtareaCaseNote_" + $guid + "").val(CKEDITOR.instances["txtareaCaseNote_" + $guid + ""].getData());
+
+                var result = $caseNoteClientdiv.ApplinkCaseNote('caseNoteValidation');
+
+                if (!result)
+                {
                     return false;
-                }
-                if (CKEDITOR.instances['CaseNoteDetails_Note'].getData() == "") {
-                    caseNoteDiv.find("#CaseNoteDetails_Note").focus();
-                    customAlert("Please enter Case Note");
-                    return false;
-                }
-                if (!caseNoteDiv.find("#ClientDiv").find('.client-check').is(':checked')) {
-                    caseNoteDiv.find("#ClientDiv").focus();
-                    customAlert("Please select Client(s)");
-                    return false;
-                }
-                if (caseNoteDiv.find('#CaseNoteDetails_CaseNotetags').val().trim() == "") {
-                    isValid = false;
-                    customAlert("Tags are required.");
-                    plainValidation('#CaseNoteDetails_CaseNotetags');
-                    return isValid;
                 }
 
-                if (!caseNoteDiv.find('#StaffDiv').find('.staff-check').is(':checked')) {
-                    caseNoteDiv.find("#StaffDiv").focus();
-                    customAlert("Please select Development Team Staff(s)");
-                    return false;
-                }
+              
 
                 $('#HasCaseNoteDetails').val('True');
+
+                var clientArray = [];
+
+
+                $('#divCaseNoteClients_'+$guid+'').find('input:checkbox:checked').each(function () {
+
+                    clientArray.push($(this).val());
+                });
+
+
+                $('#divCaseNoteClients_'+$guid+'').find('input[name="ClientIds"]').val(clientArray.join(','));
+
+                var staffArray = [];
+            
+
+                $('#divCaseNoteStaffs_'+$guid+'').find('input:checkbox:checked').each(function () {
+
+                    staffArray.push($(this).val());
+                });
+
+                $('#divCaseNoteStaffs_'+$guid+'').find('input[name="StaffIds"]').val(staffArray.join(','));
+
 
             }
 
 
             if (isValid) {
                 var fileData = new FormData();
-                var $cameraDocuments = $("#div-edit-modal-img-gallery").find('.setup_viewscreen');
+                var $cameraDocuments = $(".div-edit-gallery_"+$guid+"").find('.setup_viewscreen');
 
                 var cameraDocumentsArray = [];
 
@@ -2141,62 +1813,11 @@
             return isValid;
         }
 
-        var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
-        function ValidateSingleInputpdf2(oInput, callback) {
-
-            debugger;
-            if (oInput.type == "file") {
-                var sFileName = oInput.value;
-                if (sFileName.length > 0) {
-                    var blnValid = false;
-                    var valid_size = 3 * 1000 * 1000;
-                    var v = oInput.files[0].size;
-                    if (v <= valid_size) {
-                        for (var j = 0; j < _validFileExtensions1.length; j++) {
-                            var sCurExtension = _validFileExtensions1[j];
-                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                                //  $('#DobverificationinPaper').prop("checked", false);
-                                blnValid = true;
-                                break;
-                            }
-                        }
-                        if (!blnValid) {
-                            oInput.value = "";
-                            customAlertforlongtime("Supported formats (pdf,jpg,jpeg,bmp,gif,png)");
-                            return false;
-                        }
-                    }
-                    else {
-                        oInput.value = "";
-                        customAlertforlongtime("File size should not be greater than 3 MB. ");
-                        return false;
-
-                    }
-
-                }
-            }
-
-            if (callback != null) {
-
-                var $scrId = $(oInput).closest('.contact-entry-div').attr('id');
-
-                //if (window.File && window.FileReader && window.FileList && window.Blob)
-                //{
-                //    handleFileSelect(oInput, $scrId);
-                //}
-
-                var imagetype = 1;
+        
 
 
-                callback(oInput, imagetype, $scrId);
+     
 
-                var targId = $(oInput).attr('data-target-id');
-                $('#' + targId).modal('hide');
-
-            }
-
-            return true;
-        }
 
     </script>
 }
@@ -2207,334 +1828,350 @@
         <div class="col-lg-12" style="padding:0;">
 
             <div class="page-wrapper-change">
+                <div class="container-fluid">
 
-                <div class="row">
-                    <!------------Your Code----------------->
-                    <div class="right-side-container-ch col-xs-12">
-                        <!---Heading Section-->
-                        <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
-                            <div class="col-lg-12">
-                                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                    <i class="fa fa-home"></i> @(homeFound ? "Home Found" : "Household Details")
+                    <div class="row">
+                        <!------------Your Code----------------->
+                        <div class="glossy-right-side-container col-xs-12">
+                            <!---Heading Section-->
 
-                                    <span class="view-btn backto_listspan">
-                                        <a href="javascript:void(0);" id="backtofamily" class="glossy-button-button glossy-button-hover button-pink">
-                                            @(homeFound ? "Back to Roster" : "Back to Family Summary" )
-                                            <span class="glossy-button-before"></span>
-                                            <span class="glossy-button-after"></span>
 
-                                        </a>
-                                    </span>
-                                </h2>
+
+                            <div class="col-xs-12" style="padding:0;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751 !important; color: #fff;">
+                                        <span>
+                                            <i class="fa fa-home" aria-hidden="true"></i>&nbsp;@(homeFound ? "Home Found" : "Household Details")
+                                        </span>
+
+
+                                        <span class="view-btn backto_listspan hidden-xs">
+                                            <a href="javascript:void(0);" id="backtofamily" class="glossy-button-button glossy-button-hover button-pink">
+                                                @(homeFound ? "Back to Roster" : "Back to Family Summary" )
+                                                <span class="glossy-button-before"></span>
+                                                <span class="glossy-button-after"></span>
+
+                                            </a>
+
+                                        </span>
+
+
+
+
+                                    </h2>
+                                </div>
                             </div>
-                        </div>
 
 
 
-                        @using (Html.BeginForm((homeFound) ? "FamilyHouseless" : "HouseholdDetails", "AgencyUser", FormMethod.Post, new { @class = "col-xs-12", enctype = "multipart/form-data", autocomplete = false }))
-                        {
+
+
+
+
+                            @using (Html.BeginForm((homeFound) ? "FamilyHouseless" : "HouseholdDetails", "AgencyUser", FormMethod.Post, new { @class = "col-xs-12", enctype = "multipart/form-data", autocomplete = false }))
+                            {
                         <!---Heading Section-->
                         <!--Household-->
 
-                            <div class="col-lg-12 col-xs-12 contact-entry-div" style="@(Model.FamilyHousehold.HomeType == 1 ? "display:none;" : "display:block;")" id="curr_house_div">
+                                <div class="col-lg-12 col-xs-12 contact-entry-div" style="@(Model.FamilyHousehold.HomeType == 1 ? "display:none;" : "display:block;")" id="curr_house_div">
 
-                                <fieldset>
-                                    <legend id="contact-legend">Household</legend>
+                                    <fieldset>
+                                        <legend id="contact-legend">Household</legend>
 
 
-                                    @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" @if (Model.HasNewAddress) { <text> style="display:none;" </text>}>*@
-                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main"
-                                         style="@(Model.FamilyHousehold.HomeType == 1 || homeFound==true? "display:none;" : "display:block;")">
-                                        <div class="add-useragform">
+                                        @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" @if (Model.HasNewAddress) { <text> style="display:none;" </text>}>*@
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main"
+                                             style="@(Model.FamilyHousehold.HomeType == 1 || homeFound==true? "display:none;" : "display:block;")">
+                                            <div class="add-useragform">
 
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.FamilyHousehold.Street, new { @class = "icc_label lbl-required" })
-                                                    @Html.TextBoxFor(m => m.FamilyHousehold.Street, new { @id = "Street", @class = "form-control", @maxlength = "50", @onblur = "CheckAddress(0);", @placeholder = "Address", @tabindex = "3" })
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(m => m.FamilyHousehold.Street, new { @class = "icc_label lbl-required" })
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.Street, new { @id = "Street", @class = "form-control", @maxlength = "50", @onblur = "CheckAddress(0);", @placeholder = "Address", @tabindex = "3" })
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
-                                                    @*<label class="icc_label" for="email">Apartment No., Lot No. </label>
-                                                        <input class="form-control" id="StreetName" maxlength="100" name="StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="4" type="text" value="1212">*@
-                                                    @Html.LabelFor(m => m.FamilyHousehold.StreetName, new { @class = "icc_label" })
-                                                    @Html.TextBoxFor(m => m.FamilyHousehold.StreetName, new { @id = "StreetName", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddress(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        @*<label class="icc_label" for="email">Apartment No., Lot No. </label>
+                                            <input class="form-control" id="StreetName" maxlength="100" name="StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="4" type="text" value="1212">*@
+                                                        @Html.LabelFor(m => m.FamilyHousehold.StreetName, new { @class = "icc_label" })
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.StreetName, new { @id = "StreetName", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddress(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
-                                                    @*<label class="icc_label" for="email">Zip Code  <sup>*</sup></label>
-                                                        <input class="form-control" id="ZipCode" maxlength="5" name="ZipCode" onblur="checkZipCode(this);" placeholder="Zip Code " tabindex="5" type="text" value="60001">*@
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        @*<label class="icc_label" for="email">Zip Code  <sup>*</sup></label>
+                                            <input class="form-control" id="ZipCode" maxlength="5" name="ZipCode" onblur="checkZipCode(this);" placeholder="Zip Code " tabindex="5" type="text" value="60001">*@
 
-                                                    @Html.LabelFor(m => m.FamilyHousehold.ZipCode, new { @class = "icc_label lbl-required" })
-                                                    @Html.TextBoxFor(m => m.FamilyHousehold.ZipCode, new { @id = "ZipCode", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCode(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                                        @Html.LabelFor(m => m.FamilyHousehold.ZipCode, new { @class = "icc_label lbl-required" })
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.ZipCode, new { @id = "ZipCode", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCode(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
 
-                                                    @Html.LabelFor(m => m.FamilyHousehold.City, new { @class = "icc_label lbl-required" })
+                                                        @Html.LabelFor(m => m.FamilyHousehold.City, new { @class = "icc_label lbl-required" })
 
 
-                                                    <select id="City" name="FamilyHousehold.City" class="form-control" tabindex="6">
-                                                        <option value="@Model.FamilyHousehold.City">@Model.FamilyHousehold.City</option>
-                                                    </select>
+                                                        <select id="City" name="FamilyHousehold.City" class="form-control" tabindex="6" onblur = "CheckAddress(2);">
+                                                            <option value="@Model.FamilyHousehold.City">@Model.FamilyHousehold.City</option>
+                                                        </select>
 
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
-                                                    @* <label class="icc_label" for="email">State  <sup>*</sup></label>*@
-                                                    @*<input class="form-control" id="State" maxlength="100" name="State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="7" type="text" value="IL">*@
-                                                    @Html.LabelFor(m => m.FamilyHousehold.State, new { @class = "icc_label lbl-required" })
-                                                    @Html.TextBoxFor(m => m.FamilyHousehold.State, new { @id = "State", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        @* <label class="icc_label" for="email">State  <sup>*</sup></label>*@
+                                                        @*<input class="form-control" id="State" maxlength="100" name="State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="7" type="text" value="IL">*@
+                                                        @Html.LabelFor(m => m.FamilyHousehold.State, new { @class = "icc_label lbl-required" })
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.State, new { @id = "State", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
 
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.FamilyHousehold.County, new { @class = "icc_label lbl-required" })
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(m => m.FamilyHousehold.County, new { @class = "icc_label lbl-required" })
 
-                                                    @Html.TextBoxFor(m => m.FamilyHousehold.County, new { @id = "County", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.County, new { @id = "County", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
 
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-                                                @*<div class="form-group">
-                                                        <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                                        <input name="FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FileaddressAvatar" onchange="ValidateSingleInputpdf(this)" style="width:65%;" tabindex="6" type="file" value="">
-                                                        <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                            <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="AdresssverificationinPaper" name="AdresssverificationinPaper" tabindex="7" type="checkbox" value="true"><input name="AdresssverificationinPaper" type="hidden" value="false">
-                                                            <label style="width:45px;">Paper</label>
-                                                        </div>
-                                                    </div>*@
-
-
-                                                @if (Model.FamilyHousehold.docstorage == 0)
-                                                {
-
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
                                                     @*<div class="form-group">
+                                            <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                            <input name="FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FileaddressAvatar" onchange="ValidateSingleInputpdf(this)" style="width:65%;" tabindex="6" type="file" value="">
+                                            <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="AdresssverificationinPaper" name="AdresssverificationinPaper" tabindex="7" type="checkbox" value="true"><input name="AdresssverificationinPaper" type="hidden" value="false">
+                                                <label style="width:45px;">Paper</label>
+                                            </div>
+                                        </div>*@
+
+
+                                                    @if (Model.FamilyHousehold.docstorage == 0)
+                                                    {
+
+                                                        @*<div class="form-group">
+                                                <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;", tabIndex = "6" })
+                                                <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                    <label style="width:45px;">Paper</label>
+                                                </div>
+                                            </div>*@
+
+
+
+                                                        <div class="form-group">
                                                             <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                                            @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;", tabIndex = "6" })
+                                                            <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
+                                                                <span class="glossy-button-before"></span>
+                                                                <span class="glossy-button-after"></span>
+                                                                <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                    @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
+                                                                </span>
+                                                            </button>
+
+
+
+
+
+
+
+                                                            @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;display:none;", tabIndex = "6" })
                                                             <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
                                                                 @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
                                                                 <label style="width:45px;">Paper</label>
                                                             </div>
-                                                        </div>*@
-
-
-
-                                                    <div class="form-group">
-                                                        <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                                        <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
-                                                            <span class="glossy-button-before"></span>
-                                                            <span class="glossy-button-after"></span>
-                                                            <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
-                                                                @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
-                                                            </span>
-                                                        </button>
-
-
-
-
-
-
-
-                                                        @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;display:none;", tabIndex = "6" })
-                                                        <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                            <label style="width:45px;">Paper</label>
                                                         </div>
-                                                    </div>
 
 
 
 
-                                                }
-                                                @if (Model.FamilyHousehold.docstorage == 2)
-                                                {
+                                                    }
+                                                    @if (Model.FamilyHousehold.docstorage == 2)
+                                                    {
 
 
-                                                    @*<div class="form-group">
-                                                            <label>Address Verification Form</label>
+                                                        @*<div class="form-group">
+                                                <label>Address Verification Form</label>
+                                                <div class="cont-sz">
+                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                    <label style="width:45px;">Paper</label>
+                                                </div>
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
+                                            </div>*@
+
+
+
+                                                        <div class="form-group">
+                                                            <label>Address Verification Form  </label>
+
                                                             <div class="cont-sz">
                                                                 @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
                                                                 <label style="width:45px;">Paper</label>
                                                             </div>
-                                                            @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
-                                                        </div>*@
+
+
+                                                            @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
+
+
+                                                            <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);" style="display:none;">
+                                                                <span class="glossy-button-before"></span>
+                                                                <span class="glossy-button-after"></span>
+                                                                <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                    @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
+                                                                </span>
+                                                            </button>
 
 
 
-                                                    <div class="form-group">
-                                                        <label>Address Verification Form  </label>
-
-                                                        <div class="cont-sz">
-                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                            <label style="width:45px;">Paper</label>
                                                         </div>
 
-
-                                                        @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
-
-
-                                                        <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);" style="display:none;">
-                                                            <span class="glossy-button-before"></span>
-                                                            <span class="glossy-button-after"></span>
-                                                            <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
-                                                                @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
-                                                            </span>
-                                                        </button>
-
-
-
-                                                    </div>
-
-                                                }
-                                            </div>
-
-
-                                            <div class="col-lg-6 col-md-12 col-sm-12">
-
-
-                                                <label id="lblFileName"></label>
-
-
-                                                @if (!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString))
-                                                {
-
-
-
-
-                                                    <div class="glossy-attachment-icons-block" data-attach-id="8">
-                                                        <div class="glossy-attachment-icon" data-toggle="tooltip" title="@Model.FamilyHousehold.HFileName">
-                                                            @switch (Model.FamilyHousehold.HFileExtension)
-                                                            {
-                                                                case ".png":
-                                                                    <img src="@Url.Content("~/Images/picture.png")" />
-                                                                    break;
-                                                                case ".jpg":
-                                                                    <img src="@Url.Content("~/Images/picture.png")" />
-                                                                    break;
-
-                                                                case ".doc":
-                                                                    <img src="@Url.Content("~/Images/doc.png")" />
-                                                                    break;
-
-                                                                case ".xls":
-                                                                    <img src="@Url.Content("~/Images/excel.png")" />
-                                                                    break;
-
-                                                                case ".pdf":
-                                                                    <img src="@Url.Content("~/Images/pdf.png")" />
-                                                                    break;
-                                                                case ".txt":
-                                                                    <img src="@Url.Content("~/Images/file.png")" />
-                                                                    break;
-
-
-                                                                default:
-                                                                    <img src="@Url.Content("~/Images/file.png")" />
-                                                                    break;
-
-                                                            }
-                                                            <div class="glossy-attach-icon-div">
-                                                                <i class="fa fa-trash delete-file" data-toggle="popover" onclick="deleteAttachment(this)" data-placement="top" aria-hidden="true" title="Delete Attachment"></i>
-
-
-
-                                                                <a href="javascript:void(window.open('@Url.Action("GetAttachments","AgencyUser",new { id=string.Concat(Model.FamilyHousehold.HouseholdId,",Household,0")})' , 'newwindow','width=500,height=500'));">
-                                                                    <i class="fa fa-eye view-file" data-toggle="tooltip" tile="view file" aria-hidden="true">
-                                                                    </i>
-                                                                </a>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-
-
-                                                }
-
-
-
-
-                                                <div class="setup_viewscreen-div" style="display:none;">
-                                                    <img id="cap-img" class="setup_viewscreen-camera-div" />
+                                                    }
                                                 </div>
 
+
+                                                <div class="col-lg-6 col-md-12 col-sm-12">
+
+
+                                                    <label id="lblFileName"></label>
+
+
+                                                    @if (!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString))
+                                                    {
+
+
+
+
+                                                        <div class="glossy-attachment-icons-block" data-attach-id="8">
+                                                            <div class="glossy-attachment-icon" data-toggle="tooltip" title="@Model.FamilyHousehold.HFileName">
+                                                                @switch (Model.FamilyHousehold.HFileExtension)
+                                                                {
+                                                                    case ".png":
+                                                                        <img src="@Url.Content("~/Images/picture.png")" />
+                                                                        break;
+                                                                    case ".jpg":
+                                                                        <img src="@Url.Content("~/Images/picture.png")" />
+                                                                        break;
+
+                                                                    case ".doc":
+                                                                        <img src="@Url.Content("~/Images/doc.png")" />
+                                                                        break;
+
+                                                                    case ".xls":
+                                                                        <img src="@Url.Content("~/Images/excel.png")" />
+                                                                        break;
+
+                                                                    case ".pdf":
+                                                                        <img src="@Url.Content("~/Images/pdf.png")" />
+                                                                        break;
+                                                                    case ".txt":
+                                                                        <img src="@Url.Content("~/Images/file.png")" />
+                                                                        break;
+
+
+                                                                    default:
+                                                                        <img src="@Url.Content("~/Images/file.png")" />
+                                                                        break;
+
+                                                                }
+                                                                <div class="glossy-attach-icon-div">
+                                                                    <i class="fa fa-trash delete-file" data-toggle="popover" onclick="deleteAttachment(this)" data-placement="top" aria-hidden="true" title="Delete Attachment"></i>
+
+
+
+                                                                    <a href="javascript:void(window.open('@Url.Action("GetAttachments","AgencyUser",new { id=string.Concat(Model.FamilyHousehold.HouseholdId,",Household,0")})' , 'newwindow','width=500,height=500'));">
+                                                                        <i class="fa fa-eye view-file" data-toggle="tooltip" tile="view file" aria-hidden="true">
+                                                                        </i>
+                                                                    </a>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    }
+
+
+
+
+                                                    <div class="setup_viewscreen-div" style="display:none;">
+                                                        <img id="cap-img" class="setup_viewscreen-camera-div" />
+                                                    </div>
+
+                                                </div>
+
+                                                @Html.HiddenFor(m => m.FamilyHousehold.HFileInString, new { @id = "hFileString" })
+                                                @Html.HiddenFor(m => m.FamilyHousehold.HFileName, new { @id = "hFileName" })
+                                                @Html.HiddenFor(m => m.FamilyHousehold.HFileExtension, new { @id = "hFileExtension" })
+
                                             </div>
 
-                                            @Html.HiddenFor(m => m.FamilyHousehold.HFileInString, new { @id = "hFileString" })
-                                            @Html.HiddenFor(m => m.FamilyHousehold.HFileName, new { @id = "hFileName" })
-                                            @Html.HiddenFor(m => m.FamilyHousehold.HFileExtension, new { @id = "hFileExtension" })
-
                                         </div>
 
-                                    </div>
 
+                                        @*@if(Model.HasNewAddress)*@
+                                        @if (Model.FamilyHousehold.HomeType == 1)
+                                        {
+                                            <div class="col-xs-12">
+                                                <div class="text-center address-text" style="padding:20px;">Family does not having any address</div>
+                                            </div>
+                                        }
 
-                                    @*@if(Model.HasNewAddress)*@
-                                    @if (Model.FamilyHousehold.HomeType == 1)
-                                    {
-                                        <div class="col-xs-12">
-                                            <div class="text-center address-text" style="padding:20px;">Family does not having any address</div>
-                                        </div>
-                                    }
-
-                                    @Html.Hidden("old_address", Model.FamilyHousehold.Street)
-                                    @Html.Hidden("old_apartment", Model.FamilyHousehold.StreetName)
-                                    @Html.Hidden("old_zipcode", Model.FamilyHousehold.ZipCode)
-                                    @Html.Hidden("old_city", Model.FamilyHousehold.City)
-                                    @Html.Hidden("old_rentType", Model.FamilyHousehold.RentType)
-                                    @Html.Hidden("old_state", Model.FamilyHousehold.State)
-                                    @Html.Hidden("old_county", Model.FamilyHousehold.County)
-                                    @Html.Hidden("old_familyhomeless", Model.FamilyHousehold.HomeType)
+                                        @Html.Hidden("old_address", Model.FamilyHousehold.Street)
+                                        @Html.Hidden("old_apartment", Model.FamilyHousehold.StreetName)
+                                        @Html.Hidden("old_zipcode", Model.FamilyHousehold.ZipCode)
+                                        @Html.Hidden("old_city", Model.FamilyHousehold.City)
+                                        @Html.Hidden("old_rentType", Model.FamilyHousehold.RentType)
+                                        @Html.Hidden("old_state", Model.FamilyHousehold.State)
+                                        @Html.Hidden("old_county", Model.FamilyHousehold.County)
+                                        @Html.Hidden("old_familyhomeless", Model.FamilyHousehold.HomeType)
 
 
 
-                                </fieldset>
-                            </div>
+                                    </fieldset>
+                                </div>
 
                         <!---Household-->
                         <!-- Family -->
-                            <div class="col-lg-12 col-xs-12 contact-entry-div" style="@((homeFound) ? "display:none;" : "display:block;")">
+                                <div class="col-lg-12 col-xs-12 contact-entry-div" style="@((homeFound) ? "display:none;" : "display:block;")">
 
-                                <fieldset>
-                                    <legend id="contact-legend">Family Household</legend>
+                                    <fieldset>
+                                        <legend id="contact-legend">Family Household</legend>
 
-                                    <div class="icc_contact_family">
-                                        <div class="row">
-                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main add-useragform1">
+                                        <div class="icc_contact_family">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main add-useragform1">
 
-                                                <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
-                                                    <div class="form-group">
-                                                        <div class="col-sm-12">
-                                                            @*<label class="icc_label"> Family Type <sup style="color:red;">*</sup></label>*@
+                                                    <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
+                                                        <div class="form-group">
+                                                            <div class="col-sm-12">
+                                                                @*<label class="icc_label"> Family Type <sup style="color:red;">*</sup></label>*@
 
-                                                            @Html.LabelFor(m => m.FamilyHousehold.FamilyType, new { @class = "icc_label lbl-required" })
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 1, new { @id = "FamilyType", onchange = "ShowHideDivParentTwo1()", tabIndex = "8", @disabled = "disabled" })
-                                                                <span style="font-size: 14px;">Single Parent Family </span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 2, new { @id = "FamilyType1", onchange = "ShowHideDivParentTwo2()", tabIndex = "9", @disabled = "disabled" })
-                                                                <span style="font-size: 14px;">Two Parent Family </span>
-                                                            </label>
+                                                                @Html.LabelFor(m => m.FamilyHousehold.FamilyType, new { @class = "icc_label lbl-required" })
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 1, new { @id = "FamilyType", onchange = "ShowHideDivParentTwo1()", tabIndex = "8", @disabled = "disabled" })
+                                                                    <span style="font-size: 14px;">Single Parent Family </span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 2, new { @id = "FamilyType1", onchange = "ShowHideDivParentTwo2()", tabIndex = "9", @disabled = "disabled" })
+                                                                    <span style="font-size: 14px;">Two Parent Family </span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
-                                                    <div class="form-group">
-                                                        <div class="col-xs-8 col-sm-12">
-                                                            @Html.LabelFor(m => m.FamilyHousehold.HomeType, new { @class = "icc_label lbl-required" })
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="radio-inline">
+                                                    <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
+                                                        <div class="form-group">
+                                                            <div class="col-xs-8 col-sm-12">
+                                                                @Html.LabelFor(m => m.FamilyHousehold.HomeType, new { @class = "icc_label lbl-required" })
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
 
 
 
@@ -2809,9 +2446,9 @@
 
                                                                                             @Html.LabelFor(m => m.NewAddressHousehold.City, new { @class = "icc_label lbl-required" })
 
-                                                                                            <select id="City1" name="NewAddressHousehold.City" class="form-control" tabindex="6">
-                                                                                                <option value="@Model.NewAddressHousehold.City">@Model.NewAddressHousehold.City</option>
-                                                                                            </select>
+                                                                                                <select id="City1" name="NewAddressHousehold.City" class="form-control" tabindex="6"  onblur = "CheckAddressNew(2);">
+                                                                                                    <option value="@Model.NewAddressHousehold.City">@Model.NewAddressHousehold.City</option>
+                                                                                                </select>
 
                                                                                         </div>
                                                                                     </div>
@@ -2982,144 +2619,24 @@
                                                                                 <fieldset>
                                                                                     <legend id="contact-legend">Case Note</legend>
 
-                                                                                    <div class="case_ic_family">
-                                                                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                                                            <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 mlt_spaces">
-                                                                                                <div class="form-group ic_case_note">
-                                                                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNoteDate, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
+                                                                                        <div class="case_ic_family" id="clientcasenote-div">
+                                                                                           
 
-                                                                                                    @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNoteDate, new { @class = "form-control col-md-8 col-sm-12 col-xs-12 no-padding", tabindex = "9", placeholder = "MM/DD/YYYY", onblur = "CheckdateHouseless(this);" })
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-lg-8 col-md-12 col-sm-12">
-                                                                                                <div class="form-group  ic_case_note">
 
-                                                                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNotetitle, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
-                                                                                                    @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNotetitle, new { @clss = "form-control col-md-8 col-sm-12 col-xs-12 no-padding", tabindex = "10", maxlength = "50", placeholder = "Case Note Title" })
-                                                                                                </div>
-                                                                                            </div>
+
+
+
+
+
                                                                                         </div>
-                                                                                        <div class="col-lg-8 col-md-12 col-sm-12">
-                                                                                            <div class="form-group ic_case_note">
-                                                                                                @Html.LabelFor(m => m.CaseNoteDetails.Note, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
-
-                                                                                                <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
-                                                                                                    @Html.TextAreaFor(m => m.CaseNoteDetails.Note, new { @style = "visibility: hidden; display: none;" })
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-
-
-
-                                                                                        <div class="col-lg-8 col-md-12 col-sm-12 mmt_bottom mlt_spaces">
-                                                                                            <label for="email" class="col-md-4 col-sm-12 col-xs-12 no-padding lbl-required">Client(s)</label>
-                                                                                            <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
-
-                                            @if (Model.UsersList != null && Model.UsersList.Clientlist != null && Model.UsersList.Clientlist.Count > 0)
-                                            {
-                                                for (int i = 0; i < Model.UsersList.Clientlist.Count; i++)
-                                                {
-                                                    <div class="col-sm-12 m-tp mt-bmn">
-
-                                                        <input type="checkbox" class="client-check" name="UsersList.clientlist[@i].Id" value="@Model.UsersList.Clientlist[i].Id">
-                                                        @*<input type="checkbox" class="client-check" name="UsersList.Clientlist[]Id" value="@Model.UsersList.Clientlist[i].Id">*@
-                                                        <span name="UsersList.clientlist[@i].Name">@Model.UsersList.Clientlist[i].Name</span>
-                                                    </div>
-                                                }
-
-                                            }
-                                            <input type="hidden" id="clientids" name="clientids" />
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                            <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
-                                                <div class="form-group">
-
-                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNotetags, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
-
-                                                    <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
-                                                        @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNotetags, new { @class = "form-control ui-autocomplete-input" })
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 no-padding">
-                                                <div class="form-group">
-                                                    <label for="email" class="col-md-4 col-sm-12 col-xs-12 no-padding lbl-required">Developmental Team </label>
-                                                    <div id="StaffDiv" class="case-note col-md-8 col-sm-12 col-xs-12 no-padding">
-
-
-                                                        @if (Model.UsersList != null && Model.UsersList.UserList != null && Model.UsersList.UserList.Count > 0)
-
-                                                        {
-                                                            for (int j = 0; j < Model.UsersList.UserList.Count; j++)
-                                                            {
-                                                                <div class="col-sm-12 m-tp mt-bmn">
-                                                                    <input type="checkbox" class="staff-check" name="UsersList.UserList[@j].Id" value="@Model.UsersList.UserList[j].Id">
-                                                                    <span name="UsersList.UserList[@j].Name">@Model.UsersList.UserList[j].Name</span>
-                                                                </div>
-                                                            }
-                                                        }
-
-
-                                                        <input type="hidden" id="staffIds" name="staffIds" />
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                            <div class="col-sm-12 no-padding">
-                                                <div class="form-group mlt_spaces">
-
-                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNoteSecurity, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding" })
-
-                                                    <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
-                                                        @Html.CheckBoxFor(m => m.CaseNoteDetails.CaseNoteSecurity, new { style = "margin-left:5px;top:0;" })
-                                                        @*<input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">*@
-                                                        <span style="margin-top:10px;float:left;">Yes</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                                                                            </div>
-
-
-
-                                                                                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                                                                <div class="col-sm-12 no-padding">
-                                                                                                    <div class="form-group mlt_spaces" id="section_attachment_div">
-                                                                                                        <label class="col-md-4 col-sm-12 col-xs-12 no-padding">Attachment</label>
-                                                                                                        <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
-                                                                                                            <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;display:inline-block;margin-right:10px;" onchange="ValidateSingleInputpdf2(this,null);" tabindex="6" type="file" value="">
-                                                                                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                                                                                            <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="/Images/camera.png" title="" data-original-title="Capture using Camera" />
-
-
-                                                                                                        </div>
-                                                                                                        <div class="import_ft_files" style="margin-top:10px;margin-left:16px;">
-
-                                                                                                        </div>
-
-                                                                                                        <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding" style="float:right;" id="div-edit-modal-img-gallery">
-
-                                                                                                        </div>
-                                                                                                        <input type="hidden" name="cameraUploads" />
-                                                                                                    </div>
-                                                                                                </div>
-
-
-                                        </div>
-
-                                    </div>
-                                </div>
-
-
-                                                                                </fieldset>
-                                                                            </div>
-                                                                            <div class="form-group final-btn">
-                                                                                <button class="glossy-button-button glossy-button-hover button-green" type="submit" id="householdSubmit" onclick="return SaveHouseholdDetails();">
-                                                                                    Submit
-                                                                                    <span class="glossy-button-before"></span>
-                                                                                    <span class="glossy-button-after"></span>
+                                                                                        <input type="hidden" name="cameraUploads" />
+                                                                                    </fieldset>
+                                                                                </div>
+                                                                                <div class="form-group final-btn">
+                                                                                    <button class="glossy-button-button glossy-button-hover button-green" type="submit" id="householdSubmit" onclick="return SaveHouseholdDetails();">
+                                                                                        Submit
+                                                                                        <span class="glossy-button-before"></span>
+                                                                                        <span class="glossy-button-after"></span>
 
                                                                                 </button>
                                                                                 &nbsp;&nbsp;
@@ -3139,10 +2656,11 @@
                             @Html.Hidden("enhousehold",Model.FamilyHousehold.Encrypthouseholid)
                                      
 
-                         @Html.HiddenFor(m=>m.HasCaseNoteDetails)
-                        @Html.HiddenFor(m=>m.HasNewAddress)
-}
-                        <!---Case Notes-->
+                                                                                @Html.HiddenFor(m => m.HasCaseNoteDetails)
+                                                                                @Html.HiddenFor(m => m.HasNewAddress)
+                                                                                }
+                            <!---Case Notes-->
+                        </div>
                     </div>
                 </div>
                
@@ -3151,14 +2669,13 @@
     </div>
 
 
+@{
+
+    Html.RenderPartial(Url.Content("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml"));
+}
 
     @{
         Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
-    }
-
-    @{
-
-        Html.RenderPartial(Url.Content("~/Views/Partialviews/_MultipleCameraUploadPartial.cshtml"));
     }
 }
 

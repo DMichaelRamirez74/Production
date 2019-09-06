@@ -52,6 +52,7 @@ namespace Fingerprints.Common
                         }
                         catch
                         {
+                           
                             continue;
                         }
                     }
@@ -136,8 +137,10 @@ namespace Fingerprints.Common
         }
 
 
-      
-            public static IEnumerable<Object[]> DataRecord(this System.Data.IDataReader source)
+
+    
+
+        public static IEnumerable<Object[]> DataRecord(this System.Data.IDataReader source)
             {
                 if (source == null)
                     throw new ArgumentNullException("source");

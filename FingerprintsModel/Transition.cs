@@ -101,9 +101,9 @@ namespace FingerprintsModel
         public int QuestionNumber { get; set; }
         public bool AcceptJobTrainingFinished { get; set; }
         public bool AcceptJobTrainingFinished2 { get; set; }
-        public int? ShoolAchievement { get; set; }
+        public int? SchoolAchievement { get; set; }
 
-        public int? ShoolAchievement2 { get; set; }
+        public int? SchoolAchievement2 { get; set; }
 
         public bool? NONE { get; set; }
         public bool? TANF { get; set; }

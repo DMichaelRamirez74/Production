@@ -62,6 +62,11 @@ namespace FingerprintsData
             }
             return agencycode;
         }
+
+
+     
+
+
         public string addeditAgency(Agency agencyDetails, int mode, string randomPassword, Guid userId, out string AgncyCode, List<Agency.FundSource> FundSource)//, List<Agency.FundSource.ProgramType> Prog
         {
             AgncyCode = "";
@@ -272,6 +277,8 @@ namespace FingerprintsData
 
                         });
 
+
+
                     foreach (Agency.FundSource fund in agencyDetails.FundSourcedata)
                     {
                         if (fund.Acronym != null && fund.Description != null)
@@ -300,6 +307,7 @@ namespace FingerprintsData
 
                         }
                     }
+
 
 
                     command.Parameters.Add(new SqlParameter("@tblfund", dt));
@@ -492,7 +500,6 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getagencyinfo";
-
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -4214,7 +4221,7 @@ namespace FingerprintsData
         }
 
         //  public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles, bool isEndOfYear = false)
-        public bool SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, bool isEndOfYear = false, string OIFinaUser="")
+        public bool SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, bool isEndOfYear = false, string OIFinaUser = "")
         {
             AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
             var stf = StaffDetails.GetInstance();
@@ -4253,13 +4260,13 @@ namespace FingerprintsData
 
 
                 }
-                command.Parameters.Add(new SqlParameter("@UserId",stf.UserId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
                 command.Parameters.Add(new SqlParameter("@agencyid", stf.AgencyId));
                 //  command.Parameters.Add(new SqlParameter("@result", ""));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
-                command.Parameters.Add(new SqlParameter("@OverIncomeFinalUser", string.IsNullOrEmpty( OIFinaUser) ? null : OIFinaUser));
+                command.Parameters.Add(new SqlParameter("@OverIncomeFinalUser", string.IsNullOrEmpty(OIFinaUser) ? null : OIFinaUser));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveAcceptanceRole";
@@ -4336,6 +4343,7 @@ namespace FingerprintsData
         //    return usersList;
         //}
 
+
         /// <summary>
         /// method to get the List of  Roles to access the PIR Section.
         /// </summary>
@@ -4387,13 +4395,13 @@ namespace FingerprintsData
             }
             return pirAccessrolesList;
         }
+
         /// <summary>
         /// method to insert the allowed PIR Roles in the database.
         /// </summary>
         /// <param name="isRowsAffected"></param>
         /// <param name="accessRolesList"></param>
         /// <returns></returns>
-        /// 
         public List<PIRAccessRoles> InsertPIRAccessRoles(out int isRowsAffected, List<PIRAccessRoles> accessRolesList)
         {
             List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
@@ -5340,7 +5348,7 @@ namespace FingerprintsData
             }
             return transWithdrawal;
         }
-        public AccessRoles SP_AccessRole(int type, string Agencyid,string screeningID="0")
+        public AccessRoles SP_AccessRole(int type, string Agencyid, string screeningID = "0")
         {
             AccessRoles AccessRoles = new AccessRoles();
             try
@@ -5360,6 +5368,7 @@ namespace FingerprintsData
                     DataAdapter.Fill(_dataset);
                     GetAllAccessRoles(AccessRoles, _dataset, type);
                     AccessRoles.SelectedScreeningID = Convert.ToInt32(command.Parameters["@ScreeningID"].Value.ToString());
+
                     Connection.Close();
                 }
             }
@@ -5453,18 +5462,22 @@ namespace FingerprintsData
 
                 }
             }
-            if(_dataset.Tables.Count>3 && _dataset.Tables[3]!=null && _dataset.Tables[3].Rows.Count>0)
+
+
+            if (_dataset.Tables.Count > 3 && _dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
             {
                 AccessRoles.ScreeningList = (from DataRow dr3 in _dataset.Tables[3].Rows
                                              select new ScreeningNew
                                              {
                                                  ScreeningID = Convert.ToInt32(dr3["ScreeningID"]),
-                                                 ScreeningName=Convert.ToString(dr3["ScreeningName"])
+                                                 ScreeningName = Convert.ToString(dr3["ScreeningName"])
                                              }
+
                                            ).ToList();
             }
+
         }
-        public bool SaveAccessRoles(List<Role> RoleList, string AgencyId, string UserId, int type,string screeningId)
+        public bool SaveAccessRoles(List<Role> RoleList, string AgencyId, string UserId, int type, string screeningId)
         {
 
             bool isRowAffected = false;
@@ -5529,7 +5542,7 @@ namespace FingerprintsData
                     Connection.Close();
 
                 }
-             
+
 
             }
 
@@ -6265,6 +6278,7 @@ namespace FingerprintsData
             return _access;
         }
 
+
         public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command = "", List<string> staffRoles = null, string mRoleId = null, string StaffRoleId = null)
         {
             StaffRoleMapping SRMDetails = new StaffRoleMapping();
@@ -6279,7 +6293,7 @@ namespace FingerprintsData
                     Connection.Close();
 
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Agencyid", String.IsNullOrEmpty(agencyId)?null:agencyId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", String.IsNullOrEmpty(agencyId) ? null : agencyId));
                 command.Parameters.Add(new SqlParameter("@Userid", stf.UserId));
                 command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
                 command.Parameters.Add(new SqlParameter("@Command", Command));
@@ -6325,13 +6339,13 @@ namespace FingerprintsData
                 if (_dataset != null && _dataset.Tables.Count > 0 && Command == "Update")
                 {
 
-             SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"] ? false : Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Updated"]);
+                    SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"] ? false : Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Updated"]);
 
 
 
 
 
-                    if (_dataset.Tables.Count > 2 )
+                    if (_dataset.Tables.Count > 2)
                     {
 
                         //for manager list
@@ -6442,9 +6456,9 @@ namespace FingerprintsData
                     }
 
 
-                    }
+                }
 
-                if (_dataset != null && (Command == "SuperAdmin" || Command == "AgencyAdmin")  && _dataset.Tables.Count > 0)
+                if (_dataset != null && (Command == "SuperAdmin" || Command == "AgencyAdmin") && _dataset.Tables.Count > 0)
                 {
 
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
@@ -6567,7 +6581,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                 }
                 */
 
-                    }
+            }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
@@ -6577,7 +6591,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
 
-        public List<ScreeningQ> ScreeningList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize,Guid? agencyID)
+        public List<ScreeningQ> ScreeningList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, Guid? agencyID)
         {
             List<ScreeningQ> _ScreeningQlist = new List<ScreeningQ>();
             try
@@ -6620,7 +6634,6 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                     }
                     totalrecord = command.Parameters["@totalRecord"].Value.ToString();
                 }
-
                 return _ScreeningQlist;
             }
             catch (Exception ex)
@@ -6637,7 +6650,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
         }
 
 
-        public DataSet EditScreening(string ScreeningId,StaffDetails staff)
+        public DataSet EditScreening(string ScreeningId, StaffDetails staff)
         {
             try
             {
@@ -6669,7 +6682,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
         }
 
 
-        
+
 
         public string ActiveDeactiveScreening(string id, StaffDetails staff, FingerprintsModel.Enums.ScreeningStatus screeningStatus)
         {
@@ -6705,11 +6718,14 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
 
-        public string UpdateScreening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear,int screeningReportPeriod,bool report)
+        public string UpdateScreening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear, int screeningReportPeriod, bool report)
         {
             string result = string.Empty;
             try
             {
+
+
+
 
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@UserId", Userid));
@@ -6790,7 +6806,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                             {
                                 _ElD.Name = dr["Name"].ToString();
                                 _ElD.DOB = dr["DOB"].ToString();
-                               // _ElD.ClientId = dr["DOB"].ToString();
+                                // _ElD.ClientId = dr["DOB"].ToString();
                                 //var tagrow = new CaseNoteTag()
                                 //{
 
@@ -6812,20 +6828,20 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
                                 var _singDoc = new FamilyHousehold.IncomeDocument()
                                 {
 
-                                    DocumentId = DBNull.Value == dr["DocumentId"] ? 0 :  Int64.Parse(dr["DocumentId"].ToString()),
+                                    DocumentId = DBNull.Value == dr["DocumentId"] ? 0 : Int64.Parse(dr["DocumentId"].ToString()),
                                     DocumentName = DBNull.Value == dr["DocumentName"] ? "" : dr["DocumentName"].ToString()
 
-                            };
+                                };
 
                                 _ElD.EligibilityDocuments.Add(_singDoc);
                             }
 
-                            }
+                        }
                         if (_dataset.Tables[2].Rows.Count > 0)
                         {
                             var _t3 = _dataset.Tables[2];
 
-                             _ElD.AgencyLogo = Encoding.ASCII.GetBytes(DBNull.Value == _t3.Rows[0]["AgencyLogo"] ? "" : _t3.Rows[0]["AgencyLogo"].ToString());
+                            _ElD.AgencyLogo = Encoding.ASCII.GetBytes(DBNull.Value == _t3.Rows[0]["AgencyLogo"] ? "" : _t3.Rows[0]["AgencyLogo"].ToString());
                             _ElD.AgencyLogoName = DBNull.Value == _t3.Rows[0]["LogoName"] ? "" : _t3.Rows[0]["LogoName"].ToString();
 
                         }
@@ -7381,7 +7397,7 @@ SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? fa
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }

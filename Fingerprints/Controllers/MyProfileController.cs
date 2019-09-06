@@ -268,7 +268,7 @@ namespace Fingerprints.Controllers
                 if (new MyProfileData().deleteEducation(edu, _profile) == "1")
                     TempData["message"] = "Record deleted successfully.";
                 else
-                    TempData["message"] = "Error occured. Please try again.";
+                    TempData["message"] = "Error occurred. Please try again.";
 
                 return Redirect("~/MyProfile/editProfile/" + _profile.UserID + _profile.hidtab);
             }

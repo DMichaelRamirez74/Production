@@ -134,9 +134,12 @@ namespace FingerprintsData
                     }
 
                     //ClassRoomType
+                    
+
+
                     if (reader.NextResult() && reader.HasRows)
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             executive.NDayScreeningReviewList.Add(new NDaysScreeningReview
                             {
@@ -145,9 +148,9 @@ namespace FingerprintsData
                                 ScreeningID = Convert.ToInt32(reader["ScreeningID"]),
                                 ScreeningName = Convert.ToString(reader["ScreeningName"]),
                                 Completed = reader["Completed"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Completed"]),
-                                CompletedButLate = reader["CompletedButLate"]==DBNull.Value?0:Convert.ToInt64(reader["CompletedButLate"]),
-                                NotExpired=reader["NotExpired"]==DBNull.Value?0:Convert.ToInt64(reader["NotExpired"]),
-                                NotCompletedandLate=reader["NotCompletedandLate"]==DBNull.Value?0:Convert.ToInt64(reader["NotCompletedandLate"])
+                                CompletedButLate = reader["CompletedButLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["CompletedButLate"]),
+                                NotExpired = reader["NotExpired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotExpired"]),
+                                NotCompletedandLate = reader["NotCompletedandLate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["NotCompletedandLate"])
                             });
                         }
                     }
@@ -166,11 +169,11 @@ namespace FingerprintsData
 
                             executive.ScreeningMatrixList.Add(new ScreeningMatrix
                             {
-                                ScreeningName = reader["ScreeningName"] == DBNull.Value ? string.Empty: Convert.ToString(reader["ScreeningName"]),
-                                UptoDate= reader["UptoDate"]==DBNull.Value?0: Convert.ToInt64(reader["UptoDate"]),
-                                Missing= reader["Missing"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Missing"]),
-                                Expired= reader["Expired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Expired"]),
-                                Expiring= reader["Expiring"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Expiring"])
+                                ScreeningName = reader["ScreeningName"] == DBNull.Value ? string.Empty : Convert.ToString(reader["ScreeningName"]),
+                                UptoDate = reader["UptoDate"] == DBNull.Value ? 0 : Convert.ToInt64(reader["UptoDate"]),
+                                Missing = reader["Missing"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Missing"]),
+                                Expired = reader["Expired"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Expired"]),
+                                Expiring = reader["Expiring"] == DBNull.Value ? 0 : Convert.ToInt64(reader["Expiring"])
                             });
                         }
                     }
@@ -299,9 +302,9 @@ namespace FingerprintsData
 
                     // gets the Access Section for the Roles
 
-                   if(reader.NextResult() && reader.HasRows)
+                    if (reader.NextResult() && reader.HasRows)
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             executive.AccessScreeningMatrix = reader["AccessScreeningMatrix"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningMatrix"]);
                             executive.AccessScreeningReview = reader["AccessScreeningReview"] == DBNull.Value ? false : Convert.ToBoolean(reader["AccessScreeningReview"]);
@@ -309,6 +312,10 @@ namespace FingerprintsData
                     }
 
                 }
+
+
+
+            
             }
             catch (Exception ex)
             {
@@ -344,9 +351,9 @@ namespace FingerprintsData
                     Connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if(reader.HasRows)
+                        if (reader.HasRows)
                         {
-                            while(reader.Read())
+                            while (reader.Read())
                             {
                                 caseNoteList.Add(new ExecutiveDashBoard.CaseNote
                                 {
@@ -358,12 +365,12 @@ namespace FingerprintsData
                         }
                     }
 
-                    
+
 
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -404,7 +411,7 @@ namespace FingerprintsData
             dtSeatDetails = new DataTable();
             try
             {
-             
+
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@Date", date));
                 command.Connection = Connection;
@@ -453,7 +460,7 @@ namespace FingerprintsData
             dtSeatDetails = new DataTable();
             try
             {
-               
+
                 if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
@@ -548,7 +555,7 @@ namespace FingerprintsData
             return isInserted;
         }
 
-        public void GetInkindDetailsByUserId(ref DataTable dtInkind, string UserId, string AgencyId,int inkindPeriodId=0)
+        public void GetInkindDetailsByUserId(ref DataTable dtInkind, string UserId, string AgencyId, int inkindPeriodId = 0)
         {
             dtInkind = new DataTable();
             try
@@ -643,7 +650,7 @@ namespace FingerprintsData
 
             return executive;
 
-            }
+        }
 
 
 
@@ -683,7 +690,7 @@ namespace FingerprintsData
                     // absence report
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                       
+
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
 
@@ -692,8 +699,8 @@ namespace FingerprintsData
                                 id = dr["Id"].ToString(),
                                 text = dr["Text"].ToString()
                             });
-                          
-                           
+
+
 
                         }
 
@@ -711,13 +718,13 @@ namespace FingerprintsData
 
         #region Get ADA Daily Attendance percentage
 
-        public void GetADASeatsDaily(ref string adaPercentage,ref string todaySeats)
+        public void GetADASeatsDaily(ref string adaPercentage, ref string todaySeats)
         {
             try
             {
                 StaffDetails staff = StaffDetails.GetInstance();
                 DataTable _dataTable = new DataTable();
-                if (Connection.State==ConnectionState.Open)
+                if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
                 }
@@ -737,14 +744,14 @@ namespace FingerprintsData
                     Connection.Close();
                 }
 
-                if(_dataTable!=null && _dataTable.Rows.Count>0)
+                if (_dataTable != null && _dataTable.Rows.Count > 0)
                 {
                     adaPercentage = Convert.ToString(_dataTable.Rows[0]["ADADailyPercentage"]);
                     todaySeats = Convert.ToString(_dataTable.Rows[0]["AvailableSeats"]);
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -800,17 +807,17 @@ namespace FingerprintsData
 
 
 
-                    //var parameters = new IDbDataParameter[] {
+                //var parameters = new IDbDataParameter[] {
 
-                    //    dbManager.CreateParameter("@AgencyID", staff.AgencyId,DbType.Guid),
-                    //    dbManager.CreateParameter("@UserID", staff.UserId, DbType.Guid),
-                    //    dbManager.CreateParameter("@RoleID", staff.RoleId, DbType.Guid),
-                    //    dbManager.CreateParameter("@SectionType", sectionType, DbType.Int32)
-                    //    };
+                //    dbManager.CreateParameter("@AgencyID", staff.AgencyId,DbType.Guid),
+                //    dbManager.CreateParameter("@UserID", staff.UserId, DbType.Guid),
+                //    dbManager.CreateParameter("@RoleID", staff.RoleId, DbType.Guid),
+                //    dbManager.CreateParameter("@SectionType", sectionType, DbType.Int32)
+                //    };
 
-                    //isRowsAffected = Convert.ToBoolean(dbManager.Insert("USP_RefreshExecutiveDashboard", CommandType.StoredProcedure, parameters));
+                //isRowsAffected = Convert.ToBoolean(dbManager.Insert("USP_RefreshExecutiveDashboard", CommandType.StoredProcedure, parameters));
 
-                }
+            }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
@@ -839,7 +846,7 @@ namespace FingerprintsData
 
             ExecutiveDashBoard dashboard = new ExecutiveDashBoard();
             double doubCheck = 0;
-           // IDbConnection dBconnection = null;
+            // IDbConnection dBconnection = null;
             var dBManager = new DBManager(connection.ConnectionString);
             //  IDataReader reader = null;
             try
@@ -912,7 +919,7 @@ namespace FingerprintsData
                             case FingerprintsModel.Enums.DashboardSectionType.EnrolledByProgram:
 
 
-                                if(reader.HasRows)
+                                if (reader.HasRows)
                                 {
                                     while (reader.Read())
                                     {
@@ -924,7 +931,7 @@ namespace FingerprintsData
                                         });
                                     }
                                 }
-                              
+
 
 
                                 break;
@@ -933,7 +940,7 @@ namespace FingerprintsData
                             case FingerprintsModel.Enums.DashboardSectionType.MissingScreening:
 
 
-                                if(reader.HasRows)
+                                if (reader.HasRows)
                                 {
 
                                     while (reader.Read())
@@ -947,12 +954,14 @@ namespace FingerprintsData
                                         dashboard.ScreeningMatrixList.Add(new ScreeningMatrix
                                         {
 
-                                            ScreeningName=Convert.ToString(reader["Name"]),
-                                            UptoDate=Convert.ToInt64(reader["UptoDate"]),
-                                            Missing=Convert.ToInt64(reader["Missing"]),
-                                            Expired=Convert.ToInt64(reader["Expired"]),
-                                            Expiring=Convert.ToInt64(reader["Expiring"])
+                                            ScreeningName = Convert.ToString(reader["Name"]),
+                                            UptoDate = Convert.ToInt64(reader["UptoDate"]),
+                                            Missing = Convert.ToInt64(reader["Missing"]),
+                                            Expired = Convert.ToInt64(reader["Expired"]),
+                                            Expiring = Convert.ToInt64(reader["Expiring"])
                                         });
+
+
                                     }
                                 }
 
@@ -965,7 +974,7 @@ namespace FingerprintsData
                             case FingerprintsModel.Enums.DashboardSectionType.ClassroomType:
 
 
-                                if(reader.HasRows)
+                                if (reader.HasRows)
                                 {
                                     while (reader.Read())
                                     {
@@ -1099,7 +1108,7 @@ namespace FingerprintsData
                             // Screening review //
                             case FingerprintsModel.Enums.DashboardSectionType.ScreeningReview:
 
-                                while(reader.Read())
+                                while (reader.Read())
                                 {
                                     dashboard.NDayScreeningReviewList.Add(new NDaysScreeningReview
                                     {
@@ -1329,7 +1338,7 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
             }
             finally
-           {
+            {
                 //    dBManager.CloseConnection(dBconnection);
 
                 //    if (reader != null)
@@ -1337,7 +1346,7 @@ namespace FingerprintsData
 
                 Connection.Dispose();
                 command.Dispose();
-            
+
             }
 
             return dashboard;

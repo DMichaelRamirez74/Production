@@ -1628,44 +1628,40 @@ namespace Fingerprints.Controllers
         }
         [HttpPost]
         [ValidateInput(false)]
-        public ActionResult SaveInternalReferral(InternalReferral internRef)
+        // [CustAuthFilter()]
+        public ActionResult SaveInternalReferral(InternalReferral internalReferral, RosterNew.CaseNote caseNote)
         {
             var result = false;
             DisabilityManagerData fd = new DisabilityManagerData();
             try
             {
-                string name = "";
+                string message = "";
                 string casenoteid = "";
-                RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
-                _caseNote.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance <List<RosterNew.Attachment>>();
-                
-                var ate = Request.Files;
-                var ate2 = ate.AllKeys;
-                for (int i = 0; i < ate2.Length; i++)
-                {
-                    RosterNew.Attachment aatt = new RosterNew.Attachment();
-                    aatt.file = ate[i];
-                    if (aatt.file.ContentLength > 0)
-                        _caseNote.CaseNoteAttachmentList.Add(aatt);
-                }
-                
-                _caseNote.CenterId = EncryptDecrypt.Decrypt64(internRef.CaseCenterId);
-                _caseNote.Classroomid = internRef.CaseClassroomId.ToString();
-                _caseNote.ClientId = EncryptDecrypt.Decrypt64(internRef.CaseClientId.ToString());
-                _caseNote.CaseNotetags = internRef.Tags.Trim(',');
-                _caseNote.CaseNotetitle = internRef.Title;
-                _caseNote.CaseNoteDate = internRef.Date;
-                _caseNote.Note = internRef.Note;
-                _caseNote.ClientIds = string.Join(",", internRef.ClientIds.ToArray());
-                _caseNote.ProgramId = EncryptDecrypt.Decrypt64(internRef.CaseProgramId);
-                
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, _caseNote,staffDetails, 2);
-
-                if (casenoteid == "1")
+                if (caseNote != null)
                 {
-                result = fd.SaveInternalReferral(internRef, name);                       
+                    //if (caseNote.CaseNoteAttachmentList != null && caseNote.CaseNoteAttachmentList.Count > 0)
+                    //{
+                    //    caseNote.CaseNoteAttachmentList.ForEach(x =>
+                    //    {
+                    //        x.AttachmentFileByte = Convert.FromBase64String(x.AttachmentJson);
+                    //    });
+                    //}
+
+                    message = new RosterData().SaveCaseNotes(ref casenoteid, caseNote, staffDetails, 2);
+
+                    internalReferral.CaseNoteId = casenoteid;
                 }
+
+
+              
+
+
+                if (message == "1")
+                {
+                    result = fd.SaveInternalReferral(internalReferral,staffDetails);
+                }
+
             }
             catch (Exception ex)
             {
@@ -1675,22 +1671,24 @@ namespace Fingerprints.Controllers
 
 
 
-            if (Role.RolesDictionary[(int)RoleEnum.DisabilitiesManager].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
-            {
-                return RedirectToAction("AgencyDisabilityManagerDashboard");
-            }
-            else if (Role.RolesDictionary[(int)RoleEnum.DisabilityStaff].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
-            {
-                return RedirectToAction("DisabilityStaffDashboard");
-            }
-            else if (Role.RolesDictionary[(int)RoleEnum.Teacher].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant() || Role.RolesDictionary[(int)RoleEnum.TeacherAssistant].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
-            {
-                return RedirectToAction("Roster", "Teacher");
-            }
-            else
-            {
-                return RedirectToAction("Roster", "Roster");
-            }
+            //if (Role.RolesDictionary[(int)RoleEnum.DisabilitiesManager].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            //{
+            //    return RedirectToAction("AgencyDisabilityManagerDashboard");
+            //}
+            //else if (Role.RolesDictionary[(int)RoleEnum.DisabilityStaff].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            //{
+            //    return RedirectToAction("DisabilityStaffDashboard");
+            //}
+            //else if (Role.RolesDictionary[(int)RoleEnum.Teacher].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant() || Role.RolesDictionary[(int)RoleEnum.TeacherAssistant].ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            //{
+            //    return RedirectToAction("Roster", "Teacher");
+            //}
+            //else
+            //{
+            //    return RedirectToAction("Roster", "Roster");
+            //}
+
+            return Json(result, JsonRequestBehavior.AllowGet);
 
         }
 
