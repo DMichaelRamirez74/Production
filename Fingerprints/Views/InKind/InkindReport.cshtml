@@ -41,7 +41,7 @@
         var _allowExceedingWarninghrs = false;
         var _sortOrder = null;
         var _sortColumn = null;
-         _validFileExtensions = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        _validFileExtensions = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
 
         var inKindReport = {
 
@@ -70,8 +70,6 @@
                 'inkindExportExcel':null,
                 'divCenterDropdown': null,
                 'dropdownCenter': null,
-                //  'divAgencyDropdown': null,
-                //  'dropdownAgency': null,
                 'divContributorDropdown': null,
                 'dropdownContributor': null,
                 'divContributionActivityDropdown': null,
@@ -79,14 +77,6 @@
                 'tableInkind': null,
                 'tbodyInkind': null,
                 'divTableResponsive': null,
-                'dropdownRecordsPerpage': null,
-                'dropdownPageNumber': null,
-                'buttonPagingBack': null,
-                'buttonPagingFirst': null,
-                'buttonPagingNext': null,
-                'buttonPagingLast': null,
-                'ulPaging': null,
-                'divPagination': null,
                 'spanTotalRecord': null,
                 'modalEditInkind': null,
                 'modalDescriptionText': null,
@@ -174,7 +164,6 @@
                 $selfElements.dropdownCenter = $('#selectCenter');
 
                 $selfElements.divAgencyDropdown = $('#div-agency-dropdown');
-                //  $selfElements.dropdownAgency = $('#selectAgency');
 
                 $selfElements.divContributorDropdown = $('#div-contributor-dropdown');
                 $selfElements.dropdownContributor = $('#selectContributor');
@@ -185,16 +174,6 @@
                 $selfElements.tableInkind = $('#inkind-table');
                 $selfElements.tbodyInkind = $('#inkind-tbody');
                 $selfElements.divTableResponsive = $('#div-table-responsive');
-                $selfElements.dropdownRecordsPerpage = $("#ddlpagetodisplay");
-                $selfElements.dropdownPageNumber = $('#ddlpaging');
-                $selfElements.divPagination = $('#divPaging');
-                $selfElements.ulPaging = $selfElements.divPagination.find('#ulPaging');
-                $selfElements.buttonPagingBack = $selfElements.ulPaging.find('#Back');
-                $selfElements.buttonPagingFirst = $selfElements.ulPaging.find('#First');
-                $selfElements.buttonPagingNext = $selfElements.ulPaging.find('#Next');
-                $selfElements.buttonPagingLast = $selfElements.ulPaging.find('#Last');
-
-
                 $selfElements.spanTotalRecord = $('#totalCountSpan');
                 $selfElements.modalEditInkind = $('#modal-edit-inkind');
                 $selfElements.modalinkindActivityDate = $selfElements.modalEditInkind.find('#inkindActivityDate');
@@ -237,7 +216,6 @@
 
 
                 var $minDate=(self.inkindPeriods!=null && self.inkindPeriods.length>0)?new Date(self.inkindPeriods[0].StartDate).setHours(0,0,0,0):null;
-                //var $maxDate=(self.inkindPeriods!=null && self.inkindPeriods.length>0)?new Date(self.inkindPeriods[0].EndDate).setHours(0,0,0,0):null;
 
                 self.elements.inkindFromDate.datetimepicker({
                     timepicker: false,
@@ -246,8 +224,6 @@
                     mask: true,
                     minDate: $minDate,
                     maxDate: new Date()
-                    //  validateOnBlur: true
-
                 });
 
 
@@ -259,7 +235,6 @@
                     mask: true,
                     minDate: $minDate,
                     maxDate: new Date()
-                    //validateOnBlur: true
                 });
 
 
@@ -274,17 +249,12 @@
 
 
 
-                // self.elements.divCenterDropdown.hide();
 
                 self.elements.divAgencyDropdown.hide();
                 self.elements.divContributionActivityDropdown.hide();
                 self.elements.divContributorDropdown.hide();
 
                 self.elements.modalinkindAmount.prop('disabled', true);
-
-                // self.elements.inkindFromDate.val('');
-                // self.elements.inkindToDate.val('');
-
 
             },
 
@@ -296,78 +266,24 @@
 
 
                 $('[data-toggle="tooltip"]').tooltip();
-              //  $('[data-toggle="popover"]').popover();
 
 
-               self.getOptionsByFilterType(self.filterType.Center);
-
-                $selfElements.modalImageUploadCamera.on('click',function(){
-                    $selfElements.modalEditInkind.modal('hide');
-                    //$('body').addClass('modal-open');
-
-                    $selfElements.modalUploadDocument.find('.div-image-snap-gallery').html('');
-                    $selfElements.modalUploadDocument.modal('show');
-                });
-
-
-
+                self.getOptionsByFilterType(self.filterType.Center);
 
                 $selfElements.modalEditInkind.on('shown.bs.modal',function(event){
-                
-
-
-                    //if($selfElements.modalImageUploadCamera.is(':visible'))
-                    //{
-                    
-                    //    $selfElements.modalImageUploadCamera.popover('destroy');
-                    //    $selfElements.modalImageUploadCamera.popover({
-
-                    //        title:function(){
-
-                    //            return 'Upload document using Webcam is available';
-                    //        }
-
-                    //    });
-
-                    //    $selfElements.modalImageUploadCamera.popover('show');
-                    //}
 
                     $('body').css({'padding-right':'0px'});
 
                 });
 
-                $selfElements.modalUploadDocument.on('shown.bs.modal', function (event) {
-                    $('body').addClass('modal-open');
-
-                    showVideoStream();
-
-
-                    
-                   
-
-                    //$selfElements.modalEditInkind.modal('hide');
-                }).on('hidden.bs.modal',function(event){
-                
-                    stopIntervalUserMedia();
-                    $selfElements.modalEditInkind.modal('show');
-                });
-
-
                 $selfElements.inKindFilter.on('change', function (e) {
-
-
 
                     e.preventDefault();
 
-
                     self.elements.divAgencyDropdown.hide('slow');
-                 //   self.elements.divCenterDropdown.hide('slow');
                     self.elements.divContributionActivityDropdown.hide('slow');
                     self.elements.divContributorDropdown.hide('slow');
                     self.elements.divEnteredByDropdown.hide('slow');
-
-
-
 
                     var $filterOption=parseInt($(this).val())
 
@@ -388,33 +304,28 @@
 
                         case self.filterType.EnteredBy:
 
-
-                      
                             self.elements.inkindDateEntered.val('');
                             self.elements.inkindDateEntered.parent('div').parent('div').hide('slow');
                             self.elements.dropdownEnteredBy.parent('div').parent('div').show('slow');
                             self.elements.inkindFromDate.parent('div').parent('div').show('slow');
                             self.elements.inkindToDate.parent('div').parent('div').show('slow');
+                            
                             self.getOptionsByFilterType($filterOption);
+                            
                             break;
 
                         default:
 
+                           
                             self.elements.inkindFromDate.parent('div').parent('div').show('slow');
                             self.elements.inkindToDate.parent('div').parent('div').show('slow');
                             self.elements.inkindDateEntered.val('');
                             self.elements.inkindDateEntered.parent('div').parent('div').hide('slow');
 
-
                             self.getOptionsByFilterType($filterOption);
 
                             break;
                     }
-
-
-
-
-
 
                 });
 
@@ -430,27 +341,13 @@
 
                     else {
 
-                        self.elements.dropdownPageNumber.val('1');
-
-                        REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                        PAGE_SIZE = self.elements.dropdownRecordsPerpage.val();
-
+                       
                         self.ajaxParameters.searchTerm="";
                         self.ajaxParameters.searchTermType="";
                         self.elements.textSearchInkind.val('');
 
                         self.getInkindTransactionsReport(self.bindAjaxParameters());
-
-                        self.elements.buttonPagingFirst.attr('disabled', true);
-                        self.elements.buttonPagingBack.attr('disabled', true);
-
                     }
-
-
-
-
-
                 });
 
                 $selfElements.inkindFromDate.next('.datepicker-icon').on('click', function (e) {
@@ -477,8 +374,6 @@
                             return false;
                         }
                     }
-
-
 
                 });
 
@@ -547,7 +442,7 @@
 
                 $selfElements.inkindExportExcel.on('click',function(e){
 
-
+               
                     e.preventDefault();
 
                     
@@ -590,6 +485,7 @@
                     {
                         return false;
                     }
+
                 });
 
 
@@ -608,10 +504,7 @@
                     }
 
                     else {
-
-                        self.elements.dropdownPageNumber.val('1');
-                        REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
-
+                    
                         self.getInkindTransactionsReport(self.bindAjaxParameters());
                     }
 
@@ -645,17 +538,6 @@
 
                 });
 
-
-
-
-
-
-
-
-
-
-
-
                 $selfElements.modalselectInkindActivity.on('change', function () {
 
                     self.onActivitySelectChange(this);
@@ -677,7 +559,6 @@
                     var input = $(this);
                     var oldVal = input.val();
                     var regex = new RegExp(input.attr('pattern'), 'g');
-                    // var regex = new RegExp('^\d*(\.\d{0,2})?$', 'g');
                     setTimeout(function () {
                         var newVal = input.val();
                         if (!regex.test(newVal)) {
@@ -687,7 +568,7 @@
 
                 });
 
-                //Validates the Input. allows only numericals//
+                //Validates the Input. allows only numerics//
 
                 $selfElements.modalinkindActivityMiles.on('keypress', function (event) {
                     if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
@@ -708,7 +589,6 @@
 
                     html: true,
                     content: function () {
-                        //  return $($(this).data('target-selector')).html();
                         return '<p class="text-center">Are you sure, you want to continue?</p>\
          <p class="text-center"><button type="button" class="btn btn-success allow-yes">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger allow-no">No</button></p>';
 
@@ -888,7 +768,6 @@
 
                         if (activeCodeArray.length > 0) {
                             $.each(activeCodeArray, function (m, activeCode) {
-                                //var amtType = $('option:selected', $selfElements.modalselectInkindActivity).attr('amt-type');
                                 var amtType=parseInt( $selfElements.modallabelInkindActivity.data('amt-type'));
                                 var minutes = '0';
                                 var hrs = '0';
@@ -1004,7 +883,7 @@
 
                                 var $doc=$(doc).find('img');
                                 cameraDocumentsArray.push({'Text':'InkindDocument','Value':self.getBase64Image($doc)});
-                            
+
                             });
                         }
 
@@ -1028,12 +907,6 @@
                                     customAlert('Record saved successfully');
 
                                     self.elements.modalEditInkind.modal('hide');
-
-
-                                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                                    PAGE_SIZE = self.elements.dropdownRecordsPerpage.val();
-
                                     self.getInkindTransactionsReport(self.bindAjaxParameters());
                                 }
 
@@ -1051,53 +924,20 @@
                         });
 
                         _allowExceedingWarninghrs = false;
-
-
                     }
-
-
-
                 });
-
-
-
-                $selfElements.modal_buttonAdd_uploadDocument.on('click',function(){
-                
-
-                    var $imageGallerylength= $selfElements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
-
-                    if($imageGallerylength==0)
-                    {
-                        customAlert('Please capture image using camera');
-                        return false;
-                    }
-
-
-                    $('#div-edit-modal-img-gallery').append($selfElements.modal_div_uploadDocument_image_gallery.html());
-
-                    $selfElements.modal_div_uploadDocument_image_gallery.html('');
-
-                    $selfElements.modalUploadDocument.modal('hide');
-
-                });
-
 
 
                 $selfElements.modalEditInkind.on('hidden.bs.modal', function () {
 
                     if($selfElements.modalUploadDocument.is(':visible'))
                     {
-                      
                         return false;
                     }
-
-
                     $selfElements.modallabelContactName.html('');
                     $selfElements.modalinkindActivityDate.val('');
                     $selfElements.modalinkindActivityDate.datetimepicker('destroy');
                     $selfElements.modallabelActivityType.html('');
-
-                    //   $selfElements.modalselectInkindActivity.html('');
 
                     $selfElements.modallabelInkindActivity.html('');
 
@@ -1114,76 +954,7 @@
                     $selfElements.modalinkindAmount.prop('disabled', true);
 
                     $selfElements.modalEditInkind.find('#div-edit-modal-img-gallery').html('');
-
-                    //$selfElements.modalImageUploadCamera.hide();
-
                 });
-                
-
-
-
-                $selfElements.dropdownRecordsPerpage.on('change', function () {
-
-                    LAST_INDEX = 0;
-
-
-                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                    PAGE_SIZE = self.elements.dropdownRecordsPerpage.val();
-
-                    self.getInkindTransactionsReport(self.bindAjaxParameters());
-
-                    $selfElements.buttonPagingFirst.attr('disabled', true);
-                    $selfElements.buttonPagingBack.attr('disabled', true);
-                });
-
-                $selfElements.buttonPagingFirst.on('click', function () {
-
-                    var $thisValue = 'First';
-
-                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                    self.fnChangePage($thisValue);
-
-                });
-
-                $selfElements.buttonPagingBack.on('click', function () {
-
-                    var $thisValue = 'Back';
-
-                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                    self.fnChangePage($thisValue);
-
-                });
-
-                $selfElements.dropdownPageNumber.on('change', function () {
-
-
-                    self.getListafterupdation();
-                });
-
-                $selfElements.buttonPagingNext.on('click', function () {
-
-                    var $thisValue = 'Next';
-
-                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                    self.fnChangePage($thisValue);
-
-                });
-
-                $selfElements.buttonPagingLast.on('click', function () {
-
-                    var $thisValue = 'Last';
-
-                    REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
-
-                    self.fnChangePage($thisValue);
-
-                });
-
-
 
                 $(document).on('click','.view-file',function(){
 
@@ -1194,30 +965,6 @@
 
 
                 $(document).on('click','.delete-file',function(){
-                    //BootstrapDialog.show({
-                    //    title:'Confirmation',
-                    //    message:'<p>You are about to delete this attachment.</p><p>Click <strong>OK</strong> to proceed.',
-                    //    closable: true,
-                    //    closeByBackdrop: false,
-                    //    closeByKeyboard: false,
-                    //    buttons: [{
-                    //        label: '<span class="glossy-button-after"></span>\
-                    //                    <span class="glossy-button-before"></span>Cancel',
-                    //        cssClass:'glossy-button-button button-red',
-                    //        action: function(dialogItself) {
-                    //            dialogItself.close();
-                    //        }
-                    //    }, {
-                    //        label: '<span class="glossy-button-after"></span>\
-                    //                    <span class="glossy-button-before"></span>OK',
-                    //        cssClass:'glossy-button-button button-green',
-                    //        action: function(dialog) {
-                    //            dialog.setTitle('Title 2');
-                    //        }
-                    //    }]
-
-
-                    //});
 
                     $(this).attr({'data-toggle':'popover','title':'Confirmation','data-placement':'top'});
 
@@ -1226,46 +973,13 @@
                 });
 
 
-
-                $(document).on('click','.delete-file-upload',function(){
-                    
-                    $(this).closest('.setup_viewscreen').remove();
-
-                });
-
-
-                
-                $(document).on('click','.view-file-upload',function(){
-                    
-                  //  window.open($(this)., 'newwindow','width=500,height=500');
-
-                    var imageAttr=  $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-                 //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
-                    console.log(imageAttr);
-
-                    //imageAttr='<embed src='+imageAttr+'></embed>';
-                    //window.open(imageAttr, 'newwindow','width=500,height=500');
-
-
-
-                    var w = window.open('about:blank','newwindow','width=500,height=500');
-
-                    setTimeout(function(){ //FireFox seems to require a setTimeout for this to work.
-                        w.document.body.appendChild(w.document.createElement('img'))
-                            .src = imageAttr;
-                    }, 0);
-
-                });
-
-
-
                 $(document).ajaxStart(function () {
 
                     $('#spinner').show();
                 });
 
                 $(document).ajaxStop(function () {
-
+                    
                     $('#spinner').hide();
                 });
 
@@ -1284,22 +998,7 @@
                     return false;
                 }
 
-
-
-
-
-                //else if ($selfElements.inKindFilter.val() == self.filterType.Center
-                //       && ($selfElements.dropdownCenter.val() == null
-                //      || $selfElements.dropdownCenter.val() == '') ) {
-
-                //    plainValidation($selfElements.dropdownCenter);
-                //    customAlert('Please select center');
-                //    return false;
-                //}
-
-
-
-                else if (($selfElements.inKindFilter.val() == self.filterType.Contributor 
+                else if (($selfElements.inKindFilter.val() == self.filterType.Contributor
                                       || $selfElements.inKindFilter.val()==self.filterType.ContributionActivity
                                       || $selfElements.inKindFilter.val()== self.filterType.DateEntered
                                       || $selfElements.inKindFilter.val()==self.filterType.EnteredBy)
@@ -1329,7 +1028,7 @@
                     return false;
                 }
 
-                
+
 
                 else if ($selfElements.inKindFilter.val() == self.filterType.EnteredBy
                 && ($selfElements.dropdownEnteredBy.val() == null
@@ -1341,7 +1040,7 @@
                 }
 
 
-               
+
 
                 else if ($selfElements.inKindFilter.val() == self.filterType.DateEntered
            && ($selfElements.inkindDateEntered.val() == null
@@ -1374,26 +1073,6 @@
                     customAlert('To date should by greater than or equal to From date');
                     return false;
                 }
-
-                //else if(self.inkindPeriods!=null && self.inkindPeriods.length>0)
-                //{
-
-                //    if(new Date($selfElements.inkindFromDate.val()).setHours(0, 0, 0, 0) < new Date(self.inkindPeriods[0].StartDate).setHours(0,0,0,0))
-                //    {
-                //        plainValidation($selfElements.inkindFromDate);
-                //        customAlert('From date should by greater than in-kind dates');
-                //        return false;
-                //    }
-
-
-                //    if(new Date($selfElements.inkindToDate.val()).setHours(0, 0, 0, 0) < new Date(self.inkindPeriods[0].StartDate).setHours(0,0,0,0))
-                //    {
-                //        plainValidation($selfElements.inkindToDate);
-                //        customAlert('To date should by greater than in-kind dates');
-                //        return false;
-                //    }
-                //}
-
                 return true;
             },
 
@@ -1437,7 +1116,7 @@
                 if($inkindPeriods!=null && $inkindPeriods.length>0)
                 {
 
-                    
+
                     $.each($inkindPeriods,function(){
 
                         if( new Date(enteredDate).setHours(0,0,0,0) >= new Date($(this)[0].StartDate).setHours(0,0,0,0)
@@ -1647,461 +1326,184 @@
                 self.elements.tableInkind.find('thead').find('tr').find('th').eq(2).show();
 
 
-                $.ajax({
 
-                    url: HostedDir + '/InKind/GetInkindReportPartial',
-                    type: 'post',
-                    datatype: 'json',
-                    data: _ajaxParameters,
-                    async: false,
-                    success: function (data) {
-
-                        self.elements.divTableResponsive.html(data);
-
-                        self.initializeElements();
-
-                        self.getTotalRecord(parseInt(self.elements.spanTotalRecord.html()));
-
-                        self.elements.tbodyInkind.find('[data-toggle="tooltip"]').tooltip();
-
-                        self.elements.tbodyInkind.find('.btn-edit-trans').on('click', function () {
-
-                            var $transId = $(this).parent('td').find('#hide-trans-id').val();
-
-                            self.editInkindTransaction($transId);
-
-                        });
-
-                        self.elements.tableInkind.find('thead th').on('click', function () {
+        
 
 
+                $('#inkind-report-pagination-div').ApplinkPG({
+                    'totalRecords': $('#totalCountSpan').length > 0 ? $('#totalCountSpan').html() : 0,
+                    'sortOrder': 'ASC',
+                    'sortColumn': 'th1',
+                    'isEnableSorting': true,
+                    'getRecordUrl':HostedDir + '/InKind/GetInkindReportPartial',
+                    'dataType': 'html',
+                    'data': {
+                        'filterType':   self.ajaxParameters.filterType,
+                        'FromDate':self.ajaxParameters.fromDate,
+                        'ToDate':self.ajaxParameters.toDate,
+                        'DateEntered':self.ajaxParameters.dateEntered,
+                        'SubFilterOption':self.ajaxParameters.selectedOption,
+                        'Centers':self.ajaxParameters.centers,
+                        'SearchTerm': self.ajaxParameters.searchTerm,
+                        'SearchTermType':  self.ajaxParameters.searchTermType
+                    },
+                    'bindInitialLoad':true,
+                    bindData: function (events, data) {
 
-                            if ($(this).find('i').length > 0) {
-                                _sortColumn = 'th' + ($(this).index() + 1);
+                        if(events.options.dataType.toLowerCase()=="html")
+                        {
+                        
+                            self.elements.tbodyInkind=$('#tbody_'+events.paginationIndex);
+                            self.elements.tableInkind=$('#table_'+events.paginationIndex);
+                            self.elements.tbodyInkind.html(data);
 
-                                if ($(this).find('i').is(':visible')) {
-                                    if ($(this).find('.i-asc').is(':visible')) {
-                                        _sortOrder = "DESC";
-                                        $(this).find('.i-asc,.i-desc').toggle();
-                                    }
-                                    else if ($(this).find('.i-desc').is(':visible')) {
-                                        _sortOrder = "ASC";
-                                        $(this).find('.i-asc,.i-desc').toggle();
-                                    }
-                                }
-                                else {
-                                    _sortOrder = 'ASC';
-                                    $(this).find('.i-asc').show();
-                                }
+                            self.elements.tbodyInkind.find('[data-toggle="tooltip"]').tooltip();
 
+                            self.elements.tbodyInkind.find('.btn-edit-trans').on('click', function () {
 
-                                REQUESTED_PAGE = self.elements.dropdownPageNumber.val() == null ? REQUESTED_PAGE : self.elements.dropdownPageNumber.val();
+                                var $transId = $(this).closest('td').find('#hide-trans-id').val();
 
-                                PAGE_SIZE = self.elements.dropdownRecordsPerpage.val();
-                                self.getInkindTransactionsReport(self.bindAjaxParameters());
-                            }
-                            else {
-                                return false;
-                            }
+                                self.editInkindTransaction($transId);
 
-
-
-                        });
-
-
-                        self.elements.tbodyInkind.find('.btn-delete-trans').on('click', function () {
-
-                            var $transId = $(this).parent('td').find('#hide-trans-id').val();
-
-                            var $clientname = $(this).closest('td').parent('tr').children('td:eq(0)').find('p').html();
-                            var $activityDate = $(this).closest('td').parent('tr').children('td:eq(3)').find('p').html();
-
-                            BootstrapDialog.show({
-                                title: 'Confirmation',
-                                message: "<p><i class='fa fa-warning' aria-hidden='true' style='font-weight:bold;color:red;'></i>&nbsp;You are about to delete the In-Kind Activity of <strong>" + $clientname + "</strong> dated " + $activityDate + " .</p><p style='margin-left:18px;'>Click <strong>OK</strong> to proceed.</p>",
-                                closable: true,
-                                closeByBackdrop: false,
-                                closeByKeyboard: false,
-
-                                buttons: [{
-                                    label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> Cancel',
-                                    cssClass: 'glossy-button-button button-green button-red',
-                                    action: function (dialogItself) {
-                                        dialogItself.close();
-                                    }
-                                }, {
-                                    label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> OK',
-                                    cssClass: 'glossy-button-button button-green',
-                                    autospin: true,
-                                    action: function (dialogItself) {
-
-                                        self.delteInkindTransaction($transId);
-
-                                        window.setTimeout(function () {
-
-                                            dialogItself.close();
-
-                                        }, 1000);
-                                    }
-                                }]
                             });
+                            self.elements.tbodyInkind.find('.btn-delete-trans').on('click', function () {
 
-                        });
+                                var $transId = $(this).parent('td').find('#hide-trans-id').val();
 
-                       
-                        self.elements.textSearchInkind.autocomplete({
-                            search: function (event, ui) {
-                              
-                                if (self.elements.textSearchInkind.val().trim().length > 0 && self.elements.textSearchInkind.val().length > 2) {
-                                    //$('#Search').hide();
-                                    //$('#Searchloader').show();
-                                }
-                            },
-                            minLength: 1,
-                            source: function (request, response) {
-                                //$.ajax({
-                                //    url: HostedDir + "/InKind/AutoCompleteInkindTransactions",
-                                //    type: "POST",
-                                //    dataType: "json",
-                                //    data: self.bindAjaxParameters(),
-                                //    success: function (data) {
-                                //        response($.map(data, function (item) {
-                                //            return { label: item.FirstName, id: item.AgencyStaffId };
-                                //        }));
-                                //    }
+                                var $clientname = $(this).closest('td').parent('tr').children('td:eq(0)').find('p').html();
+                                var $activityDate = $(this).closest('td').parent('tr').children('td:eq(3)').find('p').html();
 
-                                //});
+                                BootstrapDialog.show({
+                                    title: 'Confirmation',
+                                    message: "<p><i class='fa fa-warning' aria-hidden='true' style='font-weight:bold;color:red;'></i>&nbsp;You are about to delete the In-Kind Activity of <strong>" + $clientname + "</strong> dated " + $activityDate + " .</p><p style='margin-left:18px;'>Click <strong>OK</strong> to proceed.</p>",
+                                    closable: true,
+                                    closeByBackdrop: false,
+                                    closeByKeyboard: false,
 
+                                    buttons: [{
+                                        label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> Cancel',
+                                        cssClass: 'glossy-button-button button-green button-red',
+                                        action: function (dialogItself) {
+                                            dialogItself.close();
+                                        }
+                                    }, {
+                                        label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> OK',
+                                        cssClass: 'glossy-button-button button-green',
+                                        autospin: true,
+                                        action: function (dialogItself) {
 
+                                            self.delteInkindTransaction($transId);
 
-                                var _ajaxParameters = self.bindAjaxParameters();
-                                _ajaxParameters.searchTerm = request.term;
+                                            window.setTimeout(function () {
 
-                                self.elements.buttonSearchAutoComplete.attr({ 'data-search-item': '0' });
+                                                dialogItself.close();
 
-                                $.ajax({
-                                    url: HostedDir + "/InKind/AutoCompleteInkindTransactions",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: _ajaxParameters,
-                                    beforSend: function () { $('#spinner').hide(); },
-                                    success: function (data) {
-
-                                        //var keyPairData = {
-                                        //    'Text': null,
-                                        //    'Value': null
-
-                                        //}
-                                        //var arr = new Array();
-
-                                        //if (data != null && data.InkindReportList != null && data.InkindReportList.length > 0) {
-                                        //    $.each(data.InkindReportList, function (j, report) {
-
-
-                                        //        if (report.Name != null && report.Name != '') {
-                                        //            keyPairData.Text = report.Text;
-                                        //            keyPairData.Value = '1';
-                                        //            arr.push(keyPairData);
-                                        //        }
-
-
-
-
-
-                                        //        if (report.CenterName != null && report.CenterName != '') {
-                                        //            keyPairData.Text = report.CenterName;
-                                        //            keyPairData.Value = '2';
-                                        //            arr.push(keyPairData);
-                                        //        }
-
-                                        //        if (report.ActivityDescription != null && report.ActivityDescription != '') {
-                                        //            keyPairData.Text = report.ActivityDescription;
-                                        //            keyPairData.Value = '3';
-                                        //            arr.push(keyPairData);
-                                        //        }
-
-                                        //        if (report.StaffEntered != null && report.StaffEntered != '') {
-                                        //            keyPairData.Text = report.StaffEntered;
-                                        //            keyPairData.Value = '4';
-                                        //            arr.push(keyPairData);
-                                        //        }
-
-                                        //    });
-                                        //}
-
-                                        response($.map(data, function (item) {
-                                            return { label: item.Text, id: item.Value };
-                                        }));
-                                    }
-
+                                            }, 1000);
+                                        }
+                                    }]
                                 });
 
-                                // self.getInkindResultBySearch(request, response);
+                            });
 
-                            },
-                            // source:self.getInkindResultBySearch(request,response),
 
-                            focus: function (event, ui) {
-                                self.elements.textSearchInkind.val(ui.item.label);
-                                self.elements.buttonSearchAutoComplete.attr({ 'data-search-item': ui.item.id });
-                                return false;
-                            },
-                            select: function (event, ui) {
+                            self.elements.textSearchInkind.autocomplete({
+                                search: function (event, ui) {
 
-                                self.ajaxParameters.searchTerm = ui.item.label;
-                                self.ajaxParameters.searchTermType = 'ser' + ui.item.id.toString();
+                                    if (self.elements.textSearchInkind.val().trim().length > 0 && self.elements.textSearchInkind.val().length > 2) {
+                                    }
+                                },
+                                minLength: 1,
+                                source: function (request, response) {
+                                    var _ajaxParameters = self.bindAjaxParameters();
+                                    _ajaxParameters.searchTerm = request.term;
 
-                                self.elements.dropdownPageNumber.val('1');
+                                    self.elements.buttonSearchAutoComplete.attr({ 'data-search-item': '0' });
 
-                                REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
+                                    $.ajax({
+                                        url: HostedDir + "/InKind/AutoCompleteInkindTransactions",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: _ajaxParameters,
+                                        beforSend: function () { $('#spinner').hide(); },
+                                        success: function (data) {
 
-                                self.getInkindTransactionsReport(self.bindAjaxParameters());
-                                // window.location.href = HostedDir + '/AgencyUser/editStaff/' + ui.item.id;
-                                return false;
-                            },
-                            messages: {
-                                noResults: 'No results found.',
-                                results: function (count) {
-                                    self.elements.textSearchInkind.css({ 'border-bottom-left-radius': '0px;' });
-                                    return count + (count > 1 ? ' results' : ' result ') + ' found';
+                                            response($.map(data, function (item) {
+                                                return { label: item.Text, id: item.Value };
+                                            }));
+                                        }
+                                    });
+                                },
+
+                                focus: function (event, ui) {
+                                    self.elements.textSearchInkind.val(ui.item.label);
+                                    self.elements.buttonSearchAutoComplete.attr({ 'data-search-item': ui.item.id });
+                                    return false;
+                                },
+                                select: function (event, ui) {
+
+                                    self.ajaxParameters.searchTerm = ui.item.label;
+                                    self.ajaxParameters.searchTermType = 'ser' + ui.item.id.toString();
+
+                                    //self.elements.dropdownPageNumber.val('1');
+
+                                    //REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
+
+                                    self.getInkindTransactionsReport(self.bindAjaxParameters());
+                                    return false;
+                                },
+                                messages: {
+                                    noResults: 'No results found.',
+                                    results: function (count) {
+                                        self.elements.textSearchInkind.css({ 'border-bottom-left-radius': '0px;' });
+                                        return count + (count > 1 ? ' results' : ' result ') + ' found';
+                                    }
+                                },
+
+                            });
+
+
+
+                            self.elements.buttonSearchAutoComplete.on('click', function () {
+
+
+                                if (self.elements.textSearchInkind.val() == null || self.elements.textSearchInkind.val() == '') {
+                                    plainValidation(self.elements.textSearchInkind);
+                                    customAlert('Please enter any term to search');
+                                    return false;
                                 }
-                            },
 
-                        });
+                                else {
 
+                                    //self.elements.dropdownPageNumber.val('1');
+                                   // REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
 
+                                    self.getInkindTransactionsReport(self.bindAjaxParameters());
+                                }
 
-                        self.elements.buttonSearchAutoComplete.on('click', function () {
-
-
-                            if (self.elements.textSearchInkind.val() == null || self.elements.textSearchInkind.val() == '') {
-                                plainValidation(self.elements.textSearchInkind);
-                                customAlert('Please enter any term to search');
-                                return false;
-                            }
-
-                            else {
-
-                                self.elements.dropdownPageNumber.val('1');
-                                REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
-
-                                self.getInkindTransactionsReport(self.bindAjaxParameters());
-                            }
-
-                        });
-
-                    },
-                    error: function (data) {
-
-                    },
-                    complete: function (data) {
-
-                    }
-                })
-
-            },
-
-            fnChangePage: function (val) {
-
-                if (self.elements.tbodyInkind.find('tr').find('td[data-title="Action"]').length === 0) {
-
-                    return false;
-                }
-
-
-
-
-
-                window.setTimeout(function () {
-
-                    var $selfElements = self.elements;
-
-                    PAGE_LOADED_FIRST = false;
-
-                    PAGE_SIZE = $selfElements.dropdownRecordsPerpage.val();
-
-                    if (val == 'First') {
-                        START_INDEX = 0;
-
-                        LAST_INDEX = parseInt(PAGE_SIZE) + parseInt(LAST_INDEX * REQUESTED_PAGE);
-
-                        REQUESTED_PAGE = ((START_INDEX / 10) + 1);
-
-                        self.gotoNextPage(REQUESTED_PAGE, PAGE_SIZE);
-
-                        $selfElements.buttonPagingFirst.attr('disabled', true);
-                        $selfElements.buttonPagingBack.attr('disabled', true);
-                        $selfElements.buttonPagingNext.attr('disabled', false);
-                        $selfElements.buttonPagingLast.attr('disabled', false);
-
-                        LAST_INDEX = 0;
-                    }
-                    else if (val == 'Last') {
-
-                        START_INDEX = parseInt((TOTAL_RECORDS - 1) / PAGE_SIZE) * PAGE_SIZE;
-
-                        LAST_INDEX = TOTAL_RECORDS;
-
-                        REQUESTED_PAGE = NUM_OF_PAGES;
-
-                        self.gotoNextPage(REQUESTED_PAGE, PAGE_SIZE);
-
-
-                        $selfElements.buttonPagingFirst.attr('disabled', false);
-                        $selfElements.buttonPagingBack.attr('disabled', false);
-                        $selfElements.buttonPagingNext.attr('disabled', true);
-                        $selfElements.buttonPagingLast.attr('disabled', true);
-
-                    }
-                    else if (val == 'Next') {
-
-
-                        LAST_INDEX = parseInt(PAGE_SIZE) + parseInt(LAST_INDEX);
-
-                        REQUESTED_PAGE = (parseInt(LAST_INDEX / PAGE_SIZE) + 1);
-
-                        self.gotoNextPage(REQUESTED_PAGE, PAGE_SIZE);
-
-                        $selfElements.buttonPagingFirst.attr('disabled', false);
-                        $selfElements.buttonPagingBack.attr('disabled', false);
-
-                        if (parseInt(LAST_INDEX) + parseInt(PAGE_SIZE) >= TOTAL_RECORDS) {
-
-                            $selfElements.buttonPagingNext.attr('disabled', true);
-                            $selfElements.buttonPagingLast.attr('disabled', true);
+                            });
+                            
                         }
-                        else if (parseInt(LAST_INDEX) - parseInt(PAGE_SIZE) < TOTAL_RECORDS) {
 
-                            $selfElements.buttonPagingNext.attr('disabled', false);
-                            $selfElements.buttonPagingLast.attr('disabled', false);
+
+                        if (events.options.bindInitialLoad && events.options.dataType == "json") {
+                            $('#totalCountSpan').html(data.TotalRecord);
+                            events.options.totalRecords = parseInt(data.TotalRecord);
                         }
-                    }
-                    else if (val == 'Back') {
-
-
-                        REQUESTED_PAGE = REQUESTED_PAGE - 1;
-
-                        LAST_INDEX = parseInt(LAST_INDEX) - parseInt(PAGE_SIZE);
-
-                        self.gotoNextPage(REQUESTED_PAGE, PAGE_SIZE);
-
-                        if (parseInt(LAST_INDEX) + parseInt(PAGE_SIZE) > TOTAL_RECORDS) {
-
-                            $selfElements.buttonPagingNext.attr('disabled', true);
-                            $selfElements.buttonPagingLast.attr('disabled', true);
-
+                        else if (events.options.bindInitialLoad && events.options.dataType == "html") {
+                            events.options.totalRecords = parseInt($('#totalCountSpan').html());
                         }
-                        else if (parseInt(LAST_INDEX) - parseInt(PAGE_SIZE) < TOTAL_RECORDS) {
-                            $selfElements.buttonPagingNext.attr('disabled', false);
-                            $selfElements.buttonPagingLast.attr('disabled', false);
 
-                        }
-                        if (REQUESTED_PAGE == 1) {
-                            $selfElements.buttonPagingFirst.attr('disabled', true);
-                            $selfElements.buttonPagingBack.attr('disabled', true);
-                        }
+                      
                     }
-                    else {
-                    }
-
-                }, 10)
-            },
-            gotoNextPage: function (reqPage, pageSize) {
-                
-
-                self.getInkindTransactionsReport(self.bindAjaxParameters());
-
-            },
-
-            getTotalRecord: function (data) {
-                self = this;
-
-                var $selfElements = self.elements;
-
-                $selfElements.buttonPagingFirst.attr('disabled', false);
-                $selfElements.buttonPagingBack.attr('disabled', false);
-                $selfElements.buttonPagingNext.attr('disabled', false);
-                $selfElements.buttonPagingLast.attr('disabled', false);
-
-                PAGE_SIZE = $selfElements.dropdownRecordsPerpage.val();
-
-                if (data > 0) {
-
-                    TOTAL_RECORDS = parseInt(data);
-
-                    if (TOTAL_RECORDS <= PAGE_SIZE) {
+                });
 
 
-                        $selfElements.buttonPagingFirst.attr('disabled', true);
-                        $selfElements.buttonPagingBack.attr('disabled', true);
-                        $selfElements.buttonPagingNext.attr('disabled', true);
-                        $selfElements.buttonPagingLast.attr('disabled', true);
-
-                    }
-
-                    NUM_OF_PAGES = parseInt(TOTAL_RECORDS / PAGE_SIZE) + ((TOTAL_RECORDS % PAGE_SIZE == 0) ? 0 : 1);
-
-                    $selfElements.dropdownPageNumber.empty();
-
-                    for (i = 1; i <= NUM_OF_PAGES; i++) {
-
-                        var newOption = "<option value='" + i + "'>" + i + "</option>";
-                        $selfElements.dropdownPageNumber.append(newOption);
-                    }
-
-                    $selfElements.dropdownPageNumber.val(REQUESTED_PAGE);
-                }
-                else {
-                    $selfElements.buttonPagingFirst.attr('disabled', true);
-                    $selfElements.buttonPagingBack.attr('disabled', true);
-                    $selfElements.buttonPagingNext.attr('disabled', true);
-                    $selfElements.buttonPagingLast.attr('disabled', true);
-                }
-            },
-            getListafterupdation: function () {
-                self = this;
-
-                PAGE_SIZE = self.elements.dropdownRecordsPerpage.val();
-                REQUESTED_PAGE = self.elements.dropdownPageNumber.val();
-
-                START_INDEX = (PAGE_SIZE * (REQUESTED_PAGE - 1)) + 1;
-                LAST_INDEX = parseInt(PAGE_SIZE * REQUESTED_PAGE) - parseInt(PAGE_SIZE);
-
-                
-                var $selfElements = self.elements;
-
+             
                
 
-                self.getInkindTransactionsReport(self.bindAjaxParameters());
-
-                if (REQUESTED_PAGE == 1) {
-                    $selfElements.buttonPagingFirst.attr('disabled', true);
-                    $selfElements.buttonPagingBack.attr('disabled', true);
-                    $selfElements.buttonPagingNext.attr('disabled', false);
-                    $selfElements.buttonPagingLast.attr('disabled', false);
-                }
-                else if (REQUESTED_PAGE == NUM_OF_PAGES) {
-
-                    $selfElements.buttonPagingFirst.attr('disabled', false);
-                    $selfElements.buttonPagingBack.attr('disabled', false);
-                    $selfElements.buttonPagingNext.attr('disabled', true);
-                    $selfElements.buttonPagingLast.attr('disabled', true);
-                }
-                else {
-
-
-
-                    $selfElements.buttonPagingFirst.attr('disabled', false);
-                    $selfElements.buttonPagingBack.attr('disabled', false);
-                    $selfElements.buttonPagingNext.attr('disabled', false);
-                    $selfElements.buttonPagingLast.attr('disabled', false);
-
-                }
-
-
-
-              
             },
+
+            
 
             bindAjaxParameters: function () {
                 self = this;
@@ -2113,9 +1515,9 @@
                                                     :parseInt(self.elements.inKindFilter.val()) == self.filterType.EnteredBy ? self.elements.dropdownEnteredBy.val().join(','):[];
 
 
-                self.ajaxParameters.centers= self.elements.dropdownCenter.val().join(',');
+                self.ajaxParameters.centers=  self.elements.dropdownCenter.val().join(',');
 
-                self.ajaxParameters.fromDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered 
+                self.ajaxParameters.fromDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered
                                               ? self.elements.inkindFromDate.val():"";
 
                 self.ajaxParameters.toDate = parseInt(self.elements.inKindFilter.val()) != self.filterType.DateEntered
@@ -2136,10 +1538,10 @@
             },
             bindInkindData: function (data) {
                 cleanValidation();
-               
+
                 var $selfElements = self.elements;
 
-               
+
                 if (data != null && data.inkind != null) {
                     $selfElements.modallabelContactName.html(data.inkind.InKindTransactions.Name);
                     $selfElements.modalinkindActivityDate.val(data.inkind.InKindTransactions.ActivityDate);
@@ -2148,14 +1550,6 @@
 
                     var $inkindAmountType =null;
                     if (data.inkind.InkindActivityList != null && data.inkind.InkindActivityList.length > 0) {
-
-                        //$selfElements.modalselectInkindActivity.html('');
-
-                        //$.each(data.inkind.InkindActivityList, function (i, activity) {
-
-                        //    $selfElements.modalselectInkindActivity.append('<option value=' + activity.ActivityCode + ' amt-type=' + activity.ActivityAmountType + ' >' + activity.ActivityDescription + '</option>');
-
-                        //});
 
 
                         $inkindAmountType = $.grep(data.inkind.InkindActivityList, function (element, index) {
@@ -2200,9 +1594,6 @@
 
 
                                 $.each(data.inkind.InKindTransactions.InkindAttachmentsList,function(i,attachment){
-
-
-                                    // var doctype=self.documentType.in attachment.InkindAttachmentFileExtension.toString().toLowerCase()
 
 
                                     $appendAttachment+='<div class="attachment-icons-block" data-attach-id='+attachment.InkindAttachmentID+' >\
@@ -2271,21 +1662,17 @@
 
                                 $selfElements.divDownloadAttachments.find('#inkind-attachments-div').html($appendAttachment);
 
-                                //  $('[data-toggle="popover"]').popover();
-
 
                                 $selfElements.divDownloadAttachments.find('#inkind-attachments-div').find('.delete-file').popover({
 
                                     html: true,
                                     content: function () {
-                                        //  return $($(this).data('target-selector')).html();
                                         var $attachmentID=$(this).closest('.attachment-icons-block').data('attach-id');
                                         $('#delete-doc-content .btn-ok').attr({'data-attachment-id':$attachmentID});
                                         return $('#delete-doc-content').html();
 
                                     },
                                     title: function () {
-                                        //  return $(this).data('title') + '<span class="close">&times;</span';
                                         return 'Delete Attachment';
 
                                     },
@@ -2304,10 +1691,6 @@
                                         var $attachmentID=$(this).data('attachment-id');
 
                                         self.deleteInkindAttachment($attachmentID,$inkindTransactionID,self.hidePopOver,_popover);
-
-                                        //  _popover.popover('hide');
-
-
                                     });
 
                                     _popover.parent().find('div.popover .btn-cancel').on('click', function () {
@@ -2328,10 +1711,10 @@
                             else{
                                 $selfElements.divDownloadAttachments.find('#inkind-attachments-div').html('<label>N/A</label>');
                                 $selfElements.divDownloadAttachments.hide();
-                               
+
                             }
 
-                         
+
                         }
                         else{
                             $selfElements.divAddAttachments.hide();
@@ -2371,9 +1754,6 @@
                         $selfElements.modalinkindAmount.prop('disabled',false);
                     }
 
-
-                  //  $selfElements.modalselectInkindActivity.val(data.inkind.InKindTransactions.ActivityID);
-
                     $selfElements.modalDescriptionText.val(data.inkind.InKindTransactions.ActivityNotes);
                     $selfElements.modalinkindAmount.val(data.inkind.InKindTransactions.InKindAmount);
 
@@ -2395,12 +1775,12 @@
                     $selfElements.modalselectinkindclassroom.val(data.inkind.InKindTransactions.Enc_ClassroomID);
 
 
-                    //inkind Budget Dates//
+                    //in-kind Budget Dates//
 
                     self.inkindBudgetPeriods=[];
                     var $appendData="";
                     var $modalMinDate=null;
-                    
+
                     if(data.inkind.InkindPeriodsList!=null && data.inkind.InkindPeriodsList.length>0)
                     {
 
@@ -2414,15 +1794,15 @@
 
                             $endDate=$endDate>new Date().setHours(0,0,0,0)? self.getFormattedDate(new Date()):$endDate;
 
-                             $appendData+=   '<p>\
+                            $appendData+=   '<p>\
                                             <span>Dates allowed from'+' '+ inkind.StartDate+' '+'to'+' '+ self.getFormattedDate($endDate) +'</span>\
                                         </p>';
 
                         });
 
                     }
-                 
-                
+
+
                     self.elements.modalEditInkind.find('#imageinfoInkindDates').removeAttr('data-original-title');
                     self.elements.modalEditInkind.find('#imageinfoInkindDates').attr('title','Dates Allowed');
                     self.elements.modalEditInkind.find('#imageinfoInkindDates').popover('destroy');
@@ -2433,7 +1813,6 @@
 
                             html: true,
                             content: function () {
-                                //  return $($(this).data('target-selector')).html();
                                 return $appendData;
 
                             },
@@ -2442,14 +1821,14 @@
                                 return 'Dates Allowed <a href="javascript:void(0);" class="close" data-dismiss="alert">&times;</a>';
 
                             },
-                          
+
                             delay: { "show": 300, "hide": 100 }
                         });
 
                     },200);
 
-                  
-       
+
+
 
                     self.elements.modalinkindActivityDate.datetimepicker({
                         timepicker: false,
@@ -2465,7 +1844,7 @@
                                 plainValidation(self.elements.modalinkindActivityDate);
                                 return false;
                             }
-                         
+
                         },
                         onChangeDateTime:function(e, ele){
 
@@ -2484,19 +1863,19 @@
 
                 }
 
-           showCameraOption();
 
-            
+               
 
+                showCameraOption($selfElements.modalEditInkind);
 
 
                 $selfElements.modalImageUploadCamera.hide();
 
-                setIntervalUserMedia();
+                setIntervalUserMedia($selfElements.modalEditInkind);
 
 
 
-               
+
 
                 $selfElements.modalEditInkind.modal('show');
             },
@@ -2547,11 +1926,7 @@
                         if (data != null && data.inkind != null) {
                             callback(data);
                         }
-                        //else {
-                        //    customAlert('Error occurred. Please, try again later.');
-                        //}
-
-
+                        
                     },
                     error: function (data) {
 
@@ -2622,9 +1997,6 @@
                     $selfElements.modalinkindActivityMiles.parent('div').parent('div').hide();
                     $selfElements.modalinkindAmount.parent('div').parent('div').hide();
                     $selfElements.modallabelAmountRate.parent('div').hide();
-
-
-                    //$modalEditInkind.find('#descriptionTextArea,.inkind-hours-div,.inkind-miles-div,.amount-div').hide();
                 }
                 else {
                     $.ajax({
@@ -2765,9 +2137,6 @@
             // validation check for In-kind hours and minutes, should not greater than 12 hours//
             validateHoursMinutes: function (ele) {
 
-                //   $(ele).css({ 'background-color': '' });
-
-                //   activityHrs.popover('hide');
                 cleanValidation();
                 var _isValidhours = true;
                 var _isHours = 0;
@@ -2893,12 +2262,11 @@
             },
 
             addMoreInkindAttachments:function(ele) {
-                //  var divLength = $('#inkind-info-form').find('.attach-div').find('input:file').length;
-
+              
                 var attachmentLength=self.elements.divAddAttachments.find('input:file').length;
 
                 var appendDiv = '<div class="sum_attachparticic list_panic_info">\
-                                   <input type="file" name="InkindAttachmentsList[' + attachmentLength + '].InkindAttachmentFile" class="form-control text-bg" onchange="self.ValidateSingleInputpdf(this)" />\
+                                   <input type="file" name="InkindAttachmentsList[' + attachmentLength + '].InkindAttachmentFile" class="form-control" onchange="self.ValidateSingleInputpdf(this)" />\
                                    <a href="javascript:void(0)" title="Remove Attachment" class="anchor-remove-attachment"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
                                </div>';
 
@@ -2949,388 +2317,77 @@
                     ele.popover('hide');
                     ele.closest('.attachment-icons-block').remove();
                 }
-              
+
             },
 
             ValidateSingleInputpdf:function(oInput) {
 
 
-            if (oInput.type == "file") {
-                var sFileName = oInput.value;
-                if (sFileName.length > 0) {
+                if (oInput.type == "file") {
+                    var sFileName = oInput.value;
+                    if (sFileName.length > 0) {
 
-                    var blnValid = false;
-                    var valid_size = 3 * 1000 * 1000;
-                    var v = oInput.files[0].size;
-                    if (v <= valid_size) {
-                        for (var j = 0; j < _validFileExtensions.length; j++) {
-                            var sCurExtension = _validFileExtensions[j];
-                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                                blnValid = true;
-                                //  $('#documentlabel').text(oInput.files[0].name);
-                                break;
+                        var blnValid = false;
+                        var valid_size = 3 * 1000 * 1000;
+                        var v = oInput.files[0].size;
+                        if (v <= valid_size) {
+                            for (var j = 0; j < _validFileExtensions.length; j++) {
+                                var sCurExtension = _validFileExtensions[j];
+                                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                    blnValid = true;
+                                 
+                                    break;
+                                }
+                            }
+                            if (!blnValid) {
+                                oInput.value = "";
+                                customAlertforlongtime("Only (pdf,jpg,jpeg,bmp,gif,png) of file type allowed.");
+                               
+                                return false;
                             }
                         }
-                        if (!blnValid) {
+                        else {
                             oInput.value = "";
-                            customAlertforlongtime("Only (pdf,jpg,jpeg,bmp,gif,png) of file type allowed.");
-                            // $('#documentlabel').text("");
+                            customAlertforlongtime("File size should not be greater than 3 MB. ");
+                            $('#documentlabel').text("");
                             return false;
+
                         }
-                    }
-                    else {
-                        oInput.value = "";
-                        customAlertforlongtime("File size should not be greater than 3 MB. ");
-                        $('#documentlabel').text("");
-                        return false;
 
                     }
-
                 }
-            }
 
 
 
-           
 
-            return true;
-         },
 
-         convertStringToByteArray:function(inputString)
-         {
-             var bytes = []; // char codes
-             var bytesv2 = []; // char codes
+                return true;
+            },
 
-             for (var i = 0; i < inputString.length; ++i) {
-                 var code = inputString.charCodeAt(i);
-  
-                 bytes = bytes.concat([code]);
-  
-                 bytesv2 = bytesv2.concat([code & 0xff, code / 256 >>> 0]);
-             }
-         },
-         getBase64Image:function(img) {
-          
+            convertStringToByteArray:function(inputString)
+            {
+                var bytes = []; // char codes
+                var bytesv2 = []; // char codes
 
-            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
-     }
+                for (var i = 0; i < inputString.length; ++i) {
+                    var code = inputString.charCodeAt(i);
+
+                    bytes = bytes.concat([code]);
+
+                    bytesv2 = bytesv2.concat([code & 0xff, code / 256 >>> 0]);
+                }
+            },
+            
 
         }
 
 
 
 
-        var videoSelect =null;
-        var screenshotButton=null;
-        var img =null;
-        var canvas=null;
-        var button=null;
-        var currentStream;
-        var video;
-        var constraints = {};
-        var front = true;
-
-        $(function () {
-
-
-            inKindReport.init();
-
-
-
-          
-
-
-
-            //camera option for document upload//
-
-
-
-            videoSelect = document.querySelector('select#videoSource');
-            video = document.querySelector('#setup-camera-div video');
-            video.setAttribute('autoplay', '');
-            video.setAttribute('muted', '');
-            video.setAttribute('playsinline', '')
-         
-
-            screenshotButton = document.querySelector('#anchor-capture');
-
-         
-
-
-
-
-
-
-            screenshotButton.onclick = video.onclick = function () {
-
-                var $index=  $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                var $imageQuery='<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_'+$index+'">\
-                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
-                                        <div class="attach-icon-div-gallery">\
-                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
-                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
-                                        </div>\
-                                    </div>';
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                // Other browsers will fall back to image/png
-                console.log(canvas);
-               // img.src = canvas.toDataURL('image/png');
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
-
-
-              
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_'+$index+'').find('img').attr('src', canvas.toDataURL('image/png'));
-            };
-
-            function handleSuccess(stream) {
-                screenshotButton.disabled = false;
-                video.srcObject = stream;
-            }
-
-            //function stopMediaTracks(stream) {
-
-            //    stream.getTracks().forEach(function (track) { track.stop(); })
-
-            //}
-
-
-            //new code//
-
-
-
-
-            videoSelect.addEventListener('change', function (event) {
-
-                getStream();
-            });
-
-            navigator.mediaDevices.enumerateDevices().then(gotDevices);
-
-
-
-            
        
-
-
-
-
-
-
-             canvas = document.createElement('canvas');
-
-
-
-         
-
-
+        $(function () {
+            inKindReport.init();
         });
-
-
-
-     
-          
-  
-
-
- 
-
-
-        function stopMediaTracks(stream) {
-            stream.getTracks().forEach(function (track) {
-                track.stop();
-            });
-        }
-
-        function gotDevices(mediaDevices) {
-
-            videoSelect.innerHTML = '';
-           
-            var count = 1;
-            mediaDevices.forEach(function (mediaDevice) {
-                if (mediaDevice.kind === 'videoinput') {
-                    const option = document.createElement('option');
-                    option.value = mediaDevice.deviceId;
-                    const label = mediaDevice.label || 'Camera '+(count++)+'';
-                    const textNode = document.createTextNode(label);
-                    option.appendChild(textNode);
-                    videoSelect.appendChild(option);
-                }
-            });
-
-
-
-
-
-        }
-
-        function getStream() {
-            // alert('change event');
-            if (typeof currentStream !== 'undefined') {
-                stopMediaTracks(currentStream);
-            }
-            const videoConstraints = {};
-            if (videoSelect.value === '') {
-                videoConstraints.facingMode = 'environment';
-            } else {
-                videoConstraints.deviceId = { exact: videoSelect.value };
-            }
-            const constraints = {
-                video: videoConstraints,
-                audio: false
-            };
-            navigator.mediaDevices
-              .getUserMedia(constraints)
-              .then(function (stream) {
-                  currentStream = stream;
-                  video.srcObject = stream;
-                  return navigator.mediaDevices.enumerateDevices();
-              })
-              .then(gotDevices)
-              .catch(function (error) {
-                  console.error(error);
-                  //alert(error);
-              });
-        }
-
-        function showCameraOption(ele) {
-
-            var videoInputAvailable = 0;
-            $('#uploadImageCamera').tooltip('hide');
-            $('#uploadImageCamera').hide();
-          
-            navigator.mediaDevices.enumerateDevices().then(function (devices) {
-
-                console.log(devices);
-                devices.forEach(function (device) {
-
-
-                    if (device.kind == 'videoinput') {
-                        videoInputAvailable++;
-                    }
-
-                });
-
-
-                if (videoInputAvailable == 0) {
-                  $('#uploadImageCamera').hide();
-                  $('#uploadImageCamera').tooltip('hide');
-                  
-                }
-                else {
-                    $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
-                }
-
-                console.log(videoInputAvailable);
-
-            }).catch(function (err) {
-                console.log(err.name + ": " + err.message);
-            });
-
-
-            //if (videoSelect.options.length > 0) {
-            //    getStream();
-            //}
-
-
-
-
-        }
-
-        function showVideoStream()
-        {
-            if (videoSelect.options.length > 0) {
-                getStream();
-            }
-
-        }
-
-
-        function checkUserMedia()
-        {
-
-
-         
-
-            navigator.getMedia = ( navigator.getUserMedia || // use the proper vendor prefix
-                  navigator.webkitGetUserMedia ||
-                  navigator.mozGetUserMedia ||
-                  navigator.msGetUserMedia);
-
-            navigator.getMedia({video: true}, function() {
-            
-                if(!$('#uploadImageCamera').is(':visible'))
-                {
-
-                    $('#uploadImageCamera').show();
-                    $('#uploadImageCamera').tooltip('show');
-                }
-
-          
-
-            }, function() {
-                
-                $('#uploadImageCamera').hide();
-                $('#uploadImageCamera').tooltip('hide');
-
-               
-            });
-
-           
-        }
-
-        var userMediaInterval=null;
-
-        function setIntervalUserMedia(){
-
-            userMediaInterval=  setInterval(function(){
-            
-               checkUserMedia();
-            
-            },1000);
-
-
-
-        }
-
-        function stopIntervalUserMedia(){
-            clearInterval(userMediaInterval);
-        }
-
-        function getBase64Image(img) {
-            //debugger;
-            //var canvas = document.createElement("canvas");
-            //canvas.width = img.width;
-            //canvas.height = img.height;
-            //var ctx = canvas.getContext("2d");
-            //ctx.drawImage(img, 0, 0);
-            //var dataURL = ctx.toDataURL("image/png");
-            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
-        }
-
-
-        function saveDocumentCamera(ele) {
-            var docImage = $('#modalScreenDoc').find('#capt-img');
-
-            if (docImage[0].src.replace('data:,', '') == '') {
-                customAlert('Please capture image using camera');
-                return false;
-            }
-            else {
-
-                saveScreeningDoc(docImage, 2);
-
-            }
-
-        }
 
 
     </script>
@@ -3345,736 +2402,715 @@
     <link href="~/Content/multiselect.css" rel="stylesheet" />
 
 
-    <style type="text/css">
+
+<style type="text/css">
 
 
-       
+    .pages_display ul li:first-child,.pages_display ul li:last-child {
+    color: #fff;
+}
+    .table-back-shadow {
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
 
-    
+    .total-details-table {
+        width: auto;
+        float: right;
+    }
 
-        .img-camera {
-            height: 30px;
-            width: 30px;
-            margin-left: 40px;
-            cursor: pointer;
+        .total-details-table tr, .total-details-table td {
+            padding: 0 10px;
+            line-height: 25px;
         }
 
-        .attachment-icons-block {
-            width: 60px;
-            height: 60px;
-            border: 1px solid #bfbcbc;
-            display: inline-block;
-            padding: 5px;
-            position: relative;
-            margin-right: 35px;
-            margin-bottom: 15px;
-        }
-
-        .attachment-icon {
-            height: 50px;
-            width: 100%;
-            position: relative;
-        }
-
-            .attachment-icon img {
-                position: absolute;
-                left: 0;
-                max-width: 100%;
-                max-height: 100%;
-                margin: auto;
+            .total-details-table tr td label {
+                color: #1d5381;
             }
 
-        .attachment-icons-block .fa-trash {
-            position: relative;
-            width: 100%;
-            /*top: -3px;
-            right: -15px;*/
-            color: #f00;
-            cursor: pointer;
-        }
 
-        .attachment-icons-block .fa-eye {
-            position: relative;
-            width: 100%;
-            /*top: 17px;
-            right: -17px;*/
-            color: #000;
-            cursor: pointer;
-        }
-
-        .attach-icon-div {
-            position: absolute;
-            top: -1px;
-            right: -21px;
-            border: 1px solid #bfbcbc;
-            width: 20px;
-            text-align: center;
-            padding: 2px 0;
-            /* background: #ffffff; */
-            border-left: 0;
-        }
-
-       
-
-        #modal-edit-inkind .text-bg , #modal-uploaddocument .text-bg {
-            text-shadow: 0 1px #7e50b7;
-            background-color: #5f477d;
-            background-clip: padding-box;
-            border: 1px solid !important;
-            border-color: #7e50b7 #684494 #5d3e84 !important;
-            border-radius: 4px;
-            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            border-right: 1px solid #87759e !important;
-            color: #fff;
-        }
-
-       
-
-        .container-fluid {
-            margin-top: 15px;
-        }
-
-       
-
-        .header_ge {
-            color: #fff;
-        }
-
-        .logo-place {
-            padding-left: 0 !important;
-            min-height: 150px;
-        }
+    .search-block, .glossy-search-block {
+        width: auto;
+        display: inline-block;
+        float: left;
+        margin-right: auto;
+        margin-top: 70px;
+    }
 
 
 
-        #page-wrapper {
-            background-color: #fff;
-            min-height: 568px;
-            padding: 30px 15px 0;
-        }
-
-     
-
-
-
-      
-
-        .ersa-search-btn, .ersa-search-btn:hover {
-            /*font-size: 18px;*/
+        .search-block button {
+            font-size: 18px;
             text-transform: capitalize;
             text-align: center;
             display: inline-block;
-            background: #f9c751;
-            color: #212121;
+            border-radius: 0 !important;
+            font-size: 14px;
+            background: #215785;
+            color: #fff;
+            border: none;
             margin: 0;
             border-radius: 4px;
-            width: 100px;
-            padding: 7px 9px;
+            width: auto;
+            padding: 7px 14px;
             margin: auto;
             font-weight: bold;
             line-height: 20px;
-            border: none;
+            border-top-right-radius: 5px !important;
+            border-bottom-right-radius: 5px !important;
         }
 
-       
-
-       
-
-     
-
-      
-
-    
-
-        /*Edit In-Kind Transactions Modal*/
-
-        #modal-edit-inkind .modal-dialog-ch {
-            width: 70%;
-            margin: 20px 15%;
-        }
-
-        #modal-edit-inkind .modal-body, #modal-uploaddocument .modal-body {
-            background: #34495e none repeat scroll 0 0;
-            border: 6px solid #ffffff;
-            border-radius: 3px;
-            /* color: #ffffff; */
+        .search-block input {
             float: left;
-            padding: 15px 3%;
-            position: relative;
-            width: 100%;
-        }
-
-        #modal-edit-inkind .close ,  #modal-uploaddocument .close {
-            opacity: 1;
-            position: absolute;
-            right: -14px;
-            top: -15px;
-        }
-
-        #modal-edit-inkind .modal-body > h2 ,  #modal-uploaddocument .modal-body>h2{
-            margin-top: 10px;
-            float: left;
-            font-size: 24px;
-            font-weight: 600;
-            text-align: center;
-            width: 100%;
-            margin-bottom: 20px;
-            color: #fff;
-        }
-
-        #modal-edit-inkind .max_items_addn,  #modal-uploaddocument .max_items_addn {
-            background: #f1f5f8 none repeat scroll 0 0;
-            border: 3px solid #ffffff;
-            float: left;
-            padding: 10px;
-            width: 100%;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        #modal-edit-inkind .sum_attachparticic input ,  #modal-uploaddocument .sum_attachparticic input{
-            width: 67%;
-            float: left;
-            margin-right: 10px;
-        }
-
-        #modal-edit-inkind .sum_attachparticic a,  #modal-uploaddocument .sum_attachparticic a {
-            padding-top: 10px;
-            float: left;
-        }
-
-        #modal-edit-inkind .attachparticic_myactive,  #modal-uploaddocument .attachparticic_myactive {
-            /*width: 64%;
-    float: right;*/
-            margin-top: 10px;
-        }
-
-        #modal-edit-inkind .sum_attachparticic.list_panic_info,  #modal-uploaddocument .sum_attachparticic.list_panic_info {
-            width: 100%;
-            margin-bottom: 10px;
-            float: left;
-        }
-
-        .form-group {
-            margin-bottom: 15px !important;
-        }
-
-
-        .mb-3, .my-3 {
-            margin-bottom: 1rem !important;
-        }
-
-      
-
-                /*.fa-custom-sort-date-asc,
-                .fa-custom-sort-date-desc {
-                    position: relative;
-                    width: 32px;
-                }
-
-            .fa-custom-sort-date-asc::before,
-            .fa-custom-sort-date-desc::before {
-                content: "\f175";
-                position: relative;
-                right: 7px;
-            }
-
-            .fa-custom-sort-date-asc::after,
-            .fa-custom-sort-date-desc::after {
-                position: absolute;
-                width: 18px;
-                top: 0px;
-                right: 0px;
-                font-size: 10px;
-                line-height: 8px;
-                font-family: "courier new",monospace;
-                font-weight: bold;
-            }
-
-            .fa-custom-sort-date-asc::after {
-                content: "JAN DEC";
-            }
-
-                    .fa-custom-sort-date-desc::after {
-                        content: "DEC JAN";
-                    }*/
-
-
-
-
-        .group {
-            float: left;
-        }
-
-        .pair {
-            margin: 5px;
-        }
-
-        .clear {
-            clear: both;
-        }
-
-
-        #div-filter-section .form-group > label {
-            color: #1d5381;
-        }
-
-
-
-        button.btn.btn-default.multiselect-clear-filter .glyphicon-remove-circle {
-            margin-top: 3px;
-            margin-bottom: 5px;
-        }
-
-
-        .glossy_btn button, .backto_listspan .anchor_yellow {
-            width: auto;
-            display: inline-block;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .glossy-button-button {
-            display: inline-block;
-            vertical-align: top;
-            position: relative;
-            overflow: hidden;
-            min-width: 96px;
-            padding: 0 24px;
-            font-size: 14px;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            text-shadow: 0 1px #154c86;
-            background-color: #247edd;
-            background-clip: padding-box;
-            border: 1px solid;
-            border-color: #1c65b2 #18589c #18589c;
-            border-radius: 4px;
-            -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-            box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-            background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
-            height: 32px;
-        }
-
-        .glossy-button-after {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 0%;
-            height: 100%;
-            background-color: rgba(255,255,255,0.4);
-            -webkit-transition: none;
-            -moz-transition: none;
-            -ms-transition: none;
-            -o-transition: none;
-            transition: none;
-        }
-
-        .glossy-button-before {
-            position: absolute;
-            top: -25%;
-            bottom: -25%;
-            left: -20%;
-            right: -20%;
-            border-radius: 50%;
-            background: transparent;
-            -webkit-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -moz-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -ms-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            -o-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-            box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
-        }
-
-        .button-green {
-            text-shadow: 0 1px #0d4d09;
-            background-color: #1ca913;
-            border-color: #147b0e #11640b #11640b;
-            padding: 0;
-            margin-bottom: 5px;
-        }
-
-
-        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after,
-        .screening_footer .glossy-button-button:hover .glossy-button-after,
-        .btnwrp_subcal .glossy-button-button:hover .glossy-button-after,
-        .bootstrap-dialog-footer-buttons:hover .glossy-button-after {
-            width: 120%;
-            background-color: rgba(255,255,255,0);
-            -webkit-transition: all 0.3s ease-out;
-            -moz-transition: all 0.3s ease-out;
-            -ms-transition: all 0.3s ease-out;
-            -o-transition: all 0.3s ease-out;
-            transition: all 0.3s ease-out;
-        }
-
-        .button-blue {
-            text-shadow: 0 1px #2495ea;
-            background-color: #19F;
-            border-color: #32a7ff #2f9def #2797eb;
-            padding: 0;
-            margin-bottom: 5px;
-        }
-
-        .button-red {
-            text-shadow: 0 1px #e0382a;
-            background-color: #d24a3e;
-            border-color: #db6d63 #ce6157 #c45349;
-            padding: 0;
-            margin-bottom: 5px;
-        }
-
-        .ersea-table thead tr {
-            color: #fff;
-            text-align: left;
-            background: rgba(203,96,179,1);
-            background: -moz-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            background: -webkit-gradient(left top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            background: -webkit-linear-gradient(top,rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            background: -o-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            background: -ms-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            background: linear-gradient(to bottom, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cb60b3', endColorstr='#a80077', GradientType=0 );
-        }
-
-        .glossy-button-button-ch {
-            min-width: 80px;
-        }
-
-        #ulPaging a {
             color: #333;
-            width: 34px;
-            padding: 0px 12px 3px;
+            font-size: 14px;
+            margin-right: 0;
+            width: 335px;
+            line-height: 32px;
+            height: 32px;
+            padding: 7px 10px;
+            border-top-left-radius: 5px !important;
+            border-bottom-left-radius: 5px !important;
         }
 
 
-            #ulPaging a[disabled="disabled"] {
-                pointer-events: none;
-            }
 
 
-        #ulPaging li {
-            display: inherit;
+    @@media (min-width: 400px) and (max-width: 748px) {
+        .search-block input, .glossy-search-block input {
+            width: 225px;
         }
 
-        .bootstrap-dialog-title {
-            margin-top: 15px;
+        span.multiselect-native-select .dropdown-toggle {
+            z-index: unset !important;
         }
 
-        .glossy-select{
-            height:32px;
+        .multiselect-native-select ul.multiselect-container.dropdown-menu {
+            z-index: 9999999 !important;
         }
+    }
 
 
-        @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .search-block input, .glossy-search-block int {
+            width: 81% !important;
+        }
+    }
+
+    .search-block-main {
+        margin-bottom: 10px;
+        display: flex;
+        padding: 0;
+    }
 
 
-            #inkind-table, #inkind-table thead, #inkind-table tbody, #inkind-table th, #inkind-table td, #inkind-table tr {
-                display: block;
-                border: none;
-            }
+    span.multiselect-native-select .dropdown-toggle {
+        z-index: unset !important;
+    }
 
-            #inkind-table {
-                float: left;
-                width: 100%;
-            }
+    .multiselect-native-select ul.multiselect-container.dropdown-menu {
+        z-index: 9999999 !important;
+    }
 
-                #inkind-table tbody tr td:first-child a {
-                    width: initial !important;
-                    text-overflow: initial !important;
+    .input-group.date .datepicker-icon {
+        cursor: pointer;
+        border-color: #7e50b7 #684494 #5d3e84 !important;
+        -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+        text-shadow: 0 1px #7e50b7;
+        background-color: #5f477d;
+    }
+
+        .input-group.date .datepicker-icon span {
+            color: #fff;
+        }
+</style>
+
+
+    <style type="text/css">
+
+
+
+
+
+
+                .img-camera {
+                    height: 30px;
+                    width: 30px;
+                    margin-left: 40px;
+                    cursor: pointer;
                 }
 
-                #inkind-table thead tr {
-                    position: absolute;
-                    top: -9999px;
-                    left: -9999px;
-                }
-
-                #inkind-table tr {
-                    margin: 0 7px 2em 0;
-                    box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
-                    float: left;
-                    width: 100%;
-                }
-
-                    #inkind-table tr:nth-child(odd) {
-                        background: #ffffff;
-                        border: 1px solid #ccc;
-                        border-radius: 8px;
-                    }
-
-                    #inkind-table tr:nth-child(even) {
-                        background: #f1f5f8;
-                        border: 1px solid #ccc;
-                        border-radius: 8px;
-                    }
-
-                #inkind-table td {
-                    border: none;
-                    border-bottom: 1px solid #eee;
+                .attachment-icons-block {
+                    width: 60px;
+                    height: 60px;
+                    border: 1px solid #bfbcbc;
+                    display: inline-block;
+                    padding: 5px;
                     position: relative;
+                    margin-right: 35px;
+                    margin-bottom: 15px;
+                }
+
+                .attachment-icon {
+                    height: 50px;
+                    width: 100%;
+                    position: relative;
+                }
+
+                    .attachment-icon img {
+                        position: absolute;
+                        left: 0;
+                        max-width: 100%;
+                        max-height: 100%;
+                        margin: auto;
+                    }
+
+                .attachment-icons-block .fa-trash {
+                    position: relative;
+                    width: 100%;
+                    color: #f00;
+                    cursor: pointer;
+                }
+
+                .attachment-icons-block .fa-eye {
+                    position: relative;
+                    width: 100%;
+                    color: #000;
+                    cursor: pointer;
+                }
+
+                .attach-icon-div {
+                    position: absolute;
+                    top: -1px;
+                    right: -21px;
+                    border: 1px solid #bfbcbc;
+                    width: 20px;
+                    text-align: center;
+                    padding: 2px 0;
+                    border-left: 0;
+                }
+
+
+
+                #modal-edit-inkind .text-bg , #modal-uploaddocument .text-bg {
+                    text-shadow: 0 1px #7e50b7;
+                    background-color: #5f477d;
+                    background-clip: padding-box;
+                    border: 1px solid !important;
+                    border-color: #7e50b7 #684494 #5d3e84 !important;
+                    border-radius: 4px;
+                    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+                    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+                    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    border-right: 1px solid #87759e !important;
+                    color: #fff;
+                }
+
+
+
+                .container-fluid {
+                    margin-top: 15px;
+                }
+
+
+
+                .header_ge {
+                    color: #fff;
+                }
+
+                .logo-place {
+                    padding-left: 0 !important;
+                    min-height: 150px;
+                }
+
+
+
+             
+
+
+
+
+
+
+
+                .ersa-search-btn, .ersa-search-btn:hover {
+                    text-transform: capitalize;
+                    text-align: center;
+                    display: inline-block;
+                    background: #f9c751;
+                    color: #212121;
+                    margin: 0;
+                    border-radius: 4px;
+                    width: 100px;
+                    padding: 7px 9px;
+                    margin: auto;
+                    font-weight: bold;
+                    line-height: 20px;
+                    border: none;
+                }
+
+
+
+
+
+
+
+
+
+
+
+                /*Edit In-Kind Transactions Modal*/
+
+                #modal-edit-inkind .modal-dialog-ch {
+                    width: 70%;
+                    margin: 20px 15%;
+                }
+
+                #modal-edit-inkind .modal-body, #modal-uploaddocument .modal-body {
+                    background: #34495e none repeat scroll 0 0;
+                    border: 6px solid #ffffff;
+                    border-radius: 3px;
                     float: left;
+                    padding: 15px 3%;
+                    position: relative;
                     width: 100%;
                 }
+
+                #modal-edit-inkind .close ,  #modal-uploaddocument .close {
+                    opacity: 1;
+                    position: absolute;
+                    right: -14px;
+                    top: -15px;
+                }
+
+                #modal-edit-inkind .modal-body > h2 ,  #modal-uploaddocument .modal-body>h2{
+                    margin-top: 10px;
+                    float: left;
+                    font-size: 24px;
+                    font-weight: 600;
+                    text-align: center;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    color: #fff;
+                }
+
+                #modal-edit-inkind .max_items_addn,  #modal-uploaddocument .max_items_addn {
+                    background: #f1f5f8 none repeat scroll 0 0;
+                    border: 3px solid #ffffff;
+                    float: left;
+                    padding: 10px;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    border-radius: 4px;
+                }
+
+                #modal-edit-inkind .sum_attachparticic input ,  #modal-uploaddocument .sum_attachparticic input{
+                    width: 67%;
+                    float: left;
+                    margin-right: 10px;
+                }
+
+                #modal-edit-inkind .sum_attachparticic a,  #modal-uploaddocument .sum_attachparticic a {
+                    padding-top: 10px;
+                    float: left;
+                }
+
+                #modal-edit-inkind .attachparticic_myactive,  #modal-uploaddocument .attachparticic_myactive {
+                    margin-top: 10px;
+                }
+
+                #modal-edit-inkind .sum_attachparticic.list_panic_info,  #modal-uploaddocument .sum_attachparticic.list_panic_info {
+                    width: 100%;
+                    margin-bottom: 10px;
+                    float: left;
+                }
+
+                .form-group {
+                    margin-bottom: 15px !important;
+                }
+
+
+                .mb-3, .my-3 {
+                    margin-bottom: 1rem !important;
+                }
+               
+                .group {
+                    float: left;
+                }
+
+                .pair {
+                    margin: 5px;
+                }
+
+                .clear {
+                    clear: both;
+                }
+
+
+                #div-filter-section .form-group > label {
+                    color: #1d5381;
+                }
+
+
+
+                button.btn.btn-default.multiselect-clear-filter .glyphicon-remove-circle {
+                    margin-top: 3px;
+                    margin-bottom: 5px;
+                }
+
+
+                .glossy_btn button, .backto_listspan .anchor_yellow {
+                    width: auto;
+                    display: inline-block;
+                    position: relative;
+                    cursor: pointer;
+                    overflow: hidden;
+                }
+
+                .glossy-button-button {
+                    display: inline-block;
+                    vertical-align: top;
+                    position: relative;
+                    overflow: hidden;
+                    min-width: 96px;
+                    padding: 0 24px;
+                    font-size: 14px;
+                    color: white;
+                    text-align: center;
+                    text-decoration: none;
+                    text-shadow: 0 1px #154c86;
+                    background-color: #247edd;
+                    background-clip: padding-box;
+                    border: 1px solid;
+                    border-color: #1c65b2 #18589c #18589c;
+                    border-radius: 4px;
+                    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+                    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+                    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+                    height: 32px;
+                }
+
+                .glossy-button-after {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    width: 0%;
+                    height: 100%;
+                    background-color: rgba(255,255,255,0.4);
+                    -webkit-transition: none;
+                    -moz-transition: none;
+                    -ms-transition: none;
+                    -o-transition: none;
+                    transition: none;
+                }
+
+                .glossy-button-before {
+                    position: absolute;
+                    top: -25%;
+                    bottom: -25%;
+                    left: -20%;
+                    right: -20%;
+                    border-radius: 50%;
+                    background: transparent;
+                    -webkit-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+                    -moz-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+                    -ms-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+                    -o-box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+                    box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.5);
+                }
+
+                .button-green {
+                    text-shadow: 0 1px #0d4d09;
+                    background-color: #1ca913;
+                    border-color: #147b0e #11640b #11640b;
+                    padding: 0;
+                    margin-bottom: 5px;
+                }
+
+
+                .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after,
+                .screening_footer .glossy-button-button:hover .glossy-button-after,
+                .btnwrp_subcal .glossy-button-button:hover .glossy-button-after,
+                .bootstrap-dialog-footer-buttons:hover .glossy-button-after {
+                    width: 120%;
+                    background-color: rgba(255,255,255,0);
+                    -webkit-transition: all 0.3s ease-out;
+                    -moz-transition: all 0.3s ease-out;
+                    -ms-transition: all 0.3s ease-out;
+                    -o-transition: all 0.3s ease-out;
+                    transition: all 0.3s ease-out;
+                }
+
+                .button-blue {
+                    text-shadow: 0 1px #2495ea;
+                    background-color: #19F;
+                    border-color: #32a7ff #2f9def #2797eb;
+                    padding: 0;
+                    margin-bottom: 5px;
+                }
+
+                .button-red {
+                    text-shadow: 0 1px #e0382a;
+                    background-color: #d24a3e;
+                    border-color: #db6d63 #ce6157 #c45349;
+                    padding: 0;
+                    margin-bottom: 5px;
+                }
+
+                .ersea-table thead tr {
+                    color: #fff;
+                    text-align: left;
+                    background: rgba(203,96,179,1);
+                    background: -moz-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    background: -webkit-gradient(left top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    background: -webkit-linear-gradient(top,rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    background: -o-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    background: -ms-linear-gradient(top, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    background: linear-gradient(to bottom, rgb(218, 174, 208) 0%, rgb(167, 113, 149) 1%, rgb(234, 137, 209) 18%, rgb(167, 27, 126) 51%, rgb(146, 28, 112) 100%);
+                    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cb60b3', endColorstr='#a80077', GradientType=0 );
+                }
+
+                .glossy-button-button-ch {
+                    min-width: 80px;
+                }
+
+                /*#ulPaging a {
+                    color: #333;
+                    width: 34px;
+                    padding: 0px 12px 3px;
+                }
+
+
+                    #ulPaging a[disabled="disabled"] {
+                        pointer-events: none;
+                    }
+
+
+                #ulPaging li {
+                    display: inherit;
+                }*/
+
+                .bootstrap-dialog-title {
+                    margin-top: 15px;
+                }
+
+                .glossy-select{
+                    height:32px;
+                }
+
+
+                @@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1200px) {
+
+
+                    #inkind-table, #inkind-table thead, #inkind-table tbody, #inkind-table th, #inkind-table td, #inkind-table tr {
+                        display: block;
+                        border: none;
+                    }
+
+                    #inkind-table {
+                        float: left;
+                        width: 100%;
+                    }
+
+                        #inkind-table tbody tr td:first-child a {
+                            width: initial !important;
+                            text-overflow: initial !important;
+                        }
+
+                        #inkind-table thead tr {
+                            position: absolute;
+                            top: -9999px;
+                            left: -9999px;
+                        }
+
+                        #inkind-table tr {
+                            margin: 0 7px 2em 0;
+                            box-shadow: 8px 8px 8px rgba(0,0,0,0.2);
+                            float: left;
+                            width: 100%;
+                        }
+
+                            #inkind-table tr:nth-child(odd) {
+                                background: #ffffff;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                            }
+
+                            #inkind-table tr:nth-child(even) {
+                                background: #f1f5f8;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                            }
+
+                        #inkind-table td {
+                            border: none;
+                            border-bottom: 1px solid #eee;
+                            position: relative;
+                            float: left;
+                            width: 100%;
+                        }
+
+                            #inkind-table td:before {
+                                position: relative;
+                                top: 10px;
+                                left: 0;
+                                width: 35%;
+                                padding-right: 10px;
+                                white-space: nowrap;
+                                height: auto;
+                                display: inline-block;
+                                float: left;
+                            }
+
+                    .table-div {
+                        border: none !important;
+                    }
+
+
 
                     #inkind-table td:before {
-                        position: relative;
-                        top: 10px;
-                        left: 0;
-                        width: 35%;
-                        padding-right: 10px;
-                        white-space: nowrap;
-                        height: auto;
-                        display: inline-block;
-                        float: left;
+                        content: attr(data-title);
+                        text-align: left;
+                        padding-top: 0.6em;
+                        margin-left: 1em;
                     }
 
-            .table-div {
-                border: none !important;
-            }
+                    #inkind-table > tbody > tr > td {
+                        text-align: right !important;
+                        margin-right: 2em;
+                    }
+
+                    #inkind-tbody tr td p {
+                        padding: 10px 10px 10px 10px;
+                        text-align: right;
+                        font-size: 14px;
+                        margin: 0;
+                        border-right: 0;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        width: 55%;
+                        margin-right: 0;
+                        display: inline-block;
+                    }
 
 
+                }
 
-            #inkind-table td:before {
-                content: attr(data-title);
-                text-align: left;
-                padding-top: 0.6em;
-                margin-left: 1em;
-            }
 
-            #inkind-table > tbody > tr > td {
-                text-align: right !important;
-                margin-right: 2em;
-            }
+                #modal-edit-inkind .sum_attachparticic input ,  #modal-uploaddocument .sum_attachparticic input{
+                    width: 64%;
+                }
 
-            #inkind-tbody tr td p {
-                padding: 10px 10px 10px 10px;
-                text-align: right;
-                font-size: 14px;
-                margin: 0;
-                border-right: 0;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                width: 55%;
-                margin-right: 0;
-                display: inline-block;
-            }
 
-           
+             .mob-div-pad
+                {
+                  height: 260px;
+            margin-bottom: 30px;
+                }
+             .mob-div-pad video
+                {
+                    height: 265px;
+                }
+             .attach-icon-div-gallery {
+           position: absolute;
+            top: 0;
+            right: 0;
+            border: none;
+            width: 20px;
+            text-align: center;
+            padding: 0px 0;
+            border-left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            border-radius: 5px;
+            line-height: 90px;z-index:9;
+            opacity:0;
+            -webkit-transition:  all 0.5s linear;
+          -moz-transition: all 0.5s linear;
+          -o-transition: all 0.5s linear;
+          transition: all 0.5s linear;
         }
-
-
-        #modal-edit-inkind .sum_attachparticic input ,  #modal-uploaddocument .sum_attachparticic input{
-            width: 64%;
+             .no-padding{padding:0;}
+             .attach-icon-div-gallery .delete-file-upload {
+               color: #fff;
+            background: #ce635a;
+            padding: 5px;
+            border-radius: 100%;
+            width: 25px;
+            height: 25px;
+            font-size: 13px;margin-left:5px;
+            cursor: pointer;
         }
-
-
-
-/*camera popup section*/
-        #modal-uploaddocument .camera-radio {
-    width: 100%;
-    float: left;
-    text-align: center;
-    padding: 30px 0;
-}
-
-        #modal-uploaddocument .select_camera {
-    display: inline-block;
-    float: none;
-    font-size: 16px;
-    margin-right: 11px;
-}
-
-        #modal-uploaddocument .sel_opt_camera {
-    display: inline-block;
-    float: none;
-}
-
-
-        #modal-uploaddocument select#videoSource {
-    width: 180px;
-    height: 36px;
-    font-size: 14px;
-}
-
-
-#modal-uploaddocument .setup-camo {
-    width: 100%;
-    float: left;
-    text-align: center;
-}
-
-    #modal-uploaddocument .setup-snap {
-    position: absolute;
-    bottom: 19px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    text-align: center;
-}
-
-#modal-uploaddocument .setup-snap a {
-    color: #fff;
-    width: 100px;
-    height: 100px;
-    border: 2px solid #fff;
-    padding: 11px 12px;
-    border-radius: 46px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-
-    #modal-uploaddocument .setup_viewscreen,  #modal-edit-inkind .setup_viewscreen {
-    /*width: 96%;
-    float: none;
-    display: inline-block;
-    background-color: #000;
-    height: 350px;
-    max-width: 100%;*/
-        width: 130px;
-    float: left;
-    display: inline-block;
-    background-color: #000;
-    height: 90px;
-    max-width: 100%;
-    padding: 0;
-    border-radius: 5px;
-    position: relative;
-    margin-right: 10px;
-}
-
-    #modal-uploaddocument .setup_viewscreen-camera, #modal-edit-inkind .setup_viewscreen-camera {
-    /*height: 350px;*/
-    max-width: 100%;
-    max-height: 100%;
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-}
-
-    #modal-uploaddocument video {
-    background: #222;
-    margin: 0 0 20px 0;
-    width: 100%;
-    height: 100%;
-}
-
-     #modal-uploaddocument .bdr-popup {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    width: 100%;
-    height: 1px;
-    background: #c6c3c3;
-}
-
-     .mob-div-pad
-        {
-          height: 260px;
-    margin-bottom: 30px;
+             .attach-icon-div-gallery .view-file-upload {
+             color: #fff;
+            background: #42af3c;
+            padding: 5px;
+            border-radius: 100%;
+            width: 25px;
+            height: 25px;
+            font-size: 13px;
+            cursor: pointer;
         }
-     .mob-div-pad video
-        {
-            height: 265px;
-        }
-     .attach-icon-div-gallery {
-   position: absolute;
-    top: 0;
-    right: 0;
-    border: none;
-    width: 20px;
-    text-align: center;
-    padding: 0px 0;
-    /* background: #ffffff; */
-    border-left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    border-radius: 5px;
-    line-height: 90px;z-index:9;
-    opacity:0;
-    -webkit-transition:  all 0.5s linear;
-  -moz-transition: all 0.5s linear;
-  -o-transition: all 0.5s linear;
-  transition: all 0.5s linear;
-}
-     .no-padding{padding:0;}
-     .attach-icon-div-gallery .delete-file-upload {
-       color: #fff;
-    background: #ce635a;
-    padding: 5px;
-    border-radius: 100%;
-    width: 25px;
-    height: 25px;
-    font-size: 13px;margin-left:5px;
-    cursor: pointer;
-}
-     .attach-icon-div-gallery .view-file-upload {
-     color: #fff;
-    background: #42af3c;
-    padding: 5px;
-    border-radius: 100%;
-    width: 25px;
-    height: 25px;
-    font-size: 13px;
-    cursor: pointer;
-}
-      .setup_viewscreen{
-         -webkit-transition:  all 0.5s linear;
-  -moz-transition: all 0.5s linear;
-  -o-transition: all 0.5s linear;
-  transition: all 0.5s linear;
-     }
-     .setup_viewscreen:hover .attach-icon-div-gallery{
-         opacity:1;
-         -webkit-transition:  all 0.5s linear;
-  -moz-transition: all 0.5s linear;
-  -o-transition: all 0.5s linear;
-  transition: all 0.5s linear;
-     }
+              .setup_viewscreen{
+                 -webkit-transition:  all 0.5s linear;
+          -moz-transition: all 0.5s linear;
+          -o-transition: all 0.5s linear;
+          transition: all 0.5s linear;
+             }
+             .setup_viewscreen:hover .attach-icon-div-gallery{
+                 opacity:1;
+                 -webkit-transition:  all 0.5s linear;
+          -moz-transition: all 0.5s linear;
+          -o-transition: all 0.5s linear;
+          transition: all 0.5s linear;
+             }
 
 
-     .search-block, .glossy-search-block {
-          margin-top: 70px;
-     }
+             .search-block, .glossy-search-block {
+                  margin-top: 70px;
+             }
 
-        @@media (min-width: 768px) and (max-width: 991px) {
-            .search-block-main {
-                display: block !important;
-            }
+                @@media (min-width: 768px) and (max-width: 991px) {
+                    .search-block-main {
+                        display: block !important;
+                    }
 
-            .search-block input ,  .glossy-search-block input {
-                width: 81% !important;
-            }
+                    .search-block input ,  .glossy-search-block input {
+                        width: 81% !important;
+                    }
 
-            .total-details-table {
-                width: auto;
-                float: left !important;
-                margin-top: 20px;
-            }
+                    .total-details-table {
+                        width: auto;
+                        float: left !important;
+                        margin-top: 20px;
+                    }
 
-            .search-block, .glossy-search-block {
-                width: 100% !important;
-            }
-        }
+                    .search-block, .glossy-search-block {
+                        width: 100% !important;
+                    }
+                }
 
-        @@media (min-width: 768px) {
-            #page-wrapper {
-                border-left: 1px solid #e7e7e7;
-                margin-left: 250px;
-                position: inherit;
-            }
-        }
+                @@media (min-width: 768px) {
+                    #page-wrapper {
+                        border-left: 1px solid #e7e7e7;
+                        margin-left: 250px;
+                        position: inherit;
+                    }
+
+
+                }
 
                @@media (max-width: 767px) {
                .search-block-main{display:block!important;}
@@ -4089,50 +3125,38 @@
                 }
     </style>
 
-    }
+}
 
 
 
-    @section MainContentHolder
+@section MainContentHolder
 {
 
-        <div class="row Zoom">
-            <div class="col-lg-12" style="padding:0;">
-                <div class="page-wrapper-change">
-                    <div class="container-fluid">
-                        <div class="row">
-                           
-                            <!-----Right Side Container Section------->
-                            <div class="glossy-right-side-container col-xs-12">
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
 
-                                <!----Heading Section------>
-                                <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
-                                    <div class="col-lg-12">
-                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                                            <i class="fa fa-file" aria-hidden="true"></i>&nbsp;In-Kind Report
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
 
-                                            <span class="view-btn backto_listspan">
+                            <!----Heading Section------>
+                            <div class="col-xs-12" style="padding:0px;margin-bottom:20px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-file" aria-hidden="true"></i>&nbsp;In-Kind Report
 
-                                                @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
-
-                                            </span>
-                                        </h2>
-                                    </div>
+                                        <span class="view-btn backto_listspan">
+                                        </span>
+                                    </h2>
                                 </div>
+                            </div>
 
                             <!--Filter and Search Form----->
                             <form class="col-xs-12" id="filterForm" action="/InKind/ExportInkindReport" method="post">
-
-                               
-                               
-                                  
-
-                                 
                                 <!--Filter Section----->
                                 <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
-
-
-                                
                                     <input type="hidden" name="filterType" />
                                     <input type="hidden" name="reportFormatType" />
                                     <input type="hidden" name="Centers" />
@@ -4146,7 +3170,6 @@
 
 
 
-                                                @*<option value="@((int)FingerprintsModel.InkindReportFilterEnum.Center)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.InkindReportFilterEnum.Center)</option>*@
 
                                             <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.Contributor)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.Contributor)</option>
 
@@ -4156,9 +3179,9 @@
 
                                             <option value="@((int)FingerprintsModel.Enums.InkindReportFilter.EnteredBy)">@FingerprintsModel.EnumHelper.GetEnumDescription(FingerprintsModel.Enums.InkindReportFilter.EnteredBy)</option>
 
-                                            </select>
+                                        </select>
 
-                                        </div>
+                                    </div>
 
 
                                     <!---Center dropdown section-->
@@ -4169,20 +3192,20 @@
 
                                         <select id="selectCenter" class="glossy-select" name="Centers" multiple="multiple"></select>
 
-                                        </div>
+                                    </div>
 
 
-                                        <!----Contributor section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributor-dropdown" style="display:none;">
-                                            <label for="selectContributor"  class="lbl-text">Contributor <sup>*</sup></label>
+                                    <!----Contributor section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributor-dropdown" style="display:none;">
+                                        <label for="selectContributor" class="lbl-text">Contributor <sup>*</sup></label>
 
-                                            <select class="glossy-select" id="selectContributor" multiple="multiple"></select>
+                                        <select class="glossy-select" id="selectContributor" multiple="multiple"></select>
 
-                                        </div>
+                                    </div>
 
-                                        <!-----Contribution Activity section-->
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributionactivity-dropdown" style="display:none;">
-                                            <label for="selectContributonActivity"  class="lbl-text">Contribution Activity</label>
+                                    <!-----Contribution Activity section-->
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-contributionactivity-dropdown" style="display:none;">
+                                        <label for="selectContributonActivity" class="lbl-text">Contribution Activity</label>
 
                                         <select class="glossy-select" id="selectContributonActivity" multiple="multiple">
                                             <option value="@FingerprintsModel.Enums.InkindAmountType.Miles.ToString()">@FingerprintsModel.Enums.InkindAmountType.Miles.ToString()</option>
@@ -4191,9 +3214,9 @@
                                             <option value="@FingerprintsModel.Enums.InkindAmountType.Fixed.ToString()">@FingerprintsModel.Enums.InkindAmountType.Fixed.ToString()</option>
 
 
-                                            </select>
+                                        </select>
 
-                                        </div>
+                                    </div>
 
 
                                     <!-----In-kind activity Date Entered section-->
@@ -4211,15 +3234,15 @@
 
 
 
-                                        <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enteredby-dropdown" style="display:none;">
-                                            <label for="selectEnteredBy"  class="lbl-text">Entered By <sup>*</sup></label>
+                                    <div class="form-group col-lg-2 col-sm-6 col-xs-12" id="div-enteredby-dropdown" style="display:none;">
+                                        <label for="selectEnteredBy" class="lbl-text">Entered By <sup>*</sup></label>
 
-                                            <select class="glossy-select" id="selectEnteredBy" multiple="multiple"></select>
+                                        <select class="glossy-select" id="selectEnteredBy" multiple="multiple"></select>
 
-                                        </div>
+                                    </div>
 
-                                      
-                                            
+
+
 
                                     <!-----In-kind activity From date section-->
                                     <div class="form-group col-lg-2 col-sm-6 col-xs-12">
@@ -4265,142 +3288,175 @@
                                             </button>
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:void(0);" id="pdfanchor">PDF</a></li>
-                                                @*<li><a href="#">DOC</a></li>*@
                                                 <li><a href="javascript:void(0);" id="excelanchor">XLS</a></li>
                                             </ul>
                                         </div>
+                                    </div>
+                                    </div>
+                            </form>
+
+                            <!-------In-kind Report table section------->
+
+                            <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+
+
+
+                                <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                                    <div class="col-xs-12 search-block-main">
+                                        <div class="glossy-search-block col-md-12">
+                                            <input type="text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" readonly placeholder="@Fingerprints.LocalResource.Resources.Search..." id="searchInkindText" class="form-control" value="@Model.SearchTerm">
+                                            <div class="glossy-search-btn-div">
+                                                <button id="btnSearchauto" data-search-item="@(Model.SearchTermType!=null && Model.SearchTermType.Contains("ser")?Model.SearchTermType.Replace("ser","").Trim():Model.SearchTermType)">Search</button>
+                                            </div>
+                                        </div>
+
+                                        <table class="col-md-12 table-bordered  table-striped total-details-table table-back-shadow">
+
+                                            <tr>
+                                                <td><label>Total Hours</label></td>
+                                                <td id="totalHours">@Model.TotalHours</td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>Total Miles Driven</label></td>
+                                                <td id="totalMiles">@Model.TotalMiles</td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>Total In-Kind Amount</label></td>
+                                                <td  id="totalAmount">@Model.TotalAmount</td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>Total Record(s)</label></td>
+                                                <td id="totalCountSpan">@Model.TotalRecord</td>
+                                            </tr>
+                                        </table>
 
                                     </div>
 
+                                    <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="inkind-table">
+                                        <thead class="table-hd scroll-thead">
+                                            <tr>
+                                                <th>
 
-                                    </div>
-                               
-                               
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
+                                                  <span col-name="th1">Contributor</span>  
+                                                </th>
 
-                        
+                                                <th>
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
-                                </form>
+                                                    <span col-name="th2">Center</span> 
+                                                </th>
 
-                                <!-------In-kind Report table section------->
+                                                <th>
 
-                                <div id="no-more-tables8" class="col-xs-12" style="margin-bottom: 20px;">
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
-
-
-                                    <div class="col-xs-12 glossy-panel-div"  id="div-table-responsive">
-
-
-
-
-                                        @{
-
-                                            Html.RenderPartial("~/Views/InKind/_InkindReportListPartial.cshtml", Model);
-
-                                        }
-
-
-                                    </div>
+                                                   <span col-name="th3">Contribution Activity</span> 
+                                                </th>
 
 
 
+                                                <th>
+
+                                                    <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                    <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
 
 
+
+                                                  <span col-name="th4">Activity Date</span> 
+                                                </th>
+
+                                                <th>
+
+                                                    <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                    <span col-name="th5">Time Spent</span>
+                                                </th>
+                                                <th>
+
+                                                    <i class="fa fa-sort-numeric-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-numeric-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+                                                   <span col-name="th6">Miles Driven</span>
+                                                </th>
+                                                <th>
+
+                                                    <i class="fa fa-sort-amount-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-amount-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+
+
+                                                 <span col-name="th7">In-Kind Amount</span>
+                                                </th>
+
+                                                <th>
+                                                    <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                    <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+
+                                                   <span col-name="th8">Entered By</span>
+                                                </th>
+
+                                                <th>Action</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody" id="inkind-tbody">
+
+                                            @{
+
+                                                Html.RenderPartial("~/Views/InKind/_InkindReportListPartial.cshtml", Model);
+
+                                            }
+
+                                        </tbody>
+                                    </table>
                                 </div>
-
+                            </div>
 
                             <!---Pagination Section-->
-                            <div class="col-xs-12">
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
-                                    <div class="pages_display">
-                                        <ul>
-                                            <li style="color:#ffffff;">Display</li>
-                                            <li>
-                                                <select id="ddlpagetodisplay">
-                                                    <option value="10" selected="selected">10</option>
-                                                    <option value="20">20</option>
-                                                    <option value="30">30</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                            </li>
-                                            <li style="color:#ffffff;">Records Per Page</li>
-                                        </ul>
-                                        <div class="clear"></div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <div id="divPaging" class="pagination_wrp">
-                                        <ul id="ulPaging" class="pagination">
-                                            <li>
-
-                                                    @*<input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" disabled />*@
-
-                                                    <a href="javascript:void(0);" id="First" disabled>
-                                                        <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                    </a>
-
-                                                </li>
-                                                <li title="Back">
-
-                                                    @*<input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' disabled />*@
-                                                    <a href="javascript:void(0);" id="Back" disabled>
-                                                        <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                    </a>
-
-                                                </li>
-                                                <li title="Select">
-                                                    <select class="select_cl" id="ddlpaging"></select>
-                                                </li>
-                                                <li title="Next">
-                                                    @*<input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' disabled />*@
-                                                    <a href="javascript:void(0);" id="Next" disabled>
-                                                        <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                    </a>
-                                                </li>
-                                                <li title="Last">
-                                                    @* <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' disabled />*@
-                                                    <a href="javascript:void(0);" id="Last" disabled>
-                                                        <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-xs-12" id="inkind-report-pagination-div">
 
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
-
         </div>
 
 
 
 
-
-        <div class="modal fade scroll-modal" id="modal-edit-inkind" role="dialog" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-dialog-ch">
-                <div class="modal-content">
-
-                    <div class="modal-body">
-                        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
-                        <h2 id="CaseNoteHeading" class="extra-title muted">Edit In-Kind Transaction</h2>
-                        <form id="formEditInkind" enctype="multipart/form-data">
-
-                            <div class="max_items_addn popup-addn-scroll">
+    </div>
 
 
-                                <div class="form-group col-xs-12">
-                                    <label for="lbl-contact-name" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Name</label>
-                                    <label id="lbl-contact-name" class="col-md-5 col-lg-4 col-xs-12"></label>
-                                    <input type="hidden" id="hide-trans-id" value="0" />
-                                </div>
+
+
+
+    <div class="modal fade scroll-modal" id="modal-edit-inkind" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                    <h2 id="CaseNoteHeading" class="extra-title muted">Edit In-Kind Transaction</h2>
+                    <form id="formEditInkind" enctype="multipart/form-data">
+
+                        <div class="max_items_addn popup-addn-scroll">
+
+
+                            <div class="form-group col-xs-12">
+                                <label for="lbl-contact-name" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Name</label>
+                                <label id="lbl-contact-name" class="col-md-5 col-lg-4 col-xs-12"></label>
+                                <input type="hidden" id="hide-trans-id" value="0" />
+                            </div>
 
 
 
@@ -4409,131 +3465,117 @@
                             <div class="form-group col-xs-12">
                                 <label for="inkindActivityDate" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity Date <sup style="color:red;">*</sup></label>
                                 <div class="col-md-7 col-sm-11 col-lg-5 col-xs-10">
-                                    @*<input type="text" class="form-control" id="inkindActivityDate" placeholder="MM/DD/YYYY">*@
-
-
-                                        <div class="input-group date">
-                                            <input type="text" class="form-control glossy-date-input" maxlength="12" placeholder="MM/DD/YYYY" id="inkindActivityDate">
-                                            <span class="input-group-addon datepicker-icon" id="1" style="cursor:pointer;">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-
-
-
-                                    </div>
-                                    <div class="col-lg-5">
-                                     
-                                        <img src="/Images/info.png" id="imageinfoInkindDates" title="Dates Allowed" data-toggle="popover" style="height: 20px;width :20px;padding: 0;cursor:pointer;">
-
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" maxlength="12" placeholder="MM/DD/YYYY" id="inkindActivityDate">
+                                        <span class="input-group-addon datepicker-icon" id="1" style="cursor:pointer;">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="form-group col-xs-12">
-                                    <label for="inkindActivityDate" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity Type</label>
-                                    <label id="lbl-activity-type" class="col-md-8 col-lg-5 col-xs-12"></label>
+                                <div class="col-lg-5">
+
+                                    <img src="/Images/info.png" id="imageinfoInkindDates" title="Dates Allowed" data-toggle="popover" style="height: 20px;width :20px;padding: 0;cursor:pointer;">
+
                                 </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                                <label for="inkindActivityDate" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity Type</label>
+                                <label id="lbl-activity-type" class="col-md-8 col-lg-5 col-xs-12"></label>
+                            </div>
 
-                                <div class="form-group col-xs-12">
-                                    <label for="lbl-inkind-activity" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity </label>
-                                   
-                                    <label id="lbl-inkind-activity" class="col-md-8 col-lg-5 col-xs-12"></label>
+                            <div class="form-group col-xs-12">
+                                <label for="lbl-inkind-activity" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Activity </label>
+
+                                <label id="lbl-inkind-activity" class="col-md-8 col-lg-5 col-xs-12"></label>
+                            </div>
+
+
+                            <div class="form-group col-xs-12">
+                                <label for="textarea-inkind-description" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Description of Activity <sup style="color:red;">*</sup></label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+                                    <textarea class="form-control" id="textarea-inkind-description"></textarea>
                                 </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="inkindActivityMiles" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Miles <sup style="color:red;">*</sup></label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+                                    <input type="text" class="form-control" id="inkindActivityMiles" placeholder="">
+
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="inkindActivityMiles" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Hours : Minutes <sup style="color:red;">*</sup></label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+
+                                    <input type="text" class="form-control" data-toggle="popover" data-targe-selector="#hrs-exceed-content" data-placement="top" data-title="Exceeding 8 hours" id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" data-original-title="" title="">
+                                    <span style="display:initial;">:</span>
+                                    <input type="text" class="form-control" id="inkindMinutesText" placeholder="MM" maxlength="2" style="display:initial;width:30%;">
 
 
-                                <div class="form-group col-xs-12">
-                                    <label for="textarea-inkind-description" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Description of Activity <sup style="color:red;">*</sup></label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <textarea class="form-control text-bg" id="textarea-inkind-description"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="bl-amount-rate" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Amount Rate</label>
+                                <label class="col-md-8 col-lg-4 col-xs-12" id="lbl-amount-rate"></label>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="inkindAmount" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Amount ($) <sup style="color:red;">*</sup></label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+                                    <input type="text" class="form-control" id="inkindAmount" placeholder="Enter In-Kind Amount" pattern="^\d*(\.\d{0,2})?$">
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-xs-12">
+                                <label for="select-inkind-center" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Center <sup style="color:red;">*</sup></label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+                                    <select class="form-control" id="select-inkind-center"></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <label for="select-inkind-classroom" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Classroom</label>
+                                <div class="col-md-8 col-lg-5 col-xs-12">
+                                    <select class="form-control" id="select-inkind-classroom"></select>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="div-download-inkind-attachments">
+                                <label for="inkind-attachments-div" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Attachment(s)</label>
+                                <div class="col-md-8 col-lg-5 col-xs-12" id="inkind-attachments-div">
+
+
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-xs-12" id="add-inkind-attachments-div">
+                                <label for="inkind-attachments-div" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Add Attachment(s)</label>
+                                <div class="col-md-8 col-lg-6 col-xs-12">
+                                    <div class="col-xs-12 row sum_attachparticic">
+                                        <input type="file" class="form-control" onchange="self.ValidateSingleInputpdf(this);" name="InkindAttachmentsList[0].InkindAttachmentFile">
+                                        <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                                        <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
                                     </div>
-                                </div>
-
-                                <div class="form-group col-xs-12">
-                                    <label for="inkindActivityMiles" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Miles <sup style="color:red;">*</sup></label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <input type="text" class="form-control text-bg" id="inkindActivityMiles" placeholder="">
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-xs-12">
-                                    <label for="inkindActivityMiles" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Hours : Minutes <sup style="color:red;">*</sup></label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-
-                                        <input type="text" class="form-control text-bg" data-toggle="popover" data-targe-selector="#hrs-exceed-content" data-placement="top" data-title="Exceeding 8 hours" id="inkindHoursText" placeholder="HH" maxlength="2" style="display:initial;width:30%;" data-original-title="" title="">
-                                        <span style="display:initial;">:</span>
-                                        <input type="text" class="form-control text-bg" id="inkindMinutesText" placeholder="MM" maxlength="2" style="display:initial;width:30%;">
 
 
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-xs-12">
-                                    <label for="bl-amount-rate" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Amount Rate</label>
-                                    <label class="col-md-8 col-lg-4 col-xs-12" id="lbl-amount-rate"></label>
-                                </div>
-
-                                <div class="form-group col-xs-12">
-                                    <label for="inkindAmount" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Amount ($) <sup style="color:red;">*</sup></label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <input type="text" class="form-control text-bg" id="inkindAmount" placeholder="Enter In-Kind Amount" pattern="^\d*(\.\d{0,2})?$">
-
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group col-xs-12">
-                                    <label for="select-inkind-center" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Center <sup style="color:red;">*</sup></label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <select class="form-control glossy-select" id="select-inkind-center"></select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-xs-12">
-                                    <label for="select-inkind-classroom" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Classroom</label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12">
-                                        <select class="form-control glossy-select" id="select-inkind-classroom"></select>
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group col-xs-12" id="div-download-inkind-attachments">
-                                    <label for="inkind-attachments-div" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Attachment(s)</label>
-                                    <div class="col-md-8 col-lg-5 col-xs-12" id="inkind-attachments-div">
-
-
-
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group col-xs-12" id="add-inkind-attachments-div">
-                                    <label for="inkind-attachments-div" class="col-md-4 col-lg-2 col-xs-12" style="color:#295b8f;">Add Attachment(s)</label>
-                                    <div class="col-md-8 col-lg-6 col-xs-12">
-                                        <div class="col-xs-12 row sum_attachparticic">
-                                            <input type="file" class="form-control text-bg" onchange="self.ValidateSingleInputpdf(this);" name="InkindAttachmentsList[0].InkindAttachmentFile">
-                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                              <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
-                                        </div>
-
-
-                                        <div class="col-xs-12 row attachparticic_myactive">
-
-                                        </div>
-
-
-                                        <div class="col-md-12 col-xs-12 adddivspace"  id="div-edit-modal-img-gallery">
-
-                                        </div>
+                                    <div class="col-xs-12 row attachparticic_myactive">
 
                                     </div>
 
 
-                                   
+                                    <div class="col-md-12 col-xs-12 adddivspace" id="div-edit-modal-img-gallery">
+
+                                    </div>
 
                                 </div>
-
-                              
-
 
 
 
@@ -4541,27 +3583,35 @@
                             </div>
 
 
-                            <div class="form-group final-btn text-center glossy_btn adddivspace">
-
-                                <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
-                                    <span class="glossy-button-after"></span>
-                                    <span class="glossy-button-before"></span>
-                                    Save
-                                </button>
-                                <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
-                                    <span class="glossy-button-after"></span>
-                                    <span class="glossy-button-before"></span>
-                                    Exit
-                                </button>
-                            </div>
-                        </form>
 
 
-                    </div>
+
+
+
+                        </div>
+
+
+                        <div class="form-group final-btn text-center glossy_btn adddivspace">
+
+                            <button class="glossy-button-button button-green" type="button" id="btn-modal-submit">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                Save
+                            </button>
+                            <button class="glossy-button-button button-red" type="button" id="btn-modal-cancel" data-dismiss="modal">
+                                <span class="glossy-button-after"></span>
+                                <span class="glossy-button-before"></span>
+                                Exit
+                            </button>
+                        </div>
+                    </form>
+
+
                 </div>
             </div>
-
         </div>
+
+    </div>
 
 
     <!----modal upload multiple document using camera--->
@@ -4580,24 +3630,24 @@
         <p><button type="button" class="btn btn-success">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger">No</button></p>
     </div>
 
-        <!-----Pop Over content for delete in-kind document attachment-->
-        <div id="delete-doc-content" class="hidden">
-            <p>You are about to delete this document.</p>
-            <p>Click <strong>OK</strong> to proceed.</p>
-            <p>
-                <button type="button" class="glossy-button-button button-red btn-cancel">
-                    <span class="glossy-button-before"></span>
-                    <span class="glossy-button-after"></span>
+    <!-----Pop Over content for delete in-kind document attachment-->
+    <div id="delete-doc-content" class="hidden">
+        <p>You are about to delete this document.</p>
+        <p>Click <strong>OK</strong> to proceed.</p>
+        <p>
+            <button type="button" class="glossy-button-button button-red btn-cancel">
+                <span class="glossy-button-before"></span>
+                <span class="glossy-button-after"></span>
 
-                    Cancel
-                </button>&nbsp;&nbsp;
+                Cancel
+            </button>&nbsp;&nbsp;
 
-                <button type="button" class="glossy-button-button button-green btn-ok">
-                    OK
-                    <span class="glossy-button-before"></span>
-                    <span class="glossy-button-after"></span>
-                </button>
-            </p>
-        </div>
+            <button type="button" class="glossy-button-button button-green btn-ok">
+                OK
+                <span class="glossy-button-before"></span>
+                <span class="glossy-button-after"></span>
+            </button>
+        </p>
+    </div>
 
-    }
+}

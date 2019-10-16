@@ -107,7 +107,7 @@ namespace Fingerprints.Controllers
               //  _caseNote.ProgramId = EncryptDecrypt.Decrypt64(MentalHealthCaseNote.CaseProgramId);
                 
 
-                casenoteid = new RosterData().SaveCaseNotes(ref name, _caseNote, staff, 2);
+                casenoteid = new RosterData(staff).SaveCaseNotes(ref name, _caseNote, 2);
 
 
                  res = mHealth.SaveMentalHealthClient(MentalHealthCaseNote, name);

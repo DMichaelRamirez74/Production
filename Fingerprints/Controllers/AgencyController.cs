@@ -152,7 +152,7 @@ namespace Fingerprints.Controllers
 
 
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult addAgency(Agency agencyinfo, FormCollection collection)
         {
@@ -1110,7 +1110,7 @@ namespace Fingerprints.Controllers
             var result = agencyData.AutoCompleteAgencyList(term, Active);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         public ActionResult viewagencystaff(string id = "0",string ak="0")
         {
             if (id == "1")
@@ -1148,7 +1148,7 @@ namespace Fingerprints.Controllers
 
             return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.HRManager)]
         public JsonResult listagencystaff(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1, string isEndOfYear="0")
         {
             try
@@ -1168,7 +1168,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.HRManager)]
         public JsonResult updateagencyStaff(Guid id, int mode,string isEndOfYear="0")
         {
             try
@@ -1188,7 +1188,7 @@ namespace Fingerprints.Controllers
 
         }
    
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public ActionResult AgencyProfile(string id = "0", string SuperAdmin = "")
         {
             Agency agencyDetail = new Agency();
@@ -1271,7 +1271,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [HttpPost]
         public ActionResult AgencyProfile(Agency agencyinfo, FormCollection collection)
         {
@@ -1374,7 +1374,7 @@ namespace Fingerprints.Controllers
 
 
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         public JsonResult listProgDetails(string FundId = "0")//string ProgramID = "0",
         {
             try
@@ -1390,7 +1390,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getClassroom(string CenterId = "0", string AgencyId = "0",string programYear="")
         {
@@ -1410,7 +1410,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getManager(string RoleId = "0")
         {
@@ -1424,7 +1424,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getFSWUsers(string AgencyId = "0")
         {
@@ -1438,7 +1438,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getagencyid(string AgencyId, string Type)
         {
@@ -1456,7 +1456,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getClassroomCenter(string CenterId = "0")
         {
@@ -1471,7 +1471,7 @@ namespace Fingerprints.Controllers
             }
         }
         //29Aug2016
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
         [JsonMaxLengthAttribute]
         public JsonResult getClassroomCenterAssign(string Type, string CenterId = "0", string Agencyid = "")
         {
@@ -1494,7 +1494,7 @@ namespace Fingerprints.Controllers
 
 
 
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin)]
         public JsonResult ResendEmail(string emailid, string agencyname, string Username)
         {
             try
@@ -1541,7 +1541,7 @@ namespace Fingerprints.Controllers
         /// <returns></returns>
         /// 
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
         public JsonResult GetAreas(string agencyId)
         {
             List<FingerprintsModel.Areas> _areabreakDownList = new List<FingerprintsModel.Areas>();
@@ -1567,7 +1567,7 @@ namespace Fingerprints.Controllers
         /// <returns></returns>
 
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
 
         public JsonResult AddAreas(List<FingerprintsModel.Areas> areasList)
         {
@@ -1584,7 +1584,8 @@ namespace Fingerprints.Controllers
         /// <returns></returns>
         /// 
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+
         public JsonResult GetDivisions(string agencyId)
         {
 
@@ -1612,7 +1613,8 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+
         public JsonResult AddDivisions(List<Divisions> divisionsList)
         {
             bool isResult = false;
@@ -1626,8 +1628,9 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+
+
         public JsonResult GetAddressByZipCode(int Zipcode)
         {
             List<Zipcodes> Zipcodelist = new List<Zipcodes>();
@@ -1671,7 +1674,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
 
         public JsonResult SetNextProgramYearDate(string programDate)
         {

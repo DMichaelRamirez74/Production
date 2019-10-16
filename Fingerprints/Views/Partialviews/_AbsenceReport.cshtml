@@ -1,15 +1,14 @@
-﻿
-@*@{ 
-    if (Session["ABReportAllow"] == null)
-    {
-        var obj = new FingerprintsData.agencyData();
-        var _isReportAllow = obj.GetSingleAccessStatus(16);
-        Session["ABReportAllow"] = _isReportAllow;
+﻿@*@{
+        if (Session["ABReportAllow"] == null)
+        {
+            var obj = new FingerprintsData.agencyData();
+            var _isReportAllow = obj.GetSingleAccessStatus(16);
+            Session["ABReportAllow"] = _isReportAllow;
+        }
     }
-}
 
 
-@if (Session["ABReportAllow"].ToString() == "True") {*@ 
+    @if (Session["ABReportAllow"].ToString() == "True") {*@
 
 
 <style>
@@ -203,11 +202,11 @@
         //   // }
         //});
 
-       
+
 
 
         $(document).on("click","#clear-report-filter",function(){
-        
+
             $('#Centers').val("0");
             $('#Classroom').find("option").remove();
             $("#searchClient").select2("val","");
@@ -218,23 +217,23 @@
         });
 
         $(document).on("click","#search-center-btn",function(e){
-        
+
             var _centrid =  $('#Centers').val();
             var _clsid =  $('#Classroom').val();
             var _clientId = $("#searchClient").select2("val");
 
             if(_centrid == "0"){
-            
+
                 customAlert("Please choose Center");
                 return false;
             }
 
             getAbsenceData(_centrid,_clsid,_clientId);
 
-        
+
         });
 
-       
+
 
 
 
@@ -243,7 +242,7 @@
           //  disabled:true,
             minimumInputLength: 1,
             ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-                url:  HostedDir + "/Home/GetClientByCenterAndClass", 
+                url:  HostedDir + "/Home/GetClientByCenterAndClass",
                 dataType: 'json',
                 quietMillis: 250,
                 data: function (term, page) {
@@ -255,16 +254,16 @@
                     };
                 },
                 results: function (data, page) { // parse the results into the format expected by Select2.
-  
 
-                    
+
+
                     return { results: data };
 
                 },
                 cache: true
             },
             initSelection: function(element, callback) {
-          
+
             },
               });
 
@@ -299,8 +298,8 @@
         });
 
         function getAbsenceData(_centrid,_clsid,_clientId){
-        
-        
+
+
             $.ajax({
                 url: HostedDir + "/Home/GetAbsenceReport",
                 type: "POST",
@@ -318,7 +317,7 @@
                 success: function (data) {
 
                     if(data.hasOwnProperty("AbsenceReport") && data.AbsenceReport != null && data.AbsenceReport.length){
-                    
+
                         var dp=[];
                         data.AbsenceReport.forEach(function (obj, ind) {
                             dp.push({
@@ -338,10 +337,10 @@
                         //setTimeout(function () {
                         //    chart.zoomToIndexes(dp.length - 8, dp.length);
                         //}, 1500)
-                        
+
                     }
 
-                        
+
                 },
                 fail: function (res) {
                     customAlert("Something went wrong, Please try again");
@@ -353,7 +352,7 @@
             });
 
 
-        
+
         }
 
 

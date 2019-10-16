@@ -53,7 +53,7 @@ $(document).ready(function () {
             url: "/Roster/FamilyResourcesList",
             type: "POST",
             async: false,
-            data: { ServiceId: serviceId, AgencyId: AgencyId },
+            data: { serviceId: serviceId},
             success: function (data) {
                 $divmatchProviderPartial.find("#ddFsOrganization").html('');
                 $divmatchProviderPartial.find('#OrganizationId').val('');

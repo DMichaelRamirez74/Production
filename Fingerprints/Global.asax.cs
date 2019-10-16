@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Fingerprints.Hubs.ExecutiveHubs;
+using System;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
@@ -16,14 +17,50 @@ namespace Fingerprints
 
     public class MvcApplication : System.Web.HttpApplication
     {
+        protected String SqlConnectionString { get; set; }
         protected void Application_Start()
         {
+
+            SqlConnectionString = ConfigurationManager.ConnectionStrings[FingerprintsData.connection.ConnectionString].ConnectionString;
             AreaRegistration.RegisterAllAreas();
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            AuthConfig.RegisterAuth();
+
+          //  RouteTable.Routes.MapConnection<ExecutiveDashboardTickerConnection>("executiveDashboardTicker", "\executiveDashboardTicker");
+
+            if (!String.IsNullOrEmpty(SqlConnectionString))
+            {
+                try
+                {
+                    SqlDependency.Start(SqlConnectionString);
+
+                }
+                catch (Exception ex)
+                {
+                    FingerprintsModel.clsError.WriteException(ex);
+                }
+
+            }
+
+
+        }
+
+        protected void Application_End()
+        {
+            if (!String.IsNullOrEmpty(SqlConnectionString))
+            {
+                try
+                {
+                    SqlDependency.Stop(SqlConnectionString);
+                }
+                catch (Exception ex)
+                {
+                    FingerprintsModel.clsError.WriteException(ex);
+                }
+
+            }
         }
         protected void Application_BeginRequest()
 
@@ -31,11 +68,11 @@ namespace Fingerprints
 
             var requestUrl = Request.Url.AbsoluteUri;
 
-           if( requestUrl.Contains("WeeklyAttendance"))
+            if (requestUrl.Contains("WeeklyAttendance"))
             {
                 Response.Cache.SetCacheability(HttpCacheability.Private);
                 Response.Cache.SetExpires(DateTime.UtcNow.AddHours(2));
-             
+
             }
             else
             {
@@ -57,7 +94,8 @@ namespace Fingerprints
                 {
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo(Session["CurrentCluture"].ToString());
                 }
-                else {
+                else
+                {
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
                 }
             }

@@ -29,7 +29,7 @@ namespace Fingerprints.Filters
 
             Usertype = allowedRoles.Select(x => FingerprintsModel.EnumHelper.GetEnumDescription(x).ToString().ToLowerInvariant()).ToArray();
 
-           
+
         }
         public CustAuthFilter()
         {
@@ -37,20 +37,19 @@ namespace Fingerprints.Filters
         }
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
-
-            
             if (filterContext.HttpContext.Session["UserId"] == null)
             {
                 filterContext.Result = new RedirectResult("~/login/Loginagency");
-                
+
             }
             else
             {
-                if(filterContext.HttpContext.Session["Roleid"]!=null )
+                if (filterContext.HttpContext.Session["Roleid"] != null)
                 {
-                    if(Usertype.Count() > 0)
+                    if (Usertype.Count() > 0)
                     {
-                        if(!Usertype.Contains(filterContext.HttpContext.Session["Roleid"].ToString()))
+
+                        if (!Usertype.Contains(filterContext.HttpContext.Session["Roleid"].ToString()))
                         {
 
                             if(filterContext.HttpContext.Request.IsAjaxRequest())

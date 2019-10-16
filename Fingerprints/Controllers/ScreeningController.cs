@@ -36,6 +36,8 @@ namespace Fingerprints.Controllers
          */
 
 
+
+
         StaffDetails staff = FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
         ScreeningData screeningData = FactoryInstance.Instance.CreateInstance<ScreeningData>();
@@ -65,13 +67,6 @@ namespace Fingerprints.Controllers
         [HttpGet]
         public ActionResult ScreeningMatrix()
         {
-
-
-
-
-
-
-
 
 
             var report = FactoryInstance.Instance.CreateInstance<ScreeningMatrixReport>();
@@ -135,7 +130,7 @@ namespace Fingerprints.Controllers
         //[CustAuthFilter()]
         //[HttpPost]
         //[ValidateInput(false)]
-        public void ExportScreeningMatrixReport(ScreeningMatrixReport screeningMatrixReport,int reportFormatType)
+        public void ExportScreeningMatrixReport(ScreeningMatrixReport screeningMatrixReport, int reportFormatType)
         {
             try
             {
@@ -157,11 +152,11 @@ namespace Fingerprints.Controllers
 
                 #region Itextsharp PDF generation Region
 
-string imagePath=Server.MapPath("~/Images/");
+                string imagePath = Server.MapPath("~/Images/");
 
 
 
-                if(EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString())==FingerprintsModel.Enums.ReportFormatType.Pdf)
+                if (EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString()) == FingerprintsModel.Enums.ReportFormatType.Pdf)
                 {
 
                     MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportScreeningMatrixReportPdf(screeningMatrixReport, imagePath);
@@ -170,7 +165,7 @@ string imagePath=Server.MapPath("~/Images/");
                     workStream.Close();
                     Response.Clear();
                     Response.ContentType = "application/pdf";
-                    Response.AddHeader("Content-Disposition", "attachment; filename=Screening_Matrix_Report " + DateTime.Now.ToString("MM/dd/yyyy")+".pdf");
+                    Response.AddHeader("Content-Disposition", "attachment; filename=Screening_Matrix_Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".pdf");
                     Response.Buffer = true;
                     Response.Cache.SetCacheability(HttpCacheability.NoCache);
                     Response.BinaryWrite(bytes);
@@ -178,9 +173,9 @@ string imagePath=Server.MapPath("~/Images/");
                     Response.Close();
                 }
 
-                else if(EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString()) == FingerprintsModel.Enums.ReportFormatType.Xls)
+                else if (EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString()) == FingerprintsModel.Enums.ReportFormatType.Xls)
                 {
-                  
+
 
 
                     Response.Clear();
@@ -193,7 +188,7 @@ string imagePath=Server.MapPath("~/Images/");
                     Response.Flush();
                     Response.End();
 
-                } 
+                }
 
 
 
@@ -202,12 +197,13 @@ string imagePath=Server.MapPath("~/Images/");
                 #endregion
 
             }
+
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
 
-          
+
 
 
         }
@@ -267,8 +263,8 @@ string imagePath=Server.MapPath("~/Images/");
                 nDayScreeningReviewReport.SkipRows = nDayScreeningReviewReport.GetSkipRows();
                 nDayScreeningReviewReport.SortColumn = "Classroom";
                 nDayScreeningReviewReport.SortOrder = "ASC";
-              
-                nDayScreeningReviewReport = screeningData.GetScreeningReviewReport(staff,nDayScreeningReviewReport);
+
+                nDayScreeningReviewReport = screeningData.GetScreeningReviewReport(staff, nDayScreeningReviewReport);
 
 
                 #region Itextsharp PDF generation Region
@@ -278,10 +274,10 @@ string imagePath=Server.MapPath("~/Images/");
 
                 var reportTypeEnum = FingerprintsModel.EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.ReportFormatType>(reportFormatType.ToString());
 
-                    MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportScreeningReviewReport(nDayScreeningReviewReport, reportTypeEnum,imagePath);
-                 string reportName = "45-Day_Screening_Review_Report";
+                MemoryStream workStream = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<Export>().ExportScreeningReviewReport(nDayScreeningReviewReport, reportTypeEnum, imagePath);
+                string reportName = "45-Day_Screening_Review_Report";
 
-                 DownloadReport(workStream, reportTypeEnum, reportName);
+                DownloadReport(workStream, reportTypeEnum, reportName);
 
 
 

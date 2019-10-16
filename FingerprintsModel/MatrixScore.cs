@@ -24,7 +24,9 @@ namespace FingerprintsModel
         public string ProfilePic { get; set; }
         public long AssessmentCategoryId { get; set; }
         public long Testvalue { get; set; }
+
         public string ParentName { get; set; }
+        public string ParentGender { get; set; }
         public string AssessmentCategory { get; set; }
         public bool IsChecked { get; set; }
         public long ParentId{ get; set; }

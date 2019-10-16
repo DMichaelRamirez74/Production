@@ -216,6 +216,8 @@ namespace FingerprintsModel
         public string Centers { get; set; }
 
         public string FromDate { get; set; }
+
+
         public string ToDate { get; set; }
 
         public string DateEntered { get; set; }

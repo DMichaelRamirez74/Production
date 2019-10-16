@@ -564,7 +564,7 @@ namespace Fingerprints.Utilities
             {
                 DataTable dtDomains = new DataTable();
                 lstDomain.Add(new SelectListItem { Text = "Choose", Value = "0" });
-                new RosterData().GetDomainDetails(ref dtDomains);
+                new RosterData(new StaffDetails()).GetDomainDetails(ref dtDomains);
                 if (dtDomains != null)
                 {
                     if (dtDomains.Rows.Count > 0)
@@ -625,16 +625,14 @@ namespace Fingerprints.Utilities
             return items;
         }
 
-        public static List<ClosedInfo> CheckForTodayClosure(Guid? agencyId, Guid userId)
+        public static List<ClosedInfo> CheckForTodayClosure(StaffDetails staff)
         {
 
 
             List<ClosedInfo> infoList = new List<ClosedInfo>();
             try
             {
-                //Guid? agencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                //Guid userId = new Guid(Session["UserId"].ToString());
-                infoList = new CenterData().CheckForTodayClosure(agencyId, userId);
+                infoList = new CenterData().CheckForTodayClosure(staff);
             }
             catch (Exception ex)
             {

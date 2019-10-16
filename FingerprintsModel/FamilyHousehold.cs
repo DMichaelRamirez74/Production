@@ -13,6 +13,7 @@ namespace FingerprintsModel
     public class FamilyHousehold
     {
         //View Client Details
+         public List<TransitionType> TransitionTypeList {get;set;}
         public string ClientAssigned { get; set; }
         public List<AssignedTo> ClientAssignedTo = new List<AssignedTo>();
        public int InChildCareSubsidy { get; set; }
@@ -264,6 +265,11 @@ namespace FingerprintsModel
         public string Cmiddlename { get; set; }
         public string CDOB { get; set; }
         public string DateOfEnrollment { get; set; }
+
+        public string EnrollmentStatus { get; set; }
+
+        public bool ExecessiveAbsences { get; set; }
+        public string CReferenceProgramId { get; set; }
         public string CProgramType { get; set; }
         public string CGender { get; set; }
         public int CParentdisable { get; set; }

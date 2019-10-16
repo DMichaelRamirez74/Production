@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace FingerprintsModel
 {
 
+   
     public class AbsenceReasonModel
     {
         public List<AbsenceReason> absenceReasonList { get; set; }

@@ -9,22 +9,9 @@ using FingerprintsModel;
 using System.Data;
 using Fingerprints.CustomClasses;
 using System.IO;
-using System.Net.Http;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using iTextSharp.tool.xml.pipeline.html;
-using iTextSharp.tool.xml.pipeline.css;
-using iTextSharp.tool.xml;
-using iTextSharp.tool.xml.html;
-using iTextSharp.tool.xml.parser;
-using iTextSharp.tool.xml.pipeline.end;
-using System.Text;
-using System.Dynamic;
 using System.Web.Script.Serialization;
 using Fingerprints.ViewModel;
-using Newtonsoft.Json.Linq;
 using System.Resources;
 using System.Globalization;
 using System.Collections;
@@ -1154,7 +1141,7 @@ namespace Fingerprints.Controllers
             {
                 List<AbsenceReason> reasonList = new List<FingerprintsModel.AbsenceReason>();
                 Guid? agencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                reasonList = reasonList = new TeacherData().GetAbsenceReason(agencyId);
+                reasonList = reasonList = new TeacherData().GetAbsenceReason(agencyId,1);
                 model.absenceReasonList = reasonList;
             }
 
@@ -1648,7 +1635,7 @@ namespace Fingerprints.Controllers
                     //    });
                     //}
 
-                    message = new RosterData().SaveCaseNotes(ref casenoteid, caseNote, staffDetails, 2);
+                    message = new RosterData(staffDetails).SaveCaseNotes(ref casenoteid, caseNote, 2);
 
                     internalReferral.CaseNoteId = casenoteid;
                 }
@@ -1731,27 +1718,27 @@ namespace Fingerprints.Controllers
         #endregion Absence Report
 
 
-        #region Get ADA Daily Percentage
+        //#region Get ADA Daily Percentage
 
-        [CustAuthFilter()]
-        public JsonResult GetADASeatsDaily()
-        {
+        //[CustAuthFilter()]
+        //public JsonResult GetADASeatsDaily()
+        //{
 
-            string adaPercentage = string.Empty;
-            string todaySeats = string.Empty;
-            try
-            {
-                 new ExecutiveData().GetADASeatsDaily(ref adaPercentage,ref todaySeats);
-            }
-            catch(Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
+        //    string adaPercentage = string.Empty;
+        //    string todaySeats = string.Empty;
+        //    try
+        //    {
+        //        new ExecutiveData().GetADASeatsDaily(ref adaPercentage, ref todaySeats,staffDetails);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
 
-            return Json(new { adaPercentage, todaySeats }, JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(new { adaPercentage, todaySeats }, JsonRequestBehavior.AllowGet);
+        //}
 
-        #endregion
+        //#endregion
 
 
         public ActionResult SetLanguage(string id = "en", string returnurl = "")

@@ -122,8 +122,6 @@
     <div class="col-lg-12">
         <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
             <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;@Resources.New_CLAS_Input</span>
-            
-            @*<a href="@Url.Action("CLASReview","Reporting")" class="btn pull-right" style="color:#fff;background:#9b59b6;text-transform:none;">Back to CLAS Review</a>*@
 
             <a href="@Url.Action("CLASReview","Reporting")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;">
                @Resources.Go_to_CLAS_Report
@@ -162,7 +160,6 @@
 
                 <div class="col-md-6">
                     <label>@Resources.Date<sup style="color:red;" title="field is required">*</sup></label>
-                    @*<input data-name="Date" data-required="true" type="text" id="DateofReview" name="DateofReview" class="form-control" />*@
                     <div class="input-group" style="display: inline-block;width:103%">
                         <input style="width:90%;display:inline-block;border-radius: 5px 0px 0px 5px !important" type="text" id="DateofReview" name="DateofReview" placeholder="MM/DD/YYYY" class="form-control glossy-input" autocomplete="off">
                         <div id="dor_calender_icon" class="fa fa-calendar input-group-addon glossy-date" style="height: 34px;width:36px;cursor:pointer;"></div>
@@ -309,106 +306,23 @@
 
                     }
 
-                    //if (text.length > 3 && text.indexOf('.') == -1) {
-                    //    $(this).val(text.slice(0, 3));
-
-                    //} else if (_val > 200) {
-                    //    $(this).val(String(_val).slice(0, 2));
-                    //    customAlert('Weight not exceed 200');
-                    //}
-
-                });
-/*
-                $(document).on("keypress", "#Score", function (event) {
-
-                    if ((event.which != 46 || $(this).val().indexOf('.') != -1) &&
-  ((event.which < 48 || event.which > 57) &&
-    (event.which != 0 && event.which != 8))) {
-                        event.preventDefault();
-                    }
-
-                    var text = $(this).val();
-
-
-
-                    if ((text.indexOf('.') != -1) &&
-                      (text.substring(text.indexOf('.')).length > 2) &&
-                      (event.which != 0 && event.which != 8) &&
-                      ($(this)[0].selectionStart >= text.length - 2)) {
-                        event.preventDefault();
-                    }
-
-                });
-                */
-
-
-                $(document).on('click', '.view-file-upload', function () {
-
-
-                    var imageAttr = $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-
-                    var w = window.open('about:blank', 'newwindow', 'width=500,height=500');
-
-                    setTimeout(function () { //FireFox seems to require a setTimeout for this to work.
-                        w.document.body.appendChild(w.document.createElement('img'))
-                            .src = imageAttr;
-                    }, 0);
 
                 });
 
 
-                $(document).on('click', '.delete-file-upload', function () {
-
-                    $(this).closest('.setup_viewscreen').remove();
-
-                });
-
-                $("#modal-uploaddocument").on('shown.bs.modal', function (event) {
-                   // $('body').addClass('modal-open');
-
-                    showVideoStream();
 
 
 
+               
 
 
-                    //$selfElements.modalEditInkind.modal('hide');
-                }).on('hidden.bs.modal', function (event) {
 
-                    stopIntervalUserMedia();
-                 //   $selfElements.modalEditInkind.modal('show');
-                });
+               
+
+               
 
 
-                $(document).on('click', "#btn-modal-doc-add", function (e) {
-
-                    debugger;
-                    //  var $imageGallerylength = $selfElements.modal_div_uploadDocument_image_gallery.find('.setup_viewscreen').length;
-                    var $imageGallerylength = $(".div-image-snap-gallery").find('.setup_viewscreen').length;
-
-                    if ($imageGallerylength == 0) {
-                        customAlert('Please capture image using camera');
-                        return false;
-                    }
-
-
-                    $('#div-edit-modal-img-gallery').append($(".div-image-snap-gallery").html());
-
-                    $(".div-image-snap-gallery").html('');
-
-                    $("#modal-uploaddocument").modal('hide');
-
-                });
-
-
-                $(document).on('click', '#uploadImageCamera', function () {
-                  //  $selfElements.modalEditInkind.modal('hide');
-                    //$('body').addClass('modal-open');
-
-                   // $selfElements.modalUploadDocument.find('.div-image-snap-gallery').html('');
-                    $("#modal-uploaddocument").modal('show');
-                });
-
+               
                 $(document).on("click", ".attach-remove", function (e) {
                     e.preventDefault();
                     $(this).parents(".attach-div-each").remove();
@@ -617,290 +531,10 @@
             }
         };
 
-
-
-
-        var videoSelect = null;
-        var screenshotButton = null;
-        var img = null;
-        var canvas = null;
-        var button = null;
-        var currentStream;
-        var video;
-        var constraints = {};
-        var front = true;
-
             $(document).ready(function () {
                 GAnalysis.init();
 
-
-
-                //camera option for document upload//
-
-                videoSelect = document.querySelector('select#videoSource');
-                video = document.querySelector('#setup-camera-div video');
-                video.setAttribute('autoplay', '');
-                video.setAttribute('muted', '');
-                video.setAttribute('playsinline', '')
-
-
-                screenshotButton = document.querySelector('#anchor-capture');
-
-
-                screenshotButton.onclick = video.onclick = function () {
-
-                    var $index = $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                    var $imageQuery = '<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_' + $index + '">\
-                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
-                                        <div class="attach-icon-div-gallery">\
-                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
-                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
-                                        </div>\
-                                    </div>';
-
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    // Other browsers will fall back to image/png
-                    console.log(canvas);
-                    // img.src = canvas.toDataURL('image/png');
-
-                    $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
-
-
-
-
-                    $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_' + $index + '').find('img').attr('src', canvas.toDataURL('image/png'));
-                };
-
-                function handleSuccess(stream) {
-                    screenshotButton.disabled = false;
-                    video.srcObject = stream;
-                }
-
-                function stopMediaTracks(stream) {
-
-                    stream.getTracks().forEach(function (track) { track.stop(); })
-
-                }
-
-
-                //new code//
-
-
-
-
-                videoSelect.addEventListener('change', function (event) {
-
-                    getStream();
-                });
-
-                navigator.mediaDevices.enumerateDevices().then(gotDevices);
-
-                canvas = document.createElement('canvas');
-
-
-
-
-
-
-
             });
-
-
-
-
-
-            function stopMediaTracks(stream) {
-                stream.getTracks().forEach(function (track) {
-                    track.stop();
-                });
-            }
-
-            function gotDevices(mediaDevices) {
-
-                videoSelect.innerHTML = '';
-                // videoSelect.appendChild(document.createElement('option'));
-                var count = 1;
-                mediaDevices.forEach(function (mediaDevice) {
-                    if (mediaDevice.kind === 'videoinput') {
-                        const option = document.createElement('option');
-                        option.value = mediaDevice.deviceId;
-                        const label = mediaDevice.label || 'Camera ' + (count++) + '';
-                        const textNode = document.createTextNode(label);
-                        option.appendChild(textNode);
-                        videoSelect.appendChild(option);
-                    }
-                });
-
-
-
-
-
-            }
-
-            function getStream() {
-                // alert('change event');
-                if (typeof currentStream !== 'undefined') {
-                    stopMediaTracks(currentStream);
-                }
-                const videoConstraints = {};
-                if (videoSelect.value === '') {
-                    videoConstraints.facingMode = 'environment';
-                } else {
-                    videoConstraints.deviceId = { exact: videoSelect.value };
-                }
-                const constraints = {
-                    video: videoConstraints,
-                    audio: false
-                };
-                navigator.mediaDevices
-                  .getUserMedia(constraints)
-                  .then(function (stream) {
-                      currentStream = stream;
-                      video.srcObject = stream;
-                      return navigator.mediaDevices.enumerateDevices();
-                  })
-                  .then(gotDevices)
-                  .catch(function (error) {
-                      console.error(error);
-                      //alert(error);
-                  });
-            }
-
-            function showCameraOption(ele) {
-
-                var videoInputAvailable = 0;
-                $('#uploadImageCamera').tooltip('hide');
-                $('#uploadImageCamera').hide();
-
-                navigator.mediaDevices.enumerateDevices().then(function (devices) {
-
-                    console.log(devices);
-                    devices.forEach(function (device) {
-
-
-                        if (device.kind == 'videoinput') {
-                            videoInputAvailable++;
-                        }
-
-                    });
-
-
-                    if (videoInputAvailable == 0) {
-                        $('#uploadImageCamera').hide();
-                        $('#uploadImageCamera').tooltip('hide');
-
-                    }
-                    else {
-                        $('#uploadImageCamera').show();
-                        $('#uploadImageCamera').tooltip('show');
-                    }
-
-                    console.log(videoInputAvailable);
-
-                }).catch(function (err) {
-                    console.log(err.name + ": " + err.message);
-                });
-
-
-                //if (videoSelect.options.length > 0) {
-                //    getStream();
-                //}
-
-
-
-
-            }
-
-            function showVideoStream() {
-                if (videoSelect.options.length > 0) {
-                    getStream();
-                }
-
-            }
-
-
-            function checkUserMedia() {
-
-
-
-
-                navigator.getMedia = (navigator.getUserMedia || // use the proper vendor prefix
-                      navigator.webkitGetUserMedia ||
-                      navigator.mozGetUserMedia ||
-                      navigator.msGetUserMedia);
-
-                navigator.getMedia({ video: true }, function () {
-
-                    if (!$('#uploadImageCamera').is(':visible')) {
-
-                        $('#uploadImageCamera').show();
-                        $('#uploadImageCamera').tooltip('show');
-                    }
-
-
-
-                }, function () {
-
-                    $('#uploadImageCamera').hide();
-                    $('#uploadImageCamera').tooltip('hide');
-
-
-                });
-
-
-            }
-
-            var userMediaInterval = null;
-
-            function setIntervalUserMedia() {
-
-                userMediaInterval = setInterval(function () {
-
-                    checkUserMedia();
-
-                }, 1000);
-
-
-
-            }
-
-            function stopIntervalUserMedia() {
-                clearInterval(userMediaInterval);
-            }
-
-            function getBase64Image(img) {
-                //debugger;
-                //var canvas = document.createElement("canvas");
-                //canvas.width = img.width;
-                //canvas.height = img.height;
-                //var ctx = canvas.getContext("2d");
-                //ctx.drawImage(img, 0, 0);
-                //var dataURL = ctx.toDataURL("image/png");
-                //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-                return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
-            }
-
-
-            function saveDocumentCamera(ele) {
-                var docImage = $('#modalScreenDoc').find('#capt-img');
-
-                if (docImage[0].src.replace('data:,', '') == '') {
-                    customAlert('Please capture image using camera');
-                    return false;
-                }
-                else {
-
-                    saveScreeningDoc(docImage, 2);
-
-                }
-
-            }
-
-            showCameraOption();
 
         </script>
 

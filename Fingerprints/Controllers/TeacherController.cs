@@ -117,6 +117,8 @@ namespace Fingerprints.Controllers
         {
             try
             {
+
+
                 int res = 0;
                 bool notChecked = false;
                 ViewBag.NotChecked = false;
@@ -129,6 +131,7 @@ namespace Fingerprints.Controllers
                  ViewBag.IsLWAccess=  new FingerprintsData.agencyData().GetSingleAccessStatus(20);
 
                 return View(new TeacherData().GetChildList(notChecked));
+                
             }
             catch (Exception Ex)
             {
@@ -179,38 +182,6 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-
-
-        //[HttpPost]
-        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        //public ActionResult Roster(FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        int reasonid = 0; string NewReason = "";
-        //        string childID = collection.Get("childid");
-        //        string absentType = collection.Get("AbsentType");
-        //        string Cnotes = "";//= collection.Get("CNotes");
-        //        if (!string.IsNullOrEmpty(collection.Get("txtNewReason")))
-        //            NewReason = collection.Get("txtNewReason");
-        //        if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
-        //            reasonid = Convert.ToInt32(collection.Get("ReasonList"));
-        //        string result = "";
-        //        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-
-        //      TeacherModel model=  new TeacherData().MarkAbsent(ref result, childID, staff, absentType, Cnotes, reasonid, NewReason);
-        //        if (result == "1")
-        //            TempData["message"] = "Record saved successfully.";
-
-        //        return View(model);
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //        return View();
-        //    }
-        //}
-
 
         [HttpGet]
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
@@ -310,9 +281,7 @@ namespace Fingerprints.Controllers
                     TempData["message"] = "Record saved successfully.";
                 else
                     TempData["message"] = "Error occurred. Please, try again later.";
-
-
-                // return Redirect("~/Teacher/Roster");
+            
                 return RedirectToAction("Roster", "Teacher");
             }
             catch (Exception Ex)
@@ -321,6 +290,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         [HttpGet]
         public ActionResult ParentCheckIn(string clientid, int accesstype, string available)
@@ -330,7 +300,8 @@ namespace Fingerprints.Controllers
                 ViewData["ActiveTabTeacher"] = 0;
                 string result = "";
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                return View(new TeacherData().GetParentList(ref result, clientid, staff, 1,  available));
+
+                return View(new TeacherData().GetParentList(ref result, clientid, staff, 1, available));
             }
             catch (Exception Ex)
             {
@@ -394,7 +365,7 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
         public ActionResult ParentCheckIn(string clientid, FormCollection collection)
         {
 
@@ -405,15 +376,15 @@ namespace Fingerprints.Controllers
                 string Oavailable = collection.Get("OfficeAvailable");
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-  
+
 
 
                 string result = "";
-				  //if (available == "1" && Oavailable == "0")
-                if ( Oavailable == "0")
+                //if (available == "1" && Oavailable == "0")
+                if (Oavailable == "0")
                 {
                     ViewData["ActiveTabTeacher"] = 1;
-                     _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
+                    _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return View(_teach);
@@ -421,7 +392,7 @@ namespace Fingerprints.Controllers
                 }
                 else if (available == "2")
                 {
-                     _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
+                    _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("Roster");
@@ -430,7 +401,7 @@ namespace Fingerprints.Controllers
 
                 else
                 {
-                     _teach = new TeacherData().GetParentList(ref result, clientid,staff, collection, 1 );
+                    _teach = new TeacherData().GetParentList(ref result, clientid, staff, collection, 1);
                     if (result == "1")
                         TempData["message"] = "Record saved successfully.";
                     return Redirect("~/Teacher/ParentCheckIn_CheckOut?available=" + available + "");
@@ -726,6 +697,8 @@ namespace Fingerprints.Controllers
 
                     }
                 }
+
+
                 List<Tuple<bool, string, string, string, long, string, string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string, string>>();
 
                 string Reason = daysOff.OffDayComments;
@@ -947,7 +920,7 @@ namespace Fingerprints.Controllers
 
                 StaffDetails staffDetails = StaffDetails.GetInstance();
 
-                List<Tuple<bool, string, string, string, long, string,string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string,string>>();
+                List<Tuple<bool, string, string, string, long, string, string>> tupleEmail = new List<Tuple<bool, string, string, string, long, string, string>>();
 
                 if (yakkrList.Count() > 0)
                 {
@@ -956,7 +929,7 @@ namespace Fingerprints.Controllers
                         if (item2.Selected)
                         {
 
-                            tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails,(int)FingerprintsModel.Enums.EmailType.ClassroomClosure , isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
+                            tupleEmail = new CenterData().GetParentAndManagementEmail(staffDetails, (int)FingerprintsModel.Enums.EmailType.ClassroomClosure, isStaff, Convert.ToInt64(centerId), Convert.ToInt64(item2.Value));
 
                             if (tupleEmail.Count() > 0)
                             {
@@ -1143,8 +1116,6 @@ namespace Fingerprints.Controllers
 
                 var jsonSerialiser = new JavaScriptSerializer();
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
-
-
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
                 model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
                 model.CenterString = jsonSerialiser.Serialize(model.CenterList);
@@ -1168,10 +1139,8 @@ namespace Fingerprints.Controllers
             {
                 long _centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
                 long _classroomId = Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
-
                 model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(), _centerId, _classroomId, isHistorical, attendaneDate);
                 var jsonSerialiser = new JavaScriptSerializer();
-
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
                 model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
@@ -1192,12 +1161,12 @@ namespace Fingerprints.Controllers
             try
             {
                 long _centerId = 0;
-                model.Enc_CenterId =long.TryParse(centerId,out _centerId)?EncryptDecrypt.Encrypt64(centerId): centerId;
-                model.CenterID = long.TryParse(centerId, out _centerId)?centerId: EncryptDecrypt.Decrypt64(centerId);
+                model.Enc_CenterId = long.TryParse(centerId, out _centerId) ? EncryptDecrypt.Encrypt64(centerId) : centerId;
+                model.CenterID = long.TryParse(centerId, out _centerId) ? centerId : EncryptDecrypt.Decrypt64(centerId);
                 model.AgencyId = Session["AgencyId"].ToString();
                 model.UserId = Session["UserID"].ToString();
                 model.RoleId = Session["RoleID"].ToString();
-             model=   new TeacherData().GetClassRoomsByCenterHistorical(model);
+                model = new TeacherData().GetClassRoomsByCenterHistorical(model);
             }
             catch (Exception ex)
             {
@@ -1409,11 +1378,10 @@ namespace Fingerprints.Controllers
         }
 
 
-        #region GrowthAnalysis
-
-        //   [CustAuthFilter(RoleEnum.Teacher)]
+        #region GrowthAnalysis   
+		 
         [CustAuthFilter()]
-        public ActionResult GrowthAnalysis(long clsid=0, string client="",bool ExploreAll=false)
+        public ActionResult GrowthAnalysis(long clsid = 0, string client = "", bool ExploreAll = false)
         {
             //var stf = StaffDetails.GetInstance();
             //if(RoleEnum.Teacher.GetEnumDescription())
@@ -1425,7 +1393,7 @@ namespace Fingerprints.Controllers
             if (!string.IsNullOrEmpty(client))
             {
                 cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(client));
-                cp = new RosterData().GetClientDetails(cid);
+                cp = new RosterData(staff).GetClientDetails(cid);
 
             }
             ViewBag.ClientDetail = cp;
@@ -1434,9 +1402,9 @@ namespace Fingerprints.Controllers
 
         }
 
-        // [CustAuthFilter(RoleEnum.Teacher)]
+        //[CustAuthFilter(RoleEnum.Teacher)]
         [CustAuthFilter()]
-        public ActionResult GetChildrenInfoForWH(string AssDate="", long ClassroomId=0,string ClientId="")
+        public ActionResult GetChildrenInfoForWH(string AssDate = "", long ClassroomId = 0, string ClientId = "")
         {
             var result = new List<ClientGrowth>();
             try
@@ -1444,16 +1412,16 @@ namespace Fingerprints.Controllers
                 long cid = 0;
                 if (!string.IsNullOrEmpty(ClientId))
                 {
-                     cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(ClientId));
+                    cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(ClientId));
                 }
 
-                result = _Teacher.GetChildrenInfoForWH(1, AssDate, ClassroomId,cid);
+                result = _Teacher.GetChildrenInfoForWH(1, AssDate, ClassroomId, cid);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-            return Json(result,JsonRequestBehavior.AllowGet);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter()]
@@ -1489,7 +1457,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult DeleteHistoricalRecordById(long indexid,string ClientId = "")
+        public ActionResult DeleteHistoricalRecordById(long indexid, string ClientId = "")
         {
 
             var result = false;
@@ -1502,7 +1470,7 @@ namespace Fingerprints.Controllers
 
                 }
 
-                result = _Teacher.DeleteHistoricalRecordById(indexid,cid);
+                result = _Teacher.DeleteHistoricalRecordById(indexid, cid);
             }
             catch (Exception ex)
             {
@@ -1511,11 +1479,11 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
 
         [CustAuthFilter()]
-        public ActionResult GrowthChart(string client = "" , int type=0)
+        public ActionResult GrowthChart(string client = "", int type = 0)
         {
             ViewBag.eClientId = client;
 
@@ -1526,7 +1494,7 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(client))
                 {
                     cid = Convert.ToInt64(EncryptDecrypt.Decrypt(client));
-                     cp =new RosterData().GetClientDetails(cid);
+                    cp = new RosterData(staff).GetClientDetails(cid);
 
                 }
                 ViewBag.ClientDetail = cp;
@@ -1552,7 +1520,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetGrowthChart(string eClientID="", int type=0)
+        public ActionResult GetGrowthChart(string eClientID = "", int type = 0)
         {
             //   var result = new List<ClientGrowth>();
             // var result = new GrowthChart();
@@ -1564,7 +1532,7 @@ namespace Fingerprints.Controllers
                 {
                     cid = Convert.ToInt64(EncryptDecrypt.Decrypt(eClientID));
                 }
-                result = _Teacher.GetGrowthChart(1, cid,type);
+                result = _Teacher.GetGrowthChart(1, cid, type);
             }
             catch (Exception ex)
             {
@@ -1582,8 +1550,6 @@ namespace Fingerprints.Controllers
 
 
 
-
-
         #endregion GrowthAnalysis
 
 
@@ -1598,14 +1564,14 @@ namespace Fingerprints.Controllers
 
 
 
-        [CustAuthFilter(RoleEnum.EducationManager,RoleEnum.Teacher)]
+        [CustAuthFilter(RoleEnum.EducationManager, RoleEnum.Teacher)]
         [HttpPost]
         public JsonResult GetTeacherHomeVisitEntry(string eClientID)
         {
 
             StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-            List<TeacherVisit> homeVisitYakkr= _Teacher.GetTeacherHomeVisitEntry(staff, eClientID);
+            List<TeacherVisit> homeVisitYakkr = _Teacher.GetTeacherHomeVisitEntry(staff, eClientID);
 
             return Json(homeVisitYakkr, JsonRequestBehavior.AllowGet);
 
@@ -1629,7 +1595,7 @@ namespace Fingerprints.Controllers
 
         #region Get Parent Teacher Conference Entry
 
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.EducationManager)]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.EducationManager)]
         [HttpPost]
         public JsonResult GetParentTeacherConferenceEntry(string eClientID)
         {
@@ -1643,7 +1609,7 @@ namespace Fingerprints.Controllers
 
         #region Add Parent Teacher Conference Entry
 
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.EducationManager)]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.EducationManager)]
         [HttpPost]
         public JsonResult AddParentTeacherConferenceEntry(List<TeacherVisit> teacherVisitList)
         {
@@ -1654,7 +1620,7 @@ namespace Fingerprints.Controllers
             isResult = _Teacher.AddParentTeacherConferenceEntry(staff, teacherVisitList);
 
 
-            return Json(isResult,JsonRequestBehavior.AllowGet);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1717,7 +1683,7 @@ namespace Fingerprints.Controllers
                 string Name = "";
              
 
-                message = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>().SaveCaseNotes(ref Name,caseNote,staff, (int)FingerprintsModel.Enums.TransitionMode.Others);
+                message = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<RosterData>(staff).SaveCaseNotes(ref Name,caseNote, (int)FingerprintsModel.Enums.TransitionMode.Others);
             }
             catch (Exception ex)
             {

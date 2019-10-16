@@ -9,6 +9,7 @@ namespace FingerprintsModel.Enums
     public enum FamilyHouseholdSaveType
     {
         UpdateHousehold = 1,
-        HomeFound = 2
+        HomeFound = 2,
+        AddressChanged=3
     }
 }

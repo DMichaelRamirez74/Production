@@ -1749,7 +1749,7 @@ namespace FingerprintsData
 
 
 
-        public List<ClosedInfo> CheckForTodayClosure(Guid? agencyId, Guid userId)
+        public List<ClosedInfo> CheckForTodayClosure(StaffDetails staff)
         {
             ClosedInfo info = new ClosedInfo();
             List<ClosedInfo> closedList = new List<ClosedInfo>();
@@ -1758,8 +1758,9 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
-                command.Parameters.Add(new SqlParameter("@Agencyid", agencyId));
-                command.Parameters.Add(new SqlParameter("@userid", userId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_CheckForTodayCenterClosure";
@@ -1803,8 +1804,8 @@ namespace FingerprintsData
                             info = new ClosedInfo
                             {
                                 ClosedToday = closedList.Where(x => x.CenterId == item).Select(x => x.ClosedToday).FirstOrDefault(),
-                                CenterName = string.Join(",", closedList.Where(x => x.CenterId == item).Select(x => x.CenterName).Distinct().ToArray()),
-                                ClassRoomName = string.Join(",", closedList.Where(x => x.CenterId == item).Select(x => x.ClassRoomName).Distinct().ToArray()),
+                                CenterName = string.Join(", ", closedList.Where(x => x.CenterId == item).Select(x => x.CenterName).Distinct().ToArray()),
+                                ClassRoomName = string.Join(", ", closedList.Where(x => x.CenterId == item).Select(x => x.ClassRoomName).Distinct().ToArray()),
                                 AgencyName = closedList.Where(x => x.CenterId == item).Select(x => x.AgencyName).FirstOrDefault()
                             };
                             infoList2.Add(info);

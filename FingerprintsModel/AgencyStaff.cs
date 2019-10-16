@@ -240,7 +240,8 @@ namespace FingerprintsModel
         public bool IsCaseNoteEntered { get; set; }
         public int IsHomeBased { get; set; }
         public int IsAppointMentYakkr600601 { get; set; }
-        public List<SelectListItem> AbsenceReasonList { get; set; }
+       // public List<SelectListItem> AbsenceReasonList { get; set; }
+       public List<AbsenceReason> AbsenceReasonList {get;set;}
         public List<SelectListItem> AbsenceTypeList { get; set; }
 
         public bool IsScreeningFollowUpReq { get; set; }

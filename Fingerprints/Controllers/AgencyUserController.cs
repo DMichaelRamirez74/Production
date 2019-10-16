@@ -909,7 +909,7 @@ namespace Fingerprints.Controllers
 
             }
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator,RoleEnum.HRManager)]
         public ActionResult staffReport()
         {
             try
@@ -924,7 +924,8 @@ namespace Fingerprints.Controllers
             }
 
         }
-        [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator, RoleEnum.HRManager)]
+
         [HttpPost]
         public ActionResult staffReport(string command)
         {
@@ -998,12 +999,16 @@ namespace Fingerprints.Controllers
             string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
             SendMail.Sendverificationemail(email, name, path, template, imagepath);
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+
+
+        [CustAuthFilter(RoleEnum.SuperAdmin,RoleEnum.GenesisEarthAdministrator)]
         public ActionResult rejectedList()
         {
             return View();
         }
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        
+        [CustAuthFilter(RoleEnum.SuperAdmin, RoleEnum.GenesisEarthAdministrator)]
+
         public JsonResult listrejectedList(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -3464,7 +3469,20 @@ namespace Fingerprints.Controllers
             FamilyHousehold FamilyObject = new FamilyHousehold();
             try
             {
-                familyData.FamilySummary(FamilyObject, id, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString());
+
+
+                Parallel.Invoke(() =>
+                {
+                    familyData.FamilySummary(FamilyObject, id, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString());
+
+                },
+                () =>
+                {
+                   FamilyObject.TransitionTypeList= new RosterData(staff).GetTransitionTypeList();
+                }
+                );
+
+
                 Session["Docsstorage"] = FamilyObject.docstorage.ToString();
                 if (FamilyObject.Income1 == null)
                     FamilyObject.Income1 = GenerateIncomeList();
@@ -4195,8 +4213,8 @@ namespace Fingerprints.Controllers
             try
             {
 
+                return Json(new FamilyData().GetEnrollReason(Status, clientId,staff));
 
-                return Json(new FamilyData().GetEnrollReason(Status, clientId));
             }
             catch (Exception Ex)
             {
@@ -6665,7 +6683,11 @@ namespace Fingerprints.Controllers
                 homeless.FamilyHousehold.HImageByte = homeless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(homeless.FamilyHousehold.HFileInString);
             }
 
-            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.UpdateHousehold);
+            int addressChanged = homeless.HasCaseNoteDetails ? (int)FamilyHouseholdSaveType.AddressChanged : 0;
+
+            message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.UpdateHousehold, addressChanged);
+
+
             if (message == "1")
             {
 
@@ -6710,7 +6732,7 @@ namespace Fingerprints.Controllers
 
                     
 
-                    message = new RosterData().SaveCaseNotes(ref message, caseNote, staff, 2);
+                    message = new RosterData(staff).SaveCaseNotes(ref message, caseNote, 2);
                 }
 
                  TempData["HouseholdMessage"] = "Household summary updated successfully.";
@@ -6801,10 +6823,10 @@ namespace Fingerprints.Controllers
                 }
 
 
-                message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.HomeFound);
+                message = new FamilyData().SaveFamilySummary(houseless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), (int)FingerprintsModel.Enums.FamilyHouseholdSaveType.HomeFound, (int)FamilyHouseholdSaveType.AddressChanged);
                 if (message == "1")
                 {
-                  
+
                     houseless.CaseNoteDetails.CaseNoteid = "0";
 
                     if (!string.IsNullOrEmpty(cameraUploads))
@@ -6829,10 +6851,10 @@ namespace Fingerprints.Controllers
                    
 
 
-                    message = new RosterData().SaveCaseNotes(ref message, houseless.CaseNoteDetails,staff, 2);
+                    message = new RosterData(staff).SaveCaseNotes(ref message, houseless.CaseNoteDetails, 2);
                     TempData["message"] = "Record updated successfully";
 
-                  
+
 
                 }
                 else
@@ -6879,14 +6901,11 @@ namespace Fingerprints.Controllers
                 if (centerId[0] != "" || centerId[0] != "0")
                 {
                     centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId[0]));
-                    //centerId = Convert.ToInt64(centerId[0]);
                 }
                 else
                 {
                     centerId = 0;
                 }
-
-
                 classRoomList = new FamilyData().GetClassRoomWithSeats(centerId, classRoomList);
             }
             catch (Exception ex)
@@ -6962,7 +6981,7 @@ namespace Fingerprints.Controllers
             List<SelectListItem> followupList = new List<SelectListItem>();
             try
             {
-                followupList = new RosterData().GetFollowUpScreenings(clientId, followup);
+                followupList = new RosterData(staff).GetFollowUpScreenings(clientId, followup);
             }
             catch (Exception ex)
             {
@@ -7338,7 +7357,7 @@ namespace Fingerprints.Controllers
             {
 
 
-                classroomList = new RosterData().GetClassroomsWithFSWHVByCenter(ref stafflist, centerId);
+                classroomList = new RosterData(staff).GetClassroomsWithFSWHVByCenter(ref stafflist, centerId);
             }
             catch (Exception ex)
             {
@@ -7406,7 +7425,7 @@ namespace Fingerprints.Controllers
             transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
             transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
 
-            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, staff, true);
+            results = new RosterData(staff).SaveChildHeadStartTranstion(transitionDetails,true);
 
             return Json(results);
         }

@@ -1,7 +1,13 @@
 ﻿
 @{
     Layout = null;
+
+
+    var staff = FingerprintsModel.StaffDetails.GetInstance();
+
 }
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -55,6 +61,8 @@
     <script src="~/Scripts/ApplinkPlugin/Pagination.js"></script>
     <script src="~/Scripts/ApplinkPlugin/ApplinkCaseNote.js"></script>
 
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
     <style type="text/css">
 
          .lang-choose-div {
@@ -74,26 +82,26 @@
             window.location.href = '/Home/SetLanguage?id=' + $(ele).val() + '&returnurl=' + uri;
         }
 
-        function updateYakkr() {
+        //function updateYakkr() {
 
-            $.ajax({
+        //    $.ajax({
 
-                url: HostedDir + '/Yakkr/GetYakkrCountByUser',
-                datatype: "json",
-                type: 'post',
-                success: function (data) {
-                    $('.yakkr-span').html('('+data+')');
-                },
-                error: function (data) {
+        //        url: HostedDir + '/Yakkr/GetYakkrCountByUser',
+        //        datatype: "json",
+        //        type: 'post',
+        //        success: function (data) {
+        //            $('.yakkr-span').html('('+data+')');
+        //        },
+        //        error: function (data) {
 
-                }
-
-
-            });
+        //        }
 
 
+        //    });
 
-        }
+
+
+        //}
 
 
         $(document).ready(function () {
@@ -133,15 +141,16 @@
 
 
 
+           
+                InitializeSignalRHubStore();
+         
+
+            //setInterval(function () {
 
 
-            setInterval(function () {
+            //    updateYakkr();
 
-
-                updateYakkr();
-
-            }, 300000); ///Updates for every 5 minutes 300000 ///
-
+            //}, 300000); ///Updates for every 5 minutes 300000 ///
 
 
             var footerHeight = $('.footer-one').height();
@@ -150,7 +159,7 @@
             var logoimageHeight = $('.logo-side-image').height();
             var sidemenu = $('#side-menu');
             //   var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
-            var height = (windowHeight - (logoimageHeight + footerHeight + 12));
+            var height = (windowHeight - (logoimageHeight + footerHeight + 60));
             sidemenu.css({ 'height': height, 'max-height': height });
 
 
@@ -160,13 +169,12 @@
                 var windowHeight = $(window).height();
                 var logoimageHeight = $('.logo-side-image').height();
                 var sidemenu = $('#side-menu');
-             //   var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
-                var height = (windowHeight - (logoimageHeight + footerHeight + 12));
+                //   var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
+                var height = (windowHeight - (logoimageHeight + footerHeight + 60));
                 // sidemenu.height(height);
                 sidemenu.css({ 'height': height, 'max-height': height });
 
             });
-
 
 
            
@@ -221,7 +229,21 @@
                     },
                     messages: {
                         noResults: "", results: ""
-                    }
+                    },
+                    open:function(event, ui){
+                        debugger;
+                        $(event.target).addClass('searchbox-open');
+                        $(event.target).autocomplete("widget").addClass('searchbox-widget-open');
+                           
+                    },
+                close:function(event, ui)
+                {
+                    $(event.target).removeClass('searchbox-open');
+                    $(event.target).autocomplete("widget").removeClass('searchbox-widget-open');
+                          
+
+
+                }
                 })
             }
             catch (err) {
@@ -949,8 +971,29 @@
                 </div>
             </div>
             <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12 menu-place">
+
+              
+
                 <div class="menu-head" id="menu-head">
                     <ul class="nav navbar-right navbar-top-links log_outwrp">
+                        <li class="lang-choose-div adddivspace lang-li">
+                            @{
+                                var _cLang = System.Threading.Thread.CurrentThread.CurrentUICulture.ToString();
+                                var _encoUri = System.Web.HttpUtility.UrlEncode(Request.Url.AbsoluteUri);
+                            }
+
+                            <div class="lang-select-box">
+
+
+                                <i class="fa fa-globe" style="font-size:27px;"></i>
+                                <select name="lang" id="langSelect" style="color:#333;display:inline-block;" class="form-control" onchange="setLanguage(this, '@_encoUri')">
+                                    <option value="en" @(_cLang == "en" ? "selected" : _cLang == null ? "selected" : "")>English (USA)</option>
+                                    <option value="es" @(_cLang == "es" ? "selected" : "")>Español</option>
+
+                                </select>
+                            </div>
+                        </li>
+
                         <li>
                             <form class="searchform">
                                 <div class="search-box">
@@ -1185,7 +1228,9 @@
                        
 
 
-                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span"> (@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString())) </span></a> </li>
+                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span"> 
+                          @*  (@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))*@
+                             </span></a> </li>
                      
                         @{
                             var reportMenu = AccessList.Where(x => x.Item4 == true).ToList();
@@ -1375,6 +1420,86 @@
         //}
 
 
+
+
+        //var signalRHubInitialized=false;
+
+        @*function InitializeSignalRHubStore() {
+
+            if (signalRHubInitialized)
+                return;
+
+            try {
+                var clientHub = $.connection.fingerprintsHub;
+
+                clientHub.client.broadcastYakkrCount = function (message) {
+                    $('.yakkr-span').html('(' + message + ')');
+                };
+
+                $.connection.hub.start().done(function () {
+                    var jsonData=@Html.Raw(Json.Encode(staff))
+                    clientHub.server.initialize(jsonData.AgencyId, jsonData.RoleId, jsonData.UserId).done(function(){
+
+                        clientHub.server.getYakkrCount(jsonData.AgencyId, jsonData.RoleId, jsonData.UserId).done(function(yakkrCount){
+                            $('.yakkr-span').html('(' + yakkrCount + ')');
+                        });
+                    });
+
+
+                    signalRHubInitialized = true;
+                });
+
+            } catch (err) {
+                signalRHubInitialized = false;
+            }
+        };*@
+
+        function InitializeSignalRHubStore() {
+
+            var myHubConnection= $.hubConnection(location.origin);
+            var ticker = myHubConnection.createHubProxy('yakkrDashboardTicker');
+
+
+            ticker.on('sendYakkrTicker', function (result) {
+
+                if (result != null && result != '' && result.length > 0) {
+
+                    $.each(result, function (i, data) {
+
+                        $('.yakkr-span').html('(' + data.YakkrCount + ')');
+                    });
+                }
+
+            });
+
+            function initYakkrHub(staff, connectionId) {
+
+                var context = {
+                    'AgencyId': staff.AgencyId,
+                    'RoleId': staff.RoleId,
+                    'UserId': staff.UserId,
+                    'Name': staff.FullName,
+                    'ConnectionId': connectionId
+
+                };
+
+
+                return ticker.invoke('initialize',context).done(function (stocks) {
+
+                });
+            }
+
+
+            myHubConnection.start().done(function () {
+                var jsonData=@Html.Raw(Json.Encode(staff))
+                initYakkrHub(jsonData,myHubConnection.id)
+            });
+
+        }
+
+
+
+
         function encodeImagetoBase64(evt) {
             var f = evt.target.files[0]; // FileList object
             //var f = file.files[0];
@@ -1402,6 +1527,9 @@
             // Read in the image file as a data URL.
             reader.readAsBinaryString(f);
         }
+
+
+
 
         function base64ToArrayBuffer(base64) {
             var binary_string = window.atob(base64);
@@ -1453,7 +1581,7 @@
 
         var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
         function ValidateSingleInputpdf2(oInput, callback) {
-        
+
 
             var isValid = true;
             if (oInput.type == "file") {

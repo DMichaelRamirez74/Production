@@ -30,7 +30,6 @@ namespace Fingerprints.Controllers
 
 
 
-
         [HttpGet]
         public ActionResult Reporting()
         {
@@ -95,7 +94,6 @@ namespace Fingerprints.Controllers
 
         }
 
-
         [HttpGet]
         public ActionResult ExportData(int exporttype)
         {
@@ -110,7 +108,6 @@ namespace Fingerprints.Controllers
             }
 
         }
-
 
         private void releaseObject(object obj)
         {
@@ -149,7 +146,7 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [CustAuthFilter()]
         //  public ActionResult AddCLASReview(CLASReview data)
-        public ActionResult AddCLASReview(string modelString = "", string cameraUploads = null )
+        public ActionResult AddCLASReview(string modelString = "", string cameraUploads = null)
         {
 
             JavaScriptSerializer serializer = new JavaScriptSerializer();
@@ -193,25 +190,25 @@ namespace Fingerprints.Controllers
                         AttachmentFileExtension = ".png",
                         AttachmentFileByte = Convert.FromBase64String(item.Value)
                     });
-                
+
                 }
             }
 
 
 
 
-            var result = new Reporting().AddCLASReview(data,1);
+            var result = new Reporting().AddCLASReview(data, 1);
 
-     
+
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter()]
-        public ActionResult getCLASReviews(GridParams gparam,long centerid=0,long seasonid = 0)
+        public ActionResult getCLASReviews(GridParams gparam, long centerid = 0, long seasonid = 0)
         {
             //  var sm = Request.QueryString["centerid"].ToString();
             long TotalCount = 0;
-            var Data = new Reporting().getCLASReviews(gparam, 1,centerid, seasonid, ref TotalCount);
+            var Data = new Reporting().getCLASReviews(gparam, 1, centerid, seasonid, ref TotalCount);
 
             // return Json( result, JsonRequestBehavior.AllowGet);
             return Json(new { Data, TotalCount }, JsonRequestBehavior.AllowGet);
@@ -228,7 +225,7 @@ namespace Fingerprints.Controllers
         }
 
 
-       
+
 
         #endregion CLASReview
 
@@ -323,9 +320,9 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter()]
         //public FileResult GetEligibilityForm(string id = "0")
-        public ActionResult GetMDTFormPDF(long id = 0,bool isdoc=false)
+        public ActionResult GetMDTFormPDF(long id = 0, bool isdoc = false)
         {
-            var fileBytes =new byte[0];
+            var fileBytes = new byte[0];
 
             if (isdoc)
             {
@@ -369,7 +366,7 @@ namespace Fingerprints.Controllers
                 }
 
                 output.Position = 0;
-                 fileBytes = output.ToArray();
+                fileBytes = output.ToArray();
             }
             // Send the binary data to the browser.
             return new BinaryContentResult(fileBytes, "application/pdf");
@@ -421,7 +418,7 @@ namespace Fingerprints.Controllers
 
             model.SearchTerm = string.Empty;
             model.SkipRows = 0;
-           
+
 
             return View(model);
         }
@@ -437,7 +434,7 @@ namespace Fingerprints.Controllers
         public FamilyActivityReport GetFamilyActivity(FamilyActivityReport familyActivityReport)
         {
             familyActivityReport.SkipRows = familyActivityReport.GetSkipRows();
-            familyActivityReport =FactoryInstance.Instance.CreateInstance<Reporting>().GetFamilyActivityReport(StaffDetails.GetInstance(), familyActivityReport);
+            familyActivityReport = FactoryInstance.Instance.CreateInstance<Reporting>().GetFamilyActivityReport(StaffDetails.GetInstance(), familyActivityReport);
 
             return familyActivityReport;
         }
@@ -450,7 +447,7 @@ namespace Fingerprints.Controllers
 
             try
             {
-         
+
                 familyActivityReport.SortColumn = "Classroom";
                 familyActivityReport.SortOrder = "ASC";
 
@@ -540,6 +537,9 @@ namespace Fingerprints.Controllers
             Response.Clear();
             Response.Buffer = true;
 
+
+           
+
             switch (reportFormat)
             {
                 case FingerprintsModel.Enums.ReportFormatType.Pdf:
@@ -588,6 +588,7 @@ namespace Fingerprints.Controllers
             Response.Close();
         }
         #endregion
+
 
 
         #region UFC Report
@@ -897,7 +898,7 @@ namespace Fingerprints.Controllers
 
             var staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-            caseNoteByClientID = new RosterData().GetCaseNoteByCaseNoteId(caseNoteByClientID, staffDetails);
+            caseNoteByClientID = new RosterData(staffDetails).GetCaseNoteByCaseNoteId(caseNoteByClientID);
 
 
            MemoryStream memoryStream= new Export().ExportCaseNote(caseNoteByClientID, ReportFormatType.Pdf, null);

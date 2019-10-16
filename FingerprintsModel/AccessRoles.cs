@@ -18,6 +18,8 @@ namespace FingerprintsModel
 
         public List<ScreeningNew> ScreeningList { get; set; }
 
+       
+
         public int SelectedScreeningID { get; set; }
     }
 

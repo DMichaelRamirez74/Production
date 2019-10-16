@@ -9,6 +9,9 @@ using Fingerprints.Filters;
 using Fingerprints.ViewModel;
 using FingerprintsModel.Enums;
 using System.Threading;
+using Microsoft.AspNet.Identity;
+using System.Security.Claims;
+using Microsoft.Owin.Security;
 
 namespace Fingerprints.Controllers
 {
@@ -410,6 +413,19 @@ namespace Fingerprints.Controllers
                 }
 
                 StaffDetails staff = StaffDetails.GetInstance();
+
+                AppUserState appUserState = new AppUserState()
+                {
+                    Email = staff.EmailID,
+                    Name = staff.FullName,
+                    UserId = staff.UserId.ToString(),
+                    RoleId=staff.RoleId.ToString(),
+                    AgencyId=staff.AgencyId.ToString()
+                    
+                };
+                string uniqueId = Guid.NewGuid().ToString();          
+                IdentitySignin(appUserState, uniqueId, Convert.ToBoolean(chkRememberMe==null?false:chkRememberMe));
+
                 string newLocation = string.Empty;
                 if (Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d"))
                     newLocation = "~/Home/SuperAdminDashboard";
@@ -556,5 +572,40 @@ namespace Fingerprints.Controllers
 
         //End
         //End
+
+
+        public void IdentitySignin(AppUserState appUserState, string providerKey = null, bool isPersistent = false)
+        {
+            var claims = new List<Claim>();
+
+            // create required claims
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, appUserState.UserId.ToString()));
+            claims.Add(new Claim(ClaimTypes.Name, appUserState.Name));
+            //claims.Add(new Claim(ClaimTypes.Role, appUserState.RoleId));
+       
+
+            // custom – my serialized AppUserState object
+            claims.Add(new Claim("userState", appUserState.ToString()));
+
+            var identity = new ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie);
+
+            AuthenticationManager.SignIn(new AuthenticationProperties()
+            {
+                AllowRefresh = true,
+                IsPersistent = isPersistent,
+                ExpiresUtc = DateTime.UtcNow.AddDays(7)
+            }, identity);
+        }
+
+        public void IdentitySignout()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie,DefaultAuthenticationTypes.ExternalCookie);
+        }
+        private IAuthenticationManager AuthenticationManager
+        {
+            get { return HttpContext.GetOwinContext().Authentication; }
+        }
+
+      
     }
 }

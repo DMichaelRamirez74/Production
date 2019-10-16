@@ -143,11 +143,17 @@
 
 !(function ($) {
 
-    function getRandomNumber() {
-        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        )
+    //function getRandomNumber() {
+    //    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+    //        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    //    )
 
+    //}
+    function getRandomNumber() {
+        function S4() {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        }
+        return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
     }
 
     $.fn.ApplinkCaseNote = function (option, parameter, extraOptions) {  //[int],{PageSize:[int],RequestedPage:[int] },[function]
@@ -352,6 +358,81 @@
                     this.options.saveCaseNote(this);
 
                 }
+            },
+            bindAjaxParameters: function (events) {
+                var caseNote = {};
+                var clientIDs = null;
+
+                var clientArray = [];
+                $.each(events.caseNoteDivClientsElement.find('input:checkbox:checked'), function () {
+
+                    clientArray.push($(this).val());
+                });
+
+                var staffArray = [];
+                $.each(events.caseNoteDivStaffsElement.find('input:checkbox:checked'), function () {
+
+                    staffArray.push($(this).val());
+                });
+
+
+                var cameraDocumentsArray = [];
+
+
+                this.caseNoteAttachmentDiv.find('input:file').each(function (a, b) {
+
+                    var fileInput = $(this);
+
+                    if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
+                        var fileUpload = fileInput.get(0);
+                        var files = fileUpload.files;
+
+                        for (var i = 0; i < files.length; i++) {
+
+
+                            var convImage = fileInput.attr('conv-img');
+
+                            if (convImage != null && convImage != "")
+                                cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
+
+
+                        }
+                    }
+                });
+
+
+
+                var $cameraDocuments = events.caseNoteImageGalleryDiv.find('.setup_viewscreen');
+
+
+
+                if ($cameraDocuments.length > 0) {
+
+                    $.each($cameraDocuments, function (j, doc) {
+
+                        var $doc = $(doc).find('img');
+                        cameraDocumentsArray.push({ AttachmentFileName: 'CaseNoteDocument', AttachmentFileExtension: '.png', AttachmentJson: getBase64Image($doc) });
+
+                    });
+                }
+
+
+
+                caseNote.ClientId = events.hiddenClientId.val();
+                caseNote.CenterId = events.hiddenCenterId.val();
+                caseNote.HouseHoldId = events.hiddenHouseholdId.val();
+                caseNote.CaseNoteid = events.hiddenCaseNoteId.val();
+                caseNote.ProgramId = events.hiddenProgramId.val();
+                caseNote.ClientIds = clientArray.join(',');
+                caseNote.StaffIds = staffArray.join(',');
+                caseNote.CaseNoteDate = events.caseNoteDateElement.val();
+                caseNote.CaseNoteTitle = events.caseNoteTitleElement.val();
+                caseNote.CaseNotetags = events.caseNoteTagsElement.val();
+                caseNote.Note = events.caseNoteNotesElement.val();
+                caseNote.CaseNoteSecurity = events.caseNoteSecurityCheckBox.is(':checked');
+                caseNote.CaseNoteAttachmentList = cameraDocumentsArray;
+
+                return caseNote;
             },
         },
 

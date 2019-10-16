@@ -1354,7 +1354,7 @@
                             {
                                 //if(family.ParentRole==1)
                                 //{
-                                parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID1 parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '"  pro-im="'+family.ProfilePicture+'"   parent=' + family.ClientId + ' role=' + family.ParentRole + '" /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
+                                parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID1 parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '"  pro-im="'+family.ProfilePicture+'"   parent=' + family.ClientId + ' role=' + family.ParentRole + ' gender='+family.Gender+' /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
 
                                 ////}
                                 ////if (family.ParentRole == 2) {
@@ -1390,15 +1390,16 @@
 
 
                         $('.parent-check[type=checkbox]').on('change', function () {
-
+                           
                             if ($(this).is(':checked')) {
 
                                 var id = $(this).attr('id');
                                 var pare_role = $(this).attr('role');
+                                var pare_gender = $(this).attr('gender');
                                 var image = $(this).attr('pro-im');
                                 // var src = (pare_role === '1') ? (image == '') ? '/Content/img/ic_male.png' : "'data:image/jpg;base64,' + image + ''":(pare_role === '2') ? (image == '') ? '/Content/img/ic_female.png' : "'data:image/jpg;base64,' + image + ''" ;
                                 var src = '';
-                                if (pare_role === '1') {
+                                if (pare_gender === '1') {
                                     if (image === '') {
                                         src = '/Images/adult-image.png';
                                     }
@@ -1407,7 +1408,7 @@
                                     }
                                 }
                                 
-                                else if (pare_role === '2') {
+                                else if (pare_gender === '2') {
                                     if (image === '') {
                                         src = '/Images/female-adult.png';
                                     }
@@ -1415,8 +1416,16 @@
                                         src = 'data:image/jpg;base64,' + image + '';
                                     }
                                 }
+                                else if(pare_gender==='3') {
+                                    if (image === '') {
+                                        src = '/Images/adult-adult.png';
+                                    }
+                                    else {
+                                        src = 'data:image/jpg;base64,' + image + '';
+                                    }
+                                }
 
-                                var src = (image == '') ? '/Images/adult-image.png' : 'data:image/jpg;base64,' + image + '';
+                              //  var src = (image == '') ? '/Images/adult-image.png' : 'data:image/jpg;base64,' + image + '';
 
                                 $('#signature-div').find('.signature-div-inner').attr('id', 'sig_' + id + '');
 

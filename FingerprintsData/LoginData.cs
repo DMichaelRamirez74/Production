@@ -20,7 +20,7 @@ namespace FingerprintsData
         DataSet _Dataset = null;
         public FingerprintsModel.Login LoginUser(out string result, string UserName, string Password, string IPaddress)
         {
-            //string Pwd = EncryptDecrypt.Decrypt(Password);
+           //string Pwd = EncryptDecrypt.Decrypt(Password);
             Login Login = new Login();
             result = string.Empty;
 
@@ -35,6 +35,7 @@ namespace FingerprintsData
                 Command.Connection = Connection;
                 Command.CommandType = CommandType.StoredProcedure;
                 Command.CommandText = "LOGINDETAILS";
+             
                 DataAdapter = new SqlDataAdapter(Command);
                 _Dataset = new DataSet();
                 DataAdapter.Fill(_Dataset);
@@ -79,25 +80,27 @@ namespace FingerprintsData
                                         ).ToList();
 
                     }
+
+
                 }
                 return Login;
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
-               if (Connection != null)
-                   Connection.Close();
-               return Login;
+                if (Connection != null)
+                    Connection.Close();
+                return Login;
             }
             finally
             {
-               if (Connection != null)
+                if (Connection != null)
                     Connection.Close();
-           }
+            }
 
         }
 
-        public FingerprintsModel.Login LoginParent(out string result, string userName, string password, string ipAddress,out int primarylang)
+        public FingerprintsModel.Login LoginParent(out string result, string userName, string password, string ipAddress, out int primarylang)
         {
 
             Login Login = null;
@@ -196,8 +199,8 @@ namespace FingerprintsData
                 UserDataTable.Dispose();
                 return Login;
             }
-           catch (Exception ex)
-           {
+            catch (Exception ex)
+            {
                 clsError.WriteException(ex);
                 return Login;
             }
@@ -291,7 +294,7 @@ namespace FingerprintsData
             }
             catch (Exception ex)
             {
-               clsError.WriteException(ex);
+                clsError.WriteException(ex);
                 return false;
             }
             finally
@@ -302,8 +305,6 @@ namespace FingerprintsData
 
             }
         }
-
-
         public string ChangePassword(string currentPassword, string newPassword, string userId)
         {
             try
@@ -343,58 +344,9 @@ namespace FingerprintsData
             }
         }
 
-        public bool IsDevelopmentTeam(Guid userId,Guid? AgencyId,Guid RoleId)
+        public bool IsDevelopmentTeam(Guid userId, Guid? AgencyId, Guid RoleId)
         {
             bool isRowAffected = false;
-            try
-            {
-                if(Connection.State==ConnectionState.Open)
-                {
-                    Connection.Close();
-                }
-
-                Connection.Open();
-                Command.Connection = Connection;
-                Command.CommandType = CommandType.StoredProcedure;
-                Command.Parameters.Clear();
-                Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
-                Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
-                Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
-                Command.CommandText = "USP_CheckDevelopmentTeam";
-                var obj = Command.ExecuteScalar();
-                if(string.IsNullOrEmpty(obj.ToString()))
-                {
-                    isRowAffected = false;
-                }
-                else
-                {
-                    
-                    if(Convert.ToBoolean(obj))
-                    {
-                        isRowAffected = true;
-                    }
-                  
-                }
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-              //  return ex.Message;
-            }
-            finally
-            {
-                Connection.Close();
-                Command.Dispose();
-                Command.Dispose();
-            }
-            return isRowAffected;
-        }
-
-        public bool IsDemographic(Guid userId, Guid? AgencyId, Guid RoleId)
-        {
-            bool isRowAffected = false;
-         
             try
             {
                 if (Connection.State == ConnectionState.Open)
@@ -409,10 +361,8 @@ namespace FingerprintsData
                 Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
                 Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
                 Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
-               
-                Command.CommandText = "USP_CheckDemographic";
+                Command.CommandText = "USP_CheckDevelopmentTeam";
                 var obj = Command.ExecuteScalar();
-              
                 if (string.IsNullOrEmpty(obj.ToString()))
                 {
                     isRowAffected = false;
@@ -442,10 +392,11 @@ namespace FingerprintsData
             return isRowAffected;
         }
 
-        public List<Tuple<string, string, int,bool>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
-        {
 
-            List<Tuple<string, string, int,bool>> AccessList = new List<Tuple<string, string, int,bool>>();
+        public bool IsDemographic(Guid userId, Guid? AgencyId, Guid RoleId)
+        {
+            bool isRowAffected = false;
+
             try
             {
                 if (Connection.State == ConnectionState.Open)
@@ -461,6 +412,56 @@ namespace FingerprintsData
                 Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
                 Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
 
+                Command.CommandText = "USP_CheckDemographic";
+                var obj = Command.ExecuteScalar();
+
+                if (string.IsNullOrEmpty(obj.ToString()))
+                {
+                    isRowAffected = false;
+                }
+                else
+                {
+
+                    if (Convert.ToBoolean(obj))
+                    {
+                        isRowAffected = true;
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                //  return ex.Message;
+            }
+            finally
+            {
+                Connection.Close();
+                Command.Dispose();
+                Command.Dispose();
+            }
+            return isRowAffected;
+        }
+
+        public List<Tuple<string, string, int, bool>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
+        {
+
+            List<Tuple<string, string, int, bool>> AccessList = new List<Tuple<string, string, int, bool>>();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                Connection.Open();
+                Command.Connection = Connection;
+                Command.CommandType = CommandType.StoredProcedure;
+                Command.Parameters.Clear();
+                Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
+                Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
+                Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
                 Command.CommandText = "SP_GetAccessPageByUserId";
                 DataAdapter = new SqlDataAdapter(Command);
                 _Dataset = new DataSet();
@@ -473,22 +474,23 @@ namespace FingerprintsData
 
                         foreach (DataRow dr in _Dataset.Tables[0].Rows)
                         {
-                            AccessList.Add(new Tuple<string, string, int,bool>(dr["LayoutName"].ToString(), dr["URL"].ToString(), Convert.ToInt32(dr["MasterId"]),Convert.ToBoolean(dr["ReportMenu"])));
+                            AccessList.Add(new Tuple<string, string, int, bool>(dr["LayoutName"].ToString(), dr["URL"].ToString(), Convert.ToInt32(dr["MasterId"]), Convert.ToBoolean(dr["ReportMenu"])));
                         }
                     }
 
-                    if(_Dataset.Tables.Count>1 && _Dataset.Tables[1].Rows.Count>0)
+                    if (_Dataset.Tables.Count > 1 && _Dataset.Tables[1].Rows.Count > 0)
                     {
                         isAcceptanceProcess = Convert.ToBoolean(_Dataset.Tables[1].Rows[0]["IsInAcceptanceProcess"]);
                     }
 
                 }
 
+
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
-              
+
             }
             finally
             {
@@ -499,7 +501,7 @@ namespace FingerprintsData
             return AccessList;
         }
 
-   
+
 
         //Changes on 4jan2017
         public string CheckPassword(string Email, string Password)
@@ -525,7 +527,7 @@ namespace FingerprintsData
                 // return "-1";
             }
             catch (Exception ex)
-           {
+            {
                 clsError.WriteException(ex);
                 return ex.Message;
             }

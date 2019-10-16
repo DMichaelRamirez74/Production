@@ -24,8 +24,8 @@ namespace Fingerprints.Controllers
 
         StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
-       //[CustAuthFilter()]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator, RoleEnum.AgencyAdmin)]
+      
         public ActionResult Yakkr()
         {
             //if (!String.IsNullOrWhiteSpace(Convert.ToString(Session["AgencyID"])))
@@ -39,7 +39,7 @@ namespace Fingerprints.Controllers
             ViewBag._YakkrAgencyCodes = _Yakkr._YakkrAgencyCodes;
             TempData["_YakkrAgencyCodes"] = ViewBag._YakkrAgencyCodes;
             return View(_Yakkr);
-            //}
+           
 
 
         }
@@ -208,10 +208,10 @@ namespace Fingerprints.Controllers
                 string yakkrDescription;
 
                 ViewBag.YakkrCode = YakkrCode;
-              
+
                 string Status = "1";
 
-                listYakkr = new YakkrData().GetYakkrListByCode(out yakkrDescription,YakkrCode.ToString(), Status);
+                listYakkr = new YakkrData().GetYakkrListByCode(out yakkrDescription, YakkrCode.ToString(), Status);
                 ViewBag.YakkrDescription = yakkrDescription;
                 if (listYakkr.Count() == 0)
                 {
@@ -288,7 +288,7 @@ namespace Fingerprints.Controllers
 
 
 
-        public JsonResult GetCaseNoteDetailsByYakkr(string householdid,string clientId, string yakkrId)
+        public JsonResult GetCaseNoteDetailsByYakkr(string householdid, string clientId, string yakkrId)
         {
             //  InternalRefferalCaseNote caseNote = new InternalRefferalCaseNote();
             CaseNoteByClientID casnote = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
@@ -298,13 +298,13 @@ namespace Fingerprints.Controllers
 
                 casnote.CaseNote = new CaseNote();
                 casnote.CaseNote.ClientId = clientId;
-                casnote.CaseNote.CaseNoteid =Convert.ToString(caesNoteID);
+                casnote.CaseNote.CaseNoteid = Convert.ToString(caesNoteID);
                 casnote.CaseNote.HouseHoldId = householdid;
 
-                casnote= new RosterData().GetCaseNoteByCaseNoteId(casnote, staff);
+                casnote = new RosterData(staff).GetCaseNoteByCaseNoteId(casnote);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -319,7 +319,7 @@ namespace Fingerprints.Controllers
 
                 isResult = new YakkrData().DeleteYakkrRoutingById(clientId, yakkrId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -331,7 +331,7 @@ namespace Fingerprints.Controllers
 
         [HttpGet]
         [CustAuthFilter()]
-        public ActionResult QuestionnaireForm(int yakkrid,string cn, int cid,int center=0, int hid=0)
+        public ActionResult QuestionnaireForm(int yakkrid, string cn, int cid, int center = 0, int hid = 0)
         {
             try
             {
@@ -368,7 +368,7 @@ namespace Fingerprints.Controllers
         public JsonResult GetYakkr451DetailsById(int id)
         {
 
-           var result =  new YakkrData().GetQuestionaireByYakkrId(id,3);
+            var result = new YakkrData().GetQuestionaireByYakkrId(id, 3);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -401,7 +401,7 @@ namespace Fingerprints.Controllers
 
                 });
 
-                message = new RosterData().SaveCaseNotes(ref Name, CaseNote, staff, 2);
+                message = new RosterData(staff).SaveCaseNotes(ref Name, CaseNote, 2);
 
                 if (message != "1")
                     caseNoteResult = false;
@@ -421,7 +421,7 @@ namespace Fingerprints.Controllers
 
                 if (!questionnaireResult)
                 {
-                    new RosterData().DeleteCaseNote(casenoteid:Convert.ToInt32(CaseNote.CaseNoteid), appendcid:new int[] { }, deletemain: true, mode:1);
+                    new RosterData(staff).DeleteCaseNote(casenoteid:Convert.ToInt32(CaseNote.CaseNoteid), appendcid:new int[] { }, deletemain: true, mode:1);
                 }
 
             }
@@ -511,7 +511,7 @@ namespace Fingerprints.Controllers
                     }
                    
 
-                    message = new RosterData().SaveCaseNotes(ref Name, caseNote, staff, 2);
+                    message = new RosterData(staff).SaveCaseNotes(ref Name, caseNote, 2);
 
                 }
 
@@ -535,7 +535,7 @@ namespace Fingerprints.Controllers
 
                 if (!questionnaireResult)
                 {
-                    new RosterData().DeleteCaseNote(casenoteid: caseNoteId, appendcid: new int[] { }, deletemain: true, mode: 1);
+                    new RosterData(staff).DeleteCaseNote(casenoteid: caseNoteId, appendcid: new int[] { }, deletemain: true, mode: 1);
                 }
 
             }
@@ -561,10 +561,10 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public PartialViewResult ReferralIssueSummary(int yakkrid,string clientname)
+        public PartialViewResult ReferralIssueSummary(int yakkrid, string clientname)
         {
 
-            var result = new YakkrData().GetQuestionaireByYakkrId(yakkrid,5);
+            var result = new YakkrData().GetQuestionaireByYakkrId(yakkrid, 5);
 
             ViewBag.CName = clientname;
             ViewBag.Yakkr453 = yakkrid;
@@ -607,9 +607,9 @@ namespace Fingerprints.Controllers
             try
             {
                 StaffDetails staff = StaffDetails.GetInstance();
-                yakkrCount= new YakkrData().GetYakkrCountByUserId((Guid)staff.AgencyId, (Guid)staff.UserId, Status:"1");
+                yakkrCount = new YakkrData().GetYakkrCountByUserId((Guid)staff.AgencyId, (Guid)staff.UserId, Status: "1");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
 

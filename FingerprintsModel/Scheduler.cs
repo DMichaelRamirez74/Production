@@ -94,6 +94,7 @@ namespace FingerprintsModel
         public string ParentName { get; set; }
         public string ClientId { get; set; }
         public string ParentRole { get; set; }
+        public string Gender { get; set; }
 
         public string ProfilePicture { get; set; }
     }

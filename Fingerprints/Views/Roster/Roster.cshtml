@@ -1,4 +1,6 @@
-﻿@{
+﻿@model FingerprintsModel.Roster
+
+@{
     @section Title
 {
         Roster
@@ -30,6 +32,9 @@
         var _sessionUserid='@(FingerprintsModel.StaffDetails.GetInstance().RoleId.ToString()+"_"+FingerprintsModel.StaffDetails.GetInstance().UserId.ToString())';
         var $cookieName='RosterABT_'+_sessionUserid;
         var _accessLW=@Html.Raw(Json.Encode(@_isAccessLW));
+        var _closedDetailsJson=@Html.Raw(Json.Encode(Model.ClosedDetails));
+
+
 
         var caseNoteHeading = {
             'AddCaseNote': 'Add New Case Note',
@@ -47,10 +52,10 @@
             var _clsId = parseInt( $(this).val());
             if (_clsId) {
                 $("#lwbtn").slideDown();
-                $("#lwbtn").attr('href', UrlObj.gAnalysis.concat(_clsId));
+                $("#lwbtn").attr('onclick', 'location.href='+'"'+UrlObj.gAnalysis.concat(_clsId)+'"');
             } else {
                 $("#lwbtn").slideUp();
-                $("#lwbtn").attr('href', 'javascript:void(0)');
+                $("#lwbtn").removeAttr('onclick');
             }
         });
         $(document).on('click', '[data-toggle="tooltip"]',function(){
@@ -62,14 +67,6 @@
 
         });
 
-
-
-       
-
-
-      
-
-    
 
         function clearHVSchedule(ele)
         {
@@ -133,7 +130,7 @@
 
 
         function getScreeningByClient(ele) {
-         
+
             var cId = $(ele).attr('ecid');
             var fup = $(ele).attr("follow-up");
             var pId = $(ele).attr('pId');
@@ -323,20 +320,20 @@
             return isAllow;
         }
 
-       
 
 
-        
+
+
 
         var flag = 0;
 
         var EnrolledObject = null;
-        var sortOrder = '';
-        var sortDirection = '';
+        var sortColumn = 'th1';
+        var sortOrder = 'ASC';
         var imgID = '';
         var direction = '';
-        var pageSize = 50;
-        var requestedPage = 0;
+        var pageSize = 20;
+        var requestedPage = 1;
         var pageLoadedFirst = true;
         var totalRecords = 0;
         var numOfPages = 0;
@@ -348,26 +345,25 @@
         var searchTextByName = '';
         var filterOption = '';
         $(window).load(function () {
-           
+
         });
 
 
 
-    
+
 
 
 
         function clearAllGrid() {
-            var colspan = $('#GridRoster').find('th').length;
+            var colspan = $('#divGridRoster').find('table.glossy-table').find('th').length;
             var bindRow = '<tr style="width:100%;height:auto;font-weight:bold;" role="row">\
                                             <td colspan='+ colspan + ' style="padding: 25px;text-align:center;">Search by Center and Classroom<sup style="color:red;">*</sup></td>\
                                         </tr>';
 
-            $('#GridRoster').find('#table_body').html(bindRow);
+            $('#divGridRoster').find('table.glossy-table').find('tbody.glossy-table-body').html(bindRow);
 
-            $('#ddlpagetodisplay').prop('disabled', true);
+            $('#roster-pagination-div').empty();
             $('#rosterCountLabel').html(0);
-            $('#ddlpaging').find('option').remove();
             $('#div1').hide();
         }
 
@@ -405,7 +401,7 @@
 
 
         function Getcasenote($modal, Casenoteid,householdId, clientId, ele) {
-            
+
             $modal=$('#att-issue-modal');
             var isEditable = $(ele).attr("data-editable")=='true';
 
@@ -413,16 +409,8 @@
             $modal.find('#div-append-casenote').hide();
 
             bindAttendanceIssueCaseNote($modal,2,Casenoteid,clientId,isEditable);
-        
+
         }
-
-
-    
-
-
-
-       
-
 
 
         function getReferralService(ele) {
@@ -513,7 +501,7 @@
             }
 
             $('#refAttendanceIssueDiv').find('#refcatagoryattenissuediv').load('@Url.Action("ReferralCategoryPartial", "Roster")', { id: _ref_EncClientId, clientName: _ref_clientName, ScreeningReferralYakkr: _ref_Yakkrid, ReferralClientId: _referral_ClientId }, function (responseTxt, statusTxt, xhr) {
-               
+
 
                 if (statusTxt == 'success') {
                     $('#refcatagoryattenissuediv').html(responseTxt);
@@ -568,7 +556,7 @@
               , ScreeningReferralYakkr: referanceYakkrid
               , stepId:Step
             }, function (responseTxt, statusTxt, xhr) {
-              
+
 
                 if (statusTxt == 'success') {
                     $('#refmathcprovidersattenissuediv').html(responseTxt);
@@ -621,8 +609,8 @@
             });
         }
 
-        
-      
+
+
 
 
 
@@ -630,7 +618,7 @@
         function getAttendanceIssueCaseNote(ele) {
 
 
-          
+
 
             $('#div-edit-modal-img-gallery').html('');
 
@@ -657,7 +645,7 @@
 
 
                         $('#att-issue-modal').find('#div-edit-caseNote').hide();
-                        
+
                         $('#div-att-issue-append-casenote').ApplinkCaseNote({
                             isPopup: false,
                             isSection: true,
@@ -672,7 +660,7 @@
                             modalOnShownEvent:function(element)
                             {
 
-                               
+
                                 $('#modal-uploaddocument').attr('target-modal',$(element).attr('id'));
 
                                 showCameraOption($(element));
@@ -683,7 +671,7 @@
                                 setIntervalUserMedia($(element));
                                 $(element).closest('#div-append-casenote').show();
 
-                                
+
                                 $('#att-issue-modal').animate({
                                     scrollTop: $("#div-append-casenote").offset().top
                                 }, 1000)
@@ -691,16 +679,16 @@
                             }
                         });
 
-                  
+
 
 
                     });
 
                     var $modalCn = $('#div_attendance_issue_cn');
 
-                 
 
-                   
+
+
 
                     $('#att-issue-modal').find('#att-issue-pagination-div').ApplinkPG({
                         'totalRecords': $modalCn.find('#totalCountSpan_casenote').length > 0 ? $modalCn.find('#totalCountSpan_casenote').html() : 0,
@@ -713,11 +701,11 @@
                             'clientId': $('#hiddenatt-issue-clientid').val(),
                             'pageSize': pageSize_caseNote,
                             'requestedPage': requestedPage_caseNote
-                          
+
                         },
                         'bindInitialLoad':false,
                         bindData: function (events, data) {
-                       
+
                             var tbody = $('#table_'+events.paginationIndex+'').find ('#tbody_'+events.paginationIndex+'');
 
                             var appendText = '';
@@ -831,7 +819,7 @@
                                 else
                                 {
                                     $(span).closest('th').find('.i-asc,.i-desc').hide();
-                               
+
                                 }
 
                             });
@@ -847,7 +835,7 @@
                                 events.options.totalRecords = parseInt($('#totalCountSpan_casenote').html());
                             }
 
-                           
+
                         }
                     });
 
@@ -862,7 +850,7 @@
         }
 
 
-   
+
 
 
 
@@ -874,7 +862,7 @@
             $('#appendCaseNotetags_'+$guidAppend+'_tagsinput .tag ').each(function () {
                 $(this).remove();
             });
-                
+
             $divappendCaseNoteSection.find('.div_append_image_gallery_'+$guidAppend+'').html('');
             $divappendCaseNoteSection.find('#addAttachmentDiv_AppendNote_'+$guidAppend+'').html('');
             $divappendCaseNoteSection.find('#appendCaseNote_attachmentsDiv_'+$guidAppend+'').find('input:file').val('');
@@ -884,7 +872,7 @@
 
 
 
-       
+
 
         function resetExcessiveAbsences($modal,ele)
         {
@@ -948,7 +936,9 @@
         $(document).ready(function () {
 
 
-           
+
+
+
 
             $('.modal').on("hidden.bs.modal", function (e) { //fire on closing modal box
                 if ($('.modal:visible').length) { // check whether parent modal is opend after child modal close
@@ -956,7 +946,7 @@
                 }
             });
 
-        
+
 
             $('#btn_append_casenote_clear').on('click', function (e) {
 
@@ -976,7 +966,7 @@
 
 
 
-          
+
 
 
             $('#modalAppendCaseNote').on('hidden.bs.modal', function () {
@@ -1003,7 +993,7 @@
                 bindAttendanceIssueCaseNote($att_issue_modal,1,0,$('#hiddenatt-issue-clientid').val(),true);
 
 
-                
+
 
             });
 
@@ -1044,7 +1034,7 @@
 
 
 
-              
+
                 pageSize_caseNote = 10;
                 requestedPage_caseNote = 1;
                 getAttendanceIssueCaseNote(this);
@@ -1068,7 +1058,7 @@
 
 
                 if (result) {
-                                  
+
                     var casenotes = {};
                     var clientArray = [];
                     var staffArray = [];
@@ -1139,7 +1129,7 @@
 
                         },
                         data: JSON.stringify(casenotes),
-                
+
                         success: function (data) {
                             if(data=='1')
                             {
@@ -1147,11 +1137,11 @@
 
                                 bindAttendanceIssueCaseNote($('#att-issue-modal'),1,0,$('#hiddenatt-issue-clientid').val(),1);
 
-                          
 
-                                            if ($('#div_attendance_issue_cn').is(':visible')) {
-                                                getAttendanceIssueCaseNote(null);
-                                            }
+
+                                if ($('#div_attendance_issue_cn').is(':visible')) {
+                                    getAttendanceIssueCaseNote(null);
+                                }
                             }
                             else {
                                 customAlert('Error occurred. Please, try again later.');
@@ -1235,7 +1225,7 @@
 
 
 
-         
+
 
             var $attendanceIssueModal = $('#att-issue-modal');
 
@@ -1267,12 +1257,12 @@
                 pageSize = '@Session["_RosterPageSize"]' != '' ? parseInt('@Session["_RosterPageSize"]') : 0;
                 $('#ddlpagetodisplay').val(pageSize);
 
-                sortOrder = '@Session["_RosterSortOrder"]';
-                sortDirection = '@Session["_RosterSortDirection"]';
+                sortColumn = '@Session["_RosterSortOrder"]';
+                sortOrder = '@Session["_RosterSortDirection"]';
 
                 if ($('#searchByNameDiv').length > 0) {
                     $('#searchTextName').val(searchTextByName);
-                   
+
                     drawgrid();
                 }
                 else {
@@ -1296,7 +1286,7 @@
                 autocomplete_url: '/Roster/GetCaseNoteTag',
             });
 
-          
+
 
 
             if ($('#isManager').val() === 'True') {
@@ -1346,7 +1336,7 @@
 
             $("#MyModalLateArrival").on("hidden.bs.modal", function () {
                 $('#divAbsenceReasonList').hide();
-               
+
                 $('#CaseNotetags_tagsinput .tag ').each(function () {
                     $(this).remove();
                 });
@@ -1383,9 +1373,10 @@
 
 
 
-            $('#btnsearch').on('click', function () {
+            $('#btnsearch').on('click', function (e) {
 
 
+                e.preventDefault();
                 cleanValidation();
 
                 if ($('#Centers').val() == '0' || $('#Centers').val() == null || $('#Centers').val() == '') {
@@ -1393,10 +1384,10 @@
                     customAlert('Please Select Center');
                     return false;
                 }
-               
+
                 searchTextByName = '';
 
-               
+
                 drawgrid();
             });
 
@@ -1410,6 +1401,7 @@
                 }
             });
 
+
             $("#AbsentType").change(function () {
                 if ($(this).val() == 2) {
                     $('#divAbsenceNoShow').hide();
@@ -1419,12 +1411,12 @@
 
                 else if ($(this).val() == 3) {
                     $('#divAbsenceNoShow').show();
-                    $("#ReasonList").val("");
+                    $("#ReasonList").val("0");
                     $('#divAbsenceReasonList').hide();
                 }
                 else {
                     $('#divAbsenceNoShow').hide();
-                    $("#ReasonList").val("");
+                    $("#ReasonList").val("0");
                     $('#divNewReason').hide();
                     $('#txtNewReason').val("");
                     $('#divAbsenceReasonList').hide();
@@ -1467,7 +1459,7 @@
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
-                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
                 }
             });
 
@@ -1480,35 +1472,10 @@
             $('#DashboardHV').removeClass("active");
 
 
-        
-
-
-            $('#GridRoster > thead > tr > th').click(function () {
-                sortOrder = this.id;
-                var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
-
-                if (sortOrder == "thSN" || rowLength === 0)
-                    return false;
-                if (sortOrder == "thRN" || rowLength === 0)
-                    return false;
-                if (rowLength === 0)
-                    return false;
 
 
 
-                imgID = $("#" + this.id).find('img').attr('id');
-                $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
-                direction = $("#" + imgID).siblings('input').val();
-                if (direction == "Asc") {
-                    $("#" + imgID).siblings('input').val("Desc");
-                    sortDirection = $("#" + imgID).siblings('input').val();
-                } else {
-                    $("#" + imgID).siblings('input').val("Asc");
-                    sortDirection = $("#" + imgID).siblings('input').val();
-                }
-                getList();
-                bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-            });
+
 
 
             $("#txtsearch").on('change keypress paste', function (e) {
@@ -1520,20 +1487,6 @@
             });
 
 
-            $('#ddlpaging').change(function () {
-                $('#spinner').show();
-                window.setTimeout(function () { getListafterupdation() }, 10);
-            });
-
-
-            $('#casenoteddlpaging').on('change', function () {
-
-                window.setTimeout(function () { getListafterupdationCaseNote() }, 10);
-
-
-            });
-
-
 
             $('#btn_append_casenote_save').click(function () {
 
@@ -1541,7 +1494,7 @@
                 var $appendCaseNoteSection = $('#div-att-issue-append-casenote').find('#divAppendCaseNoteSection');
                 var $guid=$appendCaseNoteSection.attr('data-section-id');
 
-                
+
                 if (CKEDITOR.instances['subnotes_caseNote_'+$guidAppend+''].getData() == "") {
                     customAlert("Sub Note is required.");
                 }
@@ -1557,10 +1510,10 @@
                     var cameraDocumentsArray = [];
                     var fileData = new FormData();
                     $appendCaseNoteSection.find('#appendCaseNote_attachmentsDiv_'+$guidAppend+'').find('input:file').each(function (a, b) {
-               
+
                         var fileInput = $(this);
 
-                
+
 
                         if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
                             var fileUpload = fileInput.get(0);
@@ -1576,7 +1529,7 @@
                                 if (convImage != null && convImage != "")
                                     cameraDocumentsArray.push({ AttachmentFileName: files[i].name, AttachmentFileExtension: '.' + files[i].name.split('.')[files[i].name.split('.').length - 1], AttachmentJson: convImage });
 
-                       
+
                             }
                         }
                     });
@@ -1624,7 +1577,7 @@
                             $('#spinner').hide();
                             if (data != '') {
                                 customAlert('Record saved successfully');
-                            
+
                                 $('#div-append-casenote').hide();
                                 $('#div-att-issue-append-casenote').empty();
                                 bindAttendanceIssueCaseNote($('#att-issue-modal'));
@@ -1803,7 +1756,7 @@
 
 
                 var EClientId = $modal.find('#lbl-popup-client').attr('accesskey');
-                
+
                 $.ajax({
                     url: HostedDir + "/Roster/GetAttendenceByDate",
                     type: "POST",
@@ -1826,8 +1779,6 @@
 
                             var sigString = $(this).children('input:hidden').val();
 
-                        //    $(this).signature();
-                            
                             if ($(this).hasClass('teacher-sig-div')) {
                                 $(this).signature({ color: '#131515' });
 
@@ -1836,7 +1787,7 @@
 
                                 $(this).signature({ color: '#29327f' });
                             }
-                            
+
                             $(this).signature('draw', sigString);
                             $(this).signature('disable');
 
@@ -1862,7 +1813,7 @@
                     }
                     , error: function (response) {
 
-                        
+
 
                     }
 
@@ -1873,23 +1824,18 @@
 
             $('#modal-attendance-details').on('hidden.bs.modal', function () {
 
-            
+
                 $(this).find('#seatsDatetimePicker1').val('');
                 $(this).find('#lbl-popup-client').html('');
                 $(this).find('#lbl-popup-client').removeAttr('accesskey');
 
-              
+
 
                 $(this).find('#attendance-details-section').html('<div class="col-xs-12 glossy-panel-div table-back-shadow text-center" style="padding:25px;">\
                                                                     <span class="col-xs-12">Search by Filter <sup style="color:red;">*</sup></span>\
                                                                     </div>');
 
             });
-
-
-
-            //changes on dec-18-17
-
 
             $('#homeVisitDivAttenissue').find('input[name=hvHoursTxt]').mask("99:99", { placeholder: 'HH:MM' });
 
@@ -1910,7 +1856,6 @@
                     else if (j == 2 && i < 12) {
                         if (i > 9 && i == 18) {
                             break;
-                            //listTime.push(i + ':30')
                         }
                         else if (i > 9) {
                             listTimeHours.push(i + ':30')
@@ -2048,7 +1993,7 @@
                 plainValidation($hvSection.find('#Notes'));
                 return isValid;
             }
-                
+
             else if ($hvSection.find('#StartTime')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter Start Time.");
@@ -2120,7 +2065,7 @@
                     type: "POST",
                     data: {
                         Description: _hvDescription,
-                        Date: _hvDate, //Changes on 28Dec2016
+                        Date: _hvDate,
                         StartTime: _hvStartTime,
                         Duration: _hvDuration,
                         EndTime: _hvEndTime,
@@ -2163,7 +2108,7 @@
 
         function clearcontrols($modal) {
             $modal.find('#Description')[0].value = "";
-           
+
             $modal.find('#StartTime')[0].value = "";
             $modal.find('input:text[name=hvHoursTxt]')[0].value = "";
             $modal.find('#Notes')[0].value = "";
@@ -2179,7 +2124,7 @@
             var data = new FormData();
             $('#div-att-issue-append-casenote').find('#att_issueattachmentsDiv').find('input:file').each(function (i, vak) {
                 var files = $(this).get(0).files;
-              
+
                 if (files.length > 0) {
                     data.append("MyImages" + i + "", files[0]);
                 }
@@ -2204,124 +2149,39 @@
         }
 
 
-        function getListafterupdation() {
-
-            pageSize = $('#ddlpagetodisplay').val();
-            requestedPage = $('#ddlpaging').val();
-            StartIndex = (pageSize * (requestedPage - 1)) + 1;
-            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
-            $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
-            if (imgID != '' && imgID != 'undefined' && imgID != null) {
-                direction = $("#" + imgID).siblings('input').val();
-            }
-            if (direction == "Asc") {
-                sortDirection = $("#" + imgID).siblings('input').val();
-            } else if (direction == "Desc") {
-                sortDirection = $("#" + imgID).siblings('input').val();
-            }
-            getList();
-          
-            if (requestedPage == 1) {
-                $('#First').attr('disabled', true);
-                $('#Back').attr('disabled', true);
-                $('#Next').attr('disabled', false);
-                $('#Last').attr('disabled', false);
-            }
-            else if (requestedPage == numOfPages) {
-                $('#First').attr('disabled', false);
-                $('#Back').attr('disabled', false);
-                $('#Next').attr('disabled', true);
-                $('#Last').attr('disabled', true);
-            }
-            else {
-                $('#First').attr('disabled', false);
-                $('#Back').attr('disabled', false);
-                $('#Next').attr('disabled', false);
-                $('#Last').attr('disabled', false);
-            }
-            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-            $("#ddlpaging").val(requestedPage);
-        }
-
-
-        function getListafterupdationCaseNote() {
-
-
-
-            var $modalcaseNote = $('#div_attendance_issue_cn');
-
-            pageSize_caseNote = $modalcaseNote.find('#casenoteddlpagetodisplay').val();
-            requestedPage_caseNote = $('#casenoteddlpaging').val();
-            StartIndex = (pageSize_caseNote * (requestedPage_caseNote - 1)) + 1;
-            LastIndex = parseInt(pageSize_caseNote * requestedPage_caseNote) - parseInt(pageSize_caseNote);
-           
-            if (requestedPage_caseNote == 1) {
-                $modalcaseNote.find('#First_CaseNote').attr('disabled', true);
-                $modalcaseNote.find('#Back_CaseNote').attr('disabled', true);
-                $modalcaseNote.find('#Next_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Last_CaseNote').attr('disabled', false);
-            }
-            else if (requestedPage_caseNote == numOfPages_caseNote) {
-                $modalcaseNote.find('#First_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Back_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Next_CaseNote').attr('disabled', true);
-                $modalcaseNote.find('#Last_CaseNote').attr('disabled', true);
-            }
-            else {
-                $modalcaseNote.find('#First_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Back_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Next_CaseNote').attr('disabled', false);
-                $modalcaseNote.find('#Last_CaseNote').attr('disabled', false);
-            }
-            $("#ddlpaging").val(requestedPage_caseNote);
-
-            getAttendanceIssueCaseNote(null);
-        }
-
 
         function getList() {
 
-            requestedPage = (requestedPage === 0) ? 1 : requestedPage;
+            $('#roster-pagination-div').ApplinkPG({
 
-            filterOption = ($('#filterSelect').length === 0) ? '0' : $('#filterSelect').val();
-            $.ajax({
-                url: HostedDir + "/Roster/listRoster",
-                type: "POST",
-                data: {
-                    sortOrder: sortOrder,
-                    sortDirection: sortDirection,
-                    Center: $("#Centers").val(),
-                    Classroom: ($("#Classroom").val() == '0') ? '' : $("#Classroom").val(),
-                    pageSize: $('#ddlpagetodisplay').val(),
-                    requestedPage: requestedPage,
-                    searchTextByName: searchTextByName,
-                    filterOption: filterOption
+                'totalRecords': $('#rosterCountLabel').length > 0 ? $('#rosterCountLabel').html() : 0,
+                'sortOrder': sortOrder==null || sortOrder=='' ?'ASC':sortOrder,
+                'sortColumn': sortColumn==null || sortColumn==''? 'th1':sortColumn,
+                'pageSize': pageSize==null || pageSize==''|| pageSize==0? 20:pageSize,
+                'requestedPage':requestedPage==null || requestedPage=='' || requestedPage==0? 1:requestedPage,
+                'isEnableSorting': true,
+                'getRecordUrl': HostedDir + '/Roster/GetRosterList',
+                'dataType': 'json',
+                'data': {
+                    'CenterId': $("#Centers").val(),
+                    'ClassroomId':($("#Classroom").val() == '0') ? '' : $("#Classroom").val(),
+                    'FilterOption': ($('#filterSelect').length === 0) ? '0' : $('#filterSelect').val(),
+                    'SearchTerm': $('#searchTextName').is(':visible') ? $('#searchTextName').val().trim():""
                 },
-                dataType: "json",
-                secureuri: false,
-                async: false,
-                beforeSend: function () {
-                    $('#spinner').show();
-                },
-                success: function (data) {
-                    $('#spinner').hide();
-                    getData(data);
-                    getTotalRecord(data.totalrecord);
+                'bindInitialLoad':true,
+                bindData: function (events, data) {
+
+                    events.options.totalRecords = data.totalrecord;
+                    bindGridRoster(data, $("#table_"+events.paginationIndex+""));
                 }
-                , error: function (response) {
-                    $('#spinner').hide();
-                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                }
+
+
             });
-
         }
 
         function getData(dataAgency) {
             listAgency = dataAgency;
         }
-
-
-        //validation color change//
 
         function plainValidation(id) {
 
@@ -2337,74 +2197,23 @@
             });
         }
 
-
-
-        //validation color change//
-
-
-        function GoToNextPage(requestedPage, pageSize) {
-            $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
-            if (imgID != '' && imgID != 'undefined' && imgID != null) {
-                direction = $("#" + imgID).siblings('input').val();
-            }
-            if (direction == "Asc") {
-                sortDirection = $("#" + imgID).siblings('input').val();
-
-            } else if (direction == "Desc") {
-                sortDirection = $("#" + imgID).siblings('input').val();
-            }
-
-
-            getList();
-            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-        }
-
-
-
-
-        function GoToNextPage_CaseNote(requestedPage, pageSize) {
-      
-
-            getAttendanceIssueCaseNote(null);
-
-
-            
-        }
-
-
-        function getlistafterstatuschanged() {
-            getList();
-            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-
-        }
-
         function drawgrid() {
-           
+
             requestedPage = requestedPage;
             $('#spinner').show();
             setTimeout(function () {
                 getList();
-                bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-                LastIndex = 0;
-                $('#First').attr('disabled', true);
-                $('#Back').attr('disabled', true);
+
             }, 10);
         }
 
 
-        function drawgrid_CaseNote() {
-            $('#div_attendance_issue_cn').find('#First_CaseNote').attr('disabled', true);
-            $('#div_attendance_issue_cn').find('#Back_CaseNote').attr('disabled', true);
 
-            pageSize_caseNote = $('#div_attendance_issue_cn').find('#casenoteddlpagetodisplay').val();
-
-            getAttendanceIssueCaseNote(null);
-        }
 
         function cleargrid() {
 
+            sortColumn = '';
             sortOrder = '';
-            sortDirection = '';
             $("#Centers").val('0');
             $("#Classroom").val('');
             $('#Classroom').find('option').remove();
@@ -2428,7 +2237,7 @@
                 url: '/Roster/ClearRosterSession',
                 type: 'post',
                 datatype: 'json',
-                data: { requestedPage: 1, pageSize: parseInt($('#ddlpagetodisplay').val()), centerId: $('#Centers').val(), classroomId: $('#Classroom').val(), filter: filtervalue, searchText: searchText, sortOrder: sortOrder, sortDirection: sortDirection },
+                data: { requestedPage: 1, pageSize: 0, centerId: "", classroomId: "", filter: "", searchText: "", sortOrder: "", sortDirection: "" },
                 success: function (data) {
 
                 },
@@ -2439,237 +2248,15 @@
 
             });
 
-           
+
 
         }
 
-        function fnChangePage(val) {
-            var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
-            if (rowLength === 0) {
-
-                return false;
-            }
-
-
-
-            $('#spinner').show();
-
-            window.setTimeout(function () {
-
-                pageLoadedFirst = false;
-                pageSize = $('#ddlpagetodisplay').val();
-                if (val == 'First') {
-                    StartIndex = 0;
-                    LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
-                    requestedPage = ((StartIndex / 10) + 1);
-                    GoToNextPage(requestedPage, pageSize);
-                    $('#First').attr('disabled', true);
-                    $('#Back').attr('disabled', true);
-                    $('#Next').attr('disabled', false);
-                    $('#Last').attr('disabled', false);
-                    LastIndex = 0;
-                }
-                else if (val == 'Last') {
-                    StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
-                    LastIndex = totalRecords;
-                    requestedPage = numOfPages;
-                    GoToNextPage(requestedPage, pageSize)
-                    $('#First').attr('disabled', false);
-                    $('#Back').attr('disabled', false);
-                    $('#Next').attr('disabled', true);
-                    $('#Last').attr('disabled', true);
-                }
-                else if (val == 'Next') {
-                    LastIndex = parseInt(pageSize) + parseInt(LastIndex);
-                    requestedPage = (parseInt(LastIndex / pageSize) + 1);
-                    GoToNextPage(requestedPage, pageSize);
-                    $('#First').attr('disabled', false);
-                    $('#Back').attr('disabled', false);
-                    if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
-                        $('#Next').attr('disabled', true);
-                        $('#Last').attr('disabled', true);
-                    }
-                    else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
-                        $('#Next').attr('disabled', false);
-                        $('#Last').attr('disabled', false);
-                    }
-                }
-                else if (val == 'Back') {
-                    requestedPage = requestedPage - 1;
-                    LastIndex = parseInt(LastIndex) - parseInt(pageSize);
-                    GoToNextPage(requestedPage, pageSize)
-                    if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
-                        $('#Next').attr('disabled', true);
-                        $('#Last').attr('disabled', true);
-                    }
-                    else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
-                        $('#Next').attr('disabled', false);
-                        $('#Last').attr('disabled', false);
-                    }
-                    if (requestedPage == 1) {
-                        $('#First').attr('disabled', true);
-                        $('#Back').attr('disabled', true);
-                    }
-                }
-                else {
-                }
-
-            }, 10)
-        }
-
-
-        
-
-
-        function fnChangePage_CaseNote(val, $modal) {
-            var rowLength = $modal.find('#table_body').find('tr').length;
-            if (rowLength === 0) {
-
-                return false;
-            }
-
-
-
-            $('#spinner').show();
-
-            window.setTimeout(function () {
-
-                pageLoadedFirst = false;
-                pageSize_caseNote = $modal.find('#casenoteddlpagetodisplay').val();
-                if (val == 'First') {
-                    StartIndex = 0;
-                    LastIndex = parseInt(pageSize_caseNote) + parseInt(LastIndex * requestedPage_caseNote);
-                    requestedPage_caseNote = ((StartIndex / 10) + 1);
-
-                    $modal.find('#First_CaseNote').attr('disabled', true);
-                    $modal.find('#Back_CaseNote').attr('disabled', true);
-                    $modal.find('#Next_CaseNote').attr('disabled', false);
-                    $modal.find('#Last_CaseNote').attr('disabled', false);
-                    LastIndex = 0;
-                }
-                else if (val == 'Last') {
-                    StartIndex = parseInt((totalRecords_caseNote - 1) / pageSize_caseNote) * pageSize_caseNote;
-                    LastIndex = totalRecords_caseNote;
-                    requestedPage = numOfPages_caseNote;
-                    // GoToNextPage(requestedPage, pageSize_caseNote)
-                    $modal.find('#First_CaseNote').attr('disabled', false);
-                    $modal.find('#Back_CaseNote').attr('disabled', false);
-                    $modal.find('#Next_CaseNote').attr('disabled', true);
-                    $modal.find('#Last_CaseNote').attr('disabled', true);
-                }
-                else if (val == 'Next') {
-                    LastIndex = parseInt(pageSize_caseNote) + parseInt(LastIndex);
-                    requestedPage_caseNote = (parseInt(LastIndex / pageSize_caseNote) + 1);
-                    //   GoToNextPage(requestedPage_caseNote, pageSize_caseNote);
-
-                    $modal.find('#First_CaseNote').attr('disabled', false);
-                    $modal.find('#Back_CaseNote').attr('disabled', false);
-                    if (parseInt(LastIndex) + parseInt(pageSize_caseNote) >= totalRecords_caseNote) {
-                        $modal.find('#Next_CaseNote').attr('disabled', true);
-                        $modal.find('#Last_CaseNote').attr('disabled', true);
-                    }
-                    else if (parseInt(LastIndex) - parseInt(pageSize_caseNote) < totalRecords_caseNote) {
-                        $modal.find('#Next_CaseNote').attr('disabled', false);
-                        $modal.find('#Next_CaseNote').attr('disabled', false);
-                    }
-                }
-                else if (val == 'Back') {
-                    requestedPage_caseNote = requestedPage_caseNote - 1;
-                    LastIndex = parseInt(LastIndex) - parseInt(pageSize_caseNote);
-                    // GoToNextPage(requestedPage_caseNote, pageSize_caseNote)
-                    if (parseInt(LastIndex) + parseInt(pageSize_caseNote) > totalRecords_caseNote) {
-                        $modal.find('#Next_CaseNote').attr('disabled', true);
-                        $modal.find('#Next_CaseNote').attr('disabled', true);
-                    }
-                    else if (parseInt(LastIndex) - parseInt(pageSize_caseNote) < totalRecords_caseNote) {
-                        $modal.find('#Next_CaseNote').attr('disabled', false);
-                        $modal.find('#Next_CaseNote').attr('disabled', false);
-                    }
-                    if (requestedPage_caseNote == 1) {
-                        $modal.find('#First_CaseNote').attr('disabled', true);
-                        $modal.find('#Back_CaseNote').attr('disabled', true);
-                    }
-                }
-                else {
-                }
-
-                GoToNextPage_CaseNote(requestedPage_caseNote, pageSize_caseNote);
-
-            }, 10)
-        }
-
-
-
-
-
-        function getTotalRecord(data) {
-            $('#First').attr('disabled', false);
-            $('#Back').attr('disabled', false);
-            $('#Next').attr('disabled', false);
-            $('#Last').attr('disabled', false);
-            pageSize = $('#ddlpagetodisplay').val();
-            if (data > 0) {
-                totalRecords = parseInt(data);
-                if (totalRecords <= pageSize) {
-                    $('#First').attr('disabled', true);
-                    $('#Back').attr('disabled', true);
-                    $('#Next').attr('disabled', true);
-                    $('#Last').attr('disabled', true);
-                }
-                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
-                $("#ddlpaging").empty()
-                for (i = 1; i <= numOfPages; i++) {
-                    var newOption = "<option value='" + i + "'>" + i + "</option>";
-                    $("#ddlpaging").append(newOption);
-                }
-                $("#ddlpaging").val(requestedPage);
-            }
-            else {
-                $('#First').attr('disabled', true);
-                $('#Back').attr('disabled', true);
-                $('#Next').attr('disabled', true);
-                $('#Last').attr('disabled', true);
-            }
-        }
-
-
-
-
-        function getTotalRecord_CaseNote(data, $modal) {
-            $modal.find('#First_CaseNote').attr('disabled', false);
-            $modal.find('#Back_CaseNote').attr('disabled', false);
-            $modal.find('#Next_CaseNote').attr('disabled', false);
-            $modal.find('#Last_CaseNote').attr('disabled', false);
-            pageSize_caseNote = $modal.find('#casenoteddlpagetodisplay').val();
-            if (data > 0) {
-                totalRecords_caseNote = parseInt(data);
-                if (totalRecords_caseNote <= pageSize_caseNote) {
-
-                    $modal.find('#First_CaseNote').attr('disabled', true);
-                    $modal.find('#Back_CaseNote').attr('disabled', true);
-                    $modal.find('#Next_CaseNote').attr('disabled', true);
-                    $modal.find('#Last_CaseNote').attr('disabled', true);
-                }
-                numOfPages_caseNote = parseInt(totalRecords_caseNote / pageSize_caseNote) + ((totalRecords_caseNote % pageSize_caseNote == 0) ? 0 : 1);
-                $modal.find("#casenoteddlpaging").empty()
-                for (i = 1; i <= numOfPages_caseNote; i++) {
-                    var newOption = "<option value='" + i + "'>" + i + "</option>";
-                    $modal.find("#casenoteddlpaging").append(newOption);
-                }
-                $modal.find("#casenoteddlpaging").val(requestedPage_caseNote);
-            }
-            else {
-                $modal.find('#First').attr('disabled', true);
-                $modal.find('#Back').attr('disabled', true);
-                $modal.find('#Next').attr('disabled', true);
-                $modal.find('#Last').attr('disabled', true);
-            }
-        }
 
         function GetSelectedDateDetails(value) {
 
             var EClientId = $(value).attr("data-clientId");
-          
+
 
             var clientName=$(value).parent('p').siblings('a').html();
             var $modal=$('#modal-attendance-details');
@@ -2685,13 +2272,13 @@
             var EHouseholid = $(value).attr("EHouseholid");
             var url = HostedDir + '/AgencyUser/FamilySummary/' + EHouseholid;
             window.location.href = url;
-        
+
         }
-        function bindGridUser(data, num_cols) {
+        function bindGridRoster(data, gridtable) {
 
 
 
-            $('#GridRoster > tbody > tr').remove();
+            gridtable.find('tbody').find('tr').remove();
 
             if (data.list.Rosters == null) {
                 $('#div1').show();
@@ -2705,12 +2292,13 @@
                 $('#rosterCountLabel').html(tot_record);
 
                 $('#div1').hide();
-                $('#divPaging').show();
-                $('#ddlpagetodisplay').prop('disabled', false);
 
-                var tbody = $('#GridRoster > tbody');
+
+
 
                 for (var i = 0; i < data.list.Rosters.length; i++) {
+
+
 
                     var tr = "";
                     tr += "<tr id=" + i + " role='row'>";
@@ -2758,7 +2346,7 @@
                     if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'a65bb7c2-e320-42a2-aed4-409a321c08a5') {
 
 
-                        
+
                         if (data.list.Rosters[i].Yakkr601 != 0) {
 
                             if (data.list.Rosters[i].IsAllowAttendanceIssueReview)
@@ -2774,7 +2362,7 @@
 
 
                         }
-                            
+
                         else {
                             tr += '<td height="70"  role="gridcell" data-title="Attendance Issue"><a href="javascript:void(0);" data-toggle="tooltip"  data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
                         }
@@ -2815,52 +2403,37 @@
 
                         //ABT
 
-
                         if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0 && data.list.Rosters[i].IsClassStarted === 1) {
 
-                            if(data.list.ClosedDetails!=null && data.list.ClosedDetails.ClosedToday>0)
+                            switch (_closedDetailsJson!=null ?_closedDetailsJson.ClosedToday:0)
                             {
-                                switch (data.list.ClosedDetails.ClosedToday)
-                                {
-                                    case 1:
-                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.ClosedDetails.AgencyName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-                                        break;
-                                    case 2:
-                                        if(data.list.ClosedDetails.CenterName==data.list.Rosters[i].CenterName)
-                                        {
-                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.ClosedDetails.CenterName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-                                        }
-                                        else{
-                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-                                        }
-                                        break;
-                                    case 3:
-                                        if(data.list.ClosedDetails.ClassRoomName==data.list.Rosters[i].ClassroomName)
-                                        {
-                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+data.list.ClosedDetails.ClosedToday+',\''+data.list.Rosters[i].ClassroomName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-
-                                        }
-                                        else{
-                                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-
-                                        }
-                                        break;
-                                    default:
+                                case 1:
+                                    tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+_closedDetailsJson.ClosedToday+',\''+_closedDetailsJson.AgencyName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                    break;
+                                case 2:
+                                    if(_closedDetailsJson.CenterName==data.list.Rosters[i].CenterName)
+                                    {
+                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+_closedDetailsJson.ClosedToday+',\''+_closedDetailsJson.CenterName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                    }
+                                    else{
                                         tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-                                        break;
-                                }
+                                    }
+                                    break;
+                                case 3:
+                                    if(_closedDetailsJson.ClassRoomName==data.list.Rosters[i].ClassroomName)
+                                    {
+                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;display:none;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="showClosedAlert(this,'+_closedDetailsJson.ClosedToday+',\''+data.list.Rosters[i].ClassroomName.trim()+'\');"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
 
+                                    }
+                                    else{
+                                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
 
-
-
+                                    }
+                                    break;
+                                default:
+                                    tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                                    break;
                             }
-                            else
-                            {
-
-                                tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="javascript:void(0);" title="Click here to mark attendance" data-toggle="tooltip" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
-                            }
-
-
 
                             tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
                         }
@@ -2898,7 +2471,7 @@
 
 
 
-                           
+
 
                         }
 
@@ -2965,7 +2538,7 @@
                             tr += '<a href="@Url.Action("GrowthAnalysis", "Teacher")?client=' + data.list.Rosters[i].Eclientid+ '" title="Individual Growth Analysis" style="margin-left:5px;text-decoration:underline;" data-toggle="tooltip">LW </a>';
                         }
 
-                    
+
 
                     }
 
@@ -3011,49 +2584,26 @@
                     }
 
 
-                    $('#GridRoster > tbody').append(tr);
+                    gridtable.find('tbody').append(tr);
 
 
-                    $('#GridRoster').find('[data-toggle="tooltip"]').map(function () {
+                    gridtable.find('[data-toggle="tooltip"]').map(function () {
 
                         $(this).tooltip();
                     });
 
 
-                   
-                }
-              
-            }
 
-          
-
-            if (data.list.AbsenceTypeList != null && data.list.AbsenceTypeList.length > 0) {
-                var option = "";
-                if ($('#AbsentType').find('option').length < 1) {
-                    option = option + '<option value="">Choose Type</option>';
-                    for (var i = 0; i < data.list.AbsenceTypeList.length; i++) {
-                        if (data.list.AbsenceTypeList[i].Value == '2' || data.list.AbsenceTypeList[i].Value == '3')
-                            option = option + '<option value="' + data.list.AbsenceTypeList[i].Value + '">' + data.list.AbsenceTypeList[i].Text + '</option>';
-                    }
-                    $('#AbsentType').append(option);
-                    //  $('#ReasonList').val('');
                 }
-            }
 
-            if (data.list.AbsenceReasonList != null && data.list.AbsenceReasonList.length > 0) {
-                var option = "";
-                if ($('#ReasonList').find('option').length < 1) {
-                    option = option + '<option value="">Choose Reason</option>';
-                    for (var i = 0; i < data.list.AbsenceReasonList.length; i++) {
-                        option = option + '<option value="' + data.list.AbsenceReasonList[i].Value + '">' + data.list.AbsenceReasonList[i].Text + '</option>';
-                    }
-                    option = option + '<option value="-1">Others</option>';
-                    $('#ReasonList').append(option);
-                    //  $('#ReasonList').val('');
-                }
             }
         }
+
         function AbsentMarkingPopup(arg) {
+
+            $('#MyModalLateArrival').find('select#AbsentType').val(0);
+            $('#MyModalLateArrival').find('select#ReasonList').val(0);
+
             $('#MyModalLateArrival .txt-clear').val("");
             var childnameID = $(arg).data('id');
             var l = childnameID.length;
@@ -3089,7 +2639,7 @@
             }
             else {
                 $(".modal-header #childlbl").text("Mark Attendance For " + CN);
-              
+
                 $('.abtCheckbox').prop('checked', false);
                 $('#divForLateArrival').hide();
                 $('#divForAbsence').show();
@@ -3101,10 +2651,10 @@
         }
 
 
-      
+
 
         function bindAttendanceIssueCaseNote($modal,casenoteType,casenoteId,clientId,isEditable) {
-          
+
             $modal.find('#caseNotSection').ApplinkCaseNote({
                 isPopup: false,
                 isSection: true,
@@ -3122,7 +2672,7 @@
 
                 },
                 ajaxComplete: function (element) {
-               
+
                     var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
 
                     if(casenoteType==1)
@@ -3162,20 +2712,6 @@
 
             });
 
-
-
-           
-
-    
-
-
-
-          
-            
-          
-
-           
-            
             $modal.find('#div-edit-caseNote').show();
         }
 
@@ -3200,7 +2736,7 @@
 
             $attissuemodal.find('#caseNoteDivAttIssue,#homeVisitDivAttenissue,#refAttendanceIssueDiv').hide();
 
-           
+
 
             $.ajax({
 
@@ -3209,9 +2745,9 @@
                 type: 'post',
                 data: { clientId: $(arg).attr('data-clientid') },
                 success: function (data) {
-                 
 
-                  
+
+
 
                     try {
 
@@ -3220,8 +2756,8 @@
 
                         $attissuemodal.find('#caseNoteDivAttIssue,#homeVisitDivAttenissue,#refAttendanceIssueDiv').hide();
 
-                     
-                        
+
+
                         var appendParent = '';
 
 
@@ -3263,11 +2799,11 @@
                             customAlert('Error occurred. Please, try again later');
                         }
 
-                       
+
                     }
                     catch (error) {
                         customAlert('Error occurred. Please, try again later');
-                       
+
                         $('#spinner').hide();
                     }
 
@@ -3278,10 +2814,6 @@
                 complete: function (data) {
                     $('#spinner').hide();
                 }
-
-
-
-
             });
 
 
@@ -3326,7 +2858,7 @@
                             else {
                                 $("#btnsearch").trigger('click');
                             }
-                           
+
                         }
 
                     }
@@ -3347,67 +2879,11 @@
             });
         }
 
-        function getProfilePicture(pic) {
-
-          
-
-            var enc_id = $(pic).attr('EClientId');
-            var position = $(pic).position();
-            var topalignment = position.top;
-
-
-
-            $.ajax({
-                url: HostedDir + '/Roster/GetChildrenImage',
-                contentType: 'application/json',
-                dataType: 'json',
-                type: 'post',
-                data: { enc_clientId: enc_id },
-                success: function (data) {
-
-
-                    var image = '';
-                    if (data.Text == "" && data.Value == "2") {
-                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
-                    }
-                    else if (data.Text == "" && data.Value == "1") {
-                        image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
-                    }
-                    else if (data.Text == "" && ata.Text == "3") {
-                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
-                    }
-                    else if (data.Text != "") {
-                        image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
-                    }
-                    else {
-                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
-                    }
-
-                    $(pic).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
-                    $(pic).parent('td').find('.roundimage').zoomify();
-
-                },
-                error: function (data) {
-
-                }
-            });
-        }
-
-
         function testTime(time) {
-
-            // var matches = time.test(/^(\d\d):(\d\d)\s/);
-            //    var re = /^(\d\d):(\d\d)/;
-            //  var re = /(((0[1-9])|(1[0-2])):([0-5])(0|5))/;
             var time = $(time).val();
             var re = /[0-2]?\d[.:][0-5]\d/;
-            //    var re=/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
-            // var re = /^(1[0-2]|0?[1-9]):[0-5][0-9]/;
-            // var re = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
-            // var regex = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
             var matches = re.test(time);
             if (matches == true) {
-
                 return true;
 
             } else {
@@ -3444,9 +2920,6 @@
                     else {
                         image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
                     }
-
-                    
-
                     $(ele).parent('td').append(image);
                     $(ele).parent('td').find('.roundimage').zoomify();
                     $(ele).remove();
@@ -3458,7 +2931,7 @@
             });
         }
 
-        
+
 
         function getTagsOnInput() {
             var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
@@ -3546,15 +3019,28 @@
 
 @section Style{
 
-   
+
     <link href="~/Content/css/Transition.css" rel="stylesheet" />
 
     <style>
         /*style for Append Case Note Popup*/
 
-#div-attendance-section .table-back-shadow{
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
+        #divGridRoster table.glossy-table thead > tr > th {
+            padding: 15px 5px 15px 5px;
+        }
+
+        #divGridRoster table.glossy-table tbody > tr > td {
+            line-height: 2.5;
+        }
+
+        div#roster-pagination-div .pages_display ul li:first-child, div#roster-pagination-div .pages_display ul li:last-child {
+            color: #ffffff;
+        }
+
+        #div-attendance-section .table-back-shadow {
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
         .select-editable {
             position: relative;
             background-color: white;
@@ -3602,7 +3088,7 @@
             width: 80%;
         }
 
-        
+
 
 
         /*Read more read less*/
@@ -3632,7 +3118,7 @@
             display: none;
         }
 
-        
+
         #att-issue-modal .tag-text {
             border: 1px solid #fff;
             -moz-border-radius: 2px;
@@ -3732,9 +3218,8 @@
             border-bottom: 0px !important;
         }
 
-        
+
         .app_ada_main .ride_deta {
-           
             margin-left: 0;
             text-align: center;
             float: none;
@@ -3933,7 +3418,7 @@
             border: none;
         }
 
-       
+
 
 
 
@@ -3961,7 +3446,7 @@
 
 
 
-      
+
         #att-issue-modal .btn-primary {
             color: #fff;
             background-color: #295b8f;
@@ -3974,7 +3459,7 @@
         /*Styles for Attendance issue popup*/
 
 
-     
+
         .line-hgt {
             line-height: 32px;
         }
@@ -4108,8 +3593,8 @@
 
         /*div#Houselessmodal label {
 
-            color: #333;
-        }*/
+                    color: #333;
+                }*/
     </style>
 
     <style>
@@ -4323,7 +3808,7 @@
             color: #fff;
             text-align: center;
             font-size: 18px;
-            margin: 0; 
+            margin: 0;
         }
 
         .modal-content-ic #divAbsenceTypeList {
@@ -4426,7 +3911,6 @@
 
 
         @@media only screen and (max-width: 760px), (min-device-width: 761px) and (max-device-width: 1200px) {
-
             /* Force table to not be like tables anymore */
             #GridRoster, #GridRoster thead, #GridRoster tbody, #GridRoster th, #GridRoster td, #GridRoster tr,
             #tbl_attendanceissue_casenotes, #tbl_attendanceissue_casenotes thead, #tbl_attendanceissue_casenotes tbody,
@@ -4440,9 +3924,7 @@
                     width: initial !important;
                     text-overflow: initial !important;
                 }
-
                 /* Hide table headers (but not display: none;, for accessibility) */
-
                 #GridRoster thead tr,
                 #tbl_attendanceissue_casenotes thead tr {
                     position: absolute;
@@ -4611,14 +4093,12 @@
 
 
         #att-issue-pagination-div #ulPaging li {
-    display: inherit;
-   
-}
+            display: inherit;
+        }
 
-       #att-issue-pagination-div  .pagination_wrp .pagination > li > a, .pagination > li > span
-       {
-            line-height: 1.3!important;
-       }
+        #att-issue-pagination-div .pagination_wrp .pagination > li > a, .pagination > li > span {
+            line-height: 1.3 !important;
+        }
         /*responsive section*/
     </style>
 
@@ -4635,233 +4115,290 @@
 
     <div class="row Zoom">
 
-        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
 
-        <div class="col-lg-12">
-            <h2 class="page-header">
-                Roster
-
-                <span class="view-btn backto_listspan" id="BackToList">
-                    <span style="font: bold; font-size: 17px; color: #285b8f;">Roster Count : </span>
-                    <span style="font: bold; font-size: 17px;  color: #285b8f;" id="rosterCountLabel">00</span>
-                </span>
+        <div class="col-xs-12" style="padding:0;">
 
 
-            </h2>
-        </div>
-    </div>
-
-    <input type="hidden" id="isManager" value="@ViewBag.IsManager.ToString()" />
-
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform div-roster-option">
-            <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
-                <label style="color:#295b8f;font-weight:bold;">Center</label>
-            </div>
-            <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
-                <label style="color:#295b8f;font-weight:bold;">Classroom</label>
-            </div>
-
-            @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
-            {
-                <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
-                    <label style="color:#295b8f;font-weight:bold;">Filter By</label>
-                </div>
-            }
-
-            @if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
-            {
-                <div class="col-sm-4 col-md-3 col-lg-3 div-roster-option-lbl">
-                    <label style="color:#295b8f;font-weight:bold;">Filter By</label>
-                </div>
-            }
-
-        </div>
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="glossy-right-side-container" style="padding-top:30px;">
+                            @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
 
-        <div class="roster-dropdown">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace roster-dropdown-inner">
-                <div class="col-sm-412 col-lg-4">
+                            <div class="col-xs-12">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-clipboard"></i>&nbsp;Roster
+                                    </h2>
+                                </div>
 
-                    @{
 
-                        var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString());
-                        if (centerList.Count == 2)
-                        {
-                            centerList = centerList.Where(x => x.Value != "0").ToList();
-                        }
-                    }
+                            </div>
 
-                    @Html.DropDownList("Centers", centerList, new { @class = "form-control center-sel line-hgt" })
-                </div>
-                <div class="col-sm-12 col-lg-4">
-                    <select id="Classroom" style="height:38px !important;" class="form-control line-hgt"></select>
-                </div>
-
-                @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
-                {
-                    <div class="col-sm-12 col-lg-4">
-                        <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
-                            <option value="0">--Select--</option>
-                            <option value="1">ABT</option>
-                            <option value="2">TRN</option>
-                            <option value="3">HOM</option>
-                            <option value="4">ALL SFU</option>
-                            <option value="5">SFU (Need Follow-up) </option>
-                            <option value="6">SFU (Follow-up Completed) </option>
-                        </select>
-                    </div>
-                }
-
-                else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
-                {
-                    <div class="col-sm-12 col-lg-4">
-                        <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
-                            <option value="0">--Select--</option>
-                            <option value="4">ALL SFU</option>
-                            <option value="5">SFU (Need Follow-up) </option>
-                            <option value="6">SFU (Follow-up Completed) </option>
-                        </select>
-                    </div>
-                }
+                            <div class="col-xs-12">
 
 
 
-            </div>
+                                <div class="col-xs-12">
+
+                                    <div class="col-xs-12 glossy-panel-div" id="div-filter-section">
+
+
+                                        <input type="hidden" id="isManager" value="@ViewBag.IsManager.ToString()" />
 
 
 
-        </div>
 
-        <div class="col-sm-12 col-lg-3 ic-mqr">
-            <button id="btnsearch" class="my-btn">Search</button>
-            <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
-        </div>
+                                        <!---Center drop-down section-->
+                                        <div class="form-group col-lg-5 col-sm-6 col-xs-12" id="div-center-dropdown">
+                                            <label for="selectCenter" class="lbl-text">Center &nbsp;<sup>*</sup></label>
 
-        @if (_isAccessLW)
-        {
-            <div class="col-sm-12">
-                <div class="col-sm-2">
-                    <a href="javascript:void(0);" id="lwbtn" class="btn" style="margin-top:10px;border-radius:0px;background:#295b8f;color:#fff;display:none;">LW</a>
-                </div>
-            </div>
-        }
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
 
-            @if (ViewBag.IsManager)
-            {
+                                            @{
 
-                <div class="row" style="margin-bottom:10px;">
-                    <div class="col-xs-12 col-lg-8 text-left" style="display:none;" id="searchByNameDiv">
-                        <input type="text" placeholder="Search by Name" class="form-control col-lg-6" id="searchTextName" style="width:300px;height:38px;" />
-                        <button type="button" id="searchbyNamebtn" class="col-lg-2 my-btn" style="margin-left:20px;">Search</button>
-                    </div>
-                    @*<div class="col-xs-12 col-lg-4 text-right" style="margin-bottom: 20px;">
-                            <label style="display: initial;font-size: 16px; color: #295b8f;">Roster Count :</label>
-                            <label style="display: initial;font-size: 16px; color: #000;" id="rosterCountLabel">0</label>
-                        </div>*@
-                </div>
-            }
-            else
-            {
-                @*<div class="row" style="margin-bottom:10px;">
-                        <div class="col-xs-12 text-right" style="margin-bottom: 20px;">
-                            <label style="display: initial;font-size: 16px; color: #295b8f;">Roster Count :</label>
-                            <label style="display: initial;font-size: 16px; color: #000;" id="rosterCountLabel">0</label>
+                                                var centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString());
+                                                if (centerList.Count == 2)
+                                                {
+                                                    centerList = centerList.Where(x => x.Value != "0").ToList();
+                                                }
+                                            }
+
+
+
+                                            @Html.DropDownList("Centers", centerList, new { @class = "form-control glossy-select" })
+
+                                        </div>
+
+
+
+
+                                        <!---------Classroom drop down section----------->
+
+                                        <div class="form-group col-lg-3 col-sm-6 col-xs-12">
+                                            <label for="selectClassroom" class="lbl-text">Classroom </label>
+
+
+                                            <select id="Classroom" class="form-control glossy-select"></select>
+
+                                        </div>
+
+
+
+
+
+
+                                        @if ((!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9") || Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
+                                        {
+                                            <div class="form-group col-lg-3 col-sm-6 col-xs-12">
+                                                <label for="filterSelect" class="lbl-text">Filter By</label>
+
+                                                @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                                                {
+
+                                                    <select id="filterSelect" class="form-control glossy-select">
+                                                        <option value="0">--Select--</option>
+                                                        <option value="1">ABT</option>
+                                                        <option value="2">TRN</option>
+                                                        <option value="3">HOM</option>
+                                                        <option value="4">ALL SFU</option>
+                                                        <option value="5">SFU (Need Follow-up) </option>
+                                                        <option value="6">SFU (Follow-up Completed) </option>
+                                                    </select>
+
+                                                }
+
+                                                else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
+                                                {
+
+                                                    <select id="filterSelect" class="form-control glossy-select">
+                                                        <option value="0">--Select--</option>
+                                                        <option value="4">ALL SFU</option>
+                                                        <option value="5">SFU (Need Follow-up) </option>
+                                                        <option value="6">SFU (Follow-up Completed) </option>
+                                                    </select>
+
+                                                }
+
+                                            </div>
+                                        }
+
+
+
+
+
+                                        <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                            <label for="btnLoadFamilyActivity" style="visibility:hidden;">Action</label>
+                                            <button type="button" class="glossy-button-button button-green" id="btnsearch">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                Search
+                                            </button>
+                                        </div>
+
+                                        <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                            <label for="btnLoadFamilyActivity" style="visibility:hidden;">Action</label>
+                                            <button type="button" class="glossy-button-button button-red" onclick="cleargrid();" id="btnclear">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                Clear
+                                            </button>
+                                        </div>
+
+                                        @if (_isAccessLW)
+                                        {
+
+
+                                            <div class="form-check col-lg-2 col-xs-12 glossy_btn" style="width: 127px;">
+                                                <label for="btnLoadFamilyActivity" style="visibility:hidden;">Action</label>
+                                                <button type="button" class="glossy-button-button button-blue" style="display:none;" id="lwbtn">
+                                                    <span class="glossy-button-after"></span>
+                                                    <span class="glossy-button-before"></span>
+                                                    LW
+                                                </button>
+                                            </div>
+                                        }
+
+
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12">
+
+                                    <div class="glossy-panel-div col-xs-12" id="divGridRoster">
+                                        <div class="col-xs-12 search-block-main" style="padding-bottom:5px;display:block; ">
+
+                                            @if (ViewBag.IsManager)
+                                            {
+                                                <div class="glossy-search-block col-md-12" style="display:none;" id="searchByNameDiv">
+                                                    <input type="text" onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly','readonly');" placeholder="Search by Name" id="searchTextName" class="form-control" readonly="readonly">
+                                                    <div class="glossy-search-btn-div">
+                                                        <button id="searchbyNamebtn" data-search-item="">Search</button>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+
+                                            <div class="col-lg-3 col-sm-12 col-xs-12" style="float:right;text-align:right;">
+
+
+                                                <table class="col-md-12 table-striped total-details-table table-back-shadow">
+                                                    <tbody>
+                                                        <tr style="background-color: #f1f5f8;">
+                                                            <td><label>Total Record(s)</label></td>
+                                                            <td id="rosterCountLabel">18</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+
+
+                                        <table class="col-md-12 glossy-table table-striped table-condensed" id="GridRoster">
+                                            <thead>
+                                                <tr>
+
+                                                    <th style="cursor: pointer;">
+
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:inline-block;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+
+
+                                                        <span col-name="th1">Client</span>
+                                                    </th>
+
+                                                    <th style="width:1%;"></th>
+
+                                                    <th style="cursor: pointer;width:6%;">
+                                                        <span>Profile Picture</span>
+                                                    </th>
+
+                                                    @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))))
+                                                    {
+                                                        <th style="width:8%;">
+
+
+                                                            <span>Attendance Issue</span>
+                                                        </th>
+                                                    }
+
+                                                    <th style="cursor: pointer;width:8%;">
+
+                                                        <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                        <span col-name="th2">Classroom</span>
+                                                    </th>
+
+
+
+
+
+                                                    @if (ViewBag.IsManager)
+                                                    {
+                                                        <th style="width: 10%;cursor:pointer;">
+                                                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <span col-name="th3" style="text-transform:none;">Date of Last Case Note</span>
+                                                        </th>
+                                                        <th style="width: 10%;cursor:pointer;">
+                                                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <span col-name="th4" style="text-transform:none;"> Date of Last FPA</span>
+                                                        </th>
+
+
+                                                        <th style="width: 10%;cursor:pointer;">
+                                                            <i class="fa fa-custom-sort-date-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <i class="fa fa-custom-sort-date-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                            <span col-name="th5" style="text-transform:none;"> Date of Last Referral</span>
+                                                        </th>
+
+                                                       
+                                                        <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
+                                                    }
+
+                                                    @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))
+                                                    {
+                                                        <th style="cursor: pointer;">
+                                                            <span>Services</span>
+                                                        </th>
+                                                    }
+
+
+                                                </tr>
+                                            </thead>
+                                            <tbody class="glossy-table-body" id="table_body"></tbody>
+
+                                        </table>
+                                        <div id="div1" style="text-align:center;display:none;">
+                                            <label>No result found.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12" id="roster-pagination-div">
+
+
+
+                                </div>
+
+
+                            </div>
+
                         </div>
-                    </div>*@
-            }
 
-            <div class="table-responsive">
-                <table class="table table_size table-striped" id="GridRoster" role="table">
-                    <thead style="cursor:pointer;" role="rowgroup">
-                        <tr role="row">
-                            <th id="thIN" role="columnheader">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-
-                            @*<th><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>*@
-
-
-                            <th id="thSN" role="columnheader"><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-
-                            <th id="thCust" role="columnheader">Profile Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
-
-                            @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))))
-                            {
-                                // if (roleid == "c352f959-cfd5-4902-a529-71de1f4824cc" || roleid == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
-                                <th id="thRN" role="columnheader">Attendance Issue<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
-                            }
-                            @*<th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
-                            <th id="thAN" role="columnheader">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-
-                            @if (ViewBag.IsManager)
-                            {
-                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last Case Note</th>
-                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last FPA</th>
-                                <th id="thSN" style="width: 10%;" role="columnheader">Date of Last Referral</th>
-
-                                if (Session["RoleId"] != null && (Session["RoleId"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26"))
-                                {
-                                    <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
-                                }
-                                else
-                                {
-                                    <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
-                                }
-                            }
-
-                            @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))
-                            {
-                                <th id="thSN" style="width: 24%;" role="columnheader">Services</th>
-                            }
-
-
-                        </tr>
-                    </thead>
-                    <tbody id="table_body" role="rowgroup"></tbody>
-                </table>
-                <div id="div1" style="text-align:center;display:none;">
-                    <label>No result found.</label>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 
 
-
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pagination-file">
-            <div class="pages_display">
-                <ul>
-                    <li>Display</li>
-                    <li>
-                        <select id="ddlpagetodisplay" onchange="drawgrid();">
-                            <option value="10">10</option>
-                            <option value="20" selected="selected">20</option>
-                            <option value="30">30</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </li>
-                    <li>Records Per Page</li>
-                </ul>
-                <div class="clear"></div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-            <div id="divPaging" class="pagination_wrp">
-                <ul id="ulPaging" class="pagination">
-                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
-                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
-                    <li title="Select">
-                        <select class="select_cl" id="ddlpaging"></select>
-                    </li>
-                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
-                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
 
     @Html.Partial("~/Views/Partialviews/EnrollmentStatusChangePartial.cshtml")
@@ -4870,7 +4407,7 @@
     @*Modal Popup*@
 
 
-  
+
 
 
 
@@ -5041,7 +4578,7 @@
                                             </div>
 
                                         </div>
-                                        
+
                                         <div id="div-append-casenote">
 
 
@@ -5061,8 +4598,8 @@
 
                                             </div>
                                         </div>
-                                   
-                                     </div>
+
+                                    </div>
 
 
 
@@ -5107,7 +4644,7 @@
                                                 </div>
                                             </div>
 
-                                          
+
 
                                             <div class="col-xs-12 col-md-4 col-lg-6 wrapper adddivspace" style="margin-top:15px;">
                                                 <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
@@ -5176,65 +4713,26 @@
                                     <div class="col-xs-12 col-lg-12 att-ref-div" id="refAttendanceIssueDiv">
 
                                         <div class="col-xs-12" id="refservriceAttendanceIssueDiv">
-
-
-
                                             <div class="col-xs-12 adddivspace" id="referralserviceSectionDiv">
-
-
-
                                             </div>
 
                                         </div>
 
                                         <div class="col-xs-12 servies_lst" id="refcatagoryattenissuediv">
-
-
-
-
-
                                         </div>
 
 
                                         <div class="col-xs-12 " id="refmathcprovidersattenissuediv">
-
-
                                         </div>
 
 
                                         <div class="col-xs-12" id="refcatagorycompanyattenissuediv">
 
-
                                         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                     </div>
 
                                 </div>
                             </div>
-
-
-
-
-
-
                             <div class="col-xs-12 bdr-popup"></div>
                             <div class="col-xs-12" style="margin-top:10px;margin-bottom:15px;">
                                 <div class="btnwrp_subcal" style="padding:0; margin:0;">
@@ -5310,7 +4808,7 @@
                                 <input type="hidden" name="CaseNoteHouseHoldId" id="CaseNoteHouseHoldId" />
 
 
-                                <div class="max_items_addn popup-addn-scroll" >
+                                <div class="max_items_addn popup-addn-scroll">
 
                                     <div class="col-xs-12 addn-al" style="padding: 0;">
                                         <div class="col-sm-4">
@@ -5374,7 +4872,7 @@
                     <div id="divForAbsence" style="display:none;">
                         @using (Html.BeginForm("CheckIn", "Roster", FormMethod.Post))
                         {
-                          <!-- Modal content-->
+                            <!-- Modal content-->
                             <div class="divabsense">
                                 <input type="hidden" name="childid" id="childid" value="" />
                                 <input type="hidden" name="childname" id="childname" value="" />
@@ -5393,7 +4891,7 @@
                                             </div>
                                             <div class="col-sm-7">
                                                 <div class="addn-poup-div1">
-                                                    <select name="AbsentType" id="AbsentType" placeholder="Select" class="txt-clear form-control" style="width:70%;" required></select>
+                                                    @Html.DropDownList("AbsentType", new SelectList(Model.AbsenceTypeList, "Value", "Text"), new { @class = "form-control", @style = "width:70%;", @required = "required" })
                                                 </div>
                                             </div>
                                         </div>
@@ -5417,7 +4915,8 @@
                                             </div>
                                             <div class="col-sm-7">
                                                 <div class="addn-poup-div1">
-                                                    <select id="ReasonList" name="ReasonList" style="width: 70%;" class="txt-clear form-control"></select>
+
+                                                    @Html.DropDownList("ReasonList", new SelectList(Model.AbsenceReasonList, "ReasonId", "Reason"), new { @class = "form-control", style = "width:70%;" })
                                                 </div>
                                             </div>
                                         </div>
@@ -5456,7 +4955,7 @@
 
     <!--no home modal-->
 
-    
+
 
 
 
@@ -5466,7 +4965,7 @@
 
             @using (Html.BeginForm("SaveScreeningAjax", "AgencyUser", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
-        <!-- Modal content-->
+                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="text-center" style="margin:0;">Screening Follow-Up<span class="extra-title muted"></span></h3>
@@ -5475,11 +4974,6 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                 <div class="add-useragform">
-
-
-
-
-
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group datepicker-days">
@@ -5491,7 +4985,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
+
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group">
                                                 <label for="pwd">Screening Name <sup>*</sup></label>
@@ -5511,9 +5005,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
                                 </div>
                             </div>
                         </div>
@@ -5542,7 +5033,6 @@
     <div id="statusChangeDiv"></div>
 
     <!-- Modal popup -->
-
     <!-- Modal -->
     <div class="modal fade" id="mytransition" role="dialog">
         <div class="modal-dialog">
@@ -5911,51 +5401,22 @@
                                     Load
                                 </button>
                             </div>
-
                         </div>
 
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:20px;">
-
-
-
-
                             <div class="col-xs-12" id="div-attendance-section">
-
-
                                 <div class="attendance-details-section col-xs-12" id="attendance-details-section">
 
                                     <div class="col-xs-12 glossy-panel-div table-back-shadow text-center" style="padding:25px;">
                                         <span class="col-xs-12">Search by Filter <sup style="color:red;">*</sup></span>
                                     </div>
-
                                 </div>
-
-
-
-
-
-
                             </div>
-
-
-
-
                         </div>
-
-
-
                     </div>
-
-
-
-
-
-
-
                 </div>
             </div>
         </div>
-
     </div>
 
 

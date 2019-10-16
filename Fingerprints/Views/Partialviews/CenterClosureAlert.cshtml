@@ -13,18 +13,27 @@
 
 @{
     List<FingerprintsModel.ClosedInfo> infoList = new List<FingerprintsModel.ClosedInfo>();
-    Guid? agencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-    Guid userId = new Guid(Session["UserId"].ToString());
-    infoList = Fingerprints.Utilities.Helper.CheckForTodayClosure(agencyId, userId);
+
+    FingerprintsModel.StaffDetails staffDetails = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsModel.StaffDetails>();
+
+    infoList = Fingerprints.Utilities.Helper.CheckForTodayClosure(staffDetails);
 }
 
 
 @if (infoList != null && infoList.Count() > 0)
 {
 
-    <div class="col-xs-12 no-padding" id="agencyClosedDiv" style="margin-top:25px;margin-bottom:-6px;">
-        <div class="col-xs-12 pad-change" style="margin-bottom:20px;">
-            <div class="education-content-desc1">
+
+
+
+
+
+    <div class="alert alert-danger alert-dismissible fade in  col-xs-10" id="agencyClosedDiv" style="margin-top:25px;line-height:2;left:8%;">
+   
+
+            <div class="col-xs-11">
+
+
 
 
                 @foreach (var info in infoList)
@@ -35,37 +44,42 @@
 
                         if (info.ClosedToday == 1)
                         {
-                            <p id="agency-closed-info">Agency has been closed today</p>
+                            <div id="agency-closed-info" class="col-xs-12">
+                                <strong>Agency has been closed today</strong>
+                            </div>
+
                             break;
                         }
                         else if (info.ClosedToday == 2)
                         {
-                            <p id="agency-closed-info">Center <span>@info.CenterName</span> has been closed today</p>
+                            <div id="agency-closed-info" class="col-xs-12">
+                                <strong>Center Agency <span>@info.CenterName</span> has been closed today</strong>
+                            </div>
+
                         }
-                   
-                    else
-                    {
-                        <p id="agency-closed-info">Center @info.CenterName  Classroom - <span>@info.ClassRoomName</span> has been closed today</p>
+
+                        else
+                        {
+
+                            <div id="agency-closed-info" class="col-xs-12">
+                                <strong>Center @info.CenterName  Classroom - <span>@info.ClassRoomName</span> has been closed today</strong>
+                            </div>
+
 
                         }
                     }
                 }
-
-
-                @*@for
-                    if (info.ClosedToday == 1)
-                    {
-                        <p id="agency-closed-info">Agency has been closed today</p>
-                    }
-                    else if (info.ClosedToday == 2)
-                    {
-                        <p id="agency-closed-info">Center <span>@info.CenterName</span> has been closed today</p>
-                    }
-                    else
-                    {
-                        <p id="agency-closed-info">Center @info.CenterName  Classroom - <span>@info.ClassRoomName</span> has been closed today</p>
-                    }*@
             </div>
+            
+            <div class="col-xs-1" style="top:-15px;">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+      
         </div>
-    </div>
-}
+
+
+
+        
+        }

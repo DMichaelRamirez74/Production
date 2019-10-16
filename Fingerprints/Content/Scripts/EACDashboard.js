@@ -105,8 +105,7 @@ function makeCaseNoteChart(chartData) {
     });
 }
 
-function makeADAChart(adaData)
-{
+function makeADAChart(adaData) {
 
     var adaChartData = [];
 
@@ -202,13 +201,11 @@ function makeADAChart(adaData)
             "method": function (ev) {
                 console.log(ev.item);
                 console.log(ev.item.dataContext.Percentage);
-               
-                var dataContext=ev.item.dataContext;
-               
-                   
-                if(dataContext.MonthNumber<(new Date().getMonth()+1))
 
-                {
+                var dataContext = ev.item.dataContext;
+
+
+                if (dataContext.MonthNumber < (new Date().getMonth() + 1)) {
                     BootstrapDialog.show({
                         title: '<span>Low ADA % Explanation</span>',
                         message: $('<label>ADA for the month of ' + monthArray[dataContext.MonthNumber - 1] + ' is below 85%, give explanation:</label> <textarea id="textExplanation" class="form-control"  style="min-height:150px;" placeholder="Try to input multiple lines here...">' + dataContext.ExplanationUnderPercentage + '</textarea>'),
@@ -284,8 +281,7 @@ function makeADAChart(adaData)
     });
 }
 
-function makeWaitingListChart()
-{
+function makeWaitingListChart() {
 
     var reasondataProvider = [];
     if (dataGrid != null && dataGrid.length > 0) {
@@ -332,8 +328,7 @@ function makeWaitingListChart()
     });
 }
 
-function jilioThermExecutiveDashboard()
-{
+function jilioThermExecutiveDashboard() {
 
     var hours = parseFloat($('#txtThermHours').val()).toFixed(0);
     var _txtDollars = $('#txtThermDollars').val();
@@ -383,35 +378,35 @@ function jilioThermExecutiveDashboard()
     $('#thermometer-hours .CurrentValue').text("$ " + formatCurrency($('#txtThermDollars').val()));
 }
 
-function getADASeatsDaily() {
+//function getADASeatsDaily() {
 
-    $.ajax({
-        url: HostedDir + '/Home/GetADASeatsDaily',
-        type: 'post',
-        datatype: 'json',
-        success: function (result) {
+//    $.ajax({
+//        url: HostedDir + '/Home/GetADASeatsDaily',
+//        type: 'post',
+//        datatype: 'json',
+//        success: function (result) {
 
 
-            if (result != null) {
-                if ($('.ada-p').length > 0 && result.adaPercentage != undefined && result.adaPercentage != null && result.adaPercentage != '') {
-                    $('.ada-p').html(parseFloat(result.adaPercentage) + ' %');
-                }
+//            if (result != null) {
+//                if ($('.ada-p').length > 0 && result.adaPercentage != undefined && result.adaPercentage != null && result.adaPercentage != '') {
+//                    $('.ada-p').html(parseFloat(result.adaPercentage) + ' %');
+//                }
 
-                if ($('.seats-p').length > 0 && result.todaySeats != undefined && result.todaySeats != null && result.todaySeats != '') {
-                    $('.seats-p').html(result.todaySeats);
-                }
-            }
+//                if ($('.seats-p').length > 0 && result.todaySeats != undefined && result.todaySeats != null && result.todaySeats != '') {
+//                    $('.seats-p').html(result.todaySeats);
+//                }
+//            }
 
-        },
-        error: function (data) {
-            console.log(data);
-        }
-    });
-}
+//        },
+//        error: function (data) {
+//            console.log(data);
+//        }
+//    });
+//}
 
 
 function formatCurrency(val) {
-   
+
     //var val = ctrl.value;
 
     val = val.replace(/,/g, "")
@@ -434,6 +429,7 @@ function formatCurrency(val) {
 
 
 function refreshDashboardBySection(ele, sectionType, callback) {
+
 
 
     $(ele).children('.fa-refresh').addClass('fa-spin');
@@ -491,7 +487,7 @@ function bindCurrentEnrollment(data) {
 
 function bindEnrolledByProgram(data) {
 
-    
+
     if (data != null && data.EnrolledProgramList != null && data.EnrolledProgramList.length > 0) {
 
         var eduProgram = $('#table-enroll-program');
@@ -516,19 +512,18 @@ function bindEnrolledByProgram(data) {
 
 function bindScreeningMatrix(data) {
 
-   
 
-    if (data != null && data.ScreeningMatrixList.length > 0)
-    {
+
+    if (data != null && data.ScreeningMatrixList.length > 0) {
         var tableBind = $('#table-missing-scr');
 
-      
+
 
         var appendData = '';
 
         $.each(data.ScreeningMatrixList, function (i, screening) {
 
-            appendData+='<tr>\
+            appendData += '<tr>\
                             <td data-title="Screening Name">' + screening.ScreeningName + '</td>\
                             <td data-title="Up-to-Date" class="number-center">' + screening.UptoDate + '</td>\
                             <td data-title="Missing" class="number-center">' + screening.Missing + '</td>\
@@ -544,8 +539,7 @@ function bindScreeningMatrix(data) {
 }
 
 
-function bindScreeningReview(data)
-{
+function bindScreeningReview(data) {
     if (data != null && data.NDayScreeningReviewList.length > 0) {
         var tableBind = $('#table-scr-review');
 
@@ -616,7 +610,7 @@ function bindCaseNoteExecutive(data) {
 
     }
 
-  
+
 }
 
 function bindInkindExecutive(data) {
@@ -632,8 +626,7 @@ function bindInkindExecutive(data) {
 function bindDisabilitiesExecutive(data) {
    
 
-    if(data!=null)
-    {
+    if (data != null) {
         $('#dis-p').html(data.DisabilityPercentage + ' %');
     }
 }
@@ -651,8 +644,7 @@ function bindOverIncomeExecutive(data) {
 function bindWaitingListExecutive(data) {
   
 
-    if(data!=null)
-    {
+    if (data != null) {
         $('#wait-p').html(data.WaitingList + ' %');
         $('#wait-count').html(data.WaitingListCount);
 
@@ -664,14 +656,64 @@ function bindWaitingListExecutive(data) {
 }
 
 
-function bindADAExecutive(data)
-{
-    if(data!=null && data.ADAList!=null && data.ADAList.length>0)
-    {
+function bindADAExecutive(data) {
+    if (data != null && data.ADAList != null && data.ADAList.length > 0) {
         makeADAChart(data.ADAList);
     }
 }
 
+function initializeExecutiveTicker() {
+    var myConnection1 = $.hubConnection(location.origin);
+    var ticker=myConnection1.createHubProxy("executiveDashboardTicker");
+    
+
+
+    ticker.on('executiveDashboardTicker', function (result) {
+        
+        if (result != null && result != '' && result.length > 0) {
+
+            $.each(result, function (i, data) {
+
+                if ($('.ada-p').length > 0 && data.ADAPercentage != undefined && data.ADAPercentage != null && data.ADAPercentage != '') {
+                    $('.ada-p').html(parseFloat(data.ADAPercentage) + ' %');
+                }
+
+                if ($('.seats-p').length > 0 && data.SeatsFilled != undefined && data.SeatsFilled != null && data.SeatsFilled != '') {
+                    $('.seats-p').html(data.SeatsFilled);
+                }
+            });
+
+
+
+        }
+
+    });
+
+    function init(staff, connectionId) {
+      
+        var context = {
+            'AgencyId': staff.AgencyId,
+            'RoleId': staff.RoleId,
+            'UserId': staff.UserId,
+            'Name': staff.FullName,
+            'ConnectionId': connectionId
+
+        };
+       
+
+        return ticker.invoke('initialize',context).done(function (stocks) {
+
+        });
+    }
+
+   
+    myConnection1.start().done(function(){
+
+        init(_staffDetails, myConnection1.id)
+    });
+    
+
+}
 
 
 $(document).ready(function () {
@@ -832,9 +874,9 @@ $(document).ready(function () {
 
     makeWaitingListChart();
 
+    initializeExecutiveTicker();
 
-
-    getADASeatsDaily();
+    // getADASeatsDaily();
 
 
 
@@ -1101,9 +1143,9 @@ $(document).ready(function () {
 
 
     //updates the ADA count for every 5 minutes
-    setInterval(function () {
-        getADASeatsDaily()
-    }, 120000); // this will run after every 2 minutes
+    //setInterval(function () {
+    //    getADASeatsDaily()
+    //}, 120000); // this will run after every 2 minutes
     ///3000
     ///300000
     //120000

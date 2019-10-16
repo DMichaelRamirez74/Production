@@ -9,10 +9,8 @@
 <script src="~/Content/underscore-min.js"></script>
 <script src="~/Scripts/amcharts.js"></script>
 <script src="~/Scripts/serial.js"></script>
-@*<script src="https://www.amcharts.com/lib/3/xy.js"></script>*@
 <script src="~/Scripts/amcharts/xy.js"></script>
 <script src="~/Scripts/amcharts/plugins/export/export.min.js"></script>
-
 <script src="~/Scripts/amcharts/plugins/export/libs/fabric.js/fabric.min.js"></script>
 <script src="~/Scripts/amcharts/plugins/export/libs/FileSaver.js/FileSaver.min.js"></script>
 <script src="~/Scripts/amcharts/plugins/export/libs/pdfmake/pdfmake.min.js"></script>
@@ -21,9 +19,7 @@
 
 <link href="~/Scripts/amcharts/plugins/export/export.css" rel="stylesheet" />
 
-@{
-//Thread.CurrentThread.CurrentUICulture = new CultureInfo("es");
-}
+
 
 <style type="text/css">
         .page-wrapper-change {
@@ -65,8 +61,7 @@
         #modal-edit-growth .modal-body,  #modal-edit-growth .modal-body {
         background: #34495e none repeat scroll 0 0;
         border: 6px solid #ffffff;
-        border-radius: 3px;
-        /* color: #ffffff; */
+        border-radius: 3px;      
         float: left;
         padding: 15px 3%;
         position: relative;
@@ -114,14 +109,7 @@
 
 <div class="row">
 
-    @*<div class="col-lg-12">
-            <h2>
-
-                <button type="button" class="btn btn-default" onclick="window.history.back()" style="margin-top: 10px;background:#9b59b6 !important;border-radius: 0px;">
-                    <i class="fa fa-arrow-left" style="padding-right:5px;"></i><span>Back</span>
-                </button>
-            </h2>
-        </div>*@
+   
 
 
     <div class="col-lg-12">
@@ -129,14 +117,6 @@
             <span><i class="fa fa-bar-chart-o" aria-hidden="true"></i>&nbsp; @Fingerprints.LocalResource.Resources.GrowthChartof @ViewBag.ClientDetail.ChildName</span>
 
 
-            @*@if (Session["RoleId"].ToString() == @EnumHelper.GetEnumDescription(FingerprintsModel.Enums.RoleEnum.Teacher).ToLowerInvariant())
-    {
-        <a href="@Url.Action("Roster", "Teacher")" class="btn pull-right" style="color:#fff;background:#9b59b6">Back to Roster</a>
-    }
-    else
-    {
-        <a href="@Url.Action("Roster", "Roster")" class="btn pull-right" style="color:#fff;background:#9b59b6">Back to Roster</a>
-    }*@
 
 
 
@@ -301,7 +281,7 @@ else
         }
         var _chUrl = @Url.Action("GrowthChart", "Teacher");
 
-        //?client=@ViewBag.eClientId&type=
+        
     }
     @if(_curRole == _parRole) {
         _chUrl= @Url.Action("ClientGrowthChart", "Parent");
@@ -334,7 +314,7 @@ else
                     "enabled": true,
             "menu": [{
                 "class": "export-main",
-                // "menu": ["PDF"]
+                
                 "menu": []
             }]
         },
@@ -342,7 +322,7 @@ else
                 "equalWidths": false,
                 "useGraphSettings": true,
                 "valueAlign": "left",
-                //"valueWidth": 120
+               
             },
             chartCursor: {
                 "valueLineEnabled": true,
@@ -395,9 +375,7 @@ else
             $(document).on("click", "#download-all", function (e) {
                 e.preventDefault();
 
-                // $("input[name='GridHtml']").val($("#weightrow").html());
-
-                // $("#exform").submit();
+                
                 self.generatePdf('All');
 
             });
@@ -477,7 +455,7 @@ else
             var layout = {
                 "content": [],
                 footer: function (currentPage, pageCount) {
-                    //return currentPage.toString() + ' of ' + pageCount;
+                    
                     return { text: currentPage, alignment: 'center' };
                 },
             };
@@ -495,21 +473,21 @@ else
                 }
             };
             ids.forEach(function (obj, i) {
-                //ids = ["HeadCircuchart", "Heightchart", "Weightchart", "Weight_LengthtChart"];
+              
                 var _chartHeadtxt = "";
                 if (obj == "HeadCircuchart") {
-                    //  _chartHeadtxt = "Head Circumference vs Age";
+                   
                     _chartHeadtxt = _langList.HeadCircumferencevsAge;
                 } else if (obj == "Heightchart") {
-                    // _chartHeadtxt = "Length vs Age";
+                  
                     _chartHeadtxt = _langList.LengthvsAge;
                 } else if (obj == "Weightchart") {
-                    //_chartHeadtxt = "Weight vs Age"
+                    
                     _chartHeadtxt = _langList.WeightvsAge
                 }  else if (obj == "BMIchart") {
                     _chartHeadtxt = _langList.BMI_Vs_Age;
                 } else {
-                    // _chartHeadtxt = "Weight vs Length";
+                  
                     _chartHeadtxt = _langList.WeightvsLength
                 }
                 layout.content.push({
@@ -540,7 +518,7 @@ else
                 dataType: 'json',
                 beforeSend: function () { $("#spinner").show(); },
                 success: function (data) {
-                    //self.data = data;
+                   
                     data = JSON.parse(data);
                     self.renderChart(data);
                 },
@@ -611,9 +589,9 @@ else
                     P90: self.convertCMtoInch(obj.P90,self.gInputType),
                     P95: self.convertCMtoInch(obj.P95,self.gInputType),
                     P98: self.convertCMtoInch(obj.P98,self.gInputType),
-                    // Age: obj.AgeInMonth
+                 
                     Age: parseFloat(obj.AgeInMonth)
-                    //Age: AmCharts.formatDate(new Date(obj.AssessmentDate), "MMM-DD"),
+                    
                 };
 
 
@@ -660,12 +638,10 @@ else
 
 
 
-            // console.log(HeadCircData);
 
 
             self.data = data;
 
-            // var HCY = self.gInputType == "2" ? "HeadCirc.(CM)" : "HeadCirc.(Inch)";
             var HCY = self.gInputType == "2" ? "" + _langList.HeadCircu + ".(CM)" : "" + _langList.HeadCircu +".(Inch)";
 
 
@@ -728,7 +704,6 @@ else
                           "enabled": true
                       },
                       "valueAxis": "STDLengthAxis",
-                      // "visibleInLegend":false, --show or hide legend label
                   },
                   </text>
 
@@ -753,9 +728,7 @@ else
 
             var HeightData = self.getHeightData();
 
-            //console.log("height val", HeightData);
 
-            // var HYLabel = self.gInputType == "2" ? "Length(CM)" : "Length(Inch)";
             var HYLabel = self.gInputType == "2" ?  '@Resources.LengthofCM' : '@Resources.LengthofInch';
 
 
@@ -817,7 +790,6 @@ else
                                   "enabled": true
                               },
                               "valueAxis": "STDLengthAxis",
-                              // "visibleInLegend":false, --show or hide legend label
                           },
                           </text>
 
@@ -855,16 +827,12 @@ else
                     P90: self.convertKGtoLbs(obj.P90, self.gInputType),
                     P95: self.convertKGtoLbs(obj.P95, self.gInputType),
                     P98: self.convertKGtoLbs(obj.P98, self.gInputType),
-                    // Age: obj.AgeInMonth
                     Age: parseFloat(obj.AgeInMonth)
-                    //Age: AmCharts.formatDate(new Date(obj.AssessmentDate), "MMM-DD"),
                 };
 
 
-                // if ((_tempObj.Age % 2) == 0) {
 
                 WeightData.push(_tempObj);
-                //}
 
             });
 
@@ -878,10 +846,8 @@ else
 
                     if (childObj.InputType == 2 && self.gInputType == "1") { //if data in metric and globe in imperial
 
-                        //  _Weight = self.convertCMtoInch(childObj.Weight);
                         _Weight = self.convertKGtoLbs(childObj.Weight)
                     } else if (childObj.InputType == 1 && self.gInputType == "2") { //if data in imperial and globe in metric
-                        // _Weight = self.convertInchtoCM(childObj.Weight, 1);
                         _Weight = self.convertLbstoKG(childObj.Weight);
                     }
 
@@ -904,10 +870,8 @@ else
             WeightData = _.sortBy(WeightData, 'Age');
 
 
-            // console.log(WeightData);
 
 
-            //  var WYLabel = self.gInputType == "2" ? "Weight(KG)" : "Weight(Pound)";
             var WYLabel = self.gInputType == "2" ? '@Resources.Weight_Kg' : '@Resources.Weight_Pound';
 
 
@@ -972,7 +936,6 @@ else
                       },
                       "valueAxis": "STDLengthAxis",
                       "visibleInLegend":true, 
-                      // "visibleInLegend":false, --show or hide legend label
                   },
                   </text>
 
@@ -982,7 +945,6 @@ else
     ],
 
                 "valueAxes": self.chartComn.valueAxes(_langList.Age+'(M)',WYLabel),
-               // "title": _langList.Age+"("+_langList.Month+")",
                 "dataProvider":WeightData,
                 "export":self.chartComn.export,
                 "chartCursor": self.chartComn.chartCursor,
@@ -1010,11 +972,8 @@ else
                     P90: self.convertKGtoLbs(obj.P90, self.gInputType),
                     P95: self.convertKGtoLbs(obj.P95, self.gInputType),
                     P98: self.convertKGtoLbs(obj.P98, self.gInputType),
-                    //Age: obj.AgeInMonth
-                    //Length: self.convertCMtoInch(obj.Length)
                     Length:parseFloat( self.convertCMtoInch(obj.Length,self.gInputType))
 
-                    //Age: AmCharts.formatDate(new Date(obj.AssessmentDate), "MMM-DD"),
                 };
 
                 WeightLengthData.push(_tempObj);
@@ -1032,7 +991,6 @@ else
 
                 } else if (orObj.InputType == 1 && self.gInputType == "2") { //if data in imperial and globe in metric
                     _stdLength = self.convertInchtoCM(orObj.Height, 1);
-                    // _Weight = self.convertLbstoKG(childObj.Weight);
                 }
 
                 if (orObj.InputType == "2" && self.gInputType == "1") {  //data in kg but g option in lbs
@@ -1055,8 +1013,6 @@ else
             console.log('weight length',WeightLengthData);
 
 
-            //var WLXLabel = self.gInputType == "2" ? "Length(CM)" : "Length(Inch)";
-            //var WLYLabel = self.gInputType == "2" ? "Weight(KG)" : "Weight(Pound)";
             var WLXLabel = self.gInputType == "2" ? "@Resources.LengthofCM" : "@Resources.LengthofInch";
             var WLYLabel = self.gInputType == "2" ? "@Resources.Weight_Kg" : "@Resources.Weight_Pound";
 
@@ -1076,7 +1032,6 @@ else
                     "bulletColor": "#FFFFFF",
                     "bulletSize": 8,
                     "lineThickness": 2,
-                    //"title": _langList.Child_Length,
                     "title": WLXLabel,
                     "type": "smoothedLine",
                     "useLineColorForBulletBorder": true,
@@ -1121,7 +1076,6 @@ else
                       },
                       "valueAxis": "STDLengthAxis",
                       "visibleInLegend":true, 
-                      // "visibleInLegend":false, --show or hide legend label
                   },
                   </text>
 
@@ -1131,7 +1085,6 @@ else
     ],
 
                 "valueAxes": self.chartComn.valueAxes(_langList.Age+'(M)',WYLabel),
-               // "title": _langList.Age+"("+_langList.Month+")",
                 "dataProvider":WeightLengthData,
                 "export":self.chartComn.export,
                 "chartCursor": self.chartComn.chartCursor,
@@ -1166,10 +1119,8 @@ else
 
 
 
-                // if ((_tempObj.Age % 2) == 0) {
 
                 BMIData.push(_tempObj);
-                //}
 
             });
 
@@ -1220,7 +1171,6 @@ else
                     "yField":  "BMI",
                     "lineColor": "#040404",
                     "balloonFunction": function (item, content) {
-                        // console.log(item, content);
                         var html = '<p style="font-size: 120%; font-weight: bold;"> <p style=""><b>Age : ' + item.dataContext.Age + '(M)</b> </p><p><b> ' + content.title + ' :' + item.dataContext.BMI + '</b></p><p><b> Date :' + item.dataContext.AssessmentDate + '</b></p></p>';
                         return html;
                     },
@@ -1266,7 +1216,6 @@ else
     ],
 
                 "valueAxes": self.chartComn.valueAxes(_langList.Age+'(M)',"BMI"),
-               // "title": _langList.Age+"("+_langList.Month+")",
                 "dataProvider":BMIData,
                 "export":self.chartComn.export,
                 "chartCursor": self.chartComn.chartCursor,
@@ -1278,15 +1227,7 @@ else
     });
 
 
-            //chart.addListener("rendered", function (zoomChart) {
-
-            //    console.log(zoomChart);
-            //    if (chart) {
-            //        chart.zoomToIndexes(dataLength - 8, dataLength);
-
-            //    }
-
-            //});
+          
 
 
             $("#spinner").hide();

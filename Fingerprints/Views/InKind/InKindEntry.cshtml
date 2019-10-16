@@ -27,24 +27,6 @@
 
     <script type="text/javascript">
 
-
-
-        //Camera Parameters //
-
-        var videoSelect =null;
-        var screenshotButton=null;
-        var img =null;
-        var canvas=null;
-        var button=null;
-        var currentStream;
-        var video;
-        var constraints = {};
-        var front = true;
-
-
-        //Camera Parameters //
-
-
         var _maxHrMinEntry = '12:00';
         var _warningHrsEntry = '08:00';
         var activityHrs = null;
@@ -75,15 +57,17 @@
         }
 
         $(function () {
+
+
             var searchBtn = $('#searchByNamebtn');
             var searchText = $('#searchText');
             var activityDate = $('#activity-date');
             var activityType = $('#inkind-type-select');
             var activityDesc = $('#descriptionTextArea');
-                activityHrs = $('#inkindHoursText');
-                activityMins = $('#inkindMinutesText');
+            activityHrs = $('#inkindHoursText');
+            activityMins = $('#inkindMinutesText');
             var acitivityMiles = $('#inkindMilesText');
-                inkindAmount = $('#inkindAmountTxt');
+            inkindAmount = $('#inkindAmountTxt');
             var centerSelect = $('#ddlCenterDetails');
             var classroomSelect = $('#classroomSelect');
             var parentSig = $('#imageSig1');
@@ -98,13 +82,13 @@
 
                 html: true,
                 content: function () {
-                 //  return $($(this).data('target-selector')).html();
+                   
                     return '<p class="text-center">Are you sure, you want to continue?</p>\
          <p class="text-center"><button type="button" class="btn btn-success allow-yes">Yes</button>&nbsp;&nbsp;<button type="button" class="btn btn-danger allow-no">No</button></p>';
 
                 },
                 title: function () {
-                  //  return $(this).data('title') + '<span class="close">&times;</span';
+                    
                     return $(this).data('title');
 
                 },
@@ -113,10 +97,7 @@
             }).on('shown.bs.popover', function (e) {
 
                 var _popover = $(this);
-                //_popover.parent().find('div.popover .close').on('click', function () {
-
-                //    _popover.popover('hide');
-                //});
+              
 
                 _popover.parent().find('div.popover .allow-yes').on('click', function () {
                     _allowExceedingWarninghrs = true;
@@ -128,7 +109,7 @@
                     activityHrs.val(0);
                     activityMins.val(0);
                     inkindAmount.val(0);
-                    
+
                     _popover.popover('hide');
                 });
 
@@ -156,34 +137,22 @@
                         }
                     },
                     container:'body',
-                    //title: function () {
-                    //    //  return $(this).data('title') + '<span class="close">&times;</span';
-                    //    return 'In-Kind Entry Dates'
-
-                    //},
+                    
                     title:'In-Kind Entry Dates'+ '<a class="close" href="javascript:void(0);">&times;</a>',
                     delay: { "show": 500, "hide": 100 }
                 }).on('shown.bs.popover', function(e) {
-                    //console.log('shown triggered');
-                    // 'aria-describedby' is the id of the current popover
+                   
                     var current_popover = '#' + $(e.target).attr('aria-describedby');
                     var $cur_pop = $(current_popover);
-          
+
                     $cur_pop.find('.close').click(function(){
-                        //console.log('close triggered');
+                       
                         $('#imageinfoInkindDates').popover('hide');
                     });
-          
+
                 });
 
             }
-
-            //$('#imageinfoInkindDates').on('click',function(){
-
-            //    $('#imageinfoInkindDates').popover('show');
-
-
-            //});
 
 
 
@@ -204,25 +173,7 @@
 
 
 
-            //$('#inkind-info-form').find('input:checkbox[name=parenttype]').on('click', function () {
-
-            //    if ($(this).is(':checked')) {
-            //        $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
-            //            .parent('span').parent('div').hide();
-
-            //        //  $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=1]').trigger('click');
-
-
-            //    }
-            //    else {
-            //        $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
-            //            .parent('span').parent('div').show();
-            //    }
-
-            //});
-
-
-            //on click of Search Button//
+            
             searchBtn.on('click', function () {
 
 
@@ -233,9 +184,7 @@
                     return false;
                 }
                 else {
-                    // $('.not-exists-div').show();
-                    // $('#contact-legend').html('Add Contact Information');
-                    //// $('#contact-info-form').trigger('reset');
+                   
                     getInkindDonorsFromDb(searchText.val(),'');
 
                     return false;
@@ -243,7 +192,7 @@
 
             });
 
-            //Initialize datetimepicker//
+          
 
             var $minDate=null;
             if(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length>0)
@@ -273,22 +222,22 @@
                     else if(getDifferenceDays(e, new Date())>30){
 
                         $('#datetimepicker1').parent('div').popover('destroy');
-                        
+
                         if(!checkCookie($cookieName))
                         {
-                            
+
                             $('#datetimepicker1').parent('div').popover({
 
                                 html: true,
                                 content: function () {
-                                    //  return $($(this).data('target-selector')).html();
+                                   
                                     return '<p>Entered date is greater than 30 days before from today.</p>\
                                         <input type="checkbox" name="checkboxNoShow"/>&nbsp;<span>Don\'t show this message again</span>';
-                                    
+
 
                                 },
                                 title: function () {
-                                    //  return $(this).data('title') + '<span class="close">&times;</span';
+                                    
                                     return 'Information <a href="javascript:void(0);" class="close">&times;</a>';
 
                                 },
@@ -296,13 +245,12 @@
                                 delay: { "show": 500, "hide": 100 }
                             }).on('shown.bs.popover', function (e) {
 
-                                //console.log('shown triggered');
-                                // 'aria-describedby' is the id of the current popover
+                                
                                 var current_popover = '#' + $(e.target).attr('aria-describedby');
                                 var $cur_pop = $(current_popover);
-          
+
                                 $cur_pop.find('.close').click(function(){
-                                    //console.log('close triggered');
+                                    
                                     $('#datetimepicker1').parent('div').popover('hide');
 
                                 });
@@ -321,7 +269,7 @@
                                 });
                             });
 
-                        
+
                             $('#datetimepicker1').parent('div').popover('show');
                         }
 
@@ -336,88 +284,24 @@
 
 
                     $('#activity-date').css('background-color','');
+
+
+
+                    if(!isValidAllowedDates( e))
+                    {
+                        plainValidation('#activity-date');
+
+
+
+
+
+                        customAlert('Entered date is not allowed');
+                        return false;
+                    }
+
+
+
                
-                        
-                        
-                        if(!isValidAllowedDates( e))
-                        {
-                            plainValidation('#activity-date');
-
-                  
-
-
-                            //$('#datetimepicker1').parent('div').popover('destroy');
-
-                            //$('#datetimepicker1').parent('div').popover({
-
-                            //    html: true,
-                            //    content: function () {
-                            //        //  return $($(this).data('target-selector')).html();
-                            //        return '<p>Kindly, check the <i class="fa fa-fa-info-o"></i> to know more about In-Kind entry dates</p>';
-
-                            //    },
-                            //    title: function () {
-                            //        //  return $(this).data('title') + '<span class="close">&times;</span';
-                            //        return "<p><strong class='text-center'>Invalid Date</strong></p>";
-
-                            //    },
-                            //    trigger: 'manual',
-                            //    delay: { "show": 500, "hide": 100 }
-                            //}).on('shown.bs.popover', function (e) {
-
-
-
-
-
-                            //});
-
-                            //$('#datetimepicker1').parent('div').popover('show');
-
-                            customAlert('Entered date is not allowed');
-                            return false;
-                        }
-                        
-                 
-
-                    //else if(getDifferenceDays(e, new Date())>30){
-
-                    //    $('#datetimepicker1').popover('destroy');
-                    //    $('#datetimepicker1').popover({
-
-                    //        html: true,
-                    //        content: function () {
-                    //            //  return $($(this).data('target-selector')).html();
-                    //            return '<p>Entered date is greater than 30 days before from today.</p>\
-                    //                    <input type="checkbox" name="checkboxNoShow"/>&nbsp;<span>Don\'t show this message again</span>\
-                    //                    <div><button type="button" class="btn btn-primary">Close</button></div>';
-
-                    //        },
-                    //        title: function () {
-                    //            //  return $(this).data('title') + '<span class="close">&times;</span';
-                    //            return 'Information <a href="javascript:void(0);" class="close">&times;</a>';
-
-                    //        },
-                    //        trigger: 'manual',
-                    //        delay: { "show": 500, "hide": 100 }
-                    //    }).on('shown.bs.popover', function (e) {
-
-                    //        //console.log('shown triggered');
-                    //        // 'aria-describedby' is the id of the current popover
-                    //        var current_popover = '#' + $(e.target).attr('aria-describedby');
-                    //        var $cur_pop = $(current_popover);
-          
-                    //        $cur_pop.find('.close').click(function(){
-                    //            //console.log('close triggered');
-                    //            $('#datetimepicker1').popover('hide');
-
-                    //        });
-
-
-                    //    });
-
-                        
-                    //    $('#datetimepicker1').popover('show');
-                    //}
                 },
             });
 
@@ -429,12 +313,11 @@
 
 
 
-                    
+
                     if(!isValidAllowedDates( $(this).val()))
                     {
-                       // plainValidation('#activity-date');
+                       
 
-                  
 
 
                         $('#datetimepicker1').parent('div').popover('destroy');
@@ -443,12 +326,12 @@
 
                             html: true,
                             content: function () {
-                                //  return $($(this).data('target-selector')).html();
+                              
                                 return '<p>Kindly, check the <i class="fa fa-info-circle" style="color:#25b7d3;font-size:17px;font-weight:bold;"></i> to know more about In-Kind entry dates</p>';
 
                             },
                             title: function () {
-                                //  return $(this).data('title') + '<span class="close">&times;</span';
+                               
                                 return "<p><strong class='text-center'>Invalid Date</strong></p>";
 
                             },
@@ -469,12 +352,7 @@
                     }
 
                     $('#datetimepicker1').parent('div').popover('destroy');
-                    //if (!isValidAllowedDates($(this).val())) {
-                    //    plainValidation($(this));
-                    //    $(this).val('');
-                    //    customAlert('Please enter valid date');
-                    //    return false;
-                    //}
+                   
 
                     if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
                         plainValidation($(this));
@@ -488,14 +366,14 @@
 
 
 
-            //show Datetimepicker on click of date group icon//
+           
             $('#datetimepicker1').on('click', function () {
 
                 $('#activity-date').datetimepicker('show');
             });
 
 
-            //Validaton for allowing only date formate in text box on Key up//
+       
             $("body").on('keyup', '#activity-date', function (e) {
 
                 flags = 0;
@@ -525,7 +403,7 @@
 
             var flags = 0;
 
-            //Validaton for allowing only date formate in text box on Key down//
+         
 
             $('body').on("keydown", "#activity-date", function (e) {
                 flags++;
@@ -533,12 +411,7 @@
                     e.preventDefault();
                 }
 
-                //var regex = /^[0-9]*(?:\.\d{1,2})?$/;
-
-
-                //if( !regex.test(e.value) ) {
-                //    return false;
-                //}
+              
 
                 var key = e.charCode || e.keyCode || 0;
 
@@ -547,7 +420,7 @@
                 return (key == 8 || key == 9 || key == 13 || key == 46 || key == 37 || key == 39 ||
                     key == 35 || key == 36 || key == 110 || key == 190 || key == 191 ||
                    (key >= 96 && key <= 111 || key >= 48 && key <= 57 && !e.shiftKey));
-                //(e.which == keyCode.ENTER)
+               
 
 
                 var owner = this,
@@ -576,14 +449,14 @@
 
 
 
-            //Validation for the Valid Entered Format date//
+            
             $('body').on('blur', '#activity-date', function () {
 
 
                 validatedates(this);
             });
 
-            //On Change Center Select Option, Gets the Classrooms//
+           
 
             $('#ddlCenterDetails').on('change', function () {
                 if ($(this).val() == '0') {
@@ -595,15 +468,15 @@
             });
 
 
-            //On clikc of Add Contact Button loads the contact form//
+            
             $('#addContactBtn').on('click', function () {
 
                 if(_inkindBudgetPeriods==null ||(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length==0))
                 {
 
-           
+
                     showNoActiveInkinds();
-               
+
                     return false;
                 }
 
@@ -618,27 +491,14 @@
                 $('#inkind-info-form').trigger('reset');
                 $('.inkind-entry-div').hide();
 
-               
+
                 $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
 
                 $('#inkind-info-form').find('.attach-div').find('input:file').val('');
                 $('#inkind-info-form').find('#div-edit-modal-img-gallery').html('');
             });
 
-            //Triggers the Search Button Click option on click of Enter key on focus of Search Text//
-            //$('#searchText').on('focus', function (event) {
-
-
-
-            //    document.getElementById("searchText").addEventListener("keydown", function (event) {
-            //        if (event.which == 13 || event.keyCode == 13) {
-            //           // $('#searchByNamebtn').trigger('click');
-            //            getInkindDonorsFromDb(searchText.val());
-            //            return true;
-            //        }
-
-            //    });
-            //});
+            
 
 
 
@@ -649,7 +509,7 @@
 
                     if($('#searchText').is(':focus') && $('#searchText').val())
                     {
-                        // $('#searchByNamebtn').trigger('click');
+                        
 
                         _requestedPageInkindentry=1;
                         _pageSizeInkindentry=10
@@ -666,7 +526,8 @@
 
 
 
-            //On Click of Activity Type Radio loads the Activity from based on its type//
+
+            
             $('#activitytype-div').find('input[name=activityTypeRadio]').on('click', function () {
 
                 var activityType = parseInt($(this).val());
@@ -713,11 +574,7 @@
                                         }
                                         else {
 
-                                            //dataAppend += '<div class="col-xs-12" style="padding: 0;">\
-                                            //        <span class="check-space"> <input type="checkbox" name="activityCheck" onclick="return getInkindActivityAmountType(this);" amt-type=' + inkindactivity.ActivityAmountType + '  is-sig=' + isSig + ' value=' + inkindactivity.ActivityCode + '></span>\
-                                            //        <label style="color:#333;width: auto;display: inline-block;">' + inkindactivity.ActivityDescription + '</label>\
-                                            //    </div>';
-
+                                           
                                             dataAppend += '<option amt-type=' + inkindactivity.ActivityAmountType + '  is-sig=' + isSig + ' value=' + inkindactivity.ActivityCode + '>' + inkindactivity.ActivityDescription + '</option>';
 
 
@@ -753,18 +610,16 @@
 
             });
 
-            //Validates the Input. allows only numericals//
-            // $('#inkindHoursText,#inkindMinutesText,#inkindAmountTxt').on('keypress', function () {
+           
             $('#inkindHoursText,#inkindMinutesText').on('keypress', function () {
 
                 return isNumber(this.event);
             });
-            //currency- allow numberic with two decimal 
+            //currency- allow numeric with two decimal
             $(document).on('keydown', '#inkindAmountTxt', function (e) {
                 var input = $(this);
                 var oldVal = input.val();
                 var regex = new RegExp(input.attr('pattern'), 'g');
-               // var regex = new RegExp('^\d*(\.\d{0,2})?$', 'g');
                 setTimeout(function () {
                     var newVal = input.val();
                     if (!regex.test(newVal)) {
@@ -776,22 +631,9 @@
 
             $('#inkindAmountTxt').prop('disabled', true);
 
-            //$('#inkindHoursText,#inkindMinutesText').on('input', function () {
+           
 
-            //    if ($(this).attr('id') == 'inkindHoursText' && !validateHoursMinutes(this)) {
-            //        return false;
-            //    }
-
-            //    if ($(this).attr('id') == 'inkindMinutesText' && !validateHoursMinutes(this)) {
-            //        return false;
-            //    }
-
-            //});
-
-            //On keypress of Hours, Minutes and Inkind Amount Text, Calculates the amount and displays to Amount Text box//
-          //  $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('blur', function () {
-
-                $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('input', function () {
+            $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').on('input', function () {
 
                 var hoursText = ($('#inkindHoursText').val() == null || $('#inkindHoursText').val() == '') ? '0' : $('#inkindHoursText').val();
                 var minsTxt = ($('#inkindMinutesText').val() == null || $('#inkindMinutesText').val() == '') ? '0' : $('#inkindMinutesText').val();
@@ -843,7 +685,7 @@
                 return false;
             });
 
-            //Validates the Input. allows only numericals//
+           
 
             $('#inkindMilesText').keypress(function (event) {
                 if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
@@ -903,7 +745,7 @@
                 }
                 else {
                     $('#text-select-email').val('').prop('disabled', false);
-                } 
+                }
 
             });
 
@@ -914,21 +756,21 @@
 
 
             $('#txtSignatureCode').on('input',function(){
-            
-            
+
+
                 if($(this).val().trim().length==4)
                 {
                     if(CheckStaffSignature($('#txtSignatureCode'), '@FingerprintsModel.StaffDetails.GetInstance().UserId.ToString()'))
                     {
-                      
+
                     }
                 }
             });
 
 
-            //On click of Inkind Entry Form Submit, Validates the form and Saves the Record to Database//
+            //On click of In-kind Entry Form Submit, Validates the form and Saves the Record to Database//
             $('#inKindEntrySubmit').on('click', function () {
-           
+
                 cleanValidation();
                 var filter2 = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
 
@@ -941,7 +783,7 @@
                 if ($('.contact-entry-div').is(':visible')) {
                     if (!$('input[name=radiocompany]').is(':checked')) {
                         customAlert('Please Select Contact Type');
-                        // $('input[name=PGender]').parent('div').parent('div').removeClass('checkbox-validation');
+                       
                         return false;
                     }
 
@@ -965,7 +807,6 @@
 
                     if ($('.individual-gender-div').is(':visible') && $('input[name=radiocompany][value=1]').is(':checked')) {
                         if ($('input[name=PGender]:checked').length === 0) {
-                            // plainValidation('#text-company-name');
                             $('input[name=PGender]').parent('div').parent('div').addClass('checkbox-validation');
                             customAlert('Please Select Gender');
                             return false;
@@ -1009,7 +850,7 @@
                         customAlert('Please Enter Email Address');
                         return false;
                     }
-                    if ($('#text-select-email').val()!='' && !filter2.test($('#text-select-email').val())) {
+                    if ($('#text-select-email').val() != '' && !filter2.test($('#text-select-email').val())) {
                         plainValidation('#text-select-email');
                         customAlert('Please Enter Valid Email Address');
                         return false;
@@ -1029,9 +870,8 @@
 
                 if(!isValidAllowedDates(activityDate.val()))
                 {
-                  //  plainValidation(activityDate);
 
-                  
+
 
 
                     $('#datetimepicker1').parent('div').popover('destroy');
@@ -1040,12 +880,10 @@
 
                         html: true,
                         content: function () {
-                            //  return $($(this).data('target-selector')).html();
                             return '<p>Kindly,check the <i class="fa fa-info-circle" style="color:#25b7d3;font-size:17px;font-weight:bold;"></i> to know more about In-Kind entry dates</p>';
 
                         },
                         title: function () {
-                            //  return $(this).data('title') + '<span class="close">&times;</span';
                             return "<p><strong class='text-center'>Invalid Date</strong></p>";
 
                         },
@@ -1127,13 +965,9 @@
                     {
                         return false;
                     }
+
+
                    
-
-                    //if(getTotalhoursMinutes(activityHrs.val(),activityMins.val()) > parseFloat(_warningHrsEntry.split(':')[0]))
-                    //{
-
-                    //}
-
                 }
 
                 if ($('.inkind-miles-div').is(':visible') && acitivityMiles.val() === '') {
@@ -1171,7 +1005,7 @@
 
                 if('@hasSignatureCode'=="True")
                 {
-                   
+
                     if(!$('input:radio[name="signatureRadio"]').is(':checked'))
                     {
                         isSignature=false;
@@ -1182,7 +1016,7 @@
                     {
                         if($('#txtSignatureCode').val()=="")
                         {
-                            
+
                             isSignature=false;
                             plainValidation('#txtSignatureCode');
                             customAlert(_langList.Please_Enter_Signature_Code);
@@ -1208,7 +1042,7 @@
                             isSignature= false;
                         }
                     }
-                    
+
 
                 }
 
@@ -1216,6 +1050,10 @@
                 {
                     return false;
                 }
+
+
+
+
 
                 var InKindTransactions = {};
                 var InKindDonarsContact = {};
@@ -1359,7 +1197,6 @@
                     if ($('input[name=radiocompany][value=1]').is(':checked')) {
                         InKindDonarsContact.InKindDonarId = parseInt($('#inkindPersonName').attr('cl_id'));
                         InKindDonarsContact.Gender = $('input[name=PGender]:checked').val();
-                        //InKindDonarsContact.ApartmentNo = $('#text-apartment-no').val();
                         InKindDonarsContact.ApartmentNo = '';
                         InKindDonarsContact.County = $('#text-county').val();
                         InKindDonarsContact.IsInsert = true;
@@ -1386,7 +1223,7 @@
 
                 var fileData = new FormData();
                 $('#inkind-info-form').find('input:file').each(function (a, b) {
-               
+
                     var fileInput = $(this);
                     if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '') {
                         var fileUpload = fileInput.get(0);
@@ -1398,15 +1235,12 @@
                     }
                 });
 
-                //$('#inkind-info-form').find('input:file').each(function (a, b) {
-                //    var fileInput = $(this);
-                //    fileData.append($(fileInput).attr("name"), fileInput);
-                //});
+                
 
                 fileData.append('modelString', JSON.stringify(model1));
 
 
-                
+
                 var $cameraDocuments=$('#inkind-info-form').find("#div-edit-modal-img-gallery").find('.setup_viewscreen');
 
                 var cameraDocumentsArray=[];
@@ -1459,7 +1293,7 @@
                                         children('td:eq(0)').children('p[accesskey=' + InKindTransactions.ParentID + ']').attr('data-ppp', (parentType == true?'1':'0'));
                                 }
 
-                                //  searchBtn.trigger('click');
+                                
                             }
                             $('#spinner').hide();
                             customAlert('Record saved successfully');
@@ -1485,7 +1319,7 @@
 
             });
 
-            //On Click Clear Button, Resets the Inkind Entry Form//
+            
             $('#inKindEntryExit').on('click', function () {
 
                 $('input[name=activityTypeRadio]').prop('checked', false);
@@ -1530,7 +1364,7 @@
 
 
             $('#contact-info-form').find('#ddlpagetodisplay').on('change', function () {
-               
+
 
                 _lastIndexInkindentry = 0;
 
@@ -1597,12 +1431,12 @@
 
 
 
-            //Signature Radio click event//
+            
 
 
             $('input:radio[name="signatureRadio"]').on('click',function(){
-            
-            
+
+
                 if($(this).val()=="1")
                 {
                     $('#txtSignatureCode').val('');
@@ -1616,392 +1450,17 @@
 
                     $('#div-draw-Signature').show();
                 }
-            
+
             });
 
-            // Signature Code Validation Check //
+           
 
             $("#txtSignatureCode").inputFilter(function (value) {
                 return /^\d*$/.test(value) && value.toString().length <= 4;
             });
 
 
-
-
-            //Camera Functions//
-
-
-            //camera option for document upload//
-
-
-
-            videoSelect = document.querySelector('select#videoSource');
-            video = document.querySelector('#setup-camera-div video');
-            video.setAttribute('autoplay', '');
-            video.setAttribute('muted', '');
-            video.setAttribute('playsinline', '')
-
-
-            screenshotButton = document.querySelector('#anchor-capture');
-
-         
-
-
-
-
-
-
-            screenshotButton.onclick = video.onclick = function () {
-
-                var $index=  $('#modal-uploaddocument').find('.div-image-snap-gallery').find('.setup_viewscreen').length;
-
-                var $imageQuery='<div class="setup_viewscreen col-xs-12 col-sm-12 col-lg-12" style="margin-bottom:10px;" id="image_gallery_'+$index+'">\
-                                        <img id="capt-img" class="setup_viewscreen-camera" src="">\
-                                        <div class="attach-icon-div-gallery">\
-                                            <i class="fa fa-eye view-file-upload" data-toggle="tooltip" tile="view file" aria-hidden="true" data-original-title="" title=""></i>\
-                                            <i class="fa fa-trash delete-file-upload"  data-placement="top" aria-hidden="true" title="" data-original-title="Delete Attachment"></i>\
-                                        </div>\
-                                    </div>';
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                // Other browsers will fall back to image/png
-                console.log(canvas);
-                // img.src = canvas.toDataURL('image/png');
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').append($imageQuery);
-
-
-
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').find('#image_gallery_'+$index+'').find('img').attr('src', canvas.toDataURL('image/png'));
-            };
-
-        
-
-            //new code//
-
-
-
-
-            videoSelect.addEventListener('change', function (event) {
-
-                getStream();
-            });
-
-            navigator.mediaDevices.enumerateDevices().then(gotDevices);
-
-            canvas = document.createElement('canvas');
-
-
-
-            
-            showCameraOption();
-
-
-
-
-
-            $('#uploadImageCamera').hide();
-
-            setIntervalUserMedia();
-
-
-            $('#uploadImageCamera').on('click',function(){
-            
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
-                $('#modal-uploaddocument').modal('show');
-            });
-
-
-            
-            $('#modal-uploaddocument').on('shown.bs.modal', function (event) {
-                $('body').addClass('modal-open');
-
-                showVideoStream();
-
-
-
-
-
-                //$selfElements.modalEditInkind.modal('hide');
-            }).on('hidden.bs.modal',function(event){
-
-                stopIntervalUserMedia();
-
-                $('html, body').animate({ scrollTop: $('#inkind-info-form').offset().top - 50 }, 1000);
-            });
-
-            $(document).on('click','.delete-file-upload',function(){
-
-                $(this).closest('.setup_viewscreen').remove();
-
-            });
-
-
-            $(document).on('click','.view-file-upload',function(){
-
-                //  window.open($(this)., 'newwindow','width=500,height=500');
-
-                var imageAttr=  $(this).closest('.setup_viewscreen').find('.setup_viewscreen-camera').attr('src');
-                //   imageAttr=   imageAttr.replace(/^data:image\/(png|jpg);base64,/, "");
-                console.log(imageAttr);
-
-                //imageAttr='<embed src='+imageAttr+'></embed>';
-                //window.open(imageAttr, 'newwindow','width=500,height=500');
-
-
-
-                var w = window.open('about:blank','newwindow','width=500,height=500');
-
-                setTimeout(function(){ //FireFox seems to require a setTimeout for this to work.
-                    w.document.body.appendChild(w.document.createElement('img'))
-                        .src = imageAttr;
-                }, 0);
-
-            });
-
-
-            $('#btn-modal-doc-add').on('click',function(){
-
-
-                var $imageGallerylength= $('#modal-uploaddocument').find('.setup_viewscreen').length;
-
-                if($imageGallerylength==0)
-                {
-                    customAlert('Please capture image using camera');
-                    return false;
-                }
-
-
-                $('#div-edit-modal-img-gallery').append($('#modal-uploaddocument').find('.div-image-snap-gallery').html());
-
-                $('#modal-uploaddocument').find('.div-image-snap-gallery').html('');
-
-                $('#modal-uploaddocument').modal('hide');
-
-            });
-
-            $('#uploadImageCamera').tooltip();
-
-
-
-            //Camera Functions //
-
         });
-
-
-
-        //Camera Functions //
-
-
-        function handleSuccess(stream) {
-            screenshotButton.disabled = false;
-            video.srcObject = stream;
-        }
-
-        function stopMediaTracks(stream) {
-             
-            stream.getTracks().forEach(function (track) { track.stop(); })
-
-        }
-
-
-        
-        function stopMediaTracks(stream) {
-            stream.getTracks().forEach(function (track) {
-                track.stop();
-            });
-        }
-
-        function gotDevices(mediaDevices) {
-
-            videoSelect.innerHTML = '';
-            // videoSelect.appendChild(document.createElement('option'));
-            var count = 1;
-            mediaDevices.forEach(function (mediaDevice) {
-                if (mediaDevice.kind === 'videoinput') {
-                    const option = document.createElement('option');
-                    option.value = mediaDevice.deviceId;
-                    const label = mediaDevice.label || 'Camera '+(count++)+'';
-                    const textNode = document.createTextNode(label);
-                    option.appendChild(textNode);
-                    videoSelect.appendChild(option);
-                }
-            });
-
-
-
-
-
-        }
-
-        function getStream() {
-            // alert('change event');
-            if (typeof currentStream !== 'undefined') {
-                stopMediaTracks(currentStream);
-            }
-            const videoConstraints = {};
-            if (videoSelect.value === '') {
-                videoConstraints.facingMode = 'environment';
-            } else {
-                videoConstraints.deviceId = { exact: videoSelect.value };
-            }
-            const constraints = {
-                video: videoConstraints,
-                audio: false
-            };
-            navigator.mediaDevices
-              .getUserMedia(constraints)
-              .then(function (stream) {
-                  currentStream = stream;
-                  video.srcObject = stream;
-                  return navigator.mediaDevices.enumerateDevices();
-              })
-              .then(gotDevices)
-              .catch(function (error) {
-                  console.log(error);
-                  //alert(error);
-              });
-        }
-
-        function showCameraOption(ele) {
-
-            var videoInputAvailable = 0;
-           // $('#uploadImageCamera').tooltip('hide');
-            $('#uploadImageCamera').hide();
-
-            navigator.mediaDevices.enumerateDevices().then(function (devices) {
-
-                console.log(devices);
-                devices.forEach(function (device) {
-
-
-                    if (device.kind == 'videoinput') {
-                        videoInputAvailable++;
-                    }
-
-                });
-
-
-                if (videoInputAvailable == 0) {
-                    $('#uploadImageCamera').hide();
-                   // $('#uploadImageCamera').tooltip('hide');
-
-                }
-                else {
-                    $('#uploadImageCamera').show();
-                  //  $('#uploadImageCamera').tooltip('show');
-                }
-
-                console.log(videoInputAvailable);
-
-            }).catch(function (err) {
-                console.log(err.name + ": " + err.message);
-            });
-
-
-            //if (videoSelect.options.length > 0) {
-            //    getStream();
-            //}
-
-
-
-
-        }
-
-        function showVideoStream()
-        {
-            if (videoSelect.options.length > 0) {
-                getStream();
-            }
-
-        }
-
-
-        function checkUserMedia()
-        {
-
-
-
-
-            navigator.getMedia = ( navigator.getUserMedia || // use the proper vendor prefix
-                  navigator.webkitGetUserMedia ||
-                  navigator.mozGetUserMedia ||
-                  navigator.msGetUserMedia);
-
-            navigator.getMedia({video: true}, function() {
-
-                if(!$('#uploadImageCamera').is(':visible'))
-                {
-
-                    $('#uploadImageCamera').show();
-                   // $('#uploadImageCamera').tooltip('show');
-                }
-
-
-
-            }, function() {
-
-                $('#uploadImageCamera').hide();
-               // $('#uploadImageCamera').tooltip('hide');
-
-
-            });
-
-
-        }
-
-        var userMediaInterval=null;
-
-        function setIntervalUserMedia(){
-
-            userMediaInterval=  setInterval(function(){
-
-                checkUserMedia();
-
-            },1000);
-
-
-
-        }
-
-        function stopIntervalUserMedia(){
-            clearInterval(userMediaInterval);
-        }
-
-        function getBase64Image(img) {
-            //debugger;
-            //var canvas = document.createElement("canvas");
-            //canvas.width = img.width;
-            //canvas.height = img.height;
-            //var ctx = canvas.getContext("2d");
-            //ctx.drawImage(img, 0, 0);
-            //var dataURL = ctx.toDataURL("image/png");
-            //return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-
-            return $(img)[0].src.replace(/^data:image\/(png|jpg);base64,/, "");
-        }
-
-
-        function saveDocumentCamera(ele) {
-            var docImage = $('#modalScreenDoc').find('#capt-img');
-
-            if (docImage[0].src.replace('data:,', '') == '') {
-                customAlert('Please capture image using camera');
-                return false;
-            }
-            else {
-
-                saveScreeningDoc(docImage, 2);
-
-            }
-
-        }
-
-
-        //Camera Functions//
 
 
         function  fnChangePage(val) {
@@ -2016,7 +1475,7 @@
 
 
             window.setTimeout(function () {
-             
+
 
 
                 _pageLoadedFirst = false;
@@ -2032,17 +1491,7 @@
 
                     gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
 
-                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
-
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
-
-
-                    // _lastIndexInkindentry = 0;
+                   
                 }
                 else if (val == 'Last') {
 
@@ -2054,19 +1503,7 @@
 
                     gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
 
-                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
-
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
-
-
-
-
-
+                   
 
 
 
@@ -2082,24 +1519,7 @@
                     gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
 
 
-                    //$('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
-
-                    //$('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', false);
-
-
-
-                    //if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) >= _totalRecordsInkindentry) {
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
-                    //}
-                    //else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
-                    //}
+                 
                 }
                 else if (val == 'Back') {
 
@@ -2110,25 +1530,7 @@
 
                     gotoNextPage(_requestedPageInkindentry, _pageSizeInkindentry,val);
 
-                    //if (parseInt(_lastIndexInkindentry) + parseInt(_pageSizeInkindentry) > _totalRecordsInkindentry) {
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', true);
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', true);
-                    //}
-                    //else if (parseInt(_lastIndexInkindentry) - parseInt(_pageSizeInkindentry) < _totalRecordsInkindentry) {
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Next').attr('disabled', false);
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Last').attr('disabled', false);
-
-                    //}
-                    //if (_requestedPageInkindentry == 1) {
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', true);
-
-                    //    $('#contact-info-form').find('#ulPaging').find('#Back').attr('disabled', true);
-                    //}
+                   
                 }
                 else {
                 }
@@ -2146,7 +1548,7 @@
 
         function getTotalRecord (data, val) {
 
-  
+
 
 
             $('#contact-info-form').find('#ulPaging').find('#First').attr('disabled', false);
@@ -2288,10 +1690,6 @@
                 $('#contact-info-form').find('.pagination-file').parent('div').show();
 
             }
-
-            
-
-
         }
 
         function  getListafterupdation() {
@@ -2373,18 +1771,16 @@
 
         function getTotalhoursMinutes(_hrs,_mins)
         {
-            
+
             _hrs = (_hrs != '') ? parseFloat(_hrs) : 0;
-              _mins = (_mins != '') ? parseFloat(_mins) : 0;
-           return  (_hrs + (_mins / 60));
+            _mins = (_mins != '') ? parseFloat(_mins) : 0;
+            return  (_hrs + (_mins / 60));
         }
 
-        // validation check for In-kind hours and minutes, should not greater than 12 hours//
+       
         function validateHoursMinutes(ele) {
-            
-            //   $(ele).css({ 'background-color': '' });
 
-         //   activityHrs.popover('hide');
+            
             cleanValidation();
             var _isValidhours = true;
             var _isHours = 0;
@@ -2401,7 +1797,7 @@
             try {
                 if (activityHrs.val() != '') {
 
-                  
+
                     var _activtiyHrsMins = getTotalhoursMinutes(activityHrs.val(), activityMins.val());
 
                     if (_activtiyHrsMins > parseInt(_maxHrMinEntry.split(':')[0])) {
@@ -2422,12 +1818,12 @@
                     else {
                         activityHrs.popover('hide');
                     }
-                  
+
 
 
                 }
 
-               
+
             }
             catch (error) {
                 console.log(error);
@@ -2439,7 +1835,7 @@
         }
 
         function validatedates(inputTextObject) {
-         
+
             if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
                 var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
                 var regex = new RegExp(dateformat);
@@ -2462,10 +1858,10 @@
         }
 
 
-        // validation for in-kind dates to check, whether entered date is allowed//
+     
         function  isValidAllowedDates(enteredDate)
         {
-        
+
 
 
             var $inkindPeriods= _inkindBudgetPeriods;
@@ -2479,14 +1875,7 @@
                     return   new Date(enteredDate).setHours(0,0,0,0) >= new Date(period.StartDate).setHours(0,0,0,0)
                         && new Date(enteredDate).setHours(0,0,0,0)<=new Date(period.EndDate).setHours(0,0,0,0)
                 });
-                //$.each($inkindPeriods,function(){
-
-                //    if( new Date(enteredDate).setHours(0,0,0,0) >= new Date($(this).StartDate).setHours(0,0,0,0)
-                //        && new Date(enteredDate).setHours(0,0,0,0)<=new Date($(this).EndDate).setHours(0,0,0,0)){
-                //        $isAllowed=true;
-                //        return $isAllowed;
-                //    }
-                //});
+               
 
                 if($periodSearch!=null && $periodSearch.length>0)
                 {
@@ -2508,7 +1897,7 @@
         }
 
 
-        //function to add more attachments for the in-kind entry//
+        
         function addMoreInkindAtt(ele) {
             var divLength = $('#inkind-info-form').find('.attach-div').find('input:file').length;
 
@@ -2519,7 +1908,7 @@
             $('#inkind-info-form').find('.attachparticic_myactive').append(appendDiv);
 
         }
-        //function to remove the attachments for the in-kind entry//
+      
         function removeInkindAtt(ele) {
             $(ele).parent('.sum_attachparticic').remove();
 
@@ -2529,7 +1918,7 @@
         }
 
 
-        // function to return unique values in array//
+      
         function unique(list) {
             var result = [];
             $.each(list, function (i, e) {
@@ -2538,7 +1927,7 @@
             return result;
         }
 
-        // function to get the inkind donors available in database based on the search text entered//
+        
         function getInkindDonorsFromDb(searchtext, val) {
 
             $.ajax({
@@ -2548,7 +1937,7 @@
                 data: { searchName: $('#searchText').val(),requestedPage:_requestedPageInkindentry,pageSize:_pageSizeInkindentry },
                 beforeSend: function () { $('#spinner').show() },
                 success: function (data) {
-                 
+
                     $('#spinner').hide();
 
                     if (data != null) {
@@ -2660,7 +2049,7 @@
             });
         }
 
-        //function to get the inkind amount type on checking the inkind activity//
+        
         function getInkindActivityAmountType(ele) {
 
             $('#spinner').show();
@@ -2739,15 +2128,14 @@
                             }
                             else {
                                 $('.inkind-hours-div').hide();
-                                //$('.amount-div').hide();
+                                
                             }
 
 
 
                         }
                         else if (data.ActivityAmountType === '3') { //Fixed Type
-                            //  $('.inkind-miles-div').hide();
-                            //   $('.inkind-hours-div').hide();
+                          
                             $('.amount-div').show();
 
                             if ($(ele).is(':checked')) {
@@ -2800,8 +2188,7 @@
 
         }
 
-        //function to get the inkind amount type on selecting the inkind activity//
-
+       
         function onActivitySelectChange(ele) {
             cleanValidation();
 
@@ -2862,7 +2249,7 @@
                             $('#inkindAmountTxt').prop('disabled', false);
                         }
 
-                        if (data.IsSignatureRequired===true) {
+                        if (data.IsSignatureRequired === true) {
 
                             $('#imageSig1,#imageSig2').val('');
                             $('#sig1').signature('clear');
@@ -2878,12 +2265,15 @@
                         if (data.IsAllowDocumentUpload === 1) {
                             $('#inkind-info-form').find('input:file').val('');
                             $('#inkind-info-form').find('.attachparticic_myactive').html('');
+                            $('#ikind-info-form').find('#div-edit-modal-img-gallery').html('');
+                            setCameraOption( $('#inkind-info-form').find('.attach-div'));
                             $('#inkind-info-form').find('.attach-div').show();
 
                         }
                         else {
                             $('#inkind-info-form').find('input:file').val('');
                             $('#inkind-info-form').find('.attachparticic_myactive').html('');
+                            $('#ikind-info-form').find('#div-edit-modal-img-gallery').html('');
                             $('#inkind-info-form').find('.attach-div').hide();
                         }
 
@@ -2900,12 +2290,23 @@
         }
 
 
+
+        function setCameraOption(ele)
+        {
+
+            showCameraOption(ele);
+
+            $(ele).find('#uploadImageCamera').hide();
+            setIntervalUserMedia(ele);
+        }
+
+
         function showNoActiveInkinds()
         {
             BootstrapDialog.alert('In-Kind periods was not set-up yet or closed !');
         }
 
-        //Resets the inkind entry form after click of name on the loaded available list.
+        
         function showParentInfo(ele) {
 
             cleanValidation();
@@ -2914,17 +2315,15 @@
             if(_inkindBudgetPeriods==null ||(_inkindBudgetPeriods!=null && _inkindBudgetPeriods.length==0))
             {
 
-           
+
                 showNoActiveInkinds();
-               
+
                 return false;
             }
 
 
-            //$('.contact-entry-div').find('input[name=radiocompany][value=1]').trigger('click');
             $('.contact-entry-div').hide();
             $('.inkind-entry-div').show();
-            // $('#contact-legend').html('Contact Information');
             var iscompany = '0';
             var companyName = '';
             var isPastPresentParent = 0;
@@ -2934,7 +2333,7 @@
             iscompany = (companyName === '') ? '0' : '1';
 
             isPastPresentParent = parseInt($(ele).attr('data-ppp'));
-            
+
             isShowHome = parseInt($(ele).attr('data-hme'));
 
             isEmergencyContact=parseInt($(ele).attr('data-ec'));
@@ -2975,21 +2374,7 @@
                 $('#inkindCompanyName').attr({ 'cl_id': '0', 'is_comp': '0' });
                 $('.inkind-company-div').hide();
 
-                //if (isPastPresentParent == 0) {
-                //    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
-                //    $('#inkind-info-form').find('.individual-parent-type-div-act').show();
-                //    //home shown for all code0643
-                //    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
-                //}
-                //else {
-                //    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
-                //    $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
-
-                //    $homeCheck.prop('checked', false).parent('span').parent('div').show();
-                //    //home shown for all code0643
-                //    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
-                //}
-
+             
 
 
                 if(isShowHome==0)
@@ -2999,12 +2384,13 @@
                         $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', true);
                         $('#inkind-info-form').find('.individual-parent-type-div-act').show();
                     }
-                    else 
+                    else
                         {
                         $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
                         $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
                     }
                 }
+
 
                 if (isShowHome === 1) {
                     $homeCheck.prop('checked', false).parent('span').parent('div').show();
@@ -3019,8 +2405,7 @@
 
             }
 
-            //$('#scrolldiv').trigger('click');
-            // $('#inkind-info-form').trigger('reset');
+           
 
 
             $('#inkind-info-form').find('.attach-div .attachparticic_myactive').html('');
@@ -3034,34 +2419,33 @@
 
 
 
-            // scrollTo('#inkind_Entry_scroll');
+          
             $('#activity-date').val(getFormattedDate(new Date()));
 
         }
 
-        //Scroll the page to bottom if the name is clicked on the loaded list//
+        
         function scrollTo(hash) {
-            // Make sure this.hash has a value before overriding default behavior
+            
             if (hash !== "") {
-                // Prevent default anchor click behavior
+              
                 event.preventDefault();
 
-                // Store hash
+               
                 var hash = hash;
 
-                // Using jQuery's animate() method to add smooth page scroll
-                // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+              
                 $('html, body').animate({
                     scrollTop: $(hash).offset().top
                 }, 800, function () {
 
-                    // Add hash (#) to URL when done scrolling (default click behavior)
+                  
                     window.location.hash = hash;
                 });
-            } // End if
+            } 
         }
 
-        //function to show the Corporate based contact entry form and Inkind Entry form, If Corporate radio is checked//
+     
         function showCompanyEntry() {
 
             cleanValidation();
@@ -3071,7 +2455,6 @@
             $('.company-name-div,.contact-info-div').show();
             $('.individual-parent-type-div').find('input:checkbox[name=parenttype]').prop('checked', false);
             $('.individual-apart-div,.individual-gender-div,.individual-county-div,.individual-parent-type-div').hide();
-            //  $('.inkind-hours-div').hide();
             $('.inkind-entry-div').show();
             $('#text-contact-name,#text-company-name,#text-addressline1,#text-addressline2,#text-zipcode,#text-select-phoneNo,#text-select-email,#text-apartment-no,#text-county,#text-state').val('');
             $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0','is_ec':'0' });
@@ -3101,9 +2484,7 @@
 
             $('#parent-sig-div,#staff-sig-div').hide();
 
-            //home shown for all code0643
-            // $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
-            //prop('checked', false).parent('span').parent('div').hide();
+           
 
             $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
                  .parent('span').parent('div').hide();
@@ -3117,7 +2498,7 @@
 
         }
 
-        //function to show the individual contact entry form and Inkind Entry form, If inidivdual radio is checked//
+       
         function showParentEntry() {
 
             cleanValidation();
@@ -3165,9 +2546,7 @@
             $('#inkindAmountTxt').val('');
             $('.amount-div,.inkind-miles-div,.inkind-hours-div').hide();
             $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').val('');
-            //home shown for all code0643
-          //  $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
-            //    prop('checked', false).parent('span').parent('div').hide();
+     
 
             $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
                       .parent('span').parent('div').hide();
@@ -3179,7 +2558,7 @@
             $inkindForm.find('.attach-div').hide();
         }
 
-        //function to save the signature of Parent/ Corporate Person//
+
         function SaveSignature() {
             $('#sig1').css('background-color', '');
             isValid = false;
@@ -3208,7 +2587,7 @@
 
         }
 
-        //function to save the signature of Staff//
+     
 
         function SaveSignatureStaff() {
             $('#sig2').css('background-color', '');
@@ -3235,7 +2614,7 @@
 
         }
 
-        //function to clear the signature//
+     
         function ClearSignature(val) {
             isValid = false;
             if (val === 1) {
@@ -3251,7 +2630,7 @@
             return isValid;
         }
 
-        //function to get the formatted date on(MM/DD/YYYY) format//
+    
         function getFormattedDate(date) {
             date = new Date(date);
             var year = date.getFullYear();
@@ -3265,7 +2644,7 @@
             return month + '/' + day + '/' + year;
         }
 
-        //function to validate the Entered Zipcode//
+       
         function checkZipCode(inputTextObject) {
             if ($(inputTextObject).val() != "") {
                 var ret = true;
@@ -3299,7 +2678,6 @@
             }
         }
 
-        //function to Checks the Zipcode is available in database,after entering the zipcode  and loads the City and State//
         function CheckAddress() {
 
             if ($('#text-zipcode').val().trim() != "") {
@@ -3316,7 +2694,7 @@
                     secureuri: false,
                     async: false,
                     success: function (response) {
-                        //if (value == 1) {
+                       
                         if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
                             var option = "";
                             for (var i = 0; i < response.Zipcodelist.length; i++) {
@@ -3333,24 +2711,11 @@
                             $('#text-select-city').val('');
                             $('#text-state').val('');
                             $('#text-zipcode').val('');
-                            //$('#County').val('');
+                         
                             customAlert("Could not find zipcode details.");
 
                         }
-                        //}
-                        //if (response.Result == 1) {
-                        //    BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
-                        //        if (!result) {
-                        //            $('#Street').val("");
-                        //            $('#StreetName').val("");
-                        //            $('#ZipCode').val("");
-                        //            $('#City').find('option').remove().end();
-                        //            $('#City').val('');
-                        //            $('#State').val('');
-                        //            $('#County').val('');
-                        //        }
-                        //    });
-                        //}
+                      
                     }
                         , error: function (response) {
                             customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
@@ -3359,7 +2724,6 @@
             }
         }
 
-        //function to get the Classrooms based on the Center Selected//
         function GetClassrooms(Select) {
 
             $.ajax({
@@ -3378,7 +2742,6 @@
                             option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
                         }
                         $('#classroomSelect').find('option').remove().end().append(option);
-                        //$('#Classroom').val(response[0].ClassroomID);
                     }
                     else {
                         $('#classroomSelect').find('option').remove();
@@ -3390,7 +2753,6 @@
             });
         }
 
-        //function to check, entered value is number or not//
         function isNumber(evt) {
             evt = (evt) ? evt : window.event;
             var charCode = (evt.which) ? evt.which : evt.keyCode;
@@ -3439,22 +2801,7 @@
             display: none;
         }
 
-        /*.table-container {
-            border-radius: 10px;
-            background: #f1f5f8;
-            padding: 10px;
-            width: 100%;
-            margin: 20px 0%;
-        }*/
-
-
-
-
-
-
-
-
-
+       
 
         #searchText {
             height: 32px !important;
@@ -3631,7 +2978,7 @@
                 border-bottom: 0 !important;
                 text-align: left;
                 text-transform: capitalize;
-                /* font-size: 18px; */
+               
                 font-size: 14px;
                 font-weight: normal;
                 line-height: 25px;
@@ -3798,8 +3145,7 @@
                                                 <thead class="table-hd">
                                                     <tr>
                                                         <th style="width:24%;">
-                                                            @*<i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;"></i>
-                                                            <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>*@
+                                                           
                                                             Name
                                                         </th>
                                                         <th style="width:15%;">Company Name</th>
@@ -3891,174 +3237,162 @@
 
 
 
-                <div class="col-lg-12 col-xs-12 contact-entry-div" style="margin-top:20px;margin-bottom:20px;padding:0px;">
+                                    <div class="col-lg-12 col-xs-12 contact-entry-div" style="margin-top:20px;margin-bottom:20px;padding:0px;">
 
-                    <fieldset>
-                        <legend id="contact-legend">Add Contact Information</legend>
+                                        <fieldset>
+                                            <legend id="contact-legend">Add Contact Information</legend>
 
-                        <div class="form-group row">
+                                            <div class="form-group row">
 
-                            <label class="col-lg-4 col-form-label lbl-required">Contact Type</label>
+                                                <label class="col-lg-4 col-form-label lbl-required">Contact Type</label>
 
-                            <div class="col-lg-4 text-center">
-                                <label class="radio-inline" style="display:initial;">
-                                    <input type="radio" name="radiocompany" value="1">Individual
-                                </label>
-                                <label class="radio-inline" style="display:initial;">
-                                    <input type="radio" name="radiocompany" value="2">Corporate
-                                </label>
+                                                <div class="col-lg-4 text-center">
+                                                    <label class="radio-inline" style="display:initial;">
+                                                        <input type="radio" name="radiocompany" value="1">Individual
+                                                    </label>
+                                                    <label class="radio-inline" style="display:initial;">
+                                                        <input type="radio" name="radiocompany" value="2">Corporate
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="contact-info-div">
+                                                <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+                                                    <div class="form-group row">
+
+                                                        <label class="col-lg-4 col-form-label lbl-required">Name</label>
+
+                                                        <div class="importhead_name_last">
+                                                            <input type="text" class="form-control" placeholder="First Name" id="text-contact-nameF" />
+                                                            <input type="text" class="form-control" placeholder="Last Name" id="text-contact-nameL" style="width:50%;" />
+                                                        </div>
+
+                                                      
+                                                    </div>
+
+                                                    <div class="form-group row individual-gender-div" style="display:none;">
+
+                                                        <label class="col-lg-4 col-form-label lbl-required">Gender</label>
+
+                                                        <div class="col-lg-8">
+
+                                                            <div class="col-xs-6 col-sm-4" style="padding: 0px;">
+                                                                <input class="Pfemale" id="PGenderfemale" name="PGender" type="radio" value="2">
+                                                                <span>Female </span>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <input class="Pmale" id="PGendermale" name="PGender" type="radio" value="1">
+                                                                <span>Male</span>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <input class="Pother" id="PGenderother" name="PGender" type="radio" value="3">
+                                                                <span>Other </span>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group row company-name-div" style="display:none;">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Company Name</label>
+                                                        <div class="col-lg-8">
+                                                            <input type="text" class="form-control" id="text-company-name" />
+                                                        </div>
+                                                    </div>
+                                                 
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Address</label>
+                                                        <div class="col-lg-8">
+                                                            <input type="text" class="form-control" id="text-addressline1" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label">Apartment No., Lot No.</label>
+                                                        <div class="col-lg-8">
+                                                            <input type="text" class="form-control" id="text-addressline2" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Zip Code</label>
+                                                        <div class="col-lg-8">
+                                                            <input class="form-control" type="text" id="text-zipcode" maxlength="6" onblur="checkZipCode(this);" />
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                              
+                                                <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+
+
+
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">City</label>
+                                                        <div class="col-lg-8">
+                                                            <select class="form-control" id="text-select-city">
+                                                                <option value="0">--Select City--</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row individual-county-div" style="display:none;">
+                                                        <label class="col-lg-4 col-form-label lbl-required">County</label>
+                                                        <div class="col-lg-8">
+                                                            <input type="text" class="form-control" id="text-county" placeholder="County" disabled />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">State</label>
+                                                        <div class="col-lg-8">
+
+                                                            <input type="text" class="form-control" id="text-state" placeholder="State" disabled />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group row individual-phonetype-div" style="display:none;">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Phone Type</label>
+                                                        <div class="col-lg-8">
+                                                            <select class="form-control" id="text-select-phonetype">
+                                                                <option value="1">Home</option>
+                                                                <option value="2">Mobile</option>
+                                                                <option value="3">Work</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Phone No</label>
+                                                        <div class="col-lg-8">
+                                                            <input class="form-control" type="text" id="text-select-phoneNo" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-4 col-form-label lbl-required">Email Address</label>
+                                                        <div class="col-lg-8 mynoemial_comments">
+                                                            <input class="form-control" type="text" id="text-select-email" />
+                                                            <div class="sumar_noemail">
+                                                                <input type="checkbox" name="no_email">
+                                                                <label>No Email</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-lg-12 col-xs-12 col-md-12 col-sm-12 no-padding">
+                                                    <div class="form-group row paratype_ indivi individual-parent-type-div">
+
+                                                        <label class="col-form-label">Past Early Head Start/Head Start Parent ?</label>
+                                                        <input class="parent-type" name="parenttype" type="checkbox" value="1">
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </fieldset>
+                                    </div>
+                                </form>
                             </div>
-                        </div>
-
-                        <div class="contact-info-div">
-                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
-                                <div class="form-group row">
-
-                                    <label class="col-lg-4 col-form-label lbl-required">Name</label>
-
-                                    <div class="importhead_name_last">
-                                        <input type="text" class="form-control" placeholder="First Name" id="text-contact-nameF" />
-                                        <input type="text" class="form-control" placeholder="Last Name" id="text-contact-nameL" style="width:50%;" />
-                                    </div>
-
-                                    @*<div class="col-lg-4" style="padding-right:2px">
-                                            <input type="text" class="form-control" placeholder="First Name" id="text-contact-nameF" />
-                                        </div>
-
-                                        <div class="col-lg-4" style="padding-left:2px;">
-                                            <input type="text" class="form-control" placeholder="Last Name" id="text-contact-nameL" />
-                                        </div>*@
-                                </div>
-
-                                <div class="form-group row individual-gender-div" style="display:none;">
-
-                                    <label class="col-lg-4 col-form-label lbl-required">Gender</label>
-
-                                    <div class="col-lg-8">
-
-                                        <div class="col-xs-6 col-sm-4" style="padding: 0px;">
-                                            <input class="Pfemale" id="PGenderfemale" name="PGender" type="radio" value="2">
-                                            <span>Female </span>
-                                        </div>
-                                        <div class="col-xs-6 col-sm-4">
-                                            <input class="Pmale" id="PGendermale" name="PGender" type="radio" value="1">
-                                            <span>Male</span>
-                                        </div>
-                                        <div class="col-xs-6 col-sm-4">
-                                            <input class="Pother" id="PGenderother" name="PGender" type="radio" value="3">
-                                            <span>Other </span>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group row company-name-div" style="display:none;">
-                                    <label class="col-lg-4 col-form-label lbl-required">Company Name</label>
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-company-name" />
-                                    </div>
-                                </div>
-                                @*<div class="form-group row individual-apart-div" style="display:none;">
-                                        <label class="col-lg-4 col-form-label">Apartment No., Lot No.</label>
-                                        <div class="col-lg-8">
-                                            <input type="text" class="form-control" id="text-apartment-no" />
-                                        </div>
-                                    </div>*@
-
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">Address</label>
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-addressline1" />
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label">Apartment No., Lot No.</label>
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-addressline2" />
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">Zip Code</label>
-                                    <div class="col-lg-8">
-                                        <input class="form-control" type="text" id="text-zipcode" maxlength="6" onblur="checkZipCode(this);" />
-                                    </div>
-                                </div>
-
-
-                            </div>
-                            <!-- b/w -->
-                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
-
-
-
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">City</label>
-                                    <div class="col-lg-8">
-                                        <select class="form-control" id="text-select-city">
-                                            <option value="0">--Select City--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group row individual-county-div" style="display:none;">
-                                    <label class="col-lg-4 col-form-label lbl-required">County</label>
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-county" placeholder="County" disabled />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">State</label>
-                                    <div class="col-lg-8">
-
-                                        <input type="text" class="form-control" id="text-state" placeholder="State" disabled />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row individual-phonetype-div" style="display:none;">
-                                    <label class="col-lg-4 col-form-label lbl-required">Phone Type</label>
-                                    <div class="col-lg-8">
-                                        <select class="form-control" id="text-select-phonetype">
-                                            <option value="1">Home</option>
-                                            <option value="2">Mobile</option>
-                                            <option value="3">Work</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">Phone No</label>
-                                    <div class="col-lg-8">
-                                        <input class="form-control" type="text" id="text-select-phoneNo" />
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label lbl-required">Email Address</label>
-                                    <div class="col-lg-8 mynoemial_comments">
-                                        <input class="form-control" type="text" id="text-select-email" />
-                                        <div class="sumar_noemail">
-                                            <input type="checkbox" name="no_email">
-                                            <label>No Email</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="col-lg-12 col-xs-12 col-md-12 col-sm-12 no-padding">
-                                <div class="form-group row paratype_ indivi individual-parent-type-div">
-
-                                    <label class="col-form-label">Past Early Head Start/Head Start Parent ?</label>
-                                    <input class="parent-type" name="parenttype" type="checkbox" value="1">
-
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </fieldset>
-                </div>
-            </form>
-        </div>
 
 
 
@@ -4069,19 +3403,19 @@
 
                                         <div class="col-md-12 col-sm-12 col-lg-6 col-xs-12 no-padding-res">
 
-                        <div class="form-group row inkind-name-div">
-                            <label class="col-lg-4 col-form-label">Name</label>
-                            <div class="col-lg-8">
-                                <label class="col-form-label" id="inkindPersonName" cl_id="0" is_comp="0" style="font-weight:bold;"></label>
-                            </div>
-                        </div>
+                                            <div class="form-group row inkind-name-div">
+                                                <label class="col-lg-4 col-form-label">Name</label>
+                                                <div class="col-lg-8">
+                                                    <label class="col-form-label" id="inkindPersonName" cl_id="0" is_comp="0" style="font-weight:bold;"></label>
+                                                </div>
+                                            </div>
 
-                        <div class="form-group row inkind-company-div" style="display:none;">
-                            <label class="col-lg-4 col-form-label">Company Name</label>
-                            <div class="col-lg-8">
-                                <label class="col-form-label" id="inkindCompanyName" cl_id="0" is_comp="0" style="font-weight:bold;"></label>
-                            </div>
-                        </div>
+                                            <div class="form-group row inkind-company-div" style="display:none;">
+                                                <label class="col-lg-4 col-form-label">Company Name</label>
+                                                <div class="col-lg-8">
+                                                    <label class="col-form-label" id="inkindCompanyName" cl_id="0" is_comp="0" style="font-weight:bold;"></label>
+                                                </div>
+                                            </div>
 
                                             <div class="form-group row">
 
@@ -4106,19 +3440,19 @@
                                                 <label class="col-lg-4 col-form-label lbl-required">Activity Type</label>
                                                 <div class="col-lg-8" id="activitytyperadiodiv">
 
-                                <div class="col-sm-6 col-xs-12" style="padding: 0;width:auto;display:inline-block;margin-right:20px;">
-                                    <span class="check-space"> <input type="radio" name="activityTypeRadio" value="1"></span>
-                                    <label style="color:#333;width: auto;display: inline-block;">Center</label>
-                                </div>
-                                <div class="col-sm-6 col-xs-12" style="padding: 0;width:auto;display:inline-block;">
-                                    <span class="check-space"> <input type="radio" name="activityTypeRadio" value="2"></span>
-                                    <label style="color:#333;width: auto;display: inline-block;">Home</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row" id="activity-description" style="display:none;">
-                            <label class="col-lg-4 col-form-label lbl-required">Activity</label>
-                            <div class="col-lg-8" id="activity-des-listdiv">
+                                                    <div class="col-sm-6 col-xs-12" style="padding: 0;width:auto;display:inline-block;margin-right:20px;">
+                                                        <span class="check-space"> <input type="radio" name="activityTypeRadio" value="1"></span>
+                                                        <label style="color:#333;width: auto;display: inline-block;">Center</label>
+                                                    </div>
+                                                    <div class="col-sm-6 col-xs-12" style="padding: 0;width:auto;display:inline-block;">
+                                                        <span class="check-space"> <input type="radio" name="activityTypeRadio" value="2"></span>
+                                                        <label style="color:#333;width: auto;display: inline-block;">Home</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" id="activity-description" style="display:none;">
+                                                <label class="col-lg-4 col-form-label lbl-required">Activity</label>
+                                                <div class="col-lg-8" id="activity-des-listdiv">
 
                                                 </div>
                                             </div>
@@ -4137,18 +3471,18 @@
                                                 </div>
                                             </div>
 
-                        <div class="form-group row inkind-miles-div" style="display:none;">
-                            <label class="col-lg-4 col-form-label lbl-required">Miles</label>
-                            <div class="col-lg-8">
-                                <input type="text" class="form-control" id="inkindMilesText" maxlength="6" />
-                            </div>
-                        </div>
-                        <div class="form-group row amount-div" style="display:none;">
-                            <label class="col-lg-4 col-form-label lbl-required">Amount ($)</label>
-                            <div class="col-lg-8">
-                                <input type="text" class="form-control" id="inkindAmountTxt" pattern="^\d*(\.\d{0,2})?$" />
-                            </div>
-                        </div>
+                                            <div class="form-group row inkind-miles-div" style="display:none;">
+                                                <label class="col-lg-4 col-form-label lbl-required">Miles</label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" class="form-control" id="inkindMilesText" maxlength="6" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row amount-div" style="display:none;">
+                                                <label class="col-lg-4 col-form-label lbl-required">Amount ($)</label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" class="form-control" id="inkindAmountTxt" pattern="^\d*(\.\d{0,2})?$" />
+                                                </div>
+                                            </div>
 
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-lg-6 col-xs-12 no-padding-res">
@@ -4168,24 +3502,25 @@
                                             </div>
 
 
-                        <div class="form-group row individual-parent-type-div-act">
+                                            <div class="form-group row individual-parent-type-div-act">
 
-                            <label class="col-lg-4 col-sm-6 col-md-6 col-form-label">Past Early Head Start/Head Start Parent ?</label>
+                                                <label class="col-lg-4 col-sm-6 col-md-6 col-form-label">Past Early Head Start/Head Start Parent ?</label>
 
-                            <div class="col-lg-6">
+                                                <div class="col-lg-6">
 
-                                <div class="col-xs-6 col-sm-4" style="padding: 0px;">
-                                    <input class="parent-type" name="parenttype" type="checkbox" value="1">
-                                </div>
-                            </div>
-                        </div>
+                                                    <div class="col-xs-6 col-sm-4" style="padding: 0px;">
+                                                        <input class="parent-type" name="parenttype" type="checkbox" value="1">
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                            <div class="form-group row attach-div" style="display:none;">
+                                           
+                                            <div class="form-group row attach-div" id="attachmentDiv" style="display:none;">
                                                 <label class="col-lg-4 col-form-label">Attachment(s)</label>
                                                 <div class="col-lg-8 sum_attachparticic">
                                                     <input type="file" class="form-control" name="InkindAttachmentsList[0].InkindAttachmentFile" />
                                                     <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreInkindAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-                                                    <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip" src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
+                                                    <img id="uploadImageCamera" class="img-camera" data-toggle="tooltip"  src="~/Images/camera.png" title="Capture using Camera" style="display:none;" />
 
                                                 </div>
                                                 <div class="attachparticic_myactive">
@@ -4200,7 +3535,7 @@
 
 
 
-                    </div>
+                                        </div>
 
                                         <div class="form-group">
                                             <div class="col-lg-6 text-left" id="parent-sig-div" style="display:none;">
@@ -4240,17 +3575,14 @@
 
                                                     <div class="col-xs-12 adddivspace" id="div-add-signature-code" style="display:none;">
 
-
-
-
-<div class="form-group">
-                                                        <label class="col-sm-4 col-form-label lbl-required signature-padding">Signature Code</label>
-                                                        <div class="col-sm-8 no-padding">
-                                                            <input type="text" class="form-control" style="width:30%;" autocomplete="off" id="txtSignatureCode" maxlength="4">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-4 col-form-label lbl-required signature-padding">Signature Code</label>
+                                                            <div class="col-sm-8 no-padding">
+                                                                <input type="text" class="form-control" style="width:30%;" autocomplete="off" id="txtSignatureCode" maxlength="4">
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                </div>
+                                                    </div>
 
                                                 }
                                                
@@ -4270,6 +3602,7 @@
                                                       </div>
                                                     
                                                 </div>
+                                               
                                             </div>
                                         </div>
                                         <div class="form-group final-btn glossy_btn">
@@ -4291,9 +3624,11 @@
 
                     </div>
                 </div>
-                </div>
             </div>
         </div>
+    </div>
+
+
 
 
 

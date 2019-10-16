@@ -83,27 +83,38 @@ namespace FingerprintsModel
         public static T Decrypt64<T>(string clearText)
         {
             var converter = TypeDescriptor.GetConverter(typeof(T));
-            if (converter != null && !converter.IsValid(clearText))
+
+            if (clearText != null && clearText != "")
             {
-
-                try
+                if (converter != null && !converter.IsValid(clearText))
                 {
-                    return (T)converter.ConvertFromString(Encoding.ASCII.GetString(Convert.FromBase64String(clearText)));
+
+                    try
+                    {
+                        return (T)converter.ConvertFromString(Encoding.ASCII.GetString(Convert.FromBase64String(clearText)));
+
+                    }
+                    catch (Exception ex)
+                    {
+                        clsError.WriteException(ex);
+                        return default(T);
+                    }
+
 
                 }
-                catch(Exception ex)
+                else
                 {
-                    clsError.WriteException(ex);
-                    return default(T);
+                    return (T)converter.ConvertFromString(clearText);
+
                 }
 
-              
             }
             else
             {
-                return (T)converter.ConvertFromString(clearText);
-
+                return default(T);
             }
+
+
 
         }
 
@@ -152,7 +163,7 @@ namespace FingerprintsModel
             return cipherText;
         }
 
-        
+
 
 
 

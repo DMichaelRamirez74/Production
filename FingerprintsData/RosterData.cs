@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
-using FingerprintsModel;
-using System.Web.Mvc;
-using System.IO;
-using System.Collections;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Web.Mvc;
 using System.Xml;
+using Fingerprints.Common;
+using FingerprintsModel;
 using Newtonsoft.Json;
+
 
 namespace FingerprintsData
 {
@@ -22,16 +24,30 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
 
+       
+
         FingerprintsDataAccessHandler.DBManager dbManager = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<FingerprintsDataAccessHandler.DBManager>(connection.ConnectionString);
 
-        public List<Roster> Getrosterclient(string AgencyId, string UserId)
+        volatile StaffDetails staff;
+
+        public RosterData()
+        {
+            staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+        }
+
+        public RosterData(StaffDetails staffDetails)
+        {
+            staff = staffDetails;
+        }
+
+        public List<Roster> Getrosterclient()
         {
             Roster _roster = new Roster();
             List<Roster> RosterList = new List<Roster>();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetrosterList";
@@ -75,7 +91,7 @@ namespace FingerprintsData
             }
             return RosterList;
         }
-        public CaseNoteByClientID GetCaseNote(ref string Name, CaseNoteByClientID caseNoteByClientID, StaffDetails staff)
+        public CaseNoteByClientID GetCaseNote(ref string Name, CaseNoteByClientID caseNoteByClientID)
         {
             caseNoteByClientID.CaseNoteList = new List<CaseNote>();
 
@@ -284,7 +300,7 @@ namespace FingerprintsData
 
         //  public CaseNoteByClientID GetoCaseNoteByTags(ref string Name, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames, int IsFromFamilySummary)
 
-        public CaseNoteByClientID GetCaseNoteByTags(CaseNoteByClientID caseNoteByClientID, StaffDetails staff, int IsFromFamilySummary)
+        public CaseNoteByClientID GetCaseNoteByTags(CaseNoteByClientID caseNoteByClientID, int IsFromFamilySummary)
         {
 
             try
@@ -410,7 +426,7 @@ namespace FingerprintsData
         }
 
 
-        public CaseNoteByClientID GetCaseNoteByClientId(CaseNoteByClientID caseNoteByClient, StaffDetails staff)
+        public CaseNoteByClientID GetCaseNoteByClientId(CaseNoteByClientID caseNoteByClient)
         {
 
             caseNoteByClient.CaseNoteList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<CaseNote>>();
@@ -478,7 +494,7 @@ namespace FingerprintsData
         }
 
 
-        public CaseNoteByClientID GetCaseNoteByCaseNoteId(CaseNoteByClientID caseNoteByClientId, StaffDetails staff)
+        public CaseNoteByClientID GetCaseNoteByCaseNoteId(CaseNoteByClientID caseNoteByClientId)
         {
             try
             {
@@ -732,7 +748,7 @@ namespace FingerprintsData
 
 
 
-        public bool SaveSubNotes(StaffDetails staff, RosterNew.CaseNote _caseNote)
+        public bool SaveSubNotes(RosterNew.CaseNote _caseNote)
         {
 
             bool isRowsAffected = false;
@@ -798,7 +814,7 @@ namespace FingerprintsData
             }
             return isRowsAffected;
         }
-        public List<CaseNote> GetcaseNoteDetail(string Casenoteid, string ClientId, StaffDetails staff)
+        public List<CaseNote> GetcaseNoteDetail(string Casenoteid, string ClientId)
         {
             CaseNoteByClientID caseNoteByClientId = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<CaseNoteByClientID>();
             caseNoteByClientId.CaseNoteList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<CaseNote>>();
@@ -911,28 +927,33 @@ namespace FingerprintsData
             return Userlist;
         }
 
-        public bool SaveAttachmentsOnSubNote(string AgencyId, string CaseNoteId, byte[] file, string AttachmentName, string AttachmentExtension, string UserId, string Subcasenoteid)
+        public bool SaveAttachmentsOnSubNote(string CaseNoteId, byte[] file, string AttachmentName, string AttachmentExtension, string Subcasenoteid)
         {
             bool isInserted = false;
             try
             {
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@CaseNoteID", CaseNoteId));
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
                 command.Parameters.Add(new SqlParameter("@Attachment", file));
                 command.Parameters.Add(new SqlParameter("@AttachmentName", AttachmentName));
                 command.Parameters.Add(new SqlParameter("@AttachmentExtension", AttachmentExtension));
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@Subcasenoteid", Subcasenoteid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_AddCaseNoteAttachments";
                 int RowsAffected = command.ExecuteNonQuery();
                 if (RowsAffected > 0)
+                {
                     isInserted = true;
+                }
             }
             catch (Exception ex)
             {
@@ -941,14 +962,17 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
             return isInserted;
         }
 
         // ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist,
-        public string SaveCaseNotes(ref string Name, RosterNew.CaseNote caseNote, StaffDetails staff, int mode = 2)
+        public string SaveCaseNotes(ref string Name, RosterNew.CaseNote caseNote, int mode = 2)
         {
             string result = string.Empty;
 
@@ -959,7 +983,7 @@ namespace FingerprintsData
 
                 long _typeTest = 0;
 
-               
+
                 caseNote.CaseNoteid = caseNote.CaseNoteid != null && caseNote.CaseNoteid != "" ? caseNote.CaseNoteid : "0";
                 caseNote.ClientId = caseNote.ClientId != null && caseNote.ClientId != "" && caseNote.ClientId != "0" ? long.TryParse(caseNote.ClientId, out _typeTest) ? caseNote.ClientId : EncryptDecrypt.Decrypt64(caseNote.ClientId) : "0";
                 caseNote.ProgramId = caseNote.ProgramId != null && caseNote.ProgramId != "" && caseNote.ProgramId != "0" ? long.TryParse(caseNote.ProgramId, out _typeTest) ? caseNote.ProgramId : EncryptDecrypt.Decrypt64(caseNote.ProgramId) : "0";
@@ -971,7 +995,10 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@ClientId", caseNote.ClientId));
@@ -1016,7 +1043,7 @@ namespace FingerprintsData
                         dt.Rows.Add(Attachment.AttachmentFileByte, Attachment.AttachmentFileName, Attachment.AttachmentFileExtension);
 
                     }
-                    else if(Attachment.AttachmentJson!=null && Attachment.AttachmentJson.Trim()!=string.Empty)
+                    else if (Attachment.AttachmentJson != null && Attachment.AttachmentJson.Trim() != string.Empty)
                     {
                         dt.Rows.Add(Convert.FromBase64String(Attachment.AttachmentJson), Attachment.AttachmentFileName, Attachment.AttachmentFileExtension);
                     }
@@ -1064,318 +1091,128 @@ namespace FingerprintsData
             return result;
         }
 
-        //Changes on 30Dec2016
-        public Roster GetrosterList(out string totalrecord, string sortOrder, string sortDirection, string Center, string Classroom, int skip, int pageSize, string userid, string agencyid, string roleId, int filterOption, string searchText = "")
+        public Roster GetrosterList(out int totalRecords, RosterViewModel rosterViewModel)
+
         {
+            totalRecords = 0;
+
             Roster _roster = new Roster();
             List<Roster> RosterList = new List<Roster>();
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             _roster.Rosters = new List<Roster>();
-            _roster.AbsenceTypeList = new List<SelectListItem>();
-            _roster.AbsenceReasonList = new List<SelectListItem>();
-            List<ClosedInfo> closedList = new List<ClosedInfo>();
-            //int IssuePercentage = 0;
+           
+            IDbConnection connection;
             try
             {
 
 
-                using (Connection = connection.returnConnection())
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@Center",rosterViewModel.CenterId,DbType.Int64),
+                    dbManager.CreateParameter("@Classroom",rosterViewModel.ClassroomId,DbType.Int64),
+                    dbManager.CreateParameter("@Take",rosterViewModel.PageSize,DbType.Int32),
+                    dbManager.CreateParameter("@Skip",rosterViewModel.SkipRows,DbType.Int32),
+                    dbManager.CreateParameter("@SortOrder",rosterViewModel.SortOrder,DbType.String),
+                    dbManager.CreateParameter("@SortColumn",rosterViewModel.SortColumn,DbType.String),
+                    dbManager.CreateParameter("@SearchText",rosterViewModel.SearchTerm,DbType.String),
+                    dbManager.CreateParameter("@FilterOption",rosterViewModel.FilterOption,DbType.String),
+                    dbManager.CreateParameter("@AgencyID",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleID",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserID",staff.UserId,DbType.Guid)
+
+
+
+                };
+
+
+
+                IDataReader dr = dbManager.GetDataReader("SP_rosterList", CommandType.StoredProcedure, parameters, out connection);
+
+
+                int resultSet = 0;
+                do
                 {
 
-                    totalrecord = string.Empty;
-                    command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@Center", Center));
-                    command.Parameters.Add(new SqlParameter("@Classroom", Classroom));
-                    command.Parameters.Add(new SqlParameter("@take", pageSize));
-                    command.Parameters.Add(new SqlParameter("@skip", skip));
-                    command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
-                    command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
-                    command.Parameters.Add(new SqlParameter("@userid", userid));
-                    command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                    command.Parameters.Add(new SqlParameter("@RoleId", roleId));
-                    command.Parameters.Add(new SqlParameter("@SearchText", searchText));
-                    command.Parameters.Add(new SqlParameter("@FilterOption", filterOption));
-                    //command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
-                    //command.Parameters.Add(new SqlParameter("@issuePercentage", 0)).Direction = ParameterDirection.Output;
-                    command.Connection = Connection;
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "SP_rosterList";
-                    Connection.Open();
-                    using (SqlDataReader dr = command.ExecuteReader())
+                    while (dr.Read())
                     {
-
-
-
-                        int resultSet = 0;
-                        do
+                        switch (resultSet)
                         {
+                            case 0:
+                                totalRecords = Convert.ToInt32(dr["TotalRecord"]);
+                                _roster.Rosters.Add(
+                                                    new Roster
+                                                    {
+                                                        Householid = dr["Householdid"].ToString(),
+                                                        Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
+                                                        EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
+                                                        Name = dr["name"].ToString(),
+                                                        Gender = dr["gender"].ToString(),
+                                                        CenterName = dr["CenterName"].ToString(),
+                                                        CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
+                                                        ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
+                                                        classroomid = EncryptDecrypt.Encrypt64(dr["ClassroomId"].ToString()),
+                                                        RosterYakkr = dr["Yakkr"].ToString(),
+                                                        //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
+                                                        Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
+                                                        AttendanceIssueYakkrId = DBNull.Value.Equals(dr["AttendanceIssueYakkrId"]) ? "0" : EncryptDecrypt.Encrypt64(Convert.ToString(dr["AttendanceIssueYakkrId"])),
+                                                        ClassroomName = dr["ClassroomName"].ToString(),
+                                                        MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
+                                                        IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
+                                                        Acronym = dr["AcronymName"].ToString(),
+                                                        LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
+                                                        LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
+                                                        LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
+                                                        LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
+                                                        LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
+                                                        IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
+                                                        IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
+                                                        IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
+                                                        // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
+                                                        Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
+                                                        IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
+                                                        IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
+                                                        PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
+                                                        ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
+                                                        FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
+                                                        IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
+                                                        IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
+                                                        ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
+                                                        IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
+                                                        IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
+                                                        TransitionColor = Convert.ToString(dr["TransitionColor"]),
+                                                        TransitionType = Convert.ToInt32(dr["TransitionType"]),
+                                                        Returning = Convert.ToString(dr["Returning"]),
+                                                        IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
+                                                        FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
+                                                        IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == staff.UserId.ToString().ToLowerInvariant()
 
-                            while (dr.Read() && dr.HasRows)
-                            {
-                                switch (resultSet)
-                                {
-                                    case 0:
-                                        totalrecord = Convert.ToString(dr["TotalRecord"]);
-                                        _roster.Rosters.Add(
-                                                            new Roster
-                                                            {
-                                                                Householid = dr["Householdid"].ToString(),
-                                                                Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
-                                                                EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
-                                                                Name = dr["name"].ToString(),
-                                                                Gender = dr["gender"].ToString(),
-                                                                CenterName = dr["CenterName"].ToString(),
-                                                                CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
-                                                                ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
-                                                                classroomid = EncryptDecrypt.Encrypt64(dr["ClassroomId"].ToString()),
-                                                                RosterYakkr = dr["Yakkr"].ToString(),
-                                                                //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
-                                                                Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
-                                                                AttendanceIssueYakkrId = DBNull.Value.Equals(dr["AttendanceIssueYakkrId"]) ? "0": EncryptDecrypt.Encrypt64(Convert.ToString(dr["AttendanceIssueYakkrId"])),
-                                                                ClassroomName = dr["ClassroomName"].ToString(),
-                                                                MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
-                                                                IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
-                                                                Acronym = dr["AcronymName"].ToString(),
-                                                                LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
-                                                                LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
-                                                                LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
-                                                                LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
-                                                                LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
-                                                                IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
-                                                                IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
-                                                                IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
-                                                                // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
-                                                                Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
-                                                                IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
-                                                                IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
-                                                                PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
-                                                                ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
-                                                                FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
-                                                                IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
-                                                                IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
-                                                                ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
-                                                                IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
-                                                                IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
-                                                                TransitionColor = Convert.ToString(dr["TransitionColor"]),
-                                                                TransitionType = Convert.ToInt32(dr["TransitionType"]),
-                                                                Returning = Convert.ToString(dr["Returning"]),
-                                                                IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
-                                                                FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
-                                                                IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
+                                                    }
+                              );
 
-                                                            }
-                                      );
-
-                                        _roster.Rosters = _roster.Rosters.Distinct().ToList();
+                                _roster.Rosters = _roster.Rosters.Distinct().ToList();
 
 
-                                        break;
+                                break;
 
-                                    case 1:
-                                        _roster.AbsenceTypeList.Add(
-                                                                    new SelectListItem
-                                                                    {
-                                                                        Text = Convert.ToString(dr["Description"]),
-                                                                        Value = Convert.ToString(dr["AttendanceTypeId"])
-                                                                    });
-                                        break;
-                                    case 2:
-                                        _roster.AbsenceReasonList.Add(new SelectListItem
-                                        {
-                                            Text = Convert.ToString(dr["absenseReason"]),
-                                            Value = Convert.ToString(dr["reasonid"])
-                                        });
-                                        break;
-
-                                    case 3:
-
-
-                                        if (Convert.ToInt32(dr["TodayClosed"]) > 0)
-                                        {
-                                            closedList.Add(new ClosedInfo
-                                            {
-                                                ClosedToday = Convert.ToInt32(dr["TodayClosed"]),
-                                                CenterName = Convert.ToString(dr["CenterName"]),
-                                                ClassRoomName = Convert.ToString(dr["ClassRoomName"]),
-                                                AgencyName = Convert.ToString(dr["AgencyName"])
-                                            }
-                                                 );
-                                        }
-
-
-
-                                        break;
-                                }
-
-                            }
-
-                            resultSet++;
-
-
-                        } while (dr.NextResult());
+                         
+                        }
 
                     }
 
-
-                }
-
+                    resultSet++;
 
 
+                } while (dr.NextResult());
 
-                if (closedList.Count() > 0)
-                {
-                    _roster.ClosedDetails = new ClosedInfo
-                    {
-                        ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
-                        CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
-                        ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
-                        AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
-                    };
-                }
-                else
-                {
-                    _roster.ClosedDetails = new ClosedInfo();
-                }
-
-
-                //DataAdapter = new SqlDataAdapter(command);
-                //_dataset = new DataSet();
-                //DataAdapter.Fill(_dataset);
-                //totalrecord = command.Parameters["@totalRecord"].Value.ToString();
-                //IssuePercentage = Convert.ToInt32(command.Parameters["@issuePercentage"].Value.ToString());
-                //if (_dataset.Tables[0] != null)
-                //{
-                //    if (_dataset.Tables[0].Rows.Count > 0)
-                //    {
-                //        totalrecord = Convert.ToString(_dataset.Tables[0].Rows[0]["TotalRecord"]);
-
-                //        _roster.Rosters = (from DataRow dr in _dataset.Tables[0].Rows
-                //                           select new Roster
-                //                           {
-                //                               Householid = dr["Householdid"].ToString(),
-                //                               Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString()),
-                //                               EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString()),
-                //                               Name = dr["name"].ToString(),
-                //                               Gender = dr["gender"].ToString(),
-                //                               CenterName = dr["CenterName"].ToString(),
-                //                               CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()),
-                //                               ProgramId = EncryptDecrypt.Encrypt64(dr["programid"].ToString()),
-                //                               RosterYakkr = dr["Yakkr"].ToString(),
-                //                               //Yakkr600 = DBNull.Value.Equals(dr["yakkr600"]) ? 0 : Convert.ToInt32(dr["yakkr600"]),
-                //                               Yakkr601 = DBNull.Value.Equals(dr["Yakkr601"]) ? 0 : Convert.ToInt32(dr["Yakkr601"]),
-                //                               ClassroomName = dr["ClassroomName"].ToString(),
-                //                               MarkAbsenseReason = DBNull.Value.Equals(dr["MarkedAbsentReason"]) ? "" : Convert.ToString(dr["MarkedAbsentReason"]),
-                //                               IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]),//.ToString() //Added on 30Dec2016
-                //                               Acronym = dr["AcronymName"].ToString(),
-                //                               LastCaseNoteDate = string.IsNullOrEmpty(dr["LastCaseNoteDate"].ToString()) ? "" : dr["LastCaseNoteDate"].ToString(),
-                //                               LastFPADate = string.IsNullOrEmpty(dr["FPALastDate"].ToString()) ? "" : dr["FPALastDate"].ToString(),
-                //                               LastReferralDate = string.IsNullOrEmpty(dr["LastReferralDate"].ToString()) ? "" : dr["LastReferralDate"].ToString(),
-                //                               LateArivalNotes = DBNull.Value.Equals(dr["LateArivalNotes"]) ? "" : Convert.ToString(dr["LateArivalNotes"]),
-                //                               LateArrivalDuration = DBNull.Value.Equals(dr["LateArrivalDuration"]) ? "" : Convert.ToString(dr["LateArrivalDuration"]),
-                //                               IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
-                //                               IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
-                //                               IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
-                //                               // IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
-                //                               Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
-                //                               IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
-                //                               IsClassStarted = string.IsNullOrEmpty(dr["IsClassStarted"].ToString()) ? 0 : Convert.ToInt32(dr["IsClassStarted"].ToString()),
-                //                               PrimaryInsurance = string.IsNullOrEmpty(dr["PrimaryInsurance"].ToString()) ? 0 : Convert.ToInt32(dr["PrimaryInsurance"].ToString()),
-                //                               ProgramType = (dr["ProgramType"].ToString() == "EHS" && (dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString())) >= 3) ? "TRN" : (dr["IsPreg"].ToString() == "1") ? "TRN" : "",
-                //                               FamilyHomeless = string.IsNullOrEmpty(dr["FamilyHomeless"].ToString()) ? 0 : Convert.ToInt32(dr["FamilyHomeless"]),
-                //                               IsScreeningFollowUpReq = Convert.ToBoolean(dr["ScreeningFollowUpReq"]),
-                //                               IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
-                //                               ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
-                //                               IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
-                //                               IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
-                //                               TransitionColor = Convert.ToString(dr["TransitionColor"]),
-                //                               TransitionType = Convert.ToInt32(dr["TransitionType"]),
-                //                               Returning = Convert.ToString(dr["Returning"]),
-                //                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"]),
-                //                               FamilyAdvocate = Convert.ToString(dr["FamilyAdvocate"]),
-                //                               IsAllowAttendanceIssueReview = Convert.ToString(dr["FamilyAdvocate"]).ToLowerInvariant() == userid.ToLowerInvariant()
-
-                //                           }
-                //                         ).Distinct().ToList();
-
-
-                //    }
-                //}
-
-
-
-                //_roster.AbsenceTypeList = new List<SelectListItem>();
-
-                //if (_dataset.Tables[1] != null)
-                //{
-                //    if (_dataset.Tables[1].Rows.Count > 0)
-                //    {
-                //        _roster.AbsenceTypeList = (from DataRow dr5 in _dataset.Tables[1].Rows
-                //                                   select new SelectListItem
-                //                                   {
-                //                                       Text = dr5["Description"].ToString(),
-                //                                       Value = dr5["AttendanceTypeId"].ToString()
-                //                                   }).ToList();
-
-                //    }
-                //}
-                //_roster.AbsenceReasonList = new List<SelectListItem>();
-                //if (_dataset.Tables[2] != null)
-                //{
-                //    if (_dataset.Tables[2].Rows.Count > 0)
-                //    {
-                //        _roster.AbsenceReasonList = (from DataRow dr5 in _dataset.Tables[2].Rows
-                //                                     select new SelectListItem
-                //                                     {
-                //                                         Text = dr5["absenseReason"].ToString(),
-                //                                         Value = dr5["reasonid"].ToString()
-                //                                     }).ToList();
-
-                //    }
-                //}
-
-                //if (_dataset.Tables[3] != null)
-                //{
-
-
-                //    closedList = (from DataRow dr5 in _dataset.Tables[3].Rows
-                //                  select new ClosedInfo
-                //                  {
-                //                      ClosedToday = Convert.ToInt32(dr5["TodayClosed"]),
-                //                      CenterName = dr5["CenterName"].ToString(),
-                //                      ClassRoomName = dr5["ClassRoomName"].ToString(),
-                //                      AgencyName = dr5["AgencyName"].ToString()
-                //                  }
-                //              ).ToList();
-                //    closedList = closedList.Where(x => x.ClosedToday > 0).ToList();
-                //    if (closedList.Count() > 0)
-                //    {
-                //        _roster.ClosedDetails = new ClosedInfo
-                //        {
-                //            ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
-                //            CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
-                //            ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
-                //            AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
-                //        };
-                //    }
-                //    else
-                //    {
-                //        _roster.ClosedDetails = new ClosedInfo();
-                //    }
-                //}
+                dbManager.CloseConnection(connection);
             }
             catch (Exception ex)
             {
-                totalrecord = string.Empty;
+                totalRecords = 0;
                 clsError.WriteException(ex);
 
             }
-            finally
-            {
-
-                command.Dispose();
-                Connection.Dispose();
-
-            }
+          
             return _roster;
 
         }
@@ -1384,7 +1221,7 @@ namespace FingerprintsData
 
 
 
-        public void MarkAbsent(ref string result, string ChildID, StaffDetails staff, string absentType, string Cnotes, int AbsentReasonid, string NewReason)
+        public void MarkAbsent(ref string result, string ChildID, string absentType, string cNotes, int AbsentReasonid, string NewReason)
         {
 
 
@@ -1394,14 +1231,17 @@ namespace FingerprintsData
                 if (absentType == "1")
                 {
                     if (Connection.State == ConnectionState.Open)
+                    {
                         Connection.Close();
+                    }
+
                     Connection.Open();
                     command.Connection = Connection;
                     command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@clientID", ChildID));
                     command.Parameters.Add(new SqlParameter("@PSignature", " "));
                     command.Parameters.Add(new SqlParameter("@PareID", " "));
-                    command.Parameters.Add(new SqlParameter("@Notes", " "));
+                    command.Parameters.Add(new SqlParameter("@Notes", cNotes));
                     command.Parameters.Add(new SqlParameter("@result", string.Empty));
                     command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                     command.Parameters["@result"].Direction = ParameterDirection.Output;
@@ -1417,7 +1257,10 @@ namespace FingerprintsData
                 else
                 {
                     if (Connection.State == ConnectionState.Open)
+                    {
                         Connection.Close();
+                    }
+
                     Connection.Open();
                     command.Connection = Connection;
                     command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
@@ -1447,7 +1290,7 @@ namespace FingerprintsData
         }
 
 
-        public List<REF> AutoCompleteSerType(string Services, string agencyId)
+        public List<REF> AutoCompleteSerType(string Services, Guid? agencyId)
         {
             List<REF> RefList = new List<REF>();
             try
@@ -1501,7 +1344,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid, StaffDetails staffDetails, bool isEndOfYear = false, bool isInkind = false)
+        public List<ClassRoom> Getclassrooms(string Centerid, bool isEndOfYear = false, bool isInkind = false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -1512,10 +1355,10 @@ namespace FingerprintsData
 
 
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
-                command.Parameters.Add(new SqlParameter("@Agencyid", staffDetails.AgencyId));
-                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
-                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
-                command.Parameters.Add(new SqlParameter("@SubstituteID", staffDetails.SubstituteID));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@SubstituteID", staff.SubstituteID));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Parameters.Add(new SqlParameter("@IsInkind", isInkind));
 
@@ -1550,7 +1393,7 @@ namespace FingerprintsData
             return _ClassRoomlist;
         }
 
-        public string AddFPA(FPA info, int mode, Guid userId, string AgencyId)
+        public string AddFPA(FPA info, int mode)
         {
             DataTable dt = new DataTable();
             try
@@ -1572,7 +1415,7 @@ namespace FingerprintsData
                 command.CommandText = "SP_addFPA";
                 command.Parameters.AddWithValue("@mode", mode);
                 command.Parameters.AddWithValue("@FPAID", info.FPAID);
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@Goal", info.Goal);
                 command.Parameters.AddWithValue("@GoalDate", info.GoalDate);
                 command.Parameters.AddWithValue("@ClientId", info.ClientId);
@@ -1581,8 +1424,8 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@Domain", info.Domain);
                 command.Parameters.AddWithValue("@Category", info.Category);
                 command.Parameters.AddWithValue("@Status", info.GoalStatus);
-                command.Parameters.AddWithValue("@StaffId", userId);
-                command.Parameters.AddWithValue("@CreatedBy", userId);
+                command.Parameters.AddWithValue("@StaffId", staff.UserId);
+                command.Parameters.AddWithValue("@CreatedBy", staff.UserId);
                 command.Parameters.AddWithValue("@GoalFor", info.GoalFor);
                 if (info.GoalSteps.Count > 0)
                 {
@@ -1629,7 +1472,10 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
 
@@ -1642,7 +1488,10 @@ namespace FingerprintsData
             try
             {
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Clear();
@@ -1659,7 +1508,10 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
 
@@ -1668,7 +1520,7 @@ namespace FingerprintsData
 
 
         //--------------------------------------------------------------------------------------------------------
-        public List<MatchProviderModel> MatchProviders(string AgencyId, string CommunityId, long? ReferralClientId)
+        public List<MatchProviderModel> MatchProviders(string CommunityId, long? ReferralClientId)
         {
             List<MatchProviderModel> matchProviderModel = new List<MatchProviderModel>();
             try
@@ -1687,7 +1539,7 @@ namespace FingerprintsData
                 else
                 {
                     command.Parameters.AddWithValue("@Command", "SELECT");
-                    command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                    command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                     command.Parameters.AddWithValue("@CommunityId", CommunityId);
                 }
 
@@ -1763,7 +1615,9 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -2021,7 +1875,7 @@ namespace FingerprintsData
         }
 
 
-        public MatchProviderModel FamilyResourcesList(Int32 ServiceId, Guid AgencyId)
+        public MatchProviderModel FamilyResourcesList(int ServiceId, Guid AgencyId)
         {
             DataSet ds = null;
             MatchProviderModel matchProviderModel = new MatchProviderModel();
@@ -2077,7 +1931,7 @@ namespace FingerprintsData
 
 
 
-        public List<SelectListItem> FamilyServiceList(Int64 ServiceId, string AgencyId)
+        public List<SelectListItem> FamilyServiceList(long ServiceId)
         {
             try
             {
@@ -2091,7 +1945,7 @@ namespace FingerprintsData
 
                 command.CommandText = "sp_FamilyNeeds";
                 command.Parameters.AddWithValue("@CommunityId", ServiceId);
-                command.Parameters.AddWithValue("@AgencyID", AgencyId);
+                command.Parameters.AddWithValue("@AgencyID", staff.AgencyId);
                 command.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da = new SqlDataAdapter(command);
                 Connection.Close();
@@ -2513,7 +2367,10 @@ namespace FingerprintsData
                 SqlCommand commandAK = new SqlCommand();
                 string agencyCode = string.Empty;
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 commandAK.Connection = Connection;
 
@@ -2565,14 +2422,20 @@ namespace FingerprintsData
             catch (Exception ex)
             {
                 if (tranSaction != null)
+                {
                     tranSaction.Rollback();
+                }
+
                 clsError.WriteException(ex);
                 return ex.Message;
             }
             finally
             {
                 if (dataReader != null)
+                {
                     dataReader.Close();
+                }
+
                 Connection.Close();
                 command.Dispose();
             }
@@ -2679,9 +2542,14 @@ namespace FingerprintsData
                 string searchcenter = string.Empty;
                 string AgencyId = string.Empty;
                 if (string.IsNullOrEmpty(search.Trim()))
+                {
                     searchcenter = string.Empty;
+                }
                 else
+                {
                     searchcenter = search;
+                }
+
                 command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
                 command.Parameters.Add(new SqlParameter("@Search", searchcenter));
                 command.Parameters.Add(new SqlParameter("@take", pageSize));
@@ -2689,7 +2557,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
                 command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
                 if (!string.IsNullOrEmpty(agencyid))
+                {
                     command.Parameters.Add(new SqlParameter("@agencyID", agencyid));
+                }
                 // command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
                 command.Connection = Connection;
@@ -3190,13 +3060,13 @@ namespace FingerprintsData
         //End
         //End
         //rohit 01032017
-        public List<CaseNote> GetgroupcaseNoteDetail(string Casenoteid, string AgencyId, string UserId)
+        public List<CaseNote> GetgroupcaseNoteDetail(string Casenoteid)
         {
             List<CaseNote> CaseNoteList = new List<CaseNote>();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@casenotid", Casenoteid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -3481,7 +3351,7 @@ namespace FingerprintsData
             return RefList2;
         }
 
-        public List<SurveyOptions> LoadSurveyOptions(long ReferralClientId, string userId)
+        public List<SurveyOptions> LoadSurveyOptions(long ReferralClientId)
         {
             List<SurveyOptions> surveyOptionsList = new List<SurveyOptions>();
             try
@@ -3499,7 +3369,7 @@ namespace FingerprintsData
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.AddWithValue("@Command", queryCommand);
                         command.Parameters.AddWithValue("@ReferralClientId", ReferralClientId);
-                        command.Parameters.AddWithValue("@UserId", userId);
+                        command.Parameters.AddWithValue("@UserId", staff.UserId);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
 
@@ -3532,7 +3402,7 @@ namespace FingerprintsData
         }
 
 
-        public void InsertSurveyOptions(List<SurveyOptions> options, long ReferralClientId, string userId, bool isUpdate)
+        public void InsertSurveyOptions(List<SurveyOptions> options, long ReferralClientId, bool isUpdate)
         {
 
             string queryCommand = (isUpdate) ? "Update" : "insert";
@@ -3553,7 +3423,7 @@ namespace FingerprintsData
                     command.Parameters.AddWithValue("@SurveyAnswerId", item.AnswerId);
                     command.Parameters.AddWithValue("@Explanation", item.Explanation);
                     command.Parameters.AddWithValue("@ReferralClientId", ReferralClientId);
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@UserId", staff.UserId);
                     var data = command.ExecuteNonQuery();
                     Connection.Close();
 
@@ -3562,7 +3432,7 @@ namespace FingerprintsData
             }
         }
 
-        public List<BusinessHours> BusinessHoursList(string ServiceId, string AgencyID, string CommunityID)
+        public List<BusinessHours> BusinessHoursList(string ServiceId, string CommunityID)
         {
             List<BusinessHours> RefList3 = new List<BusinessHours>();
             try
@@ -3578,7 +3448,7 @@ namespace FingerprintsData
                         command.CommandText = "PdfGenerationBusinessHours";
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.AddWithValue("@serviceID", ServiceId);
-                        command.Parameters.AddWithValue("@AgencyID", AgencyID);
+                        command.Parameters.AddWithValue("@AgencyID", staff.AgencyId);
                         command.Parameters.AddWithValue("@CommunityID", CommunityID);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
@@ -3641,7 +3511,9 @@ namespace FingerprintsData
                 DateTime date = DateTime.Parse(companyReferral.ReferralDate, new CultureInfo("en-US", true));
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -3686,7 +3558,7 @@ namespace FingerprintsData
             }
         }
 
-        public List<SelectListItem> FamilyServiceList(int ServiceId, string AgencyId)
+        public List<SelectListItem> FamilyServiceList(int ServiceId)
         {
             try
             {
@@ -3710,7 +3582,7 @@ namespace FingerprintsData
                     command.CommandText = "sp_FamilyNeeds";
                     command.Parameters.Clear();
                     command.Parameters.AddWithValue("@CommunityId", ServiceId);
-                    command.Parameters.AddWithValue("@AgencyID", AgencyId);
+                    command.Parameters.AddWithValue("@AgencyID", staff.AgencyId);
                     command.CommandType = CommandType.StoredProcedure;
                     Connection.Open();
                     SqlDataAdapter da = new SqlDataAdapter(command);
@@ -3780,7 +3652,7 @@ namespace FingerprintsData
             return refOrg;
         }
 
-        public List<SelectListItem> GetServiceReference(string agencyId)
+        public List<SelectListItem> GetServiceReference(Guid? agencyId)
         {
             List<SelectListItem> selectedlist = new List<SelectListItem>();
             DataSet ds = new DataSet();
@@ -3804,7 +3676,7 @@ namespace FingerprintsData
             return selectedlist;
         }
 
-        public List<SelectListItem> FamilyServiceListCompany(Int32 ServiceId, string AgencyId)
+        public List<SelectListItem> FamilyServiceListCompany(Int32 ServiceId)
         {
             try
             {
@@ -3818,7 +3690,7 @@ namespace FingerprintsData
 
                 command.CommandText = "sp_FamilyNeedsCompanyDetails";
                 command.Parameters.AddWithValue("@CommunityId", ServiceId);
-                command.Parameters.AddWithValue("@AgencyID", AgencyId);
+                command.Parameters.AddWithValue("@AgencyID", staff.AgencyId);
                 command.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da = new SqlDataAdapter(command);
                 Connection.Close();
@@ -3849,13 +3721,13 @@ namespace FingerprintsData
             }
         }
 
-        public List<SelectListItem> GetReferralType(int communityId, string agencyId)
+        public List<SelectListItem> GetReferralType(int communityId)
         {
             List<SelectListItem> selectedlist = new List<SelectListItem>();
             DataSet ds = new DataSet();
             command.Connection = Connection;
             command.CommandText = "SP_GetReferralByCommunity";
-            command.Parameters.AddWithValue("@AgencyId", agencyId);
+            command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
             command.Parameters.AddWithValue("@CommunityId", communityId);
             command.CommandType = CommandType.StoredProcedure;
             SqlDataAdapter da = new SqlDataAdapter(command);
@@ -3875,7 +3747,7 @@ namespace FingerprintsData
         }
 
 
-        public MatrixScore GetMatrixScoreList(long Householdid, Guid agencyId, long clientId, long programId)
+        public MatrixScore GetMatrixScoreList(long Householdid, long clientId, long programId)
         {
             MatrixScore MatrixScore = new MatrixScore();
             MatrixScore matrixScore = null;
@@ -3890,7 +3762,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandText = "SP_MatrixScore";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@HouseHoldId", Householdid);
                 command.Parameters.AddWithValue("@ClientId", clientId);
                 command.Parameters.AddWithValue("@ProgramId", programId);
@@ -3994,6 +3866,7 @@ namespace FingerprintsData
                         //score.HouseHoldId = Convert.ToInt64(dr["HouseHoldId"]);
                         score.ProgramType = dr["ProgramType"].ToString();
                         score.ParentName = dr["ParentName"].ToString().ToUpper();
+                        score.ParentGender = Convert.ToString(dr["Gender"]);
                     }
                 }
                 if (ds.Tables[1].Rows.Count > 0)
@@ -4226,12 +4099,15 @@ namespace FingerprintsData
             {
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", matrixScore.AgencyId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
                 command.Parameters.Add(new SqlParameter("@ProgramTypeYear", matrixScore.ActiveYear));
                 command.Parameters.Add(new SqlParameter("@HouseHoldId", matrixScore.Dec_HouseHoldId));
                 command.Parameters.Add(new SqlParameter("@AnnualAssessmentType", matrixScore.AnnualAssessmentType));
@@ -4241,7 +4117,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClassRoomId", matrixScore.ClassRoomId));
                 command.Parameters.Add(new SqlParameter("@ProgramType", matrixScore.ProgramType));
                 command.Parameters.Add(new SqlParameter("@ClientId", matrixScore.Dec_ClientId));
-                command.Parameters.Add(new SqlParameter("@UserId", matrixScore.UserId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ProgramId", matrixScore.Dec_ProgramId));
                 command.Parameters.Add(new SqlParameter("@MatrixScoreId", matrixScore.MatrixScoreId));
                 command.Parameters.Add(new SqlParameter("@Command", queryCommand));
@@ -4453,10 +4329,10 @@ namespace FingerprintsData
                         command.Connection = Connection;
                         command.CommandText = "SP_MatrixScore";
                         command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@AgencyId", matrixScore.AgencyId);
+                        command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                         command.Parameters.AddWithValue("@ProgramTypeYear", matrixScore.ActiveYear);
                         command.Parameters.AddWithValue("@HouseHoldId", matrixScore.Dec_HouseHoldId);
-                        command.Parameters.AddWithValue("@UserId", matrixScore.UserId);
+                        command.Parameters.AddWithValue("@UserId", staff.UserId);
                         command.Parameters.AddWithValue("@Command", queryCommand);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
@@ -4508,7 +4384,10 @@ namespace FingerprintsData
             {
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -4563,7 +4442,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
@@ -4576,14 +4457,20 @@ namespace FingerprintsData
                 DateTime dt = Convert.ToDateTime(objNotes.Date);
                 command.Parameters.Clear();
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_InsertObservationNoteDetail";
                 command.Parameters.AddWithValue("@Date", dt);
                 if (!string.IsNullOrEmpty(objNotes.NoteId))
+                {
                     command.Parameters.AddWithValue("@NoteId", objNotes.NoteId);
+                }
+
                 command.Parameters.AddWithValue("@Title", objNotes.Title);
                 command.Parameters.AddWithValue("@Notes", objNotes.Note);
                 command.Parameters.AddWithValue("@DomainId", objNotes.DomainId);
@@ -4606,7 +4493,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
             return isInserted;
         }
@@ -4617,7 +4506,10 @@ namespace FingerprintsData
             {
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 foreach (var ClientId in objNotes.lstClientid)
                 {
@@ -4638,7 +4530,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
@@ -4649,7 +4543,10 @@ namespace FingerprintsData
             {
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 foreach (var path in objNotes.AttachmentPath)
                 {
@@ -4670,7 +4567,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
@@ -4680,7 +4579,10 @@ namespace FingerprintsData
             {
                 command.Parameters.Clear();
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -4695,7 +4597,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
@@ -4743,18 +4647,20 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
-        public void GetChildlistByUserId(ref ObservationNotes objNotes, string UserId, string AgencyId)
+        public void GetChildlistByUserId(ref ObservationNotes objNotes)
         {
             objNotes = new ObservationNotes();
             try
             {
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetChildlistByUserId";
@@ -4779,7 +4685,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
         public void GetElementDetailsByDomainId(ref DataTable dtElements, string DomainId)
@@ -4802,7 +4710,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
         }
 
@@ -4843,7 +4753,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
             return child;
         }
@@ -4949,7 +4861,10 @@ namespace FingerprintsData
             try
             {
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@ProgramTypeID", ProgramTypeId));
@@ -4971,7 +4886,9 @@ namespace FingerprintsData
                 command.CommandText = "USP_InsertFatherHood";
                 int RowsAffected = command.ExecuteNonQuery();
                 if (RowsAffected > 0)
+                {
                     isInserted = true;
+                }
             }
             catch (Exception ex)
             {
@@ -4980,7 +4897,10 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
             return isInserted;
@@ -5067,7 +4987,7 @@ namespace FingerprintsData
             return _roster;
 
         }
-        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, StaffDetails staff, bool isStatusChange = false)
+        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, bool isStatusChange = false)
         {
             List<SeatAvailability> AvailabilityList = new List<SeatAvailability>();
             try
@@ -5120,7 +5040,7 @@ namespace FingerprintsData
 
                         command.CommandType = CommandType.StoredProcedure;
 
-                     
+
 
 
                         command.Parameters.Add(new SqlParameter("@ClientId", Transition.Transition.ClientId));
@@ -5254,7 +5174,10 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
             return AvailabilityList;
@@ -5317,7 +5240,10 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
+
                 Connection.Open();
 
                 command.Connection = Connection;
@@ -5367,7 +5293,9 @@ namespace FingerprintsData
 
                 Object Result = command.ExecuteScalar();
                 if (Result != null)
+                {
                     resultValue = Convert.ToInt32(Result);
+                }
 
                 //if (resultValue > 0 && resultValue!=2)
                 //    isInserted = true;
@@ -5380,7 +5308,10 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
                 command.Dispose();
             }
             return resultValue;
@@ -5395,7 +5326,9 @@ namespace FingerprintsData
             {
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -5513,7 +5446,9 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
             }
             return RosterList;
 
@@ -5542,7 +5477,9 @@ namespace FingerprintsData
                 var result = dbManager.ExecuteWithScalar<int>("USP_InsertCenterAndClassRoom", CommandType.StoredProcedure, parameters);
 
                 if (result > 0)
+                {
                     isInserted = true;
+                }
 
 
                 //if (Connection.State == ConnectionState.Open)
@@ -5595,35 +5532,41 @@ namespace FingerprintsData
 
 
 
-        public int InsertParentDetailsMatrixScore(MatrixScore matrixScore, string agencyid, string userid)
+        public bool InsertParentDetailsMatrixScore(MatrixScore matrixScore)
         {
-            int isaffected = 0;
+            bool isRowsAffected = false;
             try
             {
 
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", agencyid));
-                command.Parameters.Add(new SqlParameter("@ProgramTypeYear", matrixScore.ActiveYear));
-                command.Parameters.Add(new SqlParameter("@HouseHoldId", matrixScore.Dec_HouseHoldId));
-                command.Parameters.Add(new SqlParameter("@AnnualAssessmentType", matrixScore.AnnualAssessmentType));
-                command.Parameters.Add(new SqlParameter("@ProgramType", matrixScore.ProgramType));
-                command.Parameters.Add(new SqlParameter("@TableID", matrixScore.Id));
-                command.Parameters.Add(new SqlParameter("@ParentID", matrixScore.ParentId));
-                command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(matrixScore.@ClientId)));
-                command.Parameters.Add(new SqlParameter("@UserId", userid));
-                command.Parameters.Add(new SqlParameter("@ProgramId", matrixScore.Dec_ProgramId));
-                command.Parameters.Add(new SqlParameter("@IsChecked", matrixScore.IsChecked));
-                command.CommandText = "SP_InsertParentDetails_Assessmnt";
-                // SqlDataAdapter da = new SqlDataAdapter(command);
-                isaffected = command.ExecuteNonQuery();
+                var parameters = new IDbDataParameter[]
+                {
 
+                    dbManager.CreateParameter("@AgencyId",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@UserId",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@HouseholdId",matrixScore.Dec_HouseHoldId,DbType.Int64),
+                    dbManager.CreateParameter("@ParentId",matrixScore.ParentId,DbType.Int64),
+                    dbManager.CreateParameter("@IsChecked",matrixScore.IsChecked,DbType.Boolean),
+                    dbManager.CreateParameter("@ProgramTypeYear",matrixScore.ActiveYear,DbType.String),
+                    dbManager.CreateParameter("@AssessmentNumber",matrixScore.AssessmentNumber,DbType.Int32)
+                };
 
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("SP_InsertParentDetails_Assessmnt", CommandType.StoredProcedure, parameters);
 
+                //if (Connection.State == ConnectionState.Open)
+                //    Connection.Close();
+                //Connection.Open();
+                //command.Connection = Connection;
+                //command.CommandType = CommandType.StoredProcedure;
+                //command.Parameters.Clear();
+                //command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                //command.Parameters.Add(new SqlParameter("@ProgramTypeYear", matrixScore.ActiveYear));
+                //command.Parameters.Add(new SqlParameter("@HouseHoldId", matrixScore.Dec_HouseHoldId));
+                //command.Parameters.Add(new SqlParameter("@AssessmentNumber", matrixScore.AssessmentNumber));
+                //command.Parameters.Add(new SqlParameter("@ParentID", matrixScore.ParentId));
+                //command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                //command.Parameters.Add(new SqlParameter("@IsChecked", matrixScore.IsChecked));
+                //command.CommandText = "SP_InsertParentDetails_Assessmnt";
+                //isaffected = command.ExecuteNonQuery();
 
             }
             catch (Exception ex)
@@ -5631,12 +5574,8 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
 
             }
-            finally
-            {
-                Connection.Close();
-                command.Dispose();
-            }
-            return isaffected;
+
+            return isRowsAffected;
         }
 
 
@@ -5649,7 +5588,9 @@ namespace FingerprintsData
                 StaffDetails staffDetails = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection)
                 {
@@ -5841,7 +5782,9 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -5958,8 +5901,9 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -5997,7 +5941,9 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6096,7 +6042,9 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6168,7 +6116,9 @@ namespace FingerprintsData
 
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6248,8 +6198,9 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6306,8 +6257,9 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6383,8 +6335,9 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6449,8 +6402,9 @@ namespace FingerprintsData
             {
                 StaffDetails staff = StaffDetails.GetInstance();
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6512,8 +6466,9 @@ namespace FingerprintsData
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6527,15 +6482,15 @@ namespace FingerprintsData
                     //     " inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID where ED.ClientID = " + clientid + " ";
 
                     string query = @"select Name = (Firstname + ' ' + Lastname), DOB = (convert(varchar(10), DOB, 101)), ProfilePic,
-                         ED.ProgramID,PD.ProgramType from Client C inner join EnrollmentDetail ED
+                         ED.ProgramID,PD.ProgramType from Client C left join EnrollmentDetail ED
                           on C.ClientID = ED.ClientID and C.Status = 1 and ED.Status in (0,1,4,5) and ED.IsActive = 0
-                          inner join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID 
-where ED.ClientID = {0} ; select PD.ProgramType,Ed.ProgramID from Client C
-inner join EnrollmentDetail ED on C.ClientID = ED.ClientID and C.Status = 1
- inner join
+                          left join ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID 
+where C.ClientID = {0} ; select PD.ProgramType,Ed.ProgramID from Client C
+left join EnrollmentDetail ED on C.ClientID = ED.ClientID and C.Status = 1
+ left join
 ProgramDetails PD on PD.ProgramTypeID = ED.ProgramID
 inner join ReferenceProgram RP on RP.Name = PD.ProgramType
- where ED.ClientID = {1}
+ where C.ClientID = {1}
 group by PD.ProgramType, ED.ProgramID
 ";
                     command.CommandText = string.Format(query, clientid, clientid);
@@ -6577,91 +6532,137 @@ group by PD.ProgramType, ED.ProgramID
             return result;
         }
 
-        public List<ClientTimeLineModel> GetClientTimeLine(long clientid, int Mode, string stepIds)
+
+        public List<ClientTimeLineModel> GetTimelineMaster()
+        {
+
+            List<ClientTimeLineModel> clientTimeline = new List<ClientTimeLineModel>();
+            try
+            {
+                DataTable dt = dbManager.GetDataTable("USP_GetTimelineMaster", CommandType.StoredProcedure, null);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    clientTimeline = DbHelper.DataTableToList<ClientTimeLineModel>(dt, new List<string>());
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return clientTimeline;
+        }
+
+
+        public List<ClientTimeLineModel> GetClientTimeLine(long clientid, string stepIds)
         {
 
             var result = new List<ClientTimeLineModel>();
-
             try
             {
-
-
-                StaffDetails staff = StaffDetails.GetInstance();
-
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-
-
-                using (Connection = connection.returnConnection())
+                var parameters = new IDbDataParameter[]
                 {
-                    command.Connection = Connection;
-                    command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
-                    command.Parameters.Add(new SqlParameter("@Mode", Mode));
-                    command.Parameters.Add(new SqlParameter("@Clientid", clientid));
-                    command.Parameters.Add(new SqlParameter("@StepIds", stepIds));
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "USP_TimeLineDetails";
-                    DataAdapter = new SqlDataAdapter(command);
-                    _dataset = new DataSet();
-                    DataAdapter.Fill(_dataset);
-                    Connection.Close();
+                    dbManager.CreateParameter("@AgencyId",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@UserId",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleId",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientId",clientid,DbType.Int64),
+                    dbManager.CreateParameter("@StepIds",stepIds,DbType.String)
+                };
 
-                    if (_dataset != null && _dataset.Tables.Count > 0)
+                var _dataTable = dbManager.GetDataTable("USP_TimeLineDetails", CommandType.StoredProcedure, parameters);
+
+                result = DbHelper.DataTableToList<ClientTimeLineModel>(_dataTable, new List<string>());
+
+                int order = 1;
+
+                HashSet<ClientTimeLineModel> clientModel = new HashSet<ClientTimeLineModel>();
+
+                for (int i = 0; i < result.Count; i++)
+                {
+
+                    if (new long[] { 2,11, 12, 13, 14, 17, 18 }.Contains(result[i].StepId))//Accepted //Date of Withdrawn // Date of Dropped // Date of Transition // Re-Enrollment //Change of Address 
                     {
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+
+                        result[i].TimelineOrder = order;
+                        clientModel.Add(result[i]);
+                        order++;
+                        ClientTimeLineModel cNote = null; 
+
+
+
+                        switch(result[i].StepId)
                         {
+                            case 11: // Date of Withdrawn//
 
-                            if (Mode == 1)
-                            {
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && x.EventBodyJson.ToLowerInvariant().Contains("withdrawn")).FirstOrDefault();
 
-                                var row = new ClientTimeLineModel()
+                                break;
+
+                            case 12:// Date of Dropped //
+
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && x.EventBodyJson.ToLowerInvariant().Contains("dropped")).FirstOrDefault();
+
+                                break;
+                            case 13://Re-enrollment//
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && x.EventBodyJson.ToLowerInvariant().Contains("re-enrolled")).FirstOrDefault();
+
+                                break;
+                            case 14: //Date of Transition//
+
+                                var withdrawnTransaction = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 11).FirstOrDefault();
+
+                                if(withdrawnTransaction!=null)
                                 {
-                                    TimeLineId = Convert.ToInt64(dr["Id"].ToString()),
-                                    StepType = Convert.ToInt64(dr["StepType"].ToString()),
-                                    StepName = dr["StepName"].ToString(),
-                                    EventBodyJson = dr["EventBodyJson"].ToString(),
-                                    ActiveProgramYear = dr["ActiveProgramYear"].ToString(),
-                                    ClientId = dr["ClientId"].ToString(),
-                                    CreatedDate = dr["CreatedDate"].ToString(),
-                                    EventCreatedDate = dr["EventCreatedDate"].ToString(),
-                                    EventDate = dr["EventDate"].ToString(),
-                                    EventId = dr["EventId"].ToString(),
-                                    EventRole = dr["EventRole"].ToString(),
-                                    EventTime = dr["EventTime"].ToString(),
-                                    ModifiedDate = dr["ModifiedDate"].ToString(),
-                                    Status = dr["Status"].ToString(),
+                                    withdrawnTransaction.TimelineOrder = order;
+                                    order++;
+                                    clientModel.Add(withdrawnTransaction);
+                                }
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && x.EventBodyJson.ToLowerInvariant().Contains("transition")).FirstOrDefault();
+                                break;
+                            case 17: //Change of Address//
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && x.EventBodyJson.ToLowerInvariant().Contains("address")).FirstOrDefault();
+                                break;
+                            case 18://Center/Classroom Change//
+                                cNote = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 10 && (x.EventBodyJson.ToLowerInvariant().Contains("center change") || x.EventBodyJson.ToLowerInvariant().Contains("classroom change"))).FirstOrDefault();
+                                break;
+                        }
 
-                                };
+                        if (cNote != null)
+                        {
+                            cNote.TimelineOrder = order;
+                            clientModel.Add(cNote);
+                            order++;
+                        }
 
-                                // var devId = new long[] {2,5,6,8,9 };
-                                //if (devId.Contains(row.StepType)) {
-                                XmlDocument doc = new XmlDocument();
-                                doc.LoadXml(row.EventBodyJson);
-
-                                row.EventBodyJson = JsonConvert.SerializeXmlNode(doc);
-                                // }
-
-                                result.Add(row);
-                            }
-                            else if (Mode == 2)
+                        if(result[i].StepId==14)
+                        {
+                            var accpetedTransaction = result.Where(x => x.EventCreatedDate == result[i].EventCreatedDate && x.StepId == 2).FirstOrDefault();
+                            if (accpetedTransaction != null) //Accepted Transaction//
                             {
-
-                                var row = new ClientTimeLineModel()
-                                {
-                                    StepType = Convert.ToInt64(dr["StepId"].ToString()),
-                                    StepName = dr["StepName"].ToString(),
-                                    Status = dr["Status"].ToString(),
-
-                                };
-                                result.Add(row);
+                                accpetedTransaction.TimelineOrder = order;
+                                clientModel.Add(accpetedTransaction);
+                                order++;
                             }
-
                         }
                     }
+                    else
+                    {
+                        result[i].TimelineOrder = order;
+                        clientModel.Add(result[i]);
+                        order++;
+                    }
                 }
+
+
+                result = new List<ClientTimeLineModel>(clientModel).OrderBy(x=>x.TimelineOrder).ToList();
+                result.ForEach(x =>
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(x.EventBodyJson);
+                    x.EventBodyJson = JsonConvert.SerializeXmlNode(doc);
+                });
 
             }
             catch (Exception ex)
@@ -6669,9 +6670,7 @@ group by PD.ProgramType, ED.ProgramID
                 clsError.WriteException(ex);
 
             }
-
-
-            return result;
+              return result;
         }
 
 
@@ -6686,8 +6685,9 @@ group by PD.ProgramType, ED.ProgramID
                 StaffDetails staff = StaffDetails.GetInstance();
 
                 if (Connection.State == ConnectionState.Open)
+                {
                     Connection.Close();
-
+                }
 
                 using (Connection = connection.returnConnection())
                 {
@@ -6901,13 +6901,13 @@ group by PD.ProgramType, ED.ProgramID
         #endregion
 
 
-        public List<ParentInfo> GetParentInformationByClient(out ChildrenInfo childInfo,string clientId,StaffDetails staff)
+        public List<ParentInfo> GetParentInformationByClient(out ChildrenInfo childInfo, string clientId, StaffDetails staff)
         {
             List<ParentInfo> parentContactInfoList = new List<ParentInfo>();
             childInfo = new ChildrenInfo();
             try
             {
-                
+
 
                 var parameters = new IDbDataParameter[]
                 {
@@ -6921,9 +6921,9 @@ group by PD.ProgramType, ED.ProgramID
                 _dataset = dbManager.GetDataSet("USP_GetParent_Client_InformationByClientId", CommandType.StoredProcedure, parameters);
 
 
-                if(_dataset!=null && _dataset.Tables.Count>0)
+                if (_dataset != null && _dataset.Tables.Count > 0)
                 {
-                    if(_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count>0)
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                     {
                         parentContactInfoList = (from DataRow dr0 in _dataset.Tables[0].Rows
 
@@ -6943,7 +6943,7 @@ group by PD.ProgramType, ED.ProgramID
 
                     }
 
-                    if(_dataset.Tables.Count>1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
                     {
 
 
@@ -6953,14 +6953,14 @@ group by PD.ProgramType, ED.ProgramID
                         childInfo.CenterName = Convert.ToString(_dataset.Tables[1].Rows[0]["CenterName"]);
                         childInfo.ClassRoomID = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ClassroomId"]));
                         childInfo.ClassRoomName = Convert.ToString(_dataset.Tables[1].Rows[0]["ClassroomName"]);
-                        childInfo.ProgramType =EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ProgramID"]));
+                        childInfo.ProgramType = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ProgramID"]));
                         childInfo.Enc_HouseholdId = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["HouseholdID"]));
 
 
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -7013,7 +7013,7 @@ group by PD.ProgramType, ED.ProgramID
                                                              Householid = Convert.ToString(dr0["HouseholdID"]),
                                                              CaseNoteid = Convert.ToString(dr0["CaseNoteID"]),
                                                              Title = Convert.ToString(dr0["Title"]),
-                                                             Date = DateTime.Parse(Convert.ToString(dr0["CaseNoteDate"]),new CultureInfo("en-US",true)).ToString("MMMM dd, yyyy"),
+                                                             Date = DateTime.Parse(Convert.ToString(dr0["CaseNoteDate"]), new CultureInfo("en-US", true)).ToString("MMMM dd, yyyy"),
                                                              BY = Convert.ToString(dr0["By"]),
                                                              Attachment = Convert.ToString(dr0["Attachment"]),
                                                              References = Convert.ToString(dr0["References"]),
@@ -7144,5 +7144,93 @@ group by PD.ProgramType, ED.ProgramID
 
             return users;
         }
+
+
+
+        public List<TransitionType> GetTransitionTypeList()
+        {
+
+            List<TransitionType> transitionType = new List<TransitionType>();
+            try
+            {
+
+                
+
+                transitionType = dbManager.GetDataTable("USP_GetTransitionType", CommandType.StoredProcedure).DataTableToList<TransitionType>(new List<string>());
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return transitionType;
+        }
+
+
+        public FingerprintsModel.TransitionTypeModel GetTransitionTypeDetailsByClientId(string clientId)
+        {
+
+            var transitionTypeModel = new FingerprintsModel.TransitionTypeModel();
+
+            try
+            {
+
+
+
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@ClientId",EncryptDecrypt.Decrypt64<long>(clientId),DbType.Int64 )
+                };
+
+
+                transitionTypeModel.TransitionTypeDetail= dbManager.GetDataTable("USP_GetTransitionTypeDetailByClientId", CommandType.StoredProcedure, parameters).DataTableToList<TransitionTypeDetail>(new List<string> {"TransitionTypeDetailId" });
+
+                
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return transitionTypeModel;
+
+
+        }
+
+        public bool SaveTransitionTypeDetail(TransitionTypeDetail transitionTypeDetail,Transition transition)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                var parameters = new IDbDataParameter[]
+                {
+                    dbManager.CreateParameter("@AgencyId",staff.AgencyId,DbType.Guid),
+                    dbManager.CreateParameter("@RoleId",staff.RoleId,DbType.Guid),
+                    dbManager.CreateParameter("@UserId",staff.UserId,DbType.Guid),
+                    dbManager.CreateParameter("@ClientId",transitionTypeDetail.FK_ClientId,DbType.Int64),
+                    dbManager.CreateParameter("@TransitionTypeDetailId",EncryptDecrypt.Decrypt(transitionTypeDetail.TransitionTypeDetailId),DbType.Int64),
+                    dbManager.CreateParameter("@TransitionTypeId",transitionTypeDetail.FK_TransitionTypeId,DbType.Int32),
+                    dbManager.CreateParameter("@EnrollmentTransactionId",transitionTypeDetail.FK_EnrollmentTransactionId??"0",DbType.Int64),
+                    dbManager.CreateParameter("@TypeOfTransition",transition.TypeOfTransition,DbType.Int32),
+                    dbManager.CreateParameter("@TransitionProgramType",EncryptDecrypt.Decrypt64<Int64>(transition.TransProgramTypeID),DbType.Int64),
+                    dbManager.CreateParameter("@CenterId",EncryptDecrypt.Decrypt64<Int64>(transition.Enc_CenterID),DbType.Int64),
+                    dbManager.CreateParameter("@ClassroomId",EncryptDecrypt.Decrypt64<Int64>(transition.Enc_ClassroomID),DbType.Int64)
+                    
+
+                };
+
+                isRowsAffected = dbManager.ExecuteWithNonQuery<bool>("USP_SaveTransitionTypeDetail", CommandType.StoredProcedure, parameters);
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return isRowsAffected;
+        }
+
     }
 }

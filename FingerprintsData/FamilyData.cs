@@ -9028,8 +9028,11 @@ namespace FingerprintsData
                         familyinfo.CenterName = _dataset.Tables[2].Rows[i]["CenterName"].ToString();
                         familyinfo.CenterId = Convert.ToInt64(_dataset.Tables[2].Rows[i]["CenterId"].ToString());
                         familyinfo.CProgramType = Convert.ToString(_dataset.Tables[2].Rows[i]["ProgramType"].ToString());
+                        familyinfo.CReferenceProgramId = Convert.ToString(_dataset.Tables[2].Rows[i]["ReferenceProgramId"].ToString());
                         familyinfo.Encrypthouseholid = EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["HouseholdId"].ToString());
                         // familyinfo.IsFutureWithdrawal = Convert.ToBoolean(_dataset.Tables[2].Rows[i]["IsFutureWithdrawal"]);
+                        familyinfo.EnrollmentStatus = _dataset.Tables[2].Rows[i]["Status"] != DBNull.Value ? Convert.ToString(_dataset.Tables[2].Rows[i]["Status"]) : string.Empty;
+                        familyinfo.ExecessiveAbsences = _dataset.Tables[2].Rows[i]["ExcessiveAbsences"] != DBNull.Value ? Convert.ToBoolean(_dataset.Tables[2].Rows[i]["ExcessiveAbsences"]) : false;
 
                         familyinfo.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["ProgramID"].ToString()));
                         familyinfo.IsFoster = Convert.ToInt32(_dataset.Tables[2].Rows[i]["FosterChild"]);
@@ -9202,7 +9205,7 @@ namespace FingerprintsData
                 }
             }
         }
-        public string SaveFamilySummary(FamilyHousehold info, string Agenyid, string UserId, int mode = 1)
+        public string SaveFamilySummary(FamilyHousehold info, string Agenyid, string UserId, int mode = 1,int addressChanged=0)
         {
             string result = string.Empty;
             try
@@ -9236,6 +9239,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CreatedBy", UserId));
                 command.Parameters.Add(new SqlParameter("@AgencyID", Agenyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@AddressChanged", addressChanged));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
@@ -10766,8 +10770,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.CaseNoteDetails.CaseNoteTitle));
                 command.Parameters.Add(new SqlParameter("@Note", Transition.CaseNoteDetails.Note));
                 command.Parameters.Add(new SqlParameter("@CaseNotetags", Transition.CaseNoteDetails.CaseNotetags.Trim(',')));
-                command.Parameters.Add(new SqlParameter("@ClientIds", Transition.CaseNoteDetails.ClientIds.Trim()));
-                command.Parameters.Add(new SqlParameter("@StaffIds", Transition.CaseNoteDetails.StaffIds.Trim()));
+                command.Parameters.Add(new SqlParameter("@ClientIds", Transition.CaseNoteDetails.ClientIds!=null ?Transition.CaseNoteDetails.ClientIds.Trim():string.Empty));
+                command.Parameters.Add(new SqlParameter("@StaffIds", Transition.CaseNoteDetails.StaffIds!=null ?Transition.CaseNoteDetails.StaffIds.Trim():string.Empty));
                 command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", Transition.CaseNoteDetails.CaseNoteSecurity));
                 command.Parameters.Add(new SqlParameter("@Attachments", dt));
                 #endregion
@@ -10848,7 +10852,7 @@ namespace FingerprintsData
 
         }
 
-        public Transition GetEnrollReason(string Status, string clientId = "")
+        public Transition GetEnrollReason(string Status, string clientId = "",StaffDetails staff=null)
         {
             Transition trans = new Transition();
 
@@ -10864,7 +10868,7 @@ namespace FingerprintsData
                 {
                     long _clientId = (clientId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
 
-                    StaffDetails staff = StaffDetails.GetInstance();
+                   // StaffDetails staff = StaffDetails.GetInstance();
 
                     command.Parameters.Add(new SqlParameter("@Status", Status));
                     command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
@@ -11861,7 +11865,8 @@ namespace FingerprintsData
                                                      ParentName = dr["ParentName"].ToString(),
                                                      ParentRole = dr["ParentRole"].ToString(),
                                                      ClientId = dr["ClientId"].ToString(),
-                                                     ProfilePicture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"])
+                                                     ProfilePicture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]),
+                                                     Gender=Convert.ToString(dr["Gender"])
                                                  }
                                                ).ToList();
                         obj.RosterYakkr = familydataTable.Rows[0]["yakkr"].ToString();

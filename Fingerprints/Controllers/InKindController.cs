@@ -104,7 +104,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new RosterData().Getclassrooms(Centerid,staff, isEndOfYear: false, isInkind: true));
+                return Json(new RosterData(staff).Getclassrooms(Centerid, isEndOfYear: false, isInkind: true));
             }
             catch (Exception Ex)
             {
@@ -653,28 +653,20 @@ namespace Fingerprints.Controllers
         /// 
         [HttpPost]
         [CustAuthFilter()]
-        public PartialViewResult GetInkindReportPartial(int filterType, string selectedOption,string centers, string fromDate, string toDate,string dateEntered, int requestedPage, int pageSize, string sortOrder, string sortColumn, string searchTerm, string searchTermType)
-        {
-            InkindReportModel inkindReportmodel = new InkindReportModel();
+        
+        public PartialViewResult GetInkindReportPartial(InkindReportModel inkindReportmodel, int filterType)
 
+        {
+            //InkindReportModel inkindReportmodel = new InkindReportModel();
+
+          
             try
             {
 
-                inkindReportmodel.RequestedPage = requestedPage;
-                inkindReportmodel.PageSize = pageSize;
                 inkindReportmodel.SkipRows = inkindReportmodel.GetSkipRows();
+
                 inkindReportmodel.FilterTypeEnum = EnumHelper.GetEnumByStringValue<FingerprintsModel.Enums.InkindReportFilter>(filterType.ToString());
-                inkindReportmodel.FromDate = fromDate;
-                inkindReportmodel.ToDate = toDate;
-                inkindReportmodel.DateEntered = dateEntered;
-                inkindReportmodel.SortColumn = string.IsNullOrEmpty(sortColumn) ||sortColumn=="null" ? string.Empty : sortColumn.ToUpperInvariant();
-                inkindReportmodel.SortOrder =string.IsNullOrEmpty(sortOrder) ||sortOrder=="null"?string.Empty: sortOrder;
 
-                inkindReportmodel.SubFilterOption = selectedOption;
-                inkindReportmodel.Centers = centers;
-
-                inkindReportmodel.SearchTerm = searchTerm;
-                inkindReportmodel.SearchTermType = string.IsNullOrEmpty(searchTermType)||searchTermType=="null" ? string.Empty : searchTermType;
 
 
 

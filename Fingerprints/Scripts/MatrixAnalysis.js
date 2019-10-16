@@ -1450,7 +1450,7 @@ function bindMatchProviders() {
                     url: "/Roster/FamilyResourcesList",
                     type: "POST",
                     async: false,
-                    data: { ServiceId: data.MPMList[0].ServiceId, AgencyId: agencyId },
+                    data: { serviceId: data.MPMList[0].ServiceId },
                     success: function (data) {
                         $("#ddFsOrganization").html('');
                         $('#OrganizationId').val('');
@@ -1557,7 +1557,7 @@ $('#FSResourcesSelect').on('change', function () {
     $.ajax({
         url: "/Roster/FamilyResourcesList",
         type: "POST",
-        data: { ServiceId: serviceId, AgencyId: agencyId },
+        data: { serviceId: serviceId },
         success: function (data) {
             $("#ddFsOrganization").html('');
             $("#ddFsOrganization").append('<option value=' + 0 + '>' + "Select Organization" + '</option>');

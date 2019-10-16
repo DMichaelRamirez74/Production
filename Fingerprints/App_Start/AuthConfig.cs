@@ -1,32 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Web.WebPages.OAuth;
-using Fingerprints.Models;
+﻿using Microsoft.Owin;
+using Owin;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.Google;
+using Microsoft.Owin.Security.Twitter;
+using Microsoft.AspNet.Identity;
+using System.Security.Claims;
+using Microsoft.AspNet.SignalR;
 
 namespace Fingerprints
 {
-    public static class AuthConfig
+    public  partial class Startup
     {
-        public static void RegisterAuth()
+        // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
+        public void ConfigureAuth(IAppBuilder app)
         {
-            // To let users of this site log in using their accounts from other sites such as Microsoft, Facebook, and Twitter,
-            // you must update this site. For more information visit http://go.microsoft.com/fwlink/?LinkID=252166
+            // Enable the application to use a cookie to store information for the signed in user
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                LoginPath = new PathString("/Login/Loginagency")
+            });
 
-            //OAuthWebSecurity.RegisterMicrosoftClient(
-            //    clientId: "",
-            //    clientSecret: "");
 
-            //OAuthWebSecurity.RegisterTwitterClient(
-            //    consumerKey: "",
-            //    consumerSecret: "");
+            app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
-            //OAuthWebSecurity.RegisterFacebookClient(
-            //    appId: "",
-            //    appSecret: "");
+            // App.Secrets is application specific and holds values in CodePasteKeys.json
+            // Values are NOT included in repro – auto-created on first load
+            //if (!string.IsNullOrEmpty(App.Secrets.GoogleClientId))
+            //{
+            //    app.UseGoogleAuthentication(
+            //        clientId: App.Secrets.GoogleClientId,
+            //        clientSecret: App.Secrets.GoogleClientSecret);
+            //}
 
-            //OAuthWebSecurity.RegisterGoogleClient();
+            //if (!string.IsNullOrEmpty(App.Secrets.TwitterConsumerKey))
+            //{
+            //    app.UseTwitterAuthentication(
+            //        consumerKey: App.Secrets.TwitterConsumerKey,
+            //        consumerSecret: App.Secrets.TwitterConsumerSecret);
+            //}
+
+            //if (!string.IsNullOrEmpty(App.Secrets.GitHubClientId))
+            //{
+            //    app.UseGitHubAuthentication(
+            //        clientId: App.Secrets.GitHubClientId,
+            //        clientSecret: App.Secrets.GitHubClientSecret);
+            //}
+
+            System.Web.Helpers.AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;
+            
         }
+
+        public static void ConfigureSignalR(IAppBuilder app, HubConfiguration config)
+        {
+            // For more information on how to configure your application using OWIN startup, visit http://go.microsoft.com/fwlink/?LinkID=316888
+
+            app.MapSignalR(config);
+        }
+
+        public static void ConfigureSignalR2(IAppBuilder app, HubConfiguration config)
+        {
+            // For more information on how to configure your application using OWIN startup, visit http://go.microsoft.com/fwlink/?LinkID=316888
+
+            app.MapSignalR(config);
+        }
+
     }
 }

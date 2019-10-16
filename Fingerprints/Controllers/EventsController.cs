@@ -148,7 +148,6 @@ namespace Fingerprints.Controllers
                 {
                     eventsList = new EventsData().GetChangedEventsForParent(events, mode);
                 }
-
                 return Json(new { isResult, eventsList }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

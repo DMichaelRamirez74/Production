@@ -129,6 +129,7 @@
         _langList =@Html.Raw(Html.Action("GetAllLocalResoure", "Home", new { area = "" }));
         $(document).ready(function () {
 
+         
 
 
             //Go to top Section//
@@ -213,6 +214,20 @@
                     //},
                     messages: {
                         noResults: "", results: ""
+                    },
+                    open:function(event, ui){
+                       
+                        $(event.target).addClass('searchbox-open');
+                        $(event.target).autocomplete( "widget" ).addClass('searchbox-widget-open');
+                           
+                    },
+                    close:function(event, ui)
+                    {
+                        $(event.target).removeClass('searchbox-open');
+                        $(event.target).autocomplete( "widget" ).removeClass('searchbox-widget-open');
+                          
+
+
                     }
 
                 })
@@ -227,7 +242,7 @@
             var logoimageHeight = $('.logo-side-image').height();
             var sidemenu = $('#side-menu');
             //   var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
-            var height = (windowHeight - (logoimageHeight + footerHeight + 12));
+            var height = (windowHeight - (logoimageHeight + footerHeight + 60));
             sidemenu.css({ 'height': height, 'max-height': height });
 
 
@@ -238,11 +253,27 @@
                 var logoimageHeight = $('.logo-side-image').height();
                 var sidemenu = $('#side-menu');
                 //   var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
-                var height = (windowHeight - (logoimageHeight + footerHeight + 12));
+                var height = (windowHeight - (logoimageHeight + footerHeight + 60));
                 // sidemenu.height(height);
                 sidemenu.css({ 'height': height, 'max-height': height });
 
             });
+
+
+            $(window).load(function () {
+
+                setTimeout(function () {
+                    $("#spinner").fadeOut();
+
+                }, 300);
+            });
+
+
+            $(window).bind('beforeunload', function () {
+                $("#spinner").show();
+            });
+
+
 
 
         });
@@ -683,12 +714,12 @@
                         <li>
                             <a id="DisabilityType" href="~/SuperAdmin/DisablitiesType" class=" active"><i class="fa fa-wheelchair fa-lg"></i> Disability Types</a>
                         </li>
-                       
+
 
                         <li>
 
 
-                            <a id="ClassAssign" href="~/SuperAdmin/Classroom" class=" active"><i class="fa fa-clipboard"></i> FSW & HV Classroom Assignment</a>
+                            <a id="ClassAssign" href="~/SuperAdmin/Classroom" class="active"><i class="fa fa-clipboard"></i> FSW & HV Classroom Assignment</a>
                         </li>
                         <li>
                             <a id="Yakkr" href="~/SuperAdmin/YakkrInfo" class=" active"><i class="fa fa-dashboard fa-fw"></i> Yakkr</a>

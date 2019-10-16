@@ -65,7 +65,6 @@
             width: 20px;
             text-align: center;
             padding: 0px 0;
-            /* background: #ffffff; */
             border-left: 0;
             width: 100%;
             height: 100%;
@@ -249,25 +248,6 @@
 
 
 
-            // Check for the File API support.
-            //if (window.File && window.FileReader && window.FileList && window.Blob) {
-            //    document.getElementById('files').addEventListener('change', handleFileSelect, false);
-            //} else {
-            //    console.log('The File APIs are not fully supported in this browser.');
-            //}
-
-
-            /****** Multiple Camera Uploads ************/
-
-
-
-            //camera option for document upload//
-
-
-
-            /**************** Multiple Camera Uploads *****************/
-
-
             $('#clientcasenote-div').ApplinkCaseNote({
                 isPopup: false,
                 isSection: true,
@@ -320,58 +300,6 @@
             });
 
 
-
-
-
-
-
-            //$.ajax({
-
-            //    url: '/Roster/GetCaseNoteSectionPartial',
-            //    type: 'Post',
-            //    datatype: 'html',
-            //    data: { Casenoteid: "0", ClientId: '0', householdId: $('#householdId').val() },
-            //    success: function (data) {
-            //        // alert('1');
-            //        debugger;
-
-            //        var $caseNoteDiv = $('#clientcasenote-div');
-
-            //        $caseNoteDiv.html(data);
-
-            //        $caseNoteDiv.find('#heading_case_note').parent().hide()
-
-
-            //        $caseNoteDiv.find('#divCaseNoteStaffs').append('<input type="hidden" name="StaffIds"/>');
-            //        $caseNoteDiv.find('#divCaseNoteClients').append('<input type="hidden" name="ClientIds"/>');
-
-
-            //        $caseNoteDiv.find('a.export-new').remove();
-            //        $caseNoteDiv.find('.save-casenote').parent('div').hide();
-            //        $caseNoteDiv.find('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-            //        $caseNoteDiv.find('#txtCaseNoteDate').val(getFormattedDateNumber(new Date()));
-            //        $caseNoteDiv.find('.img-camera').attr('target-id', 'clientcasenote-div');
-            //        showCameraOption($caseNoteDiv);
-            //        $caseNoteDiv.find('#uploadImageCamera').hide();
-            //        setIntervalUserMedia($caseNoteDiv);
-
-
-
-
-            //    },
-            //    error: function (data) {
-            //        // alert('2');
-
-            //        debugger;
-            //    },
-            //    complete: function (data) {
-
-            //    }
-            //});
-
-
-
-
             $(document).on("change", ".client-check", function (e) {
 
                 var _ids = [];
@@ -414,10 +342,6 @@
             if ('@TempData["HouseholdMessage"]' != '') {
                 customAlert('@TempData["HouseholdMessage"]');
 
-                //setTimeout(function () {
-                //    $('#backtofamily').trigger('click');
-                //}, 2000);
-
             }
 
             
@@ -442,8 +366,7 @@
                     url = HostedDir + '/AgencyUser/FamilySummary/' + EHouseholid;
                 }
                 window.location.href = url;
-                //$('#spinner').hide();
-
+              
 
             });
 
@@ -469,12 +392,12 @@
                     bindCaseNoteforNoHome(1);
                 }
                 else {
-                    
+
                     $('#newAddressDiv').hide('slow');
                     bindCaseNoteforNoHome(2);
                 }
 
-              
+
 
             });
 
@@ -482,43 +405,6 @@
             
 
         });
-
-
-
-        /************ Multiple Camera Uploads *******************/
-
-
-
-      
-
-
-
-        /************** Multiple Camera Uploads *******************/
-
-        //method to convert file to convert to base 64 string/
-
-        function handleFileSelect(evt, $srcId) {
-           
-            var f = evt.target.files[0]; // FileList object
-            var reader = new FileReader();
-            // Closure to capture the file information.
-            reader.onload = (function (theFile) {
-                return function (e) {
-                    var binaryData = e.target.result;
-                    //Converting Binary Data to base 64
-                    var base64String = window.btoa(binaryData);
-                    //showing file converted to base64
-
-                    //document.getElementById('base64').value = base64String;
-                    //alert('File converted to base64 successfuly!\nCheck in Textarea');
-
-                    base64String = 'data:image/png;base64,' + base64String;
-                    $('#' + $srcId).find('.setup_viewscreen-div').find('img').attr('src', base64String);
-                };
-            })(f);
-            // Read in the image file as a data URL.
-            reader.readAsBinaryString(f);
-        }
 
 
         function deleteAttachment(ele) {
@@ -832,6 +718,7 @@
 
         //function to checkAddress//
         function CheckAddress(value) {
+         
             var Zipcode = 0;
             if (value == 0)
                 Zipcode = 0;
@@ -855,14 +742,14 @@
                             BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
                                 if (!result) {
                                     //code643
-                                   /* $('#Street').val("");
-                                    $('#StreetName').val("");
-                                    $('#ZipCode').val("");
-                                    $('#City').find('option').remove().end();
-                                    $('#City').val('');
-                                    $('#State').val('');
-                                    $('#County').val('');
-                                    bindCaseNoteForAddressChange();*/
+                                    /* $('#Street').val("");
+                                     $('#StreetName').val("");
+                                     $('#ZipCode').val("");
+                                     $('#City').find('option').remove().end();
+                                     $('#City').val('');
+                                     $('#State').val('');
+                                     $('#County').val('');
+                                     bindCaseNoteForAddressChange();*/
                                 }
                                else if (result) {
                                     bindCaseNoteForAddressChange();
@@ -1099,7 +986,7 @@
 
 
         function bindCaseNoteforNoHome(mode) {
-            
+           
             var old_familyhomeless = $('#old_familyhomeless').val().trim();
             var old_address = $('#old_address').val().trim();
             var old_apartment = $('#old_apartment').val().trim();
@@ -1155,7 +1042,7 @@
 
                 $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val(getFormattedDateNumber(new Date()));
 
-                $caseNoteSection.find('#txtCaseNoteDate_' + $guid + '').val("Family Homeless");
+                $caseNoteSection.find('#txtCaseNoteTitle_' + $guid + '').val("Family Homeless");
                 $caseNoteSection.find('#txtareaCaseNote_' + $guid + '').val(noteSection);
 
 
@@ -1463,37 +1350,6 @@
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-        //function UnCheckhouse(object) {
-        //    $('#curr_house_div').show('slow');
-        //    if ($('#old_familyhomeless').val() == '1')
-        //    {
-        //        $('#makedFamilyHomeless').hide('slow');
-        //        $('input[name="FamilyHousehold.FamilyHasAddress"][value=1]').trigger('click');
-        //        // $('#newAddressDiv').show('slow');
-              
-        //    }
-
-        //    else
-        //    {
-        //        $('input[name=hasNewAddress]').prop('checked', false);
-        //        $('#makedFamilyHomeless').hide('slow');
-        //        $('#newAddressDiv').hide('slow');
-        //    }
-          
-        //}
-
-
         function UnCheckhouse(object) {
 
 
@@ -1615,7 +1471,7 @@
             //if ($('#HomeType2').prop("checked") || (!$('#HomeType1').prop("checked") && !$('#HomeType2').prop("checked"))) {
             //    ishaveHome = true;
             //}
-            var isCurrentHomeVisible = false;
+            var isCurrentHomeVisible = false;   
 
             isCurrentHomeVisible = ($('#curr_house_div').is(':visible'));
 
@@ -1723,7 +1579,7 @@
                     return isValid;
                 }
 
-             
+
                 $('#HasNewAddress').val('True');
 
             }
@@ -1741,13 +1597,7 @@
                 var $caseNoteSection = $caseNoteClientdiv.find('#divCaseNoteSection');
                 var $guid=$caseNoteSection.attr('data-current-id');
 
-                //var Tags = '';
-                //$caseNoteSection.find('#txtCaseNoteTags_'+$guid+'_tagsinput .tag span').each(function () {
-                //    Tags = Tags + $(this).text().trim() + ',';
-                //});
-
-                //$caseNoteSection.find("#txtCaseNoteTags_"+$guid+"").val(Tags);
-                //$caseNoteSection.find("#txtareaCaseNote_" + $guid + "").val(CKEDITOR.instances["txtareaCaseNote_" + $guid + ""].getData());
+                
 
                 var result = $caseNoteClientdiv.ApplinkCaseNote('caseNoteValidation');
 
@@ -1757,6 +1607,7 @@
                 }
 
               
+
 
                 $('#HasCaseNoteDetails').val('True');
 
@@ -1801,7 +1652,6 @@
                     });
                 }
 
-                // fileData.append("cameraUploads", JSON.stringify(cameraDocumentsArray));
                
                 $('input[name="cameraUploads"]').val(JSON.stringify(cameraDocumentsArray));
 
@@ -1879,7 +1729,6 @@
                                         <legend id="contact-legend">Household</legend>
 
 
-                                        @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" @if (Model.HasNewAddress) { <text> style="display:none;" </text>}>*@
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main"
                                              style="@(Model.FamilyHousehold.HomeType == 1 || homeFound==true? "display:none;" : "display:block;")">
                                             <div class="add-useragform">
@@ -1892,16 +1741,14 @@
                                                 </div>
                                                 <div class="col-lg-6 col-md-12 col-sm-12">
                                                     <div class="form-group">
-                                                        @*<label class="icc_label" for="email">Apartment No., Lot No. </label>
-                                            <input class="form-control" id="StreetName" maxlength="100" name="StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="4" type="text" value="1212">*@
+                                                       
                                                         @Html.LabelFor(m => m.FamilyHousehold.StreetName, new { @class = "icc_label" })
                                                         @Html.TextBoxFor(m => m.FamilyHousehold.StreetName, new { @id = "StreetName", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddress(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-md-12 col-sm-12">
                                                     <div class="form-group">
-                                                        @*<label class="icc_label" for="email">Zip Code  <sup>*</sup></label>
-                                            <input class="form-control" id="ZipCode" maxlength="5" name="ZipCode" onblur="checkZipCode(this);" placeholder="Zip Code " tabindex="5" type="text" value="60001">*@
+                                                      
 
                                                         @Html.LabelFor(m => m.FamilyHousehold.ZipCode, new { @class = "icc_label lbl-required" })
                                                         @Html.TextBoxFor(m => m.FamilyHousehold.ZipCode, new { @id = "ZipCode", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCode(this);", @placeholder = "Zip Code", @tabindex = "5" })
@@ -1921,8 +1768,7 @@
                                                 </div>
                                                 <div class="col-lg-6 col-md-12 col-sm-12">
                                                     <div class="form-group">
-                                                        @* <label class="icc_label" for="email">State  <sup>*</sup></label>*@
-                                                        @*<input class="form-control" id="State" maxlength="100" name="State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="7" type="text" value="IL">*@
+                                                       
                                                         @Html.LabelFor(m => m.FamilyHousehold.State, new { @class = "icc_label lbl-required" })
                                                         @Html.TextBoxFor(m => m.FamilyHousehold.State, new { @id = "State", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
 
@@ -1937,27 +1783,13 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-md-12 col-sm-12">
-                                                    @*<div class="form-group">
-                                            <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                            <input name="FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FileaddressAvatar" onchange="ValidateSingleInputpdf(this)" style="width:65%;" tabindex="6" type="file" value="">
-                                            <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="AdresssverificationinPaper" name="AdresssverificationinPaper" tabindex="7" type="checkbox" value="true"><input name="AdresssverificationinPaper" type="hidden" value="false">
-                                                <label style="width:45px;">Paper</label>
-                                            </div>
-                                        </div>*@
+                                                  
 
 
                                                     @if (Model.FamilyHousehold.docstorage == 0)
                                                     {
 
-                                                        @*<div class="form-group">
-                                                <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                                @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;", tabIndex = "6" })
-                                                <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                    <label style="width:45px;">Paper</label>
-                                                </div>
-                                            </div>*@
+                                                      
 
 
 
@@ -1991,15 +1823,6 @@
                                                     @if (Model.FamilyHousehold.docstorage == 2)
                                                     {
 
-
-                                                        @*<div class="form-group">
-                                                <label>Address Verification Form</label>
-                                                <div class="cont-sz">
-                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                    <label style="width:45px;">Paper</label>
-                                                </div>
-                                                @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
-                                            </div>*@
 
 
 
@@ -2111,7 +1934,7 @@
                                         </div>
 
 
-                                        @*@if(Model.HasNewAddress)*@
+                                        
                                         @if (Model.FamilyHousehold.HomeType == 1)
                                         {
                                             <div class="col-xs-12">
@@ -2147,7 +1970,6 @@
                                                     <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
                                                         <div class="form-group">
                                                             <div class="col-sm-12">
-                                                                @*<label class="icc_label"> Family Type <sup style="color:red;">*</sup></label>*@
 
                                                                 @Html.LabelFor(m => m.FamilyHousehold.FamilyType, new { @class = "icc_label lbl-required" })
                                                             </div>
@@ -2178,446 +2000,446 @@
 
 
 
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 1, new { @id = "HomeType1", tabIndex = "10", onchange = "Checkhouse(this)" })
-                                                                <span>Yes</span>
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 1, new { @id = "HomeType1", tabIndex = "10", onchange = "Checkhouse(this)" })
+                                                                    <span>Yes</span>
 
-                                                            </label>
+                                                                </label>
+
+                                                            </div>
+
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 2, new { @id = "HomeType2", tabIndex = "10", onchange = "UnCheckhouse(this)" })
+                                                                    <span>No  </span>
+                                                                </label>
+                                                            </div>
 
                                                         </div>
+                                                    </div>
+                                                    <div class="row col-sm-12">
+                                                        <div class="col-lg-6 adddivspace" id="divrelationshipparent" style="display:none;">
+                                                            <div class="form-group">
+                                                                <div class="col-sm-12">
+                                                                    @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioship, new { @class = "lbl-required" })
+                                                                </div>
+                                                                <div class="col-sm-9">
 
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 2, new { @id = "HomeType2", tabIndex = "10", onchange = "UnCheckhouse(this)" })
-                                                                <span>No  </span>
-                                                            </label>
+                                                                    @{
+                                                                        List<SelectListItem> ParentRelatioshipList = new List<SelectListItem>();
+                                                                    }
+                                                                    @Html.DropDownListFor(m => m.FamilyHousehold.ParentRelatioship, new SelectList(ParentRelatioshipList, "Value", "Text", Model.FamilyHousehold.ParentRelatioship), new { @id = "ParentRelatioship", @class = "form-control", onchange = "ShowdivParentotherrelationship();", @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 adddivspace" id="married" style="display:none;">
+                                                            <div class="form-group">
+                                                                <div class="col-sm-12">
+                                                                    <div class="col-xs-8 col-sm-12">
+                                                                        @Html.LabelFor(m => m.FamilyHousehold.Married, new { @class = "lbl-required" })
+                                                                    </div>
+                                                                    <div class="col-xs-6 col-sm-2">
+                                                                        <label class="radio-inline">
+                                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 1, new { tabIndex = "22", id = "Married", @disabled = "disabled" })
+                                                                            <span>Yes</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="col-xs-6 col-sm-2">
+                                                                        <label class="radio-inline">
+                                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 2, new { tabIndex = "22", id = "Married1", @disabled = "disabled" })
+                                                                            <span>No  </span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
                                                     </div>
-                                                </div>
-                                                <div class="row col-sm-12">
-                                                    <div class="col-lg-6 adddivspace" id="divrelationshipparent" style="display:none;">
+                                                    <div class="row col-sm-12">
+                                                        <div class="col-lg-6 adddivspace" id="divParentrelatioship" style="display:none;">
+                                                            <div class="form-group">
+                                                                <div class="col-xs-8">
+                                                                    @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @class = "lbl-requried" })
+                                                                </div>
+                                                                <div class="col-xs-9">
+                                                                    @Html.TextBoxFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @id = "ParentRelatioshipOther", placeholder = "Other Relationship", maxlength = "20", @class = "form-control", tabIndex = "25", @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
                                                         <div class="form-group">
-                                                            <div class="col-sm-12">
-                                                                @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioship, new { @class = "lbl-required" })
+                                                            <div class="col-xs-8 col-sm-12">
+                                                                @Html.LabelFor(m => m.FamilyHousehold.RentType, new { @class = "icc_label" })
                                                             </div>
-                                                            <div class="col-sm-9">
-
-                                                                @{
-                                                                    List<SelectListItem> ParentRelatioshipList = new List<SelectListItem>();
-                                                                }
-                                                                @Html.DropDownListFor(m => m.FamilyHousehold.ParentRelatioship, new SelectList(ParentRelatioshipList, "Value", "Text", Model.FamilyHousehold.ParentRelatioship), new { @id = "ParentRelatioship", @class = "form-control", onchange = "ShowdivParentotherrelationship();", @disabled = "disabled" })
+                                                            <div class="col-xs-6 col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "1", new { tabIndex = "12", id = "RentType1", onchange = "Renting(this);" })
+                                                                    <span>Renting </span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "2", new { tabIndex = "13", id = "RentType2", onchange = "Buying(this);" })
+                                                                    <span>Buying</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "3", new { tabIndex = "14", id = "RentType3", onchange = "SubsidizedRent(this);" })
+                                                                    <span>Subsidized Rent</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-6">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "4", new { tabIndex = "15", id = "RentType4", onchange = "NoPayment(this);" })
+                                                                    <span>No Payment </span>
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-6 adddivspace" id="married" style="display:none;">
+
+                                                    <div class="col-lg-6 col-md-12 col-sm-12 adddivspace" id="chk">
+
                                                         <div class="form-group">
-                                                            <div class="col-sm-12">
-                                                                <div class="col-xs-8 col-sm-12">
-                                                                    @Html.LabelFor(m => m.FamilyHousehold.Married, new { @class = "lbl-required" })
+                                                            <div class="col-xs-8 col-sm-12">
+                                                                <label class="icc_label">Federal or Other Assistance <sup style="color:red;">*</sup></label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.TANF, new { @id = "TANF", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "16" })
+                                                                    <span>TANF</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.SSI, new { @id = "SSI", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "17" })
+                                                                    <span>SSI</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.SNAP, new { @id = "SNAP", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "18" })
+                                                                    <span>SNAP</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.WIC, new { @id = "WIC", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "19" })
+
+
+                                                                    <span>WIC</span>
+                                                                </label>
+                                                            </div>
+
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    @Html.CheckBoxFor(m => m.FamilyHousehold.NONE, new { @id = "None", @class = "minimal", @onchange = "uncheckdata();", tabIndex = "20" })
+                                                                    <span>NONE</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="row col-lg-12">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+                                                            <div class="form-group">
+                                                                <div class="col-lg-8 col-sm-12 col-xs-12">
+                                                                    <label for="email" class="icc_label">Primary Language Spoken  <sup style="color:red;">*</sup></label>
                                                                 </div>
-                                                                <div class="col-xs-6 col-sm-2">
-                                                                    <label class="radio-inline">
-                                                                        @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 1, new { tabIndex = "22", id = "Married", @disabled = "disabled" })
-                                                                        <span>Yes</span>
-                                                                    </label>
+                                                                <div class="col-lg-6 col-sm-9 col-xs-12">
+                                                                    @Html.DropDownListFor(m => m.FamilyHousehold.PrimaryLanguauge, new SelectList(Model.FamilyHousehold.langList, "LangId", "Name"), new { @id = "PrimaryLanguauge", @class = "form-control", onchange = "Showotherlanguage();", tabIndex = "21" })
                                                                 </div>
-                                                                <div class="col-xs-6 col-sm-2">
-                                                                    <label class="radio-inline">
-                                                                        @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 2, new { tabIndex = "22", id = "Married1", @disabled = "disabled" })
-                                                                        <span>No  </span>
-                                                                    </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 adddivspace">
+                                                            <div class="form-group">
+                                                                <div class="col-sm-12 no-pad-res">
+                                                                    <div class="col-md-8 col-sm-12 col-xs-12">
+                                                                        <label class="icc_label lbl-required">Does family need an Interpreter?</label>
+                                                                    </div>
+                                                                    <div class="col-xs-6 col-sm-2">
+                                                                        <label class="radio-inline">
+                                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 1, new { tabIndex = "22", id = "Interpretor" })
+                                                                            <span>Yes</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="col-xs-6 col-sm-2">
+                                                                        <label class="radio-inline">
+                                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 2, new { tabIndex = "22", id = "Interpretor1" })
+                                                                            <span>No  </span>
+                                                                        </label>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                </div>
-                                                <div class="row col-sm-12">
-                                                    <div class="col-lg-6 adddivspace" id="divParentrelatioship" style="display:none;">
+                                                    <div class="col-lg-6 adddivspace" id="div2" style="display:none;">
                                                         <div class="form-group">
                                                             <div class="col-xs-8">
-                                                                @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @class = "lbl-requried" })
+                                                                <label for="email" class="icc_label">Other Language Detail</label>
                                                             </div>
                                                             <div class="col-xs-9">
-                                                                @Html.TextBoxFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @id = "ParentRelatioshipOther", placeholder = "Other Relationship", maxlength = "20", @class = "form-control", tabIndex = "25", @disabled = "disabled" })
+                                                                @Html.TextBoxFor(m => m.FamilyHousehold.OtherLanguageDetail, new { @id = "OtherLanguageDetail", placeholder = "Other Language Detail", maxlength = "20", @class = "form-control", tabIndex = "25" })
+
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-lg-6 col-md-12 col-sm-12 adddivspace">
-                                                    <div class="form-group">
-                                                        <div class="col-xs-8 col-sm-12">
-                                                            @Html.LabelFor(m => m.FamilyHousehold.RentType, new { @class = "icc_label" })
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "1", new { tabIndex = "12", id = "RentType1", onchange = "Renting(this);" })
-                                                                <span>Renting </span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "2", new { tabIndex = "13", id = "RentType2", onchange = "Buying(this);" })
-                                                                <span>Buying</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "3", new { tabIndex = "14", id = "RentType3", onchange = "SubsidizedRent(this);" })
-                                                                <span>Subsidized Rent</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-6">
-                                                            <label class="radio-inline">
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "4", new { tabIndex = "15", id = "RentType4", onchange = "NoPayment(this);" })
-                                                                <span>No Payment </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-6 col-md-12 col-sm-12 adddivspace" id="chk">
-
-                                                    <div class="form-group">
-                                                        <div class="col-xs-8 col-sm-12">
-                                                            <label class="icc_label">Federal or Other Assistance <sup style="color:red;">*</sup></label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="checkbox-inline">
-                                                                @Html.CheckBoxFor(m => m.FamilyHousehold.TANF, new { @id = "TANF", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "16" })
-                                                                <span>TANF</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="checkbox-inline">
-                                                                @Html.CheckBoxFor(m => m.FamilyHousehold.SSI, new { @id = "SSI", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "17" })
-                                                                <span>SSI</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="checkbox-inline">
-                                                                @Html.CheckBoxFor(m => m.FamilyHousehold.SNAP, new { @id = "SNAP", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "18" })
-                                                                <span>SNAP</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="checkbox-inline">
-                                                                @Html.CheckBoxFor(m => m.FamilyHousehold.WIC, new { @id = "WIC", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "19" })
 
 
-                                                                <span>WIC</span>
-                                                            </label>
-                                                        </div>
-
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="checkbox-inline">
-                                                                @Html.CheckBoxFor(m => m.FamilyHousehold.NONE, new { @id = "None", @class = "minimal", @onchange = "uncheckdata();", tabIndex = "20" })
-                                                                <span>NONE</span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
 
 
-                                                <div class="row col-lg-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+
+                                                    <!--new method 12-14-18-->
+                                                    <div class="col-lg-6 adddivspace" id="makedFamilyHomeless"
+                                                         style="@(Model.FamilyHousehold.HomeType != 1 ? "display:none;" : "")">
                                                         <div class="form-group">
-                                                            <div class="col-lg-8 col-sm-12 col-xs-12">
-                                                                <label for="email" class="icc_label">Primary Language Spoken  <sup style="color:red;">*</sup></label>
+                                                            <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+
+                                                                @Html.LabelFor(m => m.FamilyHousehold.FamilyHasAddress, new { @class = "icc_label lbl-required" })
+
                                                             </div>
-                                                            <div class="col-lg-6 col-sm-9 col-xs-12">
-                                                                @Html.DropDownListFor(m => m.FamilyHousehold.PrimaryLanguauge, new SelectList(Model.FamilyHousehold.langList, "LangId", "Name"), new { @id = "PrimaryLanguauge", @class = "form-control", onchange = "Showotherlanguage();", tabIndex = "21" })
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 1, new { tabIndex = "23", @id = "hasNewAddress1", })
+
+                                                                    <span>Yes</span>
+                                                                </label>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6 adddivspace">
-                                                        <div class="form-group">
-                                                            <div class="col-sm-12 no-pad-res">
-                                                                <div class="col-md-8 col-sm-12 col-xs-12">
-                                                                    <label class="icc_label lbl-required">Does family need an Interpreter?</label>
-                                                                </div>
-                                                                <div class="col-xs-6 col-sm-2">
-                                                                    <label class="radio-inline">
-                                                                        @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 1, new { tabIndex = "22", id = "Interpretor" })
-                                                                        <span>Yes</span>
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-xs-6 col-sm-2">
-                                                                    <label class="radio-inline">
-                                                                        @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 2, new { tabIndex = "22", id = "Interpretor1" })
-                                                                        <span>No  </span>
-                                                                    </label>
-                                                                </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 2, new { tabIndex = "24", @id = "hasNewAddress1" })
+
+                                                                    <span>No  </span>
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     </div>
+
+
+
                                                 </div>
-
-                                                <div class="col-lg-6 adddivspace" id="div2" style="display:none;">
-                                                    <div class="form-group">
-                                                        <div class="col-xs-8">
-                                                            <label for="email" class="icc_label">Other Language Detail</label>
-                                                        </div>
-                                                        <div class="col-xs-9">
-                                                            @Html.TextBoxFor(m => m.FamilyHousehold.OtherLanguageDetail, new { @id = "OtherLanguageDetail", placeholder = "Other Language Detail", maxlength = "20", @class = "form-control", tabIndex = "25" })
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-
-
-
-                                                <!--new method 12-14-18-->
-                                                <div class="col-lg-6 adddivspace" id="makedFamilyHomeless"
-                                                     style="@(Model.FamilyHousehold.HomeType != 1 ? "display:none;" : "")">
-                                                    <div class="form-group">
-                                                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
-
-                                                            @Html.LabelFor(m => m.FamilyHousehold.FamilyHasAddress, new { @class = "icc_label lbl-required" })
-
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="radio-inline">
-
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 1, new { tabIndex = "23", @id = "hasNewAddress1", })
-
-                                                                <span>Yes</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-2">
-                                                            <label class="radio-inline">
-
-                                                                @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 2, new { tabIndex = "24", @id = "hasNewAddress1" })
-
-                                                                <span>No  </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-
                                             </div>
+
                                         </div>
 
-                                    </div>
-
-                                </fieldset>
-                            </div>
+                                    </fieldset>
+                                </div>
                         <!-- Family-->
                         <!---New Address-->
-                                                                    <div class="col-lg-12 col-xs-12 contact-entry-div" id="newAddressDiv" style="@((Model.FamilyHousehold.HomeType == 1 && Model.FamilyHousehold.FamilyHasAddress == 1) ||homeFound==true ? "display:block;" : "display:none;")">
+                                                                        <div class="col-lg-12 col-xs-12 contact-entry-div" id="newAddressDiv" style="@((Model.FamilyHousehold.HomeType == 1 && Model.FamilyHousehold.FamilyHasAddress == 1) ||homeFound==true ? "display:block;" : "display:none;")">
 
 
-                                                                        @{
+                                                                            @{
 
-                                                                            string householdAddress = (Model.FamilyHousehold.HomeType == 1 && Model.FamilyHousehold.FamilyHasAddress == 1 && ViewBag.HomeFound == false) ? "Contact Address" : "New Address";
-                                                                        }
+                                                                                string householdAddress = (Model.FamilyHousehold.HomeType == 1 && Model.FamilyHousehold.FamilyHasAddress == 1 && ViewBag.HomeFound == false) ? "Contact Address" : "New Address";
+                                                                            }
 
 
-                                                                        <fieldset>
-                                                                            <legend id="contact-legend">@householdAddress</legend>
+                                                                            <fieldset>
+                                                                                <legend id="contact-legend">@householdAddress</legend>
 
-                                                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                                                                <div class="add-useragform">
+                                                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                                                    <div class="add-useragform">
 
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.Street, new { @class = "icc_label lbl-required" })
-                                                                                            @Html.TextBoxFor(m => m.NewAddressHousehold.Street, new { @id = "Street1", @class = "form-control", @maxlength = "50", @onblur = "CheckAddressNew(0);", @placeholder = "Address", @tabindex = "3" })
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+                                                                                            <div class="form-group">
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.Street, new { @class = "icc_label lbl-required" })
+                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.Street, new { @id = "Street1", @class = "form-control", @maxlength = "50", @onblur = "CheckAddressNew(0);", @placeholder = "Address", @tabindex = "3" })
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.StreetName, new { @class = "icc_label" })
-                                                                                            @Html.TextBoxFor(m => m.NewAddressHousehold.StreetName, new { @id = "StreetName1", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddressNew(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+                                                                                            <div class="form-group">
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.StreetName, new { @class = "icc_label" })
+                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.StreetName, new { @id = "StreetName1", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddressNew(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.ZipCode, new { @class = "icc_label lbl-required" })
-                                                                                            @Html.TextBoxFor(m => m.NewAddressHousehold.ZipCode, new { @id = "ZipCode1", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCodeNew(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+                                                                                            <div class="form-group">
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.ZipCode, new { @class = "icc_label lbl-required" })
+                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.ZipCode, new { @id = "ZipCode1", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCodeNew(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+                                                                                            <div class="form-group">
 
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.City, new { @class = "icc_label lbl-required" })
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.City, new { @class = "icc_label lbl-required" })
 
                                                                                                 <select id="City1" name="NewAddressHousehold.City" class="form-control" tabindex="6"  onblur = "CheckAddressNew(2);">
                                                                                                     <option value="@Model.NewAddressHousehold.City">@Model.NewAddressHousehold.City</option>
                                                                                                 </select>
 
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
-
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.State, new { @class = "icc_label lbl-required" })
-                                                                                            @Html.TextBoxFor(m => m.NewAddressHousehold.State, new { @id = "State1", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
-
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-                                                                                        <div class="form-group">
-                                                                                            @Html.LabelFor(m => m.NewAddressHousehold.County, new { @class = "icc_label lbl-required" })
-
-                                                                                            @Html.TextBoxFor(m => m.NewAddressHousehold.County, new { @id = "County1", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
-
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-
-                                                                                        @if (Model.FamilyHousehold.docstorage == 0)
-                                                                                        {
-
-
-
-
-
-
-                                                                                            <div class="form-group">
-                                                                                                <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
-                                                                                                <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
-                                                                                                    <span class="glossy-button-before"></span>
-                                                                                                    <span class="glossy-button-after"></span>
-                                                                                                    <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
-                                                                                                        @(!string.IsNullOrEmpty(Model.NewAddressHousehold.HFileInString) ? "Update Document" : "Add Document")
-                                                                                                    </span>
-                                                                                                </button>
-
-
-                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;display:none;", tabIndex = "6" })
-                                                                                                <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
-                                                                                                    @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                                                                    <label style="width:45px;">Paper</label>
-                                                                                                </div>
                                                                                             </div>
-
-
-                                                                                        }
-                                                                                        @if (Model.FamilyHousehold.docstorage == 2)
-                                                                                        {
-
+                                                                                        </div>
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
                                                                                             <div class="form-group">
-                                                                                                <label>Address Verification Form  </label>
 
-                                                                                                <div class="cont-sz">
-                                                                                                    @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
-                                                                                                    <label style="width:45px;">Paper</label>
-                                                                                                </div>
-
-
-                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
-
-
-                                                                                                <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);" style="display:none;">
-                                                                                                    <span class="glossy-button-before"></span>
-                                                                                                    <span class="glossy-button-after"></span>
-                                                                                                    <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
-                                                                                                        @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
-                                                                                                    </span>
-                                                                                                </button>
-
-
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.State, new { @class = "icc_label lbl-required" })
+                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.State, new { @id = "State1", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
 
                                                                                             </div>
+                                                                                        </div>
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+                                                                                            <div class="form-group">
+                                                                                                @Html.LabelFor(m => m.NewAddressHousehold.County, new { @class = "icc_label lbl-required" })
+
+                                                                                                @Html.TextBoxFor(m => m.NewAddressHousehold.County, new { @id = "County1", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+
+                                                                                            @if (Model.FamilyHousehold.docstorage == 0)
+                                                                                            {
 
 
-                                                                                        }
-                                                                                    </div>
-
-
-                                                                                    <div class="col-lg-6 col-md-12 col-sm-12">
-
-                                                                                        <label id="lblFileName"></label>
-
-
-                                                                                        @if (!string.IsNullOrEmpty(Model.NewAddressHousehold.HFileInString))
-                                                                                        {
 
 
 
 
-                                                                                            <div class="glossy-attachment-icons-block" data-attach-id="8">
-                                                                                                <div class="glossy-attachment-icon" data-toggle="tooltip" title="@Model.NewAddressHousehold.HFileName">
-                                                                                                    @switch (Model.NewAddressHousehold.HFileExtension)
-                                                                                                    {
-                                                                                                        case ".png":
-                                                                                                            <img src="@Url.Content("~/Images/picture.png")" />
-                                                                                                            break;
-                                                                                                        case ".jpg":
-                                                                                                            <img src="@Url.Content("~/Images/picture.png")" />
-                                                                                                            break;
-
-                                                                                                        case ".doc":
-                                                                                                            <img src="@Url.Content("~/Images/doc.png")" />
-                                                                                                            break;
-
-                                                                                                        case ".xls":
-                                                                                                            <img src="@Url.Content("~/Images/excel.png")" />
-                                                                                                            break;
-
-                                                                                                        case ".pdf":
-                                                                                                            <img src="@Url.Content("~/Images/pdf.png")" />
-                                                                                                            break;
-                                                                                                        case ".txt":
-                                                                                                            <img src="@Url.Content("~/Images/file.png")" />
-                                                                                                            break;
+                                                                                                <div class="form-group">
+                                                                                                    <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                                                                                    <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);">
+                                                                                                        <span class="glossy-button-before"></span>
+                                                                                                        <span class="glossy-button-after"></span>
+                                                                                                        <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                                                            @(!string.IsNullOrEmpty(Model.NewAddressHousehold.HFileInString) ? "Update Document" : "Add Document")
+                                                                                                        </span>
+                                                                                                    </button>
 
 
-                                                                                                        default:
-                                                                                                            <img src="@Url.Content("~/Images/file.png")" />
-                                                                                                            break;
-
-                                                                                                    }
-                                                                                                    <div class="glossy-attach-icon-div">
-                                                                                                        <i class="fa fa-trash delete-file" data-toggle="popover" onclick="deleteAttachment(this)" data-placement="top" aria-hidden="true" title="Delete Attachment"></i>
-
-
-                                                                                                        <a href="javascript:void(window.open('@Url.Action("GetAttachments","AgencyUser",new { id=string.Concat(Model.NewAddressHousehold.HouseholdId,",Household,0")})' , 'newwindow','width=500,height=500'));">
-                                                                                                            <i class="fa fa-eye view-file" data-toggle="tooltip" tile="view file" aria-hidden="true">
-                                                                                                            </i>
-                                                                                                        </a>
-
+                                                                                                    @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;display:none;", tabIndex = "6" })
+                                                                                                    <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                                                                        @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                                                                        <label style="width:45px;">Paper</label>
                                                                                                     </div>
                                                                                                 </div>
+
+
+                                                                                            }
+                                                                                            @if (Model.FamilyHousehold.docstorage == 2)
+                                                                                            {
+
+                                                                                                <div class="form-group">
+                                                                                                    <label>Address Verification Form  </label>
+
+                                                                                                    <div class="cont-sz">
+                                                                                                        @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                                                                        <label style="width:45px;">Paper</label>
+                                                                                                    </div>
+
+
+                                                                                                    @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this,bindInputFile)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
+
+
+                                                                                                    <button type="button" class="custom-file-upload glossy-button-button glossy-button-hover button-pink" onclick="showCameraPopupmodal(this);" style="display:none;">
+                                                                                                        <span class="glossy-button-before"></span>
+                                                                                                        <span class="glossy-button-after"></span>
+                                                                                                        <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                                                                                                            @(!string.IsNullOrEmpty(Model.FamilyHousehold.HFileInString) ? "Update Document" : "Add Document")
+                                                                                                        </span>
+                                                                                                    </button>
+
+
+
+                                                                                                </div>
+
+
+                                                                                            }
+                                                                                        </div>
+
+
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12">
+
+                                                                                            <label id="lblFileName"></label>
+
+
+                                                                                            @if (!string.IsNullOrEmpty(Model.NewAddressHousehold.HFileInString))
+                                                                                            {
+
+
+
+
+                                                                                                <div class="glossy-attachment-icons-block" data-attach-id="8">
+                                                                                                    <div class="glossy-attachment-icon" data-toggle="tooltip" title="@Model.NewAddressHousehold.HFileName">
+                                                                                                        @switch (Model.NewAddressHousehold.HFileExtension)
+                                                                                                        {
+                                                                                                            case ".png":
+                                                                                                                <img src="@Url.Content("~/Images/picture.png")" />
+                                                                                                                break;
+                                                                                                            case ".jpg":
+                                                                                                                <img src="@Url.Content("~/Images/picture.png")" />
+                                                                                                                break;
+
+                                                                                                            case ".doc":
+                                                                                                                <img src="@Url.Content("~/Images/doc.png")" />
+                                                                                                                break;
+
+                                                                                                            case ".xls":
+                                                                                                                <img src="@Url.Content("~/Images/excel.png")" />
+                                                                                                                break;
+
+                                                                                                            case ".pdf":
+                                                                                                                <img src="@Url.Content("~/Images/pdf.png")" />
+                                                                                                                break;
+                                                                                                            case ".txt":
+                                                                                                                <img src="@Url.Content("~/Images/file.png")" />
+                                                                                                                break;
+
+
+                                                                                                            default:
+                                                                                                                <img src="@Url.Content("~/Images/file.png")" />
+                                                                                                                break;
+
+                                                                                                        }
+                                                                                                        <div class="glossy-attach-icon-div">
+                                                                                                            <i class="fa fa-trash delete-file" data-toggle="popover" onclick="deleteAttachment(this)" data-placement="top" aria-hidden="true" title="Delete Attachment"></i>
+
+
+                                                                                                            <a href="javascript:void(window.open('@Url.Action("GetAttachments","AgencyUser",new { id=string.Concat(Model.NewAddressHousehold.HouseholdId,",Household,0")})' , 'newwindow','width=500,height=500'));">
+                                                                                                                <i class="fa fa-eye view-file" data-toggle="tooltip" tile="view file" aria-hidden="true">
+                                                                                                                </i>
+                                                                                                            </a>
+
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+
+
+
+                                                                                            }
+
+
+                                                                                            <div class="setup_viewscreen-div" style="display:none;">
+                                                                                                <img id="cap-img" class="setup_viewscreen-camera-div" />
+
                                                                                             </div>
-
-
-
-                                                                                        }
-
-
-                                                                                        <div class="setup_viewscreen-div" style="display:none;">
-                                                                                            <img id="cap-img" class="setup_viewscreen-camera-div" />
 
                                                                                         </div>
 
+                                                                                        @Html.HiddenFor(m => m.NewAddressHousehold.HFileInString, new { @id = "hFileString" })
+                                                                                        @Html.HiddenFor(m => m.NewAddressHousehold.HFileName, new { @id = "hFileName", @value = "AddressVerificationForm" })
+                                                                                        @Html.HiddenFor(m => m.NewAddressHousehold.HFileExtension, new { @id = "hFileExtension", @value = ".png" })
                                                                                     </div>
 
-                                                                                    @Html.HiddenFor(m => m.NewAddressHousehold.HFileInString, new { @id = "hFileString" })
-                                                                                    @Html.HiddenFor(m => m.NewAddressHousehold.HFileName, new { @id = "hFileName", @value = "AddressVerificationForm" })
-                                                                                    @Html.HiddenFor(m => m.NewAddressHousehold.HFileExtension, new { @id = "hFileExtension", @value = ".png" })
                                                                                 </div>
 
-                                                                            </div>
 
 
 
-
-                                                                        </fieldset>
-                                                                    </div>
+                                                                            </fieldset>
+                                                                        </div>
 
                         <!---New Address-->
                         <!---Case Notes-->
                         <!-- Family -->
-                                                                            <div class="col-lg-12 col-xs-12 contact-entry-div" id="caseNoteDiv" style="margin-top: 20px; margin-bottom: 20px; display:none;">
+                                                                                <div class="col-lg-12 col-xs-12 contact-entry-div" id="caseNoteDiv" style="margin-top: 20px; margin-bottom: 20px; display:none;">
 
-                                                                                <fieldset>
-                                                                                    <legend id="contact-legend">Case Note</legend>
+                                                                                    <fieldset>
+                                                                                        <legend id="contact-legend">Case Note</legend>
 
                                                                                         <div class="case_ic_family" id="clientcasenote-div">
                                                                                            
@@ -2638,23 +2460,23 @@
                                                                                         <span class="glossy-button-before"></span>
                                                                                         <span class="glossy-button-after"></span>
 
-                                                                                </button>
-                                                                                &nbsp;&nbsp;
-                                                                                <button class="glossy-button-button glossy-button-hover button-red" type="button" id="householdExit">
-                                                                                    Exit
-                                                                                    <span class="glossy-button-before"></span>
-                                                                                    <span class="glossy-button-after"></span>
+                                                                                    </button>
+                                                                                    &nbsp;&nbsp;
+                                                                                    <button class="glossy-button-button glossy-button-hover button-red" type="button" id="householdExit">
+                                                                                        Exit
+                                                                                        <span class="glossy-button-before"></span>
+                                                                                        <span class="glossy-button-after"></span>
 
-                                                                                </button>
-                                                                            </div>
+                                                                                    </button>
+                                                                                </div>
 
-                        @Html.HiddenFor(m=>m.FamilyHousehold.Encrypthouseholid)
-                         @Html.HiddenFor(m=>m.FamilyHousehold.HouseholdId)
+                                                                                @Html.HiddenFor(m => m.FamilyHousehold.Encrypthouseholid)
+                                                                                @Html.HiddenFor(m => m.FamilyHousehold.HouseholdId)
 
-                        @Html.Hidden("householdId", Model.FamilyHousehold.HouseholdId)
+                                                                                @Html.Hidden("householdId", Model.FamilyHousehold.HouseholdId)
 
-                            @Html.Hidden("enhousehold",Model.FamilyHousehold.Encrypthouseholid)
-                                     
+                                                                                @Html.Hidden("enhousehold", Model.FamilyHousehold.Encrypthouseholid)
+
 
                                                                                 @Html.HiddenFor(m => m.HasCaseNoteDetails)
                                                                                 @Html.HiddenFor(m => m.HasNewAddress)
@@ -2663,7 +2485,8 @@
                         </div>
                     </div>
                 </div>
-               
+                
+
             </div>
         </div>
     </div>
@@ -2677,5 +2500,6 @@
     @{
         Html.RenderPartial(Url.Content("~/Views/Partialviews/_FileInput_CameraUploadPartial.cshtml"));
     }
+
 }
 

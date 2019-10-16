@@ -1,5 +1,4 @@
-﻿@*@model FingerprintsModel.UnscheduledSchoolDayModal*@
-
+﻿
 
 @{
     ViewBag.Title = Fingerprints.LocalResource.Resources.MakeupSchoolDays;
@@ -190,8 +189,8 @@
 
 @section Script
 {
-<script src="~/Scripts/jquery.signalR-2.0.2.min.js"></script>
-<script src="/signalr/hubs"></script>
+    <script src="~/Scripts/jquery.signalR-2.0.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
 
     <script src="~/Scripts/multiselect.js"></script>
 
@@ -225,7 +224,7 @@
             sortColumn: null,
             documentExtensionArray: [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"],
             referenceId: 0,
-         
+
 
 
 
@@ -262,6 +261,7 @@
                 'inputoptionalClassDayReason': null,
                 'table': null,
                 'tbody': null,
+
                 'dropdownRecordsPerpage': null,
                 'buttonPagingFirst': null,
                 'buttonPagingBack': null,
@@ -291,7 +291,7 @@
                 'modal_div_uploadDocument_image_gallery': null,
                 'modallblCenter': null,
                 'modallblClassroom': null,
-                'modallblClassDate':null
+                'modallblClassDate': null
 
             },
 
@@ -301,7 +301,6 @@
                 datatype: null,
                 data: null,
                 async: true,
-                //  contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 contentType: "application/json; charset=utf-8",
                 processData: true
             },
@@ -331,12 +330,14 @@
                 self.elements.divTableResponsive = $('#div-table-responsive');
                 self.elements.table = self.elements.divTableResponsive.find('#schedule-school-table')
                 self.elements.tbody = self.elements.table.find('tbody');
+
                 self.elements.dropdownRecordsPerpage = $('#ddlpagetodisplay');
                 self.elements.buttonPagingFirst = $('#ulPaging').find('#First');
                 self.elements.buttonPagingBack = $('#ulPaging').find('#Back');
                 self.elements.buttonPagingNext = $('#ulPaging').find('#Next');
                 self.elements.buttonPagingLast = $('#ulPaging').find('#Last');
                 self.elements.dropdownPageNumber = $('#ddlpaging');
+
                 self.elements.spanTotalRecord = self.elements.divTableResponsive.find('#totalCountSpan');
                 self.elements.modalEmailReport = $('#modal-email-report');
                 self.elements.tbodyEmailSent = self.elements.modalEmailReport.find('#tbody-emailsent');
@@ -365,13 +366,13 @@
 
 
                     event.preventDefault();
-              
+
                     self.getEmailReport($unscheduledID);
 
                 });
 
 
-            
+
 
                 $(document).on('focusout', '#modal-email-report .txt-parent-email', function () {
                    
@@ -392,7 +393,7 @@
 
                         if ($(this).closest('.tab-pane').attr('id') == 'Noemails') {
                             noteSection = '<div>\
-                            <h3><ins><strong>'+_langList.AddEmailAddress+'</strong></ins></h3>\
+                            <h3><ins><strong>'+ _langList.AddEmailAddress + '</strong></ins></h3>\
                             <div>\
                             <div>\
                         <strong>Existing Email Address: <pre>Not Available</pre></strong>\
@@ -404,7 +405,7 @@
                         }
                         else {
                             noteSection = '<div>\
-                            <h3><ins><strong>'+_langList.Changeemailaddress+'</strong></ins></h3>\
+                            <h3><ins><strong>'+ _langList.Changeemailaddress + '</strong></ins></h3>\
                             <div>\
                             <div>\
                         <strong>Existing Email Address: <pre>' + oldEmail + '</pre></strong>\
@@ -479,13 +480,6 @@
 
 
 
-                self.elements.modalEmailReport.on('show.bs.modal', function (e) {
-                    //    e.preventDefault();
-
-
-
-
-                });
 
 
 
@@ -544,7 +538,6 @@
                 self.elements.tbody.find('.btn-delete-trans').on('click', function () {
 
 
-                    // var selfEle = self.elements.tbody.find('.btn-delete-trans');
                     var selfEle = $(this);
 
                     var $transId = selfEle.siblings('#item_UnscheduledSchoolDayID').val();
@@ -560,7 +553,7 @@
                         closeByKeyboard: false,
 
                         buttons: [{
-                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> '+_langList.Cancel+'',
+                            label: '<span class="glossy-button-after"></span> <span class="glossy-button-before"></span> ' + _langList.Cancel + '',
                             cssClass: 'glossy-button-button button-green button-red',
                             action: function (dialogItself) {
                                 dialogItself.close();
@@ -573,11 +566,7 @@
 
                                 self.delteUnscheduledClassDay($transId, dialogItself);
 
-                                //window.setTimeout(function () {
-
-                                //    dialogItself.close();
-
-                                //}, 1000);
+                               
                             }
                         }]
                     });
@@ -652,10 +641,7 @@
 
                     var $conflictDays = self.classroomsJson.filter(function (json) {
                         return json[$thisDay] == true
-                        //        && self.elements.dropdownClassroom.val().filter(function (classroom) {
-
-                        //        return self.elements.dropdownClassroom.val().indexOf(json.ClassroomID) > -1;
-                        //});
+                        
                     });
 
                     var $conflictClassrooms = $conflictDays.filter(function (classroom) {
@@ -670,7 +656,7 @@
 
 
                     if ($conflictClassrooms.length > 0) {
-                        //self.elements.inputClassDate.popover('destroy');
+                       
 
 
                         var $classDiv = '';
@@ -689,7 +675,7 @@
                         var $message = ' <div class="col-xs-12">' + $classDiv + '</div>\
     <p>' + _langList.Uncheckaboveclassrooms + '</p>'
 
-                        self.elements.inputClassDate.attr({ 'title': ''+_langList.Datefallsinactualclassdays+' <i style="float:right; cursor:pointer;" class="fa fa-times close-popover" aria-hidden="true"></i>', 'data-content': $message });
+                        self.elements.inputClassDate.attr({ 'title': '' + _langList.Datefallsinactualclassdays + ' <i style="float:right; cursor:pointer;" class="fa fa-times close-popover" aria-hidden="true"></i>', 'data-content': $message });
 
                         self.elements.inputClassDate.popover({
                             html: true,
@@ -726,8 +712,7 @@
                     },
                     async: true,
                     data: { 'centerId': cId },
-                    // traditional: true,
-                    //  contentType: "application/json; charset=utf-8",
+                    
                     success: function (data) {
                         debugger;
                         self.callbackGetClassrooms(data);
@@ -748,7 +733,7 @@
 
 
 
-                //   self.ajaxCall(self.callbackGetClassrooms);
+               
 
 
             },
@@ -822,8 +807,8 @@
 
 
                     debugger;
-                  
-                  
+
+
 
 
 
@@ -845,7 +830,7 @@
                         console.log(percentage + ' ' + message);
                         ProgressBarModal("show", message + " " + percentage);
                         $('#ProgressMessage').width(percentage);
-                        
+
                         if (percentage == "100%") {
                             ProgressBarModal();
                         }
@@ -856,7 +841,7 @@
                     });
 
 
-                   
+
 
                     /* Connection HUB*/
                 }
@@ -871,14 +856,8 @@
                                                                 && self.elements.dropdownoptionalClassDayReason.val() != 'Other' ? self.elements.dropdownoptionalClassDayReason.val() : '0';
 
                 self.dataParameters.UnscheduledSchoolDayReason = self.elements.inputoptionalClassDayReason.is(':visible') ? self.elements.inputoptionalClassDayReason.val() : '';
-
-                //self.dataParameters.RequestedPage = self.elements.dropdownPageNumber.val() ==null?self.requestedPage: self.elements.dropdownPageNumber.val();
-                //self.dataParameters.PageSize = self.elements.dropdownRecordsPerpage.val() == null ? self.pageSize : self.elements.dropdownRecordsPerpage.val();
-
-
                 self.dataParameters.RequestedPage = self.requestedPage;
                 self.dataParameters.PageSize = self.pageSize;
-
                 self.dataParameters.SortOrder = self.sortOrder;
                 self.dataParameters.SortColumn = self.sortColumn;
 
@@ -899,7 +878,6 @@
                     data: self.ajaxOptions.data,
                     traditional: true,
                     processData: self.ajaxOptions.processData,
-                    // contentType: "application/json; charset=utf-8",
                     contentType: self.ajaxOptions.contentType,
                     success: function (data) {
                         debugger;
@@ -962,12 +940,11 @@
                                 var WorkNo = (sentEmail.WorkPhone != null && sentEmail.WorkPhone != '') ? sentEmail.WorkPhone : 'N/A';
 
                                 var Email = (sentEmail.EmailId == '') ? '' : sentEmail.EmailId;
-                                //   var isEmail = (sentEmail.EmailId == '') ? 'No' : 'Yes';
 
                                 sentEmailBody += '<tr data-row=' + indexEmail + ' role="row" id="package' + i + '"  >\
-                                                            <td role="gridcell" data-title='+_langList.Client+'><p data-accesskey='+ sentEmail.ClientId + '>' + sentEmail.ChildName + '</p></td>\
-                                                            <td role="gridcell" data-title='+_langList.ParentName+' old-email=' + sentEmail.EmailId + '><p>' + sentEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="'+_langList.Changeemailaddress+'" accesskey=' + sentEmail.ParentId + '>' + sentEmail.EmailId + '</a>)</p></td>\
-                                                            <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                                            <td role="gridcell" data-title='+ _langList.Client + '><p data-accesskey=' + sentEmail.ClientId + '>' + sentEmail.ChildName + '</p></td>\
+                                                            <td role="gridcell" data-title='+ _langList.ParentName + ' old-email=' + sentEmail.EmailId + '><p>' + sentEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="' + _langList.Changeemailaddress + '" accesskey=' + sentEmail.ParentId + '>' + sentEmail.EmailId + '</a>)</p></td>\
+                                                            <td role="gridcell" data-title='+ _langList.PhoneNumber + '>\
                                                                 <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
                                                                     <tbody>\
                                                                         <tr style="line-height:normal;">\
@@ -999,22 +976,22 @@
 
 
 
-                                             if (result.Result[2].length > 0) {
-                                                 $('.bounced-badge').html(result.Result[2].length);
+                        if (result.Result[2].length > 0) {
+                            $('.bounced-badge').html(result.Result[2].length);
 
-                                                 $.each(result.Result[2], function (i, bounceEmail) {
+                            $.each(result.Result[2], function (i, bounceEmail) {
 
 
-                                                     var HomeNo = (bounceEmail.HomePhone != null && bounceEmail.HomePhone != '') ? bounceEmail.HomePhone : 'N/A';
-                                                     var MobileNo = (bounceEmail.MobilePhone != null && bounceEmail.MobilePhone != '') ? bounceEmail.MobilePhone : 'N/A';
-                                                     var WorkNo = (bounceEmail.WorkPhone != null && bounceEmail.WorkPhone != '') ? bounceEmail.WorkPhone : 'N/A';
+                                var HomeNo = (bounceEmail.HomePhone != null && bounceEmail.HomePhone != '') ? bounceEmail.HomePhone : 'N/A';
+                                var MobileNo = (bounceEmail.MobilePhone != null && bounceEmail.MobilePhone != '') ? bounceEmail.MobilePhone : 'N/A';
+                                var WorkNo = (bounceEmail.WorkPhone != null && bounceEmail.WorkPhone != '') ? bounceEmail.WorkPhone : 'N/A';
 
-                                                     var Email = (bounceEmail.EmailId == '') ? '' : bounceEmail.EmailId;
+                                var Email = (bounceEmail.EmailId == '') ? '' : bounceEmail.EmailId;
 
-                                                     bouncedEmailBody += '<tr role="row"  data-row=' + indexEmail + ' id="package' + indexEmail + '"  >\
-                                                                                 <td role="gridcell" data-title='+_langList.Client+'><p  data-accesskey=' + bounceEmail.ClientId + '>' + bounceEmail.ChildName + '</p></td>\
-                                                                                 <td role="gridcell" data-title='+_langList.ParentName+' old-email=' + bounceEmail.EmailId + ' ><p>' + bounceEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Update Email Address" accesskey="' + bounceEmail.ParentId + '">' + bounceEmail.EmailId + '</a>)</p></td>\
-                                                                                 <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                bouncedEmailBody += '<tr role="row"  data-row=' + indexEmail + ' id="package' + indexEmail + '"  >\
+                                                                                 <td role="gridcell" data-title='+ _langList.Client + '><p  data-accesskey=' + bounceEmail.ClientId + '>' + bounceEmail.ChildName + '</p></td>\
+                                                                                 <td role="gridcell" data-title='+ _langList.ParentName + ' old-email=' + bounceEmail.EmailId + ' ><p>' + bounceEmail.ParentName + ' (<a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Update Email Address" accesskey="' + bounceEmail.ParentId + '">' + bounceEmail.EmailId + '</a>)</p></td>\
+                                                                                 <td role="gridcell" data-title='+ _langList.PhoneNumber + '>\
                                                                                      <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
                                                                                          <tbody>\
                                                                                              <tr style="line-height:normal;">\
@@ -1034,19 +1011,19 @@
                                                                                  </td>\
                                                                              </tr>';
 
-                                                     bouncedEmailBody += '<tr>\
+                                bouncedEmailBody += '<tr>\
                                      <td colspan="4" class="accordion-body collapse packageDetails1 fade out">\
                         '+ $('#emaiDivSection').html() + '\
                           <div id="caseNoteDiv_' + indexEmail + '" class="casenote-div" ></div>\
                          </tr>';
 
 
-                                                     indexEmail++;
+                                indexEmail++;
 
-                                                 });
+                            });
 
 
-                                             }
+                        }
 
 
                         if (result.Result[3].length > 0) {
@@ -1062,9 +1039,9 @@
                                 var Email = (noEmail.EmailId == '') ? '' : noEmail.EmailId;
 
                                 noEmailBody += '<tr role="row"  data-row=' + indexEmail + '  id="package' + indexEmail + '"  >\
-                                                            <td role="gridcell" data-title='+_langList.Client+'><p data-accesskey=' + noEmail.ClientId + '>' + noEmail.ChildName + '</p></td>\
-                                                            <td role="gridcell" data-title='+_langList.ParentName+'  old-email=' + noEmail.EmailId + ' ><p>' + noEmail.ParentName + ' <a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Add Email Address" accesskey=' + noEmail.ParentId + '>&nbsp;Add Email Address </a></p></td>\
-                                                            <td role="gridcell" data-title='+_langList.PhoneNumber+'>\
+                                                            <td role="gridcell" data-title='+ _langList.Client + '><p data-accesskey=' + noEmail.ClientId + '>' + noEmail.ChildName + '</p></td>\
+                                                            <td role="gridcell" data-title='+ _langList.ParentName + '  old-email=' + noEmail.EmailId + ' ><p>' + noEmail.ParentName + ' <a href="javascript:void(0);" class="email-casenote" data-toggle="tooltip"  title="Add Email Address" accesskey=' + noEmail.ParentId + '>&nbsp;Add Email Address </a></p></td>\
+                                                            <td role="gridcell" data-title='+ _langList.PhoneNumber + '>\
                                                                 <table class="phone-table phone-no-table col-xs-12" style="padding:0;">\
                                                                     <tbody>\
                                                                         <tr style="line-height:normal;">\
@@ -1096,7 +1073,7 @@
                         }
 
 
-                        self.elements.modallblCenter.html( result.Result[4].CenterName);
+                        self.elements.modallblCenter.html(result.Result[4].CenterName);
                         self.elements.modallblClassroom.html(result.Result[4].ClassroomName);
                         self.elements.modallblClassDate.html(result.Result[4].ClassDate);
                     }
@@ -1498,6 +1475,8 @@
                 }
             },
 
+
+
             saveParentEmail: function (sourceEle, email, parentId, ele) {
                 debugger;
                 if (email.val() == null || email.val() == '') {
@@ -1516,7 +1495,6 @@
                     self.ajaxOptions.type = "POST";
                     self.ajaxOptions.datatype = "JSON";
                     self.ajaxOptions.data = JSON.stringify({ parentID: parentId, email: email.val() });
-                    // self.ajaxCall(function(){self.callbackSaveParentEmail(sourceEle, email.val())});
 
 
                     $.ajax({
@@ -1525,7 +1503,6 @@
                         datatype: self.ajaxOptions.datatype,
                         data: self.ajaxOptions.data,
                         traditional: true,
-                        //contentType: "application/json; charset=utf-8",
                         contentType: false,
                         async: false,
                         success: function (data) {
@@ -1636,7 +1613,7 @@
                             }
 
                             var $message = ' <div class="col-xs-12">' + $appendList + '</div>\
-    <p>'+_langList.Uncheckaboveclassrooms+'</p>'
+    <p>'+ _langList.Uncheckaboveclassrooms + '</p>'
 
 
 
@@ -1710,9 +1687,7 @@
                     'isEnableSorting': true,
                     'getRecordUrl': self.bindPartialUrl,
                     'dataType': 'html',
-                    //'data':{
-
-                    //},
+                    
                     'bindInitialLoad': true,
                     bindData: function (events, data) {
 
@@ -1738,7 +1713,7 @@
                                     $(span).closest('th').find('.i-asc').show();
                                     $(span).closest('th').find('.i-desc').hide();
 
-                    }
+                                }
 
                                 if (events.options.sortOrder.toLowerCase() == "desc") {
                                     $(span).closest('th').find('.i-asc').hide();
@@ -1852,12 +1827,11 @@
             }
 
 
+
         }
 
 
         $(function () {
-
-           
             ///// Progress script ////
 
             // Reference the auto-generated proxy for the hub.
@@ -1913,7 +1887,6 @@
 
                                         <span class="view-btn backto_listspan">
 
-                                            @*<a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>*@
 
                                         </span>
                                     </h2>
@@ -1981,14 +1954,14 @@
 
 
 
-                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 0 && Model.ReasonList.Count == 2) { <text> style="display:none;" </text>             }>
+                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 0 && Model.ReasonList.Count == 2) { <text> style="display:none;" </text>                 }>
 
                                         <label for="dropdownReason" class="lbl-text">@Fingerprints.LocalResource.Resources.Reason <sup>*</sup></label>
                                         @Html.DropDownList("dropdownReason", new SelectList(Model.ReasonList, "Value", "Text"), new { @class = "glossy-select" })
 
                                     </div>
 
-                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 2) { <text> style="display:none;" </text>             }>
+                                    <div class="form-group col-lg-2 col-sm-12 col-xs-12" @if (Model.ReasonList.Count > 2) { <text> style="display:none;" </text>                 }>
 
                                         <label for="dropdownReason" class="lbl-text">
                                             @if (Model.ReasonList.Count > 0)
@@ -2104,20 +2077,16 @@
                 </div>
             </div>
         </div>
-
-
-
-
     </div>
 
 
 
- @{ 
-     Html.RenderPartial("~/Views/Partialviews/_EmailReport.cshtml");
- }
+    @{
+        Html.RenderPartial("~/Views/Partialviews/_EmailReport.cshtml");
+    }
 
 
-   
+
 
 
     <div id="emaiDivSection" style="display:none;">
@@ -2132,7 +2101,7 @@
             </div>
 
             <div class="col-lg-5 col-sm-7">
-                <input type="text" class="form-control txt-parent-email" id="txtParentEmail" placeholder='@Fingerprints.LocalResource.Resources.EmailAddress' >
+                <input type="text" class="form-control txt-parent-email" id="txtParentEmail" placeholder='@Fingerprints.LocalResource.Resources.EmailAddress'>
             </div>
         </div>
     </div>
@@ -2143,32 +2112,32 @@
     }
 
 
-@*PROGRESS BAR MODAL*@
-<div class="modal fade in progress-overlay" id="mod-progress" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
-    <div class="modal-dialog progress-div">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="text-center">
-                    <div class="i-circle warning"><i class="fa fa-info-circle" style="font-size:20px;color:#00aed0;"></i></div>
-                    <div id="result" style="font-size: 1.1em; padding-bottom: 5px">
-                        <p id="progressBarParagraph"></p>
-                    </div>
-                    <div style="width: 30%; margin: 0 auto; display:none;">
-                        <div id="progressbar" style="width: 300px; height: 15px"></div>
+    @*PROGRESS BAR MODAL*@
+    <div class="modal fade in progress-overlay" id="mod-progress" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+        <div class="modal-dialog progress-div">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <div class="i-circle warning"><i class="fa fa-info-circle" style="font-size:20px;color:#00aed0;"></i></div>
+                        <div id="result" style="font-size: 1.1em; padding-bottom: 5px">
+                            <p id="progressBarParagraph"></p>
+                        </div>
+                        <div style="width: 30%; margin: 0 auto; display:none;">
+                            <div id="progressbar" style="width: 300px; height: 15px"></div>
+                            <br />
+                        </div>
+                        <div id="ProgressStripe" class="progress progress-striped active" style="position:relative; top:10px; width:100%;">
+                            <div id="ProgressMessage" class="progress-bar progress-bar-info" style="width: 100%; border:none;"></div>
+                        </div>
                         <br />
                     </div>
-                    <div id="ProgressStripe" class="progress progress-striped active" style="position:relative; top:10px; width:100%;">
-                        <div id="ProgressMessage" class="progress-bar progress-bar-info" style="width: 100%; border:none;"></div>
-                    </div>
-                    <br />
                 </div>
             </div>
+            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-content -->
+        <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
+    <!-- /.modal -->
 
 }
 

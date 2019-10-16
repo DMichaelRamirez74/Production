@@ -718,11 +718,11 @@ namespace FingerprintsData
 
         #region Get ADA Daily Attendance percentage
 
-        public void GetADASeatsDaily(ref string adaPercentage, ref string todaySeats)
+        public void GetADASeatsDaily(ref string adaPercentage, ref string todaySeats,AppUserState appUserState)
         {
             try
             {
-                StaffDetails staff = StaffDetails.GetInstance();
+            
                 DataTable _dataTable = new DataTable();
                 if (Connection.State == ConnectionState.Open)
                 {
@@ -732,9 +732,9 @@ namespace FingerprintsData
                 using (Connection = connection.returnConnection())
                 {
                     command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", appUserState.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", appUserState.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", appUserState.RoleId));
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetADAPercentageDaily";

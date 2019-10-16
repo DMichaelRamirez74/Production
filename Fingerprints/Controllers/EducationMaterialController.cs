@@ -262,7 +262,7 @@ namespace Fingerprints.Controllers
             try
             {
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                return Json(new RosterData().Getclassrooms(Centerid, staff));
+                return Json(new RosterData(staff).Getclassrooms(Centerid));
             }
             catch (Exception Ex)
             {

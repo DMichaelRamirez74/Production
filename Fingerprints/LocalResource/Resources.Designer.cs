@@ -473,67 +473,7 @@ namespace Fingerprints.LocalResource {
                 return ResourceManager.GetString("Casenotetitleisrequired", resourceCulture);
             }
         }
-        public static string Social_Work
-        {
-            get
-            {
-                return ResourceManager.GetString("Social_Work", resourceCulture);
-            }
-        }
-
-        public static string Psychology
-        {
-            get
-            {
-                return ResourceManager.GetString("Psychology", resourceCulture);
-            }
-        }
-
-        public static string Sociology
-        {
-            get
-            {
-                return ResourceManager.GetString("Sociology", resourceCulture);
-            }
-        }
-
-        public static string Human_Services
-        {
-            get
-            {
-                return ResourceManager.GetString("Human_Services", resourceCulture);
-            }
-        }
-
-        public static string Nursing
-        {
-            get
-            {
-                return ResourceManager.GetString("Nursing", resourceCulture);
-            }
-        }
-
-        public static string Early_Childhood_Education
-        {
-            get
-            {
-                return ResourceManager.GetString("Early_Childhood_Education", resourceCulture);
-            }
-        }
-        public static string Marriage_Family
-        {
-            get
-            {
-                return ResourceManager.GetString("Marriage_Family", resourceCulture);
-            }
-        }
-        public static string Other
-        {
-            get
-            {
-                return ResourceManager.GetString("Other", resourceCulture);
-            }
-        }
+      
         /// <summary>
         ///   Looks up a localized string similar to CDA.
         /// </summary>
@@ -1120,6 +1060,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Early Childhood Education.
+        /// </summary>
+        public static string Early_Childhood_Education {
+            get {
+                return ResourceManager.GetString("Early_Childhood_Education", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to East Asian Languages.
         /// </summary>
         public static string East_Asian_Languages {
@@ -1669,6 +1618,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Human Services.
+        /// </summary>
+        public static string Human_Services {
+            get {
+                return ResourceManager.GetString("Human_Services", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I would like to volunteer.
         /// </summary>
         public static string I_would_like_to_volunteer {
@@ -1854,6 +1812,15 @@ namespace Fingerprints.LocalResource {
         public static string Mark_Late_Arrival_For {
             get {
                 return ResourceManager.GetString("Mark_Late_Arrival_For", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marriage and family therapy.
+        /// </summary>
+        public static string Marriage_Family {
+            get {
+                return ResourceManager.GetString("Marriage_Family", resourceCulture);
             }
         }
         
@@ -2101,6 +2068,15 @@ namespace Fingerprints.LocalResource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nursing.
+        /// </summary>
+        public static string Nursing {
+            get {
+                return ResourceManager.GetString("Nursing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         public static string Ok {
@@ -2130,9 +2106,9 @@ namespace Fingerprints.LocalResource {
         /// <summary>
         ///   Looks up a localized string similar to Other.
         /// </summary>
-        public static string Other_Education {
+        public static string Other {
             get {
-                return ResourceManager.GetString("Other_Education", resourceCulture);
+                return ResourceManager.GetString("Other", resourceCulture);
             }
         }
         
@@ -2322,6 +2298,15 @@ namespace Fingerprints.LocalResource {
         public static string Profile {
             get {
                 return ResourceManager.GetString("Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Psychology.
+        /// </summary>
+        public static string Psychology {
+            get {
+                return ResourceManager.GetString("Psychology", resourceCulture);
             }
         }
         
@@ -2691,6 +2676,24 @@ namespace Fingerprints.LocalResource {
         public static string SignatureCodeNotMatch {
             get {
                 return ResourceManager.GetString("SignatureCodeNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Social Work.
+        /// </summary>
+        public static string Social_Work {
+            get {
+                return ResourceManager.GetString("Social_Work", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sociology.
+        /// </summary>
+        public static string Sociology {
+            get {
+                return ResourceManager.GetString("Sociology", resourceCulture);
             }
         }
         

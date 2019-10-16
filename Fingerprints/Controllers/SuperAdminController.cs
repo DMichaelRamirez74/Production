@@ -1129,6 +1129,8 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
             string Programtype, bool Document, string ScreeningDate, bool Inintake,string expiredPeriod,string expireIn,string screeningsYear,
@@ -1151,7 +1153,7 @@ namespace Fingerprints.Controllers
                 {
                     TempData["message"] = "Record saved successfully.";
                 }
-                return Json(message);
+                return Json(message);   
             }
             catch (Exception Ex)
             {
@@ -1159,6 +1161,10 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+
+
+
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public ActionResult Screeninglist()
         {
@@ -1172,7 +1178,7 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
                 return View();
             }
-
+            
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult listScreening(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
@@ -1195,7 +1201,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(datalayer.DeleteScreening(id, Convert.ToString(Session["UserID"])));
+                return Json(datalayer.DeleteScreening(id,  Convert.ToString(Session["UserID"])));
             }
             catch (Exception Ex)
             {

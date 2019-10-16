@@ -1212,7 +1212,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter(RoleEnum.GenesisEarthAdministrator)]
@@ -2124,7 +2124,7 @@ namespace Fingerprints.Controllers
                 centerId = EncryptDecrypt.Decrypt64(centerId);
                 bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
                 StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
-                return Json(new RosterData().Getclassrooms(centerId, staff, isEndYear), JsonRequestBehavior.AllowGet);
+                return Json(new RosterData(staff).Getclassrooms(centerId, isEndYear), JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {

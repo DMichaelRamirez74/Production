@@ -35,7 +35,7 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
-        //[CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+      
         [CustAuthFilter()]
         public ActionResult ViewCenterDetails(string id)
         {
@@ -203,7 +203,7 @@ namespace Fingerprints.Controllers
             Nurse.PostedProgram PostedPostedPrograms, Nurse.PostedDisease PostedPostedDisease,
            Nurse.PostedDiagnosedDisease PostedPostedDiagnosedDisease, Nurse.PostedChildEHS PostedPostedMedicalEHS,
             Nurse.PostedChildEHS PostedPostedEHS, Nurse.PostedChildVitamin PostedPostedChildVitamin, Nurse.PostedChildDiet PostedPostedChildDietFull,
-          Nurse.PostedChildDrink PostedPostedChildDrink, string Command, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization,string selectedCenter)
+          Nurse.PostedChildDrink PostedPostedChildDrink, string Command, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization, string selectedCenter)
         {
             Nurse _familyinfo = new Nurse();
 
@@ -553,7 +553,7 @@ namespace Fingerprints.Controllers
                         info.ClientID = info.ChildId;
                     }
 
-                    if(!string.IsNullOrEmpty(selectedCenter) && selectedCenter!="0")
+                    if (!string.IsNullOrEmpty(selectedCenter) && selectedCenter != "0")
                     {
                         info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter);
                     }
@@ -564,7 +564,7 @@ namespace Fingerprints.Controllers
                 {
                     if (!string.IsNullOrEmpty(selectedCenter) && selectedCenter != "0")
                     {
-                        info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter); 
+                        info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter);
                     }
 
                     message = _nurse.addAcceptInfo(out pendingcount, info, 1, staffDetails);
@@ -578,7 +578,7 @@ namespace Fingerprints.Controllers
                         newLocation = "~/Home/SuperAdminDashboard";
                     else if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                         newLocation = "~/Home/AgencyAdminDashboard";
-                  
+
                     else if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
                         newLocation = "~/Home/AgencyHRDashboard";
                     else if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
@@ -872,9 +872,10 @@ namespace Fingerprints.Controllers
                 return Json("");
             }
         }
-        //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+ 
+
         [CustAuthFilter()]
-	    public ActionResult ScreeningClient(string id)
+        public ActionResult ScreeningClient(string id)
         {
 
             Screening _screening = new Screening();
@@ -960,7 +961,6 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public ActionResult ScreeningClient(Screening _screen, FormCollection _Collections, string screeningdate, HttpPostedFileBase ScreeningDocument, string Status)
         {
@@ -1028,8 +1028,9 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadallenrolled(string Centerid = "0", string Classroom = "0")
         {
@@ -1044,13 +1045,15 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
         [JsonMaxLengthAttribute]
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadallcenterscreening(string Centerid = "0")
         {
             try
             {
+
+
                 return Json(_nurse.Getchildscreeningcenter(staffDetails, Centerid));
             }
             catch (Exception Ex)
@@ -1059,8 +1062,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadchildmissingscreening(string ClassRoom, string Centerid = "0")
         {
@@ -1074,7 +1077,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
         [CustAuthFilter()]
         public ActionResult Multientryscreening(string id)
         {
@@ -1115,8 +1118,9 @@ namespace Fingerprints.Controllers
             }
 
         }
+
+
         [JsonMaxLengthAttribute]
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadallclientscreening(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
@@ -1130,8 +1134,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Saveclientscreening(List<Nurse.clients> ClientScreenings)
         {
@@ -1145,7 +1150,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+
         [CustAuthFilter()]
         public JsonResult Savemultiscreening(List<Nurse.clients> multiscreenings)
         {
@@ -1159,8 +1165,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadmissingclient(string Screeningid, string Centerid)
         {
@@ -1174,8 +1181,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadclients(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
@@ -1189,8 +1197,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Saveclientclassscreening(List<Nurse.clients> ClientScreenings, string screeningDateQuestionID)
         {
@@ -1204,8 +1213,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loadsavedmissingclient(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
@@ -1219,8 +1229,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult Loaddeclinedscreening(string Centerid = "0")
         {
@@ -1234,9 +1245,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        //added on 30Dec2016
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult LoadallenrolledCleargrid(string Centerid = "0", string Classroom = "0")
         {
@@ -1255,9 +1266,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        //End
+
         [JsonMaxLengthAttribute]
-        //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [CustAuthFilter()]
         public JsonResult LoadGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
@@ -1271,8 +1281,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult ViewGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
@@ -1286,8 +1297,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult LoadRescreening(string Centerid = "0")
         {
@@ -1301,8 +1312,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
+
+
         [JsonMaxLengthAttribute]
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [CustAuthFilter()]
         public JsonResult LoadWithdrawn(string Centerid = "0")
         {
@@ -1316,7 +1328,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
 
         [CustAuthFilter()]
         public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")

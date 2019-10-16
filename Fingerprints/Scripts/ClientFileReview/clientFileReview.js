@@ -46,12 +46,12 @@ $(document).ready(function () {
         }
 
         height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
-       
+
         height = height - topOffset;
         if (height < 1) height = 1;
         if (height > topOffset) {
             var fileHeight = height - 50;
-          
+
             $('.bg-min-height').css('min-height', (fileHeight) + 'px');
         }
     });
@@ -239,7 +239,7 @@ $(document).ready(function () {
 
         var statusMonth = parseInt($(this).children('p').attr('month'));
         var currentMonth1 = parseInt(new Date().getMonth()) + 1;
-       
+
         isEmpty = $(this).hasClass('Status-title-Empty');
         isClose = $(this).hasClass('Status-title-Closed');
         isOpen = $(this).hasClass('Status-title-Open');
@@ -651,6 +651,12 @@ $(document).ready(function () {
             $('.add-items').removeClass('hidden');
         }
 
+
+        $('html body').animate({
+            scrollBottom:$('.open-items').offset().top},500);
+     
+
+
     }
 
     //On click of the 3d bar of the Members//
@@ -878,13 +884,20 @@ $(document).ready(function () {
                         isOpen = false;
                     }
 
-                    $('.members-block').addClass('hidden');
+                    // $('.members-block').addClass('hidden');
+                    $('.members-block').find('.start-meeting').removeClass('meeting-content-desc');
+                    $('.members-block').find('.start-meeting').addClass('meeting-content-desc-start');
+                  
+
+
                     $('.client-profile').removeClass('hidden');
                     bindOpenCloseItems(selectMonth, clientIdSelect);
                 }
             }
         });
     }
+
+
 
     //function to get the client profile//
     function GetClientProfile(ClientId, monthrev) {

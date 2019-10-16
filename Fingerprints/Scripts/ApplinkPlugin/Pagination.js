@@ -1,24 +1,32 @@
 ﻿
 !(function ($) {
 
-    function getRandomNumber () {
-        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        )
+    //function getRandomNumber() {
+    //    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+    //        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    //    )
 
-    }
+    //}
+
+    function getRandomNumber() {
+   function S4() {  
+      return (((1+Math.random())*0x10000)|0).toString(16).substring(1);  
+   }  
+   return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();  
+}  
+  
+
 
     $.fn.ApplinkPG = function (option, parameter, extraOptions) {  //[int],{PageSize:[int],RequestedPage:[int] },[function]
 
         var data = $(this).data('applink-pagination');
         var options = typeof option === 'object' && option;
-
+       
         // Initialize the multiselect.
         if (!data || option.bindInitialLoad) {
             data = new ApplinkPagination(this, options);
             $(this).data('applink-pagination', data);
-            if(option.bindInitialLoad)
-            {
+            if (option.bindInitialLoad) {
                 data.getRecord(data);
             }
 
@@ -33,7 +41,7 @@
             }
         }
 
-     
+
 
         return this;
     };
@@ -41,39 +49,52 @@
 
 
     ApplinkPagination.prototype = {
-        
-        defaults:{
-       
-   
-        sortOrder: null,
-        sortColumn: null,
-        isEnableSorting: false,
-        totalRecords: 0,
-        data: null,
-        dataType: null,
-        getRecordUrl: null,
-        bindInitialLoad:false,
-        bindData:function(data)
-        {
+
+        defaults: {
+
+
+            sortOrder: null,
+            sortColumn: null,
+            isEnableSorting: false,
+            totalRecords: 0,
+            requestedPage: 1,
+            pageSize: 10,
+            data: null,
+            dataType: null,
+            getRecordUrl: null,
+            bindInitialLoad: false,
+            bindData: function (data) {
+
+            },
+
 
         },
-       
-
-        },
+        recordsPerPageElement: null,
+        firstElement: null,
+        backElement: null,
+        nextElement: null,
+        pageElement: null,
+        lastElement: null,
+        startIndex: 0,
+        lastIndex: 0,
+        pageLoadedFirst: 0,
+        numOfPages: 0,
         getRecord: function (events) {
 
             var jsonData = events.options.data;
-            jsonData = Object.assign({ 'SortOrder': events.options.sortOrder, 'SortColumn': events.options.sortColumn, 'RequestedPage': events.requestedPage, 'pageSize': events.pageSize }, jsonData);
-
+            jsonData = Object.assign({ 'SortOrder': events.options.sortOrder, 'SortColumn': events.options.sortColumn, 'RequestedPage': events.options.requestedPage, 'PageSize': events.options.pageSize }, jsonData);
+            
             $.ajax({
 
                 url: events.options.getRecordUrl,
                 dataType: events.options.dataType,
                 contentType: 'application/json',
                 // data: JSON.stringify(jsonData),
-                data: jsonData,
+               
+                type:'POST',
+                data: JSON.stringify(jsonData),
                 async: false,
-            
+
                 beforeSend: function () {
                     $('#spinner').show();
                 },
@@ -95,13 +116,12 @@
             });
 
         },
-        requestedPage: 1,
-        pageSize: 10,
 
-        getTotalRecord:function(events){
-       
-         
-       
+
+        getTotalRecord: function (events) {
+
+
+
 
             events.firstElement.attr('disabled', false);
             events.backElement.attr('disabled', false);
@@ -135,7 +155,7 @@
                     events.pageElement.append(newOption);
                 }
 
-                events.pageElement.val(events.requestedPage);
+                events.pageElement.val(events.options.requestedPage);
             }
             else {
 
@@ -147,7 +167,7 @@
 
         },
         changePage: function (event) {
-
+         
             event.preventDefault();
 
             var ele = event.target;
@@ -158,9 +178,9 @@
 
             window.setTimeout(function () {
 
-                
+
                 $this.pageLoadedFirst = 0;
-                $this.pageSize =parseInt($this.recordsPerPageElement.val());
+                $this.options.pageSize = parseInt($this.recordsPerPageElement.val());
 
                 //  tabEle.find('#pageLoadedFirst_' + index + '').val(0);
 
@@ -172,12 +192,12 @@
                 if ($(ele).closest('li').index() == 0) {   //First
 
                     $this.startIndex = 0;
-                    $this.lastIndex = ($this.pageSize + ($this.lastIndex * $this.requestedPage));
-                    $this.requestedPage = (($this.startIndex / 10)+1);
+                    $this.lastIndex = ($this.options.pageSize + ($this.lastIndex * $this.options.requestedPage));
+                    $this.options.requestedPage = parseInt(($this.startIndex / 10) + 1);
                     $this.lastIndex = 0;
 
-                   // this.options.getRecord();
-                        
+                    // this.options.getRecord();
+
                     //  $.proxy(this.getRecord, this);
 
                     $this.getRecord($this);
@@ -188,18 +208,18 @@
                     $this.lastElement.attr('disabled', false);
 
 
-                 
+
 
                 }
                 else if ($(ele).closest('li').index() == 4) {  //Last
 
-                    $this.startIndex = ((($this.options.totalRecords - 1) / $this.pageSize) * $this.pageSize);
+                    $this.startIndex = ((($this.options.totalRecords - 1) / $this.options.pageSize) * $this.options.pageSize);
                     $this.lastIndex = $this.options.totalRecords;
-                    $this.requestedPage = parseInt($this.pageElement.children('option:last-child').val());
-                    
+                    $this.options.requestedPage = parseInt($this.pageElement.children('option:last-child').val());
+
                     $this.getRecord($this);
 
-                
+
 
 
                     $this.firstElement.attr('disabled', false);
@@ -212,54 +232,54 @@
                 }
                 else if ($(ele).closest('li').index() == 3) {  //Next
 
-                    $this.lastIndex = ($this.pageSize + $this.lastIndex);
-                    $this.requestedPage = (($this.lastIndex / $this.pageSize) + 1);
+                    $this.lastIndex = ($this.options.pageSize + $this.lastIndex);
+                    $this.options.requestedPage = parseInt(($this.lastIndex / $this.options.pageSize) + 1);
                     //$.proxy(this.getRecord, this);
                     $this.getRecord($this);
-                  //  this.options.getRecord();
+                    //  this.options.getRecord();
 
                     $this.firstElement.attr('disabled', false);
                     $this.backElement.attr('disabled', false);
 
-                    if (($this.lastIndex + $this.pageSize) >= $this.options.totalRecords) {
+                    if (($this.lastIndex + $this.options.pageSize) >= $this.options.totalRecords) {
                         $this.nextElement.attr('disabled', true);
                         $this.lastElement.attr('disabled', true);
 
                     }
 
-                    else if (($this.lastIndex - $this.pageSize) < $this.options.totalRecords) {
+                    else if (($this.lastIndex - $this.options.pageSize) < $this.options.totalRecords) {
                         $this.nextElement.attr('disabled', false);
                         $this.lastElement.attr('disabled', false);
                     }
 
-                 
+
 
 
                 }
                 else if ($(ele).closest('li').index() == 1) { //Back
 
-                    $this.requestedPage = ($this.requestedPage - 1);
-                    $this.lastIndex = ($this.lastIndex - $this.pageSize);
-                   // $.proxy(this.getRecord, this);
+                    $this.options.requestedPage = parseInt($this.options.requestedPage - 1);
+                    $this.lastIndex = parseInt($this.lastIndex - $this.options.pageSize);
+                    // $.proxy(this.getRecord, this);
                     //  this.options.getRecord();
                     $this.getRecord($this);
 
-                    if (($this.lastIndex + $this.pageSize) > $this.options.totalRecords) {
+                    if (($this.lastIndex + $this.options.pageSize) > $this.options.totalRecords) {
                         $this.nextElement.attr('disabled', true);
                         $this.lastElement.attr('disabled', true);
                     }
 
-                    else if (($this.lastIndex - $this.pageSize) < $this.options.totalRecords) {
+                    else if (($this.lastIndex - $this.options.pageSize) < $this.options.totalRecords) {
                         $this.nextElement.attr('disabled', false);
                         $this.lastElement.attr('disabled', false);
                     }
 
-                    if ($this.requestedPage == 1) {
+                    if ($this.options.requestedPage == 1) {
                         $this.firstElement.attr('disabled', true);
                         $this.backElement.attr('disabled', true);
                     }
 
-                  
+
                 }
                 else {
                 }
@@ -272,7 +292,7 @@
             event.preventDefault();
             var ele = event.target;
 
-            this.requestedPage =parseInt($(ele).val());
+            this.options.requestedPage = parseInt($(ele).val());
             var $this = this;
 
             this.getListafterupdation(event);
@@ -293,8 +313,7 @@
 
             this.changePage(event);
         },
-        backButtonClick:function(event)
-        {
+        backButtonClick: function (event) {
             event.preventDefault();
 
             var backButton = $(event.target);
@@ -318,7 +337,7 @@
             if (nextButton.attr('disabled') == "disabled")
                 return false;
 
-          
+
 
             this.changePage(event);
 
@@ -331,7 +350,7 @@
             if (lastButton.attr('disabled') == "disabled")
                 return false;
 
-          
+
             else {
                 this.changePage(event);
 
@@ -352,11 +371,11 @@
             this.nextElement.attr('disabled', true);
             this.lastElement.attr('disabled', true);
 
-            this.requestedPage = 1;
+            this.options.requestedPage = 1;
             this.lastIndex = 0;
-            this.pageSize = parseInt(recordPerPage.val());
+            this.options.pageSize = parseInt(recordPerPage.val());
 
-            
+
             var $this = this;
             $('#spinner').show();
             window.setTimeout(function () {
@@ -365,7 +384,7 @@
 
                 $this.getRecord($this);
 
-           
+
                 $this.firstElement.attr('disabled', true);
                 $this.backElement.attr('disabled', true);
             }, 10);
@@ -374,27 +393,27 @@
 
         getListafterupdation: function (event) {
             event.preventDefault();
-          
+
             var ele = event.target;
 
-            this.pageSize = parseInt(this.recordsPerPageElement.val());
-            this.requestedPage =parseInt( $(ele).val());
-            this.startIndex = (((this.pageSize * this.requestedPage) - 1) + 1);
-            this.lastIndex = ((this.pageSize * this.requestedPage) - this.pageSize);
+            this.options.pageSize = parseInt(this.recordsPerPageElement.val());
+            this.options.requestedPage = parseInt($(ele).val());
+            this.startIndex = (((this.options.pageSize * this.options.requestedPage) - 1) + 1);
+            this.lastIndex = ((this.options.pageSize * this.options.requestedPage) - this.options.pageSize);
 
-         
 
-            
+
+
             this.getRecord(this);
 
-      
-            if (this.requestedPage == 1) {
+
+            if (this.options.requestedPage == 1) {
                 this.firstElement.attr('disabled', true);
                 this.backElement.attr('disabled', true);
                 this.nextElement.attr('disabled', false);
                 this.lastElement.attr('disabled', false);
             }
-            else if (this.requestedPage == parseInt(this.pageElement.children('option:last-child').val())) {
+            else if (this.options.requestedPage == parseInt(this.pageElement.children('option:last-child').val())) {
 
                 this.firstElement.attr('disabled', false);
                 this.backElement.attr('disabled', false);
@@ -418,11 +437,11 @@
         bindPagenumbers: function () {
 
 
-            if (this.totalRecords > 0) {
+            if (this.options.totalRecords > 0) {
 
 
 
-                if (this.totalRecords <= this.pageSize) {
+                if (this.options.totalRecords <= this.options.pageSize) {
 
                     this.firstElement.attr('disabled', true);
                     this.backElement.attr('disabled', true);
@@ -431,23 +450,22 @@
                 }
 
 
-                var _pcount = Math.ceil(this.totalRecords / this.pageSize); //ceil- Round a number upward to its nearest integer:
+                var _pcount = Math.ceil(this.options.totalRecords / this.options.pageSize); //ceil- Round a number upward to its nearest integer:
                 this.pageElement.html('');
                 for (var i = 1; i <= _pcount; i++) {
 
                     this.pageElement.append('<option value="' + i + '">' + i + '</option>')
                 }
-                this.pageElement.val(this.requestedPage);
+                this.pageElement.val(this.options.requestedPage);
             }
 
         },
-        searchData: function (dataParameter)
-        {
-          
-            
-            this.requestedPage = 1;
+        searchData: function (dataParameter) {
+
+
+            this.options.requestedPage = 1;
             this.recordsPerPageElement.val('10');
-            this.pageSize = 10;
+            this.options.pageSize = 10;
             this.options.data = $.extend({}, this.options.data, dataParameter)
             this.getRecord(this);
         },
@@ -455,21 +473,8 @@
         constructor: ApplinkPagination,
 
 
-        recordsPerPageElement: null,
-        firstElement: null,
-        backElement: null,
-        nextElement: null,
-        pageElement: null,
-        lastElement: null,
 
-      
-        requestedPage: 1,
-        pageSize: 10,
-        startIndex: 0,
-        lastIndex: 0,
-        pageLoadedFirst: 0,
-        numOfPages: 0,
-      
+
 
 
 
@@ -492,8 +497,13 @@
                     <li style="">Display</li>\
                     <li>\
                         <select class="pagesize-dropdown-ApplinkPG_'+ this.paginationIndex + '">\
-                            <option value="10" selected="selected">10</option>\
-                            <option value="25">25</option>\
+                            <option value="10" selected="selected">10</option>';
+
+        if (this.options.requestedPage == 20) {
+            template += '<option value="20">20</option>';
+        }
+
+        template += '< option value = "25" > 25</option >\
                             <option value="50">50</option>\
                             <option value="75">75</option>\
                             <option value="100">100</option>\
@@ -546,127 +556,129 @@
         this.nextElement = this.$select.find('#Next_' + this.paginationIndex);
         this.lastElement = this.$select.find('#Last_' + this.paginationIndex);
         this.pageElement = this.$select.find('.pageno-dropdown-ApplinkPG_' + this.paginationIndex);
-        this.totalRecords = this.options.totalRecords;
+        this.options.totalRecords = this.options.totalRecords;
 
         this.bindPagenumbers();
 
-        
+
         this.pageElement.change($.proxy(this.pageNumbersChange, this));
 
-        this.recordsPerPageElement.change($.proxy(this.recordsPerPageChange,this));
+        this.recordsPerPageElement.change($.proxy(this.recordsPerPageChange, this));
         this.firstElement.click($.proxy(this.firButtonClick, this));
         this.backElement.click($.proxy(this.backButtonClick, this));
-        this.nextElement.click($.proxy(this.nextButtonClick,this));
+        this.nextElement.click($.proxy(this.nextButtonClick, this));
         this.lastElement.click($.proxy(this.lastButtonClick, this));
 
         var $this = this;
 
         if (this.options.isEnableSorting) {
-            $('#table_'+this.paginationIndex+' thead>tr>th').each(function () {
 
+
+            $('#table_' + this.paginationIndex + ' thead>tr>th').each(function () {
                 $(this).css('cursor', 'pointer');
             });
-            $('#table_' + this.paginationIndex + ' thead>tr>th').on('click', function () {
+            //$('#table_' + this.paginationIndex + ' thead>tr>th').on('click', function () {
 
-               
+
+            $(document).on('click','#table_' + this.paginationIndex + ' thead>tr>th',function(){
                 var th = this;
 
                 var $thisIndex = $(th).index();
-                            if ($(th).find('i').length > 0) {
-                               
-
-                                $(th).closest('tr').find("th:not(:eq("+$thisIndex+"))").find('i').css('display', 'none');
-
-                                //$.each($('#table_' + this.paginationIndex + ' thead>tr>th'), function () {
-
-                                //    if ($(this).index() != $thisIndex)
-                                //    {
-                                //        $(this).find('i').hide();
-
-                                //    }
-
-                                //});
-
-                                
-                                $this.options.sortColumn = $(th).children('span').attr('col-name');
-
-                                if ($(th).find('i').is(':visible')) {
-                                    if ($(th).find('.i-asc').is(':visible')) {
-
-                                        //   $(tabContent).find('#sortOrder_' + index + '').val("DESC");
-                                        $this.options.sortOrder = 'DESC';
+                if ($(th).find('i').length > 0) {
 
 
-                                        //$(th).find('.i-asc').hide();
-                                        //$(th).find('.i-desc').show();
+                    $(th).closest('tr').find("th:not(:eq(" + $thisIndex + "))").find('i').css('display', 'none');
+
+                    //$.each($('#table_' + this.paginationIndex + ' thead>tr>th'), function () {
+
+                    //    if ($(this).index() != $thisIndex)
+                    //    {
+                    //        $(this).find('i').hide();
+
+                    //    }
+
+                    //});
 
 
-                                       $(th).find('.i-asc,.i-desc').toggle();
-                                    }
-                                    else if ($(th).find('.i-desc').is(':visible')) {
+                    $this.options.sortColumn = $(th).children('span').attr('col-name');
 
-                                      //  $(tabContent).find('#sortOrder_' + index + '').val("ASC");
-                                        $this.options.sortOrder = 'ASC';
+                    if ($(th).find('i').is(':visible')) {
+                        if ($(th).find('.i-asc').is(':visible')) {
 
-
-                                       $(th).find('.i-asc,.i-desc').toggle();
-
-                                        //$(th).find('.i-asc').show();
-                                        //$(th).find('.i-desc').hide();
-                                    }
-                                }
-                                else {
-                                    // $(tabContent).find('#sortOrder_' + index + '').val("ASC");
-                                    $this.options.sortOrder = "ASC";
-                                    $(th).find('.i-asc').show();
-                                }
-
-                                $this.requestedPage = $this.pageElement.val();
-                                $this.pageSize = $this.recordsPerPageElement.val();
-
-                            //    var $reqPage = $(tabContent).find('#div-pagination-' + index + '').find('#ddlpaging_' + index + '').val();
-                             //   var $pageSize = $(tabContent).find('#div-pagination-' + index + '').find('#ddlpagetodisplay_' + index + '').val();
-                             //   $(tabContent).find('#requestedPage_' + index + '').val($reqPage);
-                              //  $(tabContent).find('#pageSize_' + index + '').val($pageSize);
-
-                                //  self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
-
-                                // self.pageSize = self.elements.dropdownRecordsPerpage.val();
-
-                               // var $tabContent = $('#myTabContent').find('.tab-pane.active');
-
-                              //  var $tabindex = $($tabContent).attr('id').replace('tab', "").trim();
+                            //   $(tabContent).find('#sortOrder_' + index + '').val("DESC");
+                            $this.options.sortOrder = 'DESC';
 
 
+                            //$(th).find('.i-asc').hide();
+                            //$(th).find('.i-desc').show();
 
 
-                                //self.showBusy(true);
-                                $('#spinner').show();
-                                window.setTimeout(function () {
+                            $(th).find('.i-asc,.i-desc').toggle();
+                        }
+                        else if ($(th).find('.i-desc').is(':visible')) {
 
-                                    // self.getReport($tabContent, $tabindex, self.getlistMode.center);
-
-                                    $this.getRecord($this);
-
-                                }, 10);
+                            //  $(tabContent).find('#sortOrder_' + index + '').val("ASC");
+                            $this.options.sortOrder = 'ASC';
 
 
-                               
+                            $(th).find('.i-asc,.i-desc').toggle();
 
-                                // self.getUnscheduledClassDaysList();
-                            }
-                            else {
-                                return false;
-                            }
+                            //$(th).find('.i-asc').show();
+                            //$(th).find('.i-desc').hide();
+                        }
+                    }
+                    else {
+                        // $(tabContent).find('#sortOrder_' + index + '').val("ASC");
+                        $this.options.sortOrder = "ASC";
+                        $(th).find('.i-asc').show();
+                    }
+
+                    $this.options.requestedPage = $this.pageElement.val();
+                    $this.options.pageSize = $this.recordsPerPageElement.val();
+
+                    //    var $reqPage = $(tabContent).find('#div-pagination-' + index + '').find('#ddlpaging_' + index + '').val();
+                    //   var $pageSize = $(tabContent).find('#div-pagination-' + index + '').find('#ddlpagetodisplay_' + index + '').val();
+                    //   $(tabContent).find('#requestedPage_' + index + '').val($reqPage);
+                    //  $(tabContent).find('#pageSize_' + index + '').val($pageSize);
+
+                    //  self.requestedPage = self.elements.dropdownPageNumber.val() == null ? self.requestedPage : self.elements.dropdownPageNumber.val();
+
+                    // self.pageSize = self.elements.dropdownRecordsPerpage.val();
+
+                    // var $tabContent = $('#myTabContent').find('.tab-pane.active');
+
+                    //  var $tabindex = $($tabContent).attr('id').replace('tab', "").trim();
+
+
+
+
+                    //self.showBusy(true);
+                    $('#spinner').show();
+                    window.setTimeout(function () {
+
+                        // self.getReport($tabContent, $tabindex, self.getlistMode.center);
+
+                        $this.getRecord($this);
+
+                    }, 10);
+
+
+
+
+                    // self.getUnscheduledClassDaysList();
+                }
+                else {
+                    return false;
+                }
 
 
 
             });
         }
 
-       
 
-       
+
+
 
     }
 }(jQuery));

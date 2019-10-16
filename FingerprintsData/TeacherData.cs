@@ -3369,7 +3369,7 @@ namespace FingerprintsData
         }
 
 
-        public List<AbsenceReason> GetAbsenceReason(Guid? AgencyId)
+        public List<AbsenceReason> GetAbsenceReason(Guid? AgencyId,int mode)
         {
             List<AbsenceReason> reasonList = new List<AbsenceReason>();
             try
@@ -3379,7 +3379,7 @@ namespace FingerprintsData
                 Connection.Open();
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                command.Parameters.Add(new SqlParameter("@mode", 1));
+                command.Parameters.Add(new SqlParameter("@mode", mode));
 
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -3435,7 +3435,7 @@ namespace FingerprintsData
                 int RowsAffected = (int)command.ExecuteNonQuery();
                 if (RowsAffected > 0)
                     isRowAffected = true;
-                reasonList = GetAbsenceReason(reason.AgencyId);
+                reasonList = GetAbsenceReason(reason.AgencyId,1);
             }
             catch (Exception ex)
             {

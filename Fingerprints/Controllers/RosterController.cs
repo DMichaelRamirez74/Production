@@ -1,29 +1,27 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using Fingerprints.CustomClasses;
+using Fingerprints.Filters;
+using Fingerprints.ViewModel;
 using FingerprintsData;
 using FingerprintsModel;
-using Fingerprints.Filters;
-using System.IO;
-using Fingerprints.ViewModel;
-using Fingerprints.CustomClasses;
+using FingerprintsModel.Enums;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using System.Text;
-using System.Data;
 using iTextSharp.tool.xml;
 using Newtonsoft.Json;
-using System.Collections;
-using System.Web.Script.Serialization;
-using System.Globalization;
-using System.Xml.Linq;
-using System.Xml;
-using FingerprintsModel.Enums;
+using System.Threading.Tasks;
 
 namespace Fingerprints.Controllers
 {
+
     public class RosterController : Controller
     {
         /*roleid=f87b4a71-f0a8-43c3-aea7-267e5e37a59d(Super Admin)
@@ -48,11 +46,22 @@ namespace Fingerprints.Controllers
           roleid=047c02fe-b8f1-4a9b-b01f-539d6a238d80 (Disabilities Manager)
           roleid=9c34ec8e-2359-4704-be89-d9f4b7706e82 (Disability Staff)
          */
-        RosterData RosterData = new RosterData();
 
-        StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
 
-        string[] managerRoleArray = { "A65BB7C2-E320-42A2-AED4-409A321C08A5","3B49B025-68EB-4059-8931-68A0577E5FA2",
+        private readonly StaffDetails staff = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<StaffDetails>();
+        readonly RosterData rosterData;
+
+        //   public RosterController() => rosterData = new RosterData(staff);
+
+
+        public RosterController()
+        {
+            rosterData = new RosterData(staff);
+        }
+
+
+
+        private readonly string[] managerRoleArray = { "A65BB7C2-E320-42A2-AED4-409A321C08A5","3B49B025-68EB-4059-8931-68A0577E5FA2",
                 "944D3851-75CC-41E9-B600-3FA904CF951F", "047C02FE-B8F1-4A9B-B01F-539D6A238D80",
             "9AD1750E-2522-4717-A71B-5916A38730ED", "825F6940-9973-42D2-B821-5B6C7C937BFE",
 
@@ -60,30 +69,87 @@ namespace Fingerprints.Controllers
         "2D9822CD-85A3-4269-9609-9AABB914D792","6ED25F82-57CB-4C04-AC8F-A97C44BDB5BA","7C2422BA-7BD4-4278-99AF-B694DCAB7367",
             "B65759BA-4813-4906-9A69-E180156E42FC","4B77AAB6-EED1-4AC3-B498-F3E80CF129C0","A31B1716-B042-46B7-ACC0-95794E378B26" };
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
+
+        [CustAuthFilter()]
         public ActionResult Roster()
         {
             ViewBag.IsManager = false;
 
             ViewBag.IsManager = (Array.IndexOf(managerRoleArray, Session["RoleId"].ToString().ToUpper()) > -1);
 
-            if (Role.RolesDictionary[(int)RoleEnum.HealthNurse].ToLowerInvariant() == Convert.ToString(Session["RoleID"]).ToUpper())
-            {
-                Session["YakkrCountPending"] = new YakkrData().GetYakkrCountPending();
-            }
 
-            return View();
+
+
+            Roster roster = new FingerprintsModel.Roster();
+
+            Parallel.Invoke(() =>
+            {
+                List<ClosedInfo> closedList = new CenterData().CheckForTodayClosure(staff);
+
+                if (closedList.Count() > 0)
+                {
+                    roster.ClosedDetails = new ClosedInfo
+                    {
+                        ClosedToday = closedList.Select(x => x.ClosedToday).FirstOrDefault(),
+                        CenterName = string.Join(",", closedList.Select(x => x.CenterName).Distinct().ToArray()),
+                        ClassRoomName = string.Join(",", closedList.Select(x => x.ClassRoomName).Distinct().ToArray()),
+                        AgencyName = closedList.Select(x => x.AgencyName).FirstOrDefault()
+                    };
+                }
+                else
+                {
+                    roster.ClosedDetails = new ClosedInfo();
+                }
+
+            },
+           () =>
+           {
+
+               roster.AbsenceReasonList = new TeacherData().GetAbsenceReason(staff.AgencyId, 3).ToList();
+               roster.AbsenceReasonList.Add(new AbsenceReason
+               {
+
+                   ReasonId = 0,
+                   Reason = "Choose Reason"
+               });
+
+           },
+           () =>
+           {
+               roster.AbsenceTypeList = new TeacherData().GetAttendanceType(staff.AgencyId.ToString(), staff.UserId.ToString(), false).Where(x => x.Value == "2" || x.Value == "3").ToList();
+
+               roster.AbsenceTypeList.Add(new SelectListItem
+               {
+                   Text = "Select Type",
+                   Value = "0"
+               });
+           },
+           () =>
+           {
+               if (Role.RolesDictionary[(int)RoleEnum.HealthNurse].ToLowerInvariant() == Convert.ToString(Session["RoleID"]).ToUpper())
+               {
+                   Session["YakkrCountPending"] = new YakkrData().GetYakkrCountPending();
+               }
+
+           }
+
+
+            );
+
+
+            return View(roster);
         }
 
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
+        [CustAuthFilter()]
         public ActionResult RedirectToRoster()
         {
             //ViewBag.IsManager = false;
 
-          //  ViewBag.IsManager = (Array.IndexOf(managerRoleArray, Session["RoleId"].ToString().ToUpper()) > -1);
+            //  ViewBag.IsManager = (Array.IndexOf(managerRoleArray, Session["RoleId"].ToString().ToUpper()) > -1);
 
             Session["_RosterCenter"] = "";
             Session["_RosterClassroom"] = "";
@@ -106,19 +172,26 @@ namespace Fingerprints.Controllers
                 int reasonid = 0;
                 string NewReason = "";
                 string childCode = collection.Get("childid");
-                string childID =EncryptDecrypt.Decrypt64(childCode);
+                string childID = EncryptDecrypt.Decrypt64(childCode);
 
                 string absentType = collection.Get("AbsentType");
-                string Cnotes = (collection.Get("CNotes")==null)?"": collection.Get("CNotes");
-                if (!string.IsNullOrEmpty(collection.Get("ReasonList") ))
-                     NewReason = collection.Get("txtNewReason");
+                string Cnotes = (collection.Get("CNotes") == null) ? "" : collection.Get("CNotes");
+                if (!string.IsNullOrEmpty(collection.Get("ReasonList")))
+                {
+                    NewReason = collection.Get("txtNewReason");
+                }
 
                 if (collection.Get("ReasonList").ToString() != "")
+                {
                     reasonid = Convert.ToInt32(collection.Get("ReasonList"));
+                }
+
                 string result = "";
-                RosterData.MarkAbsent(ref result, childID,staff,  absentType, Cnotes,  reasonid, NewReason);
+                rosterData.MarkAbsent(ref result, childID, absentType, Cnotes, reasonid, NewReason);
                 if (result == "1")
+                {
                     TempData["message"] = "Record saved successfully.";
+                }
 
                 return Redirect("~/Roster/Roster");
             }
@@ -133,31 +206,27 @@ namespace Fingerprints.Controllers
 
 
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter()]
+        [HttpPost]
+        public JsonResult GetRosterList(RosterViewModel rosterViewModel)
 
-        public JsonResult listRoster(string sortOrder, string sortDirection, string Center, string Classroom, int pageSize,int requestedPage = 1, string searchTextByName = "",string filterOption="0")
         {
             try
             {
-                Session["_RosterCenter"] = Center;
-                Session["_RosterClassroom"] = Classroom;
-                Session["_RosterPageSize"] = pageSize;
-                Session["_RosterRequestedPage"] = requestedPage;
-                Session["_RosterSearchText"] = searchTextByName;
-                Session["_RosterFilter"] = filterOption;
-                Session["_RosterSortOrder"] = sortOrder;
-                Session["_RosterSortDirection"] = sortDirection;
 
+                Session["_RosterCenter"] = rosterViewModel.CenterId;
+                Session["_RosterClassroom"] = rosterViewModel.ClassroomId;
+                Session["_RosterPageSize"] = rosterViewModel.PageSize;
+                Session["_RosterRequestedPage"] = rosterViewModel.RequestedPage;
+                Session["_RosterSearchText"] = rosterViewModel.SearchTerm;
+                Session["_RosterFilter"] = rosterViewModel.FilterOption;
+                Session["_RosterSortOrder"] = rosterViewModel.SortColumn;
+                Session["_RosterSortDirection"] = rosterViewModel.SortOrder;
 
-
-                int filter = 0;
-                int skip = pageSize * (requestedPage - 1);
-                skip = (skip < 0) ? 0 : skip;
-                //int filter = (string.IsNullOrEmpty(filterOption)) ? 0 : Convert.ToInt32(filterOption);
-                int.TryParse(filterOption, out filter);
-                string totalrecord;
-                var list = RosterData.GetrosterList(out totalrecord, sortOrder, sortDirection, Center, Classroom, skip, pageSize, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString(), Session["Roleid"].ToString(),filter,searchTextByName);
-                return Json(new { list, totalrecord });
+                rosterViewModel.SkipRows = rosterViewModel.GetSkipRows();
+                int totalrecord = 0;
+                var list = rosterData.GetrosterList(out totalrecord, rosterViewModel);
+                return Json(new { totalrecord, list });
             }
             catch (Exception Ex)
             {
@@ -165,17 +234,18 @@ namespace Fingerprints.Controllers
                 return Json("");
             }
         }
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.BillingManager,RoleEnum.GenesisEarthAdministrator,
-            RoleEnum.DisabilitiesManager,RoleEnum.HealthManager,RoleEnum.FacilitiesManager,RoleEnum.CenterManager,
-            RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.AreaManager,RoleEnum.HomeVisitor,
-            RoleEnum.HRManager,RoleEnum.TransportManager,RoleEnum.Executive,RoleEnum.FamilyServiceWorker,
-            RoleEnum.TeacherAssistant,RoleEnum.ERSEAManager,RoleEnum.EducationManager)]
+
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.BillingManager, RoleEnum.GenesisEarthAdministrator,
+            RoleEnum.DisabilitiesManager, RoleEnum.HealthManager, RoleEnum.FacilitiesManager, RoleEnum.CenterManager,
+            RoleEnum.SocialServiceManager, RoleEnum.HealthNurse, RoleEnum.AreaManager, RoleEnum.HomeVisitor,
+            RoleEnum.HRManager, RoleEnum.TransportManager, RoleEnum.Executive, RoleEnum.FamilyServiceWorker,
+            RoleEnum.TeacherAssistant, RoleEnum.ERSEAManager, RoleEnum.EducationManager)]
 
         public JsonResult Getclassrooms(string Centerid = "0")
         {
             try
             {
-                return Json(RosterData.Getclassrooms(Centerid,staff));
+                return Json(rosterData.Getclassrooms(Centerid));
             }
             catch (Exception Ex)
             {
@@ -186,8 +256,8 @@ namespace Fingerprints.Controllers
 
         public JsonResult AutoCompleteSerType(string Services)
         {
-            string agencyId = Session["AgencyId"].ToString();
-            var result = RosterData.AutoCompleteSerType(Services, agencyId);
+
+            var result = rosterData.AutoCompleteSerType(Services, staff.AgencyId);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -245,7 +315,7 @@ namespace Fingerprints.Controllers
         //}
 
 
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.TeacherAssistant)]
         public ActionResult ObservationNote(string ChildId, string ChildName, string NoteId)
         {
             ObservationNotes objNotes = new ObservationNotes();
@@ -257,7 +327,10 @@ namespace Fingerprints.Controllers
                     ViewBag.Child = "Single Child";
                     objNotes.NoteId = "";
                     if (NoteId != null)
-                        new RosterData().GetNotesDetialByNoteId(ref objNotes, NoteId);
+                    {
+                        rosterData.GetNotesDetialByNoteId(ref objNotes, NoteId);
+                    }
+
                     Int64 ClientId = !string.IsNullOrEmpty(EncryptDecrypt.Decrypt64(ChildId)) ? Convert.ToInt64(EncryptDecrypt.Decrypt64(ChildId)) : 0;
                     string ClientName = !string.IsNullOrEmpty(EncryptDecrypt.Decrypt64(ChildName)) ? EncryptDecrypt.Decrypt64(ChildName) : "";
                     objNotes.dictClientDetails.Add(ClientId, ClientName);
@@ -266,7 +339,7 @@ namespace Fingerprints.Controllers
                 {
                     ViewBag.HeaderName = "MULTI - CHILD ENTRY";
                     ViewBag.Child = "Child List";
-                    new RosterData().GetChildlistByUserId(ref objNotes, Session["UserID"].ToString(), Session["AgencyID"].ToString());
+                    rosterData.GetChildlistByUserId(ref objNotes);
                 }
             }
             catch (Exception ex)
@@ -284,7 +357,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtElements = new DataTable();
-                new RosterData().GetElementDetailsByDomainId(ref dtElements, DomainId);
+                rosterData.GetElementDetailsByDomainId(ref dtElements, DomainId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtElements);
             }
             catch (Exception Ex)
@@ -303,7 +376,7 @@ namespace Fingerprints.Controllers
                 if (objNotes != null)
                 {
                     objNotes.UserId = Session["UserID"].ToString();
-                    Result = new RosterData().SaveObservatioNotes(objNotes);
+                    Result = rosterData.SaveObservatioNotes(objNotes);
                 }
             }
             catch (Exception Ex)
@@ -361,14 +434,13 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
-        //public ActionResult GetCaseNoteByTags(string Householdid, string centerid, string ClientId, string TagName, int IsFromFamilySummary = 0)
         public ActionResult GetCaseNoteByTags(CaseNoteByClientID caseNotes, int IsFromFamilySummary = 0)
 
         {
             try
             {
 
-                caseNotes = RosterData.GetCaseNoteByTags(caseNotes, staff, IsFromFamilySummary);
+                caseNotes = rosterData.GetCaseNoteByTags(caseNotes, IsFromFamilySummary);
 
 
             }
@@ -388,7 +460,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                casenote = RosterData.GetCaseNoteByClientId(caseNoteByClient, staff);
+                casenote = rosterData.GetCaseNoteByClientId(caseNoteByClient);
                 List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
                 casenote.Role = listRole.Select(a => a.RoleName).FirstOrDefault();
             }
@@ -405,7 +477,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtNotes = new DataTable();
-                new RosterData().GetCaseNoteByNoteId(ref dtNotes, NoteId);
+                rosterData.GetCaseNoteByNoteId(ref dtNotes, NoteId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtNotes);
             }
             catch (Exception Ex)
@@ -413,36 +485,25 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
             }
             return Json(JSONString);
+
         }
-        //[HttpPost]
-        //[ValidateInput(false)]
-        //public ActionResult SaveSubNotes(string CaseNoteId, string CaseNoteDate, string Householdid, string centerid, string ClassroomId, RosterNew.CaseNote CaseNote)
-        //{
-        //    bool isInserted =false;
-        //    try
-        //    {
-        //        isInserted= new RosterData().SaveSubNotes(CaseNoteId, CaseNoteDate, Convert.ToInt32(Householdid), Convert.ToInt32(centerid), ClassroomId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString());                
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //    }
-        //    return Json(isInserted);
-        //}
+
+
+
         public ActionResult GetSubNotes(string CaseNoteId)
         {
             List<SubCaseNote> subList = new List<SubCaseNote>();
             try
             {
                 DataTable dtSubNotes = new DataTable();
-             subList=  new RosterData().GetSubNotes(CaseNoteId);
-             
+                subList = rosterData.GetSubNotes(CaseNoteId);
+
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(subList,JsonRequestBehavior.AllowGet);
+            return Json(subList, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UploadFiles(string monitor)
@@ -465,7 +526,7 @@ namespace Fingerprints.Controllers
                             var fileName = Path.GetFileName(pic.FileName);
                             var _ext = Path.GetExtension(pic.FileName);
                             string name = Path.GetFileNameWithoutExtension(fileName);
-                            isInserted = new RosterData().SaveAttachmentsOnSubNote(Session["AgencyID"].ToString().ToString(), CaseNoteId, new BinaryReader(pic.InputStream).ReadBytes(pic.ContentLength), fileName, _ext, Session["UserID"].ToString(), Subcasenoteid);
+                            isInserted = rosterData.SaveAttachmentsOnSubNote(CaseNoteId, new BinaryReader(pic.InputStream).ReadBytes(pic.ContentLength), fileName, _ext, Subcasenoteid);
 
                         }
                     }
@@ -484,13 +545,10 @@ namespace Fingerprints.Controllers
         public ActionResult SaveSubNotes(RosterNew.CaseNote CaseNote)
         {
 
-
-            //Request.Files.Keys
-
             bool isResult = false;
             try
             {
-                //TempData["CaseNoteid"] = CaseNote.CaseNoteid;
+
 
                 int _householdID = 0;
                 int _centerid = 0;
@@ -500,21 +558,22 @@ namespace Fingerprints.Controllers
                 CaseNote.CenterId = int.TryParse(CaseNote.CenterId, out _centerid) ? _centerid.ToString() : EncryptDecrypt.Decrypt64(CaseNote.CenterId);
                 CaseNote.Classroomid = int.TryParse(CaseNote.Classroomid, out _classroomid) ? _classroomid.ToString() : EncryptDecrypt.Decrypt64(CaseNote.Classroomid);
 
-                if(CaseNote.CaseNoteAttachmentList!=null)
-                CaseNote.CaseNoteAttachmentList.ForEach(x =>
+                if (CaseNote.CaseNoteAttachmentList != null)
                 {
-                    x.AttachmentFileByte = (!string.IsNullOrEmpty(x.AttachmentJson) ? Convert.FromBase64String(x.AttachmentJson) : new byte[0]);
-                });
+                    CaseNote.CaseNoteAttachmentList.ForEach(x =>
+                    {
+                        x.AttachmentFileByte = (!string.IsNullOrEmpty(x.AttachmentJson) ? Convert.FromBase64String(x.AttachmentJson) : new byte[0]);
+                    });
+                }
 
-
-                isResult = RosterData.SaveSubNotes(staff, CaseNote);
+                isResult = rosterData.SaveSubNotes(CaseNote);
 
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(isResult,JsonRequestBehavior.AllowGet);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
         [CustAuthFilter()]
 
@@ -536,14 +595,17 @@ namespace Fingerprints.Controllers
                 caseNoteByClientID.SortOrder = "DESC";
                 caseNoteByClientID.SortColumn = "th1";
                 caseNoteByClientID.IsCaseNoteManager = true;
-                caseNoteByClientID = RosterData.GetCaseNote(ref Name, caseNoteByClientID, staff);
+                caseNoteByClientID = rosterData.GetCaseNote(ref Name, caseNoteByClientID);
                 ViewBag.Name = Name;
 
                 if (!string.IsNullOrEmpty(Request.QueryString["Programid"]))
+                {
                     caseNoteByClientID.ProgramId = Convert.ToString(EncryptDecrypt.Decrypt64(Request.QueryString["Programid"].ToString()));
+                }
                 else
-                    caseNoteByClientID.ProgramId ="0";
-
+                {
+                    caseNoteByClientID.ProgramId = "0";
+                }
 
                 ViewBag.User = Session["FullName"].ToString();
 
@@ -567,30 +629,20 @@ namespace Fingerprints.Controllers
         public ActionResult SaveCaseNote(RosterNew.CaseNote caseNote)
         {
 
-          //  List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
 
             string Name = "";
 
-
-            //if (caseNote.CaseNoteAttachmentList != null)
-            //{
-            //    caseNote.CaseNoteAttachmentList.ForEach(x =>
-            //    {
-            //        x.AttachmentFileByte = (x.AttachmentJson != null && x.AttachmentJson.Trim() != string.Empty) ? Convert.FromBase64String(x.AttachmentJson) : null;
-            //    });
-            //}
-
-            string message = RosterData.SaveCaseNotes(ref Name, caseNote, staff);
+            string message = rosterData.SaveCaseNotes(ref Name, caseNote);
 
             return Json(message, JsonRequestBehavior.AllowGet);
         }
 
-
+        [HttpPost]
         public PartialViewResult GetCaseNotes(CaseNoteByClientID caseNotes)
         {
 
             string Name = "";
-            caseNotes = RosterData.GetCaseNote(ref Name, caseNotes, staff);
+            caseNotes = rosterData.GetCaseNote(ref Name, caseNotes);
             return PartialView("~/Views/Partialviews/_CaseNoteListPartial.cshtml", caseNotes);
         }
 
@@ -608,7 +660,7 @@ namespace Fingerprints.Controllers
                 REF obj_REF = new REF();
 
 
-                this.GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
+                GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
 
                 return View(obj_REF);
             }
@@ -617,8 +669,9 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(ex);
                 return View(new REF());
             }
-        
+
         }
+
         public ActionResult ReferralCategorycompanyPopUp(string id, string clientName = "")
         {
 
@@ -627,21 +680,21 @@ namespace Fingerprints.Controllers
             //var refList = new List<REF>();
             //refList = RosterData.ReferralCategoryCompany(ClientId);
             //obj_REF.refListData = refList;
-            this.GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
+            GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
 
-           return Json(obj_REF.refListData, JsonRequestBehavior.AllowGet);
+            return Json(obj_REF.refListData, JsonRequestBehavior.AllowGet);
         }
 
 
-        public PartialViewResult GetReferralCategoryCompanyPartial(string id, string clientName="")
+        public PartialViewResult GetReferralCategoryCompanyPartial(string id, string clientName = "")
         {
             REF obj_REF = new REF();
-            this.GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
+            GetReferralCategoryCompanyList(ref obj_REF, id, clientName);
             return PartialView("~/Views/Partialviews/Referral/_ReferralCategoryCompanyPartial.cshtml", obj_REF);
         }
 
 
-        public void GetReferralCategoryCompanyList(ref REF _objRef,string _id,string _clientName)
+        public void GetReferralCategoryCompanyList(ref REF _objRef, string _id, string _clientName)
         {
             try
             {
@@ -649,12 +702,12 @@ namespace Fingerprints.Controllers
 
                 _objRef.id = _id;
                 _objRef.clientName = _clientName;
-                _objRef.ScreeningReferralYakkr = Request.QueryString["ScreeningReferralYakkr"]!=null && !String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? Request.QueryString["ScreeningReferralYakkr"].ToString(): EncryptDecrypt.Encrypt64("0") ;
+                _objRef.ScreeningReferralYakkr = Request.QueryString["ScreeningReferralYakkr"] != null && !String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? Request.QueryString["ScreeningReferralYakkr"].ToString() : EncryptDecrypt.Encrypt64("0");
                 //var refList = new List<REF>();
-                _objRef.refListData = RosterData.ReferralCategoryCompany(ClientId);
-               // _objRef.refListData = refList;
+                _objRef.refListData = rosterData.ReferralCategoryCompany(ClientId);
+                // _objRef.refListData = refList;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -664,19 +717,19 @@ namespace Fingerprints.Controllers
         {
 
             List<SelectListItem> selectlist = new List<SelectListItem>();
-            string agencyId = Session["AgencyId"].ToString();
-            selectlist = new RosterData().GetServiceReference(agencyId);
+            selectlist = rosterData.GetServiceReference(staff.AgencyId);
             return Json(selectlist, JsonRequestBehavior.AllowGet);
 
 
         }
+
 
         [CustAuthFilter()]
         public ActionResult ReferralCategory(ReferralList ReferralCategory)
         {
             REF obj_REF = new REF();
 
-            this.GetReferralCategoryList(ref obj_REF, ReferralCategory);
+            GetReferralCategoryList(ref obj_REF, ReferralCategory);
 
             TempData["tempClientId"] = ReferralCategory.id;
             TempData.Keep("tempClientId");
@@ -692,11 +745,10 @@ namespace Fingerprints.Controllers
         public JsonResult ReferralCategoryPopup(ReferralList ReferralCategory)
         {
             int clientId = (ReferralCategory.ReferralClientId == null) ? Convert.ToInt32(EncryptDecrypt.Decrypt64(ReferralCategory.id)) : Convert.ToInt32(EncryptDecrypt.Decrypt64(ReferralCategory.id));
-            // ViewBag.UniqueClientId = ReferralCategory.id;
 
             REF obj_REF = new REF();
             var refList = new List<REF>();
-            refList = RosterData.ReferralCategory(clientId, ReferralCategory.ReferralClientId, Convert.ToInt32(ReferralCategory.Step));
+            refList = rosterData.ReferralCategory(clientId, ReferralCategory.ReferralClientId, Convert.ToInt32(ReferralCategory.Step));
             obj_REF.refListData = refList;
 
             long refferralClientId = (string.IsNullOrEmpty(ReferralCategory.ReferralClientId.ToString())) ? 0 : (long)ReferralCategory.ReferralClientId;
@@ -708,7 +760,7 @@ namespace Fingerprints.Controllers
         {
             REF referral = new REF();
 
-            this.GetReferralCategoryList(ref referral, ReferralCategory);
+            GetReferralCategoryList(ref referral, ReferralCategory);
 
             return PartialView("~/Views/Partialviews/Referral/_ReferralCategoryPartial.cshtml", referral);
         }
@@ -738,7 +790,7 @@ namespace Fingerprints.Controllers
                 }
 
 
-                referral.refListData = RosterData.ReferralCategory(ClientId, referralList.ReferralClientId, Convert.ToInt32(referralList.Step));
+                referral.refListData = rosterData.ReferralCategory(ClientId, referralList.ReferralClientId, Convert.ToInt32(referralList.Step));
             }
             catch (Exception ex)
             {
@@ -751,7 +803,7 @@ namespace Fingerprints.Controllers
         public ActionResult HouseHoldReferrals(long referralClientId)
         {
             List<SelectListItem> referrals = new List<SelectListItem>();
-            referrals = RosterData.GetSelectedReferrals(referralClientId);
+            referrals = rosterData.GetSelectedReferrals(referralClientId);
             return Json(referrals, JsonRequestBehavior.AllowGet);
         }
 
@@ -770,14 +822,13 @@ namespace Fingerprints.Controllers
                 List<long> referralIdentity = new List<long>();
 
                 long screeningReferral = 0;
-
-                long.TryParse(string.IsNullOrEmpty(SaveReferral.ScreeningReferralYakkr) ? "0":EncryptDecrypt.Decrypt64(SaveReferral.ScreeningReferralYakkr), out screeningReferral);
+                long.TryParse(string.IsNullOrEmpty(SaveReferral.ScreeningReferralYakkr) ? "0" : EncryptDecrypt.Decrypt64(SaveReferral.ScreeningReferralYakkr), out screeningReferral);
 
 
 
                 foreach (var item in serviceID_Array)
                 {
-                    long referralId = RosterData.SaveReferralClient(Convert.ToInt32(item), CommanClientId_, new Guid(SaveReferral.AgencyId), Step, Status, CreatedBy, SaveReferral.referralClientId, screeningReferralYakkr: screeningReferral);
+                    long referralId = rosterData.SaveReferralClient(Convert.ToInt32(item), CommanClientId_, new Guid(SaveReferral.AgencyId), Step, Status, CreatedBy, SaveReferral.referralClientId, screeningReferralYakkr: screeningReferral);
                     referralIdentity.Add(referralId);
 
                 }
@@ -794,14 +845,14 @@ namespace Fingerprints.Controllers
                         int count = 0;
                         foreach (var item in ClientId_Array)
                         {
-                            Success = RosterData.SaveHouseHold(Convert.ToInt32(item), CommanClientId_, Step, Status, Convert.ToInt32(SaveReferral.HouseHoldId), Convert.ToInt64(id), querycommand);
+                            Success = rosterData.SaveHouseHold(Convert.ToInt32(item), CommanClientId_, Step, Status, Convert.ToInt32(SaveReferral.HouseHoldId), Convert.ToInt64(id), querycommand);
                             count++;
                         }
                     }
                 }
                 else
                 {
-                    Success = RosterData.SaveHouseHold(0, CommanClientId_, Step, Status, Convert.ToInt32(SaveReferral.HouseHoldId), SaveReferral.referralClientId, querycommand, SaveReferral.ClientId);
+                    Success = rosterData.SaveHouseHold(0, CommanClientId_, Step, Status, Convert.ToInt32(SaveReferral.HouseHoldId), SaveReferral.referralClientId, querycommand, SaveReferral.ClientId);
                 }
 
                 return Success;
@@ -824,12 +875,9 @@ namespace Fingerprints.Controllers
                 string cId = (string.IsNullOrEmpty(SaveProvider.ClientId)) ? TempData["tempClientId"].ToString() : SaveProvider.ClientId;
                 SaveProvider.Description = (SaveProvider.Description == null) ? SaveProvider.Description = "" : SaveProvider.Description;
 
-                int _decClientId = 0;
-                SaveProvider.ClientId = int.TryParse(cId,out _decClientId)?_decClientId.ToString(): EncryptDecrypt.Decrypt64(cId);
+                SaveProvider.ClientId = EncryptDecrypt.Decrypt64<long>(cId).ToString();
 
-                //  Success = RosterData.SaveMatchProviders(SaveProvider.ReferralDate, SaveProvider.Description, SaveProvider.ServiceResourceId, SaveProvider.AgencyId, UserId, ClientId, SaveProvider.CommunityId, SaveProvider.ReferralClientServiceId);
-
-                Success = RosterData.SaveMatchProviders(SaveProvider);
+                Success = rosterData.SaveMatchProviders(SaveProvider);
 
                 if (Success)
                 {
@@ -860,22 +908,19 @@ namespace Fingerprints.Controllers
                 int Step = 3;
 
                 long referenceID = 0;
-                bool Status = true;
-             
-                //  referenceID = RosterData.SaveReferral(Savereferral.ReferralDate, Savereferral.Description == null ? "" : Savereferral.Description, Convert.ToInt32(Savereferral.ServiceResourceId), Savereferral.AgencyId, UserId, commanclient, Convert.ToInt32(Savereferral.CommunityId), Convert.ToInt32(Savereferral.ReferralClientServiceId));
 
-                referenceID = RosterData.SaveReferral(Savereferral);
+                referenceID = rosterData.SaveReferral(Savereferral);
 
 
 
                 string[] ClientId_Array = Savereferral.ClientId.Split(',');
                 int count = 0;
 
-                if(referenceID>0)
+                if (referenceID > 0)
                 {
                     foreach (var item in ClientId_Array)
                     {
-                        Success = RosterData.SaveHouseHold(Convert.ToInt32(item), commanclient, Step, Status, Convert.ToInt32(Savereferral.HouseHoldId), referenceID, "INSERT");
+                        Success = rosterData.SaveHouseHold(Convert.ToInt32(item), commanclient, Step, true, Convert.ToInt32(Savereferral.HouseHoldId), referenceID, "INSERT");
                         count++;
                     }
                 }
@@ -883,7 +928,7 @@ namespace Fingerprints.Controllers
                 {
                     Success = false;
                 }
-               
+
 
                 //yakkr450 insert moved to sp_ReferalOperations SP
                 //  RosterData.YakkarInsert(Savereferral.AgencyId, UserId, commanclient);
@@ -899,7 +944,7 @@ namespace Fingerprints.Controllers
         public bool DeleteReferralService(long ReferralClientServiceId)
         {
             bool Success = false;
-            Success = RosterData.DeleteReferralService(ReferralClientServiceId);
+            Success = rosterData.DeleteReferralService(ReferralClientServiceId);
             return true;
         }
 
@@ -912,7 +957,7 @@ namespace Fingerprints.Controllers
         public ActionResult LoadSurveyOptions(long ReferralClientId)
         {
             string userId = Session["UserID"].ToString();
-            var surveyList = RosterData.LoadSurveyOptions(ReferralClientId, userId);
+            var surveyList = rosterData.LoadSurveyOptions(ReferralClientId);
             if (surveyList != null && surveyList.Count > 0)
             {
                 return Json(surveyList, JsonRequestBehavior.AllowGet);
@@ -925,8 +970,7 @@ namespace Fingerprints.Controllers
         {
             dynamic distanceJsonResult = surveyoptions;
             List<SurveyOptions> surveyOptions = JsonConvert.DeserializeObject<List<SurveyOptions>>(distanceJsonResult);
-            string userId = Session["UserID"].ToString();
-            RosterData.InsertSurveyOptions(surveyOptions, ReferralClientId, userId, isUpdate);
+            rosterData.InsertSurveyOptions(surveyOptions, ReferralClientId, isUpdate);
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
@@ -941,7 +985,7 @@ namespace Fingerprints.Controllers
 
 
 
-                this.GetMatchProvidersList(ref obj_MPM, MatchProvider, CommunityIds);
+                GetMatchProvidersList(ref obj_MPM, MatchProvider, CommunityIds);
 
                 int _step = 0;
                 int.TryParse(stepId, out _step);
@@ -967,26 +1011,20 @@ namespace Fingerprints.Controllers
         public JsonResult MatchProvidersPopUp(string id, string parentName, int referralClientId, string clientName, string CommunityIds, string stepId = "")
         {
             ViewBag.ReferralClientId = 0;
-            //if (MatchProvider.AgencyId != "" || MatchProvider.AgencyId != null)
-            //{
-            //    ViewBag.ReferralClientId = MatchProvider.referralClientId;
-            //    // MatchProvider.referralClientId = 0;
-            //}
+
             string AgencyId = Session["AgencyID"].ToString();
             MatchProviderModel obj_MPM = new MatchProviderModel();
             var matchProvidersList = new List<MatchProviderModel>();
             List<SelectListItem> OrganizationList = new List<SelectListItem>();
-            matchProvidersList = RosterData.MatchProviders(AgencyId, CommunityIds, referralClientId);
+            matchProvidersList = rosterData.MatchProviders(CommunityIds, referralClientId);
             obj_MPM.ParentName = parentName;
             obj_MPM.AgencyId = AgencyId;
             obj_MPM.MPMList = matchProvidersList;
             if (matchProvidersList != null && matchProvidersList.Count() > 0)
             {
-                //OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), matchProvidersList.FirstOrDefault().AgencyId);
-                OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), AgencyId);
+                OrganizationList = rosterData.FamilyServiceList(Convert.ToInt64(matchProvidersList.FirstOrDefault().ServiceId));
 
             }
-
 
             obj_MPM.OrganizationList = OrganizationList;
             return Json(obj_MPM, JsonRequestBehavior.AllowGet);
@@ -997,7 +1035,7 @@ namespace Fingerprints.Controllers
         {
             MatchProviderModel objModel = new MatchProviderModel();
 
-            this.GetMatchProvidersList(ref objModel, MatchProvider, CommunityIds);
+            GetMatchProvidersList(ref objModel, MatchProvider, CommunityIds);
             int stepid = 0;
             objModel.Step = int.TryParse(stepId, out stepid) ? stepid : stepid;
 
@@ -1009,40 +1047,29 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                //    ViewBag.ReferralClientId = 0;
+
                 if (matchProvider.AgencyId != "" || matchProvider.AgencyId != null)
                 {
-                    //  ViewBag.ReferralClientId = MatchProvider.referralClientId;
+
                     matchProvidersModel.ReferralClientId = matchProvider.referralClientId;
                 }
-                //    ViewBag.ClientName = MatchProvider.clientName;
-
-                matchProvider.AgencyId = Session["AgencyId"].ToString();
-                //  ViewBag.Id = MatchProvider.id;
-
-                //   ViewBag.StepId = stepId;
-
-                //   ViewBag.ScreeningReferralYakkr = MatchProvider.ScreeningReferralYakkr;
-
 
                 matchProvidersModel.clientName = matchProvider.clientName;
                 matchProvidersModel.id = matchProvider.id;
                 matchProvidersModel.ScreeningReferralYakkr = matchProvider.ScreeningReferralYakkr;
 
-
-
                 TempData.Keep("tempClientId");
 
                 var matchProvidersList = new List<MatchProviderModel>();
                 List<SelectListItem> OrganizationList = new List<SelectListItem>();
-                matchProvidersList = RosterData.MatchProviders(matchProvider.AgencyId, communityIds, matchProvider.referralClientId);
+                matchProvidersList = rosterData.MatchProviders(communityIds, matchProvider.referralClientId);
                 matchProvidersModel.ParentName = matchProvider.parentName;
                 matchProvidersModel.AgencyId = matchProvider.AgencyId;
                 matchProvidersModel.MPMList = matchProvidersList;
                 matchProvidersModel.ScreeningReferralYakkr = matchProvider.ScreeningReferralYakkr;
                 if (matchProvidersList != null && matchProvidersList.Count() > 0)
                 {
-                    OrganizationList = RosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId), matchProvider.AgencyId);
+                    OrganizationList = rosterData.FamilyServiceList(Convert.ToInt32(matchProvidersList.FirstOrDefault().ServiceId));
 
                 }
 
@@ -1062,12 +1089,13 @@ namespace Fingerprints.Controllers
             ViewBag.ScreeningReferralYakkr = Request.QueryString["scrYakkr"] != null && !string.IsNullOrEmpty(Request.QueryString["scrYakkr"].ToString()) ? Request.QueryString["scrYakkr"].ToString() : EncryptDecrypt.Encrypt64("0");
             int takeRecords = 10;
             int skipRecords = 0;
-            ReferralServiceModel referralService = this.GetReferralServiceList(id, takeRecords, skipRecords,_yakkrCode:0);
+            ReferralServiceModel referralService = GetReferralServiceList(id, takeRecords, skipRecords, _yakkrCode: 0);
             referralService.ClientName = ClientName;
             referralService._EncClientId = id;
             TempData["tempClientId"] = id;
             TempData.Keep("tempClientId");
             return View(referralService);
+
         }
 
         /// <summary>
@@ -1082,7 +1110,7 @@ namespace Fingerprints.Controllers
 
             var ReferralList = new List<ReferralServiceModel>();
             long clientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(ClientId));
-            ReferralServiceModel referralService = this.GetReferralServiceList(ClientId, _takeRecords: 1000, _skipRecords: 0,_yakkrCode:0);
+            ReferralServiceModel referralService = GetReferralServiceList(ClientId, _takeRecords: 1000, _skipRecords: 0, _yakkrCode: 0);
             ReferralList = referralService.referralserviceList;
             return Json(ReferralList, JsonRequestBehavior.AllowGet);
         }
@@ -1095,7 +1123,7 @@ namespace Fingerprints.Controllers
         /// <param name="AgencyId"></param>
         /// <returns></returns>
         /// 
-        public PartialViewResult GetReferralServiceListPartial(string clientId, int pageSize, int requestedPage,int yakkrCode=0)
+        public PartialViewResult GetReferralServiceListPartial(string clientId, int pageSize, int requestedPage, int yakkrCode = 0)
         {
 
             var ReferralList = new List<ReferralServiceModel>();
@@ -1103,7 +1131,7 @@ namespace Fingerprints.Controllers
             int skip = pageSize * (requestedPage - 1);
             skip = (skip < 0) ? 0 : skip;
 
-            ReferralServiceModel referralService = this.GetReferralServiceList(clientId, pageSize, skip,_yakkrCode: yakkrCode);
+            ReferralServiceModel referralService = GetReferralServiceList(clientId, pageSize, skip, _yakkrCode: yakkrCode);
             return PartialView("~/Views/Partialviews/Referral/_ReferralServiceListPartial.cshtml", referralService);
         }
 
@@ -1125,7 +1153,7 @@ namespace Fingerprints.Controllers
             int skip = pageSize * (requestedPage - 1);
             skip = (skip < 0) ? 0 : skip;
 
-            ReferralServiceModel referralService = this.GetReferralServiceList(clientId, pageSize, skip,_yakkrCode:601);
+            ReferralServiceModel referralService = GetReferralServiceList(clientId, pageSize, skip, _yakkrCode: 601);
             return PartialView("~/Views/Partialviews/Referral/_ReferralServicePartial.cshtml", referralService);
         }
 
@@ -1136,7 +1164,7 @@ namespace Fingerprints.Controllers
             int _totalRecords = 0;
             ReferralServiceModel referralServiceModel = new ReferralServiceModel();
             long _clientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(_encClientId));
-            referralServiceModel.referralserviceList = RosterData.ReferralService(ref _totalRecords, _clientId, _takeRecords, _skipRecords, _yakkrCode);
+            referralServiceModel.referralserviceList = rosterData.ReferralService(ref _totalRecords, _clientId, _takeRecords, _skipRecords, _yakkrCode);
             referralServiceModel.TotalRecords = _takeRecords;
             referralServiceModel._EncClientId = _encClientId;
             referralServiceModel.ClientId = _clientId;
@@ -1153,13 +1181,13 @@ namespace Fingerprints.Controllers
         /// <param name="ServiceId"></param>
         /// <param name="AgencyId"></param>
         /// <returns></returns>
-        public ActionResult FamilyResourcesList(Int32 ServiceId, string AgencyId)
+        public ActionResult FamilyResourcesList(int serviceId)
         {
             try
             {
-                AgencyId = (AgencyId == "") ? Session["AgencyId"].ToString() : AgencyId;
+
                 List<SelectListItem> listOrganization = new List<SelectListItem>();
-                listOrganization = RosterData.FamilyServiceList(ServiceId, AgencyId);
+                listOrganization = rosterData.FamilyServiceList(serviceId);
                 return Json(new { listOrganization }, JsonRequestBehavior.AllowGet);
 
             }
@@ -1175,12 +1203,12 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        public ActionResult FamilyServiceListCompany(Int32 ServiceId, string AgencyId)
+        public ActionResult FamilyServiceListCompany(Int32 ServiceId)
         {
             try
             {
                 List<SelectListItem> listOrganization = new List<SelectListItem>();
-                listOrganization = RosterData.FamilyServiceListCompany(ServiceId, AgencyId);
+                listOrganization = rosterData.FamilyServiceListCompany(ServiceId);
                 return Json(new { listOrganization }, JsonRequestBehavior.AllowGet);
 
             }
@@ -1194,8 +1222,8 @@ namespace Fingerprints.Controllers
         public ActionResult GetReferralType(int communityId)
         {
             List<SelectListItem> referralType = new List<SelectListItem>();
-            string agencyId = Session["AgencyId"].ToString();
-            referralType = RosterData.GetReferralType(communityId, agencyId);
+
+            referralType = rosterData.GetReferralType(communityId);
             return Json(referralType, JsonRequestBehavior.AllowGet);
         }
         public ActionResult GetOrganization(Int32 CommunityId)
@@ -1203,7 +1231,7 @@ namespace Fingerprints.Controllers
             try
             {
                 MatchProviderModel matchProviderModel = new MatchProviderModel();
-                matchProviderModel = RosterData.GetOrganization(CommunityId);
+                matchProviderModel = rosterData.GetOrganization(CommunityId);
                 var jsonResult = Json(matchProviderModel, JsonRequestBehavior.AllowGet);
                 jsonResult.MaxJsonLength = int.MaxValue;
                 return jsonResult;
@@ -1220,7 +1248,7 @@ namespace Fingerprints.Controllers
             try
             {
                 REF refOrg = new REF();
-                refOrg = RosterData.GetOrganizationCompany(CommunityId);
+                refOrg = rosterData.GetOrganizationCompany(CommunityId);
                 var jsonResult = Json(refOrg, JsonRequestBehavior.AllowGet);
                 jsonResult.MaxJsonLength = int.MaxValue;
                 return jsonResult;
@@ -1235,12 +1263,12 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         [ValidateInput(false)]
         [HttpPost]
-        public ActionResult CaseNotesclient(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments,int Mode=1)
+        public ActionResult CaseNotesclient(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments, int Mode = 1)
         {
             try
             {
-               
-                                   
+
+
                 List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
 
                 StringBuilder _Ids = new StringBuilder();
@@ -1267,7 +1295,7 @@ namespace Fingerprints.Controllers
                 CaseNote.CaseNoteAttachmentList = Attachments;
 
                 CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
-        
+
                 string Name = "";
                 if (CaseNote.HouseHoldId != "0")
                 {
@@ -1276,7 +1304,7 @@ namespace Fingerprints.Controllers
                 CaseNote.IsLateArrival = false;
 
 
-                if(CaseNote.CaseNoteAttachmentList!=null && CaseNote.CaseNoteAttachmentList.Count>0)
+                if (CaseNote.CaseNoteAttachmentList != null && CaseNote.CaseNoteAttachmentList.Count > 0)
                 {
                     CaseNote.CaseNoteAttachmentList.ForEach(x =>
                     {
@@ -1287,22 +1315,27 @@ namespace Fingerprints.Controllers
                     });
                 }
 
-                string message = RosterData.SaveCaseNotes(ref Name, CaseNote, staff, Mode);
-  
+                string message = rosterData.SaveCaseNotes(ref Name, CaseNote, Mode);
+
                 if (message == "1")
+                {
                     TempData["CaseNoteMessage"] = "Case Note saved successfully.";
+                }
                 else
+                {
                     TempData["CaseNoteMessage"] = "Please try again.";
+                }
 
                 if (Mode == 3)
+                {
                     return Redirect("/AgencyUser/FamilySummary/" + ViewBag.Householdid);
-
+                }
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return RedirectToAction("CaseNotesclient","Roster", new { @id = EncryptDecrypt.Encrypt64(CaseNote.ClientId).Trim(), @Programid=EncryptDecrypt.Encrypt64(CaseNote.ProgramId),@centerid=EncryptDecrypt.Encrypt64(CaseNote.CenterId), @Householdid=CaseNote.HouseHoldId });
+            return RedirectToAction("CaseNotesclient", "Roster", new { @id = EncryptDecrypt.Encrypt64(CaseNote.ClientId).Trim(), @Programid = EncryptDecrypt.Encrypt64(CaseNote.ProgramId), @centerid = EncryptDecrypt.Encrypt64(CaseNote.CenterId), @Householdid = CaseNote.HouseHoldId });
         }
         //Changes on 29Dec2016
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -1325,13 +1358,15 @@ namespace Fingerprints.Controllers
 
                 // return Json(RosterData.GetcaseNoteDetail(Casenoteid, ClientId, staff));
 
-                casenotebyClientId.CaseNote = new CaseNote();
-                casenotebyClientId.CaseNote.CaseNoteid = long.TryParse(caseNoteId, out _tryTest) ? caseNoteId : EncryptDecrypt.Decrypt64(caseNoteId);
-                casenotebyClientId.CaseNote.ClientId = long.TryParse(clientId, out _tryTest) ? clientId : EncryptDecrypt.Decrypt64(clientId);
-                casenotebyClientId.CaseNote.HouseHoldId = long.TryParse(householdId, out _tryTest) ? householdId : EncryptDecrypt.Decrypt64(householdId);
+                casenotebyClientId.CaseNote = new CaseNote
+                {
+                    CaseNoteid = long.TryParse(caseNoteId, out _tryTest) ? caseNoteId : EncryptDecrypt.Decrypt64(caseNoteId),
+                    ClientId = long.TryParse(clientId, out _tryTest) ? clientId : EncryptDecrypt.Decrypt64(clientId),
+                    HouseHoldId = long.TryParse(householdId, out _tryTest) ? householdId : EncryptDecrypt.Decrypt64(householdId)
+                };
 
 
-                casenotebyClientId = RosterData.GetCaseNoteByCaseNoteId(casenotebyClientId, staff);
+                casenotebyClientId = rosterData.GetCaseNoteByCaseNoteId(casenotebyClientId);
 
             }
             catch (Exception Ex)
@@ -1347,21 +1382,15 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter()]
-        public ActionResult GetcasenotedetailByCaseNoteId(string Casenoteid,  string ClientId = "")
+        public ActionResult GetcasenotedetailByCaseNoteId(string Casenoteid, string ClientId = "")
         {
 
             try
             {
-               
+
+                return Json(rosterData.GetcaseNoteDetail(Casenoteid, ClientId));
 
 
-         
-
-                
-
-                return Json(RosterData.GetcaseNoteDetail(Casenoteid, ClientId, staff));
-
-              
 
             }
             catch (Exception Ex)
@@ -1369,7 +1398,7 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
                 return Json("Error occurred. Please, try again later.", JsonRequestBehavior.AllowGet);
             }
-        
+
         }
 
         [HttpPost]
@@ -1380,17 +1409,18 @@ namespace Fingerprints.Controllers
             try
             {
 
-                long _tryTest = 0;
+
 
                 casenotebyClientId.CaseNote = new CaseNote();
-                casenotebyClientId.CaseNote.CaseNoteid = long.TryParse(caseNoteId, out _tryTest) ? caseNoteId : EncryptDecrypt.Decrypt64(caseNoteId);
-                casenotebyClientId.CaseNote.ClientId = long.TryParse(clientId, out _tryTest) ? clientId : EncryptDecrypt.Decrypt64(clientId);
-                casenotebyClientId.CaseNote.HouseHoldId = long.TryParse(householdId, out _tryTest) ? householdId : EncryptDecrypt.Decrypt64(householdId);
+                casenotebyClientId.CaseNote.CaseNoteid = EncryptDecrypt.Decrypt64<long>(caseNoteId).ToString();
+                casenotebyClientId.CaseNote.ClientId = EncryptDecrypt.Decrypt64<long>(clientId).ToString();
+
+                casenotebyClientId.CaseNote.HouseHoldId = EncryptDecrypt.Decrypt64<long>(householdId).ToString();
 
 
-            casenotebyClientId = RosterData.GetCaseNoteByCaseNoteId(casenotebyClientId, staff);
+                casenotebyClientId = rosterData.GetCaseNoteByCaseNoteId(casenotebyClientId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1407,7 +1437,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(RosterData.GetElementInfo(DomainId));
+                return Json(rosterData.GetElementInfo(DomainId));
             }
             catch (Exception Ex)
             {
@@ -1438,7 +1468,7 @@ namespace Fingerprints.Controllers
             try
             {
                 ViewBag.mode = 1;
-                return Json(RosterData.GetFPADetails(FPAID));
+                return Json(rosterData.GetFPADetails(FPAID));
             }
             catch (Exception Ex)
             {
@@ -1454,7 +1484,7 @@ namespace Fingerprints.Controllers
             try
             {
                 ViewBag.mode = 1;
-                return Json(RosterData.DeleteStepView(StepId));
+                return Json(rosterData.DeleteStepView(StepId));
             }
             catch (Exception Ex)
             {
@@ -1471,7 +1501,7 @@ namespace Fingerprints.Controllers
             {
                 string strfpaid = FingerprintsModel.EncryptDecrypt.Decrypt64(FPAID);
                 ViewBag.mode = 1;
-                object Delete = (RosterData.DeleteFPA(strfpaid));
+                object Delete = (rosterData.DeleteFPA(strfpaid));
                 return Json(Delete, JsonRequestBehavior.AllowGet);
 
 
@@ -1499,7 +1529,7 @@ namespace Fingerprints.Controllers
                 }
                 else { }
                 string totalrecord;
-                var list = RosterData.GetFPAGoalListForHousehold(out totalrecord, search, clientid, sortOrder, sortDirection, skip, pageSize);
+                var list = rosterData.GetFPAGoalListForHousehold(out totalrecord, search, clientid, sortOrder, sortDirection, skip, pageSize);
 
                 return Json(new { list, totalrecord });
             }
@@ -1543,7 +1573,7 @@ namespace Fingerprints.Controllers
                     Export export = new Export();
 
                     obj.FPAID = Convert.ToInt64(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["FPA"].ToString()));
-                    obj = RosterData.GetFpa(Convert.ToInt64(obj.FPAID));
+                    obj = rosterData.GetFpa(Convert.ToInt64(obj.FPAID));
                     Response.Cache.SetCacheability(HttpCacheability.NoCache);
                     Response.Clear();
                     Response.ContentType = "application/pdf";
@@ -1577,7 +1607,7 @@ namespace Fingerprints.Controllers
                 string fpaId = FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["FPAid"].ToString());
                 string clientId = FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["id"].ToString());
                 int iFPAid = Convert.ToInt32(fpaId);
-                var FPADATA = new RosterData().GetFpa(iFPAid);
+                var FPADATA = rosterData.GetFpa(iFPAid);
                 return FPADATA;
             }
             catch (Exception Ex)
@@ -1594,8 +1624,7 @@ namespace Fingerprints.Controllers
         public ActionResult FPA()
         {
             FingerprintsModel.FPA obj = new FingerprintsModel.FPA();
-            RosterData objdata = new RosterData();
-            obj = objdata.GetData_AllDropdown();
+            obj = rosterData.GetData_AllDropdown();
             ViewBag.CateList = obj.cateList;
             TempData["CateList"] = ViewBag.CateList;
             ViewBag.DomList = obj.domList;
@@ -1604,7 +1633,7 @@ namespace Fingerprints.Controllers
             if (Request.QueryString.AllKeys.Contains("FPAid") && !string.IsNullOrEmpty(Request.QueryString["FPAid"].ToString()))
             {
                 obj.FPAID = Convert.ToInt32(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["FPAid"].ToString()));
-                obj = RosterData.GetFpa(obj.FPAID);
+                obj = rosterData.GetFpa(obj.FPAID);
                 obj.EncriptedFPAID = FingerprintsModel.EncryptDecrypt.Encrypt64(obj.FPAID.ToString());
             }
             else
@@ -1617,7 +1646,7 @@ namespace Fingerprints.Controllers
                 obj.EncyrptedClientId = FingerprintsModel.EncryptDecrypt.Encrypt64(obj.ClientId.ToString());
                 if (obj.FPAID <= 0)
                 {
-                    DataSet ds = RosterData.getParentNames(obj.ClientId);
+                    DataSet ds = rosterData.getParentNames(obj.ClientId);
                     if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                     {
                         if (ds.Tables[0].Rows.Count > 1)
@@ -1661,9 +1690,9 @@ namespace Fingerprints.Controllers
             {
                 obj.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
                 obj.EncyrptedClientId = EncryptDecrypt.Encrypt64(obj.ClientId.ToString());
-                RosterData objdata = new RosterData();
-                objNew = objdata.GetData_AllDropdown();
-                DataSet ds = RosterData.getParentNames(obj.ClientId);
+
+                objNew = rosterData.GetData_AllDropdown();
+                DataSet ds = rosterData.getParentNames(obj.ClientId);
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 1)
@@ -1700,14 +1729,13 @@ namespace Fingerprints.Controllers
         [HttpPost]
         public ActionResult FPA(string command, FingerprintsModel.FPA info, FormCollection collection, List<FingerprintsModel.FPASteps> GoalSteps)
         {
-            RosterData objdata = new RosterData();
             FPA obj = new FPA();
             if (!string.IsNullOrEmpty(command))
             {
                 try
                 {
                     Export export = new Export();
-                    obj = objdata.GetData_AllDropdown();
+                    obj = rosterData.GetData_AllDropdown();
                     obj.GoalFor = Convert.ToInt32(Request.Form["GoalFor"].ToString());
                     ViewBag.DomList = obj.domList;
                     TempData["DomList"] = ViewBag.DomList;
@@ -1716,7 +1744,7 @@ namespace Fingerprints.Controllers
 
                     obj = info;
                     //  string fpaid = FingerprintsModel.EncryptDecrypt.Decrypt64(info.FPAID);
-                    obj = RosterData.GetFpa(Convert.ToInt32(info.FPAID));
+                    obj = rosterData.GetFpa(Convert.ToInt32(info.FPAID));
                     Response.Cache.SetCacheability(HttpCacheability.NoCache);
                     Response.Clear();
                     Response.ContentType = "application/pdf";
@@ -1740,7 +1768,7 @@ namespace Fingerprints.Controllers
             else
             {
 
-                obj = objdata.GetData_AllDropdown();
+                obj = rosterData.GetData_AllDropdown();
                 obj.GoalFor = Convert.ToInt32(Request.Form["GoalFor"].ToString());
                 ViewBag.DomList = obj.domList;
                 TempData["DomList"] = ViewBag.DomList;
@@ -1768,7 +1796,7 @@ namespace Fingerprints.Controllers
                     obj.GoalFor = 1;
                 }
                 string message = "";
-               // int Mode = 2;
+                // int Mode = 2;
                 try
                 {
                     info.Category = (collection["DdlCateList"] == null) ? null : collection["DdlCateList"].ToString();
@@ -1776,15 +1804,15 @@ namespace Fingerprints.Controllers
                     if (info.FPAID > 0)
                     {
                         //Update Data
-                       // string UpdateParameter = "UPDATE";
-                        message = objdata.AddFPA(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
+                        // string UpdateParameter = "UPDATE";
+                        message = rosterData.AddFPA(info, 1);
                         // objdata.CheckByClient(UpdateParameter, Mode);
                     }
                     else
                     {
                         //Insert Data
-                    //    string InsertParameter = "INSERT";
-                        message = objdata.AddFPA(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
+                        //    string InsertParameter = "INSERT";
+                        message = rosterData.AddFPA(info, 0);
                         // objdata.CheckByClient(InsertParameter, Mode);
                     }
                     ViewBag.result = "Success";
@@ -1826,8 +1854,7 @@ namespace Fingerprints.Controllers
         public ActionResult FPAParent()
         {
             FingerprintsModel.FPA obj = new FingerprintsModel.FPA();
-            RosterData objdata = new RosterData();
-            obj = objdata.GetData_AllDropdown();
+            obj = rosterData.GetData_AllDropdown();
             ViewBag.CateList = obj.cateList;
             TempData["CateList"] = ViewBag.CateList;
             ViewBag.DomList = obj.domList;
@@ -1835,7 +1862,7 @@ namespace Fingerprints.Controllers
             if (Request.QueryString.AllKeys.Contains("FPAid") && !string.IsNullOrEmpty(Request.QueryString["FPAid"].ToString()))
             {
                 obj.FPAID = Convert.ToInt32(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["FPAid"].ToString()));
-                obj = RosterData.GetFpaforParents(obj.FPAID);
+                obj = rosterData.GetFpaforParents(obj.FPAID);
                 obj.EncriptedFPAID = FingerprintsModel.EncryptDecrypt.Encrypt64(obj.FPAID.ToString());
             }
             else
@@ -1846,7 +1873,7 @@ namespace Fingerprints.Controllers
             {
                 obj.ClientId = Convert.ToInt64(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["id"].ToString()));
                 obj.EncyrptedClientId = FingerprintsModel.EncryptDecrypt.Encrypt64(obj.ClientId.ToString());
-                DataSet ds = RosterData.getParentNames(obj.ClientId);
+                DataSet ds = rosterData.getParentNames(obj.ClientId);
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 1)
@@ -1874,11 +1901,11 @@ namespace Fingerprints.Controllers
         [HttpPost]
         public ActionResult FPAParent(FingerprintsModel.FPA info, FormCollection collection, List<FingerprintsModel.FPASteps> GoalSteps)
         {
-            RosterData objdata = new RosterData();
+
             FPA obj = new FPA();
 
-            obj = objdata.GetData_AllDropdown();
-            obj = RosterData.GetFpa(info.FPAID);
+            obj = rosterData.GetData_AllDropdown();
+            obj = rosterData.GetFpa(info.FPAID);
             // obj.GoalFor = Convert.ToInt32(Request.Form["GoalFor"].ToString());
             obj.GoalSteps.Clear();
             ViewBag.DomList = obj.domList;
@@ -1904,12 +1931,12 @@ namespace Fingerprints.Controllers
             string message = "";
             try
             {
-                info.Category = (collection["DdlCateList"] == null) ? null : collection["DdlCateList"].ToString();
-                info.Domain = (collection["DdlDomList"] == null) ? null : collection["DdlDomList"].ToString();
+                info.Category = collection["DdlCateList"]?.ToString();
+                info.Domain = collection["DdlDomList"]?.ToString();
 
-                message = objdata.UpdateFPAParent(obj);//, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
+                message = rosterData.UpdateFPAParent(obj);//, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
 
-                message = objdata.AddFPA(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
+                message = rosterData.AddFPA(info, 1);
                 ViewBag.result = "Success";
 
                 if (message.Contains("1_"))
@@ -1958,7 +1985,7 @@ namespace Fingerprints.Controllers
             {
                 FPA fpaConv = JsonConvert.DeserializeObject<FPA>(infoString);
 
-                RosterData objdata = new RosterData();
+
                 FPA info = new FPA();
                 long clientId = Convert.ToInt64(FingerprintsModel.EncryptDecrypt.Decrypt64(ClientId));
                 info = fpaConv;
@@ -1994,7 +2021,7 @@ namespace Fingerprints.Controllers
                 //    }
                 //}
 
-                string message = objdata.AddFPA(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
+                string message = rosterData.AddFPA(info, 0);
             }
             catch (Exception ex)
             {
@@ -2009,7 +2036,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(RosterData.GetgroupcaseNoteDetail(Casenoteid, Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(rosterData.GetgroupcaseNoteDetail(Casenoteid));
             }
             catch (Exception Ex)
             {
@@ -2024,16 +2051,16 @@ namespace Fingerprints.Controllers
             string clientId = EncryptDecrypt.Decrypt64(ClientID).ToString();
             PDFGeneration obj_REF = new PDFGeneration();
             var refList = new List<PDFGeneration>();
-            refList = RosterData.CompleteServicePdf(clientId);
+            refList = rosterData.CompleteServicePdf(clientId);
 
             var refList1 = new List<CompanyDetails>();
-            refList1 = RosterData.CompanyDetailsList(ServiceId);
+            refList1 = rosterData.CompanyDetailsList(ServiceId);
 
             var refList2 = new List<CommunityDetails>();
-            refList2 = RosterData.CommunityDetailsList(CommunityID);
+            refList2 = rosterData.CommunityDetailsList(CommunityID);
 
             var refList3 = new List<BusinessHours>();
-            refList3 = RosterData.BusinessHoursList(ServiceId, AgencyID, CommunityID);
+            refList3 = rosterData.BusinessHoursList(ServiceId, CommunityID);
             string RefdataBody = string.Empty;
             StreamReader reader = new StreamReader(System.Web.HttpContext.Current.Server.MapPath("~/ServicePdf/ServicePdf.html"));
 
@@ -2120,9 +2147,9 @@ namespace Fingerprints.Controllers
 
         public ActionResult GetBusinessHours(string ServiceId, string AgencyID, string CommunityID)
         {
-            AgencyID = Session["AgencyId"].ToString();
+            ;
             var refList3 = new List<BusinessHours>();
-            refList3 = RosterData.BusinessHoursList(ServiceId, AgencyID, CommunityID);
+            refList3 = rosterData.BusinessHoursList(ServiceId, CommunityID);
 
             return Json(refList3, JsonRequestBehavior.AllowGet);
         }
@@ -2135,10 +2162,9 @@ namespace Fingerprints.Controllers
             long householdID = Convert.ToInt64(EncryptDecrypt.Decrypt64(Householdid));
             long ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(id));
             long programId = Convert.ToInt64(EncryptDecrypt.Decrypt64(Programid));
-            Guid agencyId = new Guid(Session["AgencyID"].ToString());
             ViewBag.ClientName = ClientName;
 
-            score = new RosterData().GetMatrixScoreList(householdID, agencyId, ClientId, programId);
+            score = rosterData.GetMatrixScoreList(householdID, ClientId, programId);
             score.HouseHoldId = Householdid;
             score.CenterId = centerid;
             score.ClientId = id;
@@ -2161,17 +2187,17 @@ namespace Fingerprints.Controllers
             MatrixScore matrixscore = new MatrixScore();
             long householdID = Convert.ToInt32(EncryptDecrypt.Decrypt64(HouseHoldID));
             List<ShowRecommendations> recommList = new List<ShowRecommendations>();
-            matrixscore = new RosterData().GetClientDetails(out recommList, householdID);
+            matrixscore = rosterData.GetClientDetails(out recommList, householdID);
             return Json(new { matrixscore, recommList }, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
         public JsonResult GetRecommendations(string HouseholdId, long assessmentNo, string activeProgramYear)
         {
-           
+
             long householdID = Convert.ToInt32(EncryptDecrypt.Decrypt64(HouseholdId));
             ArrayList recommList = new ArrayList();
-            recommList = new RosterData().GetRecommendations(householdID, assessmentNo,activeProgramYear);
+            recommList = rosterData.GetRecommendations(householdID, assessmentNo, activeProgramYear);
             return Json(recommList, JsonRequestBehavior.AllowGet);
         }
 
@@ -2181,9 +2207,9 @@ namespace Fingerprints.Controllers
         {
             long dec_ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientId));
             List<AssessmentResults> results = new List<AssessmentResults>();
-           
 
-            results = new RosterData().GetDescription(groupId, dec_ClientID);
+
+            results = rosterData.GetDescription(groupId, dec_ClientID);
 
             return Json(results, JsonRequestBehavior.AllowGet);
         }
@@ -2197,8 +2223,8 @@ namespace Fingerprints.Controllers
             long dec_ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientId));
             List<QuestionsModel> questionlist = new List<QuestionsModel>();
             QuestionsModel question = new QuestionsModel();
-            QuestionsModel questionmodel = null;
-            question = new RosterData().GetQuestions(groupId, dec_ClientID);
+            QuestionsModel questionmodel;
+            question = rosterData.GetQuestions(groupId, dec_ClientID);
             if (question != null)
             {
 
@@ -2235,9 +2261,7 @@ namespace Fingerprints.Controllers
                 matrixscore.Dec_ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixscore.ClientId));
                 matrixscore.Dec_ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixscore.ProgramId));
                 matrixscore.Dec_CenterId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixscore.CenterId));
-                matrixscore.AgencyId = new Guid(Session["AgencyID"].ToString());
-                matrixscore.UserId = new Guid(Session["UserID"].ToString());
-                lastId = new RosterData().InsertMatrixScore(matrixscore, out isShow, out recommendationList);
+                lastId = rosterData.InsertMatrixScore(matrixscore, out isShow, out recommendationList);
 
             }
             catch (Exception ex)
@@ -2268,7 +2292,7 @@ namespace Fingerprints.Controllers
 
         //        Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
         //        Guid? userID = (Session["UserID"] != null) ? new Guid(Session["UserID"].ToString()) : (Guid?)null;
-        //        scoreList = new RosterData().GetChartDetails(out assessment, out chardetailsList, AgencyId, userID, houseHold, date, ClientID);
+        //        scoreList = rosterData.GetChartDetails(out assessment, out chardetailsList, AgencyId, userID, houseHold, date, ClientID);
         //        long type = assessment.AnnualAssessmentType;
         //        DateTime date1 = DateTime.Now;
         //        DateTime date2 = DateTime.Now;
@@ -2331,7 +2355,7 @@ namespace Fingerprints.Controllers
 
 
 
-       [CustAuthFilter()]
+        [CustAuthFilter()]
         public JsonResult GetChartDetails(string houseHoldId, string date, string clientId)
         {
 
@@ -2347,13 +2371,13 @@ namespace Fingerprints.Controllers
                 AnnualAssessment assessment = new AnnualAssessment();
                 long houseHold = Convert.ToInt64(EncryptDecrypt.Decrypt64(houseHoldId));
                 long ClientID = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
-                scoreList = new RosterData().GetChartDetails(out assessment, out chardetailsList,houseHold, date, ClientID);
+                scoreList = rosterData.GetChartDetails(out assessment, out chardetailsList, houseHold, date, ClientID);
                 long type = assessment.AnnualAssessmentType;
 
 
-                if(type==1 && Convert.ToInt32(assessment.EnrollmentDays)>0)
+                if (type == 1 && Convert.ToInt32(assessment.EnrollmentDays) > 0)
                 {
-                    if(Convert.ToInt32(assessment.EnrollmentDays)<= Convert.ToInt32(assessment.Assessment1To)
+                    if (Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment1To)
 
                             && Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment1From))
                     {
@@ -2361,7 +2385,7 @@ namespace Fingerprints.Controllers
                     }
                 }
 
-                if((type==2 || type==3) && Convert.ToInt32(assessment.EnrollmentDays) > 0)
+                if ((type == 2 || type == 3) && Convert.ToInt32(assessment.EnrollmentDays) > 0)
                 {
 
                     if (Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment1To)
@@ -2371,7 +2395,7 @@ namespace Fingerprints.Controllers
                         groupType = 1;
                     }
 
-                    else if(Convert.ToInt32(assessment.EnrollmentDays)>=Convert.ToInt32(assessment.Assessment2From)
+                    else if (Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment2From)
 
                          && Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment2To)
 
@@ -2380,7 +2404,7 @@ namespace Fingerprints.Controllers
                         groupType = 2;
                     }
 
-                    if(type==3 && (Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment3From)
+                    if (type == 3 && (Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment3From)
 
                          && Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment3To)
 
@@ -2390,8 +2414,8 @@ namespace Fingerprints.Controllers
                     }
                 }
 
-               
-               
+
+
                 List<MatrixScore> matrixscorelist = null;
                 List<long> categoryIdList = new List<long>();
 
@@ -2419,7 +2443,7 @@ namespace Fingerprints.Controllers
         public JsonResult SetChart()
         {
             List<MatrixScore> scoreList = new List<MatrixScore>();
-            scoreList = new RosterData().SetChart();
+            scoreList = rosterData.SetChart();
             List<long> categoryList = new List<long>();
             categoryList = scoreList.Select(x => x.AssessmentCategoryId).Distinct().ToList();
             System.Collections.ArrayList arraylist = new System.Collections.ArrayList();
@@ -2440,9 +2464,9 @@ namespace Fingerprints.Controllers
             try
             {
                 matrixscore.Dec_HouseHoldId = (string.IsNullOrEmpty(matrixscore.HouseHoldId)) ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixscore.HouseHoldId));
-                matrixscore.AgencyId = new Guid(Session["AgencyID"].ToString());
-                matrixscore.UserId = new Guid(Session["UserID"].ToString());
-                scoreList = new RosterData().GetName(matrixscore);
+                //matrixscore.AgencyId = new Guid(Session["AgencyID"].ToString());
+                //matrixscore.UserId = new Guid(Session["UserID"].ToString());
+                scoreList = rosterData.GetName(matrixscore);
 
             }
             catch (Exception ex)
@@ -2463,7 +2487,7 @@ namespace Fingerprints.Controllers
                 matrixRec.Dec_HouseHoldId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixRec.HouseHoldId));
                 matrixRec.AgencyId = new Guid(Session["AgencyId"].ToString());
                 matrixRec.UserId = new Guid(Session["UserID"].ToString());
-                isResult = new RosterData().InsertMatrixRecommendationData(matrixRec);
+                isResult = rosterData.InsertMatrixRecommendationData(matrixRec);
 
             }
             catch (Exception ex)
@@ -2477,15 +2501,15 @@ namespace Fingerprints.Controllers
 
         [JsonMaxLengthAttribute]
         [HttpPost]
-        public JsonResult GetChildrenImage(string enc_clientId, int mode=1)
+        public JsonResult GetChildrenImage(string enc_clientId, int mode = 1)
         {
             SelectListItem childImage = new SelectListItem();
             try
             {
 
                 long clientId = 0;
-                clientId=  long.TryParse(enc_clientId,out clientId)?clientId: Convert.ToInt64(EncryptDecrypt.Decrypt64(enc_clientId));
-                childImage = new RosterData().GetChildrenImageData(clientId,mode);
+                clientId = long.TryParse(enc_clientId, out clientId) ? clientId : Convert.ToInt64(EncryptDecrypt.Decrypt64(enc_clientId));
+                childImage = rosterData.GetChildrenImageData(clientId, mode);
             }
             catch (Exception ex)
             {
@@ -2502,10 +2526,10 @@ namespace Fingerprints.Controllers
             List<AttendenceDetailsByDate> attendence;
             try
             {
-               
+
                 int totalRecord;
                 report.SkipRows = report.GetSkipRows();
-                attendence = new RosterData().GetAttendenceDetailsByDate(out totalRecord,report,staff);
+                attendence = rosterData.GetAttendenceDetailsByDate(out totalRecord, report, staff);
                 ViewBag.TotalRecord = totalRecord;
             }
             catch (Exception ex)
@@ -2515,16 +2539,16 @@ namespace Fingerprints.Controllers
                 ViewBag.TotalRecord = 0;
             }
 
-         
+
 
             return PartialView("~/Views/Partialviews/_AttendanceDetail.cshtml", attendence);
-           // return Json(attendence, JsonRequestBehavior.AllowGet);
+            // return Json(attendence, JsonRequestBehavior.AllowGet);
         }
 
         public partial class Footer : PdfPageEventHelper
 
         {
-          
+
             public override void OnEndPage(PdfWriter writer, Document doc)
             {
                 Paragraph footer = new Paragraph("THANK YOU", FontFactory.GetFont(FontFactory.TIMES, 10, iTextSharp.text.Font.NORMAL));
@@ -2539,7 +2563,7 @@ namespace Fingerprints.Controllers
                 footerTbl.AddCell(cell);
                 footerTbl.WriteSelectedRows(0, -1, -47, 47, writer.DirectContent);
 
-             
+
             }
 
         }
@@ -2571,7 +2595,7 @@ namespace Fingerprints.Controllers
             CaseNote.ClientIds = CaseNote.ClientId;
             CaseNote.IsLateArrival = true;
             CaseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
-            string message = RosterData.SaveCaseNotes(ref Name, CaseNote, staff);
+            string message = rosterData.SaveCaseNotes(ref Name, CaseNote);
 
             return Redirect("~/Roster/Roster");
         }
@@ -2593,7 +2617,7 @@ namespace Fingerprints.Controllers
 
                 int skip = pageSize * (requestedPage - 1);
                 string totalrecord;
-                var list = RosterData.GetPregnantMomList(out totalrecord, sortOrder, sortDirection, Center, Classroom, skip, pageSize, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
+                var list = rosterData.GetPregnantMomList(out totalrecord, sortOrder, sortDirection, Center, Classroom, skip, pageSize, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
 
 
                 return Json(new { list, totalrecord });
@@ -2613,7 +2637,7 @@ namespace Fingerprints.Controllers
 
             ViewBag.ClientId = Id;
             ViewBag.ProgramId = ProgramId;
-            transition = new FamilyData().GetEnrollReason("0", Id);
+            transition = new FamilyData().GetEnrollReason("0", Id,staff);
             return View(transition);
         }
 
@@ -2632,33 +2656,13 @@ namespace Fingerprints.Controllers
 
 
             List<SeatAvailability> results = new List<SeatAvailability>();
-          //  JavaScriptSerializer serializer = new JavaScriptSerializer();
-
             TransitionDetails transitionDetails = new TransitionDetails();
-
-            //  List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
-            //  Transition transition = new FingerprintsModel.Transition();
-            //   List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
-            //  var ate = Request.Files;
-            //  var ate2 = ate.AllKeys;
-
-            //  for (int i = 0; i < ate2.Length; i++)
-            //  {
-            //      RosterNew.Attachment aatt = new RosterNew.Attachment();
-            //      aatt.file = ate[i];
-            //      attach.Add(aatt);
-            //  }
-
-
-            //  transition = serializer.Deserialize<Transition>(Transition);
-            // pregChilds = serializer.Deserialize<List<PregMomChilds>>(PregMomChilds);
-            // transition.CaseNoteDetails.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
 
             transition.ClientId = EncryptDecrypt.Decrypt64<long>(transition.EClientID);
             transition.ProgramTypeId = EncryptDecrypt.Decrypt64<long>(transition.Enc_ProgID);
 
 
-            // transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+          
             transition.ParentID = EncryptDecrypt.Decrypt64<long>(transition.EClientID).ToString();
             transitionDetails.Transition = transition;
 
@@ -2668,7 +2672,7 @@ namespace Fingerprints.Controllers
             transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
             transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
 
-            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, staff, false);
+            results = rosterData.SaveChildHeadStartTranstion(transitionDetails, false);
 
             return Json(results);
         }
@@ -2680,7 +2684,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                trans = new FamilyData().GetEnrollReason(st, Id);
+                trans = new FamilyData().GetEnrollReason(st, Id,staff);
                 trans.Enc_ProgID = ProgramId;
             }
             catch (Exception ex)
@@ -2709,7 +2713,7 @@ namespace Fingerprints.Controllers
                 CenterId = int.TryParse(CenterId, out result) ? CenterId : (CenterId != "0") ? EncryptDecrypt.Decrypt64(CenterId) : CenterId;
                 ClassRoomId = int.TryParse(ClassRoomId, out result) ? ClassRoomId : (ClassRoomId != "0") ? EncryptDecrypt.Decrypt64(ClassRoomId) : ClassRoomId;
 
-                result = RosterData.GetAvailablitySeatsByClass(CenterId, ClassRoomId, Session["AgencyID"].ToString(), ClientID);
+                result = rosterData.GetAvailablitySeatsByClass(CenterId, ClassRoomId, Session["AgencyID"].ToString(), ClientID);
                 return Json(result.ToString());
             }
             catch (Exception Ex)
@@ -2721,24 +2725,22 @@ namespace Fingerprints.Controllers
 
 
         [HttpPost]
-        public ActionResult GetCenterByAgency(string programYear="")
+        public ActionResult GetCenterByAgency(string programYear = "")
         {
-            var list = RosterData.GetCenterList(programYear);
+            var list = rosterData.GetCenterList(programYear);
             return Json(new { list }, JsonRequestBehavior.AllowGet);
         }
-
-
         [HttpPost]
         [ValidateInput(false)]
         [JsonMaxLength]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
-        public ActionResult SaveHeadStartTransition(Transition transition,RosterNew.CaseNote caseNote)
+        public ActionResult SaveHeadStartTransition(Transition transition, RosterNew.CaseNote caseNote)
         {
-          
+
             int result = 0;
 
-            
+
 
             transition.CenterId = EncryptDecrypt.Decrypt64<int>(transition.Enc_CenterID);
             transition.ClassRoomId = EncryptDecrypt.Decrypt64<int>(transition.Enc_ClassroomID);
@@ -2749,18 +2751,18 @@ namespace Fingerprints.Controllers
 
 
             transition.ParentID = EncryptDecrypt.Decrypt64<long>(transition.ParentID).ToString();
-            transition.ParentID2 = EncryptDecrypt.Decrypt64<long>(transition.ParentID2).ToString();;
+            transition.ParentID2 = EncryptDecrypt.Decrypt64<long>(transition.ParentID2).ToString(); ;
 
             transition.HouseholdId = EncryptDecrypt.Decrypt64<long>(transition.HouseholdId).ToString();
-           
 
-            result = new RosterData().SaveHeadStartTranstion(transition,staff);
+
+            result = rosterData.SaveHeadStartTranstion(transition, staff);
             if (result == 1)
             {
                 string name = "";
-                
 
-                name = new RosterData().SaveCaseNotes(ref name, caseNote, staff, 0);
+
+                name = rosterData.SaveCaseNotes(ref name, caseNote, 0);
                 result = 3;
             }
             return Json(result, JsonRequestBehavior.AllowGet);
@@ -2771,7 +2773,7 @@ namespace Fingerprints.Controllers
 
         public ActionResult GetCenterAndClassRoomsByCenter(string centerid, string Classroom, string householdid, string ChildId)
         {
-            var list = RosterData.GetCenterAndClassRoomsByCenter(centerid, Classroom, householdid, ChildId, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
+            var list = rosterData.GetCenterAndClassRoomsByCenter(centerid, Classroom, householdid, ChildId, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
             return Json(new { list });
         }
 
@@ -2784,7 +2786,7 @@ namespace Fingerprints.Controllers
         public ActionResult SaveCenterOrClassroomChange(RosterNew.CaseNote caseNote, string dateOfTransition, int? reasonId, string newReason)
         {
             caseNote.Note = System.Uri.UnescapeDataString(caseNote.Note);
-            bool result = new RosterData().SaveCenterOrClassroomChange(caseNote.ClientId, dateOfTransition, caseNote.CenterId, caseNote.Classroomid, staff, reasonId, newReason);
+            bool result = rosterData.SaveCenterOrClassroomChange(caseNote.ClientId, dateOfTransition, caseNote.CenterId, caseNote.Classroomid, staff, reasonId, newReason);
             StringBuilder _Ids = new StringBuilder();
             string Name = "";
 
@@ -2794,8 +2796,8 @@ namespace Fingerprints.Controllers
             caseNote.HouseHoldId = "0";
             caseNote.CaseNoteSecurity = true;
             caseNote.CaseNoteAttachmentList = Fingerprints.Common.FactoryInstance.Instance.CreateInstance<List<RosterNew.Attachment>>();
-            string message = RosterData.SaveCaseNotes(ref Name, caseNote, staff);
-            return Json(result,JsonRequestBehavior.AllowGet);
+            string message = rosterData.SaveCaseNotes(ref Name, caseNote);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -2806,9 +2808,7 @@ namespace Fingerprints.Controllers
             matrixScore.Dec_HouseHoldId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.HouseHoldId));
             matrixScore.Dec_ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ClientId));
             matrixScore.Dec_ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ProgramId));
-            matrixScore.AgencyId = new Guid(Session["AgencyID"].ToString());
-            matrixScore.UserId = new Guid(Session["UserID"].ToString());
-            new RosterData().InsertParentDetailsMatrixScore(matrixScore, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            rosterData.InsertParentDetailsMatrixScore(matrixScore);
             return null;
         }
 
@@ -2817,14 +2817,15 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
+        /// ***Method depreciated. Please use GetCaseNoteTag **
         [CustAuthFilter()]
-        public JsonResult GetCaseNoteTagonInput(string searchText, string term="")
+        public JsonResult GetCaseNoteTagonInput(string searchText, string term = "")
         {
             List<SelectListItem> tagsList = new List<SelectListItem>();
             try
             {
-                
-                tagsList = new RosterData().GetCaseNoteTagsonInput(searchText);
+
+                tagsList = rosterData.GetCaseNoteTagsonInput(searchText);
             }
             catch (Exception ex)
             {
@@ -2840,26 +2841,26 @@ namespace Fingerprints.Controllers
             List<SelectListItem> tagsList = new List<SelectListItem>();
             try
             {
-                
-                tagsList = new RosterData().GetCaseNoteTagsonInput(term);
+
+                tagsList = rosterData.GetCaseNoteTagsonInput(term);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
 
-            var  list =new List<ExtendSelectList>();
+            var list = new List<ExtendSelectList>();
             foreach (var item in tagsList)
             {
-                
+
                 list.Add(new ExtendSelectList() { id = item.Value, label = item.Text, value = item.Text });
             }
-                return Json(list, JsonRequestBehavior.AllowGet);
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
 
 
         [CustAuthFilter()]
-        public JsonResult ClearRosterSession(int requestedPage,int pageSize,string centerId,string classroomId,string filter,string searchText,string sortOrder,string sortDirection)
+        public JsonResult ClearRosterSession(int requestedPage, int pageSize, string centerId, string classroomId, string filter, string searchText, string sortOrder, string sortDirection)
         {
 
             Session["_RosterCenter"] = centerId;
@@ -2871,26 +2872,46 @@ namespace Fingerprints.Controllers
             Session["_RosterSortOrder"] = sortOrder;
             Session["_RosterSortDirection"] = sortDirection;
 
-            return Json(true,JsonRequestBehavior.AllowGet);
+            return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetHouselessClient(string householdId, string clientId)
         {
             FamilyHouseless houseless = new FamilyHouseless();
 
-            houseless = new RosterData().GetHouselessClient(householdId, clientId);
+            houseless = rosterData.GetHouselessClient(householdId, clientId);
 
             return Json(houseless, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.DisabilitiesManager,RoleEnum.SocialServiceManager,RoleEnum.HealthNurse,RoleEnum.HomeVisitor,RoleEnum.FamilyServiceWorker)]
 
-        public JsonResult UpdateReturningTransitionClient(int returnValue,string clientId)
+
+
+
+
+
+        //[HttpPost]
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+        //public JsonResult NextProgramYearTransition(string clientId)
+        //{
+
+        //    bool isResult = false;
+
+        //    isResult = rosterData.NextProgramYearTransition(clientId);
+
+        //    return Json(isResult);
+        //}
+
+
+        [HttpPost]
+        [CustAuthFilter(RoleEnum.Teacher, RoleEnum.DisabilitiesManager, RoleEnum.SocialServiceManager, RoleEnum.HealthNurse, RoleEnum.HomeVisitor, RoleEnum.FamilyServiceWorker)]
+
+        public JsonResult UpdateReturningTransitionClient(int returnValue, string clientId)
         {
             bool isResult = false;
 
-            isResult = new RosterData().UpdateReturningTransitionClient(returnValue, clientId);
+            isResult = rosterData.UpdateReturningTransitionClient(returnValue, clientId);
 
             return Json(isResult, JsonRequestBehavior.AllowGet);
 
@@ -2898,7 +2919,7 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public JsonResult GetCaseNoteByClient(string clientId="",string householdId="")
+        public JsonResult GetCaseNoteByClient(string clientId = "", string householdId = "")
         {
 
             string JSONString = string.Empty;
@@ -2906,25 +2927,25 @@ namespace Fingerprints.Controllers
             {
                 DataTable dtCaseNote = new DataTable();
                 householdId = (householdId != "" && householdId != "0") ? EncryptDecrypt.Decrypt64(householdId) : "0";
-                new RosterData().GetCaseNotesByClient(ref dtCaseNote, clientId, householdId);
+                rosterData.GetCaseNotesByClient(ref dtCaseNote, clientId, householdId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtCaseNote);
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(JSONString,JsonRequestBehavior.AllowGet);
+            return Json(JSONString, JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpPost]
         [CustAuthFilter()]
         public JsonResult GetHouseholdCasenoteTags(string HouseholdId)
         {
-            List<HouseholdTags> result=null;
+            List<HouseholdTags> result = null;
             try
             {
-                RosterData rd = new RosterData();
-               result=   rd.GetHouseholdCasenoteTags(HouseholdId);
+                RosterData rd = rosterData;
+                result = rd.GetHouseholdCasenoteTags(HouseholdId);
             }
             catch (Exception Ex)
             {
@@ -2937,13 +2958,13 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public JsonResult SaveFamilyAdvocate(string HouseholdID,string FamilyAdvocate)
+        public JsonResult SaveFamilyAdvocate(string HouseholdID, string FamilyAdvocate)
         {
 
-          AgencyStaff staff = null;
+            AgencyStaff staff = null;
             try
             {
-                 staff = new FamilyData().SaveFamilyAdvocate(HouseholdID, FamilyAdvocate);
+                staff = new FamilyData().SaveFamilyAdvocate(HouseholdID, FamilyAdvocate);
 
             }
             catch (Exception ex)
@@ -2959,7 +2980,7 @@ namespace Fingerprints.Controllers
 
         public JsonResult GetOrganizationList(int ServiceId, string AgencyId)
         {
-            var result = new RosterData().GetOrganizationListWithCount(ServiceId, AgencyId,1);
+            var result = rosterData.GetOrganizationListWithCount(ServiceId, AgencyId, 1);
 
             return Json(result, JsonRequestBehavior.AllowGet);
 
@@ -2967,7 +2988,7 @@ namespace Fingerprints.Controllers
 
         public JsonResult GetOrganizationListByAgency(string AgencyId)
         {
-            var result = new RosterData().GetOrganizationListWithCount(0, AgencyId, 3);
+            var result = rosterData.GetOrganizationListWithCount(0, AgencyId, 3);
 
             return Json(result, JsonRequestBehavior.AllowGet);
 
@@ -2975,7 +2996,7 @@ namespace Fingerprints.Controllers
 
         public JsonResult GetReviewList(int id)
         {
-            var result = new RosterData().GetReviewList(id, 2);
+            var result = rosterData.GetReviewList(id, 2);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -2984,9 +3005,9 @@ namespace Fingerprints.Controllers
         #endregion ReferalReviewList
 
         [CustAuthFilter()]
-        public ActionResult DeleteCaseNote(int casenoteid,int[] appendcid, bool deletemain)
+        public ActionResult DeleteCaseNote(int casenoteid, int[] appendcid, bool deletemain)
         {
-            var result = new RosterData().DeleteCaseNote(casenoteid, appendcid,deletemain,1);
+            var result = rosterData.DeleteCaseNote(casenoteid, appendcid, deletemain, 1);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -3007,11 +3028,11 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter()]
-        public ActionResult GetCaseNoteTagReport(long pno =1,long psize=10, string searchtxt="",string sortclmn="",string sortdir="")
+        public ActionResult GetCaseNoteTagReport(long pno = 1, long psize = 10, string searchtxt = "", string sortclmn = "", string sortdir = "")
         {
             if (new agencyData().GetSingleAccessStatus(18))
             {
-                var result = new RosterData().GetCaseNoteTagReport(pno, psize,searchtxt, sortclmn, sortdir,1);
+                var result = rosterData.GetCaseNoteTagReport(pno, psize, searchtxt, sortclmn, sortdir, 1);
 
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
@@ -3024,7 +3045,7 @@ namespace Fingerprints.Controllers
         public ActionResult GetCaseNotesByTagId(long tagid)
         {
 
-            var result = new RosterData().GetCaseNotesByTagId(tagid, 2);
+            var result = rosterData.GetCaseNotesByTagId(tagid, 2);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -3039,8 +3060,7 @@ namespace Fingerprints.Controllers
                 Response.Charset = "";
                 Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 Response.AddHeader("content-disposition", "attachment;filename=Case Note Report for " + tname + "-" + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
-                //  MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(staffDetails, Centerid, Classroom));
-                var _cnlist = new RosterData().GetCaseNotesByTagId(tagid, 2);
+                var _cnlist = rosterData.GetCaseNotesByTagId(tagid, 2);
                 MemoryStream ms = export.ExportCaseNoteByTagId(_cnlist, tagid, total, tname);
 
                 ms.WriteTo(Response.OutputStream);
@@ -3057,12 +3077,12 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult EditCaseNote(long tagid, string tagname,int mode=1,long ExistsTagId=0)
+        public ActionResult EditCaseNote(long tagid, string tagname, int mode = 1, long ExistsTagId = 0)
         {
             long availableTag = 0;
-            var Result = RosterData.EditDeleteCNTag(tagid, tagname,mode, ExistsTagId,ref availableTag);
-            
-            return Json(new { Success=Result,AvailableTagId= availableTag }, JsonRequestBehavior.AllowGet);
+            var Result = rosterData.EditDeleteCNTag(tagid, tagname, mode, ExistsTagId, ref availableTag);
+
+            return Json(new { Success = Result, AvailableTagId = availableTag }, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -3081,8 +3101,8 @@ namespace Fingerprints.Controllers
             long cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientid));
 
             ViewBag.ClientId = clientid; //id must encrypted
-            var result = RosterData.GetClientDetails(cid);
-            var ActiveSteps = RosterData.GetClientTimeLine(cid, 2,"");
+            var result = rosterData.GetClientDetails(cid);
+            var ActiveSteps = rosterData.GetTimelineMaster();
             // ViewBag.Client = result;
             ViewBag.ProfilePic = result.Profilepic;
             result.Profilepic = string.Empty;
@@ -3092,12 +3112,12 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetTimeLine(string clientid,string stepIds)
+        public ActionResult GetTimeLine(string clientid, string stepIds)
         {
 
             long cid = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientid));
 
-            var result = RosterData.GetClientTimeLine(cid,1,stepIds);
+            var result = rosterData.GetClientTimeLine(cid, stepIds);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -3112,17 +3132,17 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter()]
         [HttpPost]
-        public JsonResult GetDevelopmentalTeamByClient(string clientID,int yakrkcode)
+        public JsonResult GetDevelopmentalTeamByClient(string clientID, int yakrkcode)
         {
 
             CaseNoteByClientID caseNoteClient = new CaseNoteByClientID();
             try
             {
                 long _clientId = 0;
-                _clientId =long.TryParse(clientID,out _clientId)?_clientId:Convert.ToInt64(EncryptDecrypt.Decrypt64(clientID));
+                _clientId = long.TryParse(clientID, out _clientId) ? _clientId : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientID));
                 StaffDetails staff = StaffDetails.GetInstance();
 
-                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(_clientId, staff, yakrkcode);
+                caseNoteClient = rosterData.GetDevelopmentalMembersByClientID(_clientId, staff, yakrkcode);
             }
             catch (Exception ex)
             {
@@ -3140,7 +3160,7 @@ namespace Fingerprints.Controllers
 
             ChildrenInfo childInfo;
 
-            parentInfo= RosterData.GetParentInformationByClient(out childInfo,clientId, staff);
+            parentInfo = rosterData.GetParentInformationByClient(out childInfo, clientId, staff);
             return Json(new { parentInfo, childInfo }, JsonRequestBehavior.AllowGet);
         }
 
@@ -3151,7 +3171,7 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter()]
         [HttpPost]
-        public ActionResult GetDevelopmentalTeamPartial(string clientID,int yakkrCode=0)
+        public ActionResult GetDevelopmentalTeamPartial(string clientID, int yakkrCode = 0)
         {
 
             CaseNoteByClientID caseNoteClient = new CaseNoteByClientID();
@@ -3161,7 +3181,7 @@ namespace Fingerprints.Controllers
                 _clientId = long.TryParse(clientID, out _clientId) ? _clientId : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientID));
                 StaffDetails staff = StaffDetails.GetInstance();
 
-                caseNoteClient = RosterData.GetDevelopmentalMembersByClientID(_clientId, staff, yakkrCode);
+                caseNoteClient = rosterData.GetDevelopmentalMembersByClientID(_clientId, staff, yakkrCode);
             }
             catch (Exception ex)
             {
@@ -3172,10 +3192,12 @@ namespace Fingerprints.Controllers
         }
 
 
+
+
         #region Gets Case Note List of Attendance Issue
 
         [HttpPost]
-        public ActionResult GetAttendanceIssueCaseNoteList(string clientId,int pageSize,int requestedPage)
+        public ActionResult GetAttendanceIssueCaseNoteList(string clientId, int pageSize, int requestedPage)
         {
 
             List<CaseNote> caseNoteList = new List<CaseNote>();
@@ -3188,9 +3210,9 @@ namespace Fingerprints.Controllers
                 caseNoteClientId.RequestedPage = requestedPage;
                 caseNoteClientId.SkipRows = caseNoteClientId.GetSkipRows();
 
-                RosterData.GetAttendanceIssueCaseNoteList(ref caseNoteClientId,StaffDetails.GetInstance(),clientId);
+                rosterData.GetAttendanceIssueCaseNoteList(ref caseNoteClientId, StaffDetails.GetInstance(), clientId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -3204,11 +3226,11 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [CustAuthFilter()]
-        public ActionResult SaveAttendanceIssueCaseNote(RosterNew.CaseNote caseNote,string[] fileInput)
+        public ActionResult SaveAttendanceIssueCaseNote(RosterNew.CaseNote caseNote, string[] fileInput)
         {
 
 
-             var files = Request.Files;
+            var files = Request.Files;
             var keys = files.AllKeys;
             caseNote.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
 
@@ -3229,28 +3251,28 @@ namespace Fingerprints.Controllers
             caseNote.CaseNotetags = caseNote.CaseNotetags.Trim(',');
 
             string Name = "";
-     
 
-            string message = RosterData.SaveCaseNotes(ref Name, caseNote, staff, (int)FingerprintsModel.Enums.TransitionMode.Others);
 
-            return Json(message,JsonRequestBehavior.AllowGet);
+            string message = rosterData.SaveCaseNotes(ref Name, caseNote, (int)FingerprintsModel.Enums.TransitionMode.Others);
+
+            return Json(message, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         [CustAuthFilter()]
         public JsonResult ResetExcessiveAbsence(string _encClientId, string _encYakkrId)
         {
-           
+
             try
             {
                 int _clientID = int.TryParse(_encClientId, out _clientID) ? _clientID : Convert.ToInt32(EncryptDecrypt.Decrypt64(_encClientId));
                 int _yakkrId = int.TryParse(_encYakkrId, out _yakkrId) ? _yakkrId : Convert.ToInt32(EncryptDecrypt.Decrypt64(_encYakkrId));
 
 
-                return Json(RosterData.ResetExcessiveAbsence(staff, _clientID, _yakkrId), JsonRequestBehavior.AllowGet);
+                return Json(rosterData.ResetExcessiveAbsence(staff, _clientID, _yakkrId), JsonRequestBehavior.AllowGet);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
                 clsError.WriteException(ex);
@@ -3278,11 +3300,48 @@ namespace Fingerprints.Controllers
         {
             RosterNew.Users users = new RosterNew.Users();
 
-            users = RosterData.GetAdditionalStaffCenterClassroomChange(clientId, centerId, classroomId, staff);
+            users = rosterData.GetAdditionalStaffCenterClassroomChange(clientId, centerId, classroomId, staff);
 
             return Json(users, JsonRequestBehavior.AllowGet);
 
         }
+
+        [HttpPost]
+        public JsonResult GetTransitionTypeDetailBy(string clientId,string yakkr)
+        {
+
+
+            TransitionTypeModel model = new TransitionTypeModel();
+            Transition transition = new FingerprintsModel.Transition();
+
+            Parallel.Invoke(() =>
+            {
+                model = rosterData.GetTransitionTypeDetailsByClientId(clientId);
+            },
+            () =>
+            {
+                transition=  new FamilyData().GetEnrollReason(Status: yakkr, clientId: clientId,staff:staff);
+            });
+           
+
+
+            return Json(new { model, transition }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult SaveTransitionTypeDetail(TransitionTypeDetail transitionTypeDetail,Transition transition)
+        {
+
+            bool isResult = rosterData.SaveTransitionTypeDetail(transitionTypeDetail,transition);
+
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
 
 
     }

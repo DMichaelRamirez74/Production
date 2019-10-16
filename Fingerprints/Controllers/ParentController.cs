@@ -54,6 +54,7 @@ namespace Fingerprints.Controllers
             }
 
             ViewBag.ClientId = ClientId;
+
             return View();
         }
 

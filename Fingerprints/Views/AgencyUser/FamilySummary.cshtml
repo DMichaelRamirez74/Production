@@ -20,6 +20,10 @@
     <link href="~/Content/css/Transition.css" rel="stylesheet" />
 
     <style type="text/css">
+        .badge-transitioned{
+            cursor:pointer;
+        }
+
         #div-center-classroom-change-casenote div#divCaseNoteSection {
             border: unset;
             padding: 0;
@@ -684,9 +688,9 @@
             text-align: center;
         }
 
-   
-        
-        
+
+
+
          .addn_sep_boder {
             border: 1px solid #ccc;
             width: 100%;
@@ -758,6 +762,7 @@
             height: 110px;
             border-radius: 100%;
             background: #e6e6e6;
+            border:1px solid #e6e6e6;
         }
 
         .bade-div {
@@ -1389,7 +1394,58 @@
         var $profilePictureModalId = 'modal-profile-picture';
         var $profilePictureImg = null;
         var $emerRestClient = 0;
+        var $transitionTypeJson=@Html.Raw(Json.Encode(Model.TransitionTypeList))
 
+
+             function GetClassroomsforTransitionTypeChange(Select) {
+
+                 var $modal = $('#ModalchangeTransitionType');
+
+               //  $('.errorAvailableSeat').hide();
+                // $('#spnClassName').text('');
+                // $('#spnAvailableCount').text('0');
+                // $('#ptotalSeats').hide();
+                 var url = '';
+
+                 if ($modal.find('#hidden-type-of-transition').val() == '7' ||
+                    $modal.find('#hidden-type-of-transition').val() == '8' || $modal.find('#centerPara').hasClass('ctr-required')) {
+                     url = HostedDir + "/AgencyUser/GetClassroomWithSeats";
+                 }
+                 else {
+                     url = HostedDir + "/Roster/Getclassrooms";
+                 }
+
+                 $.ajax({
+                     url: url,
+                     type: "POST",
+                     data: {
+                         centerId: $(Select).val()
+                     },
+                     dataType: "json",
+                     secureuri: false,
+                     async: false,
+                     success: function (response) {
+                         if (response.length > 0) {
+                             var option = "";
+                             option = option + '<option value="' + 0 + '" >' + '--Select classroom--' + '</option>';
+
+                             for (var i = 0; i < response.length; i++) {
+                                 option = option + '<option value="' + response[i].Enc_ClassRoomId + '">' + response[i].ClassName + '</option>';
+                             }
+                             $modal.find('#Classroom').find('option').remove().end().append(option);
+                             $modal.find('#Classroom').val('0');
+                         }
+                         else {
+                             $modal.find('#Classroom').find('option').remove();
+                         }
+
+                        
+                     }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                 });
+             }
 
 
         function getFormattedDate(date) {
@@ -2984,7 +3040,11 @@
                     if (data != null && data.result == true) {
                         customAlert('Profile picture updated successfully');
 
-                        $profilePictureImg.attr('src', 'data:image/png;base64,' + data.imageString)
+                        $profilePictureImg.attr('src', 'data:image/png;base64,' + data.imageString);
+                        $profilePictureImg.next('div.glossy-update-icon').children('i').removeClass('fa-plus');
+                        $profilePictureImg.next('div.glossy-update-icon').children('i').addClass('fa-pencil');
+
+
                         $('#' + $profilePictureModalId).modal('hide');
 
                     }
@@ -3190,9 +3250,576 @@
             $('#matrix_addn2').find('#divCaseNoteSection').remove();
         }
 
+        function bindTransitionType_CaseNoteDetails($modal,$guid, seleValue) {
+
+           // var seleValue = $('#ddTransitioningType').val();
+            var noteField = '';
+            var caseNoteTag = '';
+            var caseNoteTitle = '';
+            var center = '';
+            var classroom = '';
+
+          //  var $caseNoteSection = $('#divCaseNoteSection');
+            //  var $guid = $caseNoteSection.attr('data-current-id');
+            var $caseNoteSection = $('.caseNoteSection_' + $guid + '');
+
+
+            if (CKEDITOR.instances['txtareaCaseNote_' + $guid + '']) {
+                CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].destroy(true);
+            }
+
+
+            caseNoteTitle += 'Transition Type Changed - ';
+
+
+            switch (seleValue) {
+
+                case '1':
+                    center = $('#Centers option:selected').text() == '-Select Center-' ? '' : $('#Centers option:selected').text();
+                    classroom = $('#Classroom option:selected').text() == '--Select classroom--' ? '' : $('#Classroom option:selected').text().split('(')[0];
+                    noteField += "<div class='col-xs-12'><b>Transition to OUR Head Start Program</b></div>";
+
+
+                    caseNoteTitle += "Transition to OUR Head Start Program";
+                    caseNoteTag = 'Transition OUR HS,,;';
+
+                    break;
+
+                case '2':
+                    noteField += "<div class='col-xs-12'><b>Transition to ANOTHER Head Start Program</b></div>";
+                    caseNoteTitle += "Transition to ANOTHER Head Start Program";
+                    caseNoteTag = 'Transition ANOTHER HS,,;';
+
+                    break;
+
+                case '3':
+                    noteField += "<div class='col-xs-12'><b>Transition to OTHER Childhood Program</b></div>";
+                    caseNoteTitle+= "Transition to OTHER Childhood Program";
+                    caseNoteTag = 'Transition OTHER,,;';
+
+                    break;
+
+                case '4':
+                    noteField += "<div class='col-xs-12'><b>Transition to not enter into another Childhood Program</b></div>";
+                    caseNoteTitle += "Transition to not enter into another Childhood Program";
+                    caseNoteTag = 'Transition NOT CHILDHOOD,,;';
+                    break;
+
+                case '5':
+                    noteField += "<div class='col-xs-12'><b>Not Returning</b></div>";
+                    caseNoteTitle+= "Not Returning to the program";
+                    caseNoteTag = 'Not Returning,,;';
+                    break;
+
+                case '6':
+                    noteField += "<div class='col-xs-12'><b>Transition to Kindergarten</b></div>";
+                    caseNoteTitle += "Transition to kindergarten";
+                    caseNoteTag = 'Kindergarten Transition,,;';
+                    break;
+                case '7':
+                    noteField += "<div class='col-xs-12'><b>Transition to OUR Early Head Start Program</b></div>";
+                    caseNoteTitle += "Enroll in OUR Early Head Start Program";
+                    caseNoteTag = 'Transition OUR EHS,,;';
+                    break;
+
+                case '8':
+                    noteField += "<div class='col-xs-12'><b>Transition to ANOTHER Early Head Start Program</b></div>";
+                    caseNoteTitle += "Enroll in ANOTHER Early Head Start Program";
+                    caseNoteTag = 'Transition ANOTHER EHS,,;';
+                    break;
+
+
+
+
+            }
+
+
+            if (seleValue != '0') {
+
+                $('#txtareaCaseNote_' + $guid + '').val(noteField);
+
+                $('#txtCaseNoteTitle_' + $guid + '').val(caseNoteTitle);
+
+                $('#txtCaseNoteTags_' + $guid + '').importTags(caseNoteTag);
+
+                CKEDITOR.replace('txtareaCaseNote_' + $guid + '', {
+                    language: 'en-gb',
+                    uiColor: '#295b8f',
+                    disableNativeSpellChecker: false
+                });
+            }
+        }
 
         $(document).ready(function () {
 
+
+
+            $('.badge-transitioned').on('click', function () {
+
+                var $clientId = $(this).attr('data-clientid');
+                var $yakkr=$(this).attr('data-yakkr');
+
+                $.ajax({
+                    url: '/Roster/GetTransitionTypeDetailBy',
+                    dataType: 'json',
+                    type: 'POST',
+                    beforeSend: function () {
+                        $('#spinner').show();
+                    },
+                    data: { clientId: $clientId, yakkr: $yakkr },
+                    success:function(data)
+                    {
+                        console.log(data);
+
+                        var $modalChangeTransitionType = $('#ModalchangeTransitionType');
+                        $modalChangeTransitionType.find('#div-transition-type-casenote-section').empty().hide();
+
+                        $modalChangeTransitionType.find('#divEHSProgramType').find('#ehsProgramTypeRadioDiv').empty();
+                        $modalChangeTransitionType.find('#divEHSProgramType').hide();
+
+                        $modalChangeTransitionType.find('#divHSProgramType').find('#ehsProgramTypeRadioDiv').empty();
+                        $modalChangeTransitionType.find('#divHSProgramType').hide();
+
+
+
+
+                        $modalChangeTransitionType.find('#Centers').val(0)
+                        $modalChangeTransitionType.find('.divCenter').hide();
+
+                        $modalChangeTransitionType.find('.divClassRoomName').find('.clsClassRooms').empty();
+                        $modalChangeTransitionType.find('.divClassRoomName').hide();
+
+
+                        if (data != null)
+                        {
+
+                            if(data.model != null && data.model.TransitionTypeDetail != null)
+                            {
+                                $.each(data.model.TransitionTypeDetail, function (i, detail) {
+
+                                    $modalChangeTransitionType.find('#ddlTransitionType').val(detail.FK_TransitionTypeId);
+                                    $modalChangeTransitionType.find('#hidden-trans-type-id').val(detail.FK_TransitionTypeId);
+                                    $modalChangeTransitionType.find('#hidden-trans-type-detail-id').val(detail.TransitionTypeDetailId);
+                                    $modalChangeTransitionType.find('#hidden-client-id').val(detail.FK_ClientId);
+
+                                });
+                            }
+
+                            if(data.transition!=null)
+                            {
+                                $modalChangeTransitionType.find('#lbl_transistionType_ClientName').html(data.transition.Name);
+                                $modalChangeTransitionType.find('#ldaAgepan').html('(as on ' + data.transition.SchoolDistrictDate + ' )');
+                                $modalChangeTransitionType.find('#lbl_lda_age').html(data.transition.LDAAge);
+                                $modalChangeTransitionType.find('#hidden-type-of-transition').val(data.transition.TypeOfTransition);
+
+
+                                var typeOfTransition = data.transition.TypeOfTransition
+
+                                var transitionJson = $.grep($transitionTypeJson, function (e) {
+                                    var returnType = false;
+
+                                    switch(typeOfTransition)
+                                    {
+                                        case 1: //new program year EHS to HS or EHS to EHS// >=3 and <4
+                                            returnType= new Array(1, 2, 3, 4, 7, 8).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 7: //elective transition From EHS //>=3 and <4
+                                            returnType= new Array(1).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 2://new program year mandatory EHS to HS//
+                                            returnType= new Array(1, 2, 3, 4).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 8://new program year mandatory EHS to HS//
+                                            returnType= new Array(1, 2, 3, 4).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 3://Mandatory new program year back to EHS//<3
+                                            returnType= new Array(7, 8, 3, 4).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 4: //New program year mandatory TRAN from HS// LDA Age = 3,4,5
+                                            returnType= new Array(1, 2, 3, 4).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        case 5: //Mandatory Transition from HS to Kindergarten >=5
+                                            returnType= new Array(6, 1, 2, 3, 4).indexOf(parseInt(e.TransitionTypeId)) > -1;
+                                            break;
+                                        default:
+                                            returnType=true;
+                                            break;
+                                    }
+
+                                    return returnType;
+
+
+
+
+                                });
+
+                                console.log(transitionJson);
+
+
+                                var ddlTransitionTypeAppend = '<option>--Select Transition Type--</option>';
+
+                                $.each(transitionJson, function (i, transitionType) {
+
+
+                                    ddlTransitionTypeAppend += '<option value=' + transitionType.TransitionTypeId + '>' + transitionType.Description + '</option>';
+                                });
+
+                                $modalChangeTransitionType.find('#ddlTransitionType').html(ddlTransitionTypeAppend);
+
+                                $modalChangeTransitionType.find('#ddlTransitionType').val($modalChangeTransitionType.find('#hidden-trans-type-id').val());
+
+
+                                if(data.transition.EHSPrograms!=null && data.transition.EHSPrograms.length>0)
+                                {
+                                    var ehsProgramappend = '';
+
+                                    $.each(data.transition.EHSPrograms,function(i,ehsProgram){
+
+                                        ehsProgramappend += '<div class="col-xs-12 col-lg-6 no-padding">\
+                                                             <div class="radio radio-info" style="margin:auto;">\
+                                                                <input type="radio" name="radioEHSProgram" id="radioEHS_'+i+'" value='+ehsProgram.Value+' />\
+                                                                <label for="radioEHS_'+i+'">'+ehsProgram.Text+'</label>\
+                                                            </div>\
+                                                        </div>';
+
+
+                                    });
+
+
+                                    $modalChangeTransitionType.find('#ehsProgramTypeRadioDiv').html(ehsProgramappend);
+
+
+
+
+                                }
+
+                                if(data.transition.HSPrograms!=null && data.transition.HSPrograms.length>0)
+                                {
+                                    var hsProgramappend = '';
+
+                                    $.each(data.transition.HSPrograms, function (i, hsProgram) {
+                                        hsProgramappend+=' <div class="col-xs-12 col-lg-6 no-padding">\
+                                                            <div class="radio radio-info" style="margin:auto;">\
+                                                                <input type="radio" name="radioHSProgram" id="radioHS_'+i+'" value='+hsProgram.Value+' />\
+                                                                <label for="radioHS_'+i+'">'+hsProgram.Text+'</label>\
+                                                            </div>\
+                                                        </div>';
+                                    });
+
+                                    $modalChangeTransitionType.find('#hsProgramTypeRadioDiv').html(hsProgramappend);
+
+
+                                }
+
+                            }
+
+
+                        }
+
+
+
+                        $modalChangeTransitionType.modal('show');
+                    },
+                    error:function(data)
+                    {
+                        $('#spinner').hide();
+                    },
+                    complete:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+                });
+            });
+
+
+
+            $('#ddlTransitionType').on('change', function () {
+                
+                var $modal = $(this).closest('.modal');
+                var $clientId = $modal.find('#hidden-client-id').val();
+                var $hiddenTransType = $modal.find('#hidden-trans-type-id').val();
+                var $selectedValue = $(this).val();
+
+
+                $modal.find('#divHSProgramType,#divEHSProgramType').hide('slow');
+                $modal.find('#divHSProgramType,#divEHSProgramType').find('input[type=radio]').prop('checked', false);
+                $modal.find('#Centers').val(0)
+                $modal.find('#Classroom').text("")
+                $modal.find('.divCenter').hide();
+                $modal.find('.divClassRoomName').hide();
+
+                $modal.find('#hsProgramTypeRadioDiv,#ehsProgramTypeRadioDiv').css('background-color', '');
+
+
+                if ($hiddenTransType != $selectedValue && $selectedValue!="")
+                {
+
+                    if ($modal.find('#hidden-type-of-transition').val() != '1') {
+                        $modal.find('#childEHSHSdiv').hide();
+                        $modal.find('#childEHSHSdiv').find('input[type=radio]').prop('checked', false);
+                    }
+
+                    var transType = parseInt($selectedValue);
+                    var transMode = parseInt($modal.find('#hidden-type-of-transition').val());
+                    if (transType == 0) {
+                        $modal.find('#Centers').val(0)
+                        $modal.find('#Classroom').text("")
+                        $modal.find('.errorAvailableSeat').hide();
+                        $modal.find('.divCenter').hide();
+                        $modal.find('.divClassRoomName').hide();
+
+                    }
+                    else if (transType == 1 || transType == 7) {
+
+                        $modal.find('#spnClassName').text('');
+                        $modal.find('#spnAvailableCount').text('0');
+                        $modal.find('#ptotalSeats').hide();
+
+                        $modal.find('.divCenter').show('slow');
+                        $modal.find('.divClassRoomName').show('slow');
+
+
+                        if (transMode <= 5) {
+
+
+                            if (transType == 1) {
+                                $modal.find('#divHSProgramType').show('slow');
+                                if ($modal.find('#divHSProgramType').find('input:radio').length == 1) {
+                                    $modal.find('#divHSProgramType').find('input:radio').prop('checked', true);
+                                }
+                            }
+                            else if (transType == 7) {
+                                $modal.find('#divEHSProgramType').show('slow');
+                                if ($modal.find('#divEHSProgramType').find('input:radio').length == 1) {
+                                    $modal.find('#divEHSProgramType').find('input:radio').prop('checked', true);
+                                }
+                            }
+                        }
+
+                        //commented on 06/21/2018
+                        //if (transMode == 1 || transMode == 7) {
+                        //    $('#childEHSHSdiv').find('input[type=radio]').prop('checked', false);
+                        //    $('#childEHSHSdiv').show();
+                        //}
+
+                        if (transMode == 7) {
+                            $modal.find('#divHSProgramType').show('slow');
+                            if ($modal.find('#divHSProgramType').find('input:radio').length == 1) {
+                                $modal.find('#divHSProgramType').find('input:radio').prop('checked', true);
+                            }
+                        }
+                        //else if (transMode == 4) {
+
+                        //    //$('#insurancequestionDiv').hide();
+                        //}
+
+                    }
+
+                    else if (transType == 2 || transType == 3 || transType == 4 || transType == 5) {
+
+
+                        $modal.find('#spnClassName').text('');
+                        $modal.find('#spnAvailableCount').text('0');
+                        $modal.find('#ptotalSeats').hide();
+                        //  $('.divTotalSeatAvailability').show();
+                        $modal.find('.divCenter').hide('slow');
+                        $modal.find('.divClassRoomName').hide('slow');
+                        // $('#insurancequestionDiv').show();
+                    }
+
+
+
+
+                    else if (transType == 6 || transType == 7 || transType == 8 || transType == 9) {
+
+                        // $('#insurancequestionDiv').show();
+
+                        //$('.divCenter').hide('slow');
+                        //$('.divClassRoomName').hide('slow');
+                    }
+
+
+                    else {
+                        $modal.find('#Centers').val(0)
+                        $modal.find('#Classroom').text("")
+                        //  $('.divTotalSeatAvailability').hide();
+                        $modal.find('.divCenter').hide();
+                        $modal.find('.divClassRoomName').hide('slow');
+                    }
+
+
+                     $('#div-transition-type-casenote-section').ApplinkCaseNote({
+                    isPopup: false,
+                    isSection: true,
+                    caseNoteType: 1,   //1- New/Edit 2- Append //
+                    getCaseNoteUrl: HostedDir + "/Roster/GetCaseNoteSectionPartial",
+                    caseNoteId: 0,
+                    householdId: '@Model.HouseholdId',
+                    clientId: $clientId,
+                    isEditable: true,
+                    isShowSubmitButton: false,
+                    isShowExportIcon: false,
+                    forceLoad: true,
+
+                    modalOnShown: function (element) {
+
+                    },
+                    ajaxComplete: function (element) {
+
+                        var $guid = element.find('#divCaseNoteSection').attr('data-current-id');
+
+                        element.find('.caseNoteSection_' + $guid + '').css({ 'border': 'unset', 'padding': '0px' });
+
+                       // element.find('#checkboxSecureNote_' + $guid + '').closest('.form-group').hide();
+                       element.find('#caseNoteAttachmentsDiv_' + $guid + '').hide();
+
+                        element.find('#divCaseNoteSection').find('#txtCaseNoteTags_' + $guid + '_tagsinput .tag ').each(function () {
+                            $(this).remove();
+                        });
+
+
+                        //if ($('#centerName').val() != "") {
+                        //    var contenct = "Change center from " + $('#centerName').val() + " center and  " + $('#clsRoomName').val() + " classroom to " + $('#Centers option:selected').text() + " center and " + $('#ddClassroom option:selected').text() + " classroom";
+                        //    CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].setData(contenct);
+                        //    element.find('#txtCaseNoteTags_' + $guid + '_tagsinput').prepend('<span class="tag"><span>Center Change&nbsp;&nbsp;</span></span>');
+                        //    element.find('#txtCaseNoteTitle_' + $guid + '').val('Center change for client');
+                        //}
+                        //else {
+                        //    CKEDITOR.instances['txtareaCaseNote_' + $guid + ''].setData("Change classroom from " + $('#clsRoomName').val() + " to " + $('#ddClassroom option:selected').text());
+                        //    element.find('#txtCaseNoteTags_' + $guid + '_tagsinput').prepend('<span class="tag"><span>Classroom Change&nbsp;&nbsp;</span></span>');
+                        //    element.find('#txtCaseNoteTitle_' + $guid + '').val('Classroom change for client');
+                        //}
+
+                        element.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox').each(function () {
+
+                            if ($(this).next('label').html().indexOf('Parent') > -1 || $(this).val() == $clientId) {
+                                $(this).prop('checked', true);
+                            }
+                            else {
+                                $(this).parent('div').remove();
+                            }
+                        });
+
+                        bindTransitionType_CaseNoteDetails(element.closest('.modal'), $guid, $selectedValue);
+                        $modal.find('#div-transition-type-casenote-section').show();
+                    },
+
+                    successCaseNoteSave: function (data) {
+
+                        if(data=="1" || data==true)
+                        {
+                            customAlert('Case note saved successfully');
+                        }
+                    }
+
+                     });
+
+
+                }
+                else {
+                    $modal.find('#div-transition-type-casenote-section').empty().hide();
+                }
+
+
+
+
+            });
+
+
+            $('#btn_save_transition_type_change').on('click', function (e) {
+
+                e.preventDefault();
+                debugger;
+                var $modal=$('#ModalchangeTransitionType');
+                var $clientId=$(this).parent('div').find('#hidden-client-id').val();
+                var $transitionTypeDetailId=$(this).parent('div').find('#hidden-trans-type-detail-id').val();
+                var $transitionTypeId=$modal.find('select#ddlTransitionType').val();
+
+                if($modal.find('select#ddlTransitionType').val()==null || $modal.find('select#ddlTransitionType').val()=='')
+                {
+                    customAlert('Transition type is required');
+
+                    plainValidation($modal.find('select#ddlTransitionType'));
+                    return false;
+
+                }
+
+                else if($modal.find('select#ddlTransitionType').val()==$modal.find('#hidden-trans-type-id').val())
+                {
+                    customAlert('No changes to save');
+                    return false;   
+                }
+
+                else if($modal.find('#divCaseNoteSection').length>0 && $modal.find('#divCaseNoteSection').is(':visible'))
+                {
+                    var $guid = $modal.find('#divCaseNoteSection').attr('data-current-id');
+
+                    var isValid = $('#div-transition-type-casenote-section').ApplinkCaseNote('caseNoteValidation');
+
+
+                    if(isValid)
+                    {
+                        $('#spinner').show();
+                        debugger;
+                        var transitionTypeDetail = {
+
+                            'FK_ClientId': $clientId,
+                            'TransitionTypeDetailId': $transitionTypeDetailId,
+                            'FK_EnrollmentTransactionId':0
+                        };
+
+                        var transition = {
+                            'TypeOfTransition': $modal.find('#hidden-type-of-transition').val(),
+                            'TransProgramTypeID':  $modal.find('#divHSProgramType').is(':visible') ? $modal.find('input:radio[name="radioHSProgram"]:checked').val() : $modal.find('#divEHSProgramType').is(':visible') ? $modal.find('input:radio[name="radioEHSProgram"]:checked').val() : '',
+                            'Enc_CenterID': $modal.find('select#Centers').val(),
+                            'Enc_ClassroomID': $modal.find('select#Classroom').val()
+                        }
+
+                        $.post(HostedDir + '/Roster/SaveTransitionTypeDetail', {
+                            FK_ClientId: $clientId
+                          , TransitionTypeDetailId: $transitionTypeDetailId
+                          , FK_TransitionTypeId: $transitionTypeId
+                          , TypeOfTransition: $modal.find('#hidden-type-of-transition').val()
+                          , TransProgramTypeID: $modal.find('#divHSProgramType').is(':visible') ? $modal.find('input:radio[name="radioHSProgram"]:checked').val() : $modal.find('#divEHSProgramType').is(':visible') ? $modal.find('input:radio[name="radioEHSProgram"]:checked').val() : ''
+                          , Enc_CenterID: $modal.find('select#Centers').val()
+                          , Enc_ClassroomID: $modal.find('select#Classroom').val()
+                          
+                        }, function (data) {
+                            debugger;
+
+
+                            if (data)
+                            {
+                                customAlert('Transition type updated successfully');
+
+                                $('#div-transition-type-casenote-section').ApplinkCaseNote('saveCaseNote');
+
+                                $modal.modal('hide');
+
+                            }
+                            else {
+                                customAlert('Error occurred. Please, try again later');
+                            }
+
+
+                        }, 'json').done(function (data) {
+
+                        }).fail(function (data) {
+
+                        }).always(function (data) {
+                            $('#spinner').hide();
+
+                        });
+
+
+                    }
+                    else {
+                        return false;
+                    }
+                }
+
+
+            });
 
 
             $('body').on('click', '.append-casenote', function () {
@@ -3878,8 +4505,7 @@
 
                                     element.find('#divCaseNoteClients_' + $guid + '').find('input:checkbox').each(function () {
 
-                                        if($(this).next('label').html().indexOf('Parent')>-1 || $(this).val()==$modal.find('#hChildID').val())
-                                        {
+                                        if ($(this).next('label').html().indexOf('Parent') > -1 || $(this).val() == $modal.find('#hChildID').val()) {
                                             $(this).prop('checked', true);
                                         }
                                         else {
@@ -5155,15 +5781,7 @@
 
 
 
-        function Showreason(object) {
-
-            cleanValidation();
-            if ($(object).val() == "0")
-                $('#Divreason').show();
-            else
-                $('#Divreason').hide();
-        }
-
+      
 
 
 
@@ -5464,7 +6082,7 @@
             <div class="row">
 
                 <!------------Your Code----------------->
-                <div class="glossy-right-side-container col-xs-12" style="padding-top: 30px;">
+                <div class="glossy-right-side-container col-xs-12">
 
 
                     <div class="col-xs-12" style="padding:0px 0px;margin-bottom:20px;">
@@ -5524,22 +6142,22 @@
 
                                             </button>
 
-                                                    <button class="btn btn-success" data-toggle="modal" data-target="#HouseholdData" href="#" style="display:none;"><i class="fa fa-pencil" aria-hidden="true" ></i>	Change</button>
-
-                                                </div>
-                                            </div>
-
+                                            <button class="btn btn-success" data-toggle="modal" data-target="#HouseholdData" href="#" style="display:none;"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
 
                                         </div>
                                     </div>
 
-                                    @if (Model.staffList != null && Model.staffList.Count() > 0)
-                                    {
+
+                                </div>
+                            </div>
+
+                            @if (Model.staffList != null && Model.staffList.Count() > 0)
+                            {
 
                                 <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12" id="div_family_advocate_info">
                                     <div class="house-hold household-main-ch staff-info-div">
                                         <div class="hld-img">
-                                            <img height="110" width="108" src="@Url.Content(Model.staffList[0].AvatarUrl)" style="margin-top:2px;" class="zoomify">
+                                            <img height="110" width="108" src="@Url.Content(Model.staffList[0].AvatarUrl)"  class="zoomify">
                                         </div>
                                         <div class="det-cont" style="width:70%;">
                                             <h4 style="padding-left:10px;float:left;width:100%;">
@@ -5586,7 +6204,7 @@
 
                             @if (Model.FamilyAdovateList != null && Model.FamilyAdovateList.Count > 0)
                             {
-                                <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12" id="div_family_advocate_select" @if (Model.staffList != null && Model.staffList.Count() > 0) { <text> style="display:none;" </text>           }>
+                                <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12" id="div_family_advocate_select" @if (Model.staffList != null && Model.staffList.Count() > 0) { <text> style="display:none;" </text>                   }>
                                     <div class="house-hold household-main-ch staff-info-div" style="padding: 15px 10px;">
 
                                         <div class="det-cont" style="width:100%;" id="divFamilyAdvSelec">
@@ -5596,8 +6214,8 @@
                                             </div>
                                             <div class="col-xs-3 col-lg-7">
 
-                                                        @Html.DropDownListFor(m => m.FamilyAdvocateId, Model.FamilyAdovateList, "Select Family Advocate", new { @class = "form-control", @style = "width:100%;" })
-                                                    </div>
+                                                @Html.DropDownListFor(m => m.FamilyAdvocateId, Model.FamilyAdovateList, "Select Family Advocate", new { @class = "form-control", @style = "width:100%;" })
+                                            </div>
 
 
 
@@ -5606,10 +6224,10 @@
                                             <div class="col-xs-12 adddivspace" style="margin-top:5%;text-align:center;">
 
                                                 <button type="button" onclick="SaveFamilyAdvocate(this);" class="glossy-button-button glossy-button-hover button-green">
-                                                <i class="fa fa-save" aria-hidden="true"></i> Submit
-                                                <span class="glossy-button-before"></span>
+                                                    <i class="fa fa-save" aria-hidden="true"></i> Submit
+                                                    <span class="glossy-button-before"></span>
                                                     <span class="glossy-button-after"></span>
-                                                
+
                                                 </button>
 
 
@@ -5623,63 +6241,51 @@
                                                 }
 
 
-                                                    </div>
-
-
-
-
-
-
-
-
-
-
-
-                                                </div>
-
-
                                             </div>
                                         </div>
-                                    }
+
+
+                                    </div>
                                 </div>
+                            }
+
+                        </div>
 
 
-                            </div>
+                    </div>
 
                     <div class="col-xs-12">
                         <div class="col-xs-12 no-padding">
                             <div class="information_titles icr-title panel-head-div-green">
-
                                 <span class="glossy-panel-heading">File Cabinet</span>
+                            </div>
+                        </div>
+                        <div class="inforeader-inner">
 
-                                    </div>
+                            <div class="col-xs-12 col-sm-12">
+                                <div class="form-group" style="width:200px;">
+                                    <select id="blue-down" class="form-control ddFileCabinet">
+                                        <option>Child</option>
+
+                                        @if (Model.IsStaffReviewIncome)
+                                        {
+                                            <option>Guardian</option>
+                                        }
+                                        <option>Household</option>
+                                        <option>Screening</option>
+
+                                    </select>
                                 </div>
-                                <div class="inforeader-inner">
-
-                                    <div class="col-xs-12 col-sm-12">
-                                        <div class="form-group" style="width:200px;">
-                                            <select id="blue-down" class="form-control ddFileCabinet">
-                                                <option>Child</option>
-
-                                                @if (Model.IsStaffReviewIncome)
-                                                {
-                                                    <option>Guardian</option>
-                                                }
-                                                <option>Household</option>
-                                                <option>Screening</option>
-
-                                            </select>
-                                        </div>
-                                        <div id="searchurl"></div>
+                                <div id="searchurl"></div>
 
 
-                                        <div class="clearfix"></div>
-
-                                    </div>
-                                </div>
-
+                                <div class="clearfix"></div>
 
                             </div>
+                        </div>
+
+
+                    </div>
 
 
                     <div class="col-xs-12">
@@ -5690,7 +6296,6 @@
 
                                     <a class="glossy-button-button glossy-button-hover button-yellow" style="text-decoration:none;" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName">
                                         Add
-
                                         <span class="glossy-button-before"></span>
                                         <span class="glossy-button-after"></span>
 
@@ -5703,6 +6308,13 @@
                             {
                                 foreach (var item in Model._Clist)
                                 {
+
+
+                                  
+                                        var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
+                                
+
+
                                     <div class="col-md-12 col-lg-6 col-sm-12 col-xs-12">
                                         <div class="house-hold household-main-ch child-info-div">
                                             <div class="bade-div">
@@ -5721,9 +6333,21 @@
                                                     {
                                                         <p class="house-hold-badge bage-disability glossy-badge glossy-badge-yellow" style="display:none;" data-toggle="tooltip" title="Child has Disability">D</p>
                                                     }
+                                                    @if (item.EnrollmentStatus == "5")
+                                                    {
+                                                        <p class="house-hold-badge badge-transitioned glossy-badge glossy-badge-blue" data-clientid="@_ecid" data-yakkr="@item.Yakkr"  data-toggle="tooltip" title="Transitioned - Click to change Transition Type">T</p>
 
-                                                    <p class="house-hold-badge badge-transport glossy-badge glossy-badge-blue" style="display:none;" data-toggle="tooltip" title="Transport Provided">T</p>
-                                                    <p class="house-hold-badge badge-attendance glossy-badge glossy-badge-red" style="display:none;" data-toggle="tooltip" title="Excessive Absences">A</p>
+                                                    }
+
+                                                    @if (item.ExecessiveAbsences)
+                                                    {
+                                                        <p class="house-hold-badge badge-attendance glossy-badge glossy-badge-red" data-toggle="tooltip" title="Excessive Absences">A</p>
+
+                                                    }
+
+
+
+
 
 
 
@@ -5746,7 +6370,7 @@
 
                                                 else if (!string.IsNullOrEmpty(item.Imagejson))
                                                 {
-                                                    <img width="110" height="108" src="data:image/jpg;base64,@item.Imagejson" style="margin-top: 4px;" />
+                                                    <img width="110" height="108" src="data:image/jpg;base64,@item.Imagejson"  />
                                                 }
                                                 else
                                                 {
@@ -5754,14 +6378,22 @@
                                                 }
 
                                                 <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString())" data-toggle="modal" title="Add/Update Picture">
-                                                    <i class="fa fa-plus"></i>
+
+                                                    @if (!string.IsNullOrEmpty(item.Imagejson))
+                                                    {
+                                                        <i class="fa fa-pencil"></i>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa fa-plus"></i>
+
+                                                    }
+
                                                 </div>
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
-                                                @{
-                                                    var _ecid = FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString());
-                                                }
-
+                                               
 
 
                                                 <a href="@Url.Action("TimeLine","Roster")?clientid=@_ecid" data-toggle="tooltip" title="Timeline of @item.Cfirstname">
@@ -5860,42 +6492,42 @@
                                                 @if (@item.Yakkr == "1")
                                                 {
 
-                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Intake" data-toggle="tooltip">Intake</a>
+                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname"   householdid="@item.Encrypthouseholid"  refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Intake" data-toggle="tooltip">Intake</a>
                                                 }
                                                 else if (@item.Yakkr == "2")
                                                 {
-                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Waiting List" data-toggle="tooltip">Waiting List</a>
+                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Waiting List" data-toggle="tooltip">Waiting List</a>
                                                 }
                                                 else if (@item.Yakkr == "3")
                                                 {
-                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Pending" data-toggle="tooltip">Pending</a>
+                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Pending" data-toggle="tooltip">Pending</a>
                                                 }
                                                 else if (@item.Yakkr == "4")
                                                 {
-                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Accepted" data-toggle="tooltip">Accepted</a>
+                                                    <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)" title="Accepted" data-toggle="tooltip">Accepted</a>
                                                 }
                                                 else if (@item.Yakkr == "5")
                                                 {
-                                                    <a style="color:green;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Accepted</a>
+                                                    <a style="color:green;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Accepted</a>
                                                 }
                                                 else if (@item.Yakkr == "6")
                                                 {
-                                                    <a style="color:red;font-size:18px;" title="@item._EnrollmentChangeReason.ReasonText" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Dropped</a>
+                                                    <a style="color:red;font-size:18px;" title="@item._EnrollmentChangeReason.ReasonText" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Dropped</a>
                                                 }
                                                 else if (@item.Yakkr == "7")
                                                 {
-                                                    <a style="color:red;font-size:18px;" title="@item._EnrollmentChangeReason.ReasonText" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Withdrawn</a>
+                                                    <a style="color:red;font-size:18px;" title="@item._EnrollmentChangeReason.ReasonText" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Withdrawn</a>
                                                 }
                                                 else if (@item.Yakkr == "8")
                                                 {
                                                     if (item.IsFutureWithdrawal)
                                                     {
-                                                        <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated for future withdrawal" data-toggle="tooltip" clientid="@encClient" progid="@item.ProgramTypeID" householdid="@item.Encrypthouseholid" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
+                                                        <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated for future withdrawal" data-toggle="tooltip" clientid="@encClient" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" householdid="@item.Encrypthouseholid" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
 
                                                     }
                                                     else
                                                     {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
+                                                        <a style="color:red;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
 
                                                     }
                                                 }
@@ -5903,12 +6535,12 @@
                                                 {
                                                     if (item.IsFutureWithdrawal)
                                                     {
-                                                        <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated for future withdrawal" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+                                                        <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated for future withdrawal" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
 
                                                     }
                                                     else
                                                     {
-                                                        <a style="color:#0f9c15;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" progid="@item.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+                                                        <a style="color:#0f9c15;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@item.Encrypthouseholid" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" refpr="@item.CReferenceProgramId"  progid="@item.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
 
                                                     }
                                                 }
@@ -5966,27 +6598,39 @@
                                         @if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "2")
                                         {
 
-                                            <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
+                                            <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")"  />
                                         }
                                         else if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "1")
                                         {
-                                            <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                            <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")"  />
                                         }
                                         else if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "3")
                                         {
-                                            <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                            <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")"/>
                                         }
                                         else if (!string.IsNullOrEmpty(Model.PImagejson))
                                         {
-                                            <img width="108" height="108" src="data:image/jpg;base64,@Model.PImagejson" style="margin-top: 4px;" />
+                                            <img width="108" height="108" src="data:image/jpg;base64,@Model.PImagejson"  />
                                         }
                                         else
                                         {
-                                            <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
+                                            <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                         }
 
                                         <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())" title="Add/Update Picture">
-                                            <i class="fa fa-plus"></i>
+
+                                            @if (!string.IsNullOrEmpty(Model.PImagejson))
+                                            {
+                                                <i class="fa fa-pencil"></i>
+
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-plus"></i>
+
+                                            }
+
+
                                         </div>
                                     </div>
                                     <div class="det-cont" style="min-height: 130px;">
@@ -6031,7 +6675,7 @@
                                                 {
                                                     <span class="household-right-txt" style="margin-bottom:0px;color:#164b7b;text-decoration:none;">
 
-                                                                                        @ph
+                                                        @ph
 
                                                     </span>
                                                 }
@@ -6064,17 +6708,17 @@
 
 
 
-                                                                    @if (Model.Pregnantmotherenrolled)
+                                    @if (Model.Pregnantmotherenrolled)
     {
-                                                                        <div class="col-xs-12">
-                                                                            @{
-                                                                                string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString());
+                                        <div class="col-xs-12">
+                                            @{
+                                                string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString());
 
-                                                                            }
+                                            }
 
 
-                                                                            @if (Model.Yakkr == "1")
-                                                                            {
+                                            @if (Model.Yakkr == "1")
+                                            {
 
                                                 <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)" title="Intake" data-toggle="tooltip">Intake</a>
                                             }
@@ -6126,8 +6770,8 @@
                                                 {
                                                     <a style="color:red;font-size:18px;" title="Click to change status" data-toggle="tooltip" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@(Model.InsuranceOption)" progid="@Model.ProgramTypeID" name="@Model.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Re-enrolled</a>
 
-                                                                                }
-                                                                            }
+                                                }
+                                            }
 
                                             else if (Model.Yakkr == "10")
                                             {
@@ -6204,34 +6848,44 @@
                                     <div class="house-hold household-main-ht parent-info-div household-main-ch">
                                         <div class="hld-img">
 
-                                                                            @if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 2)
-                                                                            {
+                                            @if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 2)
+                                            {
 
-                                                                        <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
-                                                                    }
-                                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
-                                                                    {
-                                                                        <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
-                                                                    }
-                                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
-                                                                    {
-                                                                        <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
-                                                                    }
-                                                                    else if (!string.IsNullOrEmpty(Model.P1Imagejson))
-                                                                    {
-                                                                        <img width="108" height="108" src="data:image/jpg;base64,@Model.P1Imagejson" style="margin-top: 4px;" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
-                                                                    }
+                                                <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
+                                            }
+                                            else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
+                                            {
+                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                            }
+                                            else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
+                                            {
+                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
+                                            }
+                                            else if (!string.IsNullOrEmpty(Model.P1Imagejson))
+                                            {
+                                                <img width="108" height="108" src="data:image/jpg;base64,@Model.P1Imagejson" style="margin-top: 4px;" />
+                                            }
+                                            else
+                                            {
+                                                <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
+                                            }
 
-                                                                    <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())"  title="Add/Update Picture">
-                                                                        <i class="fa fa-plus"></i>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="det-cont" style="min-height: 130px;">
-                                                                    <h4 class="household-heading-txt">@Model.P1firstname</h4>
+                                            <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())" title="Add/Update Picture">
+
+                                                @if (!string.IsNullOrEmpty(Model.P1Imagejson))
+                                                {
+                                                    <i class="fa fa-pencil"></i>
+
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-plus"></i>
+
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="det-cont" style="min-height: 130px;">
+                                            <h4 class="household-heading-txt">@Model.P1firstname</h4>
 
                                             <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
 
@@ -6307,10 +6961,10 @@
                                                 @{
                                                     string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString());
 
-                                                                                }
+                                                }
 
 
-                                                                                @if (Model.Yakkr1 == "1")
+                                                @if (Model.Yakkr1 == "1")
             {
 
                                                     <a style="color:red;font-size:18px;" title="Intake" data-toggle="tooltip" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Intake</a>
@@ -6474,7 +7128,16 @@
 
 
                                                     <div class="glossy-update-icon" onclick="updateProfilePicture(this,1);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.OthersId.ToString())" title="Add/Update Picture">
-                                                        <i class="fa fa-plus"></i>
+                                                        @if (!string.IsNullOrEmpty(item.HouseHoldImagejson))
+                                                        {
+                                                            <i class="fa fa-pencil"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fa fa-plus"></i>
+                                                        }
+
+
                                                     </div>
 
                                                 </div>
@@ -6576,7 +7239,15 @@
                                                 }
 
                                                 <div class="glossy-update-icon" onclick="updateProfilePicture(this,2);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.EmegencyId.ToString())" title="Add/Update Picture">
-                                                    <i class="fa fa-plus"></i>
+                                                    @if (!string.IsNullOrEmpty(item.EImagejson))
+                                                    {
+                                                        <i class="fa fa-pencil"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa fa-plus"></i>
+                                                    }
+                                                    
                                                 </div>
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
@@ -6670,7 +7341,17 @@
                                                     <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                 }
                                                 <div class="glossy-update-icon" onclick="updateProfilePicture(this,2);" data-accesskey="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.RestrictedId.ToString())" title="Add/Update Picture">
-                                                    <i class="fa fa-plus"></i>
+                                                  
+                                                    @if (!string.IsNullOrEmpty(item.RImagejson))
+                                                    {
+                                                        <i class="fa fa-pencil"></i>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa fa-plus"></i>
+
+                                                    }
                                                 </div>
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
@@ -7765,10 +8446,10 @@
                                             <label>No</label>
                                         </div>
 
-                                                <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                    <span class="err-message err-message-ms">Medical services is required</span>
-                                                </div>
-                                            </div>
+                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                            <span class="err-message err-message-ms">Medical services is required</span>
+                                        </div>
+                                    </div>
 
                                 </div>
                                 <div class="modal-footer">
@@ -7825,7 +8506,7 @@
 
                                                                     <div class="radio radio-info col-lg-4">
                                                                         <input type="radio" id="client_@item.ChildId.ToString()" value="@FingerprintsModel.EncryptDecrypt.Encrypt64(item.ChildId.ToString())" name="radioHouseholdmembers" />
-                                                                        <label class="col-lg-12" for="client_@item.ChildId.ToString()"  >@item.Cfirstname (Child)  <span class="badge">@item.TotalCaseNotesWritten</span></label>
+                                                                        <label class="col-lg-12" for="client_@item.ChildId.ToString()">@item.Cfirstname (Child)  <span class="badge">@item.TotalCaseNotesWritten</span></label>
 
 
                                                                     </div>
@@ -7840,7 +8521,7 @@
                                                                 {
                                                                     <div class="radio radio-info col-lg-4">
                                                                         <input type="radio" id="client_@Model.ParentID.ToString()" value="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())" name="radioHouseholdmembers" />
-                                                                        <label class="col-lg-12"  for="client_@Model.ParentID.ToString()">@Model.Pfirstname (Parent/Guardian) <span class="badge">@Model.TotalCaseNotesWritten</span></label>
+                                                                        <label class="col-lg-12" for="client_@Model.ParentID.ToString()">@Model.Pfirstname (Parent/Guardian) <span class="badge">@Model.TotalCaseNotesWritten</span></label>
 
 
                                                                     </div>
@@ -7850,7 +8531,7 @@
                                                                 {
                                                                     <div class="radio radio-info col-lg-4">
                                                                         <input type="radio" id="client_@Model.ParentID1.ToString()" value="@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())" name="radioHouseholdmembers" />
-                                                                        <label class="col-lg-12"  for="client_@Model.ParentID1.ToString()">@Model.P1firstname (Parent/Guardian)  <span class="badge">@Model.TotalCaseNotesWritten1</span></label>
+                                                                        <label class="col-lg-12" for="client_@Model.ParentID1.ToString()">@Model.P1firstname (Parent/Guardian)  <span class="badge">@Model.TotalCaseNotesWritten1</span></label>
 
 
                                                                     </div>
@@ -7965,6 +8646,153 @@
     <div id="caseNoteAppendDiv">
 
     </div>
+
+
+  <div class="modal fade  custom-modal in" id="ModalchangeTransitionType" role="dialog" aria-hidden="false" style="display: none;" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-ch">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                <h2 class="extra-title muted">Change Transition Type</h2>
+                <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;display:none;">
+                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                        <h3 id="CaseNoteTitle" class="text-center pull-left"><span class="extra-title muted"></span></h3>
+
+                      
+
+                    </div>
+                </div>
+                <div class="max_items_addn popup-addn-scroll">
+
+                   
+                            <div class="col-xs-12">
+
+                                <div class="form-group col-xs-12">
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Client</label>
+                                    <label class="col-lg-7 col-xs-12" id="lbl_transistionType_ClientName" style="color: #333;text-shadow: 2px 5px 6px #999393;font-size: 18px;font-weight:normal"></label>
+                                </div>
+
+                                <div class="form-group col-xs-12">
+                                    <label class="col-lg-3 col-xs-12 lbl-text">LDA Age <br /> <i id="ldaAgepan" style="color:#333;"></i></label>
+                                    <label class="col-lg-7 col-xs-12" id="lbl_lda_age" style="font-weight:normal;"></label>
+                                </div>
+
+
+                                <div class="form-group col-xs-12">
+
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Transition Type</label>
+
+                                    <div class="col-lg-7 col-xs-12">
+                                        @Html.DropDownList("ddlTransitionType", new SelectList(Model.TransitionTypeList, "TransitionTypeId", "Description", ""), "--Select Transition Type--", new { @class = "glossy-select" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-xs-12" id="divEHSProgramType" style="display:none;">
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Program Type (EHS)</label>
+
+                                    <div class="col-lg-7 col-xs-12" id="ehsProgramTypeRadioDiv" style="margin-left:0px;">
+                                    
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group col-xs-12" id="divHSProgramType" style="display:none;">
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Program Type (HS)</label>
+
+                                    <div class="col-lg-7 col-xs-12"  id="hsProgramTypeRadioDiv" style="margin-left:0px;">
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group col-xs-12 divCenter" style="display:none;" >
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Center</label>
+
+                                    <div class="col-lg-7 col-xs-12">
+
+                                        @{
+                                            List<SelectListItem> centerList = new List<SelectListItem>();
+                                            centerList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString(), false, false, false, false, true);
+                                            centerList.ForEach(x =>
+                                            {
+                                                x.Value = (x.Value != "0") ? FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value) : x.Value;
+                                            });
+
+                                        }
+                                        @Html.DropDownList("Centers", centerList, new { @class = "glossy-select mandatory", onchange = "GetClassroomsforTransitionTypeChange(this);" })
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="fomr-group col-xs-12 divClassRoomName" style="display:none;">
+
+                                    <label class="col-lg-3 col-xs-12 lbl-text">Classroom</label>
+
+                                    <div class="col-lg-7 col-xs-12">
+
+                                        <select id="Classroom"  class="glossy-select mandatory clsClassRooms"></select>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                    <div class="col-xs-12 no-padding" id="div-transition-type-casenote-section">
+
+                      
+
+
+
+
+                    </div>
+
+                    
+
+
+                   
+
+
+                </div>
+
+                <div class="col-xs-12">
+                    <div class="col-xs-12 glossy_btn text-center">
+
+                        <input type="hidden" id="hidden-trans-type-id" />
+                        <input type="hidden" id="hidden-trans-type-detail-id" />
+                        <input type="hidden" id="hidden-client-id" />
+                        <input type="hidden" id="hidden-type-of-transition" />
+
+
+
+                        <button type="button" class="glossy-button-button button-green" id="btn_save_transition_type_change">
+                            Submit
+                            <span class="glossy-button-before"></span>
+                            <span class="glossy-button-after"></span>
+
+                        </button>
+                        &nbsp;
+                        &nbsp;
+
+                        <button type="button" class="glossy-button-button button-red" data-dismiss="modal">
+                            Exit
+                            <span class="glossy-button-before"></span>
+                            <span class="glossy-button-after"></span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 }
 

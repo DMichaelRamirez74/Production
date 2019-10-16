@@ -338,8 +338,6 @@ namespace FingerprintsData
 
             try
             {
-
-                Questions qn ;
                 modal.ScreeningFollowupList = new List<ScreeningFollowup>();
                 var centerIDs = string.Join(",", modal.CenterIDs.Select(x => EncryptDecrypt.Decrypt64(x)));
                 var screeningIDs = string.Join(",", modal.ScreeningIDs.Select(x => EncryptDecrypt.Decrypt64(x)));
