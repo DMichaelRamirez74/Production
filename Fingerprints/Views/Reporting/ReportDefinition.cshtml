@@ -1,0 +1,932 @@
+﻿@using FingerprintsModel
+@using Fingerprints.LocalResource;
+@{
+    ViewBag.Title = "ReportDefinition";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Title
+{
+   @Resources.Report_Definition
+}
+
+
+@section style{
+
+    <style type="text/css">
+        .page-wrapper-change {
+            background-image: url(../../Images/body-bg.jpg);
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+
+        #main-div label,
+        #maincontent-div p {
+            color: #1d5381;
+        }
+
+        .glossy-search-block {
+            margin-bottom: 10px;
+        }
+
+        .search-block-main {
+            display: block;
+            float: right;
+        }
+
+        #filtercontent-div label, #maincontent-div p {
+            color: #1d5381;
+        }
+
+        .glossy-table-body tr td p {
+            width: 100%;
+        }
+
+        .score-clm {
+            width: 10px !important;
+        }
+
+        .center-clm, .center-clm p, .cmt-clm,
+        .cmt-clm p {
+            width: 180px !important;
+        }
+
+        .clas-clm, .dor-clm, .ebn-clm {
+            width: 40px !important;
+        }
+
+        .cmt-clm {
+        }
+
+
+        .file-clm, .file-clm p {
+            width: 150px !important;
+        }
+
+        img.file-icon {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .anchor_yellow {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #9b59b6;
+            border-color: #9b59b6 #9b59b6 #9b59b6;
+        }
+
+        .glossy_btn button, .backto_listspan .anchor_yellow {
+            width: auto;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+            .backto_listspan .anchor_yellow:hover {
+                text-shadow: 0 1px #0d4d09;
+                background-color: #21945a;
+                border-color: #2bc577 #2bc577 #2bc577;
+                color: #fff;
+                text-shadow: 0 1px #154c86;
+                text-decoration: none;
+            }
+
+        .anchor_yellow:hover {
+            text-shadow: 0 1px #0d4d09;
+            background-color: #21945a;
+            border-color: #2bc577 #2bc577 #2bc577;
+            color: #fff;
+            text-shadow: 0 1px #154c86;
+            text-decoration: none;
+        }
+
+        .glossy_btn button:hover .glossy-button-after, .backto_listspan .anchor_yellow:hover .glossy-button-after, .screening_footer .glossy-button-button:hover .glossy-button-after, .btnwrp_subcal .glossy-button-button:hover .glossy-button-after {
+            width: 120%;
+            background-color: rgba(255,255,255,0);
+            -webkit-transition: all 0.3s ease-out;
+            -moz-transition: all 0.3s ease-out;
+            -ms-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        .common-modal-style .modal-dialog {
+            background: #34495e none repeat scroll 0 0;
+            border: 6px solid #ffffff;
+        }
+
+        #FileViewModal .modal-content {
+            background: none;
+        }
+
+        #FileViewModal h4, #ModalFutureWaitingList h4 {
+            color: #fff;
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        #FileViewModal .control-group {
+            padding: 0 15px;
+            padding-top: 10px;
+        }
+
+        #FileViewModal .add-useragform {
+            background: #f1f5f8 none repeat scroll 0 0;
+            border: 3px solid #ffffff;
+            float: left;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .pending-text .close {
+            opacity: 1 !important;
+            position: absolute;
+            right: -44px;
+            top: -32px;
+        }
+
+        @@media only screen and (max-width: 768px)
+        {
+            body .glossy-table tr td
+            {
+                width: 100%!important;
+                    min-height: 50px;
+            }
+        }
+    </style>
+
+
+}
+
+
+
+@section MainContentHolder{
+
+
+
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+            <div class="page-wrapper-change">
+                <div class="container-fluid">
+                    <div class="row">
+
+                        <!-----Right Side Container Section------->
+                        <div class="glossy-right-side-container col-xs-12">
+
+
+
+                            <div class="row" style="padding-top:25px;">
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <span><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;@Resources.Report_Definition</span>
+                                        @*<button type="button" class="btn btn-success pull-right">Submit</button>*@
+
+
+
+
+                                        <a href="@Url.Action("Roster","Roster")" class="glossy-button-button anchor_yellow" style="text-decoration:none;float:right;">
+                                           @Resources.Back_to_Roster
+                                            <span class="glossy-button-before"></span>
+                                            <span class="glossy-button-after"></span>
+
+                                        </a>
+
+
+                                    </h2>
+                                </div>
+                            </div>
+
+
+
+
+                            <div id="filtercontent-div" style="display:block">
+
+                                <div class="row content-bg-main" style="margin:0px;">
+                                    <div class="col-md-12" style="color:#fff;margin-bottom:15px;padding:0px;">
+
+                                        <div class="col-md-4">
+                                            <label>@Resources.ReportName</label>
+                                            @Html.DropDownList("Reports", Fingerprints.Utilities.Helper.GetReports(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control glossy-input" })
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>@Resources.ReportType</label>
+                                            <select id="Season" name="Season" style="" class="form-control glossy-input">
+                                                <option value="">-Select Type-</option>
+                                                <option value="1">Fall</option>
+                                                <option value="2">Spring</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+
+                                            <button id="filter-review" class="glossy-button-button button-green" type="button" style="margin-top:22px;" onclick="ClasReview.filterReview(this)">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                              @Resources.Filter
+                                            </button>
+
+                                            <button id="filter-review" class="glossy-button-button button-blue" type="button" style="margin-top:22px;" onclick="ClasReview.clearFilter()">
+                                                <span class="glossy-button-after"></span>
+                                                <span class="glossy-button-before"></span>
+                                                @Resources.Clear
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="col-xs-12 glossy-panel-div" id="div-table-responsive">
+
+                             
+
+                                <div class="search-block-main">
+                                    <div class="glossy-search-block">
+
+                                        <input type="text" placeholder="@Resources.Search..." id="searchText" class="form-control" autocomplete="off">
+
+                                        <div class="glossy-search-btn-div">
+                                            <button id="btnSearchauto" onclick="ClasReview.searchReview(this)">@Resources.Search</button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+
+
+
+                                <table class="col-md-12 glossy-table table-striped table-condensed cf table-change ersea-table" id="CLAS-table">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th class="center-clm" data-sort="true" data-name="CenterName" data-title="Center Name">
+                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                               @Resources.ReportName
+                                            </th>
+
+                                            <th class="clas-clm">
+
+                                                <i class="fa fa-sort-alpha-asc i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-sort-alpha-desc i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                               @Resources.ReportType
+                                            </th>
+
+
+
+                                            <th class="center-clm">
+
+                                                <i class="fa fa-long-arrow-down i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-calendar i-asc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-long-arrow-down i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                <i class="fa fa-calendar i-desc" aria-hidden="true" style="color: #f9c751;display:none;"></i>
+                                                Definition
+                                            </th>
+
+                                           
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head glossy-table-body bind_body scroll-tbody">
+
+
+                                        @*
+                                            <tr style="width:98.3%">
+                                                <td colspan="9" style="padding: 25px;text-align:center;font-weight:bold;"> Search by Filter<sup style="color:red">*</sup> </td>
+
+
+
+
+                                            </tr>*@
+
+
+
+                                    </tbody>
+
+
+
+                                </table>
+
+
+                                <div id="pagination-div" class="col-md-12" style="margin-top:20px;">
+
+                                </div>
+
+                             
+
+
+
+                            </div>
+
+
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="modal fade scroll-modal common-modal-style" id="FileViewModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog income-popup width-auto">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4> File Viewer</h4>
+
+                    <div class="pending-text">
+                        <button type="button" class="close" data-dismiss="modal" style="right: -18px;top: -14px;"><img src="/Content/CaseNote/images/close.png"></button>
+                    </div>
+                </div>
+                <div class="control-group" style="max-height:800px;">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+
+
+
+
+
+                                <div class="col-sm-12">
+
+                                    <iframe width="100%" height="500px"></iframe>
+
+                                </div>
+
+
+
+
+                                </div></div></div>
+                    </div></div>></div></div>
+
+
+
+
+}
+
+
+@section Script{
+
+    <script type="text/template" id="CLAS-tableBody-temp">
+
+        <tr>
+            <td data-title="Center Name" class="center-clm" data-toggle="tooltip" data-container="body" title="{CenterName}"><p>{CenterName}</p></td>
+            <td data-title="Class Room Name" class="clas-clm" title="{ClassRoomName}"><p>{ClassRoomName}</p></td>
+            <td data-title="Date of review" class="dor-clm" title="{DateofReview}"><p>{DateofReview}</p></td>
+            <td data-title="Comment Note" class="cmt-clm" data-toggle="tooltip" data-container="body" title="{CommentNote}"><p>{CommentNote}</p></td>
+            <td data-title="Score" class="score-clm"><p>{Score}</p></td>
+            <td data-title="Enter by" class="ebn-clm" title="{EnterByName}"><p>{EnterByName}</p></td>
+            <td data-title="Files" class="file-clm"><p>{Files}</p></td>
+            @*<td class=""></td>*@
+        </tr>
+
+    </script>
+
+
+    <script type="text/javascript">
+
+
+
+        var Urls = {
+
+            getCLASReviews: '@Url.Action("getCLASReviews", "Reporting")',
+            viewAttachment : '@Url.Action("ViewCLASAttachment", "Reporting")'
+        };
+
+
+        var ClasReview = {
+            Centerid: 0,
+            SeasonId: 0,
+            gparams: {
+                Search: "",
+                SortOrder: "asc",
+                SortColumn: "CenterName",
+                RequestedPage: 1,
+                PageSize: 10
+            },
+            init: function () {
+                var self = this;
+                self.initEvents();
+                self.renderCLASTable(self.gparams.PageSize, self.gparams.RequestedPage);
+            },
+            initEvents: function () {
+                var self = this;
+
+
+                $(document).on("click", ".viewfile", function (e) {
+                    e.preventDefault();
+
+                    var filedata = $(this).data();
+                    console.log(filedata);
+
+                    $("#ondownloadfile").remove();
+                    $("#FileViewModal iframe").show();
+
+                    $.ajax({
+                        method: "POST",
+                        url: Urls.viewAttachment,
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({ attachmentId: filedata.attachid }),
+                        beforeSend: function () { $("#spinner").show(); },
+                        success: function (data) {
+                            var _srctype = 'data:image/jpeg;base64,';
+                            if (filedata.filetype == ".pdf") {
+                                _srctype = 'data:application/pdf;base64,';
+                            }
+                            //} else if (filedata.filetype == ".doc" || filedata.filetype == ".docx") {
+                            //    _srctype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,';
+                            //}
+                            if ([".jpg", ".png", ".jpeg", ".pdf"].indexOf(filedata.filetype) != -1) {
+
+                                $("#FileViewModal iframe").attr('src', _srctype + data.Text);
+
+                            } else {
+                                var url = 'data:application/octet-stream;base64,' + data.Text;
+                         var _html = '<a style="cursor:pointer;display:inline-block;margin-bottom:20px;" href="' + url + '" id="ondownloadfile" download="reviewfile' + filedata.filetype + '" >Click Here to download</a>'
+                                    //img.src.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
+                                // window.open(url);
+                       //  $('#filtercontent-div').append(_html);
+                       //  $("#ondownloadfile").trigger("click");
+
+                                //  var _dwnloadTemp = '<a href=""></a>'
+
+                         $("#FileViewModal .qualifierdiv").append(_html);
+                         $("#FileViewModal iframe").hide();
+                            }
+
+
+                            $("#FileViewModal").modal('show');
+                        },
+                        error: function (res) { },
+                        complete: function (res) {
+                            $("#spinner").hide();
+                        }
+                    });
+
+                });
+                //   $("#CLAS-table").Applinksort(self.renderCLASTable,self.gparams);
+
+
+
+
+                $(document).on("click", '[data-sort="true"]', function (e) {
+                    e.preventDefault();
+                    var _clmnName = $(this).data("name");
+                    //   var _modalType = $(this).parents('div.modal').attr('id');
+
+
+
+                    // console.log(_clmnName);
+                    if (sort.column == _clmnName) {
+                        if (sort.dir == "asc") {
+                            sort.dir = "desc";
+                        } else {
+                            sort.dir = "asc";
+                        }
+                    } else {
+                        sort.column = _clmnName; sort.dir = "asc";
+                    }
+
+                    console.log(sort);
+
+                    // $('[data-sort="true"] span').removeClass('fa-sort-amount-asc fa-sort-amount-desc');
+                    //$('[data-name="' + sort.column + '"] span').addClass('fa-sort-amount-' + sort.dir);
+                    $('[data-sort="true"] i').css("display", "none");
+                    if (sort.dir == 'asc') {
+                        $('[data-name="' + sort.column + '"] i.i-asc').css("display", "inline-block");
+                    } else {
+                        $('[data-name="' + sort.column + '"] i.i-desc').css("display", "inline-block");
+                    }
+                    //.addClass('fa-sort-amount-' + sort.dir);
+                    //refreshTagReport(1, $("#page-length-drop").val());
+                    var _curentPg = 1;
+
+                    _curentPg = $("#ddlpaging").val();
+                    ClientPendinListwithPagination(globeParam.type, _curentPg, globeParam.search, globeParam.Centerid);
+
+
+
+                });
+
+
+            },
+            searchReview: function (ele) {
+                self = this;
+                debugger;
+                self.gparams.Search = $("#searchText").val();
+                self.renderCLASTable(self.gparams.PageSize, self.gparams.RequestedPage);
+
+            },
+            filterReview: function (ele) {
+                self = this;
+
+                var _centerId = $("#Centers").val();
+                var _mnth = $("#Season").val();
+
+                if ((_centerId && _centerId != "0") || _mnth) {
+
+                    self.Centerid = _centerId; self.SeasonId = _mnth;
+                    self.renderCLASTable(self.gparams.PageSize, self.gparams.RequestedPage);
+
+                } else {
+                    customAlert("select any one field center or season");
+                    return false;
+                }
+            },
+            clearFilter: function () {
+                var self = this;
+                $("#Centers").val('0');
+                $("#Season").val('');
+                self.Centerid = 0;
+                self.SeasonId = 0;
+                self.renderCLASTable(10, 1);
+
+            },
+            getfileListTemp: function (review) {
+                var _fstr = "";
+
+                if (review.CLASReviewAttachment && review.CLASReviewAttachment.length) {
+                    _fstr = '<span>';
+                    review.CLASReviewAttachment.forEach(function (obj, i) {
+
+
+                        //if (obj.AttachmentFileExtension == ".jpg") {
+
+                        if ([".jpg", ".png", ".jpeg"].indexOf(obj.AttachmentFileExtension) != -1) {
+
+                            // _fstr += '<span><a href="@Url.Action("ViewCLASAttachment","Reporting")?attachmentId=' + obj.AttachmentID + '"><img data-toggle="tooltip" title="' + obj.AttachmentFileName + '" class="file-icon" src="/Images/picture.png"  /></a></span>'
+                            _fstr += '<span><a class="viewfile" data-filetype="' + obj.AttachmentFileExtension + '" href="#" data-attachid="' + obj.AttachmentID + '"><img data-toggle="tooltip" title="' + obj.AttachmentFileName + '" class="file-icon" src="/Images/picture.png"  /></a></span>'
+                        } else if (obj.AttachmentFileExtension == ".pdf") {
+                            _fstr += '<span><a class="viewfile" data-filetype="' + obj.AttachmentFileExtension + '" href="#" data-attachid="' + obj.AttachmentID + '"><img data-toggle="tooltip" title="' + obj.AttachmentFileName + '" class="file-icon" src="/Images/pdf.png"  ></a></span>'
+                        } else if ([".doc", ".docx"].indexOf(obj.AttachmentFileExtension) != -1) {
+                            _fstr += '<span><a class="viewfile" data-filetype="' + obj.AttachmentFileExtension + '" href="#" data-attachid="' + obj.AttachmentID + '"><img data-toggle="tooltip" title="' + obj.AttachmentFileName + '" class="file-icon" src="/Images/doc.png"  ></a></span>'
+                        } else {
+
+                            _fstr += '<span><a style="display:block;cursor:pointer;">' + obj.AttachmentFileName + '</a></span>';
+
+                        }
+                    });
+
+                    _fstr += '</span>';
+
+
+                }
+                return _fstr;
+            },
+            renderCLASTable: function (PageSize, PageNo) {
+                // var self = this;
+                var self = ClasReview;
+
+                self.gparams.PageSize = PageSize, self.gparams.RequestedPage = PageNo;
+                // self.gparams.PageSize = PageSize, self.gparams.RequestedPage = PageNo;
+
+                $("#CLAS-table tbody").html('');
+
+                $.ajax({
+                    type: 'POST',
+                    url: Urls.getCLASReviews,
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify({ centerid: self.Centerid, seasonid: self.SeasonId, gparam: self.gparams }),
+                    beforeSend: function () { $("#spinner").show(); },
+                    success: function (data) {
+
+                        if (data && data.Data && data.Data.length) {
+                            console.log(data);
+                            self.bindReviewTable(data.Data);
+
+                            // $("#pagination-div").ApplinkPG(data.TotalRecord, self.gparams.PageSize,
+                            //    self.gparams.RequestedPage,self.gparams,self.renderCLASTable); //
+
+                            //$("#pagination-div").html();
+                            $("#pagination-div").ApplinkPG(data.TotalCount, self.gparams, self.renderCLASTable);
+
+
+                        } else {
+
+                            $("#CLAS-table tbody").append('<tr> <td colspan="7"><p style="text-align:center;">No Records Found</p></td></tr>');
+                        }
+
+                    },
+                    error: function () {
+
+                    },
+                    complete: function (res) {
+                        $("#spinner").hide();
+                    }
+                });
+
+
+            },
+            bindReviewTable: function (data) {
+                var self = this;
+                data.forEach(function (obj, i) {
+                    var _str = $("#CLAS-tableBody-temp").html();
+
+
+
+                    _str = _str.replace(/{CenterName}/gi, obj.CenterName)
+                          .replace(/{ClassRoomName}/gi, obj.ClassRoomName)
+                        .replace(/{DateofReview}/gi, moment(obj.DateofReview, 'MM DD YYYY').format('MMMM DD, YYYY') + ' ' + (obj.TimeofReview!=null && obj.TimeofReview!=''?obj.TimeofReview:""))
+                         .replace(/{Score}/gi, obj.Score)
+                     .replace(/{CommentNote}/gi, obj.CommentNote)
+                    .replace(/{EnterByName}/gi, obj.EnterByName)
+                    .replace(/{Files}/gi, self.getfileListTemp(obj))
+                    // _str = _str.replace('{ClassRoomName}', obj.ClassRoomName);
+                    // console.log(_str);
+                    $("#CLAS-table tbody").append(_str);
+                })
+
+
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        };
+
+
+        $(document).ready(function () {
+            ClasReview.init();
+        });
+
+    </script>
+
+
+
+    <script type="text/javascript">
+        (function ($) {
+
+            $.fn.Applinksort = function (callback, obj) {
+
+                console.log(callback, obj);
+                var _table = $(this);
+                $(document).on("[data-sort='true']", 'click', function (e) {
+                    //var _sort
+                    //callback();
+                    console.log(callback, obj);
+                });
+
+                return this;
+
+            };
+
+        }(jQuery));
+
+
+
+    </script>
+
+
+    @*
+            <script type="text/javascript">
+
+                (function ($) {
+
+                    $.fn.ApplinkPG = function (TotalRecord,params,callback) {
+                        console.log(TotalRecord, params, callback);
+
+                        var _target = $(this);
+                        var _pageSizeDrop = _target.find(".pagesize-dropdown-ApplinkPG");
+                        var _pagenoDrop = _target.find(".pageno-dropdown-ApplinkPG");
+                        //_target.append('<span>tttt</span>');
+                        // _target.html('');
+                        if (!_target.html().trim()) {
+                            //    _target.append($("#pagination-temp").html());
+                            _target.append(_pgTemplate);
+
+                          //  _target.css("color", "green");
+
+
+                            _pageSizeDrop = _target.find(".pagesize-dropdown-ApplinkPG");
+                            _pagenoDrop = _target.find(".pageno-dropdown-ApplinkPG");
+
+                            $(document).on("change", ".pagesize-dropdown-ApplinkPG", function (e) {
+                                //e.preventDefa
+                                // console.log(this, callback,TotalRecord);
+
+                                var _pageSize = $(this).val();
+                                callback(_pageSize, 1);
+                            });
+
+                            $(document).on("change", ".pageno-dropdown-ApplinkPG", function (e) {
+
+                                var _pageno = $(this).val();
+                                callback(params.PageSize, _pageno);
+                            });
+
+                            $(document).on("click", "#First,#Back,#Next,#Last", function (e) {
+                                e.preventDefault();
+
+                                var _type = $(this).prop('id');
+                               // var _curentPg = parseInt($("#ddlpaging").val());
+                                //var _lastpg = parseInt($("#ddlpaging option:last").val());
+                                var _curentPg = parseInt(_pagenoDrop.val());
+                                var _lastpg = parseInt( _pagenoDrop.find("option:last").val());
+
+
+
+                                switch (_type) {
+                                    case "First":
+                                        _curentPg = 1;
+                                        break;
+                                    case "Back":
+                                        _curentPg--;
+                                        break;
+                                    case "Next":
+                                        _curentPg++;
+                                        break;
+                                    case "Last":
+                                        _curentPg = _lastpg;
+                                        break;
+
+                                };
+                               // $("#ddlpaging").val(_curentPg);
+
+                                // self.refreshTagReport(_curentPg, $("#page-length-drop").val());
+                                _pagenoDrop.val(_curentPg);
+                                callback( _pageSizeDrop.val(),_curentPg);
+
+                                //if (_curentPg == 1 && _type == "Back") {
+                                //    $("#Back").prop("disabled", true);
+                                //};
+
+                                if (_curentPg == 1) {
+                                    $("#Back").prop("disabled", true);
+                                } else {
+                                    $("#Back").prop("disabled", false);
+                                }
+
+                                if (_lastpg == _curentPg) {
+                                    $("#Next").prop("disabled", true);
+                                } else {
+                                    $("#Next").prop("disabled", false);
+                                }
+
+
+                            });
+
+                            _pageSizeDrop.val(params.PageSize);
+
+                        } else {
+                          //  _target.css("color", "red");
+                        }
+
+
+                          var _psize = parseInt(_pageSizeDrop.val());
+
+                        var _pcount = Math.ceil(TotalRecord / _psize); //ceil- Round a number upward to its nearest integer:
+                        _pagenoDrop.html('');
+                        for (var i = 1; i <= _pcount; i++) {
+
+                            _pagenoDrop.append('<option value="' + i + '">' + i + '</option>')
+                        }
+                        _pagenoDrop.val(params.RequestedPage);
+
+
+                        return this;
+                    };
+
+                }(jQuery));
+
+
+
+                var _pgTemplate =     `<div class="col-xs-12">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                    <div class="pages_display">
+                        <ul>
+                            <li style="">Display</li>
+                            <li>
+                                <select class="pagesize-dropdown-ApplinkPG">
+                                    <option value="10" selected="selected">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </li>
+                            <li style="">Records Per Page</li>
+                        </ul>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div id="divPaging" class="pagination_wrp">
+                        <ul id="ulPaging" class="pagination">
+                            <li>
+                                <a href="javascript:void(0);" id="First" disabled>
+                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+
+                            </li>
+                            <li title="Back">
+                                <a href="javascript:void(0);" id="Back" disabled>
+                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+
+                            </li>
+                            <li title="Select">
+                                <select class="select_cl pageno-dropdown-ApplinkPG" ></select>
+                            </li>
+                            <li title="Next">
+                                <a href="javascript:void(0);" id="Next" disabled>
+                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+                            </li>
+                            <li title="Last">
+                                <a href="javascript:void(0);" id="Last" disabled>
+                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>`
+
+
+            </script>
+
+
+
+        <script type="text/template" id="pagination-temp">
+
+            <!---Pagination Section-->
+            <div class="col-xs-12">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                    <div class="pages_display">
+                        <ul>
+                            <li style="">Display</li>
+                            <li>
+                                <select class="pagesize-dropdown-ApplinkPG">
+                                    <option value="10" selected="selected">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </li>
+                            <li style="">Records Per Page</li>
+                        </ul>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div id="divPaging" class="pagination_wrp">
+                        <ul id="ulPaging" class="pagination">
+                            <li>
+                                <a href="javascript:void(0);" id="First" disabled>
+                                    <i class="fa fa-angle-double-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+
+                            </li>
+                            <li title="Back">
+                                <a href="javascript:void(0);" id="Back" disabled>
+                                    <i class="fa fa-angle-left" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+
+                            </li>
+                            <li title="Select">
+                                <select class="select_cl pageno-dropdown-ApplinkPG" ></select>
+                            </li>
+                            <li title="Next">
+                                <a href="javascript:void(0);" id="Next" disabled>
+                                    <i class="fa fa-angle-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+                            </li>
+                            <li title="Last">
+                                <a href="javascript:void(0);" id="Last" disabled>
+                                    <i class="fa fa-angle-double-right" aria-hidden="true" style="margin:auto;padding:-7px;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+        </script>
+
+
+    *@
+
+
+
+}

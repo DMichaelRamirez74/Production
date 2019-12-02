@@ -2087,7 +2087,203 @@ new DataColumn("Status",typeof(bool))
 
         #endregion
 
+        #region ReportDefinition
 
+        public void GetReportDefinition(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false, bool allCenters = false)
+        {
+            dtCenters = new DataTable();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "GetReportDefinition";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(dtCenters);
+                    Connection.Close();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                {
+                    Connection.Close();
+                }
+
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+        }
+
+
+        public List<ReportDefinition> getReportDefinitions(GridParams gridParams, int mode, long centerid, long seasonid, ref long TotalCount)
+        {
+
+            var listResult = new List<ReportDefinition>();
+
+
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "[GetReportDefinition]";
+                
+
+
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0] != null)
+                    {
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
+
+                            listResult = Fingerprints.Common.DbHelper.DataTableToList<ReportDefinition>(_dataset.Tables[0], new List<string>());
+
+                        }
+                    }
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+
+
+                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        {
+                            var _attach = new Attachments()
+                            {
+                                MainTableId = Convert.ToInt64(dr["ReviewId"]),
+                                AttachmentFileName = dr["AttachmentName"].ToString(),
+                                AttachmentID = Convert.ToInt64(dr["AttachmentID"]),
+                                AttachmentFileExtension = dr["AttachmentExtension"].ToString()
+
+                            };
+
+                            var j = 0;
+                            foreach (var item in listResult)
+                            {
+                                if (item.ReviewId == _attach.MainTableId)
+                                {
+                                    if (listResult[j].CLASReviewAttachment == null)
+                                    {
+                                        listResult[j].CLASReviewAttachment = new List<Attachments>();
+                                    }
+
+                                    listResult[j].CLASReviewAttachment.Add(_attach);
+                                }
+                                j++;
+                            }
+
+                        }
+
+
+
+                    }
+
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        TotalCount = DBNull.Value == _dataset.Tables[2].Rows[0]["TotalCount"] ? 0 : Convert.ToInt64(_dataset.Tables[2].Rows[0]["TotalCount"]);
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return listResult;
+        }
+
+
+        public SelectListItem GetReportDefinitionAttachmentById(long AttachmentId)
+        {
+            var imageData = new SelectListItem();
+
+            GridParams gridParams = new GridParams();
+            int mode = 2; long centerid = 0; long seasonid = 0;
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_CLASReviewDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Mode", mode));
+
+                command.Parameters.Add(new SqlParameter("@PageNo", gridParams.RequestedPage));
+                command.Parameters.Add(new SqlParameter("@PageSize", gridParams.PageSize));
+                command.Parameters.Add(new SqlParameter("@Search", gridParams.Search == null ? "" : gridParams.Search));
+                command.Parameters.Add(new SqlParameter("@Sortclmn", gridParams.SortColumn));
+                command.Parameters.Add(new SqlParameter("@Sortdir", gridParams.SortOrder));
+
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
+                command.Parameters.Add(new SqlParameter("@Season", seasonid));
+                command.Parameters.Add(new SqlParameter("@AttachmentId", AttachmentId));
+
+
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            imageData.Text = string.IsNullOrEmpty(dr["Attachment"].ToString()) ? "" : Convert.ToBase64String((byte[])dr["Attachment"]);
+                            imageData.Value = dr["AttachmentName"].ToString();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+
+
+
+            return imageData;
+
+        }
+
+        #endregion ReportDefinition
     }
 
 

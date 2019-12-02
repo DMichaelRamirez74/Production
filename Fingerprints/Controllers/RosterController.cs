@@ -1931,8 +1931,8 @@ namespace Fingerprints.Controllers
             string message = "";
             try
             {
-                info.Category = collection["DdlCateList"]?.ToString();
-                info.Domain = collection["DdlDomList"]?.ToString();
+                info.Category = collection["DdlCateList"] != null ? collection["DdlCateList"].ToString() : null;
+                info.Domain = collection["DdlDomList"] != null ? collection["DdlDomList"].ToString() : null;
 
                 message = rosterData.UpdateFPAParent(obj);//, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
 
@@ -1941,7 +1941,7 @@ namespace Fingerprints.Controllers
 
                 if (message.Contains("1_"))
                 {
-                    ViewBag.result = "Sucess";
+                    ViewBag.result = "Success";
                     TempData["message"] = "Record added successfully.";
                     string[] arr = message.Split('_');
                     string ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(info.ClientId));

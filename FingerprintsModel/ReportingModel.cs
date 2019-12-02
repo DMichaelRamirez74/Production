@@ -57,6 +57,25 @@ namespace FingerprintsModel
 
     }
 
+    #region ReportDefinition
+    public class ReportDefinition
+    {
+
+        public long ReviewId { get; set; }
+        public long Center { get; set; }
+        public string CenterName { get; set; }
+        public long ClassRoom { get; set; }
+        public string ClassRoomName { get; set; }
+        public string CommentNote { get; set; }
+        public string DateofReview { get; set; }
+        public string TimeofReview { get; set; }
+        public decimal Score { get; set; }
+        public string EnterByName { get; set; }
+
+        public List<Attachments> CLASReviewAttachment { get; set; }
+    }
+
+    #endregion ReportDefinition
 
     #region CLASReport
     public class CLASReview

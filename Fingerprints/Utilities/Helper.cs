@@ -776,5 +776,31 @@ namespace Fingerprints.Utilities
             return output.ToArray();
         }
 
+
+        public static List<SelectListItem> GetReports(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false, bool isCenterBasedOnly = false, bool isHomebasedonly = false, bool isEndOfYear = false, bool allCenters = false)
+        {
+            List<SelectListItem> lstReports = new List<SelectListItem>();
+            try
+            {
+                DataTable dtCenters = new DataTable();
+                lstReports.Add(new SelectListItem { Text = "-Select Report-", Value = "0" });
+                new Reporting().GetReportDefinition(ref dtCenters, UserId, AgencyId, RoleId, isReqAdminSite, isCenterBasedOnly, isHomebasedonly, isEndOfYear, allCenters);
+                if (dtCenters != null)
+                {
+                    if (dtCenters.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in dtCenters.Rows)
+                        {
+                            lstReports.Add(new SelectListItem { Text = dr["ReportName"].ToString(), Value = dr["ReportID"].ToString() });
+                        }
+                    }
+                }
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+            }
+            return lstReports;
+        }
     }
 }

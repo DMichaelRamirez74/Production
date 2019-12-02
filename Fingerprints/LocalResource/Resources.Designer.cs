@@ -671,7 +671,17 @@ namespace Fingerprints.LocalResource {
                 return ResourceManager.GetString("CLAS_Report", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Report Definition.
+        /// </summary>
+        public static string Report_Definition
+        {
+            get
+            {
+                return ResourceManager.GetString("Report_Definition", resourceCulture);
+            }
+        }   
         /// <summary>
         ///   Looks up a localized string similar to Class Date.
         /// </summary>
@@ -2579,7 +2589,27 @@ namespace Fingerprints.LocalResource {
                 return ResourceManager.GetString("Season", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Season.
+        /// </summary>
+        public static string ReportName
+        {
+            get
+            {
+                return ResourceManager.GetString("ReportName", resourceCulture);
+            }
+        }
+        /// <summary>
+        ///   Looks up a localized string similar to Season.
+        /// </summary>
+        public static string ReportType
+        {
+            get
+            {
+                return ResourceManager.GetString("ReportType", resourceCulture);
+            }
+        }
         /// <summary>
         ///   Looks up a localized string similar to Secure Note Level.
         /// </summary>

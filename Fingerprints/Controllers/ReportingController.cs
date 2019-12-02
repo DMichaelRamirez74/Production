@@ -917,5 +917,52 @@ namespace Fingerprints.Controllers
 
         #endregion
 
+
+
+        #region ReportDefinition
+
+        [CustAuthFilter()]
+        public ActionResult ReportDefinition()
+        {
+
+            return View();
+        }
+
+        [CustAuthFilter()]
+        public ActionResult AddReportDefinition()
+        {
+
+            return View();
+        }
+
+       
+
+        [CustAuthFilter()]
+        public ActionResult getReportDefinitions(GridParams gparam, long reportID = 0, long typeID = 0)
+        {
+            //  var sm = Request.QueryString["centerid"].ToString();
+            long TotalCount = 0;
+            var Data = new Reporting().getReportDefinitions(gparam, 1, reportID, typeID, ref TotalCount);
+
+            // return Json( result, JsonRequestBehavior.AllowGet);
+            return Json(new { Data, TotalCount }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [CustAuthFilter()]
+        public ActionResult ViewReportDefinitionAttachment(long attachmentId)
+        {
+
+            var result = new Reporting().GetReportDefinitionAttachmentById(attachmentId);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
+        #endregion ReportDefinition
+
+
     }
 }
