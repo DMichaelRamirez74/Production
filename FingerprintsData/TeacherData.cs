@@ -2547,30 +2547,45 @@ namespace FingerprintsData
                                         });
                                         break;
                                     case 1:
-                                        teacherList.Add(new OfflineAttendance
-                                        {
-                                            ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                                            CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
-                                            ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
-                                            AttendanceType = dr["AttendanceType"].ToString(),
-                                            AttendanceDate = dr["AttendanceDate"].ToString(),
-                                            TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
-                                            TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
-                                            BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                            Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
-                                            Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
-                                            AdultBreakFast = dr["AdultBreakFast"].ToString(),
-                                            AdultLunch = dr["AdultLunch"].ToString(),
-                                            AdultSnacks = dr["AdultSnacks"].ToString(),
-                                            PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
-                                            PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
-                                            SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
-                                            SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
-                                            TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
-                                            TSignatureOut = "",
-                                            AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
-                                        });
 
+                                        if (teacherList.Where(x => x.ClientID == EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()) && x.AttendanceDate == dr["AttendanceDate"].ToString()).Any())
+                                        {
+                                            var index = teacherList.IndexOf(teacherList.Where(x => x.ClientID == EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()) && x.AttendanceDate == dr["AttendanceDate"].ToString()).FirstOrDefault());
+
+                                            //teacherList[index].TimeOut = GetFormattedTime(dr["TimeOut"].ToString());
+                                            teacherList[index].BreakFast = dr["MealType"].ToString() == "1" ? "1" : teacherList[index].BreakFast;
+                                            teacherList[index].Lunch = dr["MealType"].ToString() == "2" ? "1" : teacherList[index].Lunch;
+                                            teacherList[index].Snacks = dr["MealType"].ToString() == "3" ? "1" : teacherList[index].Snacks;
+                                            teacherList[index].AdultBreakFast = dr["AdultMealType"].ToString() == "1" ? dr["MealsServed"].ToString() : teacherList[index].AdultBreakFast;
+                                            teacherList[index].AdultLunch = dr["AdultMealType"].ToString() == "2" ? dr["MealsServed"].ToString() : teacherList[index].AdultLunch;
+                                            teacherList[index].AdultSnacks = dr["AdultMealType"].ToString() == "3" ? dr["MealsServed"].ToString() : teacherList[index].AdultSnacks;
+                                        }
+                                        else
+                                        {
+                                            teacherList.Add(new OfflineAttendance
+                                            {
+                                                ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                                                CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                                                ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
+                                                AttendanceType = dr["AttendanceType"].ToString(),
+                                                AttendanceDate = dr["AttendanceDate"].ToString(),
+                                                TimeIn = String.IsNullOrEmpty(dr["TimeIn"].ToString()) ? "" : GetFormattedTime(dr["TimeIn"].ToString()),
+                                                TimeOut = String.IsNullOrEmpty(dr["TimeOut"].ToString()) ? "" : GetFormattedTime(dr["TimeOut"].ToString()),
+                                                //BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                                                //Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
+                                                //Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
+                                                //AdultBreakFast = dr["AdultBreakFast"].ToString(),
+                                                //AdultLunch = dr["AdultLunch"].ToString(),
+                                                //AdultSnacks = dr["AdultSnacks"].ToString(),
+                                                PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                                                PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                                                SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                                                SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                                                TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                                                TSignatureOut = "",
+                                                AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
+                                            });
+                                        }
                                         break;
                                     case 2:
                                         _TeacherM.AbsenceReasonList.Add(new SelectListItem
