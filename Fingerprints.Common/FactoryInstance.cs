@@ -42,6 +42,7 @@ namespace Fingerprints.Common
         public T CreateInstance<T>(params object[] obj) where T:class
         {
             return (T)Activator.CreateInstance(typeof(T), obj);
+            
         }
 
        //public T CreateInstance<T>(string dbNamed) where

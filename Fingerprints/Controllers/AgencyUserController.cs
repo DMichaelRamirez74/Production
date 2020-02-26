@@ -1749,6 +1749,13 @@ namespace Fingerprints.Controllers
                         BinaryReader b = new BinaryReader(info.FiledobRAvatar.InputStream);
                         info.Dobaddressform = b.ReadBytes(info.FiledobRAvatar.ContentLength);
                     }
+                    if (info.FiledFosterAvatar != null)
+                    {
+                        info.FosterFileName = info.FiledFosterAvatar.FileName;
+                        info.FosterFileExtension = Path.GetExtension(info.FiledFosterAvatar.FileName);
+                        BinaryReader b = new BinaryReader(info.FiledFosterAvatar.InputStream);
+                        info.Fosterfileinbytes = b.ReadBytes(info.FiledFosterAvatar.ContentLength);
+                    }
                     if (info.FileImmunization != null)
                     {
                         info.ImmunizationFileName = info.FileImmunization.FileName;

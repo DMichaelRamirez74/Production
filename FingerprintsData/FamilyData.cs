@@ -1130,6 +1130,12 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Dobaddressform", obj.Dobaddressform));
                 command.Parameters.Add(new SqlParameter("@DobFileName", obj.DobFileName));
                 command.Parameters.Add(new SqlParameter("@DobFileExtension", obj.DobFileExtension));
+
+                command.Parameters.Add(new SqlParameter("@FosterAttachment", obj.Fosterfileinbytes));
+                command.Parameters.Add(new SqlParameter("@FosterFileName", obj.FosterFileName));
+                command.Parameters.Add(new SqlParameter("@FosterFileExtension", obj.FosterFileExtension));
+                command.Parameters.Add(new SqlParameter("@FosterPaper", obj.FosterVerificationPaper));
+
                 command.Parameters.Add(new SqlParameter("@Doctor", obj.Doctor));
                 command.Parameters.Add(new SqlParameter("@Dentist", obj.Dentist));
                 command.Parameters.Add(new SqlParameter("@Dobpaper", obj.DobverificationinPaper));
@@ -9913,6 +9919,9 @@ namespace FingerprintsData
                 command.CommandText = "SP_ChildSummary";
                 command.ExecuteNonQuery();
                 result = command.Parameters["@result"].Value.ToString();
+
+
+
             }
             catch (Exception ex)
             {
